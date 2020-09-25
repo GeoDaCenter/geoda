@@ -634,11 +634,11 @@ void LocalGearyCoordinator::CalcMultiLocalGeary()
                 cluster[i] = 3; // undefined value
                 continue;
             }
-            
+            bool is_binary = true;
             for (int v=0; v<num_vars; v++) {
                 int _t = local_t[v];
-                double wx = W[i].SpatialLag(data_vecs[v][_t]);
-                double wx2 = W[i].SpatialLag(data_square_vecs[v][_t]);
+                double wx = W[i].SpatialLag(data_vecs[v][_t], is_binary, i);
+                double wx2 = W[i].SpatialLag(data_square_vecs[v][_t], is_binary, i);
                
                 lags[i] += wx;
                 localGeary[i] += data_square_vecs[v][_t][i] - 2.0 * data_vecs[v][_t][i] * wx +  wx2;
@@ -648,7 +648,11 @@ void LocalGearyCoordinator::CalcMultiLocalGeary()
             localGeary[i] /= num_vars;
             
             // assign the cluster
-            if (W[i].Size() > 0) {
+            int nn = W[i].Size();
+            if (W[i].Check(i)) {
+                nn -= 1; // self-neighbor
+            }
+            if (nn > 0) {
                 cluster[i] = 0; // don't assign cluster in multi-var settings
             } else {
                 has_isolates[t] = true;
@@ -707,7 +711,6 @@ void LocalGearyCoordinator::CalcLocalGeary()
         Gal_vecs_orig[t] = weights;
 	
 		for (int i=0; i<num_obs; i++) {
-            
             if (undefs[i] == true) {
                 lags[i] = 0;
                 localGeary[i] = 0;
@@ -717,11 +720,11 @@ void LocalGearyCoordinator::CalcLocalGeary()
             
 			double Wdata = 0;
             double Wdata2 = 0;
-            
+            bool is_binary = true;
 			if (isBivariate) {
-				Wdata = W[i].SpatialLag(data2);
+				Wdata = W[i].SpatialLag(data2, is_binary, i);
 			} else {
-				Wdata = W[i].SpatialLag(data1);
+				Wdata = W[i].SpatialLag(data1, is_binary, i);
                 Wdata2 = W[i].SpatialLag(data1_square);
 			}
             
@@ -729,7 +732,11 @@ void LocalGearyCoordinator::CalcLocalGeary()
 			localGeary[i] = data1_square[i] - 2.0 * data1[i] * Wdata + Wdata2;
 				
 			// assign the cluster
-			if (W[i].Size() > 0) {
+            int nn = W[i].Size();
+            if (W[i].Check(i)) {
+                nn -= 1; // self-neighbor
+            }
+			if (nn > 0) {
 				if (data1[i] > 0 && Wdata > 0) cluster[i] = 1;
 				else if (data1[i] < 0 && Wdata > 0) cluster[i] = 3;
 				else if (data1[i] < 0 && Wdata < 0) cluster[i] = 2;
@@ -847,6 +854,10 @@ void LocalGearyCoordinator::CalcPseudoP_range(int obs_start, int obs_end, uint64
             w = Gal_vecs[t]->gal;
             if (w[cnt].Size() > numNeighbors) {
                 numNeighbors = w[cnt].Size();
+                if (w[cnt].Check(cnt)) {
+                    // exclude self from neighbors
+                    numNeighbors -= 1;
+                }
             }
         }
         
@@ -948,7 +959,7 @@ void LocalGearyCoordinator::CalcPseudoP_range(int obs_start, int obs_end, uint64
                             int perm_idx = permNeighbors[cp];
                             if (!undefs[perm_idx]) {
                                 validNeighbors ++;
-                                permutedLag += _data2[perm_idx];
+                                if (_data2) permutedLag += _data2[perm_idx];
                             }
                         }
                     } else {
@@ -957,14 +968,18 @@ void LocalGearyCoordinator::CalcPseudoP_range(int obs_start, int obs_end, uint64
                             int perm_idx = permNeighbors[cp];
                             if (!undefs[perm_idx]) {
                                 validNeighbors ++;
-                                wwx += _data1[perm_idx];
-                                wwx2 += _data1_square[perm_idx];
+                                if (_data1 && _data1_square) {
+                                    wwx += _data1[perm_idx];
+                                    wwx2 += _data1_square[perm_idx];
+                                }
                             }
                         }
                     }
                     //NOTE: we shouldn't have to row-standardize or multiply by data1[cnt]
                     if (validNeighbors && row_standardize) {
-                        gci[t][perm] = _data1_square[cnt] - 2.0*_data1[cnt]*wwx/validNeighbors + wwx2/validNeighbors;
+                        if (_data1_square && _data1) {
+                            gci[t][perm] = _data1_square[cnt] - 2.0*_data1[cnt]*wwx/validNeighbors + wwx2/validNeighbors;
+                        }
                     }
                 }
                 gci_sum[t] += gci[t][perm];

@@ -113,6 +113,25 @@ void GalElement::SetNbr(size_t pos, long n, double w)
     }
 }
 
+// for kernel weights (KWT), self-neighbor could be included in weights file
+// if using KWT in spatial autocorrelation computation (LISA etc.), the
+// self-neighbor should be removed;
+// Note: for smoothing function, self-neighbor should NOT be removed
+void GalElement::RemoveSelfNeighbor(int idx)
+{
+    // check if self-neighbor presents
+    if (Check(idx)) {
+        int pos = nbrLookup[idx];
+        nbr.erase(nbr.begin()+pos);
+        nbrWeight.erase(nbrWeight.begin()+pos);
+        // rebuild lookup dictionary
+        nbrLookup.clear();
+        for (int i=0; i<nbr.size(); ++i) {
+            nbrLookup[nbr[i]] = i;
+        }
+    }
+}
+
 // Update neighbor information on the fly using undefs information
 // NOTE: this has to be used with a copy of weights (keep the original weights!)
 void GalElement::Update(const std::vector<bool>& undefs)
@@ -146,21 +165,6 @@ void GalElement::Update(const std::vector<bool>& undefs)
     }
 }
 
-/*
-void GalElement::SetNbrs(const std::vector<long>& nbrs)
-{
-	nbr = nbrs;
-    if (nbrWeight.empty()) {
-        size_t sz = nbr.size();
-        nbrWeight.resize(sz);
-        for(size_t i=0; i<sz; i++) {
-            nbrLookup[nbrs[i]] = i;
-            nbrWeight[i] = 1.0;
-        }
-    }
-}
- */
-
 void GalElement::SetNbrs(const GalElement& gal)
 {
     size_t sz = gal.Size();
@@ -191,40 +195,123 @@ void GalElement::SortNbrs()
 
 /** Compute spatial lag for a contiguity weights matrix.
  Automatically performs standardization of the result. */
-double GalElement::SpatialLag(const std::vector<double>& x) const
+double GalElement::SpatialLag(const std::vector<double>& x, bool is_binary, int self_id) const
 {
 	double lag = 0;
 	size_t sz = Size();
-   
-    for (size_t i=0; i<sz; ++i) {
-        lag += x[nbr[i]];
+
+    if (is_binary) {
+        if (self_id < 0) {
+            for (size_t i=0; i<sz; ++i) {
+                lag += x[nbr[i]];
+            }
+            if (sz>1) lag /= (double) sz;
+        } else {
+            // for case of using kernel weights with diagonal
+            int n_nbrs = 0;
+            for (size_t i=0; i<nbr.size(); ++i) {
+                if (nbr[i] != self_id) {
+                    lag += x[nbr[i]];
+                    n_nbrs += 1;
+                }
+            }
+            if (n_nbrs > 0) lag /= (double) n_nbrs;
+        }
+    } else {
+        double sumW = 0;
+        for (size_t i=0; i<sz; ++i) {
+            sumW += nbrWeight[i];
+        }
+
+        if (sumW == 0)
+            lag = 0;
+        else {
+            for (size_t i=0; i<sz; ++i) {
+                lag += x[nbr[i]] * nbrWeight[i] / sumW;
+            }
+        }
     }
-    if (sz>1) lag /= (double) sz;
-	
 	return lag;
 }
 
 /** Compute spatial lag for a contiguity weights matrix.
  Automatically performs standardization of the result. */
-double GalElement::SpatialLag(const double *x) const
+double GalElement::SpatialLag(const double *x, bool is_binary, int self_id) const
 {
 	double lag = 0;
 	size_t sz = Size();
-    
-    for (size_t i=0; i<sz; ++i) lag += x[nbr[i]];
-    if (sz>1) lag /= (double) sz;
 
+    if (is_binary) {
+        if (self_id < 0) {
+            for (size_t i=0; i<sz; ++i) lag += x[nbr[i]];
+            if (sz>1) lag /= (double) sz;
+        } else {
+            // for case of using kernel weights with diagonal
+            int n_nbrs = 0;
+            for (size_t i=0; i<nbr.size(); ++i) {
+                if (nbr[i] != self_id) {
+                    lag += x[nbr[i]];
+                    n_nbrs += 1;
+                }
+            }
+            if (n_nbrs > 0) lag /= (double) n_nbrs;
+        }
+    } else {
+        double sumW = 0;
+        if (self_id < 0) {
+            for (size_t i=0; i<sz; ++i) {
+                sumW += nbrWeight[i];
+            }
+
+            if (sumW == 0)
+                lag = 0;
+            else {
+                for (size_t i=0; i<sz; ++i) {
+                    lag += x[nbr[i]] * nbrWeight[i] / sumW;
+                }
+            }
+        } else {
+            // for case of using kernel weights with diagonal
+            for (size_t i=0; i<sz; ++i) {
+                if (nbr[i] != self_id) { // exclude self-neighbor
+                    sumW += nbrWeight[i];
+                }
+            }
+
+            if (sumW == 0)
+                lag = 0;
+            else {
+                for (size_t i=0; i<sz; ++i) {
+                    if (nbr[i] != self_id) { // exclude self-neighbor
+                        lag += x[nbr[i]] * nbrWeight[i] / sumW;
+                    }
+                }
+            }
+        }
+    }
 	return lag;
 }
 
 double GalElement::SpatialLag(const std::vector<double>& x,
-							  const int* perm) const  
+							  const int* perm, int self_id) const
 {
     // todo: this should also handle ReadGWtAsGAL like previous 2 functions
 	double lag = 0;
-	size_t sz = Size();
-	for (size_t i=0; i<sz; ++i) lag += x[perm[nbr[i]]];
-	if (sz>1) lag /= (double) sz;
+    if (self_id < 0) {
+        size_t sz = Size();
+        for (size_t i=0; i<sz; ++i) lag += x[perm[nbr[i]]];
+        if (sz>1) lag /= (double) sz;
+    } else {
+        // for case of using kernel weights with diagonal
+        int n_nbrs = 0;
+        for (size_t i=0; i<nbr.size(); ++i) {
+            if (nbr[i] != self_id) {
+                lag += x[perm[nbr[i]]];
+                n_nbrs += 1;
+            }
+        }
+        if (n_nbrs > 0) lag /= (double) n_nbrs;
+    }
 	return lag;
 }
 

@@ -537,8 +537,8 @@ void ScatterPlotMatFrame::SetupPanelForNumVariables(int num_vars)
                 }
             }
             
-            double row_min;
-            double row_max;
+            double row_min = 0;
+            double row_max = 0;
             
             bool has_init = false;
             for (size_t i=0; i<Y.size(); i++ ) {
@@ -603,8 +603,8 @@ void ScatterPlotMatFrame::SetupPanelForNumVariables(int num_vars)
 				wxString col_title(var_man.GetNameWithTime(col));
                 
 				const vector<double>& X(data_map[col_nm][col_tm]);
-                double col_min;
-                double col_max;
+                double col_min = 0;
+                double col_max = 0;
                 bool has_init = false;
                 
                 for (size_t i=0; i<X.size(); i++ ) {

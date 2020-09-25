@@ -43,6 +43,7 @@
 #include "../Explore/MapNewView.h"
 #include "../Project.h"
 #include "../Algorithms/cluster.h"
+#include "../Algorithms/pam.h"
 #include "../GeneralWxUtils.h"
 #include "../GenUtils.h"
 #include "SaveToTableDlg.h"
@@ -68,7 +69,7 @@ KClusterDlg::~KClusterDlg()
 
 void KClusterDlg::CreateControls()
 {
-    wxScrolledWindow* scrl = new wxScrolledWindow(this, wxID_ANY, wxDefaultPosition, wxSize(880,820), wxHSCROLL|wxVSCROLL );
+    wxScrolledWindow* scrl = new wxScrolledWindow(this, wxID_ANY, wxDefaultPosition, wxSize(940,820), wxHSCROLL|wxVSCROLL );
     scrl->SetScrollRate( 5, 5 );
     
     wxPanel *panel = new wxPanel(scrl);
@@ -111,7 +112,7 @@ void KClusterDlg::CreateControls()
     gbox->Add(st10, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
     gbox->Add(m_pass, 1, wxEXPAND);
     
-    wxStaticText* st17 = new wxStaticText(panel, wxID_ANY, _("Use specified seed:"));
+    wxStaticText* st17 = new wxStaticText(panel, wxID_ANY, _("Use Specified Seed:"));
     wxBoxSizer *hbox17 = new wxBoxSizer(wxHORIZONTAL);
     chk_seed = new wxCheckBox(panel, wxID_ANY, "");
     seedButton = new wxButton(panel, wxID_OK, _("Change Seed"));
@@ -151,7 +152,6 @@ void KClusterDlg::CreateControls()
 
     wxStaticBoxSizer *hbox = new wxStaticBoxSizer(wxHORIZONTAL, panel, _("Parameters:"));
     hbox->Add(gbox, 1, wxEXPAND);
-    
     
     // Output
     wxStaticText* st3 = new wxStaticText (panel, wxID_ANY, _("Save Cluster in Field:"));
@@ -312,7 +312,7 @@ wxString KClusterDlg::_printConfiguration()
     wxString str_ncluster = combo_n->GetValue();
     long value_ncluster;
     if (str_ncluster.ToLong(&value_ncluster)) {
-        ncluster = value_ncluster;
+        ncluster = (int)value_ncluster;
     }
     
     wxString txt;
@@ -346,9 +346,9 @@ bool KClusterDlg::CheckAllInputs()
     wxString str_ncluster = combo_n->GetValue();
     long value_ncluster;
     if (str_ncluster.ToLong(&value_ncluster)) {
-        n_cluster = value_ncluster;
+        n_cluster = (int)value_ncluster;
     }
-    if (n_cluster < 2 || n_cluster > num_obs) {
+    if (n_cluster < 2 || n_cluster > rows) {
         wxString err_msg = _("Please enter a valid number of clusters.");
         wxMessageDialog dlg(NULL, err_msg, _("Error"), wxOK | wxICON_ERROR);
         dlg.ShowModal();
@@ -358,6 +358,13 @@ bool KClusterDlg::CheckAllInputs()
     transform = combo_tranform->GetSelection();
 
     if (GetInputData(transform,1) == false) return false;
+    // check if X-Centroids selected but not projected
+    if ((has_x_cent || has_y_cent) && check_spatial_ref) {
+        bool cont_process = project->CheckSpatialProjection(check_spatial_ref);
+        if (cont_process == false) {
+            return false;
+        }
+    }
 
     if (!CheckMinBound()) return false;
 
@@ -365,14 +372,14 @@ bool KClusterDlg::CheckAllInputs()
     wxString str_pass = m_pass->GetValue();
     long l_pass;
     if(str_pass.ToLong(&l_pass)) {
-        n_pass = l_pass;
+        n_pass = (int)l_pass;
     }
 
     n_maxiter = 300; // max iteration of EM
     wxString iterations = m_iterations->GetValue();
     long l_maxiter;
     if(iterations.ToLong(&l_maxiter)) {
-        n_maxiter = l_maxiter;
+        n_maxiter = (int)l_maxiter;
     }
 
     meth_sel = combo_method->GetSelection();
@@ -385,7 +392,7 @@ bool KClusterDlg::CheckAllInputs()
 bool KClusterDlg::Run(vector<wxInt64>& clusters)
 {
     if (GdaConst::use_gda_user_seed) {
-        setrandomstate(GdaConst::gda_user_seed);
+        setrandomstate((int)GdaConst::gda_user_seed);
         resetrandom();
     } else {
         setrandomstate(-1);
@@ -416,7 +423,7 @@ bool KClusterDlg::Run(vector<wxInt64>& clusters)
     
     int s1 = 0;
     if (GdaConst::use_gda_user_seed) {
-        srand(GdaConst::gda_user_seed);
+        srand((int)GdaConst::gda_user_seed);
         s1 = rand();
     }
     
@@ -487,7 +494,7 @@ void KClusterDlg::OnOK(wxCommandEvent& event )
         cluster_ids[ clusters[i] - 1 ].push_back(i);
     }
     std::sort(cluster_ids.begin(), cluster_ids.end(), GenUtils::less_vectors);
-    
+
     for (int i=0; i < n_cluster; i++) {
         int c = i + 1;
         for (int j=0; j<cluster_ids[i].size(); j++) {
@@ -522,7 +529,7 @@ void KClusterDlg::OnOK(wxCommandEvent& event )
     }
     
     if (col > 0) {
-        vector<bool> clusters_undef(num_obs, false);
+        vector<bool> clusters_undef(rows, false);
         table_int->SetColData(col, time, clusters);
         table_int->SetColUndefined(col, time, clusters_undef);
     }
@@ -619,6 +626,8 @@ KMediansDlg::KMediansDlg(wxFrame *parent, Project* project)
     show_iteration = true;
     cluster_method = "KMedians";
     mean_center_type = " (median)";
+    return_additional_summary = true; // for binary search, using kmedian measure
+
     CreateControls();
     m_distance->SetSelection(1); // set manhattan
     m_distance->Disable();
@@ -656,7 +665,7 @@ void KMediansDlg::doRun(int s1,int ncluster, int npass, int n_maxiter, int meth_
 
 vector<vector<double> > KMediansDlg::_getMeanCenters(const vector<vector<int> >& solutions)
 {
-    int n_clusters = solutions.size();
+    int n_clusters = (int)solutions.size();
     vector<vector<double> > result(n_clusters);
     
     if (columns <= 0 || rows <= 0) return result;
@@ -667,7 +676,24 @@ vector<vector<double> > KMediansDlg::_getMeanCenters(const vector<vector<int> >&
         table_int->GetColData(col_ids[i], var_info[i].time, raw_data[i]);
     }
 
-    int start = IsUseCentroids() ? 2 : 0;
+    if (has_x_cent) {
+        std::vector<GdaPoint*> cents = project->GetCentroids();
+        std::vector<double> xvals(rows);
+        for (int i=0; i< rows; i++) {
+            xvals[i] = cents[i]->GetX();
+        }
+        raw_data.push_back(xvals);
+    }
+    if (has_y_cent) {
+        std::vector<GdaPoint*> cents = project->GetCentroids();
+        std::vector<double> yvals(rows);
+        for (int i=0; i< rows; i++) {
+            yvals[i] = cents[i]->GetY();
+        }
+        raw_data.push_back(yvals);
+    }
+
+    //int start = IsUseCentroids() ? 2 : 0;
     for (int i=0; i<solutions.size(); i++ ) {
         vector<double> medians;
         int end = columns;
@@ -677,7 +703,7 @@ vector<vector<double> > KMediansDlg::_getMeanCenters(const vector<vector<int> >&
             medians.push_back(0); // CENT_Y
         }
         for (int c=0; c<end; c++) {
-            double sum = 0;
+            //double sum = 0;
             int n = 0;
             double* data = new double[solutions[i].size()];
             for (int j=0; j<solutions[i].size(); j++) {
@@ -699,6 +725,131 @@ vector<vector<double> > KMediansDlg::_getMeanCenters(const vector<vector<int> >&
     return result;
 }
 
+double KMediansDlg::_calcSumOfSquaresMedian(const vector<int>& cluster_ids)
+{
+    if (cluster_ids.empty() || input_data==NULL || mask == NULL)
+        return 0;
+    
+    double ssq = 0;
+    
+    for (int i=0; i<columns; i++) {
+        if (col_names[i] == "CENTX" || col_names[i] == "CENTY") {
+            continue;
+        }
+        vector<double> vals;
+        for (int j=0; j<cluster_ids.size(); j++) {
+            int r = cluster_ids[j];
+            if (mask[r][i] == 1)
+                vals.push_back(input_data[r][i]);
+        }
+        double ss = GenUtils::SumOfSquaresMedian(vals);
+        ssq += ss;
+    }
+    
+    return ssq;
+}
+
+double KMediansDlg::_calcSumOfManhattanMedian(const vector<int>& cluster_ids)
+{
+    if (cluster_ids.empty() || input_data==NULL || mask == NULL)
+        return 0;
+    
+    double ssq = 0;
+    
+    for (int i=0; i<columns; i++) {
+        if (col_names[i] == "CENTX" || col_names[i] == "CENTY") {
+            continue;
+        }
+        vector<double> vals;
+        for (int j=0; j<cluster_ids.size(); j++) {
+            int r = cluster_ids[j];
+            if (mask[r][i] == 1)
+                vals.push_back(input_data[r][i]);
+        }
+        double ss = GenUtils::SumOfManhattanMedian(vals);
+        ssq += ss;
+    }
+    
+    return ssq;
+}
+
+wxString KMediansDlg::_additionalSummary(const vector<vector<int> >& solution,
+                                         double& additional_ratio)
+{
+    // computing Sum of Square Differences from Medoids
+    if (columns <= 0 || rows <= 0) return wxEmptyString;
+    
+    int dist_sel = m_distance->GetSelection();
+    
+    double totss = 0, totwithiness, betweenss, ratio;
+    vector<double> withinss, avgs;
+    
+    wxString summary;
+    
+    if (dist_sel == 0) {
+        // euclidean distance
+        summary << _("(Using Euclidean distance (squared) to medians)\n");
+        // totss double totss = _getTotalSumOfSquares();
+        for (int i=0; i<columns; i++) {
+            if (col_names[i] == "CENTX" || col_names[i] == "CENTY")
+                continue;
+            vector<double> vals;
+            for (int j=0; j<rows; j++) {
+                if (mask[j][i] == 1)
+                    vals.push_back(input_data[j][i]);
+            }
+            double ss = GenUtils::SumOfSquaresMedian(vals);
+            totss += ss;
+        }
+        // withinss
+        for (int i=0; i<solution.size(); i++ ) {
+            double ss = _calcSumOfSquaresMedian(solution[i]);
+            withinss.push_back(ss);
+            avgs.push_back(ss / solution[i].size());
+        }
+        // tot.withiness
+        totwithiness = GenUtils::Sum(withinss);
+        // ratio
+        ratio = totwithiness / totss;
+
+    } else {
+        // manhattan distance
+        summary << _("(Using Manhattan distance to medians)\n");
+        // totss double totss = _getTotalSumOfSquares();
+        for (int i=0; i<columns; i++) {
+            if (col_names[i] == "CENTX" || col_names[i] == "CENTY")
+                continue;
+            vector<double> vals;
+            for (int j=0; j<rows; j++) {
+                if (mask[j][i] == 1)
+                    vals.push_back(input_data[j][i]);
+            }
+            double ss = GenUtils::SumOfManhattanMedian(vals);
+            totss += ss;
+        }
+        // withinss
+        for (int i=0; i<solution.size(); i++ ) {
+            double ss = _calcSumOfManhattanMedian(solution[i]);
+            withinss.push_back(ss);
+            avgs.push_back(ss / solution[i].size());
+        }
+        // tot.withiness
+        totwithiness = GenUtils::Sum(withinss);
+        // betweenss
+        //betweenss = totss - totwithiness;
+        // ratio
+        ratio = totwithiness / totss;
+    }
+
+    additional_ratio = 1 - ratio;
+
+    summary << _("The total sum of distance:\t") << totss << "\n";
+    summary << _printWithinSS(withinss, avgs, _("Within-cluster sum of distances:\n"),
+                              _("Within Cluster D"), _("Average"));
+    summary << _("The total within-cluster sum of distance:\t") << totwithiness << "\n";
+    summary << _("The ratio of total within to total sum of distance: ") << ratio << "\n\n";
+    return summary;
+}
 ////////////////////////////////////////////////////////////////////////
 //
 // KMedoids
@@ -713,6 +864,7 @@ KMedoidsDlg::KMedoidsDlg(wxFrame *parent, Project* project)
     show_iteration = true;
     cluster_method = "KMedoids";
     mean_center_type = " (medoid)";
+    return_additional_summary = true; // for binary search, using kmeoids measure
     
     CreateControls();
     m_distance->SetSelection(1); // set manhattan
@@ -721,6 +873,235 @@ KMedoidsDlg::KMedoidsDlg(wxFrame *parent, Project* project)
 KMedoidsDlg::~KMedoidsDlg()
 {
     wxLogMessage("In ~KMedoidsDlg()");
+}
+
+void KMedoidsDlg::CreateControls()
+{
+    wxScrolledWindow* scrl = new wxScrolledWindow(this, wxID_ANY, wxDefaultPosition, wxSize(940,840), wxHSCROLL|wxVSCROLL );
+    scrl->SetScrollRate( 5, 5 );
+
+    wxPanel *panel = new wxPanel(scrl);
+    wxBoxSizer *vbox = new wxBoxSizer(wxVERTICAL);
+
+    // Input
+    bool show_auto_button = true;
+    AddInputCtrls(panel, vbox, show_auto_button);
+
+    // Parameters
+    wxFlexGridSizer* gbox = new wxFlexGridSizer(13, 2, 5, 0);
+
+    // NumberOfCluster Control
+    AddNumberOfClusterCtrl(panel, gbox);
+
+    // Minimum Bound Control
+   // AddMinBound(panel, gbox);
+
+    // Transformation Control
+    AddTransformation(panel, gbox);
+
+    // KMedoids method
+    wxStaticText* st15 = new wxStaticText(panel, wxID_ANY, _("Method:"));
+    wxString choices15[] = {"FastPAM", "FastCLARA", "FastCLARANS"};
+    combo_method = new wxChoice(panel, wxID_ANY, wxDefaultPosition,
+                                wxSize(200,-1), 3, choices15);
+    combo_method->SetSelection(0);
+
+    gbox->Add(st15, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
+    gbox->Add(combo_method, 1, wxEXPAND);
+
+    // Initialization Method
+    txt_initmethod = new wxStaticText(panel, wxID_ANY, _("Initialization Method:"));
+    wxString choices16[] = {"BUILD", "LAB"};
+    combo_initmethod = new wxChoice(panel, wxID_ANY, wxDefaultPosition,
+                                wxSize(200,-1), 2, choices16);
+    combo_initmethod->SetSelection(1);
+    //txt_initmethod->Hide();
+    //combo_initmethod->Hide();
+
+    gbox->Add(txt_initmethod, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
+    gbox->Add(combo_initmethod, 1, wxEXPAND);
+
+    txt_iterations = new wxStaticText(panel, wxID_ANY, _("Maximum Iterations:"));
+    m_iterations = new wxTextCtrl(panel, wxID_ANY, "10", wxDefaultPosition, wxSize(200,-1));
+    gbox->Add(txt_iterations, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
+    gbox->Add(m_iterations, 1, wxEXPAND);
+    txt_iterations->Hide();
+    m_iterations->Hide();
+
+    wxStaticText* st10 = new wxStaticText(panel, wxID_ANY, "");
+    m_fastswap = new wxCheckBox(panel, wxID_ANY, _("Use Additonal Swaps (FastPAM2)"));
+    m_fastswap->SetValue(true); // default 1
+    gbox->Add(st10, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
+    gbox->Add(m_fastswap, 1, wxEXPAND);
+    st10->Hide();
+    m_fastswap->Hide();
+
+    // FastCLARA and FastCLARANS
+    txt_numsamples = new wxStaticText(panel, wxID_ANY, _("Number of Samples/Iterations:"));
+    m_numsamples = new wxTextCtrl(panel, wxID_ANY, "", wxDefaultPosition, wxSize(200,-1));
+    gbox->Add(txt_numsamples, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
+    gbox->Add(m_numsamples, 1, wxEXPAND);
+
+    txt_sampling = new wxStaticText(panel, wxID_ANY, _("Sample Size/Rate:"));
+    m_sampling = new wxTextCtrl(panel, wxID_ANY, "", wxDefaultPosition, wxSize(200,-1));
+    gbox->Add(txt_sampling, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
+    gbox->Add(m_sampling, 1, wxEXPAND);
+
+    wxStaticText* st14 = new wxStaticText(panel, wxID_ANY, "");
+    m_keepmed = new wxCheckBox(panel, wxID_ANY, "Include Previous Medoids");
+    m_keepmed->SetValue(true);
+    gbox->Add(st14, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
+    gbox->Add(m_keepmed, 1, wxEXPAND);
+
+    wxStaticText* st13 = new wxStaticText(panel, wxID_ANY, _("Distance Function:"));
+    wxString choices13[] = {"Euclidean", "Manhattan"};
+    m_distance = new wxChoice(panel, wxID_ANY, wxDefaultPosition, wxSize(200,-1), 2, choices13);
+    m_distance->SetSelection(0);
+    gbox->Add(st13, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
+    gbox->Add(m_distance, 1, wxEXPAND);
+    if (!show_distance) {
+        st13->Hide();
+        m_distance->Hide();
+        m_distance->SetSelection(1); // set manhattan
+    }
+
+    wxStaticText* st17 = new wxStaticText(panel, wxID_ANY, _("Use Specified Seed:"));
+    wxBoxSizer *hbox17 = new wxBoxSizer(wxHORIZONTAL);
+    chk_seed = new wxCheckBox(panel, wxID_ANY, "");
+    seedButton = new wxButton(panel, wxID_OK, _("Change Seed"));
+
+    hbox17->Add(chk_seed,0, wxALIGN_CENTER_VERTICAL);
+    hbox17->Add(seedButton,0,wxALIGN_CENTER_VERTICAL);
+    seedButton->Disable();
+    gbox->Add(st17, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
+    gbox->Add(hbox17, 1, wxEXPAND);
+
+    if (GdaConst::use_gda_user_seed) {
+        chk_seed->SetValue(true);
+        seedButton->Enable();
+    }
+
+    wxStaticBoxSizer *hbox = new wxStaticBoxSizer(wxHORIZONTAL, panel, _("Parameters:"));
+    hbox->Add(gbox, 1, wxEXPAND);
+
+    // Output
+    wxStaticText* st3 = new wxStaticText (panel, wxID_ANY, _("Save Cluster in Field:"));
+    m_textbox = new wxTextCtrl(panel, wxID_ANY, "CL", wxDefaultPosition, wxSize(158,-1));
+    wxStaticBoxSizer *hbox1 = new wxStaticBoxSizer(wxHORIZONTAL, panel, _("Output:"));
+    //wxBoxSizer *hbox1 = new wxBoxSizer(wxHORIZONTAL);
+    hbox1->Add(st3, 0, wxALIGN_CENTER_VERTICAL);
+    hbox1->Add(m_textbox, 1, wxALIGN_CENTER_VERTICAL | wxLEFT, 5);
+
+    // Buttons
+    wxButton *okButton = new wxButton(panel, wxID_OK, _("Run"), wxDefaultPosition, wxSize(70, 30));
+    wxButton *closeButton = new wxButton(panel, wxID_EXIT, _("Close"), wxDefaultPosition, wxSize(70, 30));
+    wxBoxSizer *hbox2 = new wxBoxSizer(wxHORIZONTAL);
+    hbox2->Add(okButton, 1, wxALIGN_CENTER | wxALL, 5);
+    hbox2->Add(closeButton, 1, wxALIGN_CENTER | wxALL, 5);
+
+    // Container
+    vbox->Add(hbox, 0, wxALIGN_CENTER | wxALL, 10);
+    vbox->Add(hbox1, 0, wxEXPAND | wxTOP | wxLEFT | wxRIGHT, 10);
+    vbox->Add(hbox2, 0, wxALIGN_CENTER | wxALL, 10);
+
+
+    // Summary control
+    wxBoxSizer *vbox1 = new wxBoxSizer(wxVERTICAL);
+    wxNotebook* notebook = AddSimpleReportCtrls(panel);
+    vbox1->Add(notebook, 1, wxEXPAND|wxALL,20);
+
+    wxBoxSizer *container = new wxBoxSizer(wxHORIZONTAL);
+    container->Add(vbox);
+    container->Add(vbox1, 1, wxEXPAND | wxALL);
+
+    panel->SetSizer(container);
+
+    wxBoxSizer* panelSizer = new wxBoxSizer(wxVERTICAL);
+    panelSizer->Add(panel, 1, wxEXPAND|wxALL, 0);
+
+    scrl->SetSizer(panelSizer);
+
+    wxBoxSizer* sizerAll = new wxBoxSizer(wxVERTICAL);
+    sizerAll->Add(scrl, 1, wxEXPAND|wxALL, 0);
+    SetSizer(sizerAll);
+    SetAutoLayout(true);
+    sizerAll->Fit(this);
+
+    Centre();
+
+    // Events
+    okButton->Bind(wxEVT_BUTTON, &KClusterDlg::OnOK, this);
+    closeButton->Bind(wxEVT_BUTTON, &KClusterDlg::OnClickClose, this);
+    chk_seed->Bind(wxEVT_CHECKBOX, &KClusterDlg::OnSeedCheck, this);
+    seedButton->Bind(wxEVT_BUTTON, &KClusterDlg::OnChangeSeed, this);
+    combo_method->Bind(wxEVT_CHOICE, &KMedoidsDlg::OnMethodChoice, this);
+    m_distance->Bind(wxEVT_CHOICE, &KClusterDlg::OnDistanceChoice, this);
+
+    wxCommandEvent ev;
+    OnMethodChoice(ev);
+}
+
+void KMedoidsDlg::OnMethodChoice(wxCommandEvent& evt)
+{
+    long k = 0;
+    combo_n->GetValue().ToLong(&k);
+
+    if (evt.GetSelection() == 0) {
+        // FastPAM
+        bool flag = true;
+        txt_initmethod->Enable(flag);
+        combo_initmethod->Enable(flag);
+        txt_iterations->Enable(flag);
+        m_iterations->Enable(flag);
+        m_fastswap->Enable(flag);
+
+        flag = false;
+        txt_numsamples->Enable(flag);
+        m_numsamples->Enable(flag);
+        txt_sampling->Enable(flag);
+        m_sampling->Enable(flag);
+        m_keepmed->Enable(flag);
+    } else if (evt.GetSelection() == 1) {
+        // FastCLARA
+        bool flag = true;
+        txt_initmethod->Enable(flag);
+        combo_initmethod->Enable(flag);
+        txt_iterations->Enable(flag);
+        m_iterations->Enable(flag);
+        m_fastswap->Enable(flag);
+
+        txt_numsamples->Enable(flag);
+        m_numsamples->Enable(flag);
+        txt_sampling->Enable(flag);
+        m_sampling->Enable(flag);
+        m_keepmed->Enable(flag);
+        m_keepmed->SetValue(true);
+
+        m_numsamples->SetValue(rows <= 100 ? "5" : "10");
+        // Larger sample size, used by Schubert and Rousseeuw, 2019
+        //  80 + 4. * k
+        int ns = rows <= 100 ? 40 + 2*k : 80 + 4*k;
+        if (ns >= rows) ns = rows;
+        m_sampling->SetValue(wxString::Format("%d", ns));
+    } else {
+        // FastCLARANS
+        bool flag = false;
+        txt_initmethod->Enable(flag);
+        combo_initmethod->Enable(flag);
+        txt_iterations->Enable(flag);
+        m_iterations->Enable(flag);
+        m_fastswap->Enable(flag);
+
+        flag = true;
+        txt_numsamples->Enable(flag);
+        m_numsamples->Enable(flag);
+        txt_sampling->Enable(flag);
+        m_sampling->Enable(flag);
+        m_keepmed->Enable(!flag);
+
+        m_numsamples->SetValue("2");
+        m_sampling->SetValue(wxString::Format("%f", 0.025));
+    }
 }
 
 void KMedoidsDlg::ComputeDistMatrix(int dist_sel)
@@ -732,45 +1113,189 @@ void KMedoidsDlg::ComputeDistMatrix(int dist_sel)
     distmatrix = distancematrix(rows, columns, input_data,  mask, weight, dist, transpose);
 }
 
+bool KMedoidsDlg::CheckAllInputs()
+{
+    n_cluster = 0;
+    wxString str_ncluster = combo_n->GetValue();
+    long value_ncluster;
+    if (str_ncluster.ToLong(&value_ncluster)) {
+        n_cluster = (int)value_ncluster;
+    }
+    if (n_cluster < 1 || n_cluster > rows) {
+        wxString err_msg = _("Please enter a valid number of clusters.");
+        wxMessageDialog dlg(NULL, err_msg, _("Error"), wxOK | wxICON_ERROR);
+        dlg.ShowModal();
+        return false;
+    }
+
+    transform = combo_tranform->GetSelection();
+
+    if (GetInputData(transform,1) == false) return false;
+
+    // check if X-Centroids selected but not projected
+    if ((has_x_cent || has_y_cent) && check_spatial_ref) {
+        bool cont_process = project->CheckSpatialProjection(check_spatial_ref);
+        if (cont_process == false) {
+            return false;
+        }
+    }
+
+    n_maxiter = 10;
+    wxString iterations = m_iterations->GetValue();
+    long l_maxiter;
+    if(iterations.ToLong(&l_maxiter)) {
+        n_maxiter = (int)l_maxiter;
+    }
+
+    dist_sel = m_distance->GetSelection();
+
+    return true;
+}
+
+int KMedoidsDlg::GetFirstMedoid(double** distmatrix)
+{
+    int n = 0;
+    double min_sum = DBL_MAX, tmp_sum=0;
+    for (size_t i=0; i<rows; ++i) {
+        // sum of distance from i to everyone else
+        tmp_sum = 0;
+        for (size_t j=0; j<rows; ++j) {
+            if (i != j) {
+                tmp_sum += i > j ? distmatrix[i][j] : distmatrix[j][i];
+            }
+        }
+        if (tmp_sum < min_sum) {
+            n = i;
+            min_sum = tmp_sum;
+        }
+    }
+
+    return n;
+}
+
+bool KMedoidsDlg::Run(vector<wxInt64>& clusters)
+{
+    if (GdaConst::use_gda_user_seed) {
+        setrandomstate((int)GdaConst::gda_user_seed);
+        resetrandom();
+    } else {
+        setrandomstate(-1);
+        resetrandom();
+    }
+
+    double cost;
+    std::vector<int> clusterid;
+
+    // NOTE input_data should be retrieved first!!
+    // get input: weights (auto)
+    // this function has to be called when use auto-weighting
+    weight = GetWeights(columns);
+    
+    // compute distance matrix
+    ComputeDistMatrix(dist_sel);
+    RawDistMatrix dist_matrix(distmatrix);
+    first_medoid = GetFirstMedoid(distmatrix);
+
+    double pam_fasttol = m_fastswap->GetValue() ? 1 : 0;
+    int init_method = combo_initmethod->GetSelection();
+    bool keepmed = m_keepmed->GetValue();
+    int method = combo_method->GetSelection();
+    
+    int seed = 0;
+    if (GdaConst::use_gda_user_seed) {
+        seed = (int)GdaConst::gda_user_seed;
+    }
+    
+    if (method < 2) {
+        // fastPAM & fastCLARA
+        PAMInitializer* pam_init;
+        if (init_method == 0) {
+            pam_init = new BUILD(&dist_matrix);
+        } else {
+            pam_init = new LAB(&dist_matrix, seed);
+        }
+        if (method == 0) {
+            FastPAM pam(rows, &dist_matrix, pam_init, n_cluster, 0,  pam_fasttol);
+            cost = pam.run();
+            clusterid = pam.getResults();
+            medoid_ids = pam.getMedoids();
+        } else {
+            // FastCLARA
+            long samples = 5;
+            m_numsamples->GetValue().ToLong(&samples);
+            double sample_rate = 0.025;
+            m_sampling->GetValue().ToDouble(&sample_rate);
+
+            if (sample_rate <= 1 && sample_rate*rows < 3 * n_cluster) {
+                wxString err_msg = _("The sampling rate is set to a small value, please set another value to make sample size larger than 3*k.");
+                wxMessageDialog dlg(NULL, err_msg, _("Error"), wxOK | wxICON_ERROR);
+                dlg.ShowModal();
+                return false;
+            }
+
+            FastCLARA clara(rows, &dist_matrix, pam_init, n_cluster, 0,
+                            pam_fasttol, (int)samples, sample_rate, !keepmed, seed);
+            cost = clara.run();
+            clusterid = clara.getResults();
+            medoid_ids = clara.getMedoids();
+        }
+        delete pam_init;
+
+    } else if (combo_method->GetSelection() == 2) {
+        // FastCLARANS
+        long samples = 2;
+        m_numsamples->GetValue().ToLong(&samples);
+        double sample_rate = 0.025;
+        m_sampling->GetValue().ToDouble(&sample_rate);
+
+        if (sample_rate <=0 || sample_rate > 1.0) {
+            wxString err_msg = _("Please input a valid value between 0 and 1 for sample rate.");
+            wxMessageDialog dlg(NULL, err_msg, _("Error"), wxOK | wxICON_ERROR);
+            dlg.ShowModal();
+            return false;
+        }
+        
+        FastCLARANS clarans(rows, &dist_matrix, n_cluster, (int)samples, sample_rate, seed);
+        cost = clarans.run();
+        clusterid = clarans.getResults();
+        medoid_ids = clarans.getMedoids();
+    }
+
+    for (int i=0; i<clusterid.size(); ++i) {
+        clusters.push_back(wxInt64(clusterid[i]));
+    }
+
+    return true;
+}
 void KMedoidsDlg::doRun(int s1,int ncluster, int npass, int n_maxiter, int meth_sel, int dist_sel, double min_bound, double* bound_vals)
 {
-    double error;
-    int ifound;
-    int* clusterid = new int[rows];
-    
-    int s2 = s1==0 ? 0 : s1 + npass;
-    
-    kmedoids(ncluster, rows, distmatrix, npass, n_maxiter, clusterid, &error, &ifound, bound_vals, min_bound, s1, s2);
-  
-    set<wxInt64> centers;
-    map<wxInt64, vector<wxInt64> > c_dist;
-    for (int i=0; i<rows; i++) {
-        centers.insert(clusterid[i]);
-        c_dist[clusterid[i]].push_back(i);
-    }
-    int cid = 1;
-    vector<wxInt64> clusters(rows);
-    set<wxInt64>::iterator it;
-    for (it=centers.begin(); it!=centers.end(); it++) {
-        vector<wxInt64>& ids = c_dist[*it];
-        for (int i=0; i<ids.size(); i++) {
-            clusters[ids[i]] = cid;
-        }
-        cid += 1;
-    }
-    sub_clusters[error] = clusters;
-    
-    delete[] clusterid;
+    // do nothing
 }
 
 vector<vector<double> > KMedoidsDlg::_getMeanCenters(
                                         const vector<vector<int> >& solutions)
 {
-    // The centroid is defined as the element with the
-    // smallest sum of distances to the other elements.
-    int n_clusters = solutions.size();
+    // Using medoids instead of mean centers
+    int n_clusters = (int)solutions.size();
     vector<vector<double> > result(n_clusters);
-    
+
+    // update order of medoids using solutions
+    boost::unordered_map<int, int> medoids_dict;
+    for (int i=0; i<medoid_ids.size(); ++i) {
+        medoids_dict[medoid_ids[i]] = 0;
+    }
+    std::vector<int> ordered_medoids;
+    std::vector<int>::iterator it;
+    for (int i=0; i<solutions.size(); ++i) {
+        for (int j=0; j<solutions[i].size(); ++j) {
+            int idx = solutions[i][j];
+            if (medoids_dict.find(idx) != medoids_dict.end()) {
+                ordered_medoids.push_back(idx);
+            }
+        }
+    }
+    medoid_ids = ordered_medoids;
+
     if (columns <= 0 || rows <= 0) return result;
 
     std::vector<std::vector<double> > raw_data;
@@ -779,24 +1304,21 @@ vector<vector<double> > KMedoidsDlg::_getMeanCenters(
         table_int->GetColData(col_ids[i], var_info[i].time, raw_data[i]);
     }
 
-    vector<int> centroid_ids(n_clusters,0);
-    vector<double> errors(n_clusters);
-    for (int j=0; j<n_clusters; j++) errors[j] = DBL_MAX;
-    
-    for (int i=0; i<solutions.size(); i++ ) {
-        for (int j=0; j<solutions[i].size(); j++) {
-            double d = 0;
-            int a_idx = solutions[i][j];
-            for (int k=0; k<solutions[i].size(); k++) {
-                if (j == k) continue;
-                int b_idx = solutions[i][k];
-                d += ( a_idx < b_idx ? distmatrix[b_idx][a_idx]:distmatrix[a_idx][b_idx]);
-            }
-            if (d < errors[i]) {
-                errors[i] = d;
-                centroid_ids[i] = a_idx;
-            }
+    if (has_x_cent) {
+        std::vector<GdaPoint*> cents = project->GetCentroids();
+        std::vector<double> xvals(rows);
+        for (int i=0; i< rows; i++) {
+            xvals[i] = cents[i]->GetX();
         }
+        raw_data.push_back(xvals);
+    }
+    if (has_y_cent) {
+        std::vector<GdaPoint*> cents = project->GetCentroids();
+        std::vector<double> yvals(rows);
+        for (int i=0; i< rows; i++) {
+            yvals[i] = cents[i]->GetY();
+        }
+        raw_data.push_back(yvals);
     }
 
     for (int i=0; i<solutions.size(); i++ ) {
@@ -804,11 +1326,11 @@ vector<vector<double> > KMedoidsDlg::_getMeanCenters(
         int end = columns;
         if (IsUseCentroids()) {
             end = columns - 2;
-            means.push_back(0); // CENT_X
-            means.push_back(0); // CENT_Y
+            means.push_back(cent_xs[medoid_ids[i]]); // CENT_X
+            means.push_back(cent_ys[medoid_ids[i]]); // CENT_Y
         }
-        for (int c=0; c<end; c++) {
-            double mean = raw_data[c][centroid_ids[i]];
+        for (int c=0; c<raw_data.size(); c++) {
+            double mean = raw_data[c][medoid_ids[i]];
             means.push_back(mean);
         }
         result[i] = means;
@@ -816,3 +1338,177 @@ vector<vector<double> > KMedoidsDlg::_getMeanCenters(
     
     return result;
 }
+
+wxString KMedoidsDlg::_printConfiguration()
+{
+    int ncluster = 0;
+    wxString str_ncluster = combo_n->GetValue();
+    long value_ncluster;
+    if (str_ncluster.ToLong(&value_ncluster)) {
+        ncluster = (int)value_ncluster;
+    }
+
+    wxString txt;
+    txt << _("Method:\t") << cluster_method << " (";
+    txt << combo_method->GetString(combo_method->GetSelection()) << ")" << "\n";
+    txt << _("Number of clusters:\t") << ncluster << "\n";
+
+    //if (chk_floor && chk_floor->IsChecked()) {
+    //    int idx = combo_floor->GetSelection();
+    //    wxString nm = name_to_nm[combo_floor->GetString(idx)];
+    //    txt << _("Minimum bound:\t") << txt_floor->GetValue() << "(" << nm << ")" << "\n";
+    //}
+
+    if (combo_method->GetSelection() < 2) {
+        txt << _("Initialization method:\t") << combo_initmethod->GetString(combo_initmethod->GetSelection()) << "\n";
+        //txt << _("Maximum iterations:\t") << m_iterations->GetValue() << "\n";
+        if (m_fastswap->GetValue()) {
+            //txt << _("\tUse additional swaps(FastPAM2).\n");
+        }
+        if (combo_method->GetSelection() == 1 ) {
+            txt << _("Number of samples/iterations:\t") << m_numsamples->GetValue() << "\n";
+            txt << _("Sample size/rate:\t") << m_sampling->GetValue() << "\n";
+            if (m_keepmed->GetValue()) {
+                txt << _("\tInclude previous medoids\n");
+            }
+        }
+    } else if (combo_method->GetSelection() == 2) {
+        txt << _("Number of samples/iterations:\t") << m_numsamples->GetValue() << "\n";
+        txt << _("Sample size/rate:\t") << m_sampling->GetValue() << "\n";
+
+    }
+
+    txt << _("Transformation:\t") << combo_tranform->GetString(combo_tranform->GetSelection()) << "\n";
+
+    txt << _("Distance function:\t") << m_distance->GetString(m_distance->GetSelection()) << "\n";
+
+    txt << _("Medoids:\n");
+    for (int i=0; i<medoid_ids.size(); ++i) {
+        txt <<"\t" << medoid_ids[i] + 1 << "\n"; // row order starts from 0
+    }
+    return txt;
+}
+
+double KMedoidsDlg::_calcSumOfSquaresMedoid(const vector<int>& cluster_ids, int medoid_idx)
+{
+    if (cluster_ids.empty() || input_data==NULL || mask == NULL)
+        return 0;
+    
+    double ssq = 0;
+    
+    for (int i=0; i<columns; i++) {
+        if (col_names[i] == "CENTX" || col_names[i] == "CENTY") {
+            continue;
+        }
+        vector<double> vals;
+        for (int j=0; j<cluster_ids.size(); j++) {
+            int r = cluster_ids[j];
+            if (mask[r][i] == 1)
+                vals.push_back(input_data[r][i]);
+        }
+        double ss = GenUtils::SumOfSquaresMedoid(vals, input_data[medoid_idx][i]);
+        ssq += ss;
+    }
+    
+    return ssq;
+}
+
+double KMedoidsDlg::_calcSumOfManhattanMedoid(const vector<int>& cluster_ids, int medoid_idx)
+{
+    if (cluster_ids.empty() || input_data==NULL || mask == NULL)
+        return 0;
+    
+    double ssq = 0;
+    
+    for (int i=0; i<columns; i++) {
+        if (col_names[i] == "CENTX" || col_names[i] == "CENTY") {
+            continue;
+        }
+        vector<double> vals;
+        for (int j=0; j<cluster_ids.size(); j++) {
+            int r = cluster_ids[j];
+            if (mask[r][i] == 1)
+                vals.push_back(input_data[r][i]);
+        }
+        double ss = GenUtils::SumOfManhattanMedoid(vals, input_data[medoid_idx][i]);
+        ssq += ss;
+    }
+    
+    return ssq;
+}
+
+wxString KMedoidsDlg::_additionalSummary(const vector<vector<int> >& solution,
+                                         double& additional_ratio)
+{
+    // computing Sum of Square Differences from Medoids
+    if (columns <= 0 || rows <= 0) return wxEmptyString;
+    
+    int dist_sel = m_distance->GetSelection();
+    
+    double totss = 0, totwithiness, betweenss, ratio;
+    vector<double> withinss, avgs;
+    
+    wxString summary;
+    
+    if (dist_sel == 0) {
+        // euclidean distance
+        summary << _("(Using Euclidean distance (squared) to medoids)\n");
+        // totss double totss = _getTotalSumOfSquares();
+        for (int i=0; i<columns; i++) {
+            if (col_names[i] == "CENTX" || col_names[i] == "CENTY")
+                continue;
+            vector<double> vals;
+            for (int j=0; j<rows; j++) {
+                if (mask[j][i] == 1)
+                    vals.push_back(input_data[j][i]);
+            }
+            double ss = GenUtils::SumOfSquaresMedoid(vals, input_data[first_medoid][i]);
+            totss += ss;
+        }
+        // withinss
+        for (int i=0; i<solution.size(); i++ ) {
+            double ss = _calcSumOfSquaresMedoid(solution[i], medoid_ids[i]);
+            withinss.push_back(ss);
+            avgs.push_back(ss/solution[i].size());
+        }
+        // tot.withiness
+        totwithiness = GenUtils::Sum(withinss);
+        // ratio
+        ratio = totwithiness / totss;
+
+    } else {
+        // manhattan distance
+        summary << _("(Using Manhattan distance to medoids)\n");
+        // totss double totss = _getTotalSumOfSquares();
+        for (int i=0; i<columns; i++) {
+            if (col_names[i] == "CENTX" || col_names[i] == "CENTY")
+                continue;
+            vector<double> vals;
+            for (int j=0; j<rows; j++) {
+                if (mask[j][i] == 1)
+                    vals.push_back(input_data[j][i]);
+            }
+            double ss = GenUtils::SumOfManhattanMedoid(vals, input_data[first_medoid][i]);
+            totss += ss;
+        }
+        // withinss
+        for (int i=0; i<solution.size(); i++ ) {
+            double ss = _calcSumOfManhattanMedoid(solution[i], medoid_ids[i]);
+            withinss.push_back(ss);
+            avgs.push_back(ss/solution[i].size());
+        }
+        // tot.withiness
+        totwithiness = GenUtils::Sum(withinss);
+        // ratio
+        ratio = totwithiness / totss;
+    }
+    summary << _("The total sum of distance:\t") << totss << "\n";
+    summary << _printWithinSS(withinss, avgs, _("Within-cluster sum of distances:\n"),
+                              _("Within Cluster D"), _("Averages"));
+    summary << _("The total within-cluster sum of distance:\t") << totwithiness << "\n";
+    summary << _("The ratio of total within to total sum of distance: ") << ratio << "\n\n";
+
+    additional_ratio = 1 - ratio;
+    return summary;
+}
+

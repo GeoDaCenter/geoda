@@ -197,9 +197,21 @@ void ExportDataDlg::CreateControls()
     }
     m_crs_input = XRCCTRL(*this, "IDC_FIELD_CRS", wxTextCtrl);
     if (project_p == NULL || project_p->IsTableOnlyProject()) {
-        // if table only ds, disable CRS controls
-        m_crs_input->Disable();
-        XRCCTRL(*this, "IDC_OPEN_CRS", wxBitmapButton)->Disable();
+        if (project_p == NULL && spatial_ref) {
+            // for case of creating grid, a spatial reference could be there
+            // from existing map layer
+            char* tmp = new char[1024];
+            if (spatial_ref->exportToProj4(&tmp) == OGRERR_NONE) {
+                wxString str_prj4 = tmp;
+                m_crs_input->SetValue(str_prj4);
+            }
+            delete[] tmp;
+
+        } else if (spatial_ref){
+            // if table only ds, disable CRS controls
+            m_crs_input->Disable();
+            XRCCTRL(*this, "IDC_OPEN_CRS", wxBitmapButton)->Disable();
+        }
     } else {
         OGRSpatialReference*  sr = project_p->GetSpatialReference();
         if (sr) {
@@ -213,9 +225,6 @@ void ExportDataDlg::CreateControls()
     }
     // Create the rest controls from parent
     DatasourceDlg::CreateControls();
-    
-    m_cartodb_table->Show();
-    m_cartodb_tablename->Show();
 }
 
 void ExportDataDlg::OnOpenCRS( wxCommandEvent& event )
@@ -463,15 +472,19 @@ void ExportDataDlg::OnOkClick( wxCommandEvent& event )
             // save project file
             wxFileName new_proj_fname(proj_fname);
             wxString proj_title = new_proj_fname.GetName();
-            LayerConfiguration* layer_conf = project_conf->GetLayerConfiguration();
-            layer_conf->SetName(layer_name);
-            layer_conf->UpdateDataSource(datasource);
-            project_conf->Save(proj_fname);
-          
-            // in export case, delete cloned project_conf
-            if ( proj_fname.empty() ) {
-                delete project_conf;
-                //delete datasource; Note: it is deleted in project_conf
+            if (project_conf) {
+                LayerConfiguration* layer_conf = project_conf->GetLayerConfiguration();
+                if (layer_conf) {
+                    layer_conf->SetName(layer_name);
+                    layer_conf->UpdateDataSource(datasource);
+                }
+                project_conf->Save(proj_fname);
+
+                // in export case, delete cloned project_conf
+                if ( proj_fname.empty() ) {
+                    delete project_conf;
+                    //delete datasource; Note: it is deleted in project_conf
+                }
             }
         }
 	} catch (GdaException& e) {
@@ -647,7 +660,7 @@ ExportDataDlg::CreateOGRLayer(wxString& ds_name, bool is_table,
     
     OGRDataAdapter::GetInstance().StopExport(); //here new_layer will be deleted
 
-    if (!is_geometry_only) {
+    if (!is_geometry_only && table_p != NULL) {
         for (size_t i=0; i < geometries.size(); i++) {
 			delete geometries[i];
         }
@@ -723,30 +736,6 @@ IDataSource* ExportDataDlg::GetDatasource()
         ds_format = IDataSource::GetDataTypeNameByGdaDSType(ds_type);
         return new DBDataSource(ds_type, dbname,dbhost,dbport,dbuser,dbpwd);
 
-    } else {
-        std::string user(m_cartodb_uname->GetValue().Trim().mb_str());
-        std::string key(m_cartodb_key->GetValue().Trim().mb_str());
-        
-        if (user.empty()) {
-            wxString msg = _("Please input Carto User Name.");
-            throw GdaException(msg.mb_str());
-        }
-        if (key.empty()) {
-            wxString msg = _("Please input Carto App Key.");
-            throw GdaException(msg.mb_str());
-        }
-        
-        CPLSetConfigOption("CARTODB_API_KEY", key.c_str());
-        OGRDataAdapter::GetInstance().AddEntry("cartodb_key", key.c_str());
-        OGRDataAdapter::GetInstance().AddEntry("cartodb_user", user.c_str());
-        CartoDBProxy::GetInstance().SetKey(key);
-        CartoDBProxy::GetInstance().SetUserName(user);
-        
-        wxString url = "Carto:" + user;
-        
-        ds_format = IDataSource::GetDataTypeNameByGdaDSType(GdaConst::ds_cartodb);
-        
-        return new WebServiceDataSource(GdaConst::ds_cartodb, url);
     }
     return NULL;
 }

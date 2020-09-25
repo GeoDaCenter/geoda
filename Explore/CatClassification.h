@@ -56,7 +56,8 @@ namespace CatClassification {
     };
 	
 	enum ColorScheme { sequential_color_scheme, diverging_color_scheme,
-        qualitative_color_scheme, custom_color_scheme, unique_color_scheme
+        qualitative_color_scheme, custom_color_scheme, unique_color_scheme,
+        bugn_color_scheme
     };
 	
 	
@@ -218,6 +219,8 @@ struct CatClassifData {
     void SetCategoryPenColor(int canvas_tm, int cat, wxColour color);
     wxColour GetCategoryPenColor(int canvas_tm, int cat);
     wxColour GetCategoryBrushColor(int canvas_tm, int cat);
+    wxColour GetCategoryColorById(int canvas_tm, int id);
+    wxPen GetCategoryPenById(int canvas_tm, int id);
 	wxColour GetCategoryColor(int canvas_tm, int cat);
 	wxBrush GetCategoryBrush(int canvas_tm, int cat);
 	wxPen GetCategoryPen(int canvas_tm, int cat);

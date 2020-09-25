@@ -66,6 +66,14 @@ public:
     void OnCSlysUpdated( wxCommandEvent& event );
     void OnCSlzpUpdated( wxCommandEvent& event );
     void OnCSlzsUpdated( wxCommandEvent& event );
+    void OnQuanlityUpdated( wxCommandEvent& event );
+    void OnRadiusUpdated( wxCommandEvent& event );
+    void OnCShowNbrsClick( wxCommandEvent& event );
+    void OnCShowConnectionClick( wxCommandEvent& event );
+    void OnLineWidthUpdate(wxCommandEvent& event);
+    void OnLineColorClick(wxMouseEvent& event);
+
+
 
     wxCheckBox* m_data;
     wxCheckBox* m_prox;
@@ -84,6 +92,12 @@ public:
     wxSlider* m_ys;
     wxSlider* m_zp;
     wxSlider* m_zs;
+    wxSlider* m_quality;
+    wxSlider* m_radius;
+    wxCheckBox* m_show_neighbors;
+    wxCheckBox* m_show_connections;
+    wxSlider* m_linewidth;
+    wxStaticBitmap* m_linecolor;
 
 	C3DPlotFrame* template_frame;
 };

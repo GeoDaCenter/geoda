@@ -49,7 +49,7 @@ public:
     void OnChangeSeed(wxCommandEvent& event);
     void OnLISACheck(wxCommandEvent& event);
     virtual void OnCheckMinBound(wxCommandEvent& event);
-    
+    virtual void update(TableState* o);
     virtual void InitLISACombobox();
     
     virtual wxString _printConfiguration();
@@ -58,7 +58,6 @@ private:
     wxCheckBox* chk_seed;
     wxCheckBox* chk_lisa;
     
-    wxChoice* combo_weights;
     wxChoice* combo_lisa;
    
     wxChoice* m_localsearch;

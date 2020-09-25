@@ -1,22 +1,7 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2015 by Luc Anselin - all rights reserved
+ * Source code from: https://cran.r-project.org/web/packages/dbscan/
  *
- * This file is part of GeoDa.
- *
- * GeoDa is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * GeoDa is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Created: 5/30/2017 lixun910@gmail.com
+ * Created and Modified: 5/30/2017 lixun910@gmail.com
  */
 
 #ifndef __GEODA_CENTER_HDBSCAN_H__
@@ -27,9 +12,10 @@
 #include <vector>
 
 #include "../kNN/ANN/ANN.h"
-#include "redcap.h"
 
-using namespace SpanningTreeClustering;
+using namespace std;
+
+class RawDistMatrix;
 
 namespace Gda {
     struct IdxCompare
@@ -204,15 +190,17 @@ namespace Gda {
         vector<double> probabilities;
         vector<double> stabilities;
         vector<double> outliers;
-    
+        set<int> clusters;
+        boost::unordered_map<int, int> cluster_map, reverse_cluster_map;
+        
         HDBScan(int min_points,
                 int min_samples,
                 double alpha,
                 int cluster_selection_method,
                 bool allow_single_cluster,
                 int rows, int cols,
-                double** _distances,
-                vector<double> _core_dist,
+                RawDistMatrix* raw_dist,
+                vector<double> core_dist,
                 const vector<bool>& undefs
                 //GalElement * w,
                 //double* controls,
@@ -223,7 +211,13 @@ namespace Gda {
         static vector<double> ComputeCoreDistance(double** input_data, int n_pts,
                                               int n_dim, int min_samples,
                                               char dist);
-
+        static vector<SimpleEdge*> mst_linkage_core_vector(int num_features,
+                                                    vector<double>& core_distances,
+                                                    RawDistMatrix* dist_metric,
+                                                    double alpha);
+        
+        void Run();
+        
         vector<vector<int> > GetRegions();
         
         vector<double> outlier_scores(vector<CondensedTree*>& tree);
@@ -258,10 +252,6 @@ namespace Gda {
                           int cluster_selection_method=0,
                           bool allow_single_cluster= false,
                           bool match_reference_implementation=false);
-        
-        void mst_linkage_core_vector(int num_features,
-                                     vector<double>& core_distances,
-                                     double** dist_metric, double alpha);
         
         vector<int> get_cluster_tree_leaves(vector<CondensedTree*>& cluster_tree);
         

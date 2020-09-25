@@ -209,7 +209,7 @@ help_btn(0), apply_btn(0)
    
 	wxBoxSizer* random_opt_h_szr = new wxBoxSizer(wxHORIZONTAL);
     {
-        wxStaticText* st17 = new wxStaticText(panel, wxID_ANY, _("Use specified seed:"),
+        wxStaticText* st17 = new wxStaticText(panel, wxID_ANY, _("Use Specified Seed:"),
                                               wxDefaultPosition, wxSize(128,-1));
         wxBoxSizer *hbox17 = new wxBoxSizer(wxHORIZONTAL);
         chk_seed = new wxCheckBox(panel, wxID_ANY, "");

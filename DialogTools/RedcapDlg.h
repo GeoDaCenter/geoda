@@ -25,7 +25,6 @@
 #include <wx/choice.h>
 #include <wx/checklst.h>
 
-
 #include "../FramesManager.h"
 #include "../VarTools.h"
 #include "AbstractClusterDlg.h"
@@ -52,6 +51,7 @@ public:
     
     void OnSeedCheck(wxCommandEvent& event);
     void OnChangeSeed(wxCommandEvent& event);
+    void OnCheckMinBound(wxCommandEvent& event);
     
     void InitVariableCombobox(wxListBox* var_box);
     
@@ -59,7 +59,6 @@ public:
     
 protected:
     wxChoice* combo_method;
-    wxChoice* combo_weights;
 
     wxTextCtrl* m_max_region;
     
@@ -68,16 +67,17 @@ protected:
     wxTextCtrl* m_textbox;
 
     wxChoice* m_method;
-
 	wxChoice* m_distance;
-    
+
+    wxStaticText* st_minregions;
+    wxTextCtrl* txt_minregions;
+
     wxButton* seedButton;
     wxButton* saveButton;
 
     wxCheckBox* chk_save_mst;
     
     SpanningTreeClustering::AbstractClusterFactory* redcap;
-    GeoDaWeight* weights;
     
     DECLARE_EVENT_TABLE()
 };

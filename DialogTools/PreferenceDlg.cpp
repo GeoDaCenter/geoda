@@ -196,9 +196,19 @@ void PreferenceDlg::Init()
     }
 	cmb33->SetSelection(0);
 	cmb33->Bind(wxEVT_COMBOBOX, &PreferenceDlg::OnChoice3, this);
-
-	grid_sizer1->Add(lbl_txt3, 1, wxEXPAND);
-	grid_sizer1->Add(cmb33, 0, wxALIGN_RIGHT);
+    grid_sizer1->Add(lbl_txt3, 1, wxEXPAND);
+    grid_sizer1->Add(cmb33, 0, wxALIGN_RIGHT);
+    
+    grid_sizer1->Add(new wxStaticText(vis_page, wxID_ANY, _("Draw the values of selected variable on map (input font size):")), 1,
+        wxEXPAND);
+    wxBoxSizer* box29 = new wxBoxSizer(wxHORIZONTAL);
+    cbox_lbl = new wxCheckBox(vis_page, XRCID("PREF_DRAW_LABELS"), "", pos);
+    txt_lbl_font = new wxTextCtrl(vis_page, XRCID("PREF_DRAW_LABEL_FONT_SIZE"), "8", pos, wxSize(85, -1), txt_num_style);
+    box29->Add(cbox_lbl);
+    box29->Add(txt_lbl_font);
+    grid_sizer1->Add(box29, 0, wxALIGN_RIGHT);
+    cbox_lbl->Bind(wxEVT_CHECKBOX, &PreferenceDlg::OnDrawLabels, this);
+    txt_lbl_font->Bind(wxEVT_COMMAND_TEXT_UPDATED, &PreferenceDlg::OnLabelFontSizeEnter, this);
 
 	grid_sizer1->Add(new wxStaticText(vis_page, wxID_ANY, _("Plots:")), 1,
                      wxTOP | wxBOTTOM, 10);
@@ -239,11 +249,6 @@ void PreferenceDlg::Init()
 	slider7->Bind(wxEVT_SLIDER, &PreferenceDlg::OnSlider7, this);
 
 
-	grid_sizer1->Add(new wxStaticText(vis_page, wxID_ANY, _("System:")), 1,
-		wxTOP | wxBOTTOM, 10);
-	grid_sizer1->AddSpacer(10);
-
-
     wxString lbl113 = _("Language:");
     wxStaticText* lbl_txt113 = new wxStaticText(vis_page, wxID_ANY, lbl113);
     cmb113 = new wxComboBox(vis_page, wxID_ANY, "", pos, wxDefaultSize, 0,
@@ -260,14 +265,14 @@ void PreferenceDlg::Init()
     grid_sizer1->Add(lbl_txt113, 1, wxEXPAND);
     grid_sizer1->Add(cmb113, 0, wxALIGN_RIGHT);
     
-	wxString lbl8 = _("Show Recent/Sample Data panel in Connect Datasource Dialog:");
+	wxString lbl8 = _("Show Recent/Sample data panel in Connect Datasource Dialog:");
 	wxStaticText* lbl_txt8 = new wxStaticText(vis_page, wxID_ANY, lbl8);
 	cbox8 = new wxCheckBox(vis_page, XRCID("PREF_SHOW_RECENT"), "", pos);
 	grid_sizer1->Add(lbl_txt8, 1, wxEXPAND);
 	grid_sizer1->Add(cbox8, 0, wxALIGN_RIGHT);
 	cbox8->Bind(wxEVT_CHECKBOX, &PreferenceDlg::OnShowRecent, this);
 
-	wxString lbl9 = _("Show CSV Configuration in Merge Data Dialog:");
+	wxString lbl9 = _("Show CSV configuration in Merge Data Dialog:");
 	wxStaticText* lbl_txt9 = new wxStaticText(vis_page, wxID_ANY, lbl9);
 	cbox9 = new wxCheckBox(vis_page, XRCID("PREF_SHOW_CSV_IN_MERGE"), "", pos);
 	grid_sizer1->Add(lbl_txt9, 1, wxEXPAND);
@@ -335,7 +340,7 @@ void PreferenceDlg::Init()
 	grid_sizer1->Add(txt_poweriter_eps, 0, wxALIGN_RIGHT);
     txt_poweriter_eps->Bind(wxEVT_COMMAND_TEXT_UPDATED, &PreferenceDlg::OnPowerEpsEnter, this);
     
-    wxString lbl20 = _("Use GPU to Accelerate computation:");
+    wxString lbl20 = _("Use GPU to accelerate computation:");
     wxStaticText* lbl_txt20 = new wxStaticText(vis_page, wxID_ANY, lbl20);
     cbox_gpu = new wxCheckBox(vis_page, XRCID("PREF_USE_GPU"), "", pos);
     grid_sizer1->Add(lbl_txt20, 1, wxEXPAND);
@@ -359,8 +364,11 @@ void PreferenceDlg::Init()
 #ifdef __WIN32__
 	gdal_page->SetBackgroundColour(*wxWHITE);
 #endif
-	notebook->AddPage(gdal_page, "Data Source");
-	wxFlexGridSizer* grid_sizer2 = new wxFlexGridSizer(10, 2, 8, 10);
+	notebook->AddPage(gdal_page, "Data");
+	wxFlexGridSizer* grid_sizer2 = new wxFlexGridSizer(12, 2, 8, 10);
+
+    grid_sizer2->Add(new wxStaticText(gdal_page, wxID_ANY, _("Source:")), 1);
+    grid_sizer2->AddSpacer(10);
 
 	wxString lbl21 = _("Hide system table in Postgresql connection:");
 	wxStaticText* lbl_txt21 = new wxStaticText(gdal_page, wxID_ANY, lbl21);
@@ -377,7 +385,6 @@ void PreferenceDlg::Init()
 	grid_sizer2->Add(cbox22, 0, wxALIGN_RIGHT);
 	cbox22->Bind(wxEVT_CHECKBOX, &PreferenceDlg::OnHideTableSQLITE, this);
 
-    
 	wxString lbl23 = _("Http connection timeout (seconds) for e.g. WFS, Geojson etc.:");
 	wxStaticText* lbl_txt23 = new wxStaticText(gdal_page, wxID_ANY, lbl23);
 	txt23 = new wxTextCtrl(gdal_page, XRCID("ID_HTTP_TIMEOUT"), "", pos,
@@ -385,7 +392,10 @@ void PreferenceDlg::Init()
 	grid_sizer2->Add(lbl_txt23, 1, wxEXPAND);
 	grid_sizer2->Add(txt23, 0, wxALIGN_RIGHT);
 	txt23->Bind(wxEVT_TEXT, &PreferenceDlg::OnTimeoutInput, this);
-   
+
+    grid_sizer2->Add(new wxStaticText(gdal_page, wxID_ANY, _("Table:")), 1, wxTOP, 10);
+    grid_sizer2->AddSpacer(10);
+
 	wxString lbl24 = _("Date/Time formats (using comma to separate formats):");
 	wxStaticText* lbl_txt24 = new wxStaticText(gdal_page, wxID_ANY, lbl24);
 	txt24 = new wxTextCtrl(gdal_page, XRCID("ID_DATETIME_FORMATS"), "", pos,
@@ -408,6 +418,17 @@ void PreferenceDlg::Init()
     grid_sizer2->Add(lbl_txt27, 1, wxEXPAND);
     grid_sizer2->Add(cbox_csvt, 0, wxALIGN_RIGHT);
     cbox_csvt->Bind(wxEVT_CHECKBOX, &PreferenceDlg::OnCreateCSVT, this);
+
+    grid_sizer2->Add(new wxStaticText(gdal_page, wxID_ANY, _("Clustering:")), 1, wxTOP, 10);
+    grid_sizer2->AddSpacer(10);
+
+    wxString lbl28 = _("Stop criterion for auto-weighting:");
+    wxStaticText* lbl_txt28 = new wxStaticText(gdal_page, wxID_ANY, lbl28);
+    txt26 = new wxTextCtrl(gdal_page, XRCID("ID_AUTO_WEIGHT_STOP"), "", pos,
+                           wxSize(85, -1), txt_num_style);
+    grid_sizer2->Add(lbl_txt28, 1, wxEXPAND);
+    grid_sizer2->Add(txt26, 0, wxALIGN_RIGHT);
+    txt26->Bind(wxEVT_TEXT, &PreferenceDlg::OnAutoWeightStopCriterion, this);
 
 	grid_sizer2->AddGrowableCol(0, 1);
 
@@ -459,8 +480,10 @@ void PreferenceDlg::OnReset(wxCommandEvent& ev)
     GdaConst::gda_use_gpu = false;
     GdaConst::gda_ui_language = 0;
     GdaConst::gda_eigen_tol = 1.0E-8;
+    GdaConst::gda_draw_map_labels = false;
+    GdaConst::gda_map_label_font_size = 8;
 	GdaConst::gda_set_cpu_cores = true;
-	GdaConst::gda_cpu_cores = 8;
+	GdaConst::gda_cpu_cores = 6;
 	GdaConst::use_cross_hatching = false;
 	GdaConst::transparency_highlighted = 255;
 	GdaConst::transparency_unhighlighted = 100;
@@ -480,6 +503,7 @@ void PreferenceDlg::OnReset(wxCommandEvent& ev)
     GdaConst::use_gda_user_seed= true;
     GdaConst::gda_user_seed = 123456789;
     GdaConst::default_display_decimals = 6;
+    GdaConst::gda_autoweight_stop = 0.0001;
     GdaConst::gda_datetime_formats_str = "%Y-%m-%d %H:%M:%S,%Y/%m/%d %H:%M:%S,%d.%m.%Y %H:%M:%S,%m/%d/%Y %H:%M:%S,%Y-%m-%d,%m/%d/%Y,%Y/%m/%d,%H:%M:%S,%H:%M,%Y/%m/%d %H:%M %p";
     GdaConst::gda_enable_set_transparency_windows = false;
     if (!GdaConst::gda_datetime_formats_str.empty()) {
@@ -514,14 +538,17 @@ void PreferenceDlg::OnReset(wxCommandEvent& ev)
 	ogr_adapt.AddEntry("use_gda_user_seed", "1");
 	ogr_adapt.AddEntry("gda_user_seed", "123456789");
 	ogr_adapt.AddEntry("gda_datetime_formats_str", "%Y-%m-%d %H:%M:%S,%Y/%m/%d %H:%M:%S,%d.%m.%Y %H:%M:%S,%m/%d/%Y %H:%M:%S,%Y-%m-%d,%m/%d/%Y,%Y/%m/%d,%H:%M:%S,%H:%M,%Y/%m/%d %H:%M %p");
-	ogr_adapt.AddEntry("gda_cpu_cores", "8");
+	ogr_adapt.AddEntry("gda_cpu_cores", "6");
 	ogr_adapt.AddEntry("gda_set_cpu_cores", "1");
 	ogr_adapt.AddEntry("gda_eigen_tol", "1.0E-8");
     ogr_adapt.AddEntry("gda_ui_language", "0");
     ogr_adapt.AddEntry("gda_use_gpu", "0");
     ogr_adapt.AddEntry("gda_displayed_decimals", "6");
+    ogr_adapt.AddEntry("gda_autoweight_stop", "0.0001");
     ogr_adapt.AddEntry("gda_enable_set_transparency_windows", "0");
     ogr_adapt.AddEntry("gda_create_csvt", "0");
+    ogr_adapt.AddEntry("gda_draw_map_labels", "0");
+    ogr_adapt.AddEntry("gda_map_label_font_size", "8");
 }
 
 void PreferenceDlg::SetupControls()
@@ -555,6 +582,7 @@ void PreferenceDlg::SetupControls()
     txt23->SetValue(wxString::Format("%d", GdaConst::gdal_http_timeout));
     txt24->SetValue(GdaConst::gda_datetime_formats_str);
     txt25->SetValue(wxString::Format("%d", GdaConst::default_display_decimals));
+    txt26->SetValue(wxString::Format("%f", GdaConst::gda_autoweight_stop));
 
     cbox6->SetValue(GdaConst::use_gda_user_seed);
     wxString t_seed;
@@ -576,6 +604,11 @@ void PreferenceDlg::SetupControls()
     cbox26->SetValue(GdaConst::gda_enable_set_transparency_windows);
 
     cbox_csvt->SetValue(GdaConst::gda_create_csvt);
+    
+    cbox_lbl->SetValue(GdaConst::gda_draw_map_labels);
+    wxString t_lbl_font_size;
+    t_lbl_font_size << GdaConst::gda_map_label_font_size;
+    txt_lbl_font->SetValue(t_lbl_font_size);
 }
 
 void PreferenceDlg::ReadFromCache()
@@ -840,6 +873,35 @@ void PreferenceDlg::ReadFromCache()
         }
     }
 
+    vector<wxString> gda_autoweight_stop = ogr_adapt.GetHistory("gda_autoweight_stop");
+    if (!gda_autoweight_stop.empty()) {
+        double sel_l = 0;
+        wxString sel = gda_autoweight_stop[0];
+        if (sel.ToDouble(&sel_l)) {
+            GdaConst::gda_autoweight_stop = sel_l;
+        }
+    }
+
+    vector<wxString> gda_draw_map_labels = ogr_adapt.GetHistory("gda_draw_map_labels");
+    if (!gda_draw_map_labels.empty()) {
+        long sel_l = 0;
+        wxString sel = gda_draw_map_labels[0];
+        if (sel.ToLong(&sel_l)) {
+            if (sel_l == 1)
+                GdaConst::gda_draw_map_labels = true;
+            else if (sel_l == 0)
+                GdaConst::gda_draw_map_labels = false;
+        }
+    }
+    vector<wxString> gda_map_label_font_size = ogr_adapt.GetHistory("gda_map_label_font_size");
+    if (!gda_map_label_font_size.empty()) {
+        long sel_l = 0;
+        wxString sel = gda_map_label_font_size[0];
+        if (sel.ToLong(&sel_l)) {
+            GdaConst::gda_map_label_font_size = sel_l;
+        }
+    }
+    
     // following are not in this UI, but still global variable
     vector<wxString> gda_user_email = ogr_adapt.GetHistory("gda_user_email");
     if (!gda_user_email.empty()) {
@@ -907,6 +969,20 @@ void PreferenceDlg::OnDisplayDecimal(wxCommandEvent& ev)
     if (val.ToLong(&_val)) {
         GdaConst::default_display_decimals = _val;
         OGRDataAdapter::GetInstance().AddEntry("gda_displayed_decimals", val);
+        if (table_state) {
+            table_state->SetRefreshEvtTyp();
+            table_state->notifyObservers();
+        }
+    }
+}
+
+void PreferenceDlg::OnAutoWeightStopCriterion(wxCommandEvent& ev)
+{
+    wxString val = txt26->GetValue();
+    double _val;
+    if (val.ToDouble(&_val)) {
+        GdaConst::gda_autoweight_stop = _val;
+        OGRDataAdapter::GetInstance().AddEntry("gda_autoweight_stop", val);
         if (table_state) {
             table_state->SetRefreshEvtTyp();
             table_state->notifyObservers();
@@ -1171,8 +1247,32 @@ void PreferenceDlg::OnCPUCoresEnter(wxCommandEvent& ev)
     wxString val = txt_cores->GetValue();
     long _val;
     if (val.ToLong(&_val)) {
-        GdaConst::gda_cpu_cores = _val;
+        GdaConst::gda_cpu_cores = (int)_val;
         OGRDataAdapter::GetInstance().AddEntry("gda_cpu_cores", val);
+    }
+}
+
+void PreferenceDlg::OnDrawLabels(wxCommandEvent& ev)
+{
+    int sel = ev.GetSelection();
+    if (sel == 0) {
+        GdaConst::gda_draw_map_labels = false;
+        OGRDataAdapter::GetInstance().AddEntry("gda_draw_map_labels", "0");
+        txt_lbl_font->Disable();
+    }
+    else {
+        GdaConst::gda_draw_map_labels = true;
+        OGRDataAdapter::GetInstance().AddEntry("gda_draw_map_labels", "1");
+        txt_lbl_font->Enable();
+    }
+}
+void PreferenceDlg::OnLabelFontSizeEnter(wxCommandEvent& ev)
+{
+    wxString val = txt_lbl_font->GetValue();
+    long _val;
+    if (val.ToLong(&_val)) {
+        GdaConst::gda_map_label_font_size = (int)_val;
+        OGRDataAdapter::GetInstance().AddEntry("gda_map_label_font_size", val);
     }
 }
 

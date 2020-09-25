@@ -315,7 +315,7 @@ isDragDropAllowed(false)
     leg_pad_x = 10;
     leg_pad_y = 5;
     
-    current_map_title = canvas->GetName() + " (current map)";
+    current_map_title = canvas->GetName() + _(" (current map)");
     
     Init();
 
@@ -356,7 +356,7 @@ void MapTree::Init()
     for (int i=0; i<map_titles.size(); i++) {
         wxString lbl = map_titles[i];
         int x =  px;
-        int y =  py + (leg_h + leg_pad_y) * i;
+        //int y =  py + (leg_h + leg_pad_y) * i;
         wxPoint pt(x, py);
         wxSize sz(w - x, leg_h);
         new_order.push_back(i);
@@ -494,7 +494,7 @@ void MapTree::OnSpatialJoinCount(wxCommandEvent& event)
         new_data[0].type = GdaConst::long64_type;
         new_data[0].undefined = &undefs;
         SaveToTableDlg dlg(canvas->GetProject(), this, new_data,
-                           "Save Results: Spatial Counts",
+                           _("Save Results: Spatial Counts"),
                            wxDefaultPosition, wxSize(400,400));
         dlg.ShowModal();
     }
@@ -509,7 +509,23 @@ void MapTree::OnChangeFillColor(wxCommandEvent& event)
         clr = wxGetColourFromUser(this, ml->GetBrushColour());
         ml->SetBrushColour(clr);
         Refresh();
-        canvas->DisplayMapLayers();
+        canvas->RedrawMap();
+    }
+}
+
+void MapTree::OnChangeAssociatelineColor(wxCommandEvent& event)
+{
+    wxString map_name = map_titles[new_order[select_id]];
+    AssociateLayerInt* ml = GetMapLayer(map_name);
+    if (ml == NULL) {
+        ml = canvas;
+    }
+    if (ml) {
+        wxColour clr;
+        clr = wxGetColourFromUser(this, ml->GetAssociatePenColour());
+        ml->SetAssociatePenColour(clr);
+        Refresh();
+        canvas->RedrawMap();
     }
 }
 
@@ -522,9 +538,10 @@ void MapTree::OnChangeOutlineColor(wxCommandEvent& event)
         clr = wxGetColourFromUser(this, ml->GetPenColour());
         ml->SetPenColour(clr);
         Refresh();
-        canvas->DisplayMapLayers();
+        canvas->RedrawMap();
     }
 }
+
 void MapTree::OnChangePointRadius(wxCommandEvent& event)
 {
     wxString map_name = map_titles[new_order[select_id]];
@@ -536,14 +553,13 @@ void MapTree::OnChangePointRadius(wxCommandEvent& event)
             int new_radius = dlg.GetRadius();
             ml->SetPointRadius(new_radius);
             Refresh();
-            canvas->DisplayMapLayers();
+            canvas->RedrawMap();
         }
     }
 }
 
 void MapTree::OnClearAssociateLayer(wxCommandEvent& event)
 {
-    vector<AssociateLayerInt*> all_layers;
     wxString map_name = map_titles[new_order[select_id]];
     AssociateLayerInt* ml = GetMapLayer(map_name);
     
@@ -555,6 +571,49 @@ void MapTree::OnClearAssociateLayer(wxCommandEvent& event)
     
     ml->ClearLayerAssociation();
     
+}
+
+void MapTree::OnZoomToLayer(wxCommandEvent& event)
+{
+    // set map extent to selected layer
+    wxString map_name = map_titles[new_order[select_id]];
+    BackgroundMapLayer* ml = GetMapLayer(map_name);
+    double minx, miny, maxx, maxy;
+    if (ml == NULL) {
+        // selected layer is current map
+        canvas->GetExtent(minx, miny, maxx, maxy);
+    } else {
+        // other layer
+        ml->GetExtent(minx, miny, maxx, maxy);
+    }
+    canvas->ExtentTo(minx, miny, maxx, maxy);
+    canvas->RedrawMap();
+}
+
+void MapTree::OnZoomToSelected(wxCommandEvent& event)
+{
+    // set map extent to selected objects in mouse clicked layer
+    wxString map_name = map_titles[new_order[select_id]];
+    BackgroundMapLayer* ml = GetMapLayer(map_name);
+    double minx, miny, maxx, maxy;
+    if (ml == NULL) {
+        // selected layer is current map
+        canvas->GetExtentOfSelected(minx, miny, maxx, maxy);
+    } else {
+        // other layer
+        ml->GetExtentOfSelected(minx, miny, maxx, maxy);
+        // re projection if needed
+        OGRSpatialReference* destSR = canvas->GetSpatialReference();
+        OGRSpatialReference* sourceSR = ml->GetSpatialReference();
+        OGRCoordinateTransformation *poCT = OGRCreateCoordinateTransformation(sourceSR, destSR);
+        if (poCT!= NULL) {
+            //poCT->Transform(1, &minx, &miny);
+            //poCT->Transform(1, &maxx, &maxx);
+        }
+    }
+    canvas->ExtentTo(minx, miny, maxx, maxy);
+    canvas->RedrawMap();
+    canvas->ResetBrushing();
 }
 
 void MapTree::OnSetAssociateLayer(wxCommandEvent& event)
@@ -647,7 +706,7 @@ void MapTree::OnOutlineVisible(wxCommandEvent& event)
             ml->SetPenSize(1);
         }
         Refresh();
-        canvas->DisplayMapLayers();
+        canvas->RedrawMap();
     }
 }
 void MapTree::OnShowMapBoundary(wxCommandEvent& event)
@@ -658,7 +717,7 @@ void MapTree::OnShowMapBoundary(wxCommandEvent& event)
         bool show_bnd = ml->IsShowBoundary();
         ml->ShowBoundary(!show_bnd);
         Refresh();
-        canvas->DisplayMapLayers();
+        canvas->RedrawMap();
     }
 }
 
@@ -680,11 +739,11 @@ void MapTree::OnEvent(wxMouseEvent& event)
         Refresh();
     } else if (event.Dragging()) {
         if (isLeftDown) {
-            isLeftMove = true;
             // moving
             if (select_id > -1 ) {
+                isLeftMove = true;
                 // paint selected label with mouse
-                int label_id = new_order[select_id];
+                //int label_id = new_order[select_id];
                 move_pos = event.GetPosition();
                 if (cat_clicked > -1 && select_id != cat_clicked) {
                     // reorganize new_order
@@ -734,8 +793,18 @@ void MapTree::OnRightClick(wxMouseEvent& event)
     
     wxString map_name = map_titles[ new_order[select_id] ];
     BackgroundMapLayer* ml = GetMapLayer(map_name);
-    
-    wxString menu_name =  _("Set Highlight Association");
+
+    wxString menu_name = _("Layer Full Extent");
+    popupMenu->Append(XRCID("MAPTREE_SET_LAYER_EXTENT"), menu_name);
+    Connect(XRCID("MAPTREE_SET_LAYER_EXTENT"), wxEVT_COMMAND_MENU_SELECTED,
+            wxCommandEventHandler(MapTree::OnZoomToLayer));
+    menu_name = _("Zoom to Selected");
+    popupMenu->Append(XRCID("MAPTREE_ZOOM_TO_SELECTED"), menu_name);
+    Connect(XRCID("MAPTREE_ZOOM_TO_SELECTED"), wxEVT_COMMAND_MENU_SELECTED,
+            wxCommandEventHandler(MapTree::OnZoomToSelected));
+    popupMenu->AppendSeparator();
+
+    menu_name =  _("Set Highlight Association");
     popupMenu->Append(XRCID("MAPTREE_SET_FOREIGN_KEY"), menu_name);
     Connect(XRCID("MAPTREE_SET_FOREIGN_KEY"), wxEVT_COMMAND_MENU_SELECTED,
             wxCommandEventHandler(MapTree::OnSetAssociateLayer));
@@ -744,7 +813,10 @@ void MapTree::OnRightClick(wxMouseEvent& event)
                       _("Clear Highlight Association"));
     Connect(XRCID("MAPTREE_CLEAR_FOREIGN_KEY"), wxEVT_COMMAND_MENU_SELECTED,
             wxCommandEventHandler(MapTree::OnClearAssociateLayer));
-    
+
+    popupMenu->Append(XRCID("MAPTREE_CHANGE_ASSOCIATELINE_COLOR"), _("Change Associate Line Color"));
+    Connect(XRCID("MAPTREE_CHANGE_ASSOCIATELINE_COLOR"), wxEVT_COMMAND_MENU_SELECTED,
+            wxCommandEventHandler(MapTree::OnChangeAssociatelineColor));
     if (ml == NULL) {
         // if it's current map, then no other options other than "Set Highlight"
         PopupMenu(popupMenu, event.GetPosition());
@@ -752,18 +824,16 @@ void MapTree::OnRightClick(wxMouseEvent& event)
     }
     
     popupMenu->AppendSeparator();
-    
     popupMenu->Append(XRCID("MAPTREE_CHANGE_FILL_COLOR"), _("Change Fill Color"));
     popupMenu->Append(XRCID("MAPTREE_CHANGE_OUTLINE_COLOR"), _("Change Outline Color"));
     popupMenu->Append(XRCID("MAPTREE_OUTLINE_VISIBLE"), _("Outline Visible"));
-        
+
     // check menu items
     wxMenuItem* outline = popupMenu->FindItem(XRCID("MAPTREE_OUTLINE_VISIBLE"));
     if (outline) {
         outline->SetCheckable(true);
         if (ml->GetPenSize() > 0) outline->Check();
     }
-    
     Connect(XRCID("MAPTREE_CHANGE_FILL_COLOR"), wxEVT_COMMAND_MENU_SELECTED,
             wxCommandEventHandler(MapTree::OnChangeFillColor));
     Connect(XRCID("MAPTREE_CHANGE_OUTLINE_COLOR"), wxEVT_COMMAND_MENU_SELECTED,
@@ -813,7 +883,12 @@ void MapTree::OnDraw(wxDC& dc)
     for (int i=0; i<new_order.size(); i++) {
         int idx = new_order[i];
         wxString map_name = map_titles[idx];
-        
+        if (i == 0) {
+            dc.SetTextForeground(*wxBLACK);
+        } else {
+            wxColour color(80,80,80);
+            dc.SetTextForeground(color);
+        }
         if (select_name != map_name) {
             int y =  py + (leg_h + leg_pad_y) * i;
             DrawLegend(dc, px_switch, y, map_name);
@@ -850,10 +925,6 @@ void MapTree::DrawLegend(wxDC& dc, int x, int y, wxString text)
     }
     
     x = x + leg_w + leg_pad_x;
-    dc.SetTextForeground(*wxBLACK);
-    if (text == current_map_title) {
-        dc.SetTextForeground(*wxLIGHT_GREY);
-    }
     
     // add highlight/all
     AssociateLayerInt* ml_int;
@@ -952,7 +1023,7 @@ void MapTree::OnSwitchClick(wxMouseEvent& event)
         
         if (ml_int) {
             ml_int->SetHide(!ml_int->IsHide());
-            canvas->DisplayMapLayers();
+            canvas->RedrawMap();
             Refresh();
         } 
     }
@@ -996,10 +1067,12 @@ void MapTree::OnMapLayerChange()
             is_fgmap = false;
             continue;
         }
+        BackgroundMapLayer* lyr = GetMapLayer(name);
+        lyr->ResetHighlight();
         if (is_fgmap) {
-            new_fg_maps.push_back(GetMapLayer(name));
+            new_fg_maps.push_back(lyr);
         } else {
-            new_bg_maps.push_back(GetMapLayer(name));
+            new_bg_maps.push_back(lyr);
         }
     }
     
@@ -1008,8 +1081,14 @@ void MapTree::OnMapLayerChange()
 	is_resize = true;
     canvas->SetForegroundMayLayers(fg_maps);
     canvas->SetBackgroundMayLayers(bg_maps);
-    if (!canvas->IsExtentChanged()) canvas->ExtentMap();
-    canvas->DisplayMapLayers();
+
+    // update selection if selection box is made
+    //if (fg_maps.empty() == false) {
+    //    canvas->UpdateSelectionPoints();
+    //}
+    
+    // update the canvas
+    canvas->RedrawMap();
 }
 
 void MapTree::AddCategoryColorToMenu(wxMenu* menu, int cat_clicked)

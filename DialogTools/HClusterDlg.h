@@ -41,9 +41,9 @@ public:
         y = _y;
         
         w = 20;
-        h = 8;
+        h = 4;
         
-        rec = wxRect(x + 8, y - 5,w,h);
+        rec = wxRect(x + 8, y - 2,w,h);
         color = _color;
     }
     ~RectNode() {
@@ -55,16 +55,27 @@ public:
         return rec.Contains(cur_pos);
     }
     
-    void draw(wxDC& dc) {
+    bool intersects(const wxRect& rect) {
+        int x_left = rect.width >= 0 ? rect.x : rect.x + rect.width;
+        int x_right = rect.width >= 0 ? rect.x + rect.width : rect.x;
+        int y_top = rect.height >= 0 ? rect.y : rect.y + rect.height;
+        int y_bottom = rect.height >= 0 ? rect.y + rect.height : rect.y;
+        
+        return !(rec.x + rec.width < x_left || rec.x > x_right ||
+                 rec.y > y_bottom || rec.y + rec.height < y_top);
+        //return rec.Intersects(rect);
+    }
+    
+    void draw(wxDC& dc, bool is_hl=false) {
         wxBrush brush(color);
         wxPen pen(color);
         dc.SetBrush(brush);
         dc.SetPen(pen);
-        dc.DrawRectangle(wxRect(x, y-2, 4, 4));
-        
+        //dc.DrawRectangle(wxRect(x, y-2, 4, 4));
+                
+        if (is_hl)
+            dc.SetPen(*wxRED);
         dc.DrawRectangle(rec);
-        dc.SetPen(*wxBLACK_PEN);
-        dc.SetBrush(*wxTRANSPARENT_BRUSH);
     }
     
     int idx;
@@ -137,7 +148,8 @@ public:
 class DendroColorPoint
 {
 public:
-    DendroColorPoint(){
+    DendroColorPoint() {
+        color = *wxBLACK;
         is_valid = false;
     }
     DendroColorPoint(const wxPoint& _pt, const wxColour& _clr){
@@ -175,10 +187,11 @@ public:
     void OnSplitLineChange(int x);
     
     void SetActive(bool flag);
+    void SetHighlight(const std::vector<int>& ids);
     
 private:
     bool isWindowActive;
-    
+    bool isMovingSelectBox;
     int leaves;
     int levels;
     int nelements;
@@ -191,6 +204,7 @@ private:
     double heightPerLeaf;
     double widthPerLevel;
     double maxDistance;
+    double minDistance;
     double cutoffDistance;
     
     bool isResize;
@@ -204,6 +218,7 @@ private:
     bool isMovingSplitLine;
     wxPoint startPos;
     std::vector<int> hl_ids;
+    std::vector<bool> hs;
     
     std::map<int, int> accessed_node;
     std::map<int, double> level_node;
@@ -211,6 +226,7 @@ private:
     std::vector<wxInt64> clusters;
     std::vector<wxColour> color_vec;
     DendroSplitLine* split_line;
+    wxRect* select_box;
     
     int countLeaves(GdaNode* node);
     
@@ -221,6 +237,7 @@ private:
     
     DendroColorPoint doDraw(wxDC &dc, int node_idx, int y);
     void init();
+    void NotifySelection();
     
     DECLARE_ABSTRACT_CLASS(DendrogramPanel)
     DECLARE_EVENT_TABLE()
@@ -229,7 +246,7 @@ private:
 class HClusterDlg : public AbstractClusterDlg, public HighlightStateObserver
 {
 public:
-    HClusterDlg(wxFrame *parent, Project* project);
+    HClusterDlg(wxFrame *parent, Project* project, bool show_centroids=true);
     virtual ~HClusterDlg();
     
     void CreateControls();
@@ -239,11 +256,10 @@ public:
     void OnOKClick( wxCommandEvent& event );
     void OnClickClose( wxCommandEvent& event );
     void OnClose(wxCloseEvent& ev);
-    void OnDistanceChoice(wxCommandEvent& event);
     void OnClusterChoice(wxCommandEvent& event);
     void OnNotebookChange(wxBookCtrlEvent& event);
     void InitVariableCombobox(wxListBox* var_box);
-    void OnSpatialConstraintCheck(wxCommandEvent& event);
+    void OnMethodChoice(wxCommandEvent& event);
     
     virtual void update(HLStateInt* o);
     
@@ -259,8 +275,6 @@ protected:
     virtual bool Run(vector<wxInt64>& clusters);
     virtual bool CheckAllInputs();
 
-    void SpatialConstraintClustering();
-
     GdaNode* htree;
     int n_cluster;
     char dist;
@@ -268,16 +282,16 @@ protected:
 
     double cutoffDistance;
     vector<wxInt64> clusters;
+    bool show_centroids;
     
     wxButton *saveButton;
     wxChoice* combo_cov;
-    wxChoice* combo_weights;
     wxTextCtrl* m_textbox;
     wxChoice* m_method;
     wxChoice* m_distance;
     DendrogramPanel* m_panel;
     wxNotebook* notebook;
-    wxCheckBox* chk_contiguity;
+    wxStaticText* m_sctxt;
     
     DECLARE_EVENT_TABLE()
 };

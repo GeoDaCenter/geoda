@@ -233,6 +233,8 @@ vector<wxString> OGRDatasourceProxy::GetLayerNames()
 
 OGRLayerProxy* OGRDatasourceProxy::ExecuteSQL(wxString _sql)
 {
+    if (is_writable == false) return NULL;
+    
     const char * sql = (const char*) _sql.mb_str(wxConvUTF8);
 	OGRLayer* tmp_layer = ds->ExecuteSQL(sql,  0, 0);
 	//tmp_layer->SyncToDisk();
@@ -401,7 +403,7 @@ OGRDatasourceProxy::CreateLayer(wxString layer_name,
             for ( int t=0; t < time_steps; t++ ) {
                 wxString fname = table->GetColName(id, t);
                 if (fname.empty()) {
-                    wxString tmp = _("Can't create layer %s with empty field (%s) name.");
+                    wxString tmp = _("Can't create layer %s with empty field (%d) name.");
                     error_message << wxString::Format(tmp, layer_name, id);
                     throw GdaException(error_message.mb_str());
                 }

@@ -5,7 +5,6 @@
 *.gal
 *.pyc
 
-.vscode/
 deps/
 
 swig/*.gwt
@@ -31,6 +30,7 @@ BuildTools/windows/GeoDa.vcxproj.filters
 BuildTools/macosx/libraries/
 BuildTools/macosx/libraries1/
 BuildTools/macosx/libraries108/
+BuildTools/macosx/DerivedData/
 BuildTools/macosx/temp/
 BuildTools/macosx/temp1/
 BuildTools/macosx/temp108/

@@ -2331,11 +2331,11 @@ msgid "Hide system table in SQLITE connection:"
 msgstr "Ocultar tabla de sistema en conexión SQLITE:"
 
 #contributors:
-msgid "Hierachical Map does not work with Table only datasource."
+msgid "Hierarchical Map does not work with Table only datasource."
 msgstr ""
 
 #contributors:
-msgid "Hierachical Map: "
+msgid "Hierarchical Map: "
 msgstr ""
 
 #contributors:
@@ -3283,7 +3283,7 @@ msgid "Number of neighbors"
 msgstr "Número de vecinos"
 
 #contributors:
-msgid "Number of not clustered observations: "
+msgid "Number of observations not in a cluster: "
 msgstr ""
 
 #contributors:

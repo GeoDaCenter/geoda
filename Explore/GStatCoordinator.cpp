@@ -92,7 +92,7 @@ var_info(var_info_s),
 data(var_info_s.size()),
 data_undef(var_info_s.size()),
 last_seed_used(123456789), reuse_last_seed(true),
-is_local_joint_count(_is_local_joint_count)
+is_local_join_count(_is_local_joint_count)
 {
     wxLogMessage("Entering GStatCoordinator::GStatCoordinator().");
     reuse_last_seed = GdaConst::use_gda_user_seed;
@@ -285,6 +285,7 @@ void GStatCoordinator::InitFromVarInfo()
 	}
     
 	for (int t=0; t<num_time_vals; t++) {
+        x = x_vecs[t];
         GalElement* W  = NULL;
         if (!Gal_vecs.empty() && Gal_vecs[t] == NULL) {
             // local weights copy
@@ -299,9 +300,8 @@ void GStatCoordinator::InitFromVarInfo()
             Gal_vecs[t] = gw;
             Gal_vecs_orig[t] = w_man_int->GetGal(w_id);
         }
-		x = x_vecs[t];
-        
-        if (is_local_joint_count) {
+
+        if (is_local_join_count) {
             int num_obs_1s = 0;
             int num_obs_0s = 0;
             int valid_num_obs = 0;
@@ -314,27 +314,42 @@ void GStatCoordinator::InitFromVarInfo()
             }
             // count neighbors and neighors with 1
             for (int i=0; i<num_obs; i++) {
-                if (x_undefs[t][i])
+                if (x_undefs[t][i]) {
                     continue;
-                num_neighbors[i] = W[i].Size();
+                }
+                int nn = W[i].Size();
+                // check self-neighbor
+                if (W[i].Check(i)) {
+                    nn -= 1;
+                }
+                num_neighbors[i] = nn;
                 num_neighbors_1[t][i] = 0;
-                for (int j=0; j< W[i].Size(); j++) {
-                    if (x[W[i][j]] == 1) {
+                for (int j=0; j < W[i].Size(); j++) {
+                    // W[i][j] != i not self-neighbor
+                    if (x[W[i][j]] == 1 && W[i][j] != i) {
                         num_neighbors_1[t][i] += 1;
                     }
                 }
-                if (x[i] ==1)  num_obs_1s +=1;
-                else {
+                if (x[i] ==1) {
+                    num_obs_1s += 1;
+                } else {
                     num_neighbors_1[t][i] = 0;
                     num_obs_0s += 1;
                 }
             }
         }
-        
+
+        // compute G and G*
 		for (int i=0; i<num_obs; i++) {
-            if (x_undefs[t][i])
+            if (x_undefs[t][i]) {
                 continue;
-			if ( W[i].Size() > 0 ) {
+            }
+            int nn = W[i].Size();
+            // check self-neighbor
+            if (W[i].Check(i)) {
+                nn -= 1;
+            }
+			if (nn > 0) {
 				n[t]++;
 				x_star[t] += x[i];
 				x_sstar[t] += x[i] * x[i];
@@ -343,7 +358,7 @@ void GStatCoordinator::InitFromVarInfo()
 		ExG[t] = 1.0/(n[t]-1); // same for all i when W is row-standardized
 		ExGstar[t] = 1.0/n[t]; // same for all i when W is row-standardized
 		mean_x[t] = x_star[t] / n[t]; // x hat (overall)
-		var_x[t] = x_sstar[t]/n[t] - mean_x[t]*mean_x[t]; // s^2 overall
+		var_x[t] = x_sstar[t] / n[t] - mean_x[t]*mean_x[t]; // s^2 overall
 		
 		// when W is row-standardized, VarGstar same for all i
 		// same as s^2 / (n^2 mean_x ^2)
@@ -410,7 +425,7 @@ void GStatCoordinator::FillClusterCats(int canvas_time, bool is_gi, bool is_perm
 			c_val[i] = 3; // isolate
             
 		} else if (p_val[i] <= significance_cutoff) {
-            if (is_local_joint_count == false) {
+            if (is_local_join_count == false) {
                 c_val[i] = z_val[i] > 0 ? 1 : 2; // high = 1, low = 2
                 
             } else {
@@ -455,8 +470,9 @@ void GStatCoordinator::CalcGs()
 		double n_expr = sqrt((n[t]-1)*(n[t]-1)*(n[t]-2));
         
 		for (long i=0; i<num_obs; i++) {
-            if (x_undefs[t][i]) continue;
-            
+            if (x_undefs[t][i]) {
+                continue;
+            }
 			const GalElement& elm_i = W[i];
 			if ( elm_i.Size() > 0 ) {
 				double lag = 0;
@@ -470,11 +486,12 @@ void GStatCoordinator::CalcGs()
 				}
 				double Wi = self_neighbor ? W[i].Size()-1 : W[i].Size();
 				if (row_standardize) {
-					lag /= elm_i.Size();
+					lag /= Wi;
 					Wi /= elm_i.Size();
 				}
 				double xd_i = x_star[t] - x[i];
 				if (xd_i != 0) {
+                    // NOT includes the value xi in both numerator and denominator:
 					G[i] = lag / xd_i;
 				}
 				double x_hat_i = xd_i * ExG[t]; // (x_star - x[i])/(n-1)
@@ -513,6 +530,7 @@ void GStatCoordinator::CalcGs()
                     }
 					lag += x[elm_i[j]];
 				}
+                // includes the value xi in both numerator and denominator:
 				G_star[i] = self_neighbor ? lag / (sz_i * x_star[t]) : (lag+x[i]) / ((sz_i+1) * x_star[t]);
 				z_star[i] = (G_star[i] - ExGstar[t])/sdGstar[t];
 			}
@@ -657,14 +675,19 @@ void GStatCoordinator::CalcPseudoP_range(int obs_start, int obs_end,uint64_t see
         GalElement* w;
         for (int t=0; t<num_time_vals; t++) {
             w = Gal_vecs[t]->gal;
-            if (w[i].Size() > numNeighbors)
+            if (w[i].Size() > numNeighbors) {
                 numNeighbors = w[i].Size();
+                if (w[i].Check(i)) {
+                    // exclude self from neighbors in shuffle
+                    numNeighbors -= 1;
+                }
+            }
         }
         if (numNeighbors == 0) {
             continue;
         }
         
-        if (is_local_joint_count && nn_1_t[i] ==0) {
+        if (is_local_join_count && nn_1_t[i] ==0) {
             for (int t=0; t<num_time_vals; t++) {
                 double* p_t = pseudo_p_vecs[t];
                 double* ps_t = pseudo_p_star_vecs[t];
@@ -701,9 +724,9 @@ void GStatCoordinator::CalcPseudoP_range(int obs_start, int obs_end,uint64_t see
                 double* _x = x_vecs[t];
                 double _x_star_t = x_star[t];
                
-                if (undefs[i])
+                if (undefs[i]) {
                     continue;
-                
+                }
                 double xd_i = _x_star_t - _x[i];
                 int validNeighbors = 0;
                 double lag_i=0;

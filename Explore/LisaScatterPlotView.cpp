@@ -197,9 +197,7 @@ wxString LisaScatterPlotCanvas::GetVariableNames()
     if (is_bi || is_rate || is_diff) {
         v1 << var_info_orig[1].name;
         if (var_info_orig[1].is_time_variant) {
-            v1 << " (" << project->GetTableInt()->
-            GetTimeString(var_info_orig[1].time);
-            v1 << ")";
+            v1 << " (" << project->GetTableInt()->GetTimeString(var_info_orig[1].time) << ")";
         }
     }    
     
@@ -234,9 +232,7 @@ wxString LisaScatterPlotCanvas::GetNameWithTime(int var)
 	if (is_bi || is_rate || is_diff) {
 		v1 << var_info_orig[1].name;
 		if (var_info_orig[1].is_time_variant) {
-			v1 << " (" << project->GetTableInt()->
-				GetTimeString(var_info_orig[1].time);
-			v1 << ")";
+			v1 << " (" << project->GetTableInt()->GetTimeString(var_info_orig[1].time) << ")";
 		}
 	}
 	wxString s0;
@@ -273,8 +269,7 @@ void LisaScatterPlotCanvas::SetCheckMarks(wxMenu* menu)
     
     GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_USE_SPECIFIED_SEED"),
 								  lisa_coord->IsReuseLastSeed());
-    
-    
+
 	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_VIEW_REGIMES_REGRESSION"),
                                   is_show_regimes_regression);
 }
@@ -358,7 +353,8 @@ void LisaScatterPlotCanvas::SyncVarInfoFromCoordinator()
     GalElement* gal = w->gal;
     
 	for (int t=0; t<lisa_coord->num_time_vals; t++) {
-        double x_min, x_max, y_min, y_max;
+        double x_min = DBL_MAX, x_max = DBL_MIN;
+        double y_min = DBL_MAX, y_max = DBL_MIN;
         
         bool has_init = false;
         
@@ -764,8 +760,7 @@ void LisaScatterPlotCanvas::RegimeMoran(std::vector<bool>& undefs,
     GalWeight* copy_w = new GalWeight(*lisa_coord->Gal_vecs[t]);
     copy_w->Update(undefs);
     GalElement* W = copy_w->gal;
-   
-    
+       
     double* data1 = new double[num_obs];
     double* data2 = NULL;
     
@@ -789,12 +784,12 @@ void LisaScatterPlotCanvas::RegimeMoran(std::vector<bool>& undefs,
             // isolates (islands) have to be removed
             continue;
         }
-        
+        bool is_binary = true;
         double Wdata = 0;
         if (lisa_coord->isBivariate) {
-            Wdata = W[i].SpatialLag(data2);
+            Wdata = W[i].SpatialLag(data2, is_binary, i);
         } else {
-            Wdata = W[i].SpatialLag(data1);
+            Wdata = W[i].SpatialLag(data1, is_binary, i);
         }
         X.push_back(data1[i]);
         Y.push_back(Wdata);

@@ -414,9 +414,8 @@ void OGRLayerProxy::DeleteField(int pos)
     // remove this field in local OGRFeature vector
     for (size_t i=0; i < data.size(); ++i) {
         OGRFeature* my_feature = data[i];
-#ifdef __linux__
-	// move to official gdal on linux, so no need to call DeleteField()
-#else
+#ifdef __WIN32__
+	// move to official gdal on linux and mac, so no need to call DeleteField()
 		my_feature->DeleteField(pos);
 #endif
     }
@@ -488,60 +487,24 @@ bool OGRLayerProxy::CallCartoDBAPI(wxString url)
 
 bool OGRLayerProxy::UpdateColumn(int col_idx, vector<double> &vals)
 {
-    if (ds_type == GdaConst::ds_cartodb) {
-        // update column using CARTODB_API directly, avoid single UPDATE clause
-        wxString col_name = GetFieldName(col_idx);
-        CartoDBProxy::GetInstance().UpdateColumn(name, col_name, vals);
-        
-        // update memory still
-        for (int rid=0; rid < n_rows; rid++) {
-            data[rid]->SetField(col_idx, vals[rid]);
-        }
-        
-    } else {
-        for (int rid=0; rid < n_rows; rid++) {
-            SetValueAt(rid, col_idx, vals[rid]);
-        }
+    for (int rid=0; rid < n_rows; rid++) {
+        SetValueAt(rid, col_idx, vals[rid]);
     }
 	return true;
     
 }
 bool OGRLayerProxy::UpdateColumn(int col_idx, vector<wxInt64> &vals)
 {
-    if (ds_type == GdaConst::ds_cartodb) {
-        // update column using CARTODB_API directly, avoid single UPDATE clause
-        wxString col_name = GetFieldName(col_idx);
-        CartoDBProxy::GetInstance().UpdateColumn(name, col_name, vals);
-        
-        // update memory still
-        for (int rid=0; rid < n_rows; rid++) {
-            data[rid]->SetField(col_idx, (GIntBig)vals[rid]);
-        }
-        
-    } else {
-        for (int rid=0; rid < n_rows; rid++) {
-            SetValueAt(rid, col_idx, (GIntBig)vals[rid]);
-        }
+    for (int rid=0; rid < n_rows; rid++) {
+        SetValueAt(rid, col_idx, (GIntBig)vals[rid]);
     }
 	return true;
 }
 
 bool OGRLayerProxy::UpdateColumn(int col_idx, vector<wxString> &vals)
 {
-    if (ds_type == GdaConst::ds_cartodb) {
-        // update column using CARTODB_API directly, avoid single UPDATE clause
-        wxString col_name = GetFieldName(col_idx);
-        CartoDBProxy::GetInstance().UpdateColumn(name, col_name, vals);
-        
-        // update memory still
-        for (int rid=0; rid < n_rows; rid++) {
-            data[rid]->SetField(col_idx, vals[rid].mb_str());
-        }
-        
-    } else {
-        for (int rid=0; rid < n_rows; rid++) {
-            SetValueAt(rid, col_idx, vals[rid].mb_str());
-        }
+    for (int rid=0; rid < n_rows; rid++) {
+        SetValueAt(rid, col_idx, vals[rid].mb_str());
     }
 	return true;
 }
@@ -588,7 +551,7 @@ Shapefile::ShapeType OGRLayerProxy::GetOGRGeometries(vector<OGRGeometry*>& geoms
     if (dest_sr && spatialRef) {
         poCT = OGRCreateCoordinateTransformation(spatialRef, dest_sr);
     }
-    Shapefile::ShapeType shape_type;
+    Shapefile::ShapeType shape_type = Shapefile::NULL_SHAPE;
     //read OGR geometry features
     int feature_counter =0;
     for ( int row_idx=0; row_idx < n_rows; row_idx++ ) {
@@ -620,11 +583,12 @@ Shapefile::ShapeType OGRLayerProxy::GetOGRGeometries(vector<OGRGeometry*>& geoms
 Shapefile::ShapeType OGRLayerProxy::GetGdaGeometries(vector<GdaShape*>& geoms,
                                                 OGRSpatialReference* dest_sr)
 {
+    bool is_geoms_init = !geoms.empty();
     OGRCoordinateTransformation *poCT = NULL;
     if (dest_sr && spatialRef) {
         poCT = OGRCreateCoordinateTransformation(spatialRef, dest_sr);
     }
-    Shapefile::ShapeType shape_type;
+    Shapefile::ShapeType shape_type = Shapefile::NULL_SHAPE;
     //read OGR geometry features
     int feature_counter =0;
     for ( int row_idx=0; row_idx < n_rows; row_idx++ ) {
@@ -643,7 +607,11 @@ Shapefile::ShapeType OGRLayerProxy::GetGdaGeometries(vector<GdaShape*>& geoms,
                 if (poCT) {
                     poCT->Transform(1, &ptX, &ptY);
                 }
-                geoms.push_back(new GdaPoint(ptX, ptY));
+                if (is_geoms_init) {
+                    geoms[row_idx] = new GdaPoint(ptX, ptY);
+                } else {
+                    geoms.push_back(new GdaPoint(ptX, ptY));
+                }
             }
         } else if (eType == wkbMultiPoint) {
             shape_type = Shapefile::POINT_TYP;
@@ -659,7 +627,11 @@ Shapefile::ShapeType OGRLayerProxy::GetGdaGeometries(vector<GdaShape*>& geoms,
                     if (poCT) {
                         poCT->Transform(1, &ptX, &ptY);
                     }
-                    geoms.push_back(new GdaPoint(ptX, ptY));
+                    if (is_geoms_init) {
+                        geoms[row_idx] = new GdaPoint(ptX, ptY);
+                    } else {
+                        geoms.push_back(new GdaPoint(ptX, ptY));
+                    }
                 }
             }
         } else if (eType == wkbPolygon || eType == wkbCurvePolygon ) {
@@ -703,7 +675,11 @@ Shapefile::ShapeType OGRLayerProxy::GetGdaGeometries(vector<GdaShape*>& geoms,
                         }
                 }
             }
-            geoms.push_back(new GdaPolygon(pc));
+            if (is_geoms_init) {
+                geoms[row_idx] = new GdaPolygon(pc);
+            } else {
+                geoms.push_back(new GdaPolygon(pc));
+            }
         } else if (eType == wkbMultiPolygon) {
             Shapefile::PolygonContents* pc = new Shapefile::PolygonContents();
             shape_type = Shapefile::POLYGON;
@@ -759,7 +735,11 @@ Shapefile::ShapeType OGRLayerProxy::GetGdaGeometries(vector<GdaShape*>& geoms,
                     }
                 }
             }
-            geoms.push_back(new GdaPolygon(pc));
+            if (is_geoms_init) {
+                geoms[row_idx] = new GdaPolygon(pc);
+            } else {
+                geoms.push_back(new GdaPolygon(pc));
+            }
         } else {
             wxString msg = _("GeoDa does not support datasource with line data at this time.  Please choose a datasource with either point or polygon data.");
             throw GdaException(msg.mb_str());
@@ -775,7 +755,8 @@ OGRLayerProxy::AddFeatures(vector<OGRGeometry*>& geometries,
 {
     export_progress = 0;
     stop_exporting = false;
-    wxCSConv* encoding = table->GetEncoding();
+    wxCSConv* encoding = NULL;
+    if (table) table->GetEncoding();
 
     // Create features in memory first
     for (size_t i=0; i<selected_rows.size();++i) {
@@ -795,7 +776,7 @@ OGRLayerProxy::AddFeatures(vector<OGRGeometry*>& geometries,
         if (export_size == 0) export_size = table->GetNumberRows();
         export_progress = export_size / 4;
         // fields already have been created by OGRDatasourceProxy::CreateLayer()
-        for (size_t j=0; j< fields.size(); j++) {
+        for (int j=0; j< fields.size(); j++) {
             wxString fname = fields[j]->GetName();
             GdaConst::FieldType ftype = fields[j]->GetType();
             // get underneath column position (no group and time =0)
@@ -970,7 +951,7 @@ bool OGRLayerProxy::ReadData()
     }
 	int row_idx = 0;
 	OGRFeature *feature = NULL;
-    unordered_map<int, OGRFeature*> feature_dict;
+    boost::unordered_map<int, OGRFeature*> feature_dict;
     layer->ResetReading();
 	while ((feature = layer->GetNextFeature()) != NULL) {
         // thread feature: user can stop reading

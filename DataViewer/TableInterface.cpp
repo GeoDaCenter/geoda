@@ -18,6 +18,7 @@
  */
 #include <boost/date_time.hpp>
 #include <wx/fontmap.h>
+#include "../GeneralWxUtils.h"
 #include "../GenUtils.h"
 #include "../logger.h"
 #include "TableInterface.h"
@@ -275,6 +276,70 @@ void TableInterface::GetColData(int col, int time, std::vector<unsigned long lon
     GetColUndefined(col, time, undefs);
 }
 
+bool TableInterface::CheckID(const wxString& id)
+{
+    std::vector<wxString> str_id_vec(GetNumberRows());
+    int col = FindColId(id);
+    if (GetColType(col) == GdaConst::long64_type) {
+        GetColData(col, 0, str_id_vec);
+
+    } else if (GetColType(col) == GdaConst::string_type) {
+        // to handle string field with only numbers
+        // Note: can't handle real string (a-zA-Z) here since it's hard
+        // to control in weights file (.gal/.gwt/..)
+        GetColData(col, 0, str_id_vec);
+
+        wxRegEx regex;
+        regex.Compile("^[0-9a-zA-Z_]+$");
+
+        for (size_t i=0, iend=str_id_vec.size(); i<iend; i++) {
+            wxString item  = str_id_vec[i];
+            if (regex.Matches(item)) {
+                str_id_vec[i] = item;
+            } else {
+                wxString msg = id;
+                msg += _(" should contains only numbers/letters as IDs.  Please choose a different ID Variable.");
+                wxMessageBox(msg);
+                return false;
+            }
+        }
+    }
+
+    std::set<wxString> dup_ids;
+    std::set<wxString> id_set;
+    std::map<wxString, std::vector<int> > dup_dict; // value:[]
+
+    for (size_t i=0, iend=str_id_vec.size(); i<iend; i++) {
+        wxString str_id = str_id_vec[i];
+        if (id_set.find(str_id) == id_set.end()) {
+            id_set.insert(str_id);
+            std::vector<int> ids;
+            dup_dict[str_id] = ids;
+        }
+        dup_dict[str_id].push_back((int)i);
+    }
+    if (id_set.size() != GetNumberRows()) {
+        wxString msg = id + _(" has duplicate values. Please choose a different ID Variable.\n\nDetails:");
+        wxString details = "value, row\n";
+
+        std::map<wxString, std::vector<int> >::iterator it;
+        for (it=dup_dict.begin(); it!=dup_dict.end(); it++) {
+            wxString val = it->first;
+            std::vector<int>& ids = it->second;
+            if (ids.size() > 1) {
+                for (int i=0; i<ids.size(); i++) {
+                    details << val << ", " << ids[i]+1 << "\n";
+                }
+            }
+        }
+
+        ScrolledDetailMsgDialog *dlg = new ScrolledDetailMsgDialog(_("Warning"), msg, details);
+        dlg->Show(true);
+
+        return false;
+    }
+    return true;
+}
 
 wxString TableInterface::GetEncodingName()
 {

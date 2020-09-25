@@ -94,7 +94,8 @@ public:
 	void ShowAxes(bool show_axes);
 	bool IsDisplayStats() { return display_stats; }
 	bool IsShowAxes() { return show_axes; }
-	
+    void OnSetUniqueValue(wxCommandEvent& event);
+
 	void HistogramIntervals();
 	void InitIntervals();
 	void UpdateIvalSelCnts();
@@ -128,6 +129,7 @@ protected:
 
 	bool show_axes;
 	bool display_stats;
+    bool set_uniquevalue;
 	
     s_array_type s_ival_breaks;
 	double data_min_over_time;
@@ -181,7 +183,8 @@ public:
 	void OnShowAxes(wxCommandEvent& event);
     void OnDisplayStatistics(wxCommandEvent& event);
 	void OnHistogramIntervals(wxCommandEvent& event);
-	
+    void OnSetUniqueValue(wxCommandEvent& event);
+
 	void GetVizInfo(wxString& col_name, int& num_bins);
 protected:
 	

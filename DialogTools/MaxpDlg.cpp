@@ -76,22 +76,16 @@ void MaxpDlg::CreateControls()
     wxBoxSizer *vbox = new wxBoxSizer(wxVERTICAL);
     
     // Input
-    AddSimpleInputCtrls(panel, vbox);
+    AddSimpleInputCtrls(panel, vbox, false, true/*show spatial weights controls*/);
     
     // Parameters
     wxFlexGridSizer* gbox = new wxFlexGridSizer(9,2,5,0);
-
-	// Weights Control
-    wxStaticText* st16 = new wxStaticText(panel, wxID_ANY, _("Weights:"));
-    combo_weights = new wxChoice(panel, wxID_ANY, wxDefaultPosition,  wxSize(200,-1));
-    gbox->Add(st16, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
-    gbox->Add(combo_weights, 1, wxEXPAND);
    
 	// Minimum Bound Control
     AddMinBound(panel, gbox);
 
     // Min regions
-    st_minregions = new wxStaticText(panel, wxID_ANY, _("Min # per Region:"));
+    st_minregions = new wxStaticText(panel, wxID_ANY, _("Min Region Size:"));
     txt_minregions = new wxTextCtrl(panel, wxID_ANY, "", wxDefaultPosition, wxSize(200,-1));
     txt_minregions->SetValidator(wxTextValidator(wxFILTER_NUMERIC));
     gbox->Add(st_minregions, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
@@ -146,7 +140,7 @@ void MaxpDlg::CreateControls()
     // Transformation
     AddTransformation(panel, gbox);
     
-    wxStaticText* st17 = new wxStaticText(panel, wxID_ANY, _("Use specified seed:"));
+    wxStaticText* st17 = new wxStaticText(panel, wxID_ANY, _("Use Specified Seed:"));
     wxBoxSizer *hbox17 = new wxBoxSizer(wxHORIZONTAL);
     chk_seed = new wxCheckBox(panel, wxID_ANY, "");
     seedButton = new wxButton(panel, wxID_OK, _("Change Seed"));
@@ -210,24 +204,7 @@ void MaxpDlg::CreateControls()
     SetAutoLayout(true);
     sizerAll->Fit(this);
 
-    
     Centre();
-
-    // Content
-    InitVariableCombobox(combo_var, false);
-  
-    // init weights
-    vector<boost::uuids::uuid> weights_ids;
-    WeightsManInterface* w_man_int = project->GetWManInt();
-    w_man_int->GetIds(weights_ids);
-    
-    size_t sel_pos=0;
-    for (size_t i=0; i<weights_ids.size(); ++i) {
-        combo_weights->Append(w_man_int->GetShortDispName(weights_ids[i]));
-        if (w_man_int->GetDefault() == weights_ids[i])
-            sel_pos = i;
-    }
-    if (weights_ids.size() > 0) combo_weights->SetSelection(sel_pos);
     
     // Events
     okButton->Bind(wxEVT_BUTTON, &MaxpDlg::OnOK, this);
@@ -375,6 +352,12 @@ void MaxpDlg::InitLISACombobox()
     combo_lisa->SetStringSelection(select_lisa);
 }
 
+void MaxpDlg::update(TableState* o)
+{
+    InitVariableCombobox(combo_var);
+    InitLISACombobox();
+}
+
 void MaxpDlg::OnClickClose(wxCommandEvent& event )
 {
     wxLogMessage("OnClickClose MaxpDlg.");
@@ -396,7 +379,7 @@ wxString MaxpDlg::_printConfiguration()
 {
     wxString txt;
     
-    txt << _("Weights:") << "\t" << combo_weights->GetString(combo_weights->GetSelection()) << "\n";
+    txt << _("Weights:") << "\t" << m_spatial_weights->GetString(m_spatial_weights->GetSelection()) << "\n";
     
     if (chk_floor && chk_floor->IsChecked() && combo_floor->GetSelection() >= 0) {
         int idx = combo_floor->GetSelection();
@@ -472,20 +455,8 @@ void MaxpDlg::OnOK(wxCommandEvent& event )
     dist = dist_choices[dist_sel];
     
     // Weights selection
-    vector<boost::uuids::uuid> weights_ids;
-    WeightsManInterface* w_man_int = project->GetWManInt();
-    w_man_int->GetIds(weights_ids);
-
-    int sel = combo_weights->GetSelection();
-    if (sel < 0) sel = 0;
-    if (sel >= weights_ids.size()) sel = weights_ids.size()-1;
-    
-    boost::uuids::uuid w_id = weights_ids[sel];
-    GalWeight* gw = w_man_int->GetGal(w_id);
-
+    GalWeight* gw = CheckSpatialWeights();
     if (gw == NULL) {
-        wxMessageDialog dlg (this, _("Invalid Weights Information:\n\n The selected weights file is not valid.\n Please choose another weights file, or use Tools > Weights > Weights Manager\n to define a valid weights file."), _("Warning"), wxOK | wxICON_WARNING);
-        dlg.ShowModal();
         return;
     }
     
@@ -546,6 +517,7 @@ void MaxpDlg::OnOK(wxCommandEvent& event )
             wxString nm = name_to_nm[select_lisa];
             int col = table_int->FindColId(nm);
             if (col == wxNOT_FOUND) {
+                if (bound_vals) delete[] bound_vals;
                 wxString err_msg = wxString::Format(_("Variable %s is no longer in the Table.  Please close and reopen this dialog to synchronize with Table data."), nm);
                 wxMessageDialog dlg(NULL, err_msg, _("Error"), wxOK | wxICON_ERROR);
                 dlg.ShowModal();
@@ -580,6 +552,7 @@ void MaxpDlg::OnOK(wxCommandEvent& event )
         wxString str_coolrate = m_coolrate->GetValue();
         str_coolrate.ToDouble(&cool_rate);
         if ( cool_rate > 1 || cool_rate <= 0) {
+            if (bound_vals) delete[] bound_vals;
             wxString err_msg = _("Cooling rate for Simulated Annealing algorithm has to be a float number between 0 and 1 (e.g. 0.85).");
             wxMessageDialog dlg(NULL, err_msg, _("Error"), wxOK | wxICON_ERROR);
             dlg.ShowModal();
@@ -600,9 +573,10 @@ void MaxpDlg::OnOK(wxCommandEvent& event )
 		}
 		z.push_back(vals);
 	}
-    Maxp maxp(gw->gal, z, min_bound, bound_vals, initial, seeds, local_search_method, tabu_length, cool_rate, rnd_seed, dist);
-    
-	delete[] bound_vals;
+    Maxp maxp(gw->gal, z, min_bound, bound_vals, initial, seeds,
+              local_search_method, tabu_length, cool_rate, rnd_seed, dist);
+
+    if (bound_vals) delete[] bound_vals;
 
     vector<vector<int> > cluster_ids = maxp.GetRegions();
     int ncluster = cluster_ids.size();

@@ -138,7 +138,7 @@ public:
 	void UpdateRegSelectedLine();
 	void UpdateRegExcludedLine();
 
-	void UpdateDisplayStats();
+	virtual void UpdateDisplayStats();
 	void UpdateAxesThroughOrigin();
 	
 	virtual void UpdateStatusBar();
@@ -147,6 +147,8 @@ protected:
     virtual void TimeChange();
     virtual void PopulateCanvas();
     virtual void PopCanvPreResizeShpsHook();
+    virtual void DrawLayer2();
+
     void VarInfoAttributeChange();
     
 	ScatterPlotPens pens;
@@ -209,7 +211,7 @@ protected:
 	
 	GdaPolyLine* reg_line;
 	GdaSpline* lowess_reg_line;
-	GdaShapeTable* stats_table;
+    GdaShapeTable* stats_table;
 	GdaShapeText* chow_test_text;
 	
 	bool show_reg_selected;
@@ -247,7 +249,7 @@ protected:
 	// table_display_lines: 0 if no table shown, 1 if just blue line
 	// 2 if blue and just green or red, 3 if blue, green and red shown.
 	int table_display_lines;
-	bool UpdateDisplayLinesAndMargins();
+	bool virtual UpdateDisplayLinesAndMargins();
 	bool all_init;
 
 	DECLARE_EVENT_TABLE()
@@ -323,7 +325,7 @@ public:
 	/** Implementation of LowessParamObserver interface */
 	virtual void update(LowessParamObservable* o);
 	virtual void notifyOfClosing(LowessParamObservable* o);
-	
+
 	void GetVizInfo(wxString& x, wxString& y);
 	
 protected:
@@ -351,6 +353,10 @@ public:
                   const wxSize& size = wxDefaultSize);
     MDSPlotCanvas(wxWindow *parent,  TemplateFrame* t_frame,
                   Project* project,
+                  const std::vector<std::vector<int> >& groups,
+                  const std::vector<wxString >& group_labels,
+                  const std::vector<wxString>& info_str,
+                  const std::vector<std::pair<wxString, double> >& output_vals,
                   const std::vector<GdaVarTools::VarInfo>& var_info,
                   const std::vector<int>& col_ids,
                   bool is_bubble_plot = false,
@@ -360,9 +366,21 @@ public:
     virtual ~MDSPlotCanvas();
     
     virtual void DisplayRightClickMenu(const wxPoint& pos);
+    virtual void UpdateDisplayStats();
+    virtual void update(HLStateInt* o);
+    bool virtual UpdateDisplayLinesAndMargins();
+    virtual void UpdateSelection(bool shiftdown, bool pointsel);
     
     void OnCreateWeights();
+
+protected:
+    virtual void PopulateCanvas();
+    virtual void DrawLayer2();
     
+    GdaShapeTable* vn_tbl;
+    std::vector<wxString> info_str;
+    std::vector<std::pair<wxString, double> > output_vals;
+
     DECLARE_EVENT_TABLE()
 };
 
@@ -376,6 +394,10 @@ public:
                  const long style = wxDEFAULT_FRAME_STYLE);
     
     MDSPlotFrame(wxFrame *parent, Project* project,
+                 const std::vector<std::vector<int> >& groups,
+                 const std::vector<wxString >& group_labels,
+                 const std::vector<wxString>& info_str,
+                 const std::vector<std::pair<wxString, double> >& output_vals,
                  const std::vector<GdaVarTools::VarInfo>& var_info,
                  const std::vector<int>& col_ids,
                  bool is_bubble_plot,
@@ -390,5 +412,6 @@ public:
     
     DECLARE_EVENT_TABLE()
 };
+
 
 #endif

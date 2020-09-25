@@ -3,25 +3,29 @@
 <plist version="1.0">
 <dict>
 	<key>NSPrincipalClass</key>
-        <string>NSApplication</string>
+	<string>NSApplication</string>
 	<key>BuildMachineOSBuild</key>
 	<string>10K549</string>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>English</string>
+	<key>CFBundleName</key>
+	<string>GeoDa</string>
 	<key>CFBundleExecutable</key>
-	<string>${EXECUTABLE_NAME}</string>
+	<string>GeoDa</string>
 	<key>CFBundleIconFile</key>
 	<string>GeoDa.icns</string>
 	<key>CFBundleIdentifier</key>
-	<string>edu.asu.geodacenter.GeoDa</string>
+	<string>edu.uchicago.spatial</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleSignature</key>
-	<string>????</string>
+	<string>io.gitub.geodacenter</string>
 	<key>CFBundleVersion</key>
-	<string>1.0</string>
+	<string>1.16</string>
+	<key>CFBundleShortVersionString</key>
+	<string>1.16</string>
 	<key>DTCompiler</key>
 	<string>4.2</string>
 	<key>DTPlatformBuild</key>
@@ -53,5 +57,9 @@
 	    <string>Owner</string>
 	  </dict>
 	</array>
+	<key>NSAppleScriptEnabled</key>
+	<string>YES</string>
+	<key>NSDownloadsFolderUsageDescription</key>
+	<string>GeoDa requires permission to access the Downloads folder.</string>
 </dict>
 </plist>

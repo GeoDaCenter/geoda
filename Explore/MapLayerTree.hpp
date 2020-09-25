@@ -17,6 +17,7 @@ using namespace std;
 
 class MapCanvas;
 
+// Highlight association dialog
 class SetAssociationDlg : public wxDialog
 {
     static wxString LAYER_LIST_ID;
@@ -48,6 +49,7 @@ public:
     void OnOk(wxCommandEvent& e);
 };
 
+// MapTreeFrame and MapTree are for the pop-up window of multi-layer management
 class MapTree: public wxWindow
 {
     DECLARE_ABSTRACT_CLASS(MapTree)
@@ -96,6 +98,7 @@ protected:
     void RemoveAssociationRelationship(BackgroundMapLayer* ml);
     void OnEvent(wxMouseEvent& event);
     void OnRightClick(wxMouseEvent& event);
+    void OnChangeAssociatelineColor(wxCommandEvent& event);
     void OnChangeFillColor(wxCommandEvent& event);
     void OnChangeOutlineColor(wxCommandEvent& event);
     void OnChangePointRadius(wxCommandEvent& event);
@@ -110,6 +113,8 @@ protected:
     void AddCategoryColorToMenu(wxMenu* menu, int cat_clicked);
     void OnSetAssociateLayer(wxCommandEvent& event);
     void OnClearAssociateLayer(wxCommandEvent& event);
+    void OnZoomToLayer(wxCommandEvent& event);
+    void OnZoomToSelected(wxCommandEvent& event);
     void OnMapLayerChange();
     BackgroundMapLayer* GetMapLayer(wxString name);
     void DrawLegend(wxDC& dc, int x, int y, wxString text);

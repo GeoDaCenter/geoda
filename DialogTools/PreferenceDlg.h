@@ -102,6 +102,8 @@ protected:
     wxTextCtrl* txt24;
     // displayed decimals
     wxTextCtrl* txt25;
+    // stop criterion for auto-weighting
+    wxTextCtrl* txt26;
     // cpu cores
     wxCheckBox* cbox18;
     wxTextCtrl* txt_cores;
@@ -115,6 +117,9 @@ protected:
     wxCheckBox* cbox26;
     // csvt
     wxCheckBox* cbox_csvt;
+    // labels
+    wxCheckBox* cbox_lbl;
+    wxTextCtrl* txt_lbl_font;
     
     void Init();
     void SetupControls();    
@@ -140,7 +145,8 @@ protected:
     void OnDisplayDecimal(wxCommandEvent& ev);
     void OnUseSpecifiedSeed(wxCommandEvent& ev);
     void OnSeedEnter(wxCommandEvent& ev);
-    
+    void OnAutoWeightStopCriterion(wxCommandEvent& ev);
+
     void OnSetCPUCores(wxCommandEvent& ev);
     void OnCPUCoresEnter(wxCommandEvent& ev);
    
@@ -148,6 +154,9 @@ protected:
     void OnUseGPU(wxCommandEvent& ev);
     void OnCreateCSVT(wxCommandEvent& ev);
     void OnEnableTransparencyWin(wxCommandEvent& ev);
+    
+    void OnDrawLabels(wxCommandEvent& ev);
+    void OnLabelFontSizeEnter(wxCommandEvent& ev);
     
     void OnReset(wxCommandEvent& ev);
 };

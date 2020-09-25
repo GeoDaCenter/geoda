@@ -64,7 +64,8 @@ public:
 	void OnTimeChoice( wxCommandEvent& event );
     void OnOkClick( wxCommandEvent& event );
 	void OnCloseClick( wxCommandEvent& event );
-
+    void SetCheck(size_t i, bool flag);
+    
     std::vector<int> new_col_ids;
     std::vector<wxString> new_col_names;
     

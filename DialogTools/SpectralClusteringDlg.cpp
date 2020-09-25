@@ -43,7 +43,7 @@
 #include "../Algorithms/cluster.h"
 #include "../Algorithms/spectral.h"
 #include "../Algorithms/DataUtils.h"
-
+#include "../kNN/ANN/ANN.h"
 #include "../GeneralWxUtils.h"
 #include "../GenUtils.h"
 #include "SaveToTableDlg.h"
@@ -94,7 +94,7 @@ void SpectralClusteringDlg::CreateControls()
 {
     wxScrolledWindow* scrl = new wxScrolledWindow(this, wxID_ANY,
                                                   wxDefaultPosition,
-                                                  wxSize(820,880),
+                                                  wxSize(820,900),
                                                   wxHSCROLL|wxVSCROLL );
     scrl->SetScrollRate( 5, 5 );
     
@@ -112,33 +112,62 @@ void SpectralClusteringDlg::CreateControls()
     // NumberOfCluster Control
     AddNumberOfClusterCtrl(panel, gbox);
     
+    // Affinity heading
+    gbox->Add(new wxStaticText(panel, wxID_ANY,"Affinity"), 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
+    gbox->Add(new wxStaticText(panel, wxID_ANY,""), 1, wxEXPAND);
+    
     // Spectral controls: KNN
-    lbl_knn = new wxStaticText(panel, wxID_ANY, _("Affinity with K-NN:"));
+    int suggest_k = ceil(log10((double)rows));
+    wxString str_k;
+    str_k << suggest_k;
+    lbl_knn = new wxStaticText(panel, wxID_ANY, _("        K-NN:"));
     wxBoxSizer* hbox19 = new wxBoxSizer(wxHORIZONTAL);
     chk_knn = new wxCheckBox(panel, wxID_ANY, "");
     lbl_neighbors = new wxStaticText(panel, wxID_ANY, _("# Neighors:"));
-    m_knn = new wxTextCtrl(panel, wxID_ANY, "4", wxDefaultPosition, wxSize(40,-1));
+    m_knn = new wxComboBox(panel, wxID_ANY, str_k, wxDefaultPosition,
+                             wxSize(80,-1), 0, NULL);
+    m_knn->Append(wxString::Format("%d", suggest_k));
+    // ln(n)
+    m_knn->Append(wxString::Format("%d", (int)(ceil(log((double)rows)))));
+
     hbox19->Add(chk_knn);
     hbox19->Add(lbl_neighbors);
     hbox19->Add(m_knn);
     gbox->Add(lbl_knn, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
     gbox->Add(hbox19, 1, wxEXPAND);
     
+    // Mutual KNN
+    wxStaticText *lbl_mknn = new wxStaticText(panel, wxID_ANY, _("        Mutual K-NN:"));
+    wxBoxSizer* hbox20 = new wxBoxSizer(wxHORIZONTAL);
+    chk_mknn = new wxCheckBox(panel, wxID_ANY, "");
+    lbl_m_neighbors = new wxStaticText(panel, wxID_ANY, _("# Neighors:"));
+    m_mknn = new wxComboBox(panel, wxID_ANY, str_k, wxDefaultPosition,
+                           wxSize(80,-1), 0, NULL);
+    // ln(n)
+    m_mknn->Append(wxString::Format("%d", suggest_k));
+    m_mknn->Append(wxString::Format("%d", (int)(ceil(log((double)rows)))));
+    hbox20->Add(chk_mknn);
+    hbox20->Add(lbl_m_neighbors);
+    hbox20->Add(m_mknn);
+    gbox->Add(lbl_mknn, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
+    gbox->Add(hbox20, 1, wxEXPAND);
+    m_mknn->Enable(false);
+    
 	// Spectral Controls: Kernel
-    double suggest_sigma = sqrt(1.0/(double)num_obs);
-    wxString str_sigma;
-    str_sigma << suggest_sigma;
-    lbl_kernel = new wxStaticText(panel, wxID_ANY, _("Affinity with Kernel:"));
+    lbl_kernel = new wxStaticText(panel, wxID_ANY, _("        Gaussian:"));
     wxBoxSizer* hbox18 = new wxBoxSizer(wxHORIZONTAL);
     chk_kernel = new wxCheckBox(panel, wxID_ANY, "");
-    lbl_sigma = new wxStaticText(panel, wxID_ANY, _("(Gaussian) Sigma:"));
-    m_sigma = new wxTextCtrl(panel, wxID_ANY, str_sigma,
-                             wxDefaultPosition, wxSize(40,-1));
+    lbl_sigma = new wxStaticText(panel, wxID_ANY, _(" Sigma:"));
+    m_sigma = new wxComboBox(panel, wxID_ANY, "", wxDefaultPosition,
+                            wxSize(80,-1), 0, NULL);
+
     hbox18->Add(chk_kernel);
     hbox18->Add(lbl_sigma);
     hbox18->Add(m_sigma);
     gbox->Add(lbl_kernel, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
     gbox->Add(hbox18, 1, wxEXPAND);
+    wxCommandEvent ev;
+    UpdateGaussian(ev);
 
     // Weights (not enabled)
     lbl_weights = new wxStaticText(panel, wxID_ANY, _("Use Weights:"));
@@ -150,31 +179,7 @@ void SpectralClusteringDlg::CreateControls()
     hbox22->Add(combo_weights);
     gbox->Add(lbl_weights, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
     gbox->Add(hbox22, 1, wxEXPAND);
-    
-    // power iteration option approximation
-    wxStaticText* st15 = new wxStaticText(panel, wxID_ANY,
-                                          _("Use Power Iteration:"));
-    wxBoxSizer *hbox15 = new wxBoxSizer(wxHORIZONTAL);
-    chk_poweriteration = new wxCheckBox(panel, wxID_ANY, "");
-    lbl_poweriteration = new wxStaticText(panel, wxID_ANY, _("# Max Iteration:"));
-    txt_poweriteration = new wxTextCtrl(panel, wxID_ANY, "300",
-                                        wxDefaultPosition, wxSize(70,-1));
-    txt_poweriteration->SetValidator( wxTextValidator(wxFILTER_NUMERIC) );
-    chk_poweriteration->Bind(wxEVT_CHECKBOX,
-                             &SpectralClusteringDlg::OnCheckPowerIteration,
-                             this);
-    if (project->GetNumRecords() < 100) {
-        lbl_poweriteration->Disable();
-        txt_poweriteration->Disable();
-    } else {
-        chk_poweriteration->SetValue(true);
-    }
-    hbox15->Add(chk_poweriteration);
-    hbox15->Add(lbl_poweriteration);
-    hbox15->Add(txt_poweriteration);
-    gbox->Add(st15, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
-    gbox->Add(hbox15, 1, wxEXPAND);
-    
+
     // Transformation
     AddTransformation(panel, gbox);
     
@@ -201,7 +206,7 @@ void SpectralClusteringDlg::CreateControls()
     gbox->Add(st10, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
     gbox->Add(box10, 1, wxEXPAND);
     
-    wxStaticText* st17 = new wxStaticText(panel, wxID_ANY, _("Use specified seed:"));
+    wxStaticText* st17 = new wxStaticText(panel, wxID_ANY, _("Use Specified Seed:"));
     wxBoxSizer *hbox17 = new wxBoxSizer(wxHORIZONTAL);
     chk_seed = new wxCheckBox(panel, wxID_ANY, "");
     seedButton = new wxButton(panel, wxID_OK, _("Change Seed"));
@@ -222,17 +227,7 @@ void SpectralClusteringDlg::CreateControls()
     wxTextCtrl  *box11 = new wxTextCtrl(panel, wxID_ANY, "300");
     gbox->Add(st11, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
     gbox->Add(box11, 1, wxEXPAND);
-   
-    /*
-    wxStaticText* st12 = new wxStaticText(panel, wxID_ANY, _("Method:"),
-                                          wxDefaultPosition, wxSize(128,-1));
-    wxString choices12[] = {"Arithmetic Mean", "Arithmetic Median"};
-    wxChoice* box12 = new wxChoice(panel, wxID_ANY, wxDefaultPosition,
-                                       wxSize(160,-1), 2, choices12);
-	box12->SetSelection(0);
-    gbox->Add(st12, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
-    gbox->Add(box12, 1, wxEXPAND);
-   */
+
     wxStaticText* st13 = new wxStaticText(panel, wxID_ANY,
                                           _("Distance Function:"));
     wxString choices13[] = {"Euclidean", "Manhattan"};
@@ -303,16 +298,17 @@ void SpectralClusteringDlg::CreateControls()
     
     // temp solution:
     chk_kernel->SetValue(false);
-    lbl_kernel->Disable();
+    //lbl_kernel->Disable();
     lbl_sigma->Disable();
     m_sigma->Disable();
     
     
     chk_knn->SetValue(true);
-    lbl_knn ->Enable();
+    //lbl_knn ->Enable();
     lbl_neighbors->Enable();
     m_knn->Enable();
     
+    lbl_m_neighbors->Disable();
     chk_weights->SetValue(false);
     chk_weights->Disable();
     lbl_weights->Disable();
@@ -330,27 +326,14 @@ void SpectralClusteringDlg::CreateControls()
     // Events
     chk_kernel->Bind(wxEVT_CHECKBOX, &SpectralClusteringDlg::OnKernelCheck, this);
     chk_knn->Bind(wxEVT_CHECKBOX, &SpectralClusteringDlg::OnKNNCheck, this);
+    chk_mknn->Bind(wxEVT_CHECKBOX, &SpectralClusteringDlg::OnMutualKNNCheck, this);
     chk_weights->Bind(wxEVT_CHECKBOX, &SpectralClusteringDlg::OnWeightsCheck, this);
     
     okButton->Bind(wxEVT_BUTTON, &SpectralClusteringDlg::OnOK, this);
     closeButton->Bind(wxEVT_BUTTON, &SpectralClusteringDlg::OnClickClose, this);
     chk_seed->Bind(wxEVT_CHECKBOX, &SpectralClusteringDlg::OnSeedCheck, this);
     seedButton->Bind(wxEVT_BUTTON, &SpectralClusteringDlg::OnChangeSeed, this);
-    
-    m_distance->Connect(wxEVT_CHOICE,
-                        wxCommandEventHandler(SpectralClusteringDlg::OnDistanceChoice),
-                        NULL, this);
-}
-
-void SpectralClusteringDlg::OnCheckPowerIteration(wxCommandEvent& event)
-{
-    if (chk_poweriteration->IsChecked()) {
-        txt_poweriteration->Enable();
-        lbl_poweriteration->Enable();
-    } else {
-        txt_poweriteration->Disable();
-        lbl_poweriteration->Disable();
-    }
+    combo_var->Bind(wxEVT_LISTBOX, &SpectralClusteringDlg::UpdateGaussian, this);
 }
 
 void SpectralClusteringDlg::OnWeightsCheck(wxCommandEvent& event)
@@ -358,17 +341,41 @@ void SpectralClusteringDlg::OnWeightsCheck(wxCommandEvent& event)
     
 }
 
+void SpectralClusteringDlg::UpdateGaussian(wxCommandEvent& event)
+{
+    if (m_sigma) {
+        m_sigma->Clear();
+        wxArrayInt selections;
+        combo_var->GetSelections(selections);
+        if (selections.size() > 0) {
+            // sklearn: gamma = 1.0 / NV,  gamma = 1/(2sigma^2) => sigma = sqrt(1/gamma/ 2.0);
+            // suggest_sigma = sqrt(NV/2.0);
+            m_sigma->Append(wxString::Format("%f", sqrt(1/(double)selections.size())));
+        }
+        m_sigma->Append(wxString::Format("%f", log10((double)rows)+1));
+        m_sigma->Append(wxString::Format("%f", log((double)rows)+1));
+        m_sigma->SetSelection(0);
+    }
+}
 void SpectralClusteringDlg::OnKernelCheck(wxCommandEvent& event)
 {
     bool flag = chk_kernel->IsChecked();
+    lbl_sigma->Enable(flag);
+    m_sigma->Enable(flag);
+    if (flag) {
+        wxCommandEvent ev;
+        UpdateGaussian(ev);
+    }
+
     chk_knn->SetValue(!flag);
     lbl_neighbors->Enable(!flag);
     m_knn->Enable(!flag);
-    lbl_knn->Enable(!flag);
 
-    lbl_kernel->Enable(flag);
-    lbl_sigma->Enable(flag);
-    m_sigma->Enable(flag);
+    if (flag) {
+        chk_mknn->SetValue(!flag);
+        lbl_m_neighbors->Enable(!flag);
+        m_mknn->Enable(!flag);
+    }
 }
 
 void SpectralClusteringDlg::OnKNNCheck(wxCommandEvent& event)
@@ -376,12 +383,33 @@ void SpectralClusteringDlg::OnKNNCheck(wxCommandEvent& event)
     bool flag = chk_knn->IsChecked();
     lbl_neighbors->Enable(flag);
     m_knn->Enable(flag);
-    lbl_knn->Enable(flag);
 
-    chk_kernel->SetValue(!flag);
-    lbl_kernel->Enable(!flag);
-    lbl_sigma->Enable(!flag);
-    m_sigma->Enable(!flag);
+    chk_mknn->SetValue(!flag);
+    lbl_m_neighbors->Enable(!flag);
+    m_mknn->Enable(!flag);
+
+    if (flag) {
+        chk_kernel->SetValue(!flag);
+        lbl_sigma->Enable(!flag);
+        m_sigma->Enable(!flag);
+    }
+}
+
+void SpectralClusteringDlg::OnMutualKNNCheck(wxCommandEvent& event)
+{
+    bool flag = chk_mknn->IsChecked();
+    lbl_m_neighbors->Enable(flag);
+    m_mknn->Enable(flag);
+    
+    chk_knn->SetValue(!flag);
+    lbl_neighbors->Enable(!flag);
+    m_knn->Enable(!flag);
+
+    if (flag) {
+        chk_kernel->SetValue(!flag);
+        lbl_sigma->Enable(!flag);
+        m_sigma->Enable(!flag);
+    }
 }
 
 void SpectralClusteringDlg::OnSeedCheck(wxCommandEvent& event)
@@ -441,27 +469,13 @@ void SpectralClusteringDlg::OnChangeSeed(wxCommandEvent& event)
     }
 }
 
-void SpectralClusteringDlg::OnDistanceChoice(wxCommandEvent& event)
-{
-    
-     if (m_distance->GetSelection() == 0) {
-         m_distance->SetSelection(1);
-     } else if (m_distance->GetSelection() == 3) {
-         m_distance->SetSelection(4);
-     } else if (m_distance->GetSelection() == 6) {
-         m_distance->SetSelection(7);
-     } else if (m_distance->GetSelection() == 9) {
-         m_distance->SetSelection(10);
-     }
-}
-
 void SpectralClusteringDlg::InitVariableCombobox(wxListBox* var_box)
 {
     wxArrayString items;
     
     std::vector<int> col_id_map;
     table_int->FillNumericColIdMap(col_id_map);
-    for (int i=0, iend=col_id_map.size(); i<iend; i++) {
+    for (int i=0; i<col_id_map.size(); i++) {
         int id = col_id_map[i];
         wxString name = table_int->GetColName(id);
         if (table_int->IsColTimeVariant(id)) {
@@ -505,20 +519,18 @@ wxString SpectralClusteringDlg::_printConfiguration()
     wxString str_ncluster = combo_n->GetValue();
     long value_ncluster;
     if (str_ncluster.ToLong(&value_ncluster)) {
-        ncluster = value_ncluster;
+        ncluster = (int)value_ncluster;
     }
     
     wxString txt;
     txt << _("Number of clusters:\t") << ncluster << "\n";
    
     if (chk_kernel->IsChecked())  {
-        txt << _("Affinity with Guassian Kernel:\tSigma=") << m_sigma->GetValue() << "\n";
-    }
-    if (chk_knn->IsChecked()) {
+        txt << _("Affinity with Gaussian Kernel:\tSigma=") << m_sigma->GetValue() << "\n";
+    } else if (chk_knn->IsChecked()) {
         txt << _("Affinity with K-Nearest Neighbors:\tK=") << m_knn->GetValue() << "\n";
-    }
-    if (chk_poweriteration->IsChecked()) {
-        txt << _("Use Power Iteration method:\tMax iterations=") << txt_poweriteration->GetValue() << "\n";
+    } else if (chk_mknn->IsChecked()) {
+        txt << _("Affinity with Mutual K-Nearest Neighbors:\tK=") << m_mknn->GetValue() << "\n";
     }
     txt << _("Transformation:\t") << combo_tranform->GetString(combo_tranform->GetSelection()) << "\n";
     
@@ -536,30 +548,26 @@ bool SpectralClusteringDlg::CheckAllInputs()
     // get input: variables and data, and auto weights
     transform = combo_tranform->GetSelection();
     if( GetInputData(transform, 1) == false) return false;
-
+    // check if X-Centroids selected but not projected
+    if ((has_x_cent || has_y_cent) && check_spatial_ref) {
+        bool cont_process = project->CheckSpatialProjection(check_spatial_ref);
+        if (cont_process == false) {
+            return false;
+        }
+    }
+    
     // get input: number of cluster
     n_cluster = 0;
     wxString str_ncluster = combo_n->GetValue();
     long value_ncluster;
     if (str_ncluster.ToLong(&value_ncluster)) {
-        n_cluster = value_ncluster;
+        n_cluster = (int)value_ncluster;
     }
-    if (n_cluster < 2 || n_cluster > num_obs) {
+    if (n_cluster < 2 || n_cluster > rows) {
         wxString err_msg = _("Please enter a valid number of cluster.");
         wxMessageDialog dlg(NULL, err_msg, _("Error"), wxOK | wxICON_ERROR);
         dlg.ShowModal();
         return false;
-    }
-
-    // get input: iterations
-    n_power_iter = 0;
-    long l_iterations;
-    if (chk_poweriteration->IsChecked()) {
-        wxString str_iterations;
-        str_iterations = txt_poweriteration->GetValue();
-        if (str_iterations.ToLong(&l_iterations)) {
-            n_power_iter = l_iterations;
-        }
     }
 
     // get input: sigma
@@ -575,7 +583,29 @@ bool SpectralClusteringDlg::CheckAllInputs()
     wxString str_knn = m_knn->GetValue();
     long value_knn;
     if(str_knn.ToLong(&value_knn)) {
-        knn = value_knn;
+        knn = (int)value_knn;
+    }
+
+    if (chk_knn->GetValue() && (knn >= rows || knn < 1)) {
+        wxString err_msg = _("Please enter a valid number of KNN neighbors.");
+        wxMessageDialog dlg(NULL, err_msg, _("Error"), wxOK | wxICON_ERROR);
+        dlg.ShowModal();
+        return false;
+    }
+
+    // get input: mutual knn
+    mutual_knn = 4;
+    wxString str_mknn = m_mknn->GetValue();
+    long value_mknn;
+    if(str_mknn.ToLong(&value_mknn)) {
+        mutual_knn = (int)value_mknn;
+    }
+
+    if (chk_mknn->GetValue() && (mutual_knn >= rows || mutual_knn < 1)) {
+        wxString err_msg = _("Please enter a valid number of mutual KNN neighbors.");
+        wxMessageDialog dlg(NULL, err_msg, _("Error"), wxOK | wxICON_ERROR);
+        dlg.ShowModal();
+        return false;
     }
 
     // get input: kmeans init
@@ -587,7 +617,7 @@ bool SpectralClusteringDlg::CheckAllInputs()
     wxString str_pass = m_pass->GetValue();
     long value_pass;
     if(str_pass.ToLong(&value_pass)) {
-        npass = value_pass;
+        npass = (int)value_pass;
     }
 
     // get input: kmeans max iteration
@@ -595,7 +625,7 @@ bool SpectralClusteringDlg::CheckAllInputs()
     wxString iterations = m_iterations->GetValue();
     long l_maxiter;
     if(iterations.ToLong(&l_maxiter)) {
-        n_maxiter = l_maxiter;
+        n_maxiter = (int)l_maxiter;
     }
 
     // get input: distance
@@ -613,16 +643,18 @@ bool SpectralClusteringDlg::CheckAllInputs()
 bool SpectralClusteringDlg::Run(vector<wxInt64>& clusters)
 {
     if (GdaConst::use_gda_user_seed) {
-        setrandomstate(GdaConst::gda_user_seed);
+        setrandomstate((int)GdaConst::gda_user_seed);
         resetrandom();
     } else {
         setrandomstate(-1);
         resetrandom();
     }
 
-    // NOTE input_data should be retrieved first!!
+    // NOTE input_data should be retrieved first!! (see CheckAllInput())
     // get input: weights (auto)
+    // this function has to be called when use auto-weighting
     weight = GetWeights(columns);
+
     // add weight to input_data
     double** data = new double*[rows];
     for (int i=0; i<rows; i++) {
@@ -635,12 +667,13 @@ bool SpectralClusteringDlg::Run(vector<wxInt64>& clusters)
     Spectral spectral;
     spectral.set_data(data, rows, columns);
     spectral.set_centers(n_cluster);
-    spectral.set_power_iters(n_power_iter);
     if (affinity_type == 0) {
         spectral.set_kernel(0);
         spectral.set_sigma(value_sigma);
     } else {
-        spectral.set_knn(knn);
+        bool is_mutual = chk_mknn->GetValue();
+        int k = is_mutual ? mutual_knn : knn;
+        spectral.set_knn(k, is_mutual);
     }
     spectral.set_kmeans_dist(dist);
     spectral.set_kmeans_method(method);
@@ -649,8 +682,10 @@ bool SpectralClusteringDlg::Run(vector<wxInt64>& clusters)
     spectral.cluster(affinity_type);
     clusters = spectral.get_assignments();
 
-    for (int i=0; i<rows; i++) delete[] data[i];
-    delete[] data;
+    for (int i=0; i<rows; i++) {
+        if (data[i]) delete[] data[i];
+    }
+    if (data) delete[] data;
 
     // sort result
     std::vector<std::vector<int> > cluster_ids(n_cluster);
@@ -674,7 +709,6 @@ bool SpectralClusteringDlg::Run(vector<wxInt64>& clusters)
 void SpectralClusteringDlg::OnOK(wxCommandEvent& event )
 {
     wxLogMessage("Click SpectralClusteringDlg::OnOK");
-    if (CheckAllInputs() == false) return;
 
     // get input: save to field name
     wxString field_name = m_textbox->GetValue();
@@ -685,7 +719,7 @@ void SpectralClusteringDlg::OnOK(wxCommandEvent& event )
         return;
     }
 
-    vector<wxInt64> clusters;
+    if (CheckAllInputs() == false) return;
 
     if (Run(clusters) == false) return;
     

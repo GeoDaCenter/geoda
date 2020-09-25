@@ -28,12 +28,15 @@
 
 #include "DialogTools/VariableSettingsDlg.h"
 
+class Project;
+
 class GeneralWxUtils	{
 public:
 	static wxOperatingSystemId GetOsId();
 	static wxString LogOsId();
 	static bool isMac();
 	static bool isMac106();
+    static bool isMac1014plus();
 	static bool isWindows();
 	static bool isUnix();
 	static bool isXP();
@@ -66,7 +69,7 @@ class SimpleReportTextCtrl : public wxTextCtrl
 public:
     SimpleReportTextCtrl(wxWindow* parent, wxWindowID id, const wxString& value = "",
                          const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxDefaultSize,
-                         long style =  wxTE_MULTILINE | wxTE_READONLY | wxTE_RICH | wxTE_RICH2, const wxValidator& validator = wxDefaultValidator,
+                         long style =  wxTE_MULTILINE | wxTE_DONTWRAP | wxTE_READONLY | wxTE_RICH | wxTE_RICH2, const wxValidator& validator = wxDefaultValidator,
                          const wxString& name = wxTextCtrlNameStr)
     : wxTextCtrl(parent, id, value, pos, size, style, validator, name)
     {
@@ -114,4 +117,52 @@ public:
 	double GetTransparency();
 };
 
+// Prompt user that spatial objects are not projected or with unknown projection
+// The distance computation could be wrong. Ask user to continue proceeding or
+// quit the application
+class CheckSpatialRefDialog : public wxDialog
+{
+    wxCheckBox *cb;
+
+public:
+    CheckSpatialRefDialog(wxWindow * parent, const wxString& msg,
+                          wxWindowID id=wxID_ANY,
+                          const wxString & caption="Warning",
+                          const wxPoint & pos = wxDefaultPosition,
+                          const wxSize & size = wxDefaultSize,
+                          long style = wxDEFAULT_DIALOG_STYLE );
+    virtual ~CheckSpatialRefDialog() {}
+
+    bool IsCheckAgain();
+};
+
+// Prompt user to select an ID variable for weights creation
+// Allow user to "Add ID variable" in table
+class SelectWeightsIdDialog : public wxDialog
+{
+    Project* project;
+    wxChoice * m_id_field;
+
+    // col_id_map[i] is a map from the i'th numeric item in the
+    // fields drop-down to the actual col_id_map.  Items
+    // in the fields dropdown are in the order displayed
+    // in wxGrid
+    std::vector<int> col_id_map;
+    
+public:
+    SelectWeightsIdDialog(wxWindow * parent, Project* project,
+                          wxWindowID id=wxID_ANY,
+                          const wxString & caption="Select ID Variable Dialog",
+                          const wxPoint & pos = wxDefaultPosition,
+                          const wxSize & size = wxDefaultSize,
+                          long style = wxDEFAULT_DIALOG_STYLE );
+    virtual ~SelectWeightsIdDialog() {}
+
+    wxString GetIDVariable();
+    
+protected:
+    void InitVariableChoice();
+    void OnIdVariableSelected(wxCommandEvent& evt);
+    void OnAddIDVariable(wxCommandEvent& evt);
+};
 #endif

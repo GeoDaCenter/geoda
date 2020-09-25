@@ -449,16 +449,17 @@ void DataViewerEditFieldPropertiesDlg::OnCellChanging( wxGridEvent& ev )
                     wxArrayInt wx_col_order;
                     wxGrid* grid = project->FindTableGrid();
 					int n_cols = table_int->GetNumberCols();
+                    double cur_col_size = 0;
+                    // insert new col
+                    int from_col = table_int->FindColId(var_name);
+                    int to_col = table_int->InsertCol(new_type, tmp_name, from_col);
+
                     if (grid) {
                         for (int i=0; i<n_cols; i++) {
                             wx_col_order.push_back(grid->GetColPos(i));
                         }
+                        cur_col_size = grid->GetColSize(from_col);
                     }
-
-                    // insert new col
-                    int from_col = table_int->FindColId(var_name);
-                    double cur_col_size = grid->GetColSize(from_col);
-                    int to_col = table_int->InsertCol(new_type, tmp_name, from_col);
 
                     // get col index of old var again
                     from_col = table_int->FindColId(var_name);
@@ -503,9 +504,10 @@ void DataViewerEditFieldPropertiesDlg::OnCellChanging( wxGridEvent& ev )
                         for (int i=0; i<table_int->GetNumberCols(); i++) {
                             grid->SetColPos(i, wx_col_order[i]);
                         }
+                        // adjust the column size
+                        grid->SetColSize(to_col, cur_col_size);
                     }
-                    // adjust the column size
-                    grid->SetColSize(to_col, cur_col_size);
+
 
                 } catch(GdaLocalSeparatorException& e) {
                     return;

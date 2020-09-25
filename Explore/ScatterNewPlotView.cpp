@@ -48,6 +48,7 @@
 #include "../ShapeOperations/VoronoiUtils.h"
 #include "../ShapeOperations/Lowess.h"
 #include "MapLayoutView.h"
+#include "SimpleScatterPlotCanvas.h"
 #include "ScatterNewPlotView.h"
 
 
@@ -783,7 +784,7 @@ void ScatterNewPlotCanvas::PopulateCanvas()
 	int yt = var_info[1].time-var_info[1].time_min;
 
     // for undefined values, we have to search [min max] for both axies
-    double x_max, x_min, y_max, y_min;
+    double x_max = DBL_MIN, x_min = DBL_MAX, y_max = DBL_MIN, y_min = DBL_MAX;
     bool has_init = false;
     
     XYZ_undef.resize(num_obs);
@@ -1352,6 +1353,11 @@ void ScatterNewPlotCanvas::ShowLowessSmoother(bool display)
 	PopulateCanvas();
 }
 
+void ScatterNewPlotCanvas::DrawLayer2()
+{
+    TemplateCanvas::DrawLayer2();
+}
+
 void ScatterNewPlotCanvas::ChangeLoessParams(double f, int iter,
                                              double delta_factor)
 
@@ -1764,8 +1770,6 @@ bool ScatterNewPlotCanvas::UpdateDisplayLinesAndMargins()
 	if (IsDisplayStats() && stats_table && IsShowLinearSmoother()) {
 		wxClientDC dc(this);	
 		stats_table->GetSize(dc, table_w, table_h);
-		LOG(table_w);
-		LOG(table_h);
 	}
 	last_scale_trans.bottom_margin = 50;
 	if (!IsDisplayStats() || !IsShowLinearSmoother()) {
@@ -1952,7 +1956,7 @@ void ScatterNewPlotFrame::Init(const std::vector<GdaVarTools::VarInfo>& var_info
     else
         SetTitle(title);
 	
-	if (is_bubble_plot) {
+	if (is_bubble_plot && splitter_win) {
         lpanel = new wxPanel(splitter_win);
 		template_legend = new ScatterNewPlotLegend(lpanel,
 												   template_canvas,
@@ -2259,18 +2263,80 @@ END_EVENT_TABLE()
 MDSPlotCanvas::MDSPlotCanvas(wxWindow *parent, TemplateFrame* t_frame, Project* project, const wxPoint& pos, const wxSize& size)
 : ScatterNewPlotCanvas(parent, t_frame, project, pos, size)
 {
-    
+    display_stats = true;
+    DisplayStatistics(display_stats);
 }
 
-MDSPlotCanvas::MDSPlotCanvas(wxWindow *parent, TemplateFrame* t_frame, Project* project, const std::vector<GdaVarTools::VarInfo>& var_info, const std::vector<int>& col_ids,bool is_bubble_plot, bool standardized, const wxPoint& pos, const wxSize& size)
-: ScatterNewPlotCanvas(parent, t_frame, project, var_info, col_ids, is_bubble_plot, standardized, pos, size)
+MDSPlotCanvas::MDSPlotCanvas(wxWindow *parent, TemplateFrame* t_frame,
+                             Project* project, const std::vector<std::vector<int> >& groups,
+                             const std::vector<wxString>& group_labels,
+                             const std::vector<wxString>& info_str,
+                             const std::vector<std::pair<wxString, double> >& output_vals,
+                             const std::vector<GdaVarTools::VarInfo>& var_info,
+                             const std::vector<int>& col_ids,
+                             bool is_bubble_plot, bool standardized,
+                             const wxPoint& pos, const wxSize& size)
+: vn_tbl(0), info_str(info_str), output_vals(output_vals),
+ScatterNewPlotCanvas(parent, t_frame, project, var_info, col_ids, is_bubble_plot, standardized, pos, size)
 {
-    
+    vn_tbl = new GdaShapeTable();
+    vn_tbl->hidden = false;
+    foreground_shps.push_back(vn_tbl);
+
+    ShowLinearSmoother(false);
+
+    // update cateogry if needed
+    int num_categories = (int)groups.size();
+    if (num_categories > 1) {
+        int t = 0;
+        cat_data.CreateCategoriesAtCanvasTm(num_categories, t);
+        cat_data.ClearAllCategoryIds();
+        std::vector<wxColour> m_predef_colors;
+        GdaColorUtils::GetUnique20Colors(m_predef_colors);
+        for (int i=0; i<num_categories; ++i) {
+            wxColour clr = m_predef_colors[ i % 20 ];
+            cat_data.SetCategoryLabel(t, i, group_labels[i]);
+            cat_data.SetCategoryColor(t, i, clr);
+            for (size_t j=0; j<groups[i].size(); ++j) {
+                cat_data.AppendIdToCategory(t, i, groups[i][j]);
+            }
+        }
+        for (int cat=0; cat<num_categories; cat++) {
+            cat_data.SetCategoryCount(t, cat, cat_data.GetNumObsInCategory(t, cat));
+        }
+    }
 }
 
 MDSPlotCanvas::~MDSPlotCanvas()
 {
     
+}
+
+void MDSPlotCanvas::UpdateSelection(bool shiftdown, bool pointsel)
+{
+    TemplateCanvas::UpdateSelection(shiftdown, pointsel);
+}
+
+void MDSPlotCanvas::update(HLStateInt* o)
+{
+    // Call TemplateCanvas::update to redraw objects as needed.
+    TemplateCanvas::update(o);
+}
+
+void MDSPlotCanvas::DrawLayer2()
+{
+    foreground_shps.pop_back();
+    foreground_shps.pop_back();
+    stats_table = new GdaShapeTable();
+    stats_table->hidden = true;
+    foreground_shps.push_back(stats_table);
+    vn_tbl = new GdaShapeTable();
+    vn_tbl->hidden = true;
+    foreground_shps.push_back(vn_tbl);
+    UpdateDisplayStats();
+    UpdateDisplayLinesAndMargins();
+    TemplateCanvas::DrawLayer2();
+
 }
 
 void MDSPlotCanvas::DisplayRightClickMenu(const wxPoint& pos)
@@ -2286,7 +2352,13 @@ void MDSPlotCanvas::DisplayRightClickMenu(const wxPoint& pos)
     wxString menu_txt = _("Create Weights");
     optMenu->Prepend(XRCID("MDS_WEIGHTS"), menu_txt);
     optMenu->AppendSeparator();
-    
+    optMenu->Destroy(XRCID("ID_SCATTER_DATA_MENU"));
+    optMenu->Destroy(XRCID("ID_SCATTER_SMOOTHER_MENU"));
+
+    wxMenu* viewMenu = optMenu->FindItem(XRCID("ID_VIEW_REGIMES_REGRESSION"))->GetMenu();
+    //GeneralWxUtils::EnableMenuItem(optMenu, XRCID("ID_VIEW_REGIMES_REGRESSION"), false);
+    viewMenu->Destroy(XRCID("ID_VIEW_REGIMES_REGRESSION"));
+
     template_frame->Connect(XRCID("MDS_WEIGHTS"), wxEVT_COMMAND_MENU_SELECTED,
                             wxCommandEventHandler(MDSPlotFrame::OnCreateWeights));
     
@@ -2307,6 +2379,261 @@ void MDSPlotCanvas::OnCreateWeights()
     dlg.ShowModal();
 }
 
+void MDSPlotCanvas::PopulateCanvas()
+{
+    wxSize size(GetVirtualSize());
+    int screen_w = size.GetWidth();
+    int screen_h = size.GetHeight();
+    last_scale_trans.SetView(screen_w, screen_h);
+
+    pens.SetPenColor(pens.GetRegPen(), selectable_outline_color);
+    pens.SetPenColor(pens.GetRegSelPen(), highlight_color);
+    pens.SetPenColor(pens.GetRegExlPen(), selectable_fill_color);
+
+    BOOST_FOREACH( GdaShape* shp, background_shps ) { delete shp; }
+    background_shps.clear();
+    BOOST_FOREACH( GdaShape* shp, selectable_shps ) { delete shp; }
+    selectable_shps.clear();
+    BOOST_FOREACH( GdaShape* shp, foreground_shps ) { delete shp; }
+    foreground_shps.clear();
+
+    int xt = var_info[0].time-var_info[0].time_min;
+    int yt = var_info[1].time-var_info[1].time_min;
+
+    // for undefined values, we have to search [min max] for both axies
+    double x_max = DBL_MIN, x_min = DBL_MAX, y_max = DBL_MIN, y_min = DBL_MAX;
+    bool has_init = false;
+
+    XYZ_undef.resize(num_obs);
+    for (int i=0; i<num_obs; i++) {
+        X[i] = x_data[xt][i];
+        Y[i] = y_data[yt][i];
+        XYZ_undef[i] = x_undef_data[xt][i] ||y_undef_data[yt][i];
+        if (!XYZ_undef[i]) {
+            if (!has_init) {
+                x_max = X[i];
+                x_min = X[i];
+                y_max = Y[i];
+                y_min = Y[i];
+                has_init = true;
+            } else {
+                if (X[i] > x_max)
+                    x_max = X[i];
+                if (X[i] < x_min)
+                    x_min = X[i];
+                if (Y[i] > y_max)
+                    y_max = Y[i];
+                if (Y[i] < y_min)
+                    y_min = Y[i];
+            }
+        }
+    }
+
+    if (standardized) {
+        double local_x_max = DBL_MIN;
+        double local_x_min = DBL_MAX;
+        double local_y_max = DBL_MIN;
+        double local_y_min = DBL_MAX;
+        for (int i=0, iend=X.size(); i<iend; i++) {
+            X[i] = (X[i]-statsX.mean)/statsX.sd_with_bessel;
+            Y[i] = (Y[i]-statsY.mean)/statsY.sd_with_bessel;
+            if (is_bubble_plot) {
+                Z[i] = (Z[i]-statsZ.mean)/statsZ.sd_with_bessel;
+            }
+            if (local_x_max < X[i]) local_x_max = X[i];
+            if (local_x_min > X[i]) local_x_min = X[i];
+            if (local_y_max < Y[i]) local_y_max = Y[i];
+            if (local_y_min > Y[i]) local_y_min = Y[i];
+        }
+        x_max = local_x_max;
+        x_min = local_x_min;
+        y_max = local_y_max;
+        y_min = local_y_min;
+    }
+
+    if (var_info[0].is_moran || (!var_info[0].fixed_scale && !standardized)) {
+        x_max = var_info[0].max[var_info[0].time];
+        x_min = var_info[0].min[var_info[0].time];
+    } else if (var_info[0].fixed_scale && !standardized) {
+        // this is for fixed x-axis over time
+        x_max = var_info[0].max_over_time;
+        x_min = var_info[0].min_over_time;
+    }
+    if (var_info[1].is_moran || (!var_info[1].fixed_scale && !standardized)) {
+        y_max = var_info[1].max[var_info[1].time];
+        y_min = var_info[1].min[var_info[1].time];
+    } else if (var_info[1].fixed_scale&& !standardized){
+        // this is for fixed y-axis over time
+        y_max = var_info[1].max_over_time;
+        y_min = var_info[1].min_over_time;
+    }
+
+    double x_pad = 0.1 * (x_max - x_min);
+    double y_pad = 0.1 * (y_max - y_min);
+    axis_scale_x = AxisScale(x_min - x_pad, x_max + x_pad, 5,
+                             axis_display_precision, axis_display_fixed_point);
+    axis_scale_y = AxisScale(y_min - y_pad, y_max + y_pad, 5,
+                             axis_display_precision, axis_display_fixed_point);
+
+    // Populate TemplateCanvas::selectable_shps
+    selectable_shps.resize(num_obs);
+    selectable_shps_undefs.resize(num_obs);
+    scaleX = 100.0 / (axis_scale_x.scale_range);
+    scaleY = 100.0 / (axis_scale_y.scale_range);
+
+    {
+        selectable_shps_type = points;
+        for (int i=0; i<num_obs; i++) {
+            selectable_shps_undefs[i] = XYZ_undef[i];
+            selectable_shps[i] =
+            new GdaPoint(wxRealPoint((X[i] - axis_scale_x.scale_min) * scaleX,
+                                     (Y[i] - axis_scale_y.scale_min) * scaleY));
+        }
+    }
+
+    // create axes
+    x_baseline = new GdaAxis(GetNameWithTime(0), axis_scale_x,
+                             wxRealPoint(0,0), wxRealPoint(100, 0));
+    x_baseline->setPen(*GdaConst::scatterplot_scale_pen);
+    foreground_shps.push_back(x_baseline);
+    y_baseline = new GdaAxis(GetNameWithTime(1), axis_scale_y,
+                             wxRealPoint(0,0), wxRealPoint(0, 100));
+    y_baseline->setPen(*GdaConst::scatterplot_scale_pen);
+    foreground_shps.push_back(y_baseline);
+
+    // create optional axes through origin
+    x_axis_through_origin = new GdaPolyLine(0,50,100,50);
+    x_axis_through_origin->setPen(*wxTRANSPARENT_PEN);
+    y_axis_through_origin = new GdaPolyLine(50,0,50,100);
+    y_axis_through_origin->setPen(*wxTRANSPARENT_PEN);
+    foreground_shps.push_back(x_axis_through_origin);
+    foreground_shps.push_back(y_axis_through_origin);
+    UpdateAxesThroughOrigin();
+
+    stats_table = new GdaShapeTable();
+    stats_table->hidden = true;
+    foreground_shps.push_back(stats_table);
+
+    vn_tbl = new GdaShapeTable();
+    vn_tbl->hidden = true;
+    foreground_shps.push_back(vn_tbl);
+
+    UpdateDisplayStats();
+    PopCanvPreResizeShpsHook();
+    ResizeSelectableShps();
+}
+
+void MDSPlotCanvas::UpdateDisplayStats()
+{
+    if (IsDisplayStats()) {
+        // add method and variable names
+        wxClientDC dc(this);
+        int w, h;
+        dc.GetSize(&w, &h);
+        if (w<=0) w = 500;
+        std::vector<wxString> vn_vals;
+        wxString tmp_info_str;
+        for (size_t k=0; k<info_str.size(); k++) {
+            tmp_info_str << info_str[k];
+            if (tmp_info_str.length() * 10 > w - 20) {
+                vn_vals.push_back(tmp_info_str);
+                tmp_info_str = "";
+            } else if (k < info_str.size()-1 ) {
+                tmp_info_str << ", ";
+            }
+        }
+        if (tmp_info_str.length() > 0) vn_vals.push_back(tmp_info_str);
+        int rows = vn_vals.size();
+        int cols = 1;
+        int x_nudge = last_scale_trans.GetXNudge();
+        if (rows > 0) {
+            std::vector<GdaShapeTable::CellAttrib> vn_attributes(rows*cols);
+            vn_tbl->operator=(GdaShapeTable(vn_vals, vn_attributes,
+                                            rows, cols,
+                                            *GdaConst::small_font,
+                                            wxRealPoint(50, 0),
+                                            GdaShapeText::h_center,
+                                            GdaShapeText::v_center,
+                                            GdaShapeText::h_center,
+                                            GdaShapeText::v_center,
+                                            3, 8, -x_nudge, 55));
+            vn_tbl->setPen(*wxBLACK_PEN);
+            vn_tbl->hidden = false;
+            ApplyLastResizeToShp(vn_tbl);
+        }
+        //foreground_shps.push_back(vn_tbl);
+        // fill out the stats table
+        rows = 1;
+        cols = (int)output_vals.size() * 2;
+        std::vector<wxString> vals(rows*cols);
+        std::vector<GdaShapeTable::CellAttrib> attributes(rows*cols);
+        size_t idx = 0;
+        for (size_t i=0; i<output_vals.size(); ++i) {
+            //attributes[idx].color = *wxBLACK;
+            vals[idx] = output_vals[i].first;
+            idx = idx + 1;
+            //attributes[idx].color = selectable_outline_color;
+            if (output_vals[i].second < pow(0.1, display_precision))
+                vals[idx] << output_vals[i].second;
+            else
+                vals[idx] << GenUtils::DblToStr(output_vals[i].second, display_precision,  display_precision_fixed_point);
+            idx = idx + 1;
+        }
+        x_nudge = last_scale_trans.GetXNudge();
+        stats_table->operator=(GdaShapeTable(vals, attributes, rows, cols,
+                                             *GdaConst::small_font,
+                                             wxRealPoint(50, 0),
+                                             GdaShapeText::h_center,
+                                             GdaShapeText::top,
+                                             GdaShapeText::h_center,
+                                             GdaShapeText::v_center,
+                                             3, 8, -x_nudge, 45));
+        stats_table->setPen(*wxBLACK_PEN);
+        stats_table->hidden = false;
+        ApplyLastResizeToShp(stats_table);
+    } else {
+        vn_tbl->hidden = true;
+        stats_table->hidden = true;
+    }
+    layer2_valid = false;
+}
+
+bool MDSPlotCanvas::UpdateDisplayLinesAndMargins()
+{
+    bool changed = false;
+    int lines = 0;
+    int table_w=0, table_h=0;
+    if (IsDisplayStats() && stats_table) {
+        wxClientDC dc(this);
+        int w, h;
+        stats_table->GetSize(dc, w, h);
+        table_w = w;
+        table_h += h;
+        vn_tbl->GetSize(dc, w, h);
+        table_h += h;
+        if (vn_tbl->rows>1) table_h += 2;
+    }
+
+    last_scale_trans.bottom_margin = 50;
+    if (!IsDisplayStats()) {
+        lines = 0;
+    } else {
+        lines = 1;
+        last_scale_trans.bottom_margin += 10;
+
+    }
+    last_scale_trans.bottom_margin += table_h;
+
+    if (table_display_lines != lines) {
+        layer0_valid = false;
+        layer1_valid = false;
+        layer2_valid = false;
+        changed = true;
+    }
+
+    table_display_lines = lines;
+    return changed;
+}
 
 IMPLEMENT_CLASS(MDSPlotFrame, TemplateFrame)
 BEGIN_EVENT_TABLE(MDSPlotFrame, TemplateFrame)
@@ -2321,6 +2648,10 @@ MDSPlotFrame::MDSPlotFrame(wxFrame *parent, Project* project,
 }
 
 MDSPlotFrame::MDSPlotFrame(wxFrame *parent, Project* project,
+                           const std::vector<std::vector<int> >& groups,
+                           const std::vector<wxString >& group_labels,
+                           const std::vector<wxString>& info_str,
+                           const std::vector<std::pair<wxString, double> >& output_vals,
                            const std::vector<GdaVarTools::VarInfo>& var_info,
                            const std::vector<int>& col_ids,
                            bool is_bubble_plot, const wxString& title,
@@ -2333,23 +2664,48 @@ MDSPlotFrame::MDSPlotFrame(wxFrame *parent, Project* project,
     int width, height;
     GetClientSize(&width, &height);
     wxSplitterWindow* splitter_win = 0;
-    if (is_bubble_plot) {
-        splitter_win = new wxSplitterWindow(this,wxID_ANY,wxDefaultPosition,
-                                            wxDefaultSize,
-                                            wxSP_3D|wxSP_LIVE_UPDATE|wxCLIP_CHILDREN);
+    if (groups.empty()) {
+        template_canvas = new MDSPlotCanvas(this, this, project, groups,
+                                            group_labels,info_str,
+                                            output_vals, var_info, col_ids,
+                                            is_bubble_plot, false, wxDefaultPosition,
+                                            wxSize(width,height));
+        template_canvas->SetScrollRate(1,1);
+    } else {
+        splitter_win = new wxSplitterWindow(this,wxID_ANY, wxDefaultPosition, wxDefaultSize, wxSP_3D |wxSP_LIVE_UPDATE|wxCLIP_CHILDREN);
         splitter_win->SetMinimumPaneSize(10);
+
+        // right panel
+        wxPanel* rpanel = new wxPanel(splitter_win);
+        template_canvas = new MDSPlotCanvas(rpanel, this, project, groups, group_labels,
+                                            info_str,  output_vals, var_info, col_ids,
+                                            is_bubble_plot, false, wxDefaultPosition,
+                                            wxSize(width,height));
+        template_canvas->SetScrollRate(1,1);
+        wxBoxSizer *rbox = new wxBoxSizer(wxVERTICAL);
+        rbox->Add(template_canvas, 1, wxEXPAND);
+        rpanel->SetSizer(rbox);
+        // left panel
+        wxPanel* lpanel = new wxPanel(splitter_win);
+        template_legend = new TemplateLegend(lpanel, template_canvas, wxPoint(0,0), wxSize(0,0));
+        wxBoxSizer* lbox = new wxBoxSizer(wxVERTICAL);
+        template_legend->GetContainingSizer()->Detach(template_legend);
+        lbox->Add(template_legend, 1, wxEXPAND);
+        lpanel->SetSizer(lbox);
+        // setup panels
+        splitter_win->SplitVertically(lpanel, rpanel, GdaConst::map_default_legend_width);
+        wxBoxSizer* sizer = new wxBoxSizer(wxVERTICAL);
+        sizer->Add(splitter_win, 1, wxEXPAND|wxALL);
+        SetSizer(sizer);
+        SetAutoLayout(true);
     }
-    template_canvas = new MDSPlotCanvas(this, this, project,
-                                        var_info, col_ids,
-                                        is_bubble_plot,
-                                        false, wxDefaultPosition,
-                                        wxSize(width,height));
-    template_canvas->SetScrollRate(1,1);
     DisplayStatusBar(true);
     SetTitle(title);
     if (title.empty())
         SetTitle(template_canvas->GetCanvasTitle());
     Show(true);
+    //wxCommandEvent ev;
+    //OnViewLinearSmoother(ev);
 }
 
 MDSPlotFrame::~MDSPlotFrame()

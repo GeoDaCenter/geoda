@@ -382,7 +382,7 @@ GdaShapeAttribs& GdaShapeAttribs::operator=(const GdaShapeAttribs& s) {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-//
+// GdaShape: Basic class for rendering shape
 //
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -479,7 +479,7 @@ int GdaShape::getYNudge()
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-//
+// Help class for GdaShape
 //
 ////////////////////////////////////////////////////////////////////////////////
 void GdaShapeAlgs::partsToCount(const std::vector<wxInt32>& parts,
@@ -763,35 +763,48 @@ void GdaShapeAlgs::getBoundingBoxOrig(const GdaPolygon* p, double& xmin,
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-//
+// GdaPoint: point (for rendering)
 //
 ////////////////////////////////////////////////////////////////////////////////
 GdaPoint::GdaPoint()
-: radius(GdaConst::my_point_click_radius)
+: radius(GdaConst::my_point_click_radius), adaptive_radius(false)
 {
 	null_shape = true;
 }
 
 GdaPoint::GdaPoint(const GdaPoint& s)
-: GdaShape(s), radius(GdaConst::my_point_click_radius)
-
+: GdaShape(s), radius(s.radius), adaptive_radius(false)
 {
 }
 
 GdaPoint::GdaPoint(wxRealPoint point_o_s)
-: radius(GdaConst::my_point_click_radius)
+: radius(GdaConst::my_point_click_radius), adaptive_radius(false)
+{
+    center = wxPoint((int) point_o_s.x, (int) point_o_s.y);
+    center_o = point_o_s;
+}
 
+GdaPoint::GdaPoint(wxRealPoint point_o_s, wxDouble radius)
+: radius(radius), adaptive_radius(false)
 {
 	center = wxPoint((int) point_o_s.x, (int) point_o_s.y); 
 	center_o = point_o_s;
 }
 
 GdaPoint::GdaPoint(double x_orig, double y_orig)
-: radius(GdaConst::my_point_click_radius)
-
+: radius(GdaConst::my_point_click_radius), adaptive_radius(false)
 {
 	center = wxPoint((int) x_orig, (int) y_orig); 
 	center_o = wxRealPoint(x_orig, y_orig);
+}
+
+GdaPoint::GdaPoint(double x_orig, double y_orig, double radius_o)
+: radius(GdaConst::my_point_click_radius), radius_o(radius_o)
+{
+    center = wxPoint((int) x_orig, (int) y_orig);
+    center_o = wxRealPoint(x_orig, y_orig);
+
+    adaptive_radius = true;
 }
 
 void GdaPoint::Offset(double dx, double dy)
@@ -842,6 +855,31 @@ void GdaPoint::applyScaleTrans(const GdaScaleTrans& A)
 {
 	GdaShape::applyScaleTrans(A); // apply affine transform to base class
 	//A.transform(center_o, &center);
+
+    if (adaptive_radius) {
+        wxRealPoint center_o_offset(center_o);
+        center_o_offset.x += radius_o;
+        wxPoint center_offset;
+        A.transform(center_o_offset, &center_offset);
+        radius = center_offset.x - center.x;
+    }
+}
+
+void GdaPoint::projectToBasemap(Gda::Basemap* basemap, double scale_factor)
+{
+    basemap->LatLngToXY(center_o.x, center_o.y, center.x, center.y);
+    if (scale_factor != 1) {
+        center.x = center.x * scale_factor;
+        center.y = center.y * scale_factor;
+    }
+    if (adaptive_radius) {
+        wxRealPoint center_o_offset(center_o);
+        center_o_offset.x += radius_o;
+        wxPoint center_offset;
+        basemap->LatLngToXY(center_o_offset.x, center_o_offset.y,
+                            center_offset.x, center_offset.y);
+        radius = center_offset.x - center.x;
+    }
 }
 
 void GdaPoint::paintSelf(wxDC& dc)
@@ -867,7 +905,7 @@ void GdaPoint::paintSelf(wxGraphicsContext* gc)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-//
+// GdaCircle: circle (for rendering)
 //
 ////////////////////////////////////////////////////////////////////////////////
 GdaCircle::GdaCircle()
@@ -966,7 +1004,7 @@ void GdaCircle::paintSelf(wxGraphicsContext* gc)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-//
+// GdaRectangle: rectable (for rendering)
 //
 ////////////////////////////////////////////////////////////////////////////////
 GdaRectangle::GdaRectangle()
@@ -1093,6 +1131,7 @@ void GdaRectangle::paintSelf(wxDC& dc)
     int y = upper_right.y+getYNudge();
     int w = upper_right.x - lower_left.x;
     int h = lower_left.y - upper_right.y;
+    if (h==0) h = 1;
 	dc.DrawRectangle(x,y,w,h);
 }
 
@@ -1107,7 +1146,7 @@ void GdaRectangle::paintSelf(wxGraphicsContext* gc)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-//
+// GdaPolygon: polygon (for rendering)
 //
 ////////////////////////////////////////////////////////////////////////////////
 GdaPolygon::GdaPolygon() : points(0), points_o(0), count(0)
@@ -2150,6 +2189,15 @@ bool GdaShapeText::pointWithin(const wxPoint& pt)
 	return GdaShapeAlgs::pointInPolygon(pt, 5, bb_poly);
 }
 
+void GdaShapeText::projectToBasemap(Gda::Basemap* basemap, double scale_factor)
+{
+    basemap->LatLngToXY(ref_pt_o.x, ref_pt_o.y, ref_pt.x, ref_pt.y);
+    if (scale_factor != 1) {
+        ref_pt.x = ref_pt.x * scale_factor;
+        ref_pt.y = ref_pt.y * scale_factor;
+    }
+}
+
 void GdaShapeText::paintSelf(wxDC& dc)
 {
 	//LOG_MSG("Entering GdaShapeText::paintSelf");
@@ -2231,6 +2279,8 @@ void GdaShapeText::GetSize(wxDC& dc, int& w, int& h)
 
 void GdaShapeText::applyScaleTrans(const GdaScaleTrans& A)
 {
+    GdaShape::applyScaleTrans(A); // apply affine transform to base class
+   
 	A.transform(ref_pt_o, &ref_pt);
 	// adjust degs_rot_cc_from_horiz according to A.scale_x and A.scale_y
 	// begin by calculating the unit vector that represents

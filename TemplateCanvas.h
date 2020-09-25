@@ -63,7 +63,7 @@ public:
                    const wxSize& size,
                    bool fixed_aspect_ratio_mode = false,
                    bool fit_to_window_mode = true,
-                   bool enable_high_dpi_support = true); // always try hdpi except maps
+                   bool enable_high_dpi_support = GdaConst::enable_high_dpi_support); // always try hdpi except maps
 	virtual ~TemplateCanvas();
 
 public:
@@ -244,8 +244,8 @@ public:
     /** generic function to create and initialized th*e selectable_shps vector
      based on a passed-in Project pointer and given an initial canvas
      screen size. */
-    static std::vector<int> CreateSelShpsFromProj(std::vector<GdaShape*>& selectable_shps,
-                                                  Project* project);
+    std::vector<int> CreateSelShpsFromProj(std::vector<GdaShape*>& selectable_shps,
+                                           Project* project);
     /** Select all observations in a given category for current
      canvas time step. Assumes selectable_shps.size() == num obs */
     void SelectAllInCategory(int category, bool add_to_selection);
@@ -303,6 +303,7 @@ public:
         return sz;
     }
 
+    
 protected:
     int           MASK_R;
     int           MASK_G;

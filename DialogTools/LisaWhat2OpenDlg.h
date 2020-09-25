@@ -33,7 +33,8 @@ public:
 					 long style = wxCAPTION|wxDEFAULT_DIALOG_STYLE );
     void CreateControls();
     void OnOkClick( wxCommandEvent& event );
-
+    void HideMoranScatter();
+    
     wxCheckBox* m_check1;
     wxCheckBox* m_check2;
     wxCheckBox* m_check3;

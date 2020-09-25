@@ -134,7 +134,7 @@ wxString GetisOrdMapCanvas::GetCanvasTitle()
 {
 	wxString new_title;
 	
-    if (gs_coord->is_local_joint_count) new_title = "Local Join Count ";
+    if (gs_coord->is_local_join_count) new_title = "Local Join Count ";
     else new_title = (is_gi ? "Gi " : "Gi* ");
     
 	new_title << (is_clust ? "Cluster" : "Significance") << " Map ";
@@ -255,7 +255,7 @@ void GetisOrdMapCanvas::CreateAndUpdateCategories()
 		if (is_clust) {
 			num_cats += 3;
             // in Local Join Count, don't display Low category
-            if (gs_coord->is_local_joint_count)
+            if (gs_coord->is_local_join_count)
                 num_cats -= 1;
             
             cat_data.CreateCategoriesAtCanvasTm(num_cats, t);
@@ -265,18 +265,18 @@ void GetisOrdMapCanvas::CreateAndUpdateCategories()
             cat_data.SetCategoryLabel(t, 1, str_high);
             cat_data.SetCategoryColor(t, 1, lbl_color_dict[str_high]);
             
-            if (!gs_coord->is_local_joint_count) {
+            if (!gs_coord->is_local_join_count) {
                 cat_data.SetCategoryLabel(t, 2, str_low);
                 cat_data.SetCategoryColor(t, 2, lbl_color_dict[str_low]);
             }
             
             if (gs_coord->GetHasIsolates(t) && gs_coord->GetHasUndefined(t)) {
-                isolates_cat = 3 - gs_coord->is_local_joint_count;
-                undefined_cat = 4 - gs_coord->is_local_joint_count;
+                isolates_cat = 3 - gs_coord->is_local_join_count;
+                undefined_cat = 4 - gs_coord->is_local_join_count;
             } else if (gs_coord->GetHasUndefined(t)) {
-                undefined_cat = 3 - gs_coord->is_local_joint_count;
+                undefined_cat = 3 - gs_coord->is_local_join_count;
             } else if (gs_coord->GetHasIsolates(t)) {
-                isolates_cat = 3 - gs_coord->is_local_joint_count;
+                isolates_cat = 3 - gs_coord->is_local_join_count;
             }
             if (undefined_cat != -1) {
                 cat_data.SetCategoryLabel(t, undefined_cat, str_undefined);
@@ -786,31 +786,33 @@ void GetisOrdMapFrame::OnSigFilterSetup(wxCommandEvent& event)
     double user_sig = gs_coord->significance_cutoff;
     if (gs_coord->GetSignificanceFilter()<0) user_sig = gs_coord->user_sig_cutoff;
   
-    if (gs_coord->is_local_joint_count) {
+    if (gs_coord->is_local_join_count) {
         int new_n = 0;
         for (int i=0; i<gs_coord->num_obs; i++) {
             if (gs_coord->x_vecs[t][i] == 1) {
                 new_n += 1;
             }
         }
-        int j= 0;
-        double* p_val = new double[new_n];
-        for (int i=0; i<gs_coord->num_obs; i++) {
-            if (gs_coord->x_vecs[t][i] == 1) {
-                p_val[j++] = p_val_t[i];
+        if (new_n > 0) {
+            int j= 0;
+            double* p_val = new double[new_n];
+            for (int i=0; i<gs_coord->num_obs; i++) {
+                if (gs_coord->x_vecs[t][i] == 1) {
+                    p_val[j++] = p_val_t[i];
+                }
             }
+            InferenceSettingsDlg dlg(this, user_sig, p_val, new_n, ttl);
+            if (dlg.ShowModal() == wxID_OK) {
+                gs_coord->SetSignificanceFilter(-1);
+                gs_coord->significance_cutoff = dlg.GetAlphaLevel();
+                gs_coord->user_sig_cutoff = dlg.GetUserInput();
+                gs_coord->notifyObservers();
+                gs_coord->bo = dlg.GetBO();
+                gs_coord->fdr = dlg.GetFDR();
+                UpdateOptionMenuItems();
+            }
+            delete[] p_val;
         }
-        InferenceSettingsDlg dlg(this, user_sig, p_val, new_n, ttl);
-        if (dlg.ShowModal() == wxID_OK) {
-            gs_coord->SetSignificanceFilter(-1);
-            gs_coord->significance_cutoff = dlg.GetAlphaLevel();
-            gs_coord->user_sig_cutoff = dlg.GetUserInput();
-            gs_coord->notifyObservers();
-            gs_coord->bo = dlg.GetBO();
-            gs_coord->fdr = dlg.GetFDR();
-            UpdateOptionMenuItems();
-        }
-        delete[] p_val;
     } else {
         InferenceSettingsDlg dlg(this, user_sig, p_val_t, n, ttl);
         if (dlg.ShowModal() == wxID_OK) {
@@ -852,7 +854,7 @@ void GetisOrdMapFrame::OnSaveGetisOrd(wxCommandEvent& event)
 	wxString g_label = is_gi ? "G" : "G*";
 	wxString g_field_default = is_gi ? "G" : "G_STR";
     
-    if (gs_coord->is_local_joint_count) {
+    if (gs_coord->is_local_join_count) {
         title = "Save Results: Local Join Count-stats";
         g_label = "JC";
         g_field_default = "JC";
@@ -898,7 +900,7 @@ void GetisOrdMapFrame::OnSaveGetisOrd(wxCommandEvent& event)
     int data_i = 0;
     std::vector<wxInt64> nn_1_val;
     
-    if (gs_coord->is_local_joint_count == false) {
+    if (gs_coord->is_local_join_count == false) {
     	data[data_i].d_val = &g_val;
     	data[data_i].label = g_label;
     	data[data_i].field_default = g_field_default;
@@ -920,7 +922,7 @@ void GetisOrdMapFrame::OnSaveGetisOrd(wxCommandEvent& event)
         data[data_i].undefined = &undefs;
 		data_i++;
 	}
-    if (gs_coord->is_local_joint_count == false) {
+    if (gs_coord->is_local_join_count == false) {
     	data[data_i].d_val = &p_val;
     	data[data_i].label = p_label;
     	data[data_i].field_default = p_field_default;

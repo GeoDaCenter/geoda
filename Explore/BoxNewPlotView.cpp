@@ -642,7 +642,7 @@ void BoxPlotCanvas::PopulateCanvas()
                                   3, 10, 0, 30);
 			foreground_shps.push_back(s);
 		}
-		
+        // draw box: lines and rectangles
 		s = new GdaPolyLine(xM-plot_width_const/3.0, (y0-y_min)*scaleY,
 						   xM+plot_width_const/3.0, (y0-y_min)*scaleY);
 		foreground_shps.push_back(s);
@@ -671,7 +671,7 @@ void BoxPlotCanvas::PopulateCanvas()
 					   wxRealPoint(orig_x_pos[t-cur_first_ind], 0), 0,
 					   GdaShapeText::h_center, GdaShapeText::v_center, 0, 18);
 		foreground_shps.push_back(s);
-		
+		// draw points in IQRs
 		for (int i=0; i<hinge_stats[t].min_IQR_ind; i++) {
 			double val = data_sorted[t][i].first;
             int idx = data_sorted[t][i].second;

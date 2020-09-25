@@ -75,6 +75,7 @@ public:
 							bool show_lowess_smoother = false,
 							bool show_slope_values = true,
 							bool view_standardized_data = false,
+                            bool show_data_points = true,
 							const wxPoint& pos = wxDefaultPosition,
 							const wxSize& size = wxDefaultSize);
 	virtual ~SimpleScatterPlotCanvas();
@@ -129,7 +130,9 @@ protected:
 	wxString Xname;
 	wxString Yname;
 	// used for scaling, so can be smaller/larger than min/max in X/Y
-	double Xmin, Xmax, Ymin, Ymax; 
+	double Xmin, Xmax, Ymin, Ymax;
+    wxString def_y_min;
+    wxString def_y_max;
 	
 	bool add_auto_padding_min;
 	bool add_auto_padding_max;
@@ -178,6 +181,7 @@ protected:
 	bool show_vert_axis_through_origin;
 	bool show_slope_values;
     bool view_standardized_data;
+    bool show_data_points;
     
 	SmoothingUtils::LowessCacheType lowess_cache;
 	void EmptyLowessCache();
@@ -185,7 +189,8 @@ protected:
 	
 	SimpleScatterPlotCanvasCbInt* ssp_canv_cb;
 	wxString right_click_menu_id;
-	
+
+
 	DECLARE_EVENT_TABLE()
 };
 

@@ -154,6 +154,8 @@ XYFraction::XYFraction(double _x, double _y)
     yfrac = modf(_y, &yint);
 }
 
+const char *Basemap::USER_AGENT = "GeoDa 1.14 contact spatial@uchiago.edu";
+
 Basemap::Basemap(BasemapItem& _basemap_item,
                  Screen* _screen,
                  MapLayer* _map,
@@ -229,26 +231,22 @@ void Basemap::SetupMapType(BasemapItem& _basemap_item)
     basemap_item = _basemap_item;
     basemapName = basemap_item.group + "." + basemap_item.name;
     basemapUrl = basemap_item.url;
-    
-    if (basemapUrl.Find("png") != wxNOT_FOUND ||
-        basemapUrl.Find("PNG") != wxNOT_FOUND) {
-        imageSuffix = ".png";
-    } else if (basemapUrl.Find("jpeg") != wxNOT_FOUND ||
-               basemapUrl.Find("JPEG") != wxNOT_FOUND) {
-        imageSuffix = ".jpeg";
-    } else {
-        if (basemapUrl.Find("ArcGIS")) {
-            imageSuffix = ".jpeg";
-        } else if (basemapUrl.Find("autonavi")) {
-            imageSuffix = ".png";
-        } else {
-            imageSuffix = ".png";
-        }
 
+    wxString content_type = GetContentType();
+    if (content_type.IsEmpty()) content_type = GetContentType();
+
+    content_type.MakeUpper();
+    if (content_type.Find("PNG") != wxNOT_FOUND) {
+        imageSuffix = ".png";
+    } else if (content_type.Find("JPG") != wxNOT_FOUND) {
+        imageSuffix = ".jpg";
+    } else if (content_type.Find("JPEG") != wxNOT_FOUND) {
+        imageSuffix = ".jpeg";
+    } else if (content_type.Find("GIF") != wxNOT_FOUND) {
+        imageSuffix = ".gif";
+    } else {
+        imageSuffix = ".png";
     }
-    // if ( !hdpi ) {
-    //     basemapUrl.Replace("@2x", "");
-    // }
     
     // get a latest HERE account
     vector<wxString> nokia_user = OGRDataAdapter::GetInstance().GetHistory("nokia_user");
@@ -277,7 +275,8 @@ void Basemap::Reset()
     map->west= origMap->west;
     map->east= origMap->east;
     GetEasyZoomLevel();
-    SetupMapType(basemap_item);
+    //SetupMapType(basemap_item);
+    GetTiles();
 }
 
 void Basemap::Reset(int map_type)
@@ -306,7 +305,8 @@ void Basemap::Extent(double _n, double _w, double _s, double _e,
     origMap->west= _w;
     origMap->east= _e;
     GetEasyZoomLevel();
-    SetupMapType(basemap_item);
+    //SetupMapType(basemap_item);
+    GetTiles();
 }
 
 void Basemap::ResizeScreen(int _width, int _height)
@@ -314,12 +314,13 @@ void Basemap::ResizeScreen(int _width, int _height)
     if (screen) {
         screen->width = _width;
         screen->height = _height;
-    }
 
-    //isTileDrawn = false;
-    GetEasyZoomLevel();
-    
-    SetupMapType(basemap_item);
+        //isTileDrawn = false;
+        GetEasyZoomLevel();
+
+        //SetupMapType(basemap_item);
+        GetTiles();
+    }
 }
 
 void Basemap::Pan(int x0, int y0, int x1, int y1)
@@ -332,7 +333,10 @@ void Basemap::Pan(int x0, int y0, int x1, int y1)
     
     double offsetLat = p1->lat - p0->lat;
     double offsetLon = p1->lng - p0->lng;
-    
+
+    delete p0;
+    delete p1;
+
     if (map->Pan(-offsetLat, -offsetLon)) {
         //isTileDrawn = false;
         //isTileReady = false;
@@ -367,6 +371,9 @@ bool Basemap::Zoom(bool is_zoomin, int x0, int y0, int x1, int y1)
     double west = p0->lng;
     double south = p1->lat;
     double east = p1->lng;
+
+    delete p0;
+    delete p1;
     
     map->UpdateExtent(west, south, east, north);
     
@@ -594,14 +601,44 @@ bool Basemap::IsDownloading()
 size_t curlCallback(void *ptr, size_t size, size_t nmemb, void* userdata)
 {
     FILE* stream = (FILE*)userdata;
-    if (!stream)
-    {
+    if (!stream) {
         printf("!!! No stream\n");
         return 0;
     }
     
     size_t written = fwrite((FILE*)ptr, size, nmemb, stream);
     return written;
+}
+
+wxString Basemap::GetContentType()
+{
+    wxString url = GetTileUrl(16, 11); // guerry
+    wxString content_type;
+    CURL *curl = curl_easy_init();
+    CURLcode res;
+    if(curl) {
+        curl_easy_setopt(curl, CURLOPT_URL, url.ToUTF8().data());
+        curl_easy_setopt(curl, CURLOPT_SSLVERSION, CURL_SSLVERSION_TLSv1_2);
+        curl_easy_setopt(curl, CURLOPT_USERAGENT, Basemap::USER_AGENT);
+        curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 0);
+        curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0);
+        curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT, 1L);
+        curl_easy_setopt(curl, CURLOPT_TIMEOUT, 1L);
+        curl_easy_setopt(curl, CURLOPT_NOSIGNAL, 1L);
+        res = curl_easy_perform(curl);
+
+        if(!res) {
+            /* extract the content-type */
+            char *ct = NULL;
+            res = curl_easy_getinfo(curl, CURLINFO_CONTENT_TYPE, &ct);
+            if(!res && ct) {
+                content_type = ct;
+            }
+        }
+        curl_easy_cleanup(curl);
+    }
+    //std::cout << "ContentType():" << content_type << "," << url.c_str() << ","  << url.ToUTF8().data() << std::endl;
+    return content_type;
 }
 
 void Basemap::DownloadTile(int x, int y)
@@ -615,10 +652,8 @@ void Basemap::DownloadTile(int x, int y)
 
     if (!wxFileExists(filepathStr) || wxFileName::GetSize(filepathStr) == 0) {
         // otherwise, download the image
-        wxString urlStr = GetTileUrl(x, y);
-        char* url = new char[urlStr.length() + 1];
-        std::strcpy(url, urlStr.c_str());
-        
+        wxString url = GetTileUrl(x, y);
+
         FILE* fp;
         CURL* image;
         CURLcode imgResult;
@@ -631,8 +666,9 @@ void Basemap::DownloadTile(int x, int y)
             fp = fopen(GET_ENCODED_FILENAME(filepathStr), "wb");
 #endif
             if (fp) {
-                curl_easy_setopt(image, CURLOPT_URL, url);
+                curl_easy_setopt(image, CURLOPT_URL, url.ToUTF8().data());
                 curl_easy_setopt(image, CURLOPT_SSLVERSION, CURL_SSLVERSION_TLSv1_2);
+                curl_easy_setopt(image, CURLOPT_USERAGENT, Basemap::USER_AGENT);
                 curl_easy_setopt(image, CURLOPT_WRITEFUNCTION, curlCallback);
                 curl_easy_setopt(image, CURLOPT_WRITEDATA, fp);
                 //curl_easy_setopt(image, CURLOPT_FOLLOWLOCATION, 1);
@@ -650,7 +686,6 @@ void Basemap::DownloadTile(int x, int y)
                 fclose(fp);
             }
         }
-        delete[] url;
     }
 
     mutex.lock();
@@ -675,7 +710,7 @@ LatLng* Basemap::XYToLatLng(XYFraction &xy, bool isLL)
     double lat = 180.0 / M_PI * atan(0.5 * (exp(n) - exp(-n)));
     
     if (!isLL && poCT) {
-        poCT->TransformEx(1, &lng, &lat);
+        poCT->Transform(1, &lng, &lat);
     }
     return new LatLng(lat, lng);
 }
@@ -762,7 +797,7 @@ wxString Basemap::GetTileUrl(int x, int y)
     url.Replace("HERE_APP_ID", nokia_id);
     url.Replace("HERE_APP_CODE", nokia_code);
     url.Replace("{s}", GetRandomSubdomain(url));
-    std::cout << url.c_str() << std::endl;
+    //std::cout << url.c_str() << std::endl;
     return url;
 }
 

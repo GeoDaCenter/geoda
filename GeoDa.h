@@ -161,12 +161,16 @@ public:
     void OnToolsDataKMedians(wxCommandEvent& event);
     void OnToolsDataKMedoids(wxCommandEvent& event);
     void OnToolsDataHCluster(wxCommandEvent& event);
+    void OnToolsDataDBScan(wxCommandEvent& event);
     void OnToolsDataHDBScan(wxCommandEvent& event);
     void OnToolsDataMaxP(wxCommandEvent& event);
+    void OnToolsDataAZP(wxCommandEvent& event);
     void OnToolsDataSkater(wxCommandEvent& event);
+    void OnToolsDataSCHC(wxCommandEvent& event);
     void OnToolsDataSpectral(wxCommandEvent& event);
     void OnToolsDataRedcap(wxCommandEvent& event);
     void OnToolsDataMDS(wxCommandEvent& event);
+    void OnToolsDataTSNE(wxCommandEvent& event);
     
 	void OnToolsWeightsManager(wxCommandEvent& event);
 	void OnToolsWeightsCreate(wxCommandEvent& event);
@@ -216,6 +220,7 @@ public:
 	void OnShowConditionalMapView(wxCommandEvent& event);
 	void OnShowConditionalScatterView(wxCommandEvent& event);
 	void OnShowConditionalHistView(wxCommandEvent& event);
+    void OnShowConditionalBoxView(wxCommandEvent& event);
 	
 	void OnShowCartogramNewView(wxCommandEvent& event );
 	void OnCartogramImprove1(wxCommandEvent& event);
@@ -237,6 +242,7 @@ public:
 	void OnExploreLineChart(wxCommandEvent& event);
 	void OnExploreCovScatterPlot(wxCommandEvent& event);
 	void OnExploreCorrelogram(wxCommandEvent& event);
+    void OnDistancePlot(wxCommandEvent& event);
 	void OnToolsChoices(wxCommandEvent& event);
 	void OnMoranMenuChoices(wxCommandEvent& event);
 	void OnOpenMSPL(wxCommandEvent& event);
@@ -244,8 +250,10 @@ public:
     void OnOpenDiffMoran(wxCommandEvent& event);
 	void OnOpenMoranEB(wxCommandEvent& event);
 	void OnLisaMenuChoices(wxCommandEvent& event);
+    void OnCorrelogramMenuChoices(wxCommandEvent& event);
 	void OnGetisMenuChoices(wxCommandEvent& event);
 	void OnOpenUniLisa(wxCommandEvent& event);
+    void OnOpenUniMedianLisa(wxCommandEvent& event);
 	void OnOpenMultiLisa(wxCommandEvent& event);
 	void OnOpenDiffLisa(wxCommandEvent& event);
 	void OnOpenLisaEB(wxCommandEvent& event);
@@ -256,6 +264,9 @@ public:
 	void OnOpenMultiLocalGeary(wxCommandEvent& event);
 	void OnOpenBivariateLJC(wxCommandEvent& event);
     void OnOpenMultiLJC(wxCommandEvent& event);
+    void OnOpenQuantileLisa(wxCommandEvent& event);
+    void OnOpenMultiQuantileLisa(wxCommandEvent& event);
+    void OnOpenLocalMatch(wxCommandEvent& event);
 
 	void OnNewCustomCatClassifA(wxCommandEvent& event);
 	void OnNewCustomCatClassifB(wxCommandEvent& event);
@@ -495,6 +506,7 @@ public:
     void OnChangeGraphThickness(wxCommandEvent& event);
     void OnChangeGraphColor(wxCommandEvent& event);
     void OnChangeConnSelectedColor(wxCommandEvent& event);
+    void OnChangeConnSelectedFillColor(wxCommandEvent& event);
     void OnChangeNeighborFillColor(wxCommandEvent& event);
 	void OnChangeConnRootSize(wxCommandEvent& event);
     void OnChangeConnRootColor(wxCommandEvent& event);
@@ -564,7 +576,6 @@ public:
 	void OnReportBug(wxCommandEvent& event);
 	void OnCheckUpdates(wxCommandEvent& event);
 	void OnCheckTestMode(wxCommandEvent& event);
-    
     void OnTableSetLocale(wxCommandEvent& event);
     void OnEncodingUTF8(wxCommandEvent& event);
 	void OnEncodingUTF16(wxCommandEvent& event);

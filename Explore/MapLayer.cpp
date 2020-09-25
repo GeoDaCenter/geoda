@@ -11,8 +11,8 @@
 
 BackgroundMapLayer::BackgroundMapLayer()
 : AssociateLayerInt(),
-pen_color(wxColour(192, 192, 192)),
-brush_color(wxColour(255, 255, 255, 255)),
+pen_color(wxColour(80, 80, 80)),
+brush_color(wxColour(192, 192, 192, 255)),
 point_radius(2),
 opacity(255),
 pen_size(1),
@@ -28,8 +28,8 @@ BackgroundMapLayer::BackgroundMapLayer(wxString name,
   : AssociateLayerInt(),
     layer_name(name),
     layer_proxy(_layer_proxy),
-    pen_color(wxColour(192, 192, 192)),
-    brush_color(wxColour(255, 255, 255, 255)),
+    pen_color(wxColour(80, 80, 80)),
+    brush_color(wxColour(192, 192, 192, 255)),
     point_radius(2),
     opacity(255),
     pen_size(1),
@@ -39,6 +39,7 @@ BackgroundMapLayer::BackgroundMapLayer(wxString name,
 {
     is_hide = false;
     num_obs = layer_proxy->GetNumRecords();
+    shapes.resize(num_obs, 0);
     shape_type = layer_proxy->GetGdaGeometries(shapes, sr);
     // this is for map boundary only
     shape_type = layer_proxy->GetOGRGeometries(geoms, sr);
@@ -56,6 +57,9 @@ BackgroundMapLayer::~BackgroundMapLayer()
     if (map_boundary) {
         delete map_boundary;
     }
+    for (int i=0; i<shapes.size(); ++i) {
+        delete shapes[i];
+    }
 }
 
 void BackgroundMapLayer::GetExtent(double &_minx, double &_miny, double &_maxx,
@@ -71,7 +75,6 @@ void BackgroundMapLayer::CleanMemory()
 {
     // shapes and geoms will be not deleted until the map destroyed 
     for (int i=0; i<shapes.size(); i++) {
-        delete shapes[i];
         delete geoms[i];
     }
 }
@@ -126,6 +129,60 @@ GdaShape* BackgroundMapLayer::GetShape(int idx)
     return shapes[idx];
 }
 
+OGRSpatialReference* BackgroundMapLayer::GetSpatialReference()
+{
+    if (layer_proxy) {
+        return layer_proxy->GetSpatialReference();
+    }
+    return NULL;
+}
+
+void BackgroundMapLayer::GetExtentOfSelected(double &_minx, double &_miny, double &_maxx,
+                                             double &_maxy)
+{
+    bool has_selected = false;
+    int cnt = 0;
+    for (int i=0; i<highlight_flags.size(); i++) {
+        if (highlight_flags[i] && geoms[i]) {
+            has_selected = true;
+            OGRwkbGeometryType eType = wkbFlatten(geoms[i]->getGeometryType());
+            if (eType == wkbPoint) {
+                OGRPoint* p = (OGRPoint *) geoms[i];
+                if (cnt == 0) {
+                    _minx = p->getX();
+                    _miny = p->getY();
+                    _maxx = p->getX();
+                    _maxy = p->getY();
+                } else {
+                    if (p->getX() < _minx) _minx = p->getX();
+                    if (p->getY() < _miny) _miny = p->getY();
+                    if (p->getX() > _maxx) _maxx = p->getX();
+                    if (p->getY() > _maxy) _maxy = p->getY();
+                }
+            } else {
+                OGREnvelope box;
+                geoms[i]->getEnvelope(&box);
+                if (cnt == 0) {
+                    _minx =box.MinX;
+                    _miny =box.MinY;
+                    _maxx =box.MaxX;
+                    _maxy =box.MaxY;
+                } else {
+                    if (box.MinX < _minx) _minx = box.MinX;
+                    if (box.MinY < _miny) _miny = box.MinY;
+                    if (box.MaxX > _maxx) _maxx = box.MaxX;
+                    if (box.MaxY > _maxy) _maxy = box.MaxY;
+                }
+            }
+            cnt += 1;
+        }
+    }
+    if (has_selected == false) {
+        // fall back to layer extent
+        GetExtent(_minx, _miny, _maxx, _maxy);
+    }
+}
+
 int BackgroundMapLayer::GetHighlightRecords()
 {
     int hl_cnt = 0;
@@ -158,7 +215,7 @@ void BackgroundMapLayer::DrawHighlight(wxMemoryDC& dc, MapCanvas* map_canvas)
         vector<wxString> fid; // e.g. 2 2 1 1 3 5 4 4
         associated_layer->GetKeyColumnData(associated_key, fid);
         associated_layer->ResetHighlight();
-        
+
         map<wxString, vector<wxInt64> > aid_idx;
         for (int i=0; i<fid.size(); i++) {
             aid_idx[fid[i]].push_back(i);
@@ -178,6 +235,9 @@ void BackgroundMapLayer::DrawHighlight(wxMemoryDC& dc, MapCanvas* map_canvas)
             }
         }
         associated_layer->DrawHighlight(dc, map_canvas);
+        // draw lines to associated layer
+        wxPen pen(this->GetAssociatePenColour());
+        dc.SetPen(pen);
         for (int i=0; i<highlight_flags.size(); i++) {
             if (!highlight_flags[i]) {
                 continue;
@@ -246,6 +306,7 @@ BackgroundMapLayer* BackgroundMapLayer::Clone(bool clone_style)
     copy->maxy = maxy;
     
     if (clone_style) {
+        copy->SetAssociatePenColour(associate_pencolor);
         copy->SetPenColour(pen_color);
         copy->SetBrushColour(brush_color);
         copy->SetPointRadius(point_radius);
@@ -259,8 +320,10 @@ BackgroundMapLayer* BackgroundMapLayer::Clone(bool clone_style)
     if (map_boundary) {
         copy->map_boundary = map_boundary->clone();
     }
-    // not deep copy 
-    copy->shapes = shapes;
+    for (int i=0; i<shapes.size(); ++i) {
+        copy->shapes.push_back(shapes[i]->clone());
+    }
+    // not deep copy
     copy->geoms = geoms;
     copy->layer_proxy = layer_proxy;
     copy->highlight_flags = highlight_flags;
@@ -506,7 +569,9 @@ void GdaShapeLayer::applyScaleTrans(const GdaScaleTrans &A)
         }
     } else {
         for (int i=0; i<ml->shapes.size(); i++) {
-            ml->shapes[i]->applyScaleTrans(A);
+            if (ml->shapes[i]) {
+                ml->shapes[i]->applyScaleTrans(A);
+            }
         }
     }
 }
@@ -519,7 +584,9 @@ void GdaShapeLayer::projectToBasemap(Gda::Basemap *basemap, double scale_factor)
         }
     } else {
         for (int i=0; i<ml->shapes.size(); i++) {
-            ml->shapes[i]->projectToBasemap(basemap, scale_factor);
+            if (ml->shapes[i]) {
+                ml->shapes[i]->projectToBasemap(basemap, scale_factor);
+            }
         }
     }
 }
@@ -541,12 +608,16 @@ void GdaShapeLayer::paintSelf(wxDC &dc)
         
         for (int i=0; i<ml->shapes.size(); i++) {
             if (ml->GetShapeType() == Shapefile::POINT_TYP) {
-                GdaPoint* pt = (GdaPoint*)ml->shapes[i];
-                pt->radius = ml->GetPointRadius();
+                if (ml->shapes[i]) {
+                    GdaPoint* pt = (GdaPoint*)ml->shapes[i];
+                    pt->radius = ml->GetPointRadius();
+                }
             }
-            ml->shapes[i]->setPen(pen);
-            ml->shapes[i]->setBrush(brush);
-            ml->shapes[i]->paintSelf(dc);
+            if (ml->shapes[i]) {
+                ml->shapes[i]->setPen(pen);
+                ml->shapes[i]->setBrush(brush);
+                ml->shapes[i]->paintSelf(dc);
+            }
         }
     }
 }

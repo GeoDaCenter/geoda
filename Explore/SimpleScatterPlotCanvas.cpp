@@ -65,6 +65,7 @@ SimpleScatterPlotCanvas(wxWindow *parent,
                         bool show_lowess_smoother_,
                         bool show_slope_values_,
                         bool view_standardized_data_,
+                        bool show_data_points,
                         const wxPoint& pos,
                         const wxSize& size)
 :TemplateCanvas(parent, t_frame, project, hl_state_int, pos, size, false, true),
@@ -83,7 +84,8 @@ show_regimes(show_regimes_),
 show_linear_smoother(show_linear_smoother_),
 show_lowess_smoother(show_lowess_smoother_),
 show_slope_values(show_slope_values_),
-view_standardized_data(view_standardized_data_)
+view_standardized_data(view_standardized_data_),
+show_data_points(show_data_points)
 {
 	highlight_color = GdaConst::scatterplot_regression_selected_color;
 	selectable_fill_color = GdaConst::scatterplot_regression_excluded_color;
@@ -103,7 +105,7 @@ view_standardized_data(view_standardized_data_)
     cat_data.SetCategoryBrushColor(0, 0, *wxWHITE);
 	for (int i=0, sz=X.size(); i<sz; i++) cat_data.AppendIdToCategory(0, 0, i);
 	cat_data.SetCurrentCanvasTmStep(0);
-	
+
 	PopulateCanvas();
 	ResizeSelectableShps();
 	
@@ -114,7 +116,7 @@ SimpleScatterPlotCanvas::~SimpleScatterPlotCanvas()
 {
 	wxLogMessage("Entering SimpleScatterPlotCanvas::~SimpleScatterPlotCanvas");
 	EmptyLowessCache();
-	highlight_state->removeObserver(this);
+    if (highlight_state) highlight_state->removeObserver(this);
 	wxLogMessage("Exiting SimpleScatterPlotCanvas::~SimpleScatterPlotCanvas");
 }
 
@@ -152,8 +154,7 @@ void SimpleScatterPlotCanvas::UpdateSelection(bool shiftdown, bool pointsel)
     if (IsShowRegimes() && IsShowLowessSmoother()) {
         UpdateLowessOnRegimes();
     }
-    //if (IsDisplayStats() && IsShowLinearSmoother()) UpdateDisplayStats();
-    
+
     if (IsShowRegimes()) {
         // we only need to redraw everything if the optional
         // regression lines have changed.
@@ -161,6 +162,7 @@ void SimpleScatterPlotCanvas::UpdateSelection(bool shiftdown, bool pointsel)
     }
     TemplateCanvas::UpdateSelection(shiftdown, pointsel);
 }
+
 /**
  Override of TemplateCanvas method.  We must still call the
  TemplateCanvas method after we update the regression lines
@@ -184,8 +186,7 @@ void SimpleScatterPlotCanvas::update(HLStateInt* o)
 	if (IsShowRegimes() && IsShowLowessSmoother()) {
 		UpdateLowessOnRegimes();
 	}
-	//if (IsDisplayStats() && IsShowLinearSmoother()) UpdateDisplayStats();
-	
+
 	// Call TemplateCanvas::update to redraw objects as needed.
 	TemplateCanvas::update(o);
 	
@@ -299,12 +300,10 @@ void SimpleScatterPlotCanvas::UpdateStatusBar()
 
 void SimpleScatterPlotCanvas::TimeSyncVariableToggle(int var_index)
 {
-	
 }
 
 void SimpleScatterPlotCanvas::FixedScaleVariableToggle(int var_index)
 {
-	
 }
 
 void SimpleScatterPlotCanvas::SetSelectableOutlineColor(wxColour color)
@@ -327,7 +326,6 @@ void SimpleScatterPlotCanvas::SetSelectableFillColor(wxColour color)
 	cat_data.SetCategoryPenColor(0, 0, selectable_fill_color);
     TemplateCanvas::SetSelectableFillColor(color);
     PopulateCanvas();
-    
 }
 
 void SimpleScatterPlotCanvas::ShowAxes(bool display)
@@ -436,7 +434,6 @@ void SimpleScatterPlotCanvas::UpdateLowessOnRegimes()
 	if (!lowess_reg_line_selected && !lowess_reg_line_excluded) return;
 	size_t n = X.size();
 	wxString key = SmoothingUtils::LowessCacheKey(0, 0);
-	LOG(key);
 	SmoothingUtils::LowessCacheType::iterator it = lowess_cache.find(key);
 	SmoothingUtils::LowessCacheEntry* lce = 0;
 	if (it != lowess_cache.end()) {
@@ -557,8 +554,16 @@ void SimpleScatterPlotCanvas::PopulateCanvas()
 							 x_max + (add_auto_padding_max ? x_pad : 0.0),
                              5, axis_display_precision,
                              axis_display_fixed_point);
-	axis_scale_y = AxisScale(y_min - (add_auto_padding_min ? y_pad : 0.0),
-							 y_max + (add_auto_padding_max ? y_pad : 0.0),
+
+    double axis_min = y_min - (add_auto_padding_min ? y_pad : 0.0);
+    double axis_max = y_max + (add_auto_padding_max ? y_pad : 0.0);
+    if (!def_y_min.IsEmpty())
+        def_y_min.ToDouble(&axis_min);
+
+    if (!def_y_max.IsEmpty())
+        def_y_max.ToDouble(&axis_max);
+
+	axis_scale_y = AxisScale(axis_min, axis_max,
                              5, axis_display_precision,
                              axis_display_fixed_point);
 
@@ -571,34 +576,38 @@ void SimpleScatterPlotCanvas::PopulateCanvas()
      */
 	
 	// Populate TemplateCanvas::selectable_shps
-	selectable_shps.resize(X.size());
-    selectable_shps_undefs.resize(X.size());
-	scaleX = 100.0 / (axis_scale_x.scale_range);
-	scaleY = 100.0 / (axis_scale_y.scale_range);
-	
-	if (use_larger_filled_circles) {
-		selectable_shps_type = circles;
-		for (size_t i=0, sz=X.size(); i<sz; ++i) {
-            selectable_shps_undefs[i] = X_undef[i] || Y_undef[i];
-            
-			GdaCircle* c = 0;
-			c = new GdaCircle(wxRealPoint((X[i]-axis_scale_x.scale_min) * scaleX,
-										  (Y[i]-axis_scale_y.scale_min) * scaleY),
-							  2.5);
-			c->setPen(GdaConst::scatterplot_regression_excluded_color);
-			c->setBrush(GdaConst::scatterplot_regression_excluded_color);
-			selectable_shps[i] = c;
-		}
-	} else {
-		selectable_shps_type = points;
-		for (size_t i=0, sz=X.size(); i<sz; ++i) {
-            selectable_shps_undefs[i] = X_undef[i] || Y_undef[i];
-            
-			selectable_shps[i] = 
-			new GdaPoint(wxRealPoint((X[i] - axis_scale_x.scale_min) * scaleX,
-									 (Y[i] - axis_scale_y.scale_min) * scaleY));
-		}
-	}
+    scaleX = 100.0 / (axis_scale_x.scale_range);
+    scaleY = 100.0 / (axis_scale_y.scale_range);
+
+    if (show_data_points) {
+        selectable_shps.resize(X.size());
+        selectable_shps_undefs.resize(X.size());
+        
+        
+        if (use_larger_filled_circles) {
+            selectable_shps_type = circles;
+            for (size_t i=0, sz=X.size(); i<sz; ++i) {
+                selectable_shps_undefs[i] = X_undef[i] || Y_undef[i];
+                
+                GdaCircle* c = 0;
+                c = new GdaCircle(wxRealPoint((X[i]-axis_scale_x.scale_min) * scaleX,
+                                              (Y[i]-axis_scale_y.scale_min) * scaleY),
+                                  2.5);
+                c->setPen(GdaConst::scatterplot_regression_excluded_color);
+                c->setBrush(GdaConst::scatterplot_regression_excluded_color);
+                selectable_shps[i] = c;
+            }
+        } else {
+            selectable_shps_type = points;
+            for (size_t i=0, sz=X.size(); i<sz; ++i) {
+                selectable_shps_undefs[i] = X_undef[i] || Y_undef[i];
+                
+                selectable_shps[i] =
+                new GdaPoint(wxRealPoint((X[i] - axis_scale_x.scale_min) * scaleX,
+                                         (Y[i] - axis_scale_y.scale_min) * scaleY));
+            }
+        }
+    }
 	
 	// create axes
 	if (show_axes) {
@@ -609,9 +618,9 @@ void SimpleScatterPlotCanvas::PopulateCanvas()
 	}
     
 	if (show_axes) {
-		y_baseline->setPen(*GdaConst::scatterplot_scale_pen);
     	y_baseline = new GdaAxis(Yname, axis_scale_y,
     							 wxRealPoint(0,0), wxRealPoint(0, 100));
+        y_baseline->setPen(*GdaConst::scatterplot_scale_pen);
         foreground_shps.push_back(y_baseline);
 	}
 	
@@ -744,7 +753,7 @@ void SimpleScatterPlotCanvas::PopulateCanvas()
 
 void SimpleScatterPlotCanvas::UpdateMargins()
 {
-	int virtual_screen_marg_top = 5;//20;
+	int virtual_screen_marg_top = 20;//20;
 	int virtual_screen_marg_right = 5;//20;
 	int virtual_screen_marg_bottom = 5;//45;
 	int virtual_screen_marg_left = 5;//45;
@@ -762,5 +771,6 @@ void SimpleScatterPlotCanvas::UpdateMargins()
 /** Free allocated points arrays in lowess_cache and clear cache */
 void SimpleScatterPlotCanvas::EmptyLowessCache()
 {
-	SmoothingUtils::EmptyLowessCache(lowess_cache);
+    if (!lowess_cache.empty())
+        SmoothingUtils::EmptyLowessCache(lowess_cache);
 }

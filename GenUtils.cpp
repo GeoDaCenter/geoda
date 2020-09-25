@@ -23,10 +23,13 @@
 #include <math.h>
 #include <sstream>
 #include <boost/math/distributions/students_t.hpp>
+#include <boost/thread.hpp>
+
 #include <wx/dc.h>
 #include <wx/msgdlg.h>
 #include <wx/stdpaths.h>
 #include <wx/regex.h>
+
 #include "GdaConst.h"
 #include "GenUtils.h"
 #include "Explore/CatClassification.h"
@@ -35,8 +38,8 @@ using namespace std;
 
 int StringUtils::utf8_strlen(const string& str)
 {
-    int c,i,ix,q;
-    for (q=0, i=0, ix=str.length(); i < ix; i++, q++)
+    int c,i,q;
+    for (q=0, i=0; i < str.length(); i++, q++)
     {
         c = (unsigned char) str[i];
         if      (c>=0   && c<=127) i+=0;
@@ -212,7 +215,7 @@ unsigned long long Gda::DateToNumber(wxString s_date, wxRegEx& regex, vector<wxS
     unsigned long long val = 0;
         
     if (regex.Matches(s_date)) {
-        int n = regex.GetMatchCount();
+        int n = (int)regex.GetMatchCount();
         wxString _year, _short_year, _month, _day, _hour, _minute, _second, _am_pm;
         long _l_year =0,  _l_short_year=0, _l_month=0, _l_day=0, _l_hour=0, _l_minute=0, _l_second=0;
         for (int i=1; i<n; i++) {
@@ -522,26 +525,28 @@ double Gda::ThomasWangDouble(uint64_t& key) {
 	return 5.42101086242752217E-20 * key;
 }
 
-double Gda::factorial(unsigned int n)
+uint64_t Gda::factorial(unsigned int n)
 {
-    double r;
-    int i;
-    for(i = n-1; i > 1; i--)
-    r *= i;
+    uint64_t r = 1;
+    for(size_t i = n-1; i > 1; i--)
+        r *= i;
     
     return r;
 }
 
-double Gda::nChoosek(unsigned int n, unsigned int k) {
+double Gda::combinatorial(unsigned int n, unsigned int k) {
    
-    double r = 1;
-    double s = 1;
-    int i;
+    uint64_t r = 1;
+    uint64_t s = 1;
+    
+    size_t i;
     int kk = k > n/2 ? k : n-k;
     
     for(i=n; i > kk; i--) r *= i;
+    
     for(i=(n-kk); i>0; i--) s *= i;
-    return r/s;
+    
+    return (double)r / s;
 }
 
 wxString Gda::CreateUUID(int nSize)
@@ -551,7 +556,7 @@ wxString Gda::CreateUUID(int nSize)
 
     wxString letters = "abcdefghijklmnopqrstuvwxyz0123456789";
     
-    srand (time(NULL));
+    srand ((unsigned int)time(NULL));
     
     wxString uid;
     while (uid.length() < nSize) {
@@ -594,7 +599,7 @@ void
 HingeStats::
 CalculateHingeStats(const std::vector<Gda::dbl_int_pair_type>& data)
 {
-	num_obs = data.size();
+	num_obs = (int)data.size();
 	double N = num_obs;
 	is_even_num_obs = (num_obs % 2) == 0;
 	min_val = data[0].first;
@@ -637,7 +642,7 @@ HingeStats::
 CalculateHingeStats(const std::vector<Gda::dbl_int_pair_type>& data,
                     const std::vector<bool>& data_undef)
 {
-    num_obs = data.size();
+    num_obs = (int)data.size();
     double N = 0.0;
     std::vector<double> data_valid;
     
@@ -717,7 +722,7 @@ CalculateHingeStats(const std::vector<Gda::dbl_int_pair_type>& data,
 // percentile(90, v) = 50, percentile(99, v) = 50
 double Gda::percentile(double x, const std::vector<double>& v)
 {
-	int N = v.size();
+	int N = (int)v.size();
 	double Nd = (double) N;
 	double p_0 = (100.0/Nd) * (1.0-0.5);
 	double p_Nm1 = (100.0/Nd) * (Nd-0.5);
@@ -758,7 +763,7 @@ double Gda::percentile(double x, const Gda::dbl_int_pair_vec_type& v,
 // Same assumptions as above
 double Gda::percentile(double x, const Gda::dbl_int_pair_vec_type& v)
 {
-	int N = v.size();
+	int N = (int)v.size();
 	double Nd = (double) N;
 	double p_0 = (100.0/Nd) * (1.0-0.5);
 	double p_Nm1 = (100.0/Nd) * (Nd-0.5);
@@ -839,7 +844,7 @@ void SampleStatistics::CalculateFromSample(const std::vector<double>& data,
 }
 void SampleStatistics::CalculateFromSample(const std::vector<double>& data)
 {
-	sample_size = data.size();
+	sample_size = (int)data.size();
 	if (sample_size == 0) return;
 
 	CalcMinMax(data, min, max);
@@ -847,7 +852,7 @@ void SampleStatistics::CalculateFromSample(const std::vector<double>& data)
 	
 	double n = sample_size;
 	double sum_squares = 0;
-	for (int i=0, iend = data.size(); i<iend; i++) {
+	for (int i=0; i<data.size(); i++) {
 		sum_squares += data[i] * data[i];
 	}
 	
@@ -870,14 +875,14 @@ CalculateFromSample(const std::vector<Gda::dbl_int_pair_type>& data_,
                     const std::vector<bool>& undefs)
 {
     std::vector<double> data;
-    for (int i=0, iend = data_.size(); i<iend; i++) {
+    for (int i=0; i<data_.size(); i++) {
         int id = data_[i].second;
         if (!undefs[id]) {
             data.push_back(data_[i].first);
         }
     }
     
-	sample_size = data.size();
+	sample_size = (int)data.size();
 	if (sample_size == 0) return;
 	
 	min = data[0];
@@ -886,7 +891,7 @@ CalculateFromSample(const std::vector<Gda::dbl_int_pair_type>& data_,
 	
 	double n = sample_size;
 	double sum_squares = 0;
-	for (int i=0, iend = data.size(); i<iend; i++) {
+	for (int i=0; i<data.size(); i++) {
 		sum_squares += data[i] * data[i];
 	}
 	
@@ -919,7 +924,7 @@ string SampleStatistics::ToString()
 double SampleStatistics::CalcMin(const std::vector<double>& data)
 {
 	double min = std::numeric_limits<double>::max();
-	for (int i=0, iend=data.size(); i<iend; i++) {
+	for (int i=0; i<data.size(); i++) {
 		if ( data[i] < min ) min = data[i];
 	}
 	return min;
@@ -928,7 +933,7 @@ double SampleStatistics::CalcMin(const std::vector<double>& data)
 double SampleStatistics::CalcMax(const std::vector<double>& data)
 {
 	double max = -std::numeric_limits<double>::max();
-	for (int i=0, iend=data.size(); i<iend; i++) {
+	for (int i=0; i<data.size(); i++) {
 		if ( data[i] > max ) max = data[i];
 	}
 	return max;
@@ -940,7 +945,7 @@ void SampleStatistics::CalcMinMax(const std::vector<double>& data,
 	if (data.size() == 0) return;
 	min = data[0];
 	max = data[0];
-	for (int i=1, iend=data.size(); i<iend; i++) {
+	for (int i=1; i<data.size(); i++) {
 		if ( data[i] < min ) {
 			min = data[i];
 		} else if ( data[i] > max ) {
@@ -954,18 +959,17 @@ double SampleStatistics::CalcMean(const std::vector<double>& data)
 {
 	if (data.size() == 0) return 0;
 	double total = 0;
-	for (int i=0, iend=data.size(); i<iend; i++) {
+	for (int i=0; i<data.size(); i++) {
 		total += data[i];
 	}
 	return total / (double) data.size();
 }
 
-double SampleStatistics::CalcMean(
-							const std::vector<Gda::dbl_int_pair_type>& data)
+double SampleStatistics::CalcMean(const std::vector<Gda::dbl_int_pair_type>& data)
 {
 	if (data.size() == 0) return 0;
 	double total = 0;
-	for (int i=0, iend=data.size(); i<iend; i++) {
+	for (int i=0; i<data.size(); i++) {
 		total += data[i].first;
 	}
 	return total / (double) data.size();
@@ -1015,11 +1019,11 @@ void SimpleLinearRegression::CalculateRegression(const std::vector<double>& X,
 												 double meanX, double meanY,
 												 double varX, double varY)
 {
-    n = X.size();
+    n = (int)X.size();
 	if (X.size() != Y.size() || X.size() < 2 )
         return;
 	double expectXY = 0;
-	for (int i=0, iend=X.size(); i<iend; i++) {
+	for (int i=0; i<X.size(); i++) {
 		expectXY += X[i]*Y[i];
 	}
 	expectXY /= (double) X.size();
@@ -1032,7 +1036,7 @@ void SimpleLinearRegression::CalculateRegression(const std::vector<double>& X,
 	double SS_tot = varY*Y.size();
 	error_sum_squares = 0; // error_sum_squares = SS_err
 	double err=0;
-	for (int i=0, iend=Y.size(); i<iend; i++) {
+	for (int i=0; i<Y.size(); i++) {
 		err = Y[i] - (alpha + beta * X[i]);
 		error_sum_squares += err * err;
 	}
@@ -1048,7 +1052,7 @@ void SimpleLinearRegression::CalculateRegression(const std::vector<double>& X,
 		std_err_of_estimate = sqrt(std_err_of_estimate);
 		std_err_of_beta = std_err_of_estimate/sqrt(X.size()*varX);
 		double sum_x_squared = 0;
-		for (int i=0, iend=X.size(); i<iend; i++) {
+		for (int i=0; i<X.size(); i++) {
 			sum_x_squared += X[i] * X[i];
 		}
 		std_err_of_alpha = std_err_of_beta * sqrt(sum_x_squared / X.size());
@@ -1063,8 +1067,8 @@ void SimpleLinearRegression::CalculateRegression(const std::vector<double>& X,
 		} else {
 			t_score_beta = 100;
 		}
-		p_value_alpha = TScoreTo2SidedPValue(t_score_alpha, X.size()-2);
-		p_value_beta = TScoreTo2SidedPValue(t_score_beta, X.size()-2);
+		p_value_alpha = TScoreTo2SidedPValue(t_score_alpha, (int)X.size()-2);
+		p_value_beta = TScoreTo2SidedPValue(t_score_beta, (int)X.size()-2);
 		
 		valid_std_err = true;
 	}
@@ -1184,12 +1188,12 @@ void AxisScale::CalculateScale(double data_min_s, double data_max_s,
 			tics.resize(ticks+1);
 			tics_str.resize(ticks+1);
 		}
-		for (int i=0, iend=tics.size(); i<iend; i++) {
+		for (int i=0; i<tics.size(); i++) {
 			tics[i] = scale_min + i*tic_inc;
 		}
 	}
 	tics_str_show.resize(tics_str.size());
-	for (int i=0, iend=tics.size(); i<iend; i++) {
+	for (int i=0; i<tics.size(); i++) {
         tics_str[i] = GenUtils::DblToStr(tics[i], lbl_precision,
                                          lbl_prec_fixed_point);
 		tics_str_show[i] = true;
@@ -1217,7 +1221,7 @@ string AxisScale::ToString()
 	ss << "scale_range = " << scale_range << endl;
 	ss << "p = " << p << endl;
 	ss << "tic_inc = " << tic_inc << endl;
-	for (int i=0, iend=tics.size(); i<iend; i++) {
+	for (int i=0; i<tics.size(); i++) {
 		ss << "tics[" << i << "] = " << tics[i];
 		ss << ",  tics_str[" << i << "] = " << tics_str[i] << endl;
 	}
@@ -1243,7 +1247,7 @@ bool GenUtils::StrToBool(const wxString& s)
 wxString GenUtils::Pad(const wxString& s, int width, bool pad_left)
 {
 	if (s.length() >= width) return s;
-	int pad_len = width - s.length();
+	int pad_len = width - (int)s.length();
 	wxString output;
 	if (!pad_left) output << s;
 	for (int i=0; i<pad_len; i++) output << " ";
@@ -1261,7 +1265,7 @@ wxString GenUtils::PadTrim(const wxString& s, int width, bool pad_left)
         tmp << ".." << s.SubString(s.length() - second_w -1, s.length()-1);
         return tmp;
     }
-    int pad_len = width - s.length();
+    int pad_len = width - (int)s.length();
     wxString output;
     if (!pad_left) output << s;
     for (int i=0; i<pad_len; i++) output << " ";
@@ -1284,8 +1288,6 @@ wxString GenUtils::DblToStr(double x, int precision, bool fixed_point)
         ss << x;
     }
 
-    //ss << std::setprecision(precision);
-    //ss << x;
 	return wxString(ss.str().c_str(), wxConvUTF8);
 }
 
@@ -1323,7 +1325,7 @@ double GenUtils::Median(std::vector<double>& data)
     
     std::sort(data.begin(), data.end());
 
-    int n = data.size();
+    int n = (int)data.size();
     if (n % 2 == 1) return data[n/2];
 
     return 0.5 * (data[n/2 -1] + data[n/2]);
@@ -1358,11 +1360,35 @@ void GenUtils::DeviationFromMean(int nObs, double* data, std::vector<bool>& unde
 
 void GenUtils::DeviationFromMean(std::vector<double>& data)
 {
-	if (data.size() == 0) return;
+	if (data.size() == 0)
+        return;
 	double sum = 0.0;
-	for (int i=0, iend=data.size(); i<iend; i++) sum += data[i];
+    for (int i=0; i<data.size(); i++) {
+        sum += data[i];
+    }
 	const double mean = sum / (double) data.size();
-	for (int i=0, iend=data.size(); i<iend; i++) data[i] -= mean;
+    for (int i=0; i<data.size(); i++) {
+        data[i] -= mean;
+    }
+}
+
+void GenUtils::DeviationFromMedian(std::vector<double>& data)
+{
+    if (data.size() == 0)
+        return;
+    double median = Median(data);
+    for (int i=0; i<data.size(); i++) {
+        data[i] -= median;
+    }
+}
+
+void GenUtils::DeviationFromMedoid(std::vector<double>& data, double medoid_val)
+{
+    if (data.size() == 0)
+        return;
+    for (int i=0; i<data.size(); i++) {
+        data[i] -= medoid_val;
+    }
 }
 
 void GenUtils::DeviationFromMean(std::vector<double>& data, std::vector<bool>& undef)
@@ -1370,15 +1396,83 @@ void GenUtils::DeviationFromMean(std::vector<double>& data, std::vector<bool>& u
     if (data.size() == 0) return;
     double sum = 0.0;
     int n = 0;
-    for (int i=0, iend=data.size(); i<iend; i++) {
+    for (int i=0; i<data.size(); i++) {
         if (undef[i]) continue;
         sum += data[i];
         n++;
     }
     const double mean = sum / n;
-    for (int i=0, iend=data.size(); i<iend; i++) {
+    for (int i=0; i<data.size(); i++) {
         if (undef[i]) continue;
         data[i] -= mean;
+    }
+}
+
+void GenUtils::RangeAdjust(std::vector<double>& data)
+{
+    double min_val = DBL_MAX, max_val = DBL_MIN;
+    for (size_t i=0; i<data.size(); ++i) {
+        if (data[i] < min_val) min_val = data[i];
+        else if (data[i] > max_val) max_val = data[i];
+    }
+    //  divide each variable by the range
+    double range_val = max_val - min_val;
+    if (range_val != 0) {
+        for (size_t i=0; i<data.size(); ++i) {
+            data[i] = data[i] /  range_val;
+        }
+    }
+}
+
+void GenUtils::RangeAdjust(std::vector<double>& data, std::vector<bool>& undef)
+{
+    double min_val = DBL_MAX, max_val = DBL_MIN;
+    for (size_t i=0; i<data.size(); ++i) {
+        if (undef[i]) continue;
+        if (data[i] < min_val) min_val = data[i];
+        else if (data[i] > max_val) max_val = data[i];
+    }
+    //  divide each variable by the range
+    double range_val = max_val - min_val;
+    if (range_val != 0) {
+        for (size_t i=0; i<data.size(); ++i) {
+            if (undef[i]) continue;
+            data[i] = data[i] /  range_val;
+        }
+    }
+}
+
+void GenUtils::RangeStandardize(std::vector<double>& data)
+{
+    double min_val = DBL_MAX, max_val = DBL_MIN;
+    for (size_t i=0; i<data.size(); ++i) {
+        if (data[i] < min_val) min_val = data[i];
+        else if (data[i] > max_val) max_val = data[i];
+    }
+    //  subtract the min from each variable and then divide by the range
+    double range_val = max_val - min_val;
+    if (range_val != 0) {
+        for (size_t i=0; i<data.size(); ++i) {
+            data[i] = (data[i] - min_val) /  range_val;
+        }
+    }
+}
+
+void GenUtils::RangeStandardize(std::vector<double>& data, std::vector<bool>& undef)
+{
+    double min_val = DBL_MAX, max_val = DBL_MIN;
+    for (size_t i=0; i<data.size(); ++i) {
+        if (undef[i]) continue;
+        if (data[i] < min_val) min_val = data[i];
+        else if (data[i] > max_val) max_val = data[i];
+    }
+    //  subtract the min from each variable and then divide by the range
+    double range_val = max_val - min_val;
+    if (range_val != 0) {
+        for (size_t i=0; i<data.size(); ++i) {
+            if (undef[i]) continue;
+            data[i] = (data[i] - min_val) /  range_val;
+        }
     }
 }
 
@@ -1428,15 +1522,15 @@ void GenUtils::MeanAbsoluteDeviation(std::vector<double>& data)
 	if (data.size() == 0) return;
 	double sum = 0.0;
     double nn = data.size();
-	for (int i=0, iend=data.size(); i<iend; i++) sum += data[i];
+	for (int i=0; i<data.size(); i++) sum += data[i];
     const double mean = sum / nn;
     double mad = 0.0;
-    for (int i=0, iend=data.size(); i<iend; i++) {
+    for (int i=0; i<data.size(); i++) {
         mad += std::abs(data[i] - mean);
     }
     mad = mad / nn;
     if (mad == 0) return;
-    for (int i=0, iend=data.size(); i<iend; i++) {
+    for (int i=0; i<data.size(); i++) {
         data[i] = (data[i] - mean) / mad;
     }
 }
@@ -1446,21 +1540,20 @@ void GenUtils::MeanAbsoluteDeviation(std::vector<double>& data,
     if (data.size() == 0) return;
     double sum = 0.0;
     double nValid = 0;
-    double nn = data.size();
-    for (int i=0, iend=data.size(); i<iend; i++) {
+    for (int i=0; i<data.size(); i++) {
         if (undef[i]) continue;
         sum += data[i];
         nValid += 1;
     }
     const double mean = sum / nValid;
     double mad = 0.0;
-    for (int i=0, iend=data.size(); i<iend; i++) {
+    for (int i=0; i<data.size(); i++) {
         if (undef[i]) continue;
         mad += std::abs(data[i] - mean);
     }
     mad = mad / nValid;
     if (mad == 0) return;
-    for (int i=0, iend=data.size(); i<iend; i++) {
+    for (int i=0; i<data.size(); i++) {
         if (undef[i]) continue;
         data[i] = (data[i] - mean) / mad;
     }
@@ -1487,9 +1580,88 @@ void GenUtils::Transformation(int trans_type,
     }
 }
 
+void GenUtils::rankify_fast(const std::vector<double>& x,
+                                           std::vector<double>& Rank_X)
+{
+    size_t sz = x.size();
+
+    std::vector<std::pair<double, size_t> > ordered_X(sz);
+    for(size_t i = 0; i < sz; i++) {
+        ordered_X[i].first = x[i];
+        ordered_X[i].second = i;
+    }
+    std::sort(ordered_X.begin(), ordered_X.end());
+
+    size_t rank = 1, n = 1, i = 0, j, idx;
+
+    while (i < sz) {
+        j = i;
+        // get # of elements with euqal rank
+        while (j < sz -1 && ordered_X[j].first == ordered_X[j+1].first) {
+            j += 1;
+        }
+        n = j - i + 1;
+
+        for (j=0; j<n; ++j) {
+            // for each equal element use formula obtain index of T[i+j].first
+            idx = ordered_X[i + j].second;
+            Rank_X[idx] = rank + (n-1) * 0.5;
+        }
+        // increment rank and i
+        rank += n;
+        i += n;
+    }
+}
+
+std::vector<double> GenUtils::rankify(const vector<double>& x)
+{
+    size_t N = x.size();
+    // Rank Vector
+    std::vector<double>  Rank_X(N);
+
+    for(size_t i = 0; i < N; i++) {
+        int r = 1, s = 1;
+
+        // Count no of smaller elements
+        // in 0 to i-1
+        for(size_t j = 0; j < i; j++) {
+            if (x[j] < x[i] ) r++;
+            if (x[j] == x[i] ) s++;
+        }
+
+        // Count no of smaller elements
+        // in i+1 to N-1
+        for (size_t j = i+1; j < N; j++) {
+            if (x[j] < x[i] ) r++;
+            if (x[j] == x[i] ) s++;
+        }
+
+        // Use Fractional Rank formula
+        // fractional_rank = r + (n-1)/2
+        Rank_X[i] = r + (s-1) * 0.5;
+    }
+
+    // Return Rank Vector
+    return Rank_X;
+}
+
+double GenUtils::RankCorrelation(vector<double>& x, vector<double>& y)
+{
+    // Get ranks of vector X y
+    vector<double> rank_x(x.size(), 0),  rank_y(y.size(), 0);
+    boost::thread_group threadPool;
+    threadPool.add_thread(new boost::thread(&GenUtils::rankify_fast, x, boost::ref(rank_x)));
+    threadPool.add_thread(new boost::thread(&GenUtils::rankify_fast, y, boost::ref(rank_y)));
+    threadPool.join_all();
+
+    double spearmans_r = Correlation(rank_x, rank_y);
+
+    return spearmans_r;
+}
+
 double GenUtils::Correlation(std::vector<double>& x, std::vector<double>& y)
 {
-    int nObs = x.size();
+    int nObs = (int)x.size();
     double sum_x = 0;
     double sum_y = 0;
     for (int i=0; i<nObs; i++) {
@@ -1519,28 +1691,84 @@ double GenUtils::Correlation(std::vector<double>& x, std::vector<double>& y)
 double GenUtils::Sum(std::vector<double>& data)
 {
     double sum = 0;
-    int nObs = data.size();
+    int nObs = (int)data.size();
     for (int i=0; i<nObs; i++) sum += data[i];
     return sum;
 }
 
 double GenUtils::SumOfSquares(std::vector<double>& data)
 {
-    int nObs = data.size();
-    if (nObs <= 1) return 0;
+    int nObs = (int)data.size();
+    if (nObs <= 1)
+        return 0;
     GenUtils::DeviationFromMean(data);
     double ssum = 0.0;
-    for (int i=0, iend=nObs; i<iend; i++) ssum += data[i] * data[i];
+    for (int i=0; i<nObs; i++) {
+        ssum += data[i] * data[i];
+    }
     return ssum;
 }
 
+double GenUtils::SumOfSquaresMedian(std::vector<double>& data)
+{
+    int nObs = (int)data.size();
+    if (nObs <= 1)
+        return 0;
+    GenUtils::DeviationFromMedian(data);
+    double ssum = 0.0;
+    for (int i=0; i<nObs; i++) {
+        ssum += data[i] * data[i];
+    }
+    return ssum;
+}
+
+double GenUtils::SumOfManhattanMedian(std::vector<double>& data)
+{
+    int nObs = (int)data.size();
+    if (nObs <= 1)
+        return 0;
+    GenUtils::DeviationFromMedian(data);
+    double ssum = 0.0;
+    for (int i=0; i<nObs; i++) {
+        ssum += abs(data[i]);
+    }
+    return ssum;
+}
+
+double GenUtils::SumOfSquaresMedoid(std::vector<double>& data, double medoid_val)
+{
+    int nObs = (int)data.size();
+    if (nObs <= 1)
+        return 0;
+    GenUtils::DeviationFromMedoid(data, medoid_val);
+    double ssum = 0.0;
+    for (int i=0; i<nObs; i++) {
+        ssum += data[i] * data[i];
+    }
+    return ssum;
+}
+
+double GenUtils::SumOfManhattanMedoid(std::vector<double>& data, double medoid_val)
+{
+    int nObs = (int)data.size();
+    if (nObs <= 1)
+        return 0;
+    GenUtils::DeviationFromMedoid(data, medoid_val);
+    double ssum = 0.0;
+    for (int i=0; i<nObs; i++) {
+        ssum += abs(data[i]);
+    }
+    return ssum;
+}
 
 double GenUtils::GetVariance(std::vector<double>& data)
 {
     if (data.size() <= 1) return 0;
     GenUtils::DeviationFromMean(data);
     double ssum = 0.0;
-    for (int i=0, iend=data.size(); i<iend; i++) ssum += data[i] * data[i];
+    for (int i=0; i<data.size(); i++) {
+        ssum += data[i] * data[i];
+    }
     return ssum / data.size();
 }
 
@@ -1588,16 +1816,16 @@ bool GenUtils::StandardizeData(std::vector<double>& data)
 	if (data.size() <= 1) return false;
 	GenUtils::DeviationFromMean(data);
 	double ssum = 0.0;
-	for (int i=0, iend=data.size(); i<iend; i++) ssum += data[i] * data[i];
+	for (int i=0; i<data.size(); i++) ssum += data[i] * data[i];
 	const double sd = sqrt(ssum / (double) (data.size()-1.0));
 	if (sd == 0) return false;
-	for (int i=0, iend=data.size(); i<iend; i++) data[i] /= sd;
+	for (int i=0; i<data.size(); i++) data[i] /= sd;
 	return true;
 }
 
 bool GenUtils::StandardizeData(std::vector<double>& data, std::vector<bool>& undef)
 {
-    int nObs = data.size();
+    int nObs = (int)data.size();
     if (nObs <= 1) return false;
     
     int nValid = 0;
@@ -1718,7 +1946,7 @@ wxString GenUtils::SimplifyPath(const wxFileName& wd, const wxString& path)
 	wxArrayString p_dirs = p.GetDirs();
 	wxArrayString wd_dirs = wd.GetDirs();
 	if (p_dirs.size() < wd_dirs.size()) return path;
-	for (int i=0, sz=wd_dirs.size(); i<sz; ++i) {
+	for (int i=0; i<wd_dirs.size(); ++i) {
 		if (p_dirs[i] != wd_dirs[i]) return path;
 	}
 	if (p.MakeRelativeTo(wd.GetPath())) {
@@ -2034,7 +2262,7 @@ wxString GenUtils::FindLongestSubString(const std::vector<wxString> strings,
 										bool cs)
 {
 	using namespace std;
-	int n=strings.size();
+	int n  = (int)strings.size();
 	if (n == 0) return "";
 	vector<wxString> strs(strings);
 	if (!cs) for (int i=0; i<n; i++) strs[i].MakeLower();
@@ -2042,7 +2270,7 @@ wxString GenUtils::FindLongestSubString(const std::vector<wxString> strings,
 	for (int i=0; i<n; ++i) {
 		if (strs[i].length() < ref_str.length()) ref_str = strs[i];
 	}
-	int len = ref_str.length();
+	int len = (int)ref_str.length();
 	if (len == 0) return "";
 	// iterate over all possible substrings in ref_str starting from first
 	// position in ref_str, and starting with full ref_str.  Reduce length
@@ -2067,6 +2295,11 @@ wxString GenUtils::FindLongestSubString(const std::vector<wxString> strings,
 
 bool GenUtils::less_vectors(const std::vector<int>& a,const std::vector<int>& b) {
     return a.size() > b.size();
+}
+
+bool GenUtils::smaller_pair(const std::pair<int, int>& a,
+                            const std::pair<int, int>& b) {
+    return a.second > b.second;
 }
 
 wxString GenUtils::WrapText(wxWindow *win, const wxString& text, int widthMax)

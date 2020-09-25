@@ -59,6 +59,34 @@ DistUtils::DistUtils(const std::vector<std::vector<double> >& input_data,
     kdTree = new ANNkd_tree(data, n_valid_rows, n_cols /*dim*/);
 }
 
+DistUtils::DistUtils(double** input_data, int nrows, int ncols,
+                     int distance_metric)
+{
+    eps = 0.0;
+    ANN_DIST_TYPE = distance_metric;
+
+    n_cols = ncols;
+    n_rows = nrows;
+    row_mask.resize(n_rows, false);
+    n_valid_rows = n_rows;
+
+
+    data = new double*[n_valid_rows];
+    for (size_t i=0, cnt=0; i<n_rows; ++i) {
+        if (row_mask[i] == true) continue;
+        data[cnt] = new double[n_cols];
+        for (size_t j=0; j<n_cols; j++) {
+            data[cnt][j] = input_data[i][j];
+        }
+        ann_idx_to_row[cnt] = i;
+        row_to_ann_idx[i] = cnt;
+        cnt += 1;
+    }
+
+    // create a kdtree
+    kdTree = new ANNkd_tree(data, n_valid_rows, n_cols /*dim*/);
+}
+
 DistUtils::~DistUtils()
 {
     for (size_t i=0; i<n_valid_rows; i++) delete[] data[i];

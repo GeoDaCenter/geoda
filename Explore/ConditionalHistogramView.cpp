@@ -297,21 +297,26 @@ void ConditionalHistogramCanvas::ResizeSelectableShps(int virtual_scrn_w,
 			}
 		}
 	}
-	
+
+    bool is_vert_number = VERT_VAR_NUM && cat_classif_def_vert.cat_classif_type != CatClassification::unique_values;
+    bool is_horz_number = HOR_VAR_NUM && cat_classif_def_horiz.cat_classif_type != CatClassification::unique_values;
+
 	double bg_xmin = marg_left;
 	double bg_xmax = scn_w-marg_right;
 	double bg_ymin = marg_bottom;
 	double bg_ymax = scn_h-marg_top;
-    int n_rows = VERT_VAR_NUM ? vert_num_cats-1 : vert_num_cats;
-    int n_cols = HOR_VAR_NUM ? horiz_num_cats-1 : horiz_num_cats;
+    int n_rows = is_vert_number ? vert_num_cats-1 : vert_num_cats;
+    int n_cols = is_horz_number ? horiz_num_cats-1 : horiz_num_cats;
     vector<wxRealPoint> v_brk_ref(n_rows);
     vector<wxRealPoint> h_brk_ref(n_cols);
 	
 	for (int row=0; row<n_rows; row++) {
         double bin_height = bin_extents[row][0].lower_left.y -bin_extents[row][0].upper_right.y;
         double y = 0;
-        if (VERT_VAR_NUM) y = (bin_extents[row][0].lower_left.y + bin_extents[row+1][0].upper_right.y)/2.0;
-        else y = bin_extents[row][0].upper_right.y + bin_height / 2.0;
+        if (is_vert_number)
+            y = (bin_extents[row][0].lower_left.y + bin_extents[row+1][0].upper_right.y)/2.0;
+        else
+            y = bin_extents[row][0].upper_right.y + bin_height / 2.0;
 		v_brk_ref[row].x = bg_xmin;
 		v_brk_ref[row].y = scn_h-y;
 	}
@@ -319,8 +324,10 @@ void ConditionalHistogramCanvas::ResizeSelectableShps(int virtual_scrn_w,
 	for (int col=0; col<n_cols; col++) {
         double bin_width = bin_extents[0][col].upper_right.x - bin_extents[0][col].lower_left.x;
         double x = 0;
-        if (HOR_VAR_NUM) x = (bin_extents[0][col].upper_right.x + bin_extents[0][col+1].lower_left.x)/2.0;
-        else x = bin_extents[0][col].lower_left.x + bin_width / 2.0;
+        if (is_horz_number)
+            x = (bin_extents[0][col].upper_right.x + bin_extents[0][col+1].lower_left.x)/2.0;
+        else
+            x = bin_extents[0][col].lower_left.x + bin_width / 2.0;
 		h_brk_ref[col].x = x;
 		h_brk_ref[col].y = bg_ymin;
 	}
@@ -331,7 +338,7 @@ void ConditionalHistogramCanvas::ResizeSelectableShps(int virtual_scrn_w,
 	int vt = var_info[VERT_VAR].time;
 	for (int row=0; row<n_rows; row++) {
         wxString tmp_lbl;
-        if (VERT_VAR_NUM) {
+        if (is_vert_number) {
             double b;
             if (cat_classif_def_vert.cat_classif_type != CatClassification::custom){
                 if (!vert_cat_data.HasBreakVal(vt, row))
@@ -371,7 +378,7 @@ void ConditionalHistogramCanvas::ResizeSelectableShps(int virtual_scrn_w,
 	int ht = var_info[HOR_VAR].time;
 	for (int col=0; col<n_cols; col++) {
         wxString tmp_lbl;
-        if (HOR_VAR_NUM) {
+        if (is_horz_number) {
             double b;
             if (cat_classif_def_horiz.cat_classif_type!= CatClassification::custom){
                 if (!horiz_cat_data.HasBreakVal(ht, col)) continue;
@@ -411,9 +418,7 @@ void ConditionalHistogramCanvas::ResizeSelectableShps(int virtual_scrn_w,
                           scn_h-marg_top);
     background_st.SetMargin(marg_top, marg_bottom, marg_left, marg_right);
     background_st.SetView(vs_w, vs_h);
-    
-    
-    
+
 	int bg_shp_i = 0;
 	for (std::list<GdaShape*>::iterator it=foreground_shps.begin();
 		 bg_shp_i < bg_shp_cnt && it != foreground_shps.end();
@@ -956,8 +961,8 @@ void ConditionalHistogramCanvas::sel_shp_to_cell_gen(int i,
 													 int cols, int ivals)
 {	
 	int t = cols*ivals;
-	r = i/t;
-	t = i%t;
+	r = t > 0 ? i/t : 0;
+	t = t > 0 ? i%t : i;
 	c = t/ivals;
 	ival = t%ivals;
 }

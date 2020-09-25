@@ -31,12 +31,6 @@
 #define __GEODA_CENTER_CLUSTERS_H___
 
 
-#ifndef min
-#define min(x, y)	((x) < (y) ? (x) : (y))
-#endif
-#ifndef max
-#define	max(x, y)	((x) > (y) ? (x) : (y))
-#endif
 
 #ifdef WINDOWS
 #  include <windows.h>

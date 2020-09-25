@@ -557,8 +557,10 @@ void CalculatorDlg::AssignOrSelect(bool assign)
 		wxString t_str = "";
 		if (V_tms > 1) {
 			// will use current time period
-			t = project->GetTimeState()->GetCurrTime();
-			t_str = project->GetTimeState()->GetCurrTimeString();
+            if (project) {
+                t = project->GetTimeState()->GetCurrTime();
+                t_str = project->GetTimeState()->GetCurrTimeString();
+            }
 		}
 		int num_obs_sel = 0;
 		vector<bool> selected(obs);
@@ -575,25 +577,25 @@ void CalculatorDlg::AssignOrSelect(bool assign)
 				if (selected[i]) ++num_obs_sel;
 			}
 		}
-		
-		HighlightState& hs = *project->GetHighlightState();
-		std::vector<bool>& h = hs.GetHighlight();
-        bool selection_changed = false;
-        
-		for (size_t i=0; i<obs; i++) {
-			bool sel = selected[i];
-			if (sel && !h[i]) {
-                h[i] = true;
-                selection_changed = true;
-			} else if (!sel && h[i]) {
-                h[i] = false;
-                selection_changed = true;
+        if (project) {
+            HighlightState& hs = *project->GetHighlightState();
+            std::vector<bool>& h = hs.GetHighlight();
+            bool selection_changed = false;
 
-			}
+            for (size_t i=0; i<obs; i++) {
+                bool sel = selected[i];
+                if (sel && !h[i]) {
+                    h[i] = true;
+                    selection_changed = true;
+                } else if (!sel && h[i]) {
+                    h[i] = false;
+                    selection_changed = true;
+
+                }
+            }
+            hs.SetEventType(HLStateInt::delta);
+            hs.notifyObservers();
 		}
-		hs.SetEventType(HLStateInt::delta);
-		hs.notifyObservers();
-		
 		wxString s;
 		s << num_obs_sel << " observation" << (num_obs_sel != 1 ? "s" : "");
 		s << " selected";

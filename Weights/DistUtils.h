@@ -28,11 +28,14 @@ namespace Gda {
         unsigned long n_rows;
         unsigned long n_valid_rows;
         std::vector<bool> row_mask;
+        // for any undefined rows, re-mapping memory row to table row
         std::map<unsigned long, unsigned long> ann_idx_to_row;
         std::map<unsigned long, unsigned long> row_to_ann_idx;
     public:
         DistUtils(const std::vector<std::vector<double> >& input_data,
                   const std::vector<std::vector<bool> >& mask,
+                  int distance_metric = ANNuse_euclidean_dist);
+        DistUtils(double** input_data, int nrows, int ncols,
                   int distance_metric = ANNuse_euclidean_dist);
         ~DistUtils();
         

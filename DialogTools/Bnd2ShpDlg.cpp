@@ -148,6 +148,7 @@ void Bnd2ShpDlg::OnCreateClick( wxCommandEvent& event )
 			}
 			else
 			{
+                delete[] pts;
 				wxMessageBox(_("This format is not supported."));
 				return;
 			}

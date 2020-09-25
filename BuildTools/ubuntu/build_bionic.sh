@@ -97,7 +97,7 @@ echo "%%%%%%%%%%%%%%%%%%%%%%"
 
     cd $DOWNLOAD_HOME
     if ! [ -d "$LIB_NAME" ] ; then
-        curl -O $LIB_URL
+        curl -LO $LIB_URL
         tar -xf $LIB_FILENAME
     fi
 
@@ -133,7 +133,7 @@ echo $LIB_NAME
 cd $DOWNLOAD_HOME
 
 if ! [ -d "$LIB_NAME" ] ; then
-    curl -O $LIB_URL
+    curl -LO $LIB_URL
     unzip $LIB_FILENAME
 fi
 
@@ -163,14 +163,15 @@ echo "% Building: Xerces %"
 echo "%%%%%%%%%%%%%%%%%%%%"
 {
     LIB_NAME="xerces-c-3.1.1"
-    LIB_URL="https://s3.us-east-2.amazonaws.com/geodabuild/xerces-c-3.1.1.tar.gz"
+    LIB_URL="https://github.com/GeoDaCenter/geodabuild/releases/download/1.14/xerces-c-3.1.1.tar.gz"
     LIB_CHECKER="libxerces-c.a"
     LIB_FILENAME=$(basename "$LIB_URL" ".tar")
     echo $LIB_FILENAME
+    echo $LIB_URL
 
     cd $DOWNLOAD_HOME
     if ! [ -d "$LIB_NAME" ] ; then
-        curl -O $LIB_URL
+        curl -LO $LIB_URL
         tar -xf $LIB_FILENAME
     fi
 
@@ -197,21 +198,21 @@ install_library geos-3.6.2 https://download.osgeo.org/geos/geos-3.6.2.tar.bz2  l
 #########################################################################
 # install PROJ.4
 #########################################################################
-install_library proj-4.8.0 https://s3.us-east-2.amazonaws.com/geodabuild/proj-4.8.0.tar.gz libproj.a
+install_library proj-4.8.0 https://github.com/GeoDaCenter/geodabuild/releases/download/1.14/proj-4.8.0.tar.gz libproj.a
 
 #########################################################################
 # install FreeXL
 #########################################################################
-#install_library freexl-1.0.0f https://s3.us-east-2.amazonaws.com/geodabuild/freexl-1.0.0f.tar.gz libfreexl.a
+#install_library freexl-1.0.0f https://github.com/GeoDaCenter/geodabuild/releases/download/1.14/freexl-1.0.0f.tar.gz libfreexl.a
 LIB_NAME=freexl-1.0.0f
-LIB_URL=https://s3.us-east-2.amazonaws.com/geodabuild/freexl-1.0.0f.tar.gz
+LIB_URL=https://github.com/GeoDaCenter/geodabuild/releases/download/1.14/freexl-1.0.0f.tar.gz
 LIB_CHECKER=libfreexl.a
 LIB_FILENAME=$LIB_NAME.tar.gz
 echo $LIB_FILENAME
 cd $DOWNLOAD_HOME
 
 if ! [ -f "$LIB_FILENAME" ] ; then
-        curl -O $LIB_URL
+        curl -LO $LIB_URL
 fi
 
 if ! [ -d "$LIB_NAME" ]; then
@@ -234,19 +235,19 @@ fi
 #########################################################################
 # install SQLite
 #########################################################################
-install_library sqlite-autoconf-3071602 https://s3.us-east-2.amazonaws.com/geodabuild/sqlite-autoconf-3071602.tar.gz libsqlite3.a
+install_library sqlite-autoconf-3071602 https://github.com/GeoDaCenter/geodabuild/releases/download/1.14/sqlite-autoconf-3071602.tar.gz libsqlite3.a
 
 #########################################################################
 # install PostgreSQL
 #########################################################################
 # libreadline, zlib
 echo "install libreadline, zlib"
-install_library postgresql-9.2.4 https://s3.us-east-2.amazonaws.com/geodabuild/postgresql-9.2.4.tar.bz2 libpq.a
+install_library postgresql-9.2.4 https://github.com/GeoDaCenter/geodabuild/releases/download/1.14/postgresql-9.2.4.tar.bz2 libpq.a
 
 #########################################################################
 # install libjpeg
 #########################################################################
-install_library jpeg-8 https://s3.us-east-2.amazonaws.com/geodabuild/jpegsrc.v8.tar.gz libjpeg.a
+install_library jpeg-8 https://github.com/GeoDaCenter/geodabuild/releases/download/1.14/jpegsrc.v8.tar.gz libjpeg.a
 
 #########################################################################
 # install libkml requires 1.3
@@ -260,13 +261,13 @@ echo "%%%%%%%%%%%%%%%%%%%%"
 {
     LIB_NAME="libkml"
     LIB_CHECKER="libkmlbase.a"
-    LIB_URL=https://s3.us-east-2.amazonaws.com/geodabuild/libkml-r680.tar.gz
+    LIB_URL=https://github.com/GeoDaCenter/geodabuild/releases/download/1.14/libkml-r680.tar.gz
     LIB_FILENAME=libkml-r680.tar.gz
     echo $LIB_NAME
 
     cd $DOWNLOAD_HOME
     if ! [ -d "$LIB_NAME" ] ; then
-        curl -O $LIB_URL
+        curl -LO $LIB_URL
     fi
 
     if ! [ -d "$LIB_NAME" ]; then
@@ -328,14 +329,14 @@ echo "% Building: Spatialite %"
 echo "%%%%%%%%%%%%%%%%%%%%%%%%"
 {
     LIB_NAME=libspatialite-4.0.0
-    LIB_URL=https://s3.us-east-2.amazonaws.com/geodabuild/libspatialite-4.0.0.tar.gz
+    LIB_URL=https://github.com/GeoDaCenter/geodabuild/releases/download/1.14/libspatialite-4.0.0.tar.gz
     LIB_FILENAME=$(basename "$LIB_URL" ".tar")
     LIB_CHECKER=libspatialite.a
     echo $LIB_FILENAME
 
     cd $DOWNLOAD_HOME
     if ! [ -d "$LIB_NAME" ] ; then
-        curl -O $LIB_URL
+        curl -LO $LIB_URL
         tar -xf $LIB_FILENAME
     fi
 
@@ -362,13 +363,13 @@ echo "% Building: MySQL %"
 echo "%%%%%%%%%%%%%%%%%%%"
 {
     LIB_NAME=mysql-5.6.14
-    LIB_URL=https://s3.us-east-2.amazonaws.com/geodabuild/mysql-5.6.14.tar.gz
+    LIB_URL=https://github.com/GeoDaCenter/geodabuild/releases/download/1.14/mysql-5.6.14.tar.gz
     LIB_CHECKER=libmysqlclient.a
 
     echo $LIB_NAME
     cd $DOWNLOAD_HOME
     if ! [ -d "$LIB_NAME" ] ; then
-        curl -O $LIB_URL
+        curl -LO $LIB_URL
         tar -xf $LIB_NAME.tar.gz
         #cp $GEODA_HOME/dep/mysql/my_default.h $GEODA_HOME/temp/mysql-5.6.14/include/my_default.h
     fi
@@ -396,14 +397,14 @@ echo "%%%%%%%%%%%%%%%%%%%"
 # Eigen3
 #########################################################################
 LIB_NAME=eigen3
-LIB_URL=https://s3.us-east-2.amazonaws.com/geodabuild/eigen3.zip
+LIB_URL=https://github.com/GeoDaCenter/geodabuild/releases/download/1.14/eigen3.zip
 LIB_CHECKER=Dense
 LIB_FILENAME=$LIB_NAME.zip
 echo $LIB_FILENAME
 cd $DOWNLOAD_HOME
 
 if ! [ -f "$LIB_FILENAME" ] ; then
-        curl -O $LIB_URL
+        curl -LO $LIB_URL
 fi
 
 if ! [ -d "$LIB_NAME" ]; then
@@ -431,7 +432,7 @@ echo "% Building: Boost 1.57 %"
 echo "%%%%%%%%%%%%%%%%%%%%%%%%"
 {
     LIB_NAME=boost_1_57_0
-    LIB_URL=https://s3.us-east-2.amazonaws.com/geodabuild/boost_1_57_0.tar.gz
+    LIB_URL=http://sourceforge.net/projects/boost/files/boost/1.57.0/boost_1_57_0.tar.gz
     LIB_FILENAME=boost_1_57_0.tar.gz
     LIB_CHECKER=libboost_thread.a
     echo $LIB_FILENAME
@@ -439,7 +440,7 @@ echo "%%%%%%%%%%%%%%%%%%%%%%%%"
     cd $DOWNLOAD_HOME
     if ! [ -f "$LIB_FILENAME" ]; then
 	echo "$LIB_FILENAME not found. Downloading..."
-        curl -O $LIB_URL
+        curl -LO $LIB_URL
     else
 	echo "$LIB_FILENAME found. Skipping download."
     fi
@@ -478,7 +479,7 @@ echo "%%%%%%%%%%%%%%%%%%%%%%%%%"
 echo "% Building: JSON Spirit %"
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%"
 LIB_NAME="json_spirit_v4.08"
-LIB_URL="https://s3.us-east-2.amazonaws.com/geodabuild/json_spirit_v4.08.zip"
+LIB_URL="https://github.com/GeoDaCenter/geodabuild/releases/download/1.14/json_spirit_v4.08.zip"
 LIB_CHECKER="libjson_spirit.a"
 LIB_FILENAME="json_spirit_v4.08.zip"
 echo $LIB_FILENAME
@@ -486,7 +487,7 @@ echo $LIB_FILENAME
 cd $DOWNLOAD_HOME
 
 if ! [ -d "$LIB_NAME" ]; then
-    curl -O https://s3.us-east-2.amazonaws.com/geodabuild/json_spirit_v4.08.zip
+    curl -LO https://github.com/GeoDaCenter/geodabuild/releases/download/1.14/json_spirit_v4.08.zip
     unzip $LIB_FILENAME
 fi
 
@@ -526,7 +527,7 @@ echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 
     cd $DOWNLOAD_HOME
     if ! [ -d "$CLAPACK_NAME" ]; then
-        curl -O https://s3.us-east-2.amazonaws.com/geodabuild/clapack.tgz
+        curl -LO https://github.com/GeoDaCenter/geodabuild/releases/download/1.14/clapack.tgz
         tar -xvf clapack.tgz
     fi
 
@@ -569,22 +570,38 @@ echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
     LIB_CHECKER=libjson-c.a
 
     if ! [ -d "$LIB_NAME" ] ; then
-	git clone https://github.com/json-c/json-c.git
+	    git clone https://github.com/json-c/json-c.git
     fi
 
 
     if ! [ -f "$PREFIX/lib/$LIB_CHECKER" ] ; then
         cd $LIB_NAME
-	sh autogen.sh
+	    sh autogen.sh
         ./configure --prefix=$PREFIX
-	make
-	make install
+	    make
+	    make install
     fi
 
     #if ! [ -f "$PREFIX/lib/$LIB_CHECKER" ] ; then
         #echo "Error! Exit"
         #exit
     #fi
+}
+
+#########################################################################
+# install Spectra
+#########################################################################
+echo ""
+echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
+echo "% Building: Spectra                "
+echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
+{
+
+    LIB_NAME=spectra
+
+    if ! [ -d "$LIB_NAME" ] ; then
+	    git clone https://github.com/yixuan/spectra.git
+    fi
 }
 
 #########################################################################
@@ -635,12 +652,12 @@ echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 #########################################################################
 echo ""
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
-echo "% Building wxWidgets 3.0.2 %"
+echo "% Building wxWidgets 3.1.2 %"
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 # sudo apt-get install libgtk2.0-dev libglu1-mesa-dev libgl1-mesa-dev
 {
     LIB_NAME=wxWidgets-3.1.2
-    LIB_URL="https://geodabuild.s3.us-east-2.amazonaws.com/wxWidgets-3.1.2.tar.bz2"
+    LIB_URL="https://github.com/wxWidgets/wxWidgets/releases/download/v3.1.2/wxWidgets-3.1.2.tar.bz2"
 
     LIB_FILENAME=$(basename "$LIB_URL" ".tar.bz2")
     LIB_CHECKER=wx-config
@@ -648,7 +665,7 @@ echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 
     cd $DOWNLOAD_HOME
     if ! [ -f "$LIB_FILENAME" ] ; then
-        curl -k -o $LIB_FILENAME $LIB_URL
+        curl -OL $LIB_URL
     fi
 
     if ! [ -d "$LIB_NAME" ]; then

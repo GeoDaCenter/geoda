@@ -11,7 +11,7 @@
 	<key>CFBundleName</key>
 	<string>GeoDa</string>
 	<key>CFBundleExecutable</key>
-	<string>run.sh</string>
+	<string>GeoDa</string>
 	<key>CFBundleIconFile</key>
 	<string>GeoDa.icns</string>
 	<key>CFBundleIdentifier</key>
@@ -23,9 +23,9 @@
 	<key>CFBundleSignature</key>
 	<string>io.gitub.geodacenter</string>
 	<key>CFBundleVersion</key>
-	<string>1.14</string>
+	<string>1.16</string>
 	<key>CFBundleShortVersionString</key>
-	<string>1.14</string>
+	<string>1.16</string>
 	<key>DTCompiler</key>
 	<string>4.2</string>
 	<key>DTPlatformBuild</key>
@@ -57,5 +57,9 @@
 	    <string>Owner</string>
 	  </dict>
 	</array>
+	<key>NSAppleScriptEnabled</key>
+	<string>YES</string>
+	<key>NSDownloadsFolderUsageDescription</key>
+	<string>GeoDa requires permission to access the Downloads folder.</string>
 </dict>
 </plist>

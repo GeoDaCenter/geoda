@@ -442,7 +442,7 @@ void TemplateCanvas::SetMouseMode(MouseMode mode)
 	}
 }
 
-std::vector<int> TemplateCanvas::CreateSelShpsFromProj(vector<GdaShape*>& selectable_shps, Project* project)
+std::vector<int> TemplateCanvas::CreateSelShpsFromProj(std::vector<GdaShape*>& selectable_shps, Project* project)
 {
 	using namespace Shapefile;
     std::vector<int> empty_shps_ids;
@@ -464,7 +464,7 @@ std::vector<int> TemplateCanvas::CreateSelShpsFromProj(vector<GdaShape*>& select
                 empty_shps_ids.push_back(i);
 				selectable_shps[i] = new GdaPoint();
             } else {
-				selectable_shps[i] = new GdaPoint(wxRealPoint(pc->x,pc->y));
+				selectable_shps[i] = new GdaPoint(wxRealPoint(pc->x, pc->y), point_radius);
 			}
 
 		}
@@ -650,7 +650,7 @@ void TemplateCanvas::RenderToSVG(wxDC &dc, int w, int h)
         helper_DrawSelectableShapes_dc(dc, hs, false, false);
         
     } else {
-        for (int i=0, iend=selectable_shps.size(); i<iend; i++) {
+        for (size_t i=0, iend=selectable_shps.size(); i<iend; i++) {
             if (_IsShpValid(i)) {
                 selectable_shps[i]->paintSelf(dc);
             }
@@ -676,6 +676,7 @@ void TemplateCanvas::DrawLayers()
         DrawLayer2();
     }
     //wxWakeUpIdle();
+
     Refresh(false);
 }
 
@@ -810,16 +811,15 @@ void TemplateCanvas::OnSize(wxSizeEvent& event)
 
 void TemplateCanvas::SetPointRadius(double r)
 {
+    //  update seletable_shps[] with new r
     point_radius = r;
-    // also update seletable_shps[] with new point_radius
     GdaPoint* p;
     for (int i=0, iend=selectable_shps.size(); i<iend; i++) {
         if (_IsShpValid(i)) {
             p = (GdaPoint*) selectable_shps[i];
-            if (p->isNull()) {
-                continue;
+            if (!p->isNull()) {
+                p->SetRadius(r);
             }
-            p->SetRadius(point_radius);
         }
     }
 }
@@ -868,7 +868,7 @@ void TemplateCanvas::DrawHighlightedShapes(wxMemoryDC &dc)
         
     } else {
         vector<bool>& hs = GetSelBitVec();
-        for (int i=0, iend=selectable_shps.size(); i<iend; i++) {
+        for (size_t i=0, iend=selectable_shps.size(); i<iend; i++) {
             if (hs[i] && _IsShpValid(i)) {
                 selectable_shps[i]->paintSelf(dc);
             }
@@ -905,13 +905,6 @@ void TemplateCanvas::helper_DrawSelectableShapes_dc(wxDC &dc, vector<bool>& hs,
 		vector<bool> dirty(bnd, false);
 
 		dc.SetBrush(*wxTRANSPARENT_BRUSH);
-		wxDouble r = point_radius;
-        if (w < 150 || h < 150) {
-            r *= 0.66;
-        }
-        if (selectable_shps.size() > 100 && (w < 80 || h < 80)) {
-            r = 0.2;
-        }
 		GdaPoint* p;
 		for (int cat=0; cat<num_cats; cat++) {
             if (hl_only && crosshatch ){
@@ -929,21 +922,20 @@ void TemplateCanvas::helper_DrawSelectableShapes_dc(wxDC &dc, vector<bool>& hs,
                 dc.SetBrush(cat_data.GetCategoryBrush(cc_ts, cat));
             }
 			vector<int>& ids =	cat_data.GetIdsRef(cc_ts, cat);
-			for (int i=0, iend=ids.size(); i<iend; i++) {
+			for (size_t i=0, iend=ids.size(); i<iend; i++) {
                 if (!_IsShpValid(ids[i]) || (hl_only && hs[ids[i]] == revert)) {
                     continue;
                 }
 				p = (GdaPoint*) selectable_shps[ids[i]];
-                if (p->isNull()) {
-                    continue;
+                if (p->isNull() == false) {
+                    int bnd_idx = p->center.x + p->center.y*w;
+                    if (is_print) {
+                        dc.DrawCircle(p->center.x, p->center.y, p->radius);
+                    } else if (bnd_idx >= 0 && bnd_idx < bnd && !dirty[bnd_idx]) {
+                        dc.DrawCircle(p->center.x, p->center.y, p->radius);
+                        dirty[bnd_idx] = true;
+                    }
                 }
-				int bnd_idx = p->center.x + p->center.y*w;
-				if (is_print) {
-					dc.DrawCircle(p->center.x, p->center.y, r);
-				} else if (bnd_idx >= 0 && bnd_idx < bnd && !dirty[bnd_idx]) {
-					dc.DrawCircle(p->center.x, p->center.y, r);
-					dirty[bnd_idx] = true;
-				}
 			}
 		}
 	} else if (selectable_shps_type == polygons) {
@@ -1264,13 +1256,6 @@ void TemplateCanvas::helper_DrawSelectableShapes_gc(wxGraphicsContext &gc,
 		int bnd = w*h;
 		vector<bool> dirty(bnd, false);
         
-        wxDouble r = point_radius;
-        if (w < 150 || h < 150) {
-            r *= 0.66;
-        }
-        if (selectable_shps.size() > 100 && (w < 80 || h < 80)) {
-            r = 0.2;
-        }
         GdaPoint* p;
         for (int cat=0; cat<num_cats; cat++) {
             if (hl_only && crosshatch ){
@@ -1291,12 +1276,12 @@ void TemplateCanvas::helper_DrawSelectableShapes_gc(wxGraphicsContext &gc,
                     continue;
                 }
                 p = (GdaPoint*) selectable_shps[ids[i]];
-                if (p->isNull())
-                    continue;
-				int bnd_idx = p->center.x + p->center.y*w;
-				if (bnd_idx >= 0 && bnd_idx < bnd && !dirty[bnd_idx]) {
-                    path.AddCircle(p->center.x, p->center.y, r);
-					dirty[bnd_idx] = true;
+                if (p->isNull() == false) {
+                    int bnd_idx = p->center.x + p->center.y*w;
+                    if (bnd_idx >= 0 && bnd_idx < bnd && !dirty[bnd_idx]) {
+                        path.AddCircle(p->center.x, p->center.y, p->radius);
+                        dirty[bnd_idx] = true;
+                    }
                 }
             }
             gc.StrokePath(path);
@@ -1456,7 +1441,7 @@ void TemplateCanvas::OnMouseEvent(wxMouseEvent& event)
                         brush_shape = new GdaPolygon(sel1, sel2);
                         
                     }
-                    if (brush_shape->Contains(prev)) {
+                    if (brush_shape != NULL && brush_shape->Contains(prev)) {
                         // brushing
                         is_brushing = true;
                         remember_shiftdown = false;  // brush will cancel shift
@@ -1830,7 +1815,7 @@ void TemplateCanvas::UpdateSelection(bool shiftdown, bool pointsel)
         // rectangle
 		UpdateSelectionPoints(shiftdown, pointsel);
 	}
-    
+
     // re-paint highlight layer (layer1_bm)
     layer1_valid = false;
     DrawLayers();
@@ -2349,9 +2334,11 @@ void TemplateCanvas::SelectAllInCategory(int category,
 	}
 	
 	if ( selection_changed ) {
+        LOG_MSG("start notifyObservers()");
 		highlight_state->SetEventType(HLStateInt::delta);
 		highlight_state->notifyObservers(); // notify self to update drawing
-	}
+        LOG_MSG("end notifyObservers()");
+    }
 }
 
 void TemplateCanvas::DetermineMouseHoverObjects(wxPoint pt)
@@ -2385,7 +2372,6 @@ void TemplateCanvas::DetermineMouseHoverObjects(wxPoint pt)
 			}
 		}
 	} else { // selectable_shps_type == points or anything without pointWithin
-		const double r2 = point_radius;
 		for (int i=0; i<total_obs && total_hover_obs<max_hover_obs; i++) {
             if ( !_IsShpValid(i))
                 continue;

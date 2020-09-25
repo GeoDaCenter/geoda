@@ -51,6 +51,10 @@ void LisaWhat2OpenDlg::CreateControls()
     //    m_check4 = wxDynamicCast(FindWindow(XRCID("IDC_CHECK4")), wxCheckBox);
 }
 
+void LisaWhat2OpenDlg::HideMoranScatter()
+{
+    m_check3->Hide();
+}
 void LisaWhat2OpenDlg::OnOkClick( wxCommandEvent& event )
 {
 	m_SigMap = m_check1->GetValue();

@@ -44,7 +44,6 @@
 #include "../GdaException.h"
 #include "../GeneralWxUtils.h"
 #include "../GdaJson.h"
-#include "../GdaCartoDB.h"
 #include "DatasourceDlg.h"
 
 using namespace std;
@@ -109,11 +108,6 @@ void DatasourceDlg::CreateControls()
     m_ds_notebook->SetBackgroundColour(*wxWHITE);
 #endif
 	m_ds_browse_file_btn = XRCCTRL(*this, "IDC_OPEN_IASC",wxBitmapButton);
-	
-    m_cartodb_uname = XRCCTRL(*this, "IDC_CARTODB_USERNAME",wxTextCtrl);
-    m_cartodb_key = XRCCTRL(*this, "IDC_CARTODB_KEY",wxTextCtrl);
-    m_cartodb_table = XRCCTRL(*this, "IDC_CARTODB_TABLE_NAME",wxTextCtrl);
-    m_cartodb_tablename = XRCCTRL(*this, "IDC_STATIC_CARTODB_TABLE_NAME",wxStaticText);
     
 	m_database_type->Append(DBTYPE_POSTGIS);
     m_database_type->Append(DBTYPE_ORACLE);
@@ -186,26 +180,6 @@ void DatasourceDlg::CreateControls()
             LOG_MSG(msg);
         }
     }
-    
-    // get a latest CartoDB account
-    vector<wxString> cartodb_user = OGRDataAdapter::GetInstance().GetHistory("cartodb_user");
-    if (!cartodb_user.empty()) {
-        wxString user = cartodb_user[0];
-        CartoDBProxy::GetInstance().SetUserName(user);
-        // control
-        m_cartodb_uname->SetValue(user);
-    }
-    
-    vector<wxString> cartodb_key = OGRDataAdapter::GetInstance().GetHistory("cartodb_key");
-    if (!cartodb_key.empty()) {
-        wxString key = cartodb_key[0];
-        CartoDBProxy::GetInstance().SetKey(key);
-        // control
-        m_cartodb_key->SetValue(key);
-    }
-    
-    m_cartodb_table->Hide();
-    m_cartodb_tablename->Hide();
 }
 
 void DatasourceDlg::OnDropFiles(wxDropFilesEvent& event)

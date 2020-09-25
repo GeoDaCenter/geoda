@@ -56,6 +56,12 @@
     <Filter Include="kNN\ANN">
       <UniqueIdentifier>{dcde4097-4967-4ebe-98cd-897b7657a5d2}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Algorithms\loess">
+      <UniqueIdentifier>{d0a2af4e-5095-4527-93ef-766cbb72f6f5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Algorithms\smacof">
+      <UniqueIdentifier>{499e618f-f33a-4130-81c6-09205aad99f8}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\rc\GeoDa.ico">
@@ -862,6 +868,73 @@
     <ClInclude Include="..\..\Explore\GroupingMapView.h">
       <Filter>Explore</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\Algorithms\distanceplot.h">
+      <Filter>Algorithms</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\DialogTools\nbrMatchDlg.h">
+      <Filter>DialogTools</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Algorithms\loess.h">
+      <Filter>Algorithms\loess</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Algorithms\S.h">
+      <Filter>Algorithms\loess</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\DialogTools\tSNEDlg.h">
+      <Filter>DialogTools</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\GenColor.h" />
+    <ClInclude Include="..\..\Explore\DistancePlotView.h">
+      <Filter>Explore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Algorithms\tsne.h">
+      <Filter>Algorithms</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Explore\LoessPlotCanvas.h">
+      <Filter>Explore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Algorithms\splittree.h">
+      <Filter>Algorithms</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Algorithms\vptree.h">
+      <Filter>Algorithms</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Algorithms\smacof.h">
+      <Filter>Algorithms\smacof</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Explore\AnimatePlotCanvas.h">
+      <Filter>Explore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Algorithms\pam.h">
+      <Filter>Algorithms</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Explore\ConditionalBoxPlotView.h">
+      <Filter>Explore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Algorithms\dbscan.h">
+      <Filter>Algorithms</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\DialogTools\DBScanDlg.h">
+      <Filter>DialogTools</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Explore\MapViewHelper.h">
+      <Filter>Explore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\DialogTools\SCHCDlg.h">
+      <Filter>DialogTools</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\DialogTools\AZPDlg.h">
+      <Filter>DialogTools</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\DialogTools\MultiQuantileLisaDlg.h">
+      <Filter>DialogTools</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\DialogTools\quantileLisaDlg.h">
+      <Filter>DialogTools</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Algorithms\azp.h">
+      <Filter>Algorithms</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\rc\GdaAppResources.cpp">
@@ -1562,6 +1635,91 @@
     </ClCompile>
     <ClCompile Include="..\..\Explore\GroupingMapView.cpp">
       <Filter>Explore</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Algorithms\distanceplot.cpp">
+      <Filter>Algorithms</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\DialogTools\nbrMatchDlg.cpp">
+      <Filter>DialogTools</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Algorithms\linpack_lite.c">
+      <Filter>Algorithms\loess</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Algorithms\loess.c">
+      <Filter>Algorithms\loess</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Algorithms\loessc.c">
+      <Filter>Algorithms\loess</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Algorithms\loessf.c">
+      <Filter>Algorithms\loess</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Algorithms\misc.c">
+      <Filter>Algorithms\loess</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Algorithms\predict.c">
+      <Filter>Algorithms\loess</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\DialogTools\tSNEDlg.cpp">
+      <Filter>DialogTools</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\GenColor.cpp" />
+    <ClCompile Include="..\..\Explore\DistancePlotView.cpp">
+      <Filter>Explore</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Algorithms\tsne.cpp">
+      <Filter>Algorithms</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Explore\LoessPlotCanvas.cpp">
+      <Filter>Explore</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Algorithms\splittree.cpp">
+      <Filter>Algorithms</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Algorithms\jacobi.c">
+      <Filter>Algorithms\smacof</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Algorithms\lapacke.c">
+      <Filter>Algorithms\smacof</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Algorithms\smacof.c">
+      <Filter>Algorithms\smacof</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Algorithms\smacof_utils.c">
+      <Filter>Algorithms\smacof</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Explore\AnimatePlotCanvas.cpp">
+      <Filter>Explore</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Algorithms\pam.cpp">
+      <Filter>Algorithms</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Explore\ConditionalBoxPlotView.cpp">
+      <Filter>Explore</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Algorithms\dbscan.cpp">
+      <Filter>Algorithms</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\DialogTools\DBScanDlg.cpp">
+      <Filter>DialogTools</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Explore\MapViewHelper.cpp">
+      <Filter>Explore</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\DialogTools\SCHCDlg.cpp">
+      <Filter>DialogTools</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\DialogTools\AZPDlg.cpp">
+      <Filter>DialogTools</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\DialogTools\MultiQuantileLisaDlg.cpp">
+      <Filter>DialogTools</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\DialogTools\quantileLisaDlg.cpp">
+      <Filter>DialogTools</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Algorithms\azp.cpp">
+      <Filter>Algorithms</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

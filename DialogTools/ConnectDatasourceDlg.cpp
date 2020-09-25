@@ -22,6 +22,7 @@
 #include <string>
 #include <fstream>
 #include <iostream>
+#include <wx/dir.h>
 #include <wx/progdlg.h>
 #include <wx/filedlg.h>
 #include <wx/listctrl.h>
@@ -74,6 +75,17 @@ bool DnDFile::OnDropFiles(wxCoord, wxCoord, const wxArrayString& filenames)
     {
         wxString fpath = filenames[0];
         wxFileName fn = wxFileName::FileName(fpath);
+
+        // activate file/dir access permission for osx 10.15+
+        wxFileName dirname = wxFileName::DirName(fpath);
+        wxString dir_path = dirname.GetPath();
+        wxDir dir;
+        dir.Open(dir_path);
+        if ( dir.IsOpened() ) {
+            wxString filename;
+            dir.GetFirst(&filename);
+        }
+
         m_pOwner->ds_file_path = fn;
         wxCommandEvent ev;
         m_pOwner->OnOkClick(ev);
@@ -377,7 +389,6 @@ wxString RecentDatasource::GetLayerName(wxString ds_name)
 BEGIN_EVENT_TABLE( ConnectDatasourceDlg, wxDialog )
     EVT_BUTTON(XRCID("IDC_OPEN_IASC"), ConnectDatasourceDlg::OnBrowseDSfileBtn)
 	EVT_BUTTON(XRCID("ID_BTN_LOOKUP_TABLE"), ConnectDatasourceDlg::OnLookupDSTableBtn)
-	//EVT_BUTTON(XRCID("ID_CARTODB_LOOKUP_TABLE"), ConnectDatasourceDlg::OnLookupCartoDBTableBtn)
 	//EVT_BUTTON(XRCID("ID_BTN_LOOKUP_WSLAYER"), ConnectDatasourceDlg::OnLookupWSLayerBtn)
     EVT_BUTTON(wxID_OK, ConnectDatasourceDlg::OnOkClick )
     //EVT_BUTTON(wxID_CANCEL, ConnectDatasourceDlg::OnCancelClick )
@@ -670,7 +681,7 @@ void ConnectDatasourceDlg::CreateControls()
     
     // create controls defined in parent class
     DatasourceDlg::CreateControls();
-	
+
     // setup WSF auto-completion
 	std::vector<wxString> ws_url_cands = OGRDataAdapter::GetInstance().GetHistory("ws_url");
 	m_webservice_url->SetAutoList(ws_url_cands);
@@ -821,11 +832,6 @@ void ConnectDatasourceDlg::OnOkClick( wxCommandEvent& event )
             
 		} else if (datasource_type == 2) {
             // Web Service tab is selected
-            if (layer_name.IsEmpty()) PromptDSLayers(datasource);
-			layername = layer_name;
-            
-		} else if (datasource_type == 3) {
-            // CartoDB Service tab is selected
             if (layer_name.IsEmpty()) PromptDSLayers(datasource);
 			layername = layer_name;
             
@@ -1001,32 +1007,7 @@ IDataSource* ConnectDatasourceDlg::CreateDataSource()
             // prompt user to select a layer from WFS
             //if (layer_name.IsEmpty()) PromptDSLayers(datasource);
         }
-        
-	} else if ( datasource_type == 3 ) {
-        
-        wxString user =m_cartodb_uname->GetValue().Trim();
-        wxString key = m_cartodb_key->GetValue().Trim();
-        
-        if (user.empty()) {
-            wxString msg = _("Please input Carto User Name.");
-           throw GdaException(msg.mb_str());
-        }
-        if (key.empty()) {
-            wxString msg = _("Please input Carto App Key.");
-           throw GdaException(msg.mb_str());
-        }
-        
-        CPLSetConfigOption("CARTODB_API_KEY", (const char*)key.mb_str());
-        OGRDataAdapter::GetInstance().AddEntry("cartodb_key", key);
-        OGRDataAdapter::GetInstance().AddEntry("cartodb_user", user);
-        CartoDBProxy::GetInstance().SetKey(key);
-        CartoDBProxy::GetInstance().SetUserName(user);
-        
-        wxString url = "Carto:" + user;
-        
-        datasource = new WebServiceDataSource(GdaConst::ds_cartodb, url);
-    }
-    
+	}
     
 	return datasource;
 }

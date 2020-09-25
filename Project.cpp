@@ -385,6 +385,23 @@ Shapefile::ShapeType Project::GetGdaGeometries(vector<GdaShape*>& geometries)
 	return shape_type;
 }
 
+std::vector<wxFloat64> Project::GetBBox(int idx)
+{
+    wxLogMessage("Project::GetBBox()");
+    std::vector<wxFloat64> box(4);
+    if (main_data.header.shape_type == Shapefile::POINT_TYP) {
+        Shapefile::PointContents* pc = (Shapefile::PointContents*)main_data.records[idx].contents_p;
+        box[0] = pc->x;
+        box[1] = pc->y;
+        box[2] = pc->x;
+        box[3] = pc->y;
+    } else if (main_data.header.shape_type == Shapefile::POLYGON) {
+        Shapefile::PolygonContents* pc = (Shapefile::PolygonContents*)main_data.records[idx].contents_p;
+        return pc->box;
+    }
+    return box;
+}
+
 rtree_box_2d_t& Project::GetBBoxRtree()
 {
 	wxLogMessage("Project::CalcEucPlaneRtreeStats()");
@@ -481,6 +498,49 @@ OGRSpatialReference* Project::GetSpatialReference()
 		delete ogr_ds;
 	}
 	return spatial_ref;
+}
+
+bool Project::CheckSpatialProjection(bool& check_again, bool is_arc)
+{
+    // Check if latitude and longitude are used in spatial reference
+    bool cont_proceed = false;
+    if (sourceSR == NULL) {
+        wxString msg = _("Warning: unknown projection information, distance may be incorrect.\n\nProceed anyway?");
+        CheckSpatialRefDialog dlg(NULL, msg);
+        check_again = dlg.IsCheckAgain();
+        if (dlg.ShowModal() == wxID_OK) {
+            cont_proceed = true;
+            check_again = dlg.IsCheckAgain();
+        }
+    } else {
+        bool is_euclidean = !is_arc;
+        if (is_euclidean && project_unit.CmpNoCase("degree") == 0) {
+            wxString msg = _("Warning: coordinates are not projected, distance will be incorrect.\n\nProceed anyway?");
+            CheckSpatialRefDialog dlg(NULL, msg);
+            if (dlg.ShowModal() == wxID_OK) {
+                cont_proceed = true;
+                check_again = dlg.IsCheckAgain();
+            }
+        } else  {
+    
+            if (is_arc && project_unit.CmpNoCase("degree") != 0) {
+                //if the data are projected and one tries to
+                // create an arc distance, same warning.
+                wxString msg = _("Warning: coordinates are projected, arc distance will be incorrect.\n\nProceed anyway?");
+                CheckSpatialRefDialog dlg(NULL, msg);
+                if (dlg.ShowModal() == wxID_OK) {
+                    cont_proceed = true;
+                    check_again = dlg.IsCheckAgain();
+                }
+            }  else {
+                // GOOD! 
+                cont_proceed = true;
+                check_again = false; // no need to check again
+            }
+        }
+    }
+    // return if user wants to continue proceeding
+    return cont_proceed;
 }
 
 void Project::SaveOGRDataSource()
@@ -900,8 +960,7 @@ void Project::SaveVoronoiDupsToTable()
 		int head_id = *(dups_iter->begin());
         std::list<int>::iterator iter = dups_iter->begin();
         iter++; // ignore first one
-		for (; iter != dups_iter->end(); iter++)
-        {
+		for (; iter != dups_iter->end(); iter++) {
 			undefined[*iter] = false;
 			dup_ids[*iter] = head_id+1;
 		}			

@@ -21,6 +21,7 @@
 #define __GEODA_CENTER_3D_PLOT_VIEW_H__
 
 #include <wx/glcanvas.h>
+#include <wx/splitter.h>
 #include "../FramesManagerObserver.h"
 #include "../HLStateInt.h"
 #include "../HighlightStateObserver.h"
@@ -86,6 +87,7 @@ public:
 	int height, width;
 	double bb_min[3], bb_max[3];
 
+    wxColour linecolor;
 	wxColour selectable_fill_color;
 	wxColour highlight_color;
 	wxColour canvas_background_color;
@@ -96,6 +98,11 @@ public:
 	Arcball* ball;
 	double xs, xp, ys, yp, zs, zp;
 
+    float linewidth;
+    int quality;
+    double radius;
+    bool ShowNeighbors;
+    bool ShowConnections;
 	bool ShowFirst;
 	bool m_d;
 	bool m_z;
@@ -147,7 +154,10 @@ public:
 	C3DPlotFrame(wxFrame *parent, Project* project,
 				 const std::vector<GdaVarTools::VarInfo>& var_info,
 				 const std::vector<int>& col_ids,
-				 const wxString& title, const wxPoint& pos,
+                 const wxString& title,
+                 const std::vector<wxString>& info_text,
+                 const std::vector<std::pair<wxString, double> >& output_vals,
+                 const wxPoint& pos,
 				 const wxSize& size, const long style);
 	virtual ~C3DPlotFrame();	
     

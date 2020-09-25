@@ -737,24 +737,26 @@ void MLJCMapFrame::OnSigFilterSetup(wxCommandEvent& event)
             new_n += 1;
         }
     }
-    int j= 0;
-    double* p_val = new double[new_n];
-    for (int i=0; i<gs_coord->num_obs; i++) {
-        if (gs_coord->data[0][t][i] == 1) {
-            p_val[j++] = p_val_t[i];
+    if (new_n > 0) {
+        int j= 0;
+        double* p_val = new double[new_n];
+        for (int i=0; i<gs_coord->num_obs; i++) {
+            if (gs_coord->data[0][t][i] == 1) {
+                p_val[j++] = p_val_t[i];
+            }
         }
+        InferenceSettingsDlg dlg(this, user_sig, p_val, new_n, ttl);
+        if (dlg.ShowModal() == wxID_OK) {
+            gs_coord->SetSignificanceFilter(-1);
+            gs_coord->significance_cutoff = dlg.GetAlphaLevel();
+            gs_coord->user_sig_cutoff = dlg.GetUserInput();
+            gs_coord->notifyObservers();
+            gs_coord->bo = dlg.GetBO();
+            gs_coord->fdr = dlg.GetFDR();
+            UpdateOptionMenuItems();
+        }
+        delete[] p_val;
     }
-    InferenceSettingsDlg dlg(this, user_sig, p_val, new_n, ttl);
-    if (dlg.ShowModal() == wxID_OK) {
-        gs_coord->SetSignificanceFilter(-1);
-        gs_coord->significance_cutoff = dlg.GetAlphaLevel();
-        gs_coord->user_sig_cutoff = dlg.GetUserInput();
-        gs_coord->notifyObservers();
-        gs_coord->bo = dlg.GetBO();
-        gs_coord->fdr = dlg.GetFDR();
-        UpdateOptionMenuItems();
-    }
-    delete[] p_val;
 }
 
 

@@ -35,6 +35,7 @@
 #include "../VarCalc/WeightsManInterface.h"
 #include "../logger.h"
 #include "../Project.h"
+#include "../GenUtils.h"
 #include "LisaCoordinator.h"
 
 #include "../Algorithms/gpu_lisa.h"
@@ -72,10 +73,12 @@ LisaCoordinator(boost::uuids::uuid weights_id,
                 const std::vector<int>& col_ids,
                 LisaType lisa_type_s,
                 bool calc_significances_s,
-                bool row_standardize_s)
+                bool row_standardize_s,
+                bool using_median)
 : AbstractCoordinator(weights_id, project, var_info_s, col_ids, calc_significances_s, row_standardize_s),
 lisa_type(lisa_type_s),
-isBivariate(lisa_type_s == bivariate)
+isBivariate(lisa_type_s == bivariate),
+using_median(using_median)
 {
     wxLogMessage("Entering LisaCoordinator::LisaCoordinator().");
 	for (int i=0; i<var_info.size(); i++) {
@@ -433,8 +436,8 @@ void LisaCoordinator::StandardizeData()
 void LisaCoordinator::Calc()
 {
     wxLogMessage("Entering LisaCoordinator::Calc()");
-    double *data1;
-    double *data2;
+    double *data1 = NULL;
+    double *data2 = NULL;
     int* cluster;
     
 	for (int t=0; t<num_time_vals; t++) {
@@ -474,45 +477,66 @@ void LisaCoordinator::Calc()
         has_undefined[t] = has_undef;
        
         // local weights copy
-        GalWeight* gw = NULL;
+        GalWeight* gw = weights;
         if ( has_undef || has_isolate ) {
             gw = new GalWeight(*weights);
             gw->Update(undefs);
-        } else {
-            gw = weights;
         }
         GalElement* W = gw->gal;
         Gal_vecs[t] = gw;
         Gal_vecs_orig[t] = weights;
 	
 		for (int i=0; i<num_obs; i++) {
+            lags[i] = 0;
+            localMoran[i] = 0;
+
             if (undefs[i] == true) {
-                lags[i] = 0;
-                localMoran[i] = 0;
                 cluster[i] = 6; // undefined value
-                
-                if (W[i].Size() == 0) {
-                    has_isolates[t] = true;
-                    cluster[i] = 5; // neighborless
-                }
+                continue;
+            } else if (W[i].Size() == 0) {
+                has_isolates[t] = true;
+                cluster[i] = 5; // neighborless
                 continue;
             }
             
 			double Wdata = 0;
-			if (isBivariate) {
-				Wdata = W[i].SpatialLag(data2);
-			} else {
-				Wdata = W[i].SpatialLag(data1);
-			}
+            if (using_median) {
+                int nn = W[i].Size();
+                if (W[i].Check(i)) {
+                    // exclude self from neighbors
+                    nn -= 1;
+                }
+                std::vector<double> nbr_data(nn);
+                const std::vector<long>& nbrs = W[i].GetNbrs();
+                for (size_t j=0, k=0; j<nbrs.size(); ++j) {
+                    if (nbrs[j] != i) {
+                        nbr_data[k++] = data1[nbrs[j]];
+                    }
+                }
+                Wdata = GenUtils::Median(nbr_data);
+
+            } else {
+                bool is_binary = true;
+                if (isBivariate) {
+                    if (data2) Wdata = W[i].SpatialLag(data2, is_binary, i);
+                } else {
+                    if (data1) Wdata = W[i].SpatialLag(data1, is_binary, i);
+                }
+            }
+            
 			lags[i] = Wdata;
-			localMoran[i] = data1[i] * Wdata;
+            if (data1) {
+                localMoran[i] = data1[i] * Wdata;
+            }
 				
 			// assign the cluster
 			//if (W[i].Size() > 0) {
-            if (data1[i] > 0 && Wdata < 0) cluster[i] = 4;
-            else if (data1[i] < 0 && Wdata > 0) cluster[i] = 3;
-            else if (data1[i] < 0 && Wdata < 0) cluster[i] = 2;
-            else cluster[i] = 1; //data1[i] > 0 && Wdata > 0
+            if (data1) {
+                if (data1[i] > 0 && Wdata < 0) cluster[i] = 4;
+                else if (data1[i] < 0 && Wdata > 0) cluster[i] = 3;
+                else if (data1[i] < 0 && Wdata < 0) cluster[i] = 2;
+                else cluster[i] = 1; //data1[i] > 0 && Wdata > 0
+            }
 		}
 	}
     wxLogMessage("Exiting LisaCoordinator::Calc()");
@@ -559,7 +583,7 @@ void LisaCoordinator::CalcPseudoP()
 			CalcPseudoP_threaded();
 		}
     }
-    LOG_MSG(wxString::Format("GPU took %ld ms", sw_vd.Time()));
+    wxLogMessage(wxString::Format("GPU took %ld ms", sw_vd.Time()));
 }
 
 void LisaCoordinator::ComputeLarger(int cnt, std::vector<int>& permNeighbors, std::vector<uint64_t>& countLarger)
@@ -583,32 +607,49 @@ void LisaCoordinator::ComputeLarger(int cnt, std::vector<int>& permNeighbors, st
         int numNeighbors = permNeighbors.size();
         // use permutation to compute the lag
         // compute the lag for binary weights
-        if (isBivariate) {
+
+        if (using_median) {
+            std::vector<double> nbr_data;
             for (int cp=0; cp<numNeighbors; cp++) {
                 int nb = permNeighbors[cp];
                 if (!undefs[nb]) {
-                    permutedLag += data2[nb];
+                    nbr_data.push_back(data1[nb]);
                     validNeighbors ++;
                 }
             }
-        } else {
-            for (int cp=0; cp<numNeighbors; cp++) {
-                int nb = permNeighbors[cp];
-                if (!undefs[nb]) {
-                    permutedLag += data1[nb];
-                    validNeighbors ++;
+            double nbr_median = GenUtils::Median(nbr_data);
+            const double localMoranPermuted = nbr_median * data1[cnt];
+            if (localMoranPermuted >= localMoran[cnt]) {
+                countLarger[t]++;
+            }
+
+        } else{
+            if (isBivariate) {
+                for (int cp=0; cp<numNeighbors; cp++) {
+                    int nb = permNeighbors[cp];
+                    if (!undefs[nb]) {
+                        permutedLag += data2[nb];
+                        validNeighbors ++;
+                    }
+                }
+            } else {
+                for (int cp=0; cp<numNeighbors; cp++) {
+                    int nb = permNeighbors[cp];
+                    if (!undefs[nb]) {
+                        permutedLag += data1[nb];
+                        validNeighbors ++;
+                    }
                 }
             }
-        }
-        
-        //NOTE: we shouldn't have to row-standardize or
-        // multiply by data1[cnt]
-        if (validNeighbors > 0 && row_standardize) {
-            permutedLag /= validNeighbors;
-        }
-        const double localMoranPermuted = permutedLag * data1[cnt];
-        if (localMoranPermuted >= localMoran[cnt]) {
-            countLarger[t]++;
+            //NOTE: we shouldn't have to row-standardize or
+            // multiply by data1[cnt]
+            if (validNeighbors > 0 && row_standardize) {
+                permutedLag /= validNeighbors;
+            }
+            const double localMoranPermuted = permutedLag * data1[cnt];
+            if (localMoranPermuted >= localMoran[cnt]) {
+                countLarger[t]++;
+            }
         }
     }
 }

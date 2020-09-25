@@ -2331,11 +2331,11 @@ msgid "Hide system table in SQLITE connection:"
 msgstr "Скрыть таблицу системы в соединении с SQLITE:"
 
 # contributors:
-msgid "Hierachical Map does not work with Table only datasource."
+msgid "Hierarchical Map does not work with Table only datasource."
 msgstr "Иерархическая карта не работает с исключительно табличным источником данных."
 
 # contributors:
-msgid "Hierachical Map: "
+msgid "Hierarchical Map: "
 msgstr "Иерархическая карта: "
 
 # contributors:
@@ -3283,7 +3283,7 @@ msgid "Number of neighbors"
 msgstr "Количество соседей"
 
 # contributors:
-msgid "Number of not clustered observations: "
+msgid "Number of observations not in a cluster: "
 msgstr "Количество некластеризованных наблюдений: "
 
 # contributors:
@@ -5343,7 +5343,7 @@ msgid "Use selected as specified alpha level"
 msgstr "Использовать выбранное как указанный альфа уровень"
 
 # contributors:
-msgid "Use specified seed:"
+msgid "Use Specified Seed:"
 msgstr "Использовать указанное начальное число:"
 
 # contributors:

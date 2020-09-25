@@ -10,6 +10,7 @@
 #include <boost/unordered_map.hpp>
 #include <boost/thread.hpp>
 #include <boost/bind.hpp>
+#include <boost/foreach.hpp>
 
 #include "../Project.h"
 #include "../MapLayerStateObserver.h"
@@ -28,7 +29,7 @@ SpatialJoinWorker::SpatialJoinWorker(BackgroundMapLayer* _ml, Project* _project)
     project = _project;
     int n_joins = project->GetNumRecords();
     spatial_counts.resize(n_joins);
-    spatial_joins.resize(n_joins);
+    //spatial_joins.resize(n_joins);
     join_ids.resize(n_joins);
     // always use points to create a rtree, since in normal case
     // the number of points are larger than the number of polygons
@@ -49,7 +50,7 @@ bool SpatialJoinWorker::JoinVariable()
     return join_variable;
 }
 
-vector<double> SpatialJoinWorker::GetJoinResults()
+std::vector<std::vector<double> > SpatialJoinWorker::GetJoinResults()
 {
     return spatial_joins;
 }
@@ -62,7 +63,8 @@ vector<wxInt64> SpatialJoinWorker::GetResults()
 void SpatialJoinWorker::Run()
 {
     int initial = num_polygons;
-    int nCPUs = boost::thread::hardware_concurrency();;
+    int nCPUs = boost::thread::hardware_concurrency();
+    if (GdaConst::gda_set_cpu_cores) nCPUs = GdaConst::gda_cpu_cores;
     int quotient = initial / nCPUs;
     int remainder = initial % nCPUs;
     int tot_threads = (quotient > 0) ? nCPUs : remainder;
@@ -98,28 +100,35 @@ void SpatialJoinWorker::Run()
 
     // join variable if needed
     if (join_variable) {
-        int n_values = join_values.size();
+        int n_vars = (int)join_values.size();
+        spatial_joins.resize(n_vars);
+        for (size_t k=0; k<n_vars; ++k) {
+            spatial_joins[k].resize(n_joins);
+        }
         for (size_t i=0; i<n_joins; ++i) {
             size_t cnt = join_ids[i].size();
-            std::vector<double> vals(cnt, 0);
-            for (size_t j=0; j<cnt; ++j) {
-                int idx = join_ids[i][j];
-                if (idx < n_values) {
-                    vals[j] = join_values[idx];
+            
+            for (size_t k=0; k<n_vars; ++k) {
+                std::vector<double> vals(cnt, 0);
+                
+                for (size_t j=0; j<cnt; ++j) {
+                    int idx = (int)join_ids[i][j];
+                    vals[j] = join_values[k][idx];
                 }
-            }
-            if (join_operation == STD) {
-                double variance = GenUtils::GetVariance(vals);
-                spatial_joins[i] = sqrt(variance);
-            } else if (join_operation == SUM) {
-                double sum = GenUtils::Sum(vals);
-                spatial_joins[i] = sum;
-            } else if (join_operation == MEAN) {
-                double sum = GenUtils::Sum(vals);
-                spatial_joins[i] = sum / cnt;
-            } else if (join_operation == MEDIAN) {
-                double median = GenUtils::Median(vals);
-                spatial_joins[i] = median;
+                
+                if (join_operation[k] == STD) {
+                    double variance = GenUtils::GetVariance(vals);
+                    spatial_joins[k][i] = sqrt(variance);
+                } else if (join_operation[k] == SUM) {
+                    double sum = GenUtils::Sum(vals);
+                    spatial_joins[k][i] = sum;
+                } else if (join_operation[k] == MEAN) {
+                    double sum = GenUtils::Sum(vals);
+                    spatial_joins[k][i] = cnt == 0? 0 : sum / cnt;
+                } else if (join_operation[k] == MEDIAN) {
+                    double median = GenUtils::Median(vals);
+                    spatial_joins[k][i] = median;
+                }
             }
         }
     }
@@ -128,23 +137,30 @@ void SpatialJoinWorker::Run()
 
 CountPointsInPolygon::CountPointsInPolygon(BackgroundMapLayer* _ml,
                                            Project* _project,
-                                           wxString join_variable_nm,
-                                           Operation _op)
+                                           std::vector<wxString> join_variable_nm,
+                                           std::vector<Operation> _op)
 : SpatialJoinWorker(_ml, _project)
 {
     is_spatial_assign = false;
     join_operation = _op;
-    join_variable = _ml->GetDoubleColumnData(join_variable_nm, join_values);
+    int n_vars = (int)join_operation.size();
+    join_values.resize(n_vars);
+    join_variable = false; // default false: no need to join variables
+    for (int i=0; i<join_variable_nm.size(); ++i) {
+        join_variable = _ml->GetDoubleColumnData(join_variable_nm[i], join_values[i]);
+    }
 
     num_polygons = project->GetNumRecords();
 
     // using selected layer (points) to create rtree
-    int n = ml->shapes.size();
+    int n = (int)ml->shapes.size();
     double x, y;
     for (int i=0; i<n; i++) {
-        x = ml->shapes[i]->center_o.x;
-        y = ml->shapes[i]->center_o.y;
-        rtree.insert(std::make_pair(pt_2d(x,y), i));
+        if (ml->shapes[i]) {
+            x = ml->shapes[i]->center_o.x;
+            y = ml->shapes[i]->center_o.y;
+            rtree.insert(std::make_pair(pt_2d(x,y), i));
+        }
     }
 }
 
@@ -169,6 +185,9 @@ void CountPointsInPolygon::sub_run(int start, int end)
             double y = v.first.get<1>();
             OGRPoint ogr_pt(x, y);
             if (ogr_pt.Within(ogr_poly)) {
+                if (i == 12) {
+                    std::cout << pt_idx << std::endl;
+                }
                 spatial_counts[i] += 1;
                 if (join_variable) {
                     mutex.lock();
@@ -192,14 +211,18 @@ AssignPolygonToPoint::AssignPolygonToPoint(BackgroundMapLayer* _ml,
     num_polygons = ml->GetNumRecords();
     // using current map(points) to create rtree
     Shapefile::Main& main_data = project->main_data;
+    OGRLayerProxy* ogr_layer = project->layer_proxy;
     Shapefile::PointContents* pc;
     int n = project->GetNumRecords();
     double x, y;
     for (int i=0; i<n; i++) {
-        pc = (Shapefile::PointContents*)main_data.records[i].contents_p;
-        x = pc->x;
-        y = pc->y;
-        rtree.insert(std::make_pair(pt_2d(x,y), i));
+        OGRGeometry* ogr_pt = ogr_layer->GetGeometry(i);
+        if (ogr_pt) {
+            pc = (Shapefile::PointContents*)main_data.records[i].contents_p;
+            x = pc->x;
+            y = pc->y;
+            rtree.insert(std::make_pair(pt_2d(x,y), i));
+        }
         spatial_counts[i] = -1;
     }
 }
@@ -233,19 +256,22 @@ void AssignPolygonToPoint::sub_run(int start, int end)
 
 CountLinesInPolygon::CountLinesInPolygon(BackgroundMapLayer* _ml,
                                          Project* _project,
-                                         wxString join_variable_nm,
-                                         Operation _op)
+                                         std::vector<wxString> join_variable_nm,
+                                         std::vector<Operation> _op)
 : SpatialJoinWorker(_ml, _project)
 {
     is_spatial_assign = false;
     join_operation = _op;
-    join_variable = _ml->GetDoubleColumnData(join_variable_nm, join_values);
-
+    int n_vars = (int)join_operation.size();
+    join_values.resize(n_vars);
+    join_variable = false; // default false: no need to join variables
+    for (int i=0; i<join_variable_nm.size(); ++i) {
+        join_variable = _ml->GetDoubleColumnData(join_variable_nm[i], join_values[i]);
+    }
     num_polygons = project->GetNumRecords();
 
     // using selected layer (lines) to create rtree
-    int n = ml->shapes.size();
-    double x, y;
+    int n = (int)ml->shapes.size();
     for (int i=0; i<n; i++) {
         OGRGeometry* geom = ml->geoms[i];
         OGREnvelope bbox;
@@ -339,19 +365,22 @@ void AssignPolygonToLine::sub_run(int start, int end)
 
 CountPolygonInPolygon::CountPolygonInPolygon(BackgroundMapLayer* _ml,
                                              Project* _project,
-                                             wxString join_variable_nm,
-                                             Operation _op)
+                                             std::vector<wxString> join_variable_nm,
+                                             std::vector<Operation> _op)
 : SpatialJoinWorker(_ml, _project)
 {
     is_spatial_assign = false;
     join_operation = _op;
-    join_variable = _ml->GetDoubleColumnData(join_variable_nm, join_values);
-
+    int n_vars = (int)join_operation.size();
+    join_values.resize(n_vars);
+    join_variable = false; // default false: no need to join variables
+    for (int i=0; i<join_variable_nm.size(); ++i) {
+        join_variable = _ml->GetDoubleColumnData(join_variable_nm[i], join_values[i]);
+    }
     num_polygons = project->GetNumRecords();
 
     // using selected layer (polygons) to create rtree
-    int n = ml->shapes.size();
-    double x, y;
+    int n = (int)ml->shapes.size();
     for (int i=0; i<n; i++) {
         OGRGeometry* geom = ml->geoms[i];
         OGREnvelope bbox;
@@ -394,9 +423,10 @@ void CountPolygonInPolygon::sub_run(int start, int end)
 }
 
 SpatialJoinDlg::SpatialJoinDlg(wxWindow* parent, Project* _project)
-: wxDialog(parent, wxID_ANY, "Spatial Join", wxDefaultPosition, wxSize(350, 250))
+: wxDialog(parent, wxID_ANY, "Spatial Join", wxDefaultPosition, wxDefaultSize, wxDEFAULT_DIALOG_STYLE|wxRESIZE_BORDER)
 {
     project = _project;
+
     panel = new wxPanel(this, -1);
 
     wxString info = _("Please select a map layer to apply "
@@ -412,8 +442,17 @@ SpatialJoinDlg::SpatialJoinDlg(wxWindow* parent, Project* _project)
     mbox->Add(field_st, 0, wxALIGN_CENTER | wxALL, 5);
     mbox->Add(field_list, 0, wxALIGN_CENTER | wxALL, 5);
 
+    rb_spatial_count = new wxRadioButton(panel, -1, _("Spatial Count"), wxDefaultPosition, wxDefaultSize, wxRB_GROUP);
+    rb_spatial_join = new wxRadioButton(panel, -1, _("Spatial Join"), wxDefaultPosition, wxDefaultSize);
+    wxBoxSizer* rb_box = new wxBoxSizer(wxHORIZONTAL);
+    rb_box->Add(rb_spatial_count, 0,  wxLEFT, 200);
+    rb_box->Add(rb_spatial_join, 0,  wxLEFT, 10);
+    rb_spatial_count->SetValue(true);
+    
     join_var_st = new wxStaticText(panel, wxID_ANY, _("Join Variable:"));
-    join_var_list = new wxChoice(panel, wxID_ANY, wxDefaultPosition, wxSize(160,-1));
+    join_var_list = new wxListBox(panel, wxID_ANY, wxDefaultPosition,
+                                  wxSize(160, 110), 0, NULL,
+                                  wxLB_MULTIPLE | wxLB_HSCROLL| wxLB_NEEDED_SB);
     wxBoxSizer* join_box = new wxBoxSizer(wxHORIZONTAL);
     join_box->Add(join_var_st, 0, wxALIGN_LEFT | wxALL, 0);
     join_box->Add(join_var_list, 0, wxALIGN_LEFT | wxLEFT, 12);
@@ -424,13 +463,35 @@ SpatialJoinDlg::SpatialJoinDlg(wxWindow* parent, Project* _project)
     join_op_box->Add(join_op_st, 0, wxALIGN_LEFT | wxTOP, 5);
     join_op_box->Add(join_op_list, 0, wxALIGN_LEFT | wxTOP, 5);
 
+    wxBoxSizer* left_box = new wxBoxSizer(wxVERTICAL);
+    left_box->Add(join_box, 0, wxALIGN_LEFT | wxLEFT, 10);
+    left_box->Add(join_op_box, 0, wxALIGN_LEFT | wxLEFT, 10);
+    
+    // list contrl
+    lst_join = new wxListCtrl(panel, wxID_ANY, wxDefaultPosition, wxSize(320, 140), wxLC_REPORT);
+    lst_join->AppendColumn(_("Variable"), wxLIST_FORMAT_RIGHT);
+    lst_join->SetColumnWidth(0, 120);
+    lst_join->AppendColumn(_("Join Operation"), wxLIST_FORMAT_RIGHT);
+    lst_join->SetColumnWidth(1, 120);
+    
+    // move buttons
+    move_left = new wxButton(panel, wxID_ANY, "<", wxDefaultPosition, wxSize(25,25));
+    move_right = new wxButton(panel, wxID_ANY, ">", wxDefaultPosition, wxSize(25,25));
+    wxBoxSizer* middle_box = new wxBoxSizer(wxVERTICAL);
+    middle_box->Add(move_right, 0, wxTOP, 10);
+    middle_box->Add(move_left, 0, wxTOP, 10);
+    
+    wxBoxSizer* main_box = new wxBoxSizer(wxHORIZONTAL);
+    main_box->Add(left_box);
+    main_box->Add(middle_box, 0, wxALL, 5);
+    main_box->Add(lst_join, 1, wxALL, 0);
+    
     cbox = new wxBoxSizer(wxVERTICAL);
     cbox->Add(st, 0, wxALIGN_CENTER | wxALL, 15);
     cbox->Add(mbox, 0, wxALIGN_CENTER | wxALL, 10);
     cbox->AddSpacer(10);
-    cbox->Add(join_box, 0, wxALIGN_LEFT | wxLEFT, 10);
-    cbox->Add(join_op_box, 0, wxALIGN_LEFT | wxLEFT, 10);
-    panel->SetSizerAndFit(cbox);
+    cbox->Add(rb_box, 0, wxALL, 10);
+    cbox->Add(main_box, wxALL, 10);
 
     wxButton* ok_btn = new wxButton(this, wxID_ANY, _("OK"), wxDefaultPosition,
                                     wxDefaultSize, wxBU_EXACTFIT);
@@ -442,25 +503,117 @@ SpatialJoinDlg::SpatialJoinDlg(wxWindow* parent, Project* _project)
     hbox->Add(ok_btn, 0, wxALIGN_CENTER | wxALL, 5);
     hbox->Add(cancel_btn, 0, wxALIGN_CENTER | wxALL, 5);
 
-    vbox = new wxBoxSizer(wxVERTICAL);
-    vbox->Add(panel, 1, wxALL, 15);
-    vbox->Add(hbox, 0, wxALIGN_CENTER | wxALL, 10);
+    wxBoxSizer *container = new wxBoxSizer(wxVERTICAL);
+    container->Add(cbox, 0, wxALIGN_CENTER | wxALL, 10);
+    container->Add(hbox, 0, wxALIGN_CENTER | wxALL, 10);
 
-    SetSizer(vbox);
-    vbox->Fit(this);
-
-    Center();
+    panel->SetSizer(container);
+    wxBoxSizer* panelSizer = new wxBoxSizer(wxVERTICAL);
+    panelSizer->Add(panel, 1, wxEXPAND|wxALL, 0);
+     
 
     map_list->Bind(wxEVT_CHOICE, &SpatialJoinDlg::OnLayerSelect, this);
     ok_btn->Bind(wxEVT_BUTTON, &SpatialJoinDlg::OnOK, this);
     join_var_list->Bind(wxEVT_CHOICE, &SpatialJoinDlg::OnJoinVariableSel, this);
+    move_left->Bind(wxEVT_BUTTON, &SpatialJoinDlg::OnRemoveRow, this);
+    move_right->Bind(wxEVT_BUTTON, &SpatialJoinDlg::OnAddRow, this);
+    rb_spatial_count->Bind(wxEVT_RADIOBUTTON, &SpatialJoinDlg::OnRadioButton, this);
+    rb_spatial_join->Bind(wxEVT_RADIOBUTTON, &SpatialJoinDlg::OnRadioButton, this);
 
     InitMapList();
-    //field_st->Disable();
-    //field_list->Disable();
-
+    
     wxCommandEvent e;
     OnLayerSelect(e);
+    OnRadioButton(e);
+
+    SetSizer(panelSizer);
+    SetAutoLayout(true);
+    panelSizer->Fit(this);
+
+    Center();
+}
+
+void SpatialJoinDlg::OnRadioButton(wxCommandEvent& e)
+{
+    bool flag = !rb_spatial_count->GetValue();
+    join_var_st->Enable(flag);
+    join_op_st->Enable(flag);
+    join_var_list->Enable(flag);
+    join_op_list->Enable(flag);
+    move_left->Enable(flag);
+    move_right->Enable(flag);
+    lst_join->Enable(flag);
+}
+
+void SpatialJoinDlg::OnAddRow(wxCommandEvent& e)
+{
+    // get join operation
+    wxString join_op;
+    int op_sel = join_op_list->GetSelection();
+    if (op_sel == 0) {
+        join_op = "Sum";
+    } else if (op_sel == 1) {
+        join_op = "Mean";
+    } else if (op_sel == 2) {
+        join_op = "Median";
+    } else if (op_sel == 3) {
+        join_op = "Standard Deviation";
+    }
+    
+    bool show_warning = false;
+    // get selected variables
+    wxArrayInt selections;
+    join_var_list->GetSelections(selections);
+    int num_var = (int)selections.size();
+    for (int i=0; i<num_var; i++) {
+        int idx = selections[i];
+        wxString var_name = join_var_list->GetString(idx);
+        std::pair<wxString, wxString> element;
+        element.first = var_name;
+        element.second = join_op;
+        if (var_set.find(element) != var_set.end() && !show_warning) {
+            // warning
+            wxString err_msg = _("%s and %s have already been added for spatial join.");
+            wxMessageDialog dlg(NULL, wxString::Format(err_msg, var_name, join_op),
+                                _("Error"), wxOK | wxICON_ERROR);
+            dlg.ShowModal();
+            show_warning = true;
+        } else {
+            var_set.insert(element);
+            int new_row = lst_join->GetItemCount();
+            lst_join->InsertItem(new_row, element.first);
+            lst_join->SetItem(new_row, 1, element.second);
+        }
+    }
+}
+
+std::list<int> SpatialJoinDlg::GetListSel(wxListCtrl* lc)
+{
+    std::list<int> l;
+    if (!lc) return l;
+    long item = -1;
+    for ( ;; ) {
+        item = lc->GetNextItem(item, wxLIST_NEXT_ALL, wxLIST_STATE_SELECTED);
+        if ( item == -1 ) break;
+        l.push_back(item);
+    }
+    return l;
+}
+
+void SpatialJoinDlg::OnRemoveRow(wxCommandEvent& e)
+{
+    std::list<int> sels = GetListSel(lst_join);
+    sels.sort();
+    sels.reverse();
+    if (!sels.empty()) {
+        BOOST_FOREACH(int i, sels) {
+            wxString var_name = lst_join->GetItemText(i, 0);
+            wxString join_op = lst_join->GetItemText(i, 1);
+            var_set.erase(std::make_pair(var_name, join_op));
+            lst_join->DeleteItem(i);
+        }
+    }
+    e.Skip();
 }
 
 void SpatialJoinDlg::InitMapList()
@@ -503,11 +656,19 @@ void SpatialJoinDlg::UpdateFieldList(wxString name)
             join_var_st->Hide();
             join_op_list->Hide();
             join_op_st->Hide();
+            
+            rb_spatial_count->Hide();
+            rb_spatial_join->Hide();
+            lst_join->Hide();
+
+            move_left->Hide();
+            move_right->Hide();
         } else {
+            // spatial count
             field_list->Clear();
             field_list->Hide();
             field_st->Hide();
-
+            
             join_var_list->Show();
             join_var_st->Show();
             join_op_list->Show();
@@ -515,31 +676,20 @@ void SpatialJoinDlg::UpdateFieldList(wxString name)
             // spatial join
             join_var_list->Clear();
             vector<wxString> field_names = ml->GetNumericFieldNames();
-            join_var_list->Append("(Spatial Count)");
             for (int i=0; i<field_names.size(); i++) {
                 join_var_list->Append(field_names[i]);
             }
-            join_var_list->SetSelection(0);
             join_op_list->Clear();
-            join_op_list->Append("");
+            join_op_list->Append("Sum");
             join_op_list->Append("Mean");
             join_op_list->Append("Median");
             join_op_list->Append("Standard Deviation");
-            join_op_list->Append("Sum");
-            join_op_list->Disable();
         }
     }
 }
 
 void SpatialJoinDlg::OnJoinVariableSel(wxCommandEvent& e)
 {
-    int sel = join_var_list->GetSelection();
-    if (sel == 0) {
-        join_op_list->SetSelection(0);
-        join_op_list->Disable();
-    } else {
-        join_op_list->Enable();
-    }
 }
 
 void SpatialJoinDlg::OnLayerSelect(wxCommandEvent& e)
@@ -576,7 +726,7 @@ void SpatialJoinDlg::OnOK(wxCommandEvent& e)
         wxString label = "Spatial Count";
         wxString field_name = "SC";
 
-        SpatialJoinWorker* sj;
+        SpatialJoinWorker* sj = NULL;
         if (project->GetShapeType() == Shapefile::POINT_TYP ||
             project->GetShapeType() == Shapefile::POLY_LINE) {
             // working layer is Points/Lines
@@ -608,39 +758,43 @@ void SpatialJoinDlg::OnOK(wxCommandEvent& e)
 
         } else {
             // working layer is Polygon: spatial count
-            int join_list_sel = join_var_list->GetSelection();
-            bool join_variable = join_list_sel > 0;
-            if (join_variable) {
-                label = "Spatial Join";
-                field_name = "SJ";
-                if (join_op_list->GetSelection() == 0) {
-                    wxMessageDialog dlg (this, _("Please select Join Operation with Join Variable."),
-                                         _("Warning"), wxOK | wxICON_INFORMATION);
-                    dlg.ShowModal();
-                    return;
-                }
+            label = "Spatial Join";
+            field_name = rb_spatial_count->GetValue() ? "SC" : "SJ";
+
+            int join_list_sel = lst_join->GetItemCount();
+            if (rb_spatial_join->GetValue() && join_list_sel == 0) {
+                wxMessageDialog dlg (this, _("Please select at least one Join Operation with Join Variable."),
+                                     _("Warning"), wxOK | wxICON_INFORMATION);
+                dlg.ShowModal();
+                return;
             }
-            wxString var_nm = "";
-            SpatialJoinWorker::Operation join_op = SpatialJoinWorker::NONE;
-            if (join_variable) {
-                int op_sel = join_op_list->GetSelection();
-                if (op_sel == 1) {
-                    join_op = SpatialJoinWorker::MEAN;
-                } else if (op_sel == 2) {
-                    join_op = SpatialJoinWorker::MEDIAN;
-                } else if (op_sel == 3) {
-                    join_op = SpatialJoinWorker::STD;
-                } else if (op_sel == 4) {
+            
+            std::vector<wxString> join_var_nms;
+            std::vector<SpatialJoinWorker::Operation> join_ops;
+            
+            for (int i=0; i<join_list_sel; ++i) {
+                wxString var_name = lst_join->GetItemText(i, 0);
+                wxString op_name = lst_join->GetItemText(i, 1);
+                SpatialJoinWorker::Operation join_op = SpatialJoinWorker::SUM;
+                if (op_name == "Sum") {
                     join_op = SpatialJoinWorker::SUM;
+                } else if (op_name == "Mean") {
+                    join_op = SpatialJoinWorker::MEAN;
+                } else if (op_name == "Median") {
+                    join_op = SpatialJoinWorker::MEDIAN;
+                } else if (op_name == "Standard Deviation") {
+                    join_op = SpatialJoinWorker::STD;
                 }
-                if (op_sel >0) var_nm = join_var_list->GetString(join_list_sel);
+                join_var_nms.push_back(var_name);
+                join_ops.push_back(join_op);
             }
+        
             if (ml->GetShapeType() == Shapefile::POINT_TYP) {
-                sj = new CountPointsInPolygon(ml, project, var_nm, join_op);
+                sj = new CountPointsInPolygon(ml, project, join_var_nms, join_ops);
             } else if (ml->GetShapeType() == Shapefile::POLY_LINE) {
-                sj = new CountLinesInPolygon(ml, project, var_nm, join_op);
+                sj = new CountLinesInPolygon(ml, project, join_var_nms, join_ops);
             } else if (ml->GetShapeType() == Shapefile::POLYGON) {
-                sj = new CountPolygonInPolygon(ml, project, var_nm, join_op);
+                sj = new CountPolygonInPolygon(ml, project, join_var_nms, join_ops);
             } else {
                 wxMessageDialog dlg (this, _("Spatial Join can not be applied on "
                                              "unknonwn layers. Please select "
@@ -662,15 +816,18 @@ void SpatialJoinDlg::OnOK(wxCommandEvent& e)
 
         if (sj->JoinVariable()) {
             // Spatial Join with variable
-            vector<double> spatial_joins = sj->GetJoinResults();
-            int new_col = 1;
+            std::vector<std::vector<double> > spatial_joins = sj->GetJoinResults();
+            int new_col = (int)spatial_joins.size();
             std::vector<SaveToTableEntry> new_data(new_col);
             vector<bool> undefs(project->GetNumRecords(), false);
-            new_data[0].d_val = &spatial_joins;
-            new_data[0].label = label;
-            new_data[0].field_default = field_name;
-            new_data[0].type = GdaConst::double_type;
-            new_data[0].undefined = &undefs;
+            for (int i=0; i<new_col; ++i) {
+                new_data[i].d_val = &spatial_joins[i];
+                new_data[i].label = label + " " + field_name;
+                new_data[i].field_default = field_name;
+                new_data[i].field_default << "_" << i+1;
+                new_data[i].type = GdaConst::double_type;
+                new_data[i].undefined = &undefs;
+            }
             SaveToTableDlg dlg(project, this, new_data, dlg_title,
                                wxDefaultPosition, wxSize(400,400));
             dlg.ShowModal();

@@ -60,11 +60,6 @@ protected:
 	wxNotebook*     m_ds_notebook;
     wxMenu*         m_ds_menu;
 	wxString        layer_name;
-
-	wxTextCtrl*     m_cartodb_uname;
-	wxTextCtrl*     m_cartodb_key;
-	wxTextCtrl*     m_cartodb_table;
-	wxStaticText*     m_cartodb_tablename;
     
     wxArrayString   ds_names;
     

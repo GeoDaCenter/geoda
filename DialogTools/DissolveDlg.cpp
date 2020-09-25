@@ -298,6 +298,7 @@ void DissolveDlg::OnOKClick( wxCommandEvent& ev )
             }
         } else {
             // should not be here
+            delete mem_table;
             return;
         }
         new_fields_dict[key1_name] = key_col;

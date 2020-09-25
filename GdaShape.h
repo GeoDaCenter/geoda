@@ -215,21 +215,25 @@ class GdaPoint: public GdaShape {
 
 public:
     int radius;
-    
+    double radius_o;
+    bool adaptive_radius;
+
 	GdaPoint(); // creates a null shape
 	GdaPoint(const GdaPoint& s); 
 	GdaPoint(wxRealPoint point_o_s);
+    GdaPoint(wxRealPoint point_o_s, wxDouble radius);
 	GdaPoint(double x_orig, double y_orig);
+    GdaPoint(double x_orig, double y_orig, double radius_o);
 	virtual ~GdaPoint() {}
     
     virtual void Offset(double dx, double dy);
     virtual void Offset(int dx, int dy);
-
     
 	virtual GdaPoint* clone() { return new GdaPoint(*this); }
 	virtual bool pointWithin(const wxPoint& pt);
 	virtual bool regionIntersect(const wxRegion& r);
 	virtual void applyScaleTrans(const GdaScaleTrans& A);
+    virtual void projectToBasemap(Gda::Basemap* basemap, double scale_factor = 1.0);
 	virtual void paintSelf(wxDC& dc);
 	virtual void paintSelf(wxGraphicsContext* gc);
     
@@ -387,6 +391,7 @@ public:
 	//wxRegion region;
     int from;
     int to;
+
 };
 
 class GdaSpline: public GdaShape {
@@ -485,6 +490,7 @@ public:
 	virtual void applyScaleTrans(const GdaScaleTrans& A);
 	virtual void paintSelf(wxDC& dc);
 	virtual void paintSelf(wxGraphicsContext* gc);
+    virtual void projectToBasemap(Gda::Basemap* basemap, double scale_factor = 1);
     
 	static wxPoint calcRefPoint(wxDC& dc, const wxString& text,
 								const wxFont& font,
@@ -497,7 +503,7 @@ public:
 	void setText(wxString t) { text = t; }
 	wxString text;
 	wxFont font;
-	wxRealPoint ref_pt;
+	wxPoint ref_pt;
 	HorizAlignment horiz_align;
 	VertAlignment vert_align;
 	bool hidden;

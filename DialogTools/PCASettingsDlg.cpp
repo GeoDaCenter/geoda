@@ -90,8 +90,8 @@ void PCASettingsDlg::CreateControls()
     combo_n = new wxChoice(panel, wxID_ANY, wxDefaultPosition, wxSize(120,-1), 0, NULL);
     
     wxStaticBoxSizer *hbox1 = new wxStaticBoxSizer(wxHORIZONTAL, panel, _("Output:"));
-    hbox1->Add(st1, 0, wxALIGN_CENTER_VERTICAL);
-    hbox1->Add(combo_n, 1, wxEXPAND);
+    hbox1->Add(st1, 0, wxALIGN_CENTER_VERTICAL | wxALL, 5);
+    hbox1->Add(combo_n, 1, wxEXPAND | wxALL, 5);
     
     
     // buttons
@@ -216,7 +216,7 @@ void PCASettingsDlg::OnOK(wxCommandEvent& event )
     int max_sel_name_len = 0;
     for (int i=0; i<col_names.size(); i++) {
         if (col_names[i].length() > max_sel_name_len) {
-            max_sel_name_len = col_names[i].length();
+            max_sel_name_len = (int)col_names[i].length();
         }
     }
     
@@ -299,7 +299,7 @@ void PCASettingsDlg::OnOK(wxCommandEvent& event )
         
         if (header == false) {
             pca_log << wxString::Format("%-*s", max_sel_name_len+4, "");
-            int n_len = token.length();
+            int n_len = (int)token.length();
             int pos = 0;
             bool start = false;
             int  sub_len = 0;
@@ -308,7 +308,11 @@ void PCASettingsDlg::OnOK(wxCommandEvent& event )
             while (pos < n_len){
                 if ( start && sub_len > 0 && (token[pos] == ' ' || pos == n_len-1) ) {
                     // end of a number
-                    pca_log << wxString::Format("%*s%d", sub_len-1, "PC", pc_idx++);
+                    if (pc_idx < 10) {
+                        pca_log << wxString::Format("%*s%d", sub_len-1, "PC", pc_idx++);
+                    } else {
+                        pca_log << wxString::Format("%*s%d", sub_len-2, "PC", pc_idx++);
+                    }
                     sub_len = 1;
                     start = false;
                 } else {
@@ -329,13 +333,12 @@ void PCASettingsDlg::OnOK(wxCommandEvent& event )
     }
     
     if (scores.size() != nrows * ncols) {
-        row_lim = (nrows < ncols)? nrows : ncols,
+        row_lim = (nrows < ncols)? nrows : ncols;
         col_lim = (ncols < nrows)? ncols : nrows;
     } else {
         row_lim = nrows;
         col_lim = ncols;
     }
-    
     //https://stats.stackexchange.com/questions/143905/loadings-vs-eigenvectors-in-pca-when-to-use-one-or-another
     /*
     pca_log << "\n\nRotated data: \n";

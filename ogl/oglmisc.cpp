@@ -333,7 +333,7 @@ void oglCentreTextNoClipping(wxDC& dc, wxList *text_list,
     current = current->GetNext();
     i ++;
   }
-  delete widths;
+  delete[] widths;
 }
 
 void oglGetCentredTextExtent(wxDC& dc, wxList *text_list,

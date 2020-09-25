@@ -107,7 +107,9 @@ public:
 		dev_from_mean_op = 6,
 		standardize_op = 7,
 		shuffle_op = 8,
-        mad_op = 9
+        mad_op = 9,
+        range_adjust_op = 10,
+        range_standardize_op = 11
 	};	
 	std::vector<wxString> op_string;
 };

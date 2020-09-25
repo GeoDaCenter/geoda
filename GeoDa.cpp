@@ -79,6 +79,8 @@
 #include "DataViewer/TableState.h"
 #include "DataViewer/TimeState.h"
 #include "DialogTools/DissolveDlg.h"
+#include "DialogTools/CreateGridDlg.h"
+#include "DialogTools/Bnd2ShpDlg.h"
 #include "DialogTools/CreatingWeightDlg.h"
 #include "DialogTools/CatClassifDlg.h"
 #include "DialogTools/PCPDlg.h"
@@ -114,8 +116,12 @@
 #include "DialogTools/SaveToTableDlg.h"
 #include "DialogTools/KMeansDlg.h"
 #include "DialogTools/MaxpDlg.h"
+#include "DialogTools/AZPDlg.h"
+#include "DialogTools/tSNEDlg.h"
 #include "DialogTools/SpectralClusteringDlg.h"
 #include "DialogTools/HClusterDlg.h"
+#include "DialogTools/SCHCDlg.h"
+#include "DialogTools/DBScanDlg.h"
 #include "DialogTools/HDBScanDlg.h"
 #include "DialogTools/CreateGridDlg.h"
 #include "DialogTools/RedcapDlg.h"
@@ -126,6 +132,9 @@
 #include "DialogTools/PreferenceDlg.h"
 #include "DialogTools/SpatialJoinDlg.h"
 #include "DialogTools/MultiVarSettingsDlg.h"
+#include "DialogTools/nbrMatchDlg.h"
+#include "DialogTools/quantileLisaDlg.h"
+#include "DialogTools/MultiQuantileLisaDlg.h"
 #include "Explore/CatClassification.h"
 #include "Explore/CovSpView.h"
 #include "Explore/CorrelParamsDlg.h"
@@ -143,6 +152,7 @@
 #include "Explore/ConnectivityHistView.h"
 #include "Explore/ConnectivityMapView.h"
 #include "Explore/ConditionalHistogramView.h"
+#include "Explore/ConditionalBoxPlotView.h"
 #include "Explore/CartogramNewView.h"
 #include "Explore/GStatCoordinator.h"
 #include "Explore/MLJCMapNewView.h"
@@ -158,6 +168,7 @@
 #include "Explore/Basemap.h"
 #include "Explore/ColocationMapView.h"
 #include "Explore/GroupingMapView.h"
+#include "Explore/DistancePlotView.h"
 #include "Regression/DiagnosticReport.h"
 #include "ShapeOperations/CsvFileUtils.h"
 #include "ShapeOperations/WeightsManager.h"
@@ -166,6 +177,7 @@
 #include "VarCalc/CalcHelp.h"
 #include "Algorithms/redcap.h"
 #include "Algorithms/fastcluster.h"
+#include "Algorithms/distanceplot.h"
 #include "wxTranslationHelper.h"
 #include "GdaException.h"
 #include "FramesManager.h"
@@ -403,7 +415,7 @@ bool GdaApp::OnInit(void)
         fnames.Add(proj_fname);
         MacOpenFiles(fnames);
     } else {
-        if (os_id != "\nos: 1-10-14") {
+        if (GeneralWxUtils::isMac1014plus() == false) {
             wxCommandEvent ev(wxEVT_COMMAND_MENU_SELECTED, XRCID("ID_NEW_PROJECT"));
             frame->GetEventHandler()->ProcessEvent(ev);
         }
@@ -569,7 +581,8 @@ void GdaFrame::UpdateToolbarAndMenus()
     GeneralWxUtils::EnableMenuItem(mb, XRCID("ID_SHOW_CONDITIONAL_MAP_VIEW"), shp_proj);
     GeneralWxUtils::EnableMenuItem(mb, XRCID("ID_SHOW_CONDITIONAL_HIST_VIEW"), proj_open);
     GeneralWxUtils::EnableMenuItem(mb,XRCID("ID_SHOW_CONDITIONAL_SCATTER_VIEW"), proj_open);
-    
+    GeneralWxUtils::EnableMenuItem(mb,XRCID("ID_SHOW_CONDITIONAL_BOX_VIEW"), proj_open);
+
     EnableTool(XRCID("ID_CLUSTERING_CHOICES"), proj_open);
     GeneralWxUtils::EnableMenuItem(mb, XRCID("ID_CLUSTERING_MENU"), proj_open);
     GeneralWxUtils::EnableMenuItem(mb, XRCID("ID_TOOLS_DATA_PCA"), shp_proj);
@@ -577,12 +590,15 @@ void GdaFrame::UpdateToolbarAndMenus()
     GeneralWxUtils::EnableMenuItem(mb, XRCID("ID_TOOLS_DATA_KMEDIANS"), proj_open);
     GeneralWxUtils::EnableMenuItem(mb, XRCID("ID_TOOLS_DATA_KMEDOIDS"), proj_open);
     GeneralWxUtils::EnableMenuItem(mb,XRCID("ID_TOOLS_DATA_HCLUSTER"), proj_open);
+    GeneralWxUtils::EnableMenuItem(mb,XRCID("ID_TOOLS_DATA_DBSCAN"), proj_open);
     GeneralWxUtils::EnableMenuItem(mb,XRCID("ID_TOOLS_DATA_HDBSCAN"), proj_open);
     GeneralWxUtils::EnableMenuItem(mb, XRCID("ID_TOOLS_DATA_MAXP"), proj_open);
     GeneralWxUtils::EnableMenuItem(mb, XRCID("ID_TOOLS_DATA_SKATER"), proj_open);
+    GeneralWxUtils::EnableMenuItem(mb, XRCID("ID_TOOLS_DATA_SCHC"), proj_open);
     GeneralWxUtils::EnableMenuItem(mb, XRCID("ID_TOOLS_DATA_SPECTRAL"), proj_open);
     GeneralWxUtils::EnableMenuItem(mb, XRCID("ID_TOOLS_DATA_REDCAP"), proj_open);
     GeneralWxUtils::EnableMenuItem(mb, XRCID("ID_TOOLS_DATA_MDS"), proj_open);
+    GeneralWxUtils::EnableMenuItem(mb, XRCID("ID_TOOLS_DATA_TSNE"), proj_open);
 	
 	EnableTool(XRCID("IDM_3DP"), proj_open);
 	GeneralWxUtils::EnableMenuItem(mb, XRCID("IDM_3DP"), proj_open);
@@ -619,6 +635,8 @@ void GdaFrame::UpdateToolbarAndMenus()
 	GeneralWxUtils::EnableMenuItem(mb, XRCID("IDM_MORAN_EBRATE"), proj_open);
 	EnableTool(XRCID("IDM_UNI_LISA"), shp_proj);
 	GeneralWxUtils::EnableMenuItem(mb, XRCID("IDM_UNI_LISA"), shp_proj);
+    EnableTool(XRCID("IDM_UNI_MEDIAN_LISA"), shp_proj);
+    GeneralWxUtils::EnableMenuItem(mb, XRCID("IDM_UNI_MEDIAN_LISA"), shp_proj);
 	EnableTool(XRCID("IDM_MULTI_LISA"), shp_proj);
 	GeneralWxUtils::EnableMenuItem(mb, XRCID("IDM_MULTI_LISA"), shp_proj);
 	EnableTool(XRCID("IDM_DIFF_LISA"), shp_proj);
@@ -636,14 +654,21 @@ void GdaFrame::UpdateToolbarAndMenus()
     EnableTool(XRCID("IDM_MUL_LJC"), shp_proj);
     GeneralWxUtils::EnableMenuItem(mb, XRCID("IDM_MUL_LJC"), shp_proj);
 
-    
     EnableTool(XRCID("IDM_UNI_LOCAL_GEARY"), shp_proj);
     GeneralWxUtils::EnableMenuItem(mb, XRCID("IDM_UNI_LOCAL_GEARY"), shp_proj);
     EnableTool(XRCID("IDM_MUL_LOCAL_GEARY"), shp_proj);
     GeneralWxUtils::EnableMenuItem(mb, XRCID("IDM_MUL_LOCAL_GEARY"), shp_proj);
+
+    GeneralWxUtils::EnableMenuItem(mb, XRCID("IDM_UNI_QUANTILE_LISA"), shp_proj);
+    GeneralWxUtils::EnableMenuItem(mb, XRCID("IDM_MUL_QUANTILE_LISA"), shp_proj);
+    
+    EnableTool(XRCID("IDM_UNI_LOCAL_MATCH"), shp_proj);
+    GeneralWxUtils::EnableMenuItem(mb, XRCID("IDM_UNI_LOCAL_MATCH"), shp_proj);
 	
-	EnableTool(XRCID("IDM_CORRELOGRAM"), shp_proj);
+	EnableTool(XRCID("ID_CORRELO_MENU"), shp_proj);
+    
 	GeneralWxUtils::EnableMenuItem(mb, XRCID("IDM_CORRELOGRAM"), shp_proj);
+    GeneralWxUtils::EnableMenuItem(mb, XRCID("IDM_DISTANCE_PLOT"), shp_proj);
 	
 	GeneralWxUtils::EnableMenuAll(mb, _("Map"), shp_proj);
 	EnableTool(XRCID("ID_MAP_CHOICES"), shp_proj);
@@ -653,7 +678,6 @@ void GdaFrame::UpdateToolbarAndMenus()
 	
 	GeneralWxUtils::EnableMenuItem(mb, XRCID("ID_REGRESSION_CLASSIC"), proj_open);
 	EnableTool(XRCID("ID_REGRESSION_CLASSIC"), proj_open);
-    EnableTool(XRCID("ID_PUBLISH"), proj_open && project_p->GetDatasourceType()==GdaConst::ds_cartodb);
 	
 	//Empty out the Options menu:
 	wxMenu* optMenu=wxXmlResource::Get()->LoadMenu("ID_DEFAULT_MENU_OPTIONS");
@@ -1638,6 +1662,7 @@ void GdaFrame::OnChangeMapTransparency(wxCommandEvent& event)
     if (f)
         f->OnChangeMapTransparency();
 }
+
 void GdaFrame::OnCleanBasemap(wxCommandEvent& event)
 {
     wxLogMessage("Click GdaFrame::OnCleanBasemap");
@@ -1908,15 +1933,6 @@ void GdaFrame::OnToolsDataMaxP(wxCommandEvent& WXUNUSED(event) )
     Project* p = GetProject();
     if (!p) return;
     
-    std::vector<boost::uuids::uuid> weights_ids;
-    WeightsManInterface* w_man_int = p->GetWManInt();
-    w_man_int->GetIds(weights_ids);
-    if (weights_ids.size()==0) {
-        wxMessageDialog dlg (this, _("GeoDa could not find the required weights file. \nPlease specify weights in Tools > Weights Manager."), _("No Weights Found"), wxOK | wxICON_ERROR);
-        dlg.ShowModal();
-        return;
-    }
-    
     FramesManager* fm = p->GetFramesManager();
     std::list<FramesManagerObserver*> observers(fm->getCopyObservers());
     std::list<FramesManagerObserver*>::iterator it;
@@ -1933,19 +1949,31 @@ void GdaFrame::OnToolsDataMaxP(wxCommandEvent& WXUNUSED(event) )
     dlg->Show(true);
 }
 
+void GdaFrame::OnToolsDataAZP(wxCommandEvent& WXUNUSED(event) )
+{
+    Project* p = GetProject();
+    if (!p) return;
+
+    FramesManager* fm = p->GetFramesManager();
+    std::list<FramesManagerObserver*> observers(fm->getCopyObservers());
+    std::list<FramesManagerObserver*>::iterator it;
+    for (it=observers.begin(); it != observers.end(); ++it) {
+        if (AZPDlg* w = dynamic_cast<AZPDlg*>(*it)) {
+            w->Show(true);
+            w->Maximize(false);
+            w->Raise();
+            return;
+        }
+    }
+
+    AZPDlg* dlg = new AZPDlg(this, p);
+    dlg->Show(true);
+}
+
 void GdaFrame::OnToolsDataSkater(wxCommandEvent& WXUNUSED(event) )
 {
     Project* p = GetProject();
     if (!p) return;
-    
-    std::vector<boost::uuids::uuid> weights_ids;
-    WeightsManInterface* w_man_int = p->GetWManInt();
-    w_man_int->GetIds(weights_ids);
-    if (weights_ids.size()==0) {
-        wxMessageDialog dlg (this, _("GeoDa could not find the required weights file. \nPlease specify weights in Tools > Weights Manager."), _("No Weights Found"), wxOK | wxICON_ERROR);
-        dlg.ShowModal();
-        return;
-    }
     
     FramesManager* fm = p->GetFramesManager();
     std::list<FramesManagerObserver*> observers(fm->getCopyObservers());
@@ -1963,20 +1991,32 @@ void GdaFrame::OnToolsDataSkater(wxCommandEvent& WXUNUSED(event) )
     dlg->Show(true);
 }
 
+void GdaFrame::OnToolsDataSCHC(wxCommandEvent& WXUNUSED(event) )
+{
+    Project* p = GetProject();
+    if (!p) return;
+
+    FramesManager* fm = p->GetFramesManager();
+    std::list<FramesManagerObserver*> observers(fm->getCopyObservers());
+    std::list<FramesManagerObserver*>::iterator it;
+    for (it=observers.begin(); it != observers.end(); ++it) {
+        if (SCHCDlg* w = dynamic_cast<SCHCDlg*>(*it)) {
+            w->Show(true);
+            w->Maximize(false);
+            w->Raise();
+            return;
+        }
+    }
+
+    SCHCDlg* dlg = new SCHCDlg(this, p);
+    dlg->Show(true);
+}
+
 void GdaFrame::OnToolsDataRedcap(wxCommandEvent& WXUNUSED(event) )
 {
     Project* p = GetProject();
     if (!p) return;
-    
-    std::vector<boost::uuids::uuid> weights_ids;
-    WeightsManInterface* w_man_int = p->GetWManInt();
-    w_man_int->GetIds(weights_ids);
-    if (weights_ids.size()==0) {
-        wxMessageDialog dlg (this, _("GeoDa could not find the required weights file. \nPlease specify weights in Tools > Weights Manager."), _("No Weights Found"), wxOK | wxICON_ERROR);
-        dlg.ShowModal();
-        return;
-    }
-    
+
     FramesManager* fm = p->GetFramesManager();
     std::list<FramesManagerObserver*> observers(fm->getCopyObservers());
     std::list<FramesManagerObserver*>::iterator it;
@@ -2014,6 +2054,27 @@ void GdaFrame::OnToolsDataMDS(wxCommandEvent& WXUNUSED(event) )
     dlg->Show(true);
 }
 
+void GdaFrame::OnToolsDataTSNE(wxCommandEvent& WXUNUSED(event) )
+{
+    Project* p = GetProject();
+    if (!p) return;
+
+    FramesManager* fm = p->GetFramesManager();
+    std::list<FramesManagerObserver*> observers(fm->getCopyObservers());
+    std::list<FramesManagerObserver*>::iterator it;
+    for (it=observers.begin(); it != observers.end(); ++it) {
+        if (TSNEDlg* w = dynamic_cast<TSNEDlg*>(*it)) {
+            w->Show(true);
+            w->Maximize(false);
+            w->Raise();
+            return;
+        }
+    }
+
+    TSNEDlg* dlg = new TSNEDlg(this, p);
+    dlg->Show(true);
+}
+
 void GdaFrame::OnToolsDataSpectral(wxCommandEvent& WXUNUSED(event) )
 {
     Project* p = GetProject();
@@ -2044,7 +2105,9 @@ void GdaFrame::OnToolsDataHCluster(wxCommandEvent& WXUNUSED(event) )
     std::list<FramesManagerObserver*> observers(fm->getCopyObservers());
     std::list<FramesManagerObserver*>::iterator it;
     for (it=observers.begin(); it != observers.end(); ++it) {
-        if (HClusterDlg* w = dynamic_cast<HClusterDlg*>(*it)) {
+        HClusterDlg* w = dynamic_cast<HClusterDlg*>(*it);
+        SCHCDlg* w1 = dynamic_cast<SCHCDlg*>(*it);
+        if (w && !w1) {
             w->Show(true);
             w->Maximize(false);
             w->Raise();
@@ -2053,6 +2116,27 @@ void GdaFrame::OnToolsDataHCluster(wxCommandEvent& WXUNUSED(event) )
     }
     
     HClusterDlg* dlg = new HClusterDlg(this, p);
+    dlg->Show(true);
+}
+
+void GdaFrame::OnToolsDataDBScan(wxCommandEvent& WXUNUSED(event) )
+{
+    Project* p = GetProject();
+    if (!p) return;
+    
+    FramesManager* fm = p->GetFramesManager();
+    std::list<FramesManagerObserver*> observers(fm->getCopyObservers());
+    std::list<FramesManagerObserver*>::iterator it;
+    for (it=observers.begin(); it != observers.end(); ++it) {
+        if (DBScanDlg* w = dynamic_cast<DBScanDlg*>(*it)) {
+            w->Show(true);
+            w->Maximize(false);
+            w->Raise();
+            return;
+        }
+    }
+    
+    DBScanDlg* dlg = new DBScanDlg(this, p);
     dlg->Show(true);
 }
 
@@ -2093,7 +2177,7 @@ void GdaFrame::OnToolsWeightsManager(wxCommandEvent& WXUNUSED(event) )
 			return;
 		}
 	}
-	
+	// memory managed by wx
 	WeightsManFrame* f = new WeightsManFrame(this, p);
 }
 
@@ -2122,6 +2206,7 @@ void GdaFrame::OnConnectivityHistView(wxCommandEvent& event )
 {
 	boost::uuids::uuid id = GetWeightsId();
 	if (id.is_nil()) return;
+    // memory managed by wx
 	ConnectivityHistFrame* f = new ConnectivityHistFrame(this, project_p, id);
 }
 
@@ -2130,6 +2215,7 @@ void GdaFrame::OnConnectivityMapView(wxCommandEvent& event )
 	boost::uuids::uuid id = GetWeightsId("Choose Weights for Connectivity Map");
 	if (id.is_nil()) return;
     if (project_p->isTableOnly) return;
+    // memory managed by wx
     ConnectivityMapFrame* f =
 		new ConnectivityMapFrame(this, project_p, id,
 								 wxDefaultPosition,
@@ -2189,7 +2275,6 @@ void GdaFrame::OnMapChoices(wxCommandEvent& event)
     }
 }
 
-#include "DialogTools/CreateGridDlg.h"
 void GdaFrame::OnShapePolygonsFromGrid(wxCommandEvent& WXUNUSED(event) )
 {
     wxLogMessage("Open CreateGridDlg");
@@ -2198,6 +2283,7 @@ void GdaFrame::OnShapePolygonsFromGrid(wxCommandEvent& WXUNUSED(event) )
     while (node) {
         wxWindow* win = node->GetData();
         if (CreateGridDlg* w = dynamic_cast<CreateGridDlg*>(win)) {
+            w->Update();
             w->Show(true);
             w->Maximize(false);
             w->Raise();
@@ -2206,11 +2292,11 @@ void GdaFrame::OnShapePolygonsFromGrid(wxCommandEvent& WXUNUSED(event) )
         node = node->GetNext();
     }
     
-    CreateGridDlg* dlg =  new CreateGridDlg(this);
+    CreateGridDlg* dlg =  new CreateGridDlg(this, GetProject());
     dlg->Show(true);
 }
 
-#include "DialogTools/Bnd2ShpDlg.h"
+
 void GdaFrame::OnShapePolygonsFromBoundary(wxCommandEvent& WXUNUSED(event) )
 {
     wxLogMessage("Open Bnd2ShpDlg");
@@ -2308,7 +2394,7 @@ void GdaFrame::OnShowCatClassif(wxCommandEvent& event)
 			return;
 		}
 	}
-	
+	// memory managed by wx
 	CatClassifFrame* dlg = new CatClassifFrame(this, project_p, false, true);
 }
 
@@ -2622,7 +2708,7 @@ void GdaFrame::OnGroupingMap(wxCommandEvent& event)
     
     if (project_p->IsTableOnlyProject()) {
         wxMessageDialog dlg (this,
-                             _("Hierachical Map does not work with Table only datasource."),
+                             _("Hierarchical Map does not work with Table only datasource."),
                              _("Info"), wxOK | wxICON_INFORMATION);
         dlg.ShowModal();
         return;
@@ -2877,15 +2963,18 @@ void GdaFrame::OnCondPlotChoices(wxCommandEvent& WXUNUSED(event))
 		bool proj_open = (p != 0);
 		bool shp_proj = proj_open && !p->IsTableOnlyProject();
 		
-		GeneralWxUtils::EnableMenuItem(popupMenu,
-									   XRCID("ID_SHOW_CONDITIONAL_MAP_VIEW"),
-									   shp_proj);
-		GeneralWxUtils::EnableMenuItem(popupMenu,
-									   XRCID("ID_SHOW_CONDITIONAL_HIST_VIEW"),
-									   proj_open);
-		GeneralWxUtils::EnableMenuItem(popupMenu,
-									XRCID("ID_SHOW_CONDITIONAL_SCATTER_VIEW"),
-									proj_open);
+        GeneralWxUtils::EnableMenuItem(popupMenu,
+                                       XRCID("ID_SHOW_CONDITIONAL_MAP_VIEW"),
+                                       shp_proj);
+        GeneralWxUtils::EnableMenuItem(popupMenu,
+                                       XRCID("ID_SHOW_CONDITIONAL_HIST_VIEW"),
+                                       proj_open);
+        GeneralWxUtils::EnableMenuItem(popupMenu,
+                                       XRCID("ID_SHOW_CONDITIONAL_SCATTER_VIEW"),
+                                       proj_open);
+        GeneralWxUtils::EnableMenuItem(popupMenu,
+                                       XRCID("ID_SHOW_CONDITIONAL_BOX_VIEW"),
+                                       proj_open);
 		PopupMenu(popupMenu, wxDefaultPosition);
 	}
 }
@@ -2907,12 +2996,16 @@ void GdaFrame::OnClusteringChoices(wxCommandEvent& WXUNUSED(event))
         GeneralWxUtils::EnableMenuItem(popupMenu,XRCID("ID_TOOLS_DATA_KMEDIANS"), proj_open);
         GeneralWxUtils::EnableMenuItem(popupMenu,XRCID("ID_TOOLS_DATA_KMEDOIDS"), proj_open);
         GeneralWxUtils::EnableMenuItem(popupMenu,XRCID("ID_TOOLS_DATA_HCLUSTER"),proj_open);
+        GeneralWxUtils::EnableMenuItem(popupMenu,XRCID("ID_TOOLS_DATA_DBSCAN"),proj_open);
         GeneralWxUtils::EnableMenuItem(popupMenu,XRCID("ID_TOOLS_DATA_HDBSCAN"),proj_open);
         GeneralWxUtils::EnableMenuItem(popupMenu,XRCID("ID_TOOLS_DATA_SPECTRAL"),proj_open);
         GeneralWxUtils::EnableMenuItem(popupMenu,XRCID("ID_TOOLS_DATA_MAXP"),proj_open);
+        GeneralWxUtils::EnableMenuItem(popupMenu,XRCID("ID_TOOLS_DATA_AZP"),proj_open);
         GeneralWxUtils::EnableMenuItem(popupMenu,XRCID("ID_TOOLS_DATA_SKATER"),proj_open);
+        GeneralWxUtils::EnableMenuItem(popupMenu,XRCID("ID_TOOLS_DATA_SCHC"),proj_open);
         GeneralWxUtils::EnableMenuItem(popupMenu,XRCID("ID_TOOLS_DATA_REDCAP"),proj_open);
         GeneralWxUtils::EnableMenuItem(popupMenu,XRCID("ID_TOOLS_DATA_MDS"),proj_open);
+        GeneralWxUtils::EnableMenuItem(popupMenu,XRCID("ID_TOOLS_DATA_TSNE"),proj_open);
         
         PopupMenu(popupMenu, wxDefaultPosition);
     }
@@ -2963,6 +3056,28 @@ void GdaFrame::OnShowConditionalHistView(wxCommandEvent& WXUNUSED(event))
 								  GdaConst::cond_view_default_size);
 }
 
+void GdaFrame::OnShowConditionalBoxView(wxCommandEvent& WXUNUSED(event))
+{
+    Project* p = GetProject();
+    if (!p) return;
+
+    int style = VariableSettingsDlg::ALLOW_STRING_IN_FIRST | VariableSettingsDlg::ALLOW_STRING_IN_SECOND | VariableSettingsDlg::ALLOW_EMPTY_IN_FIRST |  VariableSettingsDlg::ALLOW_EMPTY_IN_SECOND;
+    if (p->GetTableInt()->IsTimeVariant()) style = style | VariableSettingsDlg::SHOW_TIME;
+
+    VariableSettingsDlg dlg(project_p, VariableSettingsDlg::trivariate, style,
+                            _("Conditional Box Plot Variables"),
+                            _("Horizontal Cells"),
+                            _("Vertical Cells"),
+                            _("Box Plot Variable"));
+    if (dlg.ShowModal() != wxID_OK) return;
+
+    ConditionalBoxPlotFrame* subframe =
+    new ConditionalBoxPlotFrame(GdaFrame::gda_frame, project_p,
+                                dlg.var_info, dlg.col_ids,
+                                _("Conditional Box Plot"), wxDefaultPosition,
+                                GdaConst::cond_view_default_size);
+}
+
 void GdaFrame::OnShowConditionalScatterView(wxCommandEvent& WXUNUSED(event))
 {
     Project* p = GetProject();
@@ -2979,7 +3094,7 @@ void GdaFrame::OnShowConditionalScatterView(wxCommandEvent& WXUNUSED(event))
                             _("Dependent Var (y-axis)"));
     
 	if (dlg.ShowModal() != wxID_OK) return;
-	
+	// memory managed by wx
 	ConditionalScatterPlotFrame* subframe =
 	new ConditionalScatterPlotFrame(GdaFrame::gda_frame, project_p,
 									dlg.var_info, dlg.col_ids,
@@ -2999,7 +3114,7 @@ void GdaFrame::OnShowCartogramNewView(wxCommandEvent& WXUNUSED(event) )
 							true, false); // set second var from first
 	if (dlg.ShowModal() != wxID_OK)
         return;
-	
+	// memory managed by wx
 	CartogramNewFrame* subframe =
 		new CartogramNewFrame(GdaFrame::gda_frame, project_p,
 							  dlg.var_info, dlg.col_ids,
@@ -3097,7 +3212,7 @@ void GdaFrame::OnExploreHist(wxCommandEvent& WXUNUSED(event))
                            show_str_var);
 	if (VS.ShowModal() != wxID_OK)
         return;
-	
+	// memory managed by wx
 	HistogramFrame* f = new HistogramFrame(GdaFrame::gda_frame, project_p,
 										   VS.var_info, VS.col_ids,
                                            _("Histogram"),
@@ -3211,6 +3326,9 @@ void GdaFrame::OnExplorePCP(wxCommandEvent& WXUNUSED(event))
 
 void GdaFrame::OnExplore3DP(wxCommandEvent& WXUNUSED(event))
 {
+    //MyFrame* subframe = new MyFrame("rwar");
+    //subframe->Show();
+
     Project* p = GetProject();
     if (!p) return;
     
@@ -3222,8 +3340,9 @@ void GdaFrame::OnExplore3DP(wxCommandEvent& WXUNUSED(event))
 	C3DPlotFrame *subframe =
 		new C3DPlotFrame(GdaFrame::gda_frame, p,
 						 dlg.var_info, dlg.col_ids,
-						 _("3D Plot"), wxDefaultPosition,
-						 GdaConst::three_d_default_size,
+                         _("3D Plot"), std::vector<wxString>(),
+                         std::vector<std::pair<wxString, double> >(),
+                         wxDefaultPosition, GdaConst::three_d_default_size,
 						 wxDEFAULT_FRAME_STYLE);
 }
 
@@ -3266,6 +3385,28 @@ void GdaFrame::OnExploreCorrelogram(wxCommandEvent& WXUNUSED(event))
     CorrelogramFrame* f = new CorrelogramFrame(GdaFrame::gda_frame, p,
                                                _("Correlogram"), wxDefaultPosition,
                                                GdaConst::scatterplot_default_size);
+}
+
+
+void GdaFrame::OnDistancePlot(wxCommandEvent& WXUNUSED(event))
+{
+    Project* p = GetProject();
+    if (!p) return;
+
+    FramesManager* fm = p->GetFramesManager();
+    std::list<FramesManagerObserver*> observers(fm->getCopyObservers());
+    std::list<FramesManagerObserver*>::iterator it;
+    for (it=observers.begin(); it != observers.end(); ++it) {
+        if (DistancePlotDlg* w = dynamic_cast<DistancePlotDlg*>(*it)) {
+            w->Show(true);
+            w->Maximize(false);
+            w->Raise();
+            return;
+        }
+    }
+
+    DistancePlotDlg* dlg = new DistancePlotDlg(this, p);
+    dlg->Show(true);
 }
 
 void GdaFrame::OnToolOpenNewTable(wxCommandEvent& WXUNUSED(event))
@@ -3541,6 +3682,16 @@ void GdaFrame::OnLisaMenuChoices(wxCommandEvent& WXUNUSED(event))
 	if (popupMenu) PopupMenu(popupMenu, wxDefaultPosition);
 }
 
+void GdaFrame::OnCorrelogramMenuChoices(wxCommandEvent& WXUNUSED(event))
+{
+    Project* p = GetProject();
+    if (!p) return;
+
+    wxMenu* popupMenu = wxXmlResource::Get()->LoadMenu("ID_CORRELO_MENU");
+
+    if (popupMenu) PopupMenu(popupMenu, wxDefaultPosition);
+}
+
 void GdaFrame::OnGetisMenuChoices(wxCommandEvent& WXUNUSED(event))
 {
     Project* p = GetProject();
@@ -3549,6 +3700,75 @@ void GdaFrame::OnGetisMenuChoices(wxCommandEvent& WXUNUSED(event))
 	wxMenu* popupMenu = wxXmlResource::Get()->LoadMenu("ID_GETIS_MENU");
 	
 	if (popupMenu) PopupMenu(popupMenu, wxDefaultPosition);
+}
+
+void GdaFrame::OnOpenLocalMatch(wxCommandEvent& event)
+{
+    wxLogMessage("Open OnOpenLocalMatch.");
+
+    Project* p = GetProject();
+    if (!p) return;
+
+    FramesManager* fm = p->GetFramesManager();
+    std::list<FramesManagerObserver*> observers(fm->getCopyObservers());
+    std::list<FramesManagerObserver*>::iterator it;
+    for (it=observers.begin(); it != observers.end(); ++it) {
+        if (NbrMatchDlg* w = dynamic_cast<NbrMatchDlg*>(*it)) {
+            w->Show(true);
+            w->Maximize(false);
+            w->Raise();
+            return;
+        }
+    }
+
+    NbrMatchDlg* dlg = new NbrMatchDlg(this, p);
+    dlg->Show(true);
+}
+
+void GdaFrame::OnOpenQuantileLisa(wxCommandEvent& event)
+{
+    wxLogMessage("Open OnOpenMultiQuantileLisa.");
+
+    Project* p = GetProject();
+    if (!p) return;
+
+    FramesManager* fm = p->GetFramesManager();
+    std::list<FramesManagerObserver*> observers(fm->getCopyObservers());
+    std::list<FramesManagerObserver*>::iterator it;
+    for (it=observers.begin(); it != observers.end(); ++it) {
+        if (QuantileLisaDlg* w = dynamic_cast<QuantileLisaDlg*>(*it)) {
+            w->Show(true);
+            w->Maximize(false);
+            w->Raise();
+            return;
+        }
+    }
+
+    QuantileLisaDlg* dlg = new QuantileLisaDlg(this, p);
+    dlg->Show(true);
+}
+
+void GdaFrame::OnOpenMultiQuantileLisa(wxCommandEvent& event)
+{
+    wxLogMessage("Open OnOpenMultiQuantileLisa.");
+
+    Project* p = GetProject();
+    if (!p) return;
+
+    FramesManager* fm = p->GetFramesManager();
+    std::list<FramesManagerObserver*> observers(fm->getCopyObservers());
+    std::list<FramesManagerObserver*>::iterator it;
+    for (it=observers.begin(); it != observers.end(); ++it) {
+        if (MultiQuantileLisaDlg* w = dynamic_cast<MultiQuantileLisaDlg*>(*it)) {
+            w->Show(true);
+            w->Maximize(false);
+            w->Raise();
+            return;
+        }
+    }
+
+    MultiQuantileLisaDlg* dlg = new MultiQuantileLisaDlg(this, p);
+    dlg->Show(true);
 }
 
 void GdaFrame::OnOpenUniLocalGeary(wxCommandEvent& event)
@@ -3707,6 +3927,59 @@ void GdaFrame::OnOpenUniLisa(wxCommandEvent& event)
 												  lc, false, false, false,
 												  wxDefaultPosition);
 	}
+}
+
+void GdaFrame::OnOpenUniMedianLisa(wxCommandEvent& event)
+{
+    wxLogMessage("Open LisaMapFrame (OnOpenUniMedianLisa).");
+
+    Project* p = GetProject();
+    if (!p) return;
+
+    std::vector<boost::uuids::uuid> weights_ids;
+    WeightsManInterface* w_man_int = p->GetWManInt();
+    w_man_int->GetIds(weights_ids);
+    if (weights_ids.size()==0) {
+        wxMessageDialog dlg (this, _("GeoDa could not find the required weights file. \nPlease specify weights in Tools > Weights Manager."), _("No Weights Found"), wxOK | wxICON_ERROR);
+        dlg.ShowModal();
+        return;
+    }
+
+    VariableSettingsDlg VS(p, VariableSettingsDlg::univariate, true, false);
+    if (VS.ShowModal() != wxID_OK) return;
+    boost::uuids::uuid w_id = VS.GetWeightsId();
+    if (w_id.is_nil()) return;
+
+    GalWeight* gw = w_man_int->GetGal(w_id);
+
+    if (gw == NULL) {
+        wxMessageDialog dlg (this, _("Invalid Weights Information:\n\n The selected weights file is not valid.\n Please choose another weights file, or use Tools > Weights > Weights Manager\n to define a valid weights file."), _("Warning"), wxOK | wxICON_WARNING);
+        dlg.ShowModal();
+        return;
+    }
+
+    LisaWhat2OpenDlg LWO(this);
+    LWO.HideMoranScatter();
+    if (LWO.ShowModal() != wxID_OK) return;
+    if (!LWO.m_ClustMap && !LWO.m_SigMap && !LWO.m_Moran) return;
+
+    bool using_median = true;
+    LisaCoordinator* lc = new LisaCoordinator(w_id, p,
+                                              VS.var_info,
+                                              VS.col_ids,
+                                              LisaCoordinator::univariate,
+                                              true, LWO.m_RowStand,
+                                              using_median);
+
+    if (LWO.m_ClustMap) {
+        LisaMapFrame *sf = new LisaMapFrame(GdaFrame::gda_frame, p,
+                                            lc, true, false, false);
+    }
+    if (LWO.m_SigMap) {
+        LisaMapFrame *sf = new LisaMapFrame(GdaFrame::gda_frame, p,
+                                            lc, false, false, false,
+                                            wxDefaultPosition);
+    }
 }
 
 void GdaFrame::OnOpenMultiLisa(wxCommandEvent& event)
@@ -5493,6 +5766,8 @@ void GdaFrame::OnDisplayPrecision(wxCommandEvent& event)
         f->OnDisplayPrecision(event);
     } else if (CorrelogramFrame* f = dynamic_cast<CorrelogramFrame*>(t)) {
         f->OnDisplayPrecision(event);
+    } else if (DistancePlotFrame* f = dynamic_cast<DistancePlotFrame*>(t)) {
+        f->OnDisplayPrecision(event);
     }
 }
 
@@ -5663,6 +5938,16 @@ void GdaFrame::OnChangeConnSelectedColor(wxCommandEvent& event)
     if (!t) return;
     if (MapFrame* f = dynamic_cast<MapFrame*>(t)) {
         f->OnChangeConnSelectedColor(event);
+    }
+}
+
+void GdaFrame::OnChangeConnSelectedFillColor(wxCommandEvent& event)
+{
+    wxLogMessage("In GdaFrame::OnChangeConnSelectedFillColor()");
+    TemplateFrame* t = TemplateFrame::GetActiveFrame();
+    if (!t) return;
+    if (MapFrame* f = dynamic_cast<MapFrame*>(t)) {
+        f->OnChangeConnSelectedFillColor(event);
     }
 }
 
@@ -5951,6 +6236,8 @@ void GdaFrame::OnEditLowessParams(wxCommandEvent& event)
 	} else if (ConditionalScatterPlotFrame* f =
 						 dynamic_cast<ConditionalScatterPlotFrame*>(t)) {
 		f->OnEditLowessParams(event);
+    } else if (DistancePlotFrame* f = dynamic_cast<DistancePlotFrame*>(t)) {
+        //f->OnEditLowessParams(event);
 	}
 }
 
@@ -6615,9 +6902,6 @@ bool GdaFrame::GetHtmlMenuItemsSqlite()
 int GdaFrame::sqlite3_GetHtmlMenuItemsCB(void *data, int argc,
 										 char **argv, char **azColName)
 {
-	//if (argc != 2) return SQLITE_ERROR;
-	//htmlMenuItems.push_back(MenuItem(argv[0], argv[1]));
-	//return SQLITE_OK;
 	return 0;
 }
 
@@ -6717,11 +7001,15 @@ BEGIN_EVENT_TABLE(GdaFrame, wxFrame)
     EVT_MENU(XRCID("ID_TOOLS_DATA_KMEDOIDS"), GdaFrame::OnToolsDataKMedoids)
     EVT_MENU(XRCID("ID_TOOLS_DATA_HCLUSTER"), GdaFrame::OnToolsDataHCluster)
     EVT_MENU(XRCID("ID_TOOLS_DATA_HDBSCAN"), GdaFrame::OnToolsDataHDBScan)
+    EVT_MENU(XRCID("ID_TOOLS_DATA_DBSCAN"), GdaFrame::OnToolsDataDBScan)
     EVT_MENU(XRCID("ID_TOOLS_DATA_MAXP"), GdaFrame::OnToolsDataMaxP)
+    EVT_MENU(XRCID("ID_TOOLS_DATA_AZP"), GdaFrame::OnToolsDataAZP)
     EVT_MENU(XRCID("ID_TOOLS_DATA_SKATER"), GdaFrame::OnToolsDataSkater)
+    EVT_MENU(XRCID("ID_TOOLS_DATA_SCHC"), GdaFrame::OnToolsDataSCHC)
     EVT_MENU(XRCID("ID_TOOLS_DATA_SPECTRAL"), GdaFrame::OnToolsDataSpectral)
     EVT_MENU(XRCID("ID_TOOLS_DATA_REDCAP"), GdaFrame::OnToolsDataRedcap)
     EVT_MENU(XRCID("ID_TOOLS_DATA_MDS"), GdaFrame::OnToolsDataMDS)
+    EVT_MENU(XRCID("ID_TOOLS_DATA_TSNE"), GdaFrame::OnToolsDataTSNE)
 
     EVT_BUTTON(XRCID("ID_TOOLS_WEIGHTS_MANAGER"), GdaFrame::OnToolsWeightsManager)
     EVT_MENU(XRCID("ID_TOOLS_WEIGHTS_CREATE"), GdaFrame::OnToolsWeightsCreate)
@@ -6776,6 +7064,7 @@ BEGIN_EVENT_TABLE(GdaFrame, wxFrame)
     EVT_MENU(XRCID("ID_SHOW_CONDITIONAL_MAP_VIEW"), GdaFrame::OnShowConditionalMapView)
     EVT_BUTTON(XRCID("ID_SHOW_CONDITIONAL_MAP_VIEW"), GdaFrame::OnShowConditionalMapView)
     EVT_MENU(XRCID("ID_SHOW_CONDITIONAL_SCATTER_VIEW"), GdaFrame::OnShowConditionalScatterView)
+    EVT_MENU(XRCID("ID_SHOW_CONDITIONAL_BOX_VIEW"), GdaFrame::OnShowConditionalBoxView)
     EVT_BUTTON(XRCID("ID_SHOW_CONDITIONAL_SCATTER_VIEW"), GdaFrame::OnShowConditionalScatterView)
     EVT_MENU(XRCID("ID_SHOW_CONDITIONAL_HIST_VIEW"), GdaFrame::OnShowConditionalHistView)
     EVT_BUTTON(XRCID("ID_SHOW_CONDITIONAL_HIST_VIEW"), GdaFrame::OnShowConditionalHistView)
@@ -6796,83 +7085,79 @@ BEGIN_EVENT_TABLE(GdaFrame, wxFrame)
     EVT_MENU(XRCID("IDM_SCATTERPLOT"), GdaFrame::OnExploreScatterNewPlot)
     EVT_MENU(XRCID("IDM_BUBBLECHART"), GdaFrame::OnExploreBubbleChart)
     EVT_MENU(XRCID("IDM_SCATTERPLOT_MAT"), GdaFrame::OnExploreScatterPlotMat)
-    EVT_MENU(XRCID("IDM_CORRELOGRAM"), GdaFrame::OnExploreCorrelogram)
+
+    EVT_MENU(XRCID("IDM_DISTANCE_PLOT"), GdaFrame::OnDistancePlot)
     EVT_MENU(XRCID("IDM_COV_SCATTERPLOT"), GdaFrame::OnExploreCovScatterPlot)
     EVT_TOOL(XRCID("IDM_SCATTERPLOT"), GdaFrame::OnExploreScatterNewPlot)
     EVT_TOOL(XRCID("IDM_BUBBLECHART"), GdaFrame::OnExploreBubbleChart)
     EVT_TOOL(XRCID("IDM_SCATTERPLOT_MAT"), GdaFrame::OnExploreScatterPlotMat)
-    EVT_TOOL(XRCID("IDM_CORRELOGRAM"), GdaFrame::OnExploreCorrelogram)
+
+    EVT_MENU(XRCID("IDM_CORRELOGRAM"), GdaFrame::OnExploreCorrelogram)
+    EVT_MENU(XRCID("IDM_CORRELOGRAM"), GdaFrame::OnExploreCorrelogram)
+
+    EVT_TOOL(XRCID("ID_CORRELO_MENU"), GdaFrame::OnCorrelogramMenuChoices)
+    EVT_BUTTON(XRCID("ID_CORRELO_MENU"), GdaFrame::OnExploreCorrelogram)
+
     EVT_TOOL(XRCID("IDM_COV_SCATTERPLOT"), GdaFrame::OnExploreCovScatterPlot)
     EVT_BUTTON(XRCID("IDM_SCATTERPLOT"), GdaFrame::OnExploreScatterNewPlot)
-    EVT_BUTTON(XRCID("IDM_CORRELOGRAM"), GdaFrame::OnExploreCorrelogram)
+
     EVT_BUTTON(XRCID("IDM_BUBBLECHART"), GdaFrame::OnExploreBubbleChart)
     EVT_BUTTON(XRCID("IDM_SCATTERPLOT_MAT"), GdaFrame::OnExploreScatterPlotMat)
     EVT_BUTTON(XRCID("IDM_COV_SCATTERPLOT"), GdaFrame::OnExploreCovScatterPlot)
+
     EVT_MENU(XRCID("IDM_BOX"), GdaFrame::OnExploreNewBox)
     EVT_TOOL(XRCID("IDM_BOX"), GdaFrame::OnExploreNewBox)
     EVT_BUTTON(XRCID("IDM_BOX"), GdaFrame::OnExploreNewBox)
+
     EVT_MENU(XRCID("IDM_PCP"), GdaFrame::OnExplorePCP)
     EVT_TOOL(XRCID("IDM_PCP"), GdaFrame::OnExplorePCP)
     EVT_BUTTON(XRCID("IDM_PCP"), GdaFrame::OnExplorePCP)
+
     EVT_MENU(XRCID("IDM_3DP"), GdaFrame::OnExplore3DP)
     EVT_TOOL(XRCID("IDM_3DP"), GdaFrame::OnExplore3DP)
     EVT_BUTTON(XRCID("IDM_3DP"), GdaFrame::OnExplore3DP)
+
     EVT_MENU(XRCID("IDM_LINE_CHART"), GdaFrame::OnExploreLineChart)
     EVT_TOOL(XRCID("IDM_LINE_CHART"), GdaFrame::OnExploreLineChart)
     EVT_BUTTON(XRCID("IDM_LINE_CHART"), GdaFrame::OnExploreLineChart)
+
     EVT_TOOL(XRCID("IDM_NEW_TABLE"), GdaFrame::OnToolOpenNewTable)
     EVT_BUTTON(XRCID("IDM_NEW_TABLE"), GdaFrame::OnToolOpenNewTable)
+
     EVT_TOOL(XRCID("ID_MORAN_MENU"), GdaFrame::OnMoranMenuChoices)
     EVT_TOOL(XRCID("ID_TOOLS_MENU"), GdaFrame::OnToolsChoices)
+
     EVT_MENU(XRCID("IDM_MSPL"), GdaFrame::OnOpenMSPL)
-    EVT_TOOL(XRCID("IDM_MSPL"), GdaFrame::OnOpenMSPL)
-    EVT_BUTTON(XRCID("IDM_MSPL"), GdaFrame::OnOpenMSPL)
     EVT_MENU(XRCID("IDM_DMORAN"), GdaFrame::OnOpenDiffMoran)
-    EVT_TOOL(XRCID("IDM_DMORAN"), GdaFrame::OnOpenDiffMoran)
-    EVT_BUTTON(XRCID("IDM_DMORAN"), GdaFrame::OnOpenDiffMoran)
     EVT_MENU(XRCID("IDM_GMORAN"), GdaFrame::OnOpenGMoran)
-    EVT_TOOL(XRCID("IDM_GMORAN"), GdaFrame::OnOpenGMoran)
-    EVT_BUTTON(XRCID("IDM_GMORAN"), GdaFrame::OnOpenGMoran)
     EVT_MENU(XRCID("IDM_MORAN_EBRATE"), GdaFrame::OnOpenMoranEB)
-    EVT_TOOL(XRCID("IDM_MORAN_EBRATE"), GdaFrame::OnOpenMoranEB)
-    EVT_BUTTON(XRCID("IDM_MORAN_EBRATE"), GdaFrame::OnOpenMoranEB)
+
     EVT_TOOL(XRCID("ID_LISA_MENU"), GdaFrame::OnLisaMenuChoices)
 
     EVT_MENU(XRCID("IDM_UNI_LISA"), GdaFrame::OnOpenUniLisa)
-    EVT_TOOL(XRCID("IDM_UNI_LISA"), GdaFrame::OnOpenUniLisa)
-    EVT_BUTTON(XRCID("IDM_UNI_LISA"), GdaFrame::OnOpenUniLisa)
-
+    EVT_MENU(XRCID("IDM_UNI_MEDIAN_LISA"), GdaFrame::OnOpenUniMedianLisa)
     EVT_MENU(XRCID("IDM_MULTI_LISA"), GdaFrame::OnOpenMultiLisa)
-    EVT_TOOL(XRCID("IDM_MULTI_LISA"), GdaFrame::OnOpenMultiLisa)
-    EVT_BUTTON(XRCID("IDM_MULTI_LISA"), GdaFrame::OnOpenMultiLisa)
+
 
     EVT_MENU(XRCID("IDM_DIFF_LISA"), GdaFrame::OnOpenDiffLisa)
-    EVT_TOOL(XRCID("IDM_DIFF_LISA"), GdaFrame::OnOpenDiffLisa)
-    EVT_BUTTON(XRCID("IDM_DIFF_LISA"), GdaFrame::OnOpenDiffLisa)
-
     EVT_MENU(XRCID("IDM_LISA_EBRATE"), GdaFrame::OnOpenLisaEB)
-    EVT_TOOL(XRCID("IDM_LISA_EBRATE"), GdaFrame::OnOpenLisaEB)
-    EVT_BUTTON(XRCID("IDM_LISA_EBRATE"), GdaFrame::OnOpenLisaEB)
 
     EVT_MENU(XRCID("IDM_UNI_LOCAL_GEARY"), GdaFrame::OnOpenUniLocalGeary)
-    EVT_TOOL(XRCID("IDM_UNI_LOCAL_GEARY"), GdaFrame::OnOpenUniLocalGeary)
-    EVT_BUTTON(XRCID("IDM_UNI_LOCAL_GEARY"), GdaFrame::OnOpenUniLocalGeary)
-
     EVT_MENU(XRCID("IDM_MUL_LOCAL_GEARY"), GdaFrame::OnOpenMultiLocalGeary)
-    EVT_TOOL(XRCID("IDM_MUL_LOCAL_GEARY"), GdaFrame::OnOpenMultiLocalGeary)
-    EVT_BUTTON(XRCID("IDM_MUL_LOCAL_GEARY"), GdaFrame::OnOpenMultiLocalGeary)
+
+    EVT_MENU(XRCID("IDM_UNI_QUANTILE_LISA"), GdaFrame::OnOpenQuantileLisa)
+    EVT_MENU(XRCID("IDM_MUL_QUANTILE_LISA"), GdaFrame::OnOpenMultiQuantileLisa)
+
+    EVT_MENU(XRCID("IDM_UNI_LOCAL_MATCH"), GdaFrame::OnOpenLocalMatch)
 
     EVT_TOOL(XRCID("IDM_GETIS_ORD_MENU"), GdaFrame::OnGetisMenuChoices)
-    EVT_BUTTON(XRCID("IDM_GETIS_ORD_MENU"), GdaFrame::OnGetisMenuChoices)
 
     EVT_MENU(XRCID("IDM_LOCAL_G"), GdaFrame::OnOpenGetisOrd)
     EVT_MENU(XRCID("IDM_LOCAL_G_STAR"), GdaFrame::OnOpenGetisOrdStar)
     EVT_MENU(XRCID("IDM_LOCAL_JOINT_COUNT"), GdaFrame::OnOpenLocalJoinCount)
 
     EVT_MENU(XRCID("IDM_BIV_LJC"), GdaFrame::OnOpenBivariateLJC)
-    EVT_TOOL(XRCID("IDM_BIV_LJC"), GdaFrame::OnOpenBivariateLJC)
     EVT_MENU(XRCID("IDM_MUL_LJC"), GdaFrame::OnOpenMultiLJC)
-    EVT_TOOL(XRCID("IDM_MUL_LJC"), GdaFrame::OnOpenMultiLJC)
 
     EVT_MENU(XRCID("ID_VIEW_DISPLAY_PRECISION"),GdaFrame::OnDisplayPrecision)
     EVT_MENU(XRCID("ID_HISTOGRAM_INTERVALS"), GdaFrame::OnHistogramIntervals)
@@ -6904,9 +7189,10 @@ BEGIN_EVENT_TABLE(GdaFrame, wxFrame)
     EVT_MENU(XRCID("ID_WEIGHTS_GRAPH_THICKNESS_STRONG"), GdaFrame::OnChangeGraphThickness)
     EVT_MENU(XRCID("ID_WEIGHTS_GRAPH_COLOR"), GdaFrame::OnChangeGraphColor)
     EVT_MENU(XRCID("ID_CONN_SELECTED_COLOR"), GdaFrame::OnChangeConnSelectedColor)
-EVT_MENU(XRCID("ID_CONN_ROOT_SIZE"), GdaFrame::OnChangeConnRootSize)
-EVT_MENU(XRCID("ID_CONN_ROOT_COLOR"), GdaFrame::OnChangeConnRootColor)
+    EVT_MENU(XRCID("ID_CONN_ROOT_SIZE"), GdaFrame::OnChangeConnRootSize)
+    EVT_MENU(XRCID("ID_CONN_ROOT_COLOR"), GdaFrame::OnChangeConnRootColor)
     EVT_MENU(XRCID("ID_CONN_NEIGHBOR_FILL_COLOR"), GdaFrame::OnChangeNeighborFillColor)
+    EVT_MENU(XRCID("ID_CONN_SELECTED_FILL_COLOR"), GdaFrame::OnChangeConnSelectedFillColor)
     EVT_MENU(XRCID("ID_SELECT_NEIGHBORS_OF_CORES"), GdaFrame::OnSelectNeighborsOfCores)
     EVT_MENU(XRCID("ID_SELECT_CORES_AND_NEIGHBORS"), GdaFrame::OnSelectCoresAndNeighbors)
     EVT_MENU(XRCID("ID_MAP_ADDMEANCENTERS"), GdaFrame::OnAddMeanCenters)

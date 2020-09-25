@@ -25,12 +25,15 @@
 #include <vector>
 #include <set>
 #include <float.h>
+
+#include "../ShapeOperations/GalWeight.h"
+
 #include <boost/thread/mutex.hpp>
 #include <boost/unordered_map.hpp>
 #include <boost/heap/priority_queue.hpp>
 #include <boost/graph/adjacency_list.hpp>
 
-#include "../ShapeOperations/GalWeight.h"
+
 
 
 using namespace std;
@@ -105,7 +108,7 @@ namespace SpanningTreeClustering {
                 n2 = nbr;
                 e2 = e;
             } else {
-                cout << "AddNeighbor() > 2" << endl;
+                //cout << "AddNeighbor() > 2" << endl;
             }
         }
     };

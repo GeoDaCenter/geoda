@@ -133,9 +133,9 @@ namespace Gda {
 	inline bool IsNaN(double x) { return x != x; }
 	inline bool IsFinite(double x) { return x-x == 0; }
     
-    double factorial(unsigned int n);
+    uint64_t factorial(unsigned int n);
     
-    double nChoosek(unsigned int n, unsigned int r);
+    double combinatorial(unsigned int n, unsigned int r);
     
     wxString CreateUUID(int nSize);
     
@@ -370,18 +370,34 @@ namespace GenUtils {
     
 	void DeviationFromMean(int nObs, double* data);
     void DeviationFromMean(int nObs, double* data, vector<bool>& undef);
-	void DeviationFromMean(vector<double>& data);
     void DeviationFromMean(std::vector<double>& data, std::vector<bool>& undef);
-    
+    void DeviationFromMean(vector<double>& data);
+    void DeviationFromMedian(vector<double>& data);
+    void DeviationFromMedoid(vector<double>& data, double medoid_val);
+
 	double Sum(vector<double>& data);
-	double SumOfSquares(vector<double>& data);
     double Median(std::vector<double>& data);
-    
+
+	double SumOfSquares(vector<double>& data);
+    double SumOfSquaresMedian(vector<double>& data);
+    double SumOfSquaresMedoid(vector<double>& data, double medoid_val);
+
+    double SumOfManhattanMedian(vector<double>& data);
+    double SumOfManhattanMedoid(vector<double>& data, double medoid_val);
+
 	bool StandardizeData(int nObs, double* data);
     bool StandardizeData(int nObs, double* data, vector<bool>& undef);
 	bool StandardizeData(vector<double>& data);
     bool StandardizeData(vector<double>& data, vector<bool>& undef);
-    
+
+    void RangeAdjust(std::vector<double>& data);
+    void RangeAdjust(std::vector<double>& data, std::vector<bool>& undef);
+    void RangeStandardize(std::vector<double>& data);
+    void RangeStandardize(std::vector<double>& data, std::vector<bool>& undef);
+
+    std::vector<double> rankify(const vector<double>& x);
+    void rankify_fast(const vector<double>& x, std::vector<double>& Rank_X);
+    double RankCorrelation(vector<double>& x, vector<double>& y);
     double Correlation(vector<double>& x, vector<double>& y);
     double GetVariance(vector<double>& data);
 	wxString swapExtension(const wxString& fname, const wxString& ext);
@@ -441,7 +457,10 @@ namespace GenUtils {
     wxString GetUserSamplesDir();
     wxString GetBasemapDir();
     wxString GetCachePath();
+
     bool less_vectors(const vector<int>& a,const vector<int>& b);
+    bool smaller_pair(const std::pair<int, int>& a,
+                      const std::pair<int, int>& b);
     
     // Act like matlab's [Y,I] = SORT(X)
     // Input:

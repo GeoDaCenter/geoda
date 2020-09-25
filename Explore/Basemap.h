@@ -24,84 +24,16 @@
 #include <wx/math.h>
 #include <wx/dcgraph.h>
 #include <utility>
-#include <boost/thread/thread.hpp>
-#include <boost/bind.hpp>
-#include <boost/make_shared.hpp>
-#include <boost/thread.hpp>
-#include <boost/atomic/atomic.hpp>
-#include <boost/phoenix.hpp>
-#include <boost/optional.hpp>
-#include <boost/container/deque.hpp>
 #include <iostream>
 #include <fstream>
 #include <ogr_spatialref.h>
 
-using namespace std;
-using namespace boost;
+#include "../Algorithms/threadpool.h"
 
-typedef boost::function<void()> job_t;
+using namespace std;
 
 namespace Gda {
-    class thread_pool
-    {
-    private:
-        mutex mx;
-        condition_variable cv;
 
-        boost::container::deque<job_t> _queue;
-
-        boost::thread_group pool;
-
-        boost::atomic_bool shutdown;
-        static void worker_thread(thread_pool& q)
-        {
-            while (optional<job_t> job = q.dequeue())
-                (*job)();
-        }
-
-    public:
-        thread_pool() : shutdown(false) {
-            int cores = boost::thread::hardware_concurrency();
-            if (cores > 1) cores = cores -1;
-            for (unsigned i = 0; i < cores; ++i)
-                pool.create_thread(boost::bind(worker_thread, boost::ref(*this)));
-        }
-
-        void enqueue(job_t job)
-        {
-            lock_guard<mutex> lk(mx);
-            _queue.push_back(job);
-
-            cv.notify_one();
-        }
-
-        optional<job_t> dequeue()
-        {
-            unique_lock<mutex> lk(mx);
-            namespace phx = boost::phoenix;
-
-            cv.wait(lk, phx::ref(shutdown) || !phx::empty(phx::ref(_queue)));
-
-            if (_queue.empty())
-                return none;
-
-            job_t job = _queue.front();
-            _queue.pop_front();
-
-            return job;
-        }
-
-        ~thread_pool()
-        {
-            shutdown = true;
-            {
-                lock_guard<mutex> lk(mx);
-                cv.notify_all();
-            }
-
-            pool.join_all();
-        }
-    };
 
     /**
      * BasemapItem is for "Basemap Source Configuration" dialog
@@ -426,7 +358,8 @@ namespace Gda {
                 OGRCoordinateTransformation* _poCT,
                 double scale_factor = 1.0);
         ~Basemap();
-        
+
+        static const char* USER_AGENT;
         OGRCoordinateTransformation *poCT;
         BasemapItem basemap_item;
         wxString basemapName;
@@ -459,8 +392,7 @@ namespace Gda {
         Screen* screen;
         MapLayer* map;
         MapLayer* origMap;
-        
-        
+
         double Deg2Rad (double degree) { return degree * M_PI / 180.0; }
         double Rad2Deg (double radians) { return radians * 180.0 / M_PI;}
         XYFraction* LatLngToXY(LatLng &latlng);
@@ -488,7 +420,7 @@ namespace Gda {
         void SetupMapType(BasemapItem& basemap_item);
         
         void CleanCache();
-
+        wxString GetContentType();
     };
     
 }

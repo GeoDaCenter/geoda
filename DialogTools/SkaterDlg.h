@@ -22,9 +22,7 @@
 
 #include <vector>
 #include <map>
-#include <wx/choice.h>
-#include <wx/checklst.h>
-
+#include <wx/wx.h>
 
 #include "../FramesManager.h"
 #include "../VarTools.h"
@@ -58,7 +56,6 @@ private:
     wxCheckBox* chk_seed;
     wxCheckBox* chk_lisa;
     
-    wxChoice* combo_weights;
     wxChoice* combo_lisa;
     
     wxChoice* m_distance;

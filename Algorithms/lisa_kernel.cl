@@ -1,4 +1,111 @@
 #pragma OPENCL EXTENSION cl_khr_fp64 : enable
+
+#define BUCKET_EMPTY -1
+
+int hash_code(uint key, uint capacity)
+{
+    return key % capacity;
+}
+
+void init_bucket(int* bucket, uint capacity)
+{
+    for (size_t i=0; i<capacity; ++i) {
+        bucket[i] = BUCKET_EMPTY;
+    }
+}
+
+void insert_bucket(uint key, int *bucket, uint capacity)
+{
+    int hashIndex = hash_code(key, capacity);
+
+    //find next free space
+    while (bucket[hashIndex] != key && bucket[hashIndex] != BUCKET_EMPTY) {
+        hashIndex++;
+        hashIndex %= capacity;
+    }
+
+    // make sure that insert_bucket() will not overfill the bucket
+    // todo:
+
+    bucket[hashIndex] = key;
+}
+
+bool search_bucket(uint key, int *bucket, uint capacity)
+{
+    // Apply hash function to find index for given key
+    int hashIndex = hash_code(key, capacity);
+    int counter=0;
+
+    //finding the node with given key
+    while (counter++ < capacity) { //to avoid infinite loop
+
+        if (bucket[hashIndex] == BUCKET_EMPTY)
+            return false;
+
+        //if node found return true
+        if(bucket[hashIndex] == key)
+            return true;
+
+        hashIndex++;
+        hashIndex %= capacity;
+    }
+
+    //If not found return false
+    return false;
+}
+
+struct Dict {
+    int key;
+    int val;
+};
+
+typedef struct Dict Dict;
+
+void init_dict(Dict *arr, uint capacity)
+{
+    for (size_t i=0; i<capacity; ++i) {
+        arr[i].key = BUCKET_EMPTY;
+    }
+}
+
+void insert_dict(uint key, uint val, Dict *arr, uint capacity)
+{
+    int hashIndex = hash_code(key, capacity);
+
+    //find next free space
+    while (arr[hashIndex].key != key && arr[hashIndex].key != BUCKET_EMPTY) {
+        hashIndex++;
+        hashIndex %= capacity;
+    }
+
+    // make sure that insert_dict() will not overfill the bucket
+    // todo:
+
+    arr[hashIndex].key = key;
+    arr[hashIndex].val = val;
+}
+
+bool search_dict(uint key, Dict *arr, uint capacity)
+{
+    // Apply hash function to find index for given key
+    int hashIndex = hash_code(key, capacity);
+    int counter=0;
+
+    //finding the node with given key
+    while (counter++ < capacity) { //to avoid infinite loop
+
+        //if node found return true
+        if(arr[hashIndex].key == key)
+            return arr[hashIndex].val;
+
+        hashIndex++;
+        hashIndex %= capacity;
+    }
+
+    //If not found return false
+    return BUCKET_EMPTY;
+}
+
 float wang_rnd(uint seed);
 float wang_rnd(uint seed)
 {
@@ -12,6 +119,19 @@ float wang_rnd(uint seed)
     seed = seed ^ (seed >> 15);
     
     return ((float)seed)/(float)maxint;
+}
+
+double ThomasWangHashDouble(ulong key);
+double ThomasWangHashDouble(ulong key)
+{
+    key = (~key) + (key << 21); // key = (key << 21) - key - 1;
+    key = key ^ (key >> 24);
+    key = (key + (key << 3)) + (key << 8); // key * 265
+    key = key ^ (key >> 14);
+    key = (key + (key << 2)) + (key << 4); // key * 21
+    key = key ^ (key >> 28);
+    key = key + (key << 31);
+    return 5.42101086242752217E-20 * key;
 }
 
 __kernel void lisa(const int n, const int permutations, const unsigned long last_seed, __global double *values,  __global double *local_moran,  __global int *num_nbrs, __global int *nbr_idx, __global double *p) {
@@ -39,26 +159,26 @@ __kernel void lisa(const int n, const int permutations, const unsigned long last
     
     size_t max_rand = n-1;
     int newRandom;
-    
+
     size_t perm=0;
     size_t rand = 0;
-    
+
     bool is_valid;
     double rng_val;
     double permutedLag =0;
     double localMoranPermuted=0;
     size_t countLarger = 0;
-    
+
     size_t rnd_numbers[123]; // 1234 can be replaced with max #nbr
-    
+
     for (perm=0; perm<permutations; perm++ ) {
         rand=0;
         permutedLag =0;
         while (rand < numNeighbors) {
             is_valid = true;
-            rng_val = wang_rnd(seed_start++) * max_rand;
+            rng_val = ThomasWangHashDouble(seed_start++) * max_rand;
             newRandom = (int)rng_val;
-          
+
             if (newRandom != i ) {
                 for (j=0; j<rand; j++) {
                     if (newRandom == rnd_numbers[j]) {
@@ -72,7 +192,7 @@ __kernel void lisa(const int n, const int permutations, const unsigned long last
                     rand++;
                 }
             }
-        
+
         }
         permutedLag /= numNeighbors;
         localMoranPermuted = permutedLag * values[i];

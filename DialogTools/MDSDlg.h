@@ -40,22 +40,39 @@ public:
 
     void OnCloseClick( wxCommandEvent& event );
     void OnClose(wxCloseEvent& ev);
-    void OnDistanceChoice( wxCommandEvent& event );
     void OnCheckPowerIteration( wxCommandEvent& event );
-   
+    void OnMethodChoice(wxCommandEvent &event);
     void InitVariableCombobox(wxListBox* var_box);
-    
+
+    double _calculateStress(char dist, int rows, double **ragged_distances,
+                            const std::vector<std::vector<double> >& result);
+    double _calculateRankCorr(char dist, int rows, double **ragged_distances,
+                              const std::vector<std::vector<double> >& result);
+
     virtual wxString _printConfiguration();
     
     std::vector<GdaVarTools::VarInfo> var_info;
     std::vector<int> col_ids;
     
 protected:
+    std::vector<std::vector<int> > groups;
+    std::vector<wxString> group_labels;
+    
+    wxChoice* combo_method;
+    SimpleReportTextCtrl* m_textbox;
+    wxTextCtrl* m_iterations;
+    wxTextCtrl* m_eps;
+    wxChoice* combo_n;
 
     wxChoice* m_distance;
     wxCheckBox* chk_poweriteration;
-    wxTextCtrl* txt_poweriteration;
-    wxStaticText* lbl_poweriteration;
+    wxStaticText* txt_usepower;
+    wxStaticText* txt_maxit;
+    wxStaticText* txt_eps;
+
+    wxChoice* m_group;
+    wxCheckBox* chk_group;
+    wxArrayString cat_var_items;
     
     DECLARE_EVENT_TABLE()
 };

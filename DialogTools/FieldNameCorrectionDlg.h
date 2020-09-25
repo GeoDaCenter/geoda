@@ -45,7 +45,8 @@ private:
     
     vector<wxString> old_field_names;
     vector<wxString> new_field_names;
-	
+    std::set<wxString> table_fnames;
+    
 public:
 	// Variable number of controls
 	size_t num_controls;
@@ -66,6 +67,7 @@ public:
                         vector<wxString>& all_fname);
 	ScrolledWidgetsPane(wxWindow* parent, wxWindowID id,
                         GdaConst::DataSourceType ds_type,
+                        std::set<wxString> table_fnames,
                         map<wxString, wxString>& fnames_dict,
                         vector<wxString>& merged_field_names,
                         set<wxString>& dup_fname,
@@ -105,6 +107,7 @@ public:
                            wxString title="Update Field Name");
     
     FieldNameCorrectionDlg(GdaConst::DataSourceType ds_type,
+                           std::set<wxString> table_fnames,
                            map<wxString, wxString>& fnames_dict,
                            vector<wxString>& merged_field_names,
                            set<wxString>& dup_fname,

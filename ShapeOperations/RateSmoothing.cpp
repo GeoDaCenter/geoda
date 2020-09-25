@@ -53,6 +53,7 @@ bool GdaAlgs::RateStandardizeEB(const int obs, const double* P,
 			undefined[i] = true;
 			results[i] = 0;
 		}
+        return has_undef;
 	}
 	
 	const double b_hat = sE / sP;

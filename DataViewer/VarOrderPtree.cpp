@@ -298,7 +298,8 @@ bool VarOrderPtree::CorrectVarGroups(const std::vector<wxString>& ds_var_list,
 	}
 	
 	// Append all items in ds_var_list not in var_set
-	BOOST_FOREACH(const wxString& v, ds_var_list) {
+    for (int i=0; i<ds_var_list.size(); ++i) {
+        wxString v = case_sensitive ? ds_var_list[i] : ds_var_list[i].Lower();
 		if (var_set.find(v) == var_set.end()) {
 			VarGroup ent;
 			ent.name = v;

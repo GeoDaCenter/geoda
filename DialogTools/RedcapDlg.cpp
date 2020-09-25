@@ -22,21 +22,9 @@
 #include <algorithm>
 #include <limits>
 
-
-#include <wx/textfile.h>
 #include <wx/wx.h>
 #include <wx/xrc/xmlres.h>
-#include <wx/msgdlg.h>
-#include <wx/sizer.h>
-#include <wx/stattext.h>
-#include <wx/statbox.h>
-#include <wx/textctrl.h>
-#include <wx/radiobut.h>
-#include <wx/button.h>
-#include <wx/combobox.h>
-#include <wx/panel.h>
-#include <wx/checkbox.h>
-#include <wx/choice.h>
+#include <wx/textfile.h>
 
 #include "../VarCalc/WeightsManInterface.h"
 #include "../ShapeOperations/OGRDataAdapter.h"
@@ -45,9 +33,6 @@
 #include "../Project.h"
 #include "../Algorithms/DataUtils.h"
 #include "../Algorithms/cluster.h"
-
-
-
 #include "../GeneralWxUtils.h"
 #include "../GenUtils.h"
 #include "SaveToTableDlg.h"
@@ -66,8 +51,7 @@ RedcapDlg::RedcapDlg(wxFrame* parent_s, Project* project_s)
     
     parent = parent_s;
     project = project_s;
-    weights = NULL;
-    
+
     bool init_success = Init();
     
     if (init_success == false) {
@@ -114,17 +98,16 @@ void RedcapDlg::CreateControls()
     wxBoxSizer *vbox = new wxBoxSizer(wxVERTICAL);
     
     // Input
-    AddSimpleInputCtrls(panel, vbox);
+    AddSimpleInputCtrls(panel, vbox, false, true/*show spatial weights control*/);
     
     // Parameters
     wxFlexGridSizer* gbox = new wxFlexGridSizer(11,2,5,0);
-    
-    wxStaticText* st16 = new wxStaticText(panel, wxID_ANY, _("Weights:"));
-    combo_weights = new wxChoice(panel, wxID_ANY, wxDefaultPosition,
-                                wxSize(200,-1));
-    gbox->Add(st16, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
-    gbox->Add(combo_weights, 1, wxEXPAND);
-    
+
+    wxStaticText* st11 = new wxStaticText(panel, wxID_ANY, _("Number of Regions:"));
+    m_max_region = new wxTextCtrl(panel, wxID_ANY, "5", wxDefaultPosition, wxSize(200,-1));
+    gbox->Add(st11, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
+    gbox->Add(m_max_region, 1, wxEXPAND);
+
     wxStaticText* st20 = new wxStaticText(panel, wxID_ANY, _("Method:"));
     wxString choices20[] = {"FirstOrder-SingleLinkage", "FullOrder-CompleteLinkage", "FullOrder-AverageLinkage", "FullOrder-SingleLinkage"};
     combo_method = new wxChoice(panel, wxID_ANY, wxDefaultPosition, wxSize(200,-1), 4, choices20);
@@ -136,12 +119,14 @@ void RedcapDlg::CreateControls()
     // Minimum Bound Control
     AddMinBound(panel, gbox);
 
-	wxStaticText* st11 = new wxStaticText(panel, wxID_ANY, _("Maximum # of regions:"));
-    m_max_region = new wxTextCtrl(panel, wxID_ANY, "5", wxDefaultPosition, wxSize(200,-1));
-    gbox->Add(st11, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
-    gbox->Add(m_max_region, 1, wxEXPAND);
-    
-	 wxStaticText* st13 = new wxStaticText(panel, wxID_ANY, _("Distance Function:"));
+    // Min regions
+    st_minregions = new wxStaticText(panel, wxID_ANY, _("Min Region Size:"));
+    txt_minregions = new wxTextCtrl(panel, wxID_ANY, "", wxDefaultPosition, wxSize(200,-1));
+    txt_minregions->SetValidator(wxTextValidator(wxFILTER_NUMERIC));
+    gbox->Add(st_minregions, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
+    gbox->Add(txt_minregions, 1, wxEXPAND);
+
+    wxStaticText* st13 = new wxStaticText(panel, wxID_ANY, _("Distance Function:"));
     wxString choices13[] = {"Euclidean", "Manhattan"};
     m_distance = new wxChoice(panel, wxID_ANY, wxDefaultPosition, wxSize(200,-1), 2, choices13);
     m_distance->SetSelection(0);
@@ -150,8 +135,8 @@ void RedcapDlg::CreateControls()
 
     // Transformation
     AddTransformation(panel, gbox);
-    
-    wxStaticText* st17 = new wxStaticText(panel, wxID_ANY, _("Use specified seed:"));
+
+    wxStaticText* st17 = new wxStaticText(panel, wxID_ANY, _("Use Specified Seed:"));
     wxBoxSizer *hbox17 = new wxBoxSizer(wxHORIZONTAL);
     chk_seed = new wxCheckBox(panel, wxID_ANY, "");
     seedButton = new wxButton(panel, wxID_OK, _("Change Seed"));
@@ -169,7 +154,6 @@ void RedcapDlg::CreateControls()
     
     wxStaticBoxSizer *hbox = new wxStaticBoxSizer(wxHORIZONTAL, panel, _("Parameters:"));
     hbox->Add(gbox, 1, wxEXPAND);
-    
     
     // Output
     wxStaticText* st3 = new wxStaticText (panel, wxID_ANY, _("Save Cluster in Field:"));
@@ -230,28 +214,26 @@ void RedcapDlg::CreateControls()
     
     Centre();
 
-    // Content
-    //InitVariableCombobox(combo_var);
-    
-    // init weights
-    vector<boost::uuids::uuid> weights_ids;
-    WeightsManInterface* w_man_int = project->GetWManInt();
-    w_man_int->GetIds(weights_ids);
-    
-    size_t sel_pos=0;
-    for (size_t i=0; i<weights_ids.size(); ++i) {
-        combo_weights->Append(w_man_int->GetShortDispName(weights_ids[i]));
-        if (w_man_int->GetDefault() == weights_ids[i])
-            sel_pos = i;
-    }
-    if (weights_ids.size() > 0) combo_weights->SetSelection(sel_pos);
-    
     // Events
     okButton->Bind(wxEVT_BUTTON, &RedcapDlg::OnOK, this);
     saveButton->Bind(wxEVT_BUTTON, &RedcapDlg::OnSaveTree, this);
     closeButton->Bind(wxEVT_BUTTON, &RedcapDlg::OnClickClose, this);
     chk_seed->Bind(wxEVT_CHECKBOX, &RedcapDlg::OnSeedCheck, this);
     seedButton->Bind(wxEVT_BUTTON, &RedcapDlg::OnChangeSeed, this);
+}
+
+void RedcapDlg::OnCheckMinBound(wxCommandEvent& event)
+{
+    wxLogMessage("On SkaterDlg::OnLISACheck");
+    AbstractClusterDlg::OnCheckMinBound(event);
+
+    if (chk_floor->IsChecked()) {
+        st_minregions->Disable();
+        txt_minregions->Disable();
+    } else {
+        st_minregions->Enable();
+        txt_minregions->Enable();
+    }
 }
 
 void RedcapDlg::OnSeedCheck(wxCommandEvent& event)
@@ -366,7 +348,7 @@ void RedcapDlg::OnClose(wxCloseEvent& ev)
 wxString RedcapDlg::_printConfiguration()
 {
     wxString txt;
-    txt << _("Weights:") << "\t" << combo_weights->GetString(combo_weights->GetSelection()) << "\n";
+    txt << _("Weights:") << "\t" << m_spatial_weights->GetString(m_spatial_weights->GetSelection()) << "\n";
    
     txt << _("Method:\t") << combo_method->GetString(combo_method->GetSelection()) << "\n";
     
@@ -374,6 +356,8 @@ wxString RedcapDlg::_printConfiguration()
         int idx = combo_floor->GetSelection();
         wxString nm = name_to_nm[combo_floor->GetString(idx)];
         txt << _("Minimum bound:\t") << txt_floor->GetValue() << "(" << nm << ")" << "\n";
+    } else {
+        txt << "Minimum region size:\t" << txt_minregions->GetValue() << "\n";
     }
     
     txt << _("Minimum region size:\t") << m_textbox->GetValue() << "\n";
@@ -386,7 +370,7 @@ wxString RedcapDlg::_printConfiguration()
 
 void RedcapDlg::OnSaveTree(wxCommandEvent& event )
 {
-    if (weights && redcap) {
+    if (redcap) {
         wxString filter = "GWT|*.gwt";
         wxFileDialog dialog(NULL, _("Save Spanning Tree to a Weights File"),
                             wxEmptyString,
@@ -395,15 +379,9 @@ void RedcapDlg::OnSaveTree(wxCommandEvent& event )
         if (dialog.ShowModal() != wxID_OK) {
             return;
         }
+
         // get info from input weights
-        vector<boost::uuids::uuid> weights_ids;
-        WeightsManInterface* w_man_int = project->GetWManInt();
-        w_man_int->GetIds(weights_ids);
-        int sel = combo_weights->GetSelection();
-        if (sel < 0) sel = 0;
-        if (sel >= weights_ids.size()) sel = weights_ids.size()-1;
-        boost::uuids::uuid w_id = weights_ids[sel];
-        GalWeight* gw = w_man_int->GetGal(w_id);
+        GalWeight* gw = GetInputSpatialWeights();
         GeoDaWeight* gdw = (GeoDaWeight*)gw;
         wxString id = gdw->GetIDName();
         int col = table_int->FindColId(id);
@@ -457,6 +435,7 @@ void RedcapDlg::OnSaveTree(wxCommandEvent& event )
         file.Close();
         
         // Load the weights file into Weights Manager
+        WeightsManInterface* w_man_int = project->GetWManInt();
         WeightUtils::LoadGwtInMan(w_man_int, new_txt, table_int, id,
                                   WeightsMetaInfo::WT_tree);
     }
@@ -474,17 +453,15 @@ void RedcapDlg::OnOK(wxCommandEvent& event )
     // Get input data
     int transform = combo_tranform->GetSelection();
 	bool success = GetInputData(transform, 1);
-    if (!success) {
-        return;
+    if (!success) return;
+    // check if X-Centroids selected but not projected
+    if ((has_x_cent || has_y_cent) && check_spatial_ref) {
+        bool cont_process = project->CheckSpatialProjection(check_spatial_ref);
+        if (cont_process == false) {
+            return;
+        }
     }
-    
-    wxString str_max_region = m_max_region->GetValue();
-    if (str_max_region.IsEmpty()) {
-        wxString err_msg = _("Please enter maximum number of regions.");
-        wxMessageDialog dlg(NULL, err_msg, _("Error"), wxOK | wxICON_ERROR);
-        dlg.ShowModal();
-        return;
-    }
+    bool check_floor = false;
     if (chk_floor->IsChecked()) {
         wxString str_floor = txt_floor->GetValue();
         if (str_floor.IsEmpty() || combo_floor->GetSelection() < 0) {
@@ -493,6 +470,7 @@ void RedcapDlg::OnOK(wxCommandEvent& event )
             dlg.ShowModal();
             return;
         }
+        check_floor = true;
     }
 
     wxString field_name = m_textbox->GetValue();
@@ -504,23 +482,11 @@ void RedcapDlg::OnOK(wxCommandEvent& event )
     }
     
 	// Get Weights Selection
-    vector<boost::uuids::uuid> weights_ids;
-    WeightsManInterface* w_man_int = project->GetWManInt();
-    w_man_int->GetIds(weights_ids);
-
-    int sel = combo_weights->GetSelection();
-    if (sel < 0) sel = 0;
-    if (sel >= weights_ids.size()) sel = weights_ids.size()-1;
-    
-    boost::uuids::uuid w_id = weights_ids[sel];
-    GalWeight* gw = w_man_int->GetGal(w_id);
-
+    GalWeight* gw = CheckSpatialWeights();
     if (gw == NULL) {
-        wxMessageDialog dlg (this, _("Invalid Weights Information:\n\n The selected weights file is not valid.\n Please choose another weights file, or use Tools > Weights > Weights Manager\n to define a valid weights file."), _("Warning"), wxOK | wxICON_WARNING);
-        dlg.ShowModal();
         return;
     }
-    weights = w_man_int->GetGal(w_id);
+
     // Check connectivity
     if (!CheckConnectivity(gw)) {
         wxString msg = _("The connectivity of selected spatial weights is incomplete, please adjust the spatial weights.");
@@ -528,11 +494,44 @@ void RedcapDlg::OnOK(wxCommandEvent& event )
         dlg.ShowModal();
         return;
     }
-    
+
+    wxString str_max_region = m_max_region->GetValue();
+    if (str_max_region.IsEmpty()) {
+        if (txt_minregions->GetValue().IsEmpty() && check_floor == false) {
+            wxString err_msg = _("Please enter number of regions, or minimum bound value, or minimum region size.");
+            wxMessageDialog dlg(NULL, err_msg, _("Error"), wxOK | wxICON_ERROR);
+            dlg.ShowModal();
+            return;
+        }
+    }
+
     // Get Bounds
     double min_bound = GetMinBound();
+    if (chk_floor->IsChecked()) {
+        wxString str_floor = txt_floor->GetValue();
+        if (str_floor.IsEmpty()) {
+            wxString err_msg = _("Please enter minimum bound value");
+            wxMessageDialog dlg(NULL, err_msg, _("Error"), wxOK | wxICON_ERROR);
+            dlg.ShowModal();
+            return;
+        }
+        check_floor = true;
+    }
+
     double* bound_vals = GetBoundVals();
-   
+
+    if (bound_vals == NULL) {
+        wxString str_min_regions = txt_minregions->GetValue();
+        long val_min_regions;
+        if (str_min_regions.ToLong(&val_min_regions)) {
+            min_bound = val_min_regions;
+            check_floor = true;
+        }
+        bound_vals = new double[rows];
+        for (int i=0; i<rows; i++)
+            bound_vals[i] = 1;
+    }
+
 	// Get Distance Selection
     char dist = 'e'; // euclidean
     int dist_sel = m_distance->GetSelection();
@@ -540,7 +539,7 @@ void RedcapDlg::OnOK(wxCommandEvent& event )
     dist = dist_choices[dist_sel];
 
     // Get number of regions
-    int n_regions = 0;
+    int n_regions = std::numeric_limits<int>::max();
     long value_n_region;
     if(str_max_region.ToLong(&value_n_region)) {
         n_regions = value_n_region;
@@ -577,6 +576,8 @@ void RedcapDlg::OnOK(wxCommandEvent& event )
 
    
     if (redcap==NULL) {
+        for (int i = 1; i < rows; i++) delete[] distances[i];
+        delete[] distances;
         delete[] bound_vals;
         bound_vals = NULL;
         return;
@@ -588,7 +589,7 @@ void RedcapDlg::OnOK(wxCommandEvent& event )
     
     int ncluster = cluster_ids.size();
     
-    if (ncluster < n_regions) {
+    if (n_regions != std::numeric_limits<int>::max() && ncluster < n_regions) {
         // show message dialog to user
         wxString warn_str = _("The number of identified clusters is less than ");
         warn_str << n_regions;
@@ -645,8 +646,8 @@ void RedcapDlg::OnOK(wxCommandEvent& event )
     }
     
     // free memory
-    for (int i = 1; i < rows; i++) free(distances[i]);
-    free(distances);
+    for (int i = 1; i < rows; i++) delete[] distances[i];
+    delete[] distances;
     
 	delete[] bound_vals;
 	bound_vals = NULL;
@@ -678,7 +679,7 @@ void RedcapDlg::OnOK(wxCommandEvent& event )
                                 GdaConst::map_default_size);
     wxString ttl;
     ttl << "REDCAP " << _("Cluster Map ") << "(";
-    ttl << n_regions;
+    ttl << ncluster;
     ttl << " clusters)";
     nf->SetTitle(ttl);
     

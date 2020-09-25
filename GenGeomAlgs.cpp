@@ -279,7 +279,9 @@ double GenGeomAlgs::ComputeArea2D(int n, double *x, double *y)
 	double nwx = GenGeomAlgs::findArea(n, y, z);
 	double nwy = GenGeomAlgs::findArea(n, z, x);
 	double nwz = GenGeomAlgs::findArea(n, x, y);
-	
+
+    delete[] z;
+    
 	// get length of the Newell normal
 	double nlen = sqrt( nwx*nwx + nwy*nwy + nwz*nwz );
 	return nlen;    // area of polygon = length of Newell normal

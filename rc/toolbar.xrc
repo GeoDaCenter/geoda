@@ -111,7 +111,7 @@
         <bitmap2>gray/32x32/21.png</bitmap2>
       <tooltip>Moran Scatter Plot</tooltip>
     </object>
-    <object class="tool" name="IDM_CORRELOGRAM">
+    <object class="tool" name="ID_CORRELO_MENU">
         <bitmap>color/32x32/22.png</bitmap>
         <bitmap2>gray/32x32/22.png</bitmap2>
       <tooltip>Spatial Correlogram</tooltip>

@@ -98,7 +98,8 @@ wxString LisaMapCanvas::GetCanvasTitle()
 	if (!is_clust && !is_bi) lisa_t = _(" LISA Significance Map");
 	if (!is_clust && is_bi) lisa_t = _(" BiLISA Significance Map");
     if (!is_clust && is_diff) lisa_t = _(" Differential Significance Map");
-	
+
+    if (lisa_coord->using_median) lisa_t << "(median)";
 	wxString field_t;
 	if (is_bi) {
 		field_t << GetNameWithTime(0) << " w/ " << GetNameWithTime(1);

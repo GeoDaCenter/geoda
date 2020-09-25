@@ -1278,7 +1278,7 @@ void LineChartFrame::RunDIDTest()
     int RegressModel = 1; // for classic linear regression
     wxGauge* m_gauge = NULL;
     bool do_white_test = true;
-	double *m_resid1, *m_yhat1;
+	double *m_resid1 = NULL, *m_yhat1 = NULL;
    
     wxString m_Yname = var_man.GetName(var_idx);
     std::vector<wxString> m_Xnames;
@@ -1336,15 +1336,21 @@ void LineChartFrame::RunDIDTest()
     
     // start regression
     int nX = 0;
-    double* y;
-    double **x;
-    DiagnosticReport* m_DR;
+    double* y = NULL;
+    double **x = NULL;
+    DiagnosticReport* m_DR = NULL;
     
     if (compare_regimes) {
         m_Xnames.push_back("SPACE");
         nX = m_Xnames.size();
        
         int n = valid_n_obs;
+        if (n == 0) {
+            wxDateTime now = wxDateTime::Now();
+            logReport = ">>" + now.FormatDate() + " " + now.FormatTime() + "\nREGRESSION (DIFF-IN-DIFF, COMPARE REGIMES) \n----------\Error: No valid number of observation." + logReport;
+            return;
+        }
+
         y = new double[n];
         x = new double* [2];
         
@@ -1562,11 +1568,13 @@ void LineChartFrame::RunDIDTest()
         }
     }
     
-    delete[] y;
+    if (y) delete[] y;
     for (int t=0; t<nX; t++) delete[] x[t];
-    
-    m_DR->release_Var();
-    delete m_DR;
+
+    if (m_DR) {
+        m_DR->release_Var();
+        delete m_DR;
+    }
 }
 
 void LineChartFrame::OnReportClose(wxWindowDestroyEvent& event)

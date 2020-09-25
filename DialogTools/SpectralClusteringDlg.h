@@ -25,6 +25,9 @@
 #include <wx/choice.h>
 #include <wx/checklst.h>
 #include <wx/combobox.h>
+#include <Eigen/Dense>
+
+using namespace Eigen;
 
 #include "../FramesManager.h"
 #include "../VarTools.h"
@@ -46,13 +49,12 @@ public:
     void OnClickClose( wxCommandEvent& event );
     void OnClose(wxCloseEvent& ev);
     
-    void OnCheckPowerIteration(wxCommandEvent& event);
     void OnWeightsCheck(wxCommandEvent& event);
     void OnKernelCheck(wxCommandEvent& event);
     void OnKNNCheck(wxCommandEvent& event);
+    void OnMutualKNNCheck(wxCommandEvent& event);
     void OnSeedCheck(wxCommandEvent& event);
     void OnChangeSeed(wxCommandEvent& event);
-    void OnDistanceChoice(wxCommandEvent& event);
     
     virtual void InitVariableCombobox(wxListBox* var_box);
    
@@ -61,18 +63,20 @@ public:
 protected:
     virtual bool Run(vector<wxInt64>& clusters);
     virtual bool CheckAllInputs();
+    void UpdateGaussian(wxCommandEvent& event);
 
 protected:
     int transform;
     int n_cluster;
-    int n_power_iter;
     double value_sigma;
     int knn;
+    int mutual_knn;
     char method;
     int npass;
     int n_maxiter;
     char dist;
     int affinity_type;
+    std::vector<wxInt64> clusters;
 
     wxCheckBox* chk_seed;
     wxChoice* combo_method;
@@ -81,7 +85,7 @@ protected:
     wxTextCtrl* m_iterations;
     wxTextCtrl* m_pass;
     
-    wxTextCtrl* m_sigma;
+    wxComboBox* m_sigma;
     wxChoice* combo_kernel;
     wxChoice* m_method;
     wxChoice* m_distance;
@@ -90,17 +94,16 @@ protected:
     wxStaticText* lbl_sigma;
     
     wxCheckBox* chk_knn;
+    wxCheckBox* chk_mknn;
     wxStaticText* lbl_knn;
     wxStaticText* lbl_neighbors;
-    wxTextCtrl* m_knn;
+    wxStaticText* lbl_m_neighbors;
+    wxComboBox* m_knn;
+    wxComboBox* m_mknn;
     
     wxStaticText* lbl_weights;
     wxCheckBox* chk_weights;
     wxChoice* combo_weights;
-    
-    wxCheckBox* chk_poweriteration;
-    wxTextCtrl* txt_poweriteration;
-    wxStaticText* lbl_poweriteration;
     
     wxButton* seedButton;
     

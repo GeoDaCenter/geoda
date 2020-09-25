@@ -37,6 +37,8 @@ BEGIN_EVENT_TABLE( C3DControlPan, wxPanel )
     EVT_CHECKBOX( XRCID("IDC_TOY"), C3DControlPan::OnCToyClick )
     EVT_CHECKBOX( XRCID("IDC_TOZ"), C3DControlPan::OnCTozClick )
     EVT_CHECKBOX( XRCID("IDC_SELECT"), C3DControlPan::OnCSelectClick )
+    EVT_CHECKBOX( XRCID("IDC_SHOW_NEIGHBORS"), C3DControlPan::OnCShowNbrsClick )
+    EVT_CHECKBOX( XRCID("IDC_SHOW_CONNECTIONS"), C3DControlPan::OnCShowConnectionClick )
 
 	EVT_SLIDER( XRCID("IDC_SLXP"), C3DControlPan::OnCSlxpUpdated )
     EVT_SLIDER( XRCID("IDC_SLXS"), C3DControlPan::OnCSlxsUpdated )
@@ -47,6 +49,10 @@ BEGIN_EVENT_TABLE( C3DControlPan, wxPanel )
 	EVT_SLIDER( XRCID("IDC_SLZP"), C3DControlPan::OnCSlzpUpdated )
     EVT_SLIDER( XRCID("IDC_SLZS"), C3DControlPan::OnCSlzsUpdated )
 
+    EVT_SLIDER( XRCID("IDC_SL_QUALITY"), C3DControlPan::OnQuanlityUpdated )
+    EVT_SLIDER( XRCID("IDC_SL_RADIUS"), C3DControlPan::OnRadiusUpdated )
+
+    EVT_SLIDER( XRCID("IDC_SL_LINEWIDTH"), C3DControlPan::OnLineWidthUpdate )
 END_EVENT_TABLE()
 
 C3DControlPan::C3DControlPan( )
@@ -106,6 +112,12 @@ bool C3DControlPan::Create( wxWindow* parent,
     m_ys = NULL;
     m_zp = NULL;
     m_zs = NULL;
+    m_quality = NULL;
+    m_radius = NULL;
+    m_show_neighbors = NULL;
+    m_show_connections = NULL;
+    m_linewidth = NULL;
+    m_linecolor = NULL;
 
     SetParent(parent);
     CreateControls();
@@ -139,6 +151,13 @@ void C3DControlPan::CreateControls()
     m_ys = XRCCTRL(*this, "IDC_SLYS", wxSlider);
     m_zp = XRCCTRL(*this, "IDC_SLZP", wxSlider);
     m_zs = XRCCTRL(*this, "IDC_SLZS", wxSlider);
+    m_quality = XRCCTRL(*this, "IDC_SL_QUALITY", wxSlider);
+    m_radius = XRCCTRL(*this, "IDC_SL_RADIUS", wxSlider);
+    m_show_neighbors = XRCCTRL(*this, "IDC_SHOW_NEIGHBORS", wxCheckBox);
+    m_show_connections = XRCCTRL(*this, "IDC_SHOW_CONNECTIONS", wxCheckBox);
+    m_linewidth = XRCCTRL(*this, "IDC_SL_LINEWIDTH", wxSlider);
+    m_linecolor = XRCCTRL(*this, "IDC_LINECOLOR", wxStaticBitmap);
+    m_linecolor->Bind(wxEVT_LEFT_UP, &C3DControlPan::OnLineColorClick, this);
 }
 
 void C3DControlPan::UpdateAxesLabels(const wxString& x, const wxString& y,
@@ -223,4 +242,50 @@ void C3DControlPan::OnCSlzsUpdated( wxCommandEvent& event )
 	template_frame->canvas->zs = ((double) m_zs->GetValue())/10000.0;
 	if (this->m_select->GetValue()) template_frame->canvas->UpdateSelect();
 	template_frame->canvas->Refresh();
+}
+
+void C3DControlPan::OnQuanlityUpdated( wxCommandEvent& event )
+{
+    template_frame->canvas->quality = (int) m_quality->GetValue();
+    template_frame->canvas->Refresh();
+}
+
+void C3DControlPan::OnRadiusUpdated( wxCommandEvent& event )
+{
+    template_frame->canvas->radius = (double) m_radius->GetValue() / 100.0;
+    template_frame->canvas->Refresh();
+}
+
+void C3DControlPan::OnCShowNbrsClick( wxCommandEvent& event )
+{
+    template_frame->canvas->ShowNeighbors = m_show_neighbors->GetValue();
+    template_frame->canvas->Refresh();
+}
+
+void C3DControlPan::OnCShowConnectionClick( wxCommandEvent& event )
+{
+    template_frame->canvas->ShowConnections = m_show_connections->GetValue();
+    template_frame->canvas->Refresh();
+}
+
+void C3DControlPan::OnLineWidthUpdate( wxCommandEvent& event )
+{
+    template_frame->canvas->linewidth = (double) m_linewidth->GetValue();
+    template_frame->canvas->Refresh();
+}
+
+void C3DControlPan::OnLineColorClick( wxMouseEvent& event )
+{
+    wxColourData clr_data;
+    clr_data.SetColour(template_frame->canvas->linecolor);
+    clr_data.SetChooseFull(true);
+    wxColourDialog dialog(this, &clr_data);
+    dialog.SetTitle(_("Choose Line Color"));
+    if (dialog.ShowModal() != wxID_OK) return;
+
+    wxColourData retData = dialog.GetColourData();
+    template_frame->canvas->linecolor = retData.GetColour();
+    template_frame->canvas->Refresh();
+
+    m_linecolor->SetBackgroundColour(retData.GetColour());
 }

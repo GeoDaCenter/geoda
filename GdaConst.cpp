@@ -319,19 +319,22 @@ wxFont* GdaConst::small_font = 0;
 wxFont* GdaConst::medium_font = 0;
 wxFont* GdaConst::large_font = 0;
 
+bool GdaConst::gda_draw_map_labels = false;
+int GdaConst::gda_map_label_font_size = 6;
 bool GdaConst::gda_create_csvt = false;
 bool GdaConst::gda_enable_set_transparency_windows = false;
 int GdaConst::default_display_decimals = 6; // move in preference
+double GdaConst::gda_autoweight_stop = 0.0001; // move in preference
 bool GdaConst::gda_use_gpu = false;
 int GdaConst::gda_ui_language = 0;
 double GdaConst::gda_eigen_tol = 0.00000001;
 bool GdaConst::gda_set_cpu_cores = true;
-int GdaConst::gda_cpu_cores = 8;
+int GdaConst::gda_cpu_cores = 6;
 wxString GdaConst::gda_user_email = "";
 uint64_t GdaConst::gda_user_seed = 123456789;
 bool GdaConst::use_gda_user_seed = true;
 int GdaConst::gdal_http_timeout = 5;
-bool GdaConst::enable_high_dpi_support = false;
+bool GdaConst::enable_high_dpi_support = true;
 bool GdaConst::show_csv_configure_in_merge = true;
 bool GdaConst::show_recent_sample_connect_ds_dialog = true;
 bool GdaConst::use_cross_hatching = false;
@@ -437,6 +440,9 @@ const wxColour GdaConst::conn_graph_outline_colour(55,55,55,100);
 const wxColour GdaConst::conn_select_outline_colour(55,55,55,0);
 const wxColour GdaConst::conn_neighbor_fill_colour(255,255,255,0);
 
+// Heat Map
+const wxColour GdaConst::heatmap_fill_colour(0, 0, 0, 10);
+const wxColour GdaConst::heatmap_outline_colour(255, 255, 255, 0);
 // HTML Tan
 const wxColour GdaConst::conn_map_default_fill_colour(210, 180, 140);
 const wxColour GdaConst::conn_map_default_outline_colour(0, 0, 0);
@@ -487,7 +493,7 @@ const wxColour GdaConst::three_d_plot_default_highlight_colour(255, 255, 0);
 const wxColour GdaConst::three_d_plot_default_point_colour(255, 255, 255);
 // black
 const wxColour GdaConst::three_d_plot_default_background_colour(0, 0, 0);
-const wxSize GdaConst::three_d_default_size(700, 500);
+const wxSize GdaConst::three_d_default_size(820, 620);
 
 // Boxplot
 const wxSize GdaConst::boxplot_default_size(380, 500);

@@ -811,7 +811,7 @@ GwtElement* WeightUtils::ReadGwt(const wxString& fname,
 			it1 = id_map.find(obs1);
 			it2 = id_map.find(obs2);
 			if (it1 == id_map.end() || it2 == id_map.end()) {
-				int obs;
+				int obs = -1;
 				if (it1 == id_map.end()) obs = obs1;
 				if (it2 == id_map.end()) obs = obs2;
 				wxString msg = "On line ";

@@ -116,7 +116,8 @@ public:
 protected:
 
 	bool all_init;
-    
+    bool check_projection;
+
     // controls
 	wxChoice* m_id_field;
     // contiguity weight

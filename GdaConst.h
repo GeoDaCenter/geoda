@@ -241,6 +241,9 @@ public:
     static const wxString gda_lbl_2sigma;
     
 	// Preferences
+    static double gda_autoweight_stop;
+    static bool gda_draw_map_labels;
+    static int gda_map_label_font_size;
     static bool gda_create_csvt;
     static wxString gda_basemap_sources;
     static bool gda_use_gpu;
@@ -288,11 +291,16 @@ public:
 	static const wxColour conn_map_default_fill_colour;
 	static const wxColour conn_map_default_outline_colour;
 	static const wxColour conn_map_default_highlight_colour;
-    
+
+    // Graph Map
     static const wxColour conn_graph_outline_colour;
     static const wxColour conn_select_outline_colour;
     static const wxColour conn_neighbor_fill_colour;
-	
+
+    // Heat Map
+    static const wxColour heatmap_fill_colour;
+    static const wxColour heatmap_outline_colour;
+
 	// Map Movie
 	static const wxColour map_movie_default_fill_colour;
 	static const wxColour map_movie_default_highlight_colour;

@@ -45,7 +45,7 @@
 using namespace std;
 
 HierachicalMapSelectDlg::HierachicalMapSelectDlg(wxFrame* parent_s, Project* project_s)
-: wxDialog(parent_s, wxID_ANY, "Hierarchical Map", wxDefaultPosition,
+: wxDialog(parent_s, wxID_ANY, _("Hierarchical Cluster Map"), wxDefaultPosition,
            wxSize(350, 250))
 {
     wxLogMessage("Open GroupingSelectDlg.");
@@ -209,7 +209,7 @@ void HierachicalMapSelectDlg::OnOK( wxCommandEvent& event)
     uid = w_man_int->RequestWeights(e);
     bool success = ((WeightsNewManager*) w_man_int)->AssociateGal(uid, Wp);
     if (success == false) return;
-    title = _("Hierachical Map: ");
+    title = _("Hierarchical Map: ");
     title << e.filename;
     EndDialog(wxID_OK);
 }

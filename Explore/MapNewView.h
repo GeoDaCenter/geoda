@@ -23,12 +23,8 @@
 #include <vector>
 #include <boost/uuid/uuid.hpp>
 #include <boost/uuid/nil_generator.hpp>
-#include <wx/slider.h>
-#include <wx/stattext.h>
-#include <wx/dialog.h>
-#include <wx/textctrl.h>
-#include <wx/window.h>
-#include <wx/dcgraph.h>
+#include <boost/unordered_map.hpp>
+#include <wx/wx.h>
 
 #include "CatClassification.h"
 #include "CatClassifStateObserver.h"
@@ -44,6 +40,7 @@
 #include "../ShapeOperations/GalWeight.h"
 #include "../MapLayerStateObserver.h"
 #include "MapLayer.hpp"
+#include "MapViewHelper.h"
 
 class CatClassifState;
 class MapTreeFrame;
@@ -59,33 +56,6 @@ typedef boost::multi_array<bool, 2> b_array_type;
 typedef boost::multi_array<double, 2> d_array_type;
 typedef boost::multi_array<wxString, 2> s_array_type;
 
-using namespace std;
-
-// Transparency SliderBar dialog for Basemap
-class SliderDialog: public wxDialog
-{
-    DECLARE_CLASS( SliderDialog )
-    DECLARE_EVENT_TABLE()
-public:
-    SliderDialog ();
-    SliderDialog (wxWindow * parent,
-                  MapCanvas* _canvas,
-                  wxWindowID id=wxID_ANY,
-                  const wxString & caption="Slider Dialog",
-                  const wxPoint & pos = wxDefaultPosition,
-                  const wxSize & size = wxDefaultSize,
-                  long style = wxDEFAULT_DIALOG_STYLE );
-    virtual ~SliderDialog ();
-    
-private:
-    MapCanvas* canvas;
-    wxSlider* slider;
-    wxStaticText* slider_text;
-	void OnSliderChange(wxCommandEvent& event );
-    
-};
-
-
 class MapCanvas : public TemplateCanvas, public CatClassifStateObserver,
                   public MapLayerStateObserver, public AssociateLayerInt
 {
@@ -98,8 +68,8 @@ public:
     
     MapCanvas(wxWindow *parent, TemplateFrame* t_frame,
               Project* project,
-              const vector<GdaVarTools::VarInfo>& var_info,
-              const vector<int>& col_ids,
+              const std::vector<GdaVarTools::VarInfo>& var_info,
+              const std::vector<int>& col_ids,
               CatClassification::CatClassifType theme_type = CatClassification::no_theme,
               SmoothingType smoothing_type = no_smoothing,
               int num_categories = 1,
@@ -109,11 +79,21 @@ public:
     
 	virtual ~MapCanvas();
 
+    virtual void RedrawMap();
+
+    // functions for heat map
+    virtual void OnHeatMap(int menu_id);
+
+    // function for MST map
+    virtual void OnMSTMap(int menu_id);
+    
 	virtual void DisplayRightClickMenu(const wxPoint& pos);
 	virtual void AddTimeVariantOptionsToMenu(wxMenu* menu);
 	virtual wxString GetCanvasTitle();
     virtual wxString GetVariableNames();
 	virtual wxString GetNameWithTime(int var);
+    virtual void UpdateSelection(bool shiftdown = false,
+                                 bool pointsel = false);
     virtual void UpdateSelectionPoints(bool shiftdown = false,
                                        bool pointsel = false);
 	virtual void NewCustomCatClassif();
@@ -122,8 +102,8 @@ public:
                                int num_categories,
                                boost::uuids::uuid weights_id,
                                bool use_new_var_info_and_col_ids,
-                               const vector<GdaVarTools::VarInfo>& new_var_info,
-                               const vector<int>& new_col_ids,
+                               const std::vector<GdaVarTools::VarInfo>& new_var_info,
+                               const std::vector<int>& new_col_ids,
                                const wxString& custom_classif_title = wxEmptyString);
 	virtual void update(HLStateInt* o);
 	virtual void update(CatClassifState* o);
@@ -151,6 +131,8 @@ public:
 	virtual void ZoomShapes(bool is_zoomin = true);
 	virtual void PanShapes();
     virtual void ExtentMap();
+    virtual void ExtentTo(double minx, double miny, double maxx, double maxy);
+    virtual OGRSpatialReference* GetSpatialReference();
     virtual bool IsExtentChanged();
     virtual void ResizeSelectableShps(int virtual_scrn_w = 0,
                                       int virtual_scrn_h = 0);
@@ -167,7 +149,10 @@ public:
     virtual void ChangeGraphThickness(int val);
     virtual void ChangeGraphColor();
     virtual void ChangeConnSelectedColor();
+    virtual void ChangeConnSelectedFillColor();
     virtual void ChangeNeighborFillColor();
+    virtual void ChangeHeatMapFillColor();
+    virtual void ChangeHeatMapOutlineColor();
 	virtual void DisplayVoronoiDiagram();
 	virtual int GetNumVars();
 	virtual int GetNumCats();
@@ -177,7 +162,6 @@ public:
     virtual void UpdateStatusBar();
     virtual wxBitmap* GetPrintLayer();
     
-    void DisplayMapLayers();
     void AddMapLayer(wxString name, BackgroundMapLayer* map_layer,
                      bool is_hide = false);
     void CleanBasemapCache();
@@ -190,21 +174,21 @@ public:
     void SetupColor();
     void SetPredefinedColor(const wxString& lbl, const wxColor& new_color);
     void UpdatePredefinedColor(const wxString& lbl, const wxColor& new_color);
-    vector<bool> AddNeighborsToSelection(GalWeight* gal_weights, wxMemoryDC &dc);
+    std::vector<bool> AddNeighborsToSelection(GalWeight* gal_weights, wxMemoryDC &dc);
     void SetLegendLabel(int cat, wxString label);
    
     // multi-layers:
-    vector<BackgroundMapLayer*> GetBackgroundMayLayers();
-    vector<BackgroundMapLayer*> GetForegroundMayLayers();
-    void SetForegroundMayLayers(vector<BackgroundMapLayer*>& val);
-    void SetBackgroundMayLayers(vector<BackgroundMapLayer*>& val);
-    vector<wxString> GetLayerNames();
+    std::vector<BackgroundMapLayer*> GetBackgroundMayLayers();
+    std::vector<BackgroundMapLayer*> GetForegroundMayLayers();
+    void SetForegroundMayLayers(std::vector<BackgroundMapLayer*>& val);
+    void SetBackgroundMayLayers(std::vector<BackgroundMapLayer*>& val);
+    std::vector<wxString> GetLayerNames();
     void RemoveLayer(wxString name);
     virtual bool IsCurrentMap();
     virtual wxString GetName();
-    virtual vector<wxString> GetKeyNames();
+    virtual std::vector<wxString> GetKeyNames();
     virtual int  GetNumRecords();
-    virtual bool GetKeyColumnData(wxString col_name, vector<wxString>& data);
+    virtual bool GetKeyColumnData(wxString col_name, std::vector<wxString>& data);
     virtual void ResetHighlight();
     virtual void DrawHighlight(wxMemoryDC& dc, MapCanvas* map_canvas);
     virtual void SetLayerAssociation(wxString my_key, AssociateLayerInt* layer,
@@ -214,19 +198,22 @@ public:
     virtual int GetHighlightRecords();
     virtual void GetExtent(double &minx, double &miny, double &maxx,
                            double &maxy);
+    virtual void GetExtentOfSelected(double &minx, double &miny, double &maxx,
+                                     double &maxy);
     void UpdateMapTree();
     
     Shapefile::Main& GetGeometryData();
     OGRLayerProxy*   GetOGRLayerProxy();
-    const wxBitmap*  GetBaseLayer() { return basemap_bm; }
     CatClassification::CatClassifType GetCcType();
     static void ResetThumbnail() {
         MapCanvas::has_thumbnail_saved = false;
     }
     Project* GetProject() { return project; }
 
-	CatClassifDef cat_classif_def;
-	SmoothingType smoothing_type;
+    int num_obs;
+    bool isDrawBasemap;
+    int tran_unhighlighted;
+    bool print_detailed_basemap;
 	bool is_rate_smoother;
 	bool display_mean_centers;
 	bool display_centroids;
@@ -238,20 +225,31 @@ public:
     bool display_neighbor_color;
     bool display_map_with_graph;
     int  weights_graph_thickness;
+    bool draw_highlight_in_multilayers;
     wxColour graph_color;
     wxColour conn_selected_color;
+    wxColour conn_selected_fill_color;
     wxColour neighbor_fill_color;
-    int conn_selected_size;
-    set<int> ids_of_nbrs;
-    vector<int> ids_wo_nbrs;
-	vector<GdaVarTools::VarInfo> var_info;
-	int num_obs;
-	bool isDrawBasemap;
-    int tran_unhighlighted;
-	bool print_detailed_basemap;
 
-    static vector<int> empty_shps_ids;
-    static map<int, bool> empty_dict;
+    // heat map
+    bool display_heat_map;
+    HeatMapHelper heat_map;
+
+    // mst map
+    bool display_mst;
+    MSTMapHelper mst_map;
+
+    // connectivity
+    int conn_selected_size;
+    std::set<int> ids_of_nbrs;
+    std::vector<int> ids_wo_nbrs;
+	std::vector<GdaVarTools::VarInfo> var_info;
+    std::vector<GdaPoint*> heat_map_pts;
+    CatClassifDef cat_classif_def;
+    SmoothingType smoothing_type;
+
+    static std::vector<int> empty_shps_ids;
+    static boost::unordered_map<int, bool> empty_dict;
     static bool has_shown_empty_shps_msg;
     static int GetEmptyNumber();
     static void ResetEmptyFlag();
@@ -259,14 +257,15 @@ public:
     Gda::BasemapItem basemap_item;
     
 protected:
-    vector<BackgroundMapLayer*> bg_maps;
-    vector<BackgroundMapLayer*> fg_maps;
-    list<GdaShape*>  background_maps;
-    list<GdaShape*>  foreground_maps;
-    
+    std::vector<BackgroundMapLayer*> bg_maps;
+    std::vector<BackgroundMapLayer*> fg_maps;
+    std::list<GdaShape*>  background_maps;
+    std::list<GdaShape*>  foreground_maps;
+    std::vector<int> select_with_neighbor; // only works w/ graph/connectivity
+
     bool layerbase_valid; // if false, then needs to be redrawn
     bool is_updating; // true: if triggered by other window
-    vector<GdaPolyLine*> w_graph;
+    std::vector<GdaPolyLine*> w_graph;
     IDataSource* p_datasource;
     static bool has_thumbnail_saved;
     wxString layer_name;
@@ -278,26 +277,26 @@ protected:
 	
     bool IS_VAR_STRING;
 	int num_time_vals;
-	vector<d_array_type> data;
-    vector<s_array_type> s_data;
-	vector<b_array_type> data_undef;
+	std::vector<d_array_type> data;
+    std::vector<s_array_type> s_data;
+	std::vector<b_array_type> data_undef;
     
-	vector<Gda::dbl_int_pair_vec_type> cat_var_sorted;
-    vector<Gda::str_int_pair_vec_type> cat_str_var_sorted;
+	std::vector<Gda::dbl_int_pair_vec_type> cat_var_sorted;
+    std::vector<Gda::str_int_pair_vec_type> cat_str_var_sorted;
 	int num_categories; // used for Quantile, Equal Interval and Natural Breaks
 	
 	int ref_var_index;
 	bool is_any_time_variant;
 	bool is_any_sync_with_global_time;
-	vector<bool> map_valid;
-	vector<wxString> map_error_message;
+	std::vector<bool> map_valid;
+	std::vector<wxString> map_error_message;
 	bool full_map_redraw_needed;
 	boost::uuids::uuid weights_id;
    
     // predefined/user-specified color, each label can be assigned with a color
     // user can specified using:
     // SetPredefinedColor(), UpdatePredifinedColor()
-    map<wxString, wxColour> lbl_color_dict;
+    std::map<wxString, wxColour> lbl_color_dict;
     
 	wxBitmap* basemap_bm;
 	Gda::Basemap* basemap;
@@ -328,8 +327,8 @@ class MapFrame : public TemplateFrame, public WeightsManStateObserver
    DECLARE_CLASS(MapFrame)
 public:
     MapFrame(wxFrame *parent, Project* project,
-             const vector<GdaVarTools::VarInfo>& var_info,
-             const vector<int>& col_ids,
+             const std::vector<GdaVarTools::VarInfo>& var_info,
+             const std::vector<int>& col_ids,
              CatClassification::CatClassifType theme_type = CatClassification::no_theme,
              MapCanvas::SmoothingType smoothing_type = MapCanvas::no_smoothing,
              int num_categories = 1,
@@ -394,18 +393,21 @@ public:
     void OnBasemapSelect(wxCommandEvent& event);
     void OnClose(wxCloseEvent& event);
     void CleanBasemap();
-	void GetVizInfo(map<wxString, vector<int> >& colors);
+	void GetVizInfo(std::map<wxString, std::vector<int> >& colors);
     void GetVizInfo(wxString& shape_type,
                     wxString& field_name,
-                    vector<wxString>& clrs,
-                    vector<double>& bins);
+                    std::vector<wxString>& clrs,
+                    std::vector<double>& bins);
     void OnAddNeighborToSelection(wxCommandEvent& event);
     void OnDisplayWeightsGraph(wxCommandEvent& event);
     void OnDisplayMapWithGraph(wxCommandEvent& event);
     void OnChangeGraphThickness(wxCommandEvent& event);
     void OnChangeGraphColor(wxCommandEvent& event);
     void OnChangeConnSelectedColor(wxCommandEvent& event);
+    void OnChangeConnSelectedFillColor(wxCommandEvent& event);
     void OnChangeNeighborFillColor(wxCommandEvent& event);
+    void OnChangeHeatMapFillColor(wxCommandEvent& event);
+    void OnChangeHeatMapOutlineColor(wxCommandEvent& event);
     void OnMapSelect(wxCommandEvent& e);
     void OnMapInvertSelect(wxCommandEvent& e);
     void OnMapPan(wxCommandEvent& e);
@@ -418,14 +420,18 @@ public:
     void OnMapEditLayer(wxCommandEvent& e);
     void OnMapTreeClose(wxWindowDestroyEvent& event);
     void OnShowMapBoundary(wxCommandEvent& event);
+
+    void OnHeatMap(wxCommandEvent& event);
+    void OnMapMST(wxCommandEvent& event);
+    
     void UpdateMapTree();
 	bool ChangeMapType(CatClassification::CatClassifType new_map_theme,
 					   MapCanvas::SmoothingType new_map_smoothing,
 					   int num_categories,
 					   boost::uuids::uuid weights_id,
 					   bool use_new_var_info_and_col_ids,
-					   const vector<GdaVarTools::VarInfo>& new_var_info,
-					   const vector<int>& new_col_ids,
+					   const std::vector<GdaVarTools::VarInfo>& new_var_info,
+					   const std::vector<int>& new_col_ids,
 					   const wxString& custom_classif_title = wxEmptyString);
     void SetLegendLabel(int cat, wxString label) {
         if (!template_canvas) return;
@@ -437,8 +443,8 @@ public:
     void AppendCustomCategories(wxMenu* menu, CatClassifManager* ccm);
     
 	
-    vector<GdaVarTools::VarInfo> var_info;
-    vector<int> col_ids;
+    std::vector<GdaVarTools::VarInfo> var_info;
+    std::vector<int> col_ids;
     
 protected:
     wxBoxSizer* rbox;

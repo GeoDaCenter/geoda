@@ -454,6 +454,9 @@ void TemplateLegend::OnDraw(wxDC& dc)
 {
 	if (!template_canvas)
         return;
+    
+    dc.SetTextForeground(*wxBLACK);
+
     wxPen bg_pen(legend_background_color);
     dc.SetPen(bg_pen);
     wxBrush bg_brush(legend_background_color);

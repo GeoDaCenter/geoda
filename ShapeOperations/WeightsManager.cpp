@@ -636,13 +636,12 @@ bool GdaWeightsTools::CheckGalSymmetry(GalWeight* w, ProgressDlg* p_dlg)
 				if (elm_j[k++] == i) found = true;
 			}
 			if (!found) {
-				p_dlg->ValueUpdate(1);
-                
+				if (p_dlg) p_dlg->ValueUpdate(1);
 				return false;
 			}
 		}
 	}
-	p_dlg->ValueUpdate(1);
+    if (p_dlg) p_dlg->ValueUpdate(1);
 	return true;
 }
 
@@ -669,12 +668,12 @@ bool GdaWeightsTools::CheckGwtSymmetry(GwtWeight* w, ProgressDlg* p_dlg)
 				if (data_j[k++].nbx == i) found = true;
 			}
 			if (!found) {
-				p_dlg->ValueUpdate(1);
+				if (p_dlg) p_dlg->ValueUpdate(1);
 				return false;
 			}
 		}
 	}
-	p_dlg->ValueUpdate(1);
+	if (p_dlg) p_dlg->ValueUpdate(1);
 	return true;
 }
 

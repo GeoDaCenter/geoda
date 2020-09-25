@@ -119,7 +119,7 @@ void ConnectivityMapCanvas::OnMouseEvent(wxMouseEvent& event)
                     } else if (brushtype == line) {
                         brush_shape = new GdaPolyLine(sel1, sel2);
                     }
-                    if (brush_shape->Contains(prev)) {
+                    if (brush_shape && brush_shape->Contains(prev)) {
                         // brushing
                         is_brushing = true;
                         remember_shiftdown = false;  // brush will cancel shift
@@ -246,6 +246,11 @@ void ConnectivityMapCanvas::OnMouseEvent(wxMouseEvent& event)
 // all GdaShape selectable objects.
 void ConnectivityMapCanvas::UpdateSelection(bool shiftdown, bool pointsel)
 {
+    // notify other windows to update
+    is_updating = false;
+    // clean any select_with_neighbor since it's users operation
+    select_with_neighbor.clear();
+    
 	size_t sel_shps_sz = selectable_shps.size();
 	
 	sel_cores.clear();

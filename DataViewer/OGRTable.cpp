@@ -1631,7 +1631,7 @@ bool OGRTable::IsValidDBColName(const wxString& col_nm,
     if ( field_len < col_nm.length() ) {
 		if ( fld_warn_msg ) {
 		    *fld_warn_msg = _("The length of field name should be between 1 and %d.\nCurrent field length (%d) is not valid");
-            *fld_warn_msg = wxString::Format(*fld_warn_msg, field_len, col_nm.length());
+            *fld_warn_msg = wxString::Format(*fld_warn_msg, (int)field_len, (int)col_nm.length());
 		}
 		return false;
 	}

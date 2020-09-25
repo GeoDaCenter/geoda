@@ -1383,7 +1383,6 @@ void myOGLManager::SetShadersAndTriangles()
     m_CircleShaders.AddCode(circleFragmentShader, GL_FRAGMENT_SHADER);
     m_CircleShaders.Init();
     
-    
     m_TriangShaders.AddAttrib("in_Position");
     m_TriangShaders.AddAttrib("in_Colour");
     m_TriangShaders.AddAttrib("in_Normal");
