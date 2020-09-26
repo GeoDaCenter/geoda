@@ -845,6 +845,10 @@ void HistogramCanvas::PopulateCanvas()
 			} else if (ival_min > mean && sd > 0) {
 				sd_d = (ival_min - mean)/sd;
 			}
+            if (ival_obs_cnt[t][i] == 0) {
+                p = 0;
+                sd_d = 0;
+            }
 			vals[0] << GenUtils::DblToStr(ival_min, display_precision, display_precision_fixed_point);
 			vals[1] << GenUtils::DblToStr(ival_max, display_precision, display_precision_fixed_point);
 			vals[2] << ival_obs_cnt[t][i];
