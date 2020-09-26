@@ -81,7 +81,6 @@ custom_classif_state(0), is_custom_category(false), set_uniquevalue(false)
   
     // Histogram has only one variable, so size of col_ids = 1
     col_id = col_ids[0];
-    int num_var = v_info.size();
     int col_time_steps = table_int->GetColTimeSteps(col_id);
     
     // prepare statistics
@@ -121,8 +120,8 @@ custom_classif_state(0), is_custom_category(false), set_uniquevalue(false)
                 unique_dict[sel_data[i]] += 1;
             }
             // add current [id] to ival_to_obs_ids
-            max_intervals = unique_dict.size();
-            cur_intervals = unique_dict.size();
+            max_intervals = (int)unique_dict.size();
+            cur_intervals = (int)unique_dict.size();
 
         } else {
             std::vector<double> sel_data;
@@ -160,7 +159,7 @@ custom_classif_state(0), is_custom_category(false), set_uniquevalue(false)
     
     // Setup Group Dependency
     template_frame->ClearAllGroupDependencies();
-    for (int i=0, sz=var_info.size(); i<sz; ++i) {
+    for (int i=0; i<var_info.size(); ++i) {
         template_frame->AddGroupDependancy(var_info[i].name);
     }
     
@@ -245,8 +244,8 @@ void HistogramCanvas::OnSetUniqueValue(wxCommandEvent& event)
                 unique_dict[sel_data[i]] += 1;
             }
             // add current [id] to ival_to_obs_ids
-            max_intervals = unique_dict.size();
-            cur_intervals = unique_dict.size();
+            max_intervals = (int)unique_dict.size();
+            cur_intervals = (int)unique_dict.size();
         }
     } else {
         // restore
@@ -306,8 +305,9 @@ int HistogramCanvas::AddClassificationOptionsToMenu(wxMenu* menu,
                                                     CatClassifManager* ccm)
 {
     if (!IS_VAR_STRING.empty()) {
-        if(IS_VAR_STRING[0])
+        if(IS_VAR_STRING[0]) {
             return 0;
+        }
     }
     std::vector<wxString> titles;
     ccm->GetTitles(titles);
@@ -315,15 +315,15 @@ int HistogramCanvas::AddClassificationOptionsToMenu(wxMenu* menu,
 	wxMenu* menu2 = new wxMenu(wxEmptyString);
     wxString s = _("Create New Custom");
     int xrcid_hist_classification = GdaConst::ID_HISTOGRAM_CLASSIFICATION;
-    wxMenuItem* mi = menu2->Append(xrcid_hist_classification, s, s);
+    menu2->Append(xrcid_hist_classification, s, s);
     menu2->AppendSeparator();
     
-    for (size_t j=0; j<titles.size(); j++) {
-        wxMenuItem* mi = menu2->Append(xrcid_hist_classification+j+1, titles[j]);
+    for (int j=0; j<titles.size(); j++) {
+        menu2->Append(xrcid_hist_classification+j+1, titles[j]);
     }
     s = _("Histogram Classification");
 	menu->Insert(1, wxID_ANY, s, menu2, s);
-    return titles.size();
+    return (int)titles.size();
 }
 
 void HistogramCanvas::OnCustomCategorySelect(wxCommandEvent& e)
@@ -408,7 +408,7 @@ void HistogramCanvas::SetCheckMarks(wxMenu* menu)
 void HistogramCanvas::DetermineMouseHoverObjects(wxPoint pt)
 {
 	total_hover_obs = 0;
-	for (int i=0, iend=selectable_shps.size(); i<iend; i++) {
+	for (int i=0; i<selectable_shps.size(); i++) {
 		if (selectable_shps[i]->pointWithin(pt)) {
 			hover_obs[total_hover_obs++] = i;
 			if (total_hover_obs == max_hover_obs) break;
@@ -426,7 +426,7 @@ void HistogramCanvas::UpdateSelection(bool shiftdown, bool pointsel)
 	std::vector<bool>& hs = highlight_state->GetHighlight();
     bool selection_changed =false;
 	
-	int total_sel_shps = selectable_shps.size();
+	int total_sel_shps = (int)selectable_shps.size();
 	
 	wxPoint lower_left;
 	wxPoint upper_right;
@@ -498,7 +498,7 @@ void HistogramCanvas::UpdateSelection(bool shiftdown, bool pointsel)
 void HistogramCanvas::DrawSelectableShapes(wxMemoryDC &dc)
 {
 	int t = var_info[0].time;
-	for (int i=0, iend=selectable_shps.size(); i<iend; i++) {
+	for (int i=0; i<selectable_shps.size(); i++) {
         if (ival_obs_cnt[t][i] == 0) {
             continue;
         }
@@ -509,7 +509,7 @@ void HistogramCanvas::DrawSelectableShapes(wxMemoryDC &dc)
 void HistogramCanvas::DrawHighlightedShapes(wxMemoryDC &dc)
 {
 	int t = var_info[0].time;
-	for (int i=0, iend=selectable_shps.size(); i<iend; i++) {
+	for (int i=0; i<selectable_shps.size(); i++) {
         if (ival_obs_sel_cnt[t][i] == 0 || undef_tms[t][i]) {
             continue;
         }
@@ -573,9 +573,8 @@ void HistogramCanvas::GetBarPositions(std::vector<double>& x_center_pos,
                                     std::vector<double>& x_left_pos,
                                     std::vector<double>& x_right_pos)
 {
-    int n = x_center_pos.size();
-    
-    
+    int n = (int)x_center_pos.size();
+        
     if (!is_custom_category) {
         for (int i=0; i<n; i++) {
             double xc = left_pad_const + interval_width_const/2.0 + i * (interval_width_const + interval_gap_const);
@@ -591,6 +590,12 @@ void HistogramCanvas::GetBarPositions(std::vector<double>& x_center_pos,
         
         double val_max = cat_classif_def.uniform_dist_max;
         double val_min = cat_classif_def.uniform_dist_min;
+        
+        int n_brks = (int)breaks.size();
+        if (val_max < breaks[n_brks-1]) {
+            val_max = breaks[n_brks-1] * 1.1; // case last bin is empty, expand 1.1x
+        }
+        
         double val_range = val_max - val_min;
         double left = val_min;
         
@@ -649,9 +654,16 @@ void HistogramCanvas::PopulateCanvas()
                              -9, 0);
 		foreground_shps.push_back(y_axis);
 		
-		axis_scale_x = AxisScale(0, max_ival_val[time], 5,
+        double x_axis_max = max_ival_val[time];
+        if (max_ival_val[time] < ival_breaks[time][cur_intervals - 2]) {
+            // case the last bin is empty:
+            // max value is less than last break value
+            x_axis_max = ival_breaks[time][cur_intervals - 2] * 1.1; // 10% extend
+        }
+		axis_scale_x = AxisScale(0, x_axis_max, 5,
                                  axis_display_precision,
                                  axis_display_fixed_point);
+        
 		//shps_orig_xmax = axis_scale_x.scale_max;
 		axis_scale_x.data_min = min_ival_val[time];
 		axis_scale_x.data_max = max_ival_val[time];
@@ -739,8 +751,8 @@ void HistogramCanvas::PopulateCanvas()
                 foreground_shps.push_back(brk);
             }
             if (i==cur_intervals-1) {
-                axis_scale_x.tics[i] = axis_scale_x.data_max;
-                wxString tic_str = GenUtils::DblToStr(axis_scale_x.data_max,
+                axis_scale_x.tics[i] = x_axis_max;
+                wxString tic_str = GenUtils::DblToStr(x_axis_max,
                                                       axis_display_precision,
                                                       axis_display_fixed_point);
                 axis_scale_x.tics_str[i] = tic_str;
@@ -754,7 +766,7 @@ void HistogramCanvas::PopulateCanvas()
                                      GdaShapeText::v_center, 0, 25);
                 else
                     brk =
-                    new GdaShapeText(GenUtils::DblToStr(axis_scale_x.data_max,
+                    new GdaShapeText(GenUtils::DblToStr(x_axis_max,
                                                         axis_display_precision,
                                                         axis_display_fixed_point),
                                      *GdaConst::small_font,
@@ -813,9 +825,18 @@ void HistogramCanvas::PopulateCanvas()
 			int t = time;
 			std::vector<wxString> vals(rows);
 			double ival_min = (i == 0) ? min_ival_val[t] : ival_breaks[t][i-1];
-			double ival_max = ((i == cur_intervals-1) ?
-							   max_ival_val[t] : ival_breaks[t][i]);
-			double p = 100.0*((double) ival_obs_cnt[t][i])/((double) num_obs);
+            double ival_max = 0;
+            
+            if (i == cur_intervals-1) {
+                ival_max = max_ival_val[t]; // last bin
+                if (ival_max < ival_min) { // in case last bin is empty
+                    ival_max = std::numeric_limits<double>::infinity();
+                }
+            } else {
+                ival_max = ival_breaks[t][i];
+            }
+            
+            double p = 100.0*((double) ival_obs_cnt[t][i])/((double) num_obs);
 			double sd = data_stats[t].sd_with_bessel;
 			double mean = data_stats[t].mean;
 			double sd_d = 0;
@@ -882,7 +903,7 @@ void HistogramCanvas::PopulateCanvas()
                                               wxRealPoint(x1, y1));
 		
         if (!is_custom_category) {
-            int sz = GdaConst::qualitative_colors.size();
+            int sz = (int)GdaConst::qualitative_colors.size();
             selectable_shps[i]->setPen(GdaConst::qualitative_colors[i%sz]);
             selectable_shps[i]->setBrush(GdaConst::qualitative_colors[i%sz]);
             cat_classif_def.colors[i] = GdaConst::qualitative_colors[i%sz];
@@ -1014,7 +1035,7 @@ void HistogramCanvas::InitIntervals()
 {
 	std::vector<bool>& hs = highlight_state->GetHighlight();
 	
-	int ts = obs_id_to_ival.shape()[0];
+	int ts = (int)obs_id_to_ival.shape()[0];
     s_ival_breaks.resize(boost::extents[ts][cur_intervals]);
 	ival_breaks.resize(boost::extents[ts][cur_intervals-1]);
 	ival_obs_cnt.resize(boost::extents[ts][cur_intervals]);
@@ -1181,7 +1202,7 @@ void HistogramCanvas::InitIntervals()
 
 void HistogramCanvas::UpdateIvalSelCnts()
 {
-	int ts = obs_id_to_ival.shape()[0];	
+	int ts = (int)obs_id_to_ival.shape()[0];
 	HLStateInt::EventType type = highlight_state->GetEventType();
 	if (type == HLStateInt::unhighlight_all) {
 		for (int t=0; t<ts; t++) {
