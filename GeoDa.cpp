@@ -3252,7 +3252,7 @@ void GdaFrame::OnExploreBubbleChart(wxCommandEvent& WXUNUSED(event))
 							false, false,
 							_("Bubble Chart Variables"),
 							_("X-Axis"), _("Y-Axis"),
-							_("Bubble Size"), _("Standard Deviation Color"),
+							_("Bubble Size"), _("Bubble Color"),
 							false, true); // set fourth variable from third
 	if (dlg.ShowModal() != wxID_OK) return;
 	
