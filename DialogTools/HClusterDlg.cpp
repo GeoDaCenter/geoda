@@ -142,7 +142,7 @@ void HClusterDlg::CreateControls()
         AddInputCtrls(panel, vbox, true);
     } else {
         // for SCHC, show spatial weights control
-        AddSimpleInputCtrls(panel, vbox, false, true);
+        AddSimpleInputCtrls(panel, vbox, false/*no show_auto_button*/, false/*integer + real*/, true);
     }
     
     // Parameters
@@ -410,7 +410,6 @@ void HClusterDlg::OnClickClose(wxCommandEvent& event )
     
     event.Skip();
     EndDialog(wxID_CANCEL);
-    Destroy();
 }
 
 void HClusterDlg::OnClose(wxCloseEvent& ev)

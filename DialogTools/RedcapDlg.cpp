@@ -334,7 +334,6 @@ void RedcapDlg::OnClickClose(wxCommandEvent& event )
     
     event.Skip();
     EndDialog(wxID_CANCEL);
-    Destroy();
 }
 
 void RedcapDlg::OnClose(wxCloseEvent& ev)

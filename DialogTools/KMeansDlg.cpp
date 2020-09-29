@@ -295,7 +295,6 @@ void KClusterDlg::OnClickClose(wxCommandEvent& event )
     
     event.Skip();
     EndDialog(wxID_CANCEL);
-    Destroy();
 }
 
 void KClusterDlg::OnClose(wxCloseEvent& ev)

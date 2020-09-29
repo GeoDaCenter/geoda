@@ -76,7 +76,7 @@ void MultiQuantileLisaDlg::CreateControls()
     combo_var = new wxListBox(panel, wxID_ANY, wxDefaultPosition,
                               wxSize(280,250), 0, NULL,
                               wxLB_SINGLE | wxLB_HSCROLL| wxLB_NEEDED_SB);
-    InitVariableCombobox(combo_var, false, false);
+    InitVariableCombobox(combo_var, false, /*integer+real*/ false);
     // parameters
     wxFlexGridSizer* gbox = new wxFlexGridSizer(15,2,10,0);
 
@@ -319,7 +319,6 @@ void MultiQuantileLisaDlg::OnCloseClick(wxCommandEvent& event )
     
     event.Skip();
     EndDialog(wxID_CANCEL);
-    Destroy();
 }
 
 void MultiQuantileLisaDlg::OnOK(wxCommandEvent& event )
