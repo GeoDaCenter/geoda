@@ -154,7 +154,7 @@ string CreateIssueOnGithub(wxString& post_data)
 	if (tester_ids.empty()) return "";
 
 	wxString tester_id = tester_ids[0];
-	const char url[] = "https://api.github.com/repos/GeoDaCenter/geoda/issues";
+	const char url[] = "https://api.github.com/repos/lixun910/geoda/issues";
 	wxString header_auth = "Authorization: token " + tester_id;
 	wxString header_user_agent = "User-Agent: GeoDaTester";
 
