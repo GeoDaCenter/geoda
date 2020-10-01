@@ -372,8 +372,8 @@ void NbrMatchDlg::OnOK(wxCommandEvent& event )
     }
 
     int k = (int)knn;
-    std::vector<double> pval_dict(knn,0);
-    for (size_t v=1; v<knn; ++v) {
+    std::vector<double> pval_dict(knn,  -1);
+    for (int v=1; v<knn; ++v) {
         // p = C(k,v).C(N-k,k-v) / C(N,k),
         pval_dict[v] = Gda::combinatorial(k, v) * Gda::combinatorial(rows-k-1, k-v);
         pval_dict[v] /= Gda::combinatorial(rows-1, k);
@@ -417,21 +417,26 @@ void NbrMatchDlg::OnOK(wxCommandEvent& event )
     size_t new_col = 2;
     std::vector<SaveToTableEntry> new_data(new_col);
     std::vector<std::vector<double> > vals(new_col);
-    std::vector<bool> undefs(rows, false);
+    std::vector<bool> undefs_cnbrs(rows, false), undefs_pval(rows, false);
     
+    for (int i=0; i<rows; ++i) {
+        if (val_p[i] == -1.0) {
+            undefs_pval[i] = true;
+        }
+    }
     wxString field_name = "card";
     
     new_data[0].l_val = &val_cnbrs;
     new_data[0].label = "Cardinality";
     new_data[0].field_default = field_name;
     new_data[0].type = GdaConst::long64_type;
-    new_data[0].undefined = &undefs;
+    new_data[0].undefined = &undefs_cnbrs;
     
     new_data[1].d_val = &val_p;
     new_data[1].label = "Probability";
     new_data[1].field_default = "cpval";
     new_data[1].type = GdaConst::double_type;
-    new_data[1].undefined = &undefs;
+    new_data[1].undefined = &undefs_pval;
     
     SaveToTableDlg dlg(project, this, new_data,
                        _("Save Results: Local Neighbor Match Test"),
@@ -1288,9 +1293,8 @@ void LocalMatchSignificanceCanvas::CreateAndUpdateCategories()
     std::vector<int> cluster = gs_coord->sigCat;
     if (gs_coord->GetSignificanceFilter() < 0) {
         // user specified cutoff
-        int s_f = 1;
         double sig_cutoff = gs_coord->significance_cutoff;
-        for (size_t i=0, iend=gs_coord->num_obs; i<iend; i++) {
+        for (int i=0, iend=gs_coord->num_obs; i<iend; i++) {
             if (p_val[i] <= sig_cutoff) {
                 cat_data.AppendIdToCategory(t, 1, i);
             } else {
@@ -1299,7 +1303,7 @@ void LocalMatchSignificanceCanvas::CreateAndUpdateCategories()
         }
     } else {
         int s_f = gs_coord->GetSignificanceFilter();
-        for (size_t i=0, iend=gs_coord->num_obs; i<iend; i++) {
+        for (int i=0, iend=gs_coord->num_obs; i<iend; i++) {
             if (p_val[i] <= 0.0001) {
                 cat_data.AppendIdToCategory(t, 5-s_f, i);
             } else if (p_val[i] <= 0.001) {
@@ -1314,7 +1318,7 @@ void LocalMatchSignificanceCanvas::CreateAndUpdateCategories()
         }
     }
 
-    for (size_t cat=0; cat<num_cats; cat++) {
+    for (int cat=0; cat<num_cats; cat++) {
         cat_data.SetCategoryCount(t, cat, cat_data.GetNumObsInCategory(t, cat));
     }
     PopulateCanvas();
@@ -1516,7 +1520,7 @@ void LocalMatchSignificanceFrame::OnRanOtherPer(wxCommandEvent& event)
         long num;
         wxString input = dlg.m_number->GetValue();
         input.ToLong(&num);
-        RanXPer(num);
+        RanXPer((int)num);
     }
 }
 
