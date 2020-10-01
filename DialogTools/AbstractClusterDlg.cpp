@@ -249,7 +249,8 @@ void AbstractClusterDlg::AddSimpleInputCtrls(wxPanel *panel, wxBoxSizer* vbox,
 }
 
 void AbstractClusterDlg::AddInputCtrls(wxPanel *panel, wxBoxSizer* vbox,
-                                       bool show_auto_button, bool show_spatial_weights,
+                                       bool show_auto_button, bool integer_only,
+                                       bool show_spatial_weights,
                                        bool single_variable, bool add_centroids)
 {
     wxString ttl = single_variable ? _("Select a Variable") : _("Select Variables");
@@ -260,7 +261,7 @@ void AbstractClusterDlg::AddInputCtrls(wxPanel *panel, wxBoxSizer* vbox,
 
     combo_var = new wxListBox(panel, wxID_ANY, wxDefaultPosition,
                               wxSize(250,250), 0, NULL, style);
-    InitVariableCombobox(combo_var, add_centroids);
+    InitVariableCombobox(combo_var, integer_only, add_centroids);
     
     m_use_centroids = new wxCheckBox(panel, wxID_ANY, _("Use geometric centroids"));
     auto_btn = new wxButton(panel, wxID_OK, _("Auto Weighting"));

@@ -375,7 +375,6 @@ void AZPDlg::OnClickClose(wxCommandEvent& event )
     
     event.Skip();
     EndDialog(wxID_CANCEL);
-    Destroy();
 }
 
 void AZPDlg::OnClose(wxCloseEvent& ev)

@@ -390,7 +390,6 @@ void SkaterDlg::OnClickClose(wxCommandEvent& event )
     
     event.Skip();
     EndDialog(wxID_CANCEL);
-    Destroy();
 }
 
 void SkaterDlg::OnClose(wxCloseEvent& ev)
