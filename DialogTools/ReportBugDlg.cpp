@@ -127,7 +127,7 @@ ReportResultDlg::ReportResultDlg(wxWindow* parent, wxString issue_url,
 	m_hyperlink1 = new wxHyperlinkCtrl(panel, wxID_ANY, issue_url,
 		issue_url);
 	bSizer->Add(lbl_tip, 1, wxALIGN_TOP | wxEXPAND | wxLEFT | wxRIGHT | wxTOP, 10);
-	bSizer->Add(m_hyperlink1, 1, wxALIGN_TOP | wxEXPAND | wxLEFT | wxRIGHT | wxTOP, 0);
+	bSizer->Add(m_hyperlink1, 1, wxALIGN_TOP | wxEXPAND | wxLEFT | wxRIGHT, 10);
 
 	panel->SetSizerAndFit(bSizer);
 
@@ -163,13 +163,14 @@ string CreateIssueOnGithub(wxString& post_data)
 	CURLcode res;
 	if (curl) {
 		struct curl_slist *chunk = NULL;
+		chunk = curl_slist_append(chunk, "Accept: application/vnd.github.v3+json");
 		chunk = curl_slist_append(chunk, header_auth.c_str());
 		chunk = curl_slist_append(chunk, header_user_agent.c_str());
 		// set our custom set of headers
 		res = curl_easy_setopt(curl, CURLOPT_HTTPHEADER, chunk);
 		curl_easy_setopt(curl, CURLOPT_URL, url);
 		curl_easy_setopt(curl, CURLOPT_POSTFIELDS,
-                         (const char*)post_data.mb_str(wxConvUTF8));
+                         (const char*)post_data.c_str());
 		curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_to_string_);
 		curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response);
 		curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT, 1L);
@@ -337,7 +338,9 @@ bool ReportBugDlg::CreateIssue(wxString title, wxString body)
 	wxTextFile tfile;
     if (tfile.Open(logger_path)) {
     	while (!tfile.Eof()) {
-    		body << tfile.GetNextLine() << "\\n";
+			wxString ln = tfile.GetNextLine();
+			ln.Replace("\\", "\\\\");
+    		body << ln << "\\n";
     	}
     }
 
