@@ -403,6 +403,7 @@ void RedcapDlg::OnSaveTree(wxCommandEvent& event )
         header << "0 " << project->GetNumRecords() << " ";
         header << "\"" << project->GetProjectTitle() << "\" ";
         header << id;
+		file.AddLine(header);
 
         vector<vector<int> > cluster_ids = redcap->GetRegions();
         map<int, int> nid_cid; // node id -> cluster id
