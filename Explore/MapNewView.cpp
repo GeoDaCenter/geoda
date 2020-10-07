@@ -928,6 +928,10 @@ bool MapCanvas::InitBasemap()
 void MapCanvas::SetNoBasemap()
 {
     ResetBrushing();
+
+	// reset to default transparency for unhilighted objects
+    tran_unhighlighted = GdaConst::transparency_unhighlighted;
+
     isDrawBasemap = false;
     basemap_item.Reset();
     if ( basemap ) {
