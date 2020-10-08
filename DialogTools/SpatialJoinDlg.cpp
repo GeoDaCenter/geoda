@@ -493,9 +493,9 @@ SpatialJoinDlg::SpatialJoinDlg(wxWindow* parent, Project* _project)
     cbox->Add(rb_box, 0, wxALL, 10);
     cbox->Add(main_box, wxALL, 10);
 
-    wxButton* ok_btn = new wxButton(this, wxID_ANY, _("OK"), wxDefaultPosition,
+    wxButton* ok_btn = new wxButton(panel, wxID_ANY, _("OK"), wxDefaultPosition,
                                     wxDefaultSize, wxBU_EXACTFIT);
-    wxButton* cancel_btn = new wxButton(this, wxID_CANCEL, _("Close"),
+    wxButton* cancel_btn = new wxButton(panel, wxID_CANCEL, _("Close"),
                                         wxDefaultPosition, wxDefaultSize,
                                         wxBU_EXACTFIT);
 
