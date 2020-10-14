@@ -548,7 +548,7 @@ void DistancePlotDlg::GetSelectedVariables(wxListBox* var_box,
 {
     wxArrayInt selections;
     combo_var->GetSelections(selections);
-    int num_var = selections.size();
+    int num_var = (int)selections.size();
 
     data.resize(num_var);
     data_undefs.resize(num_var);

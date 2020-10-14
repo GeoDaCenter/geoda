@@ -482,7 +482,7 @@ void LoessPlotCanvas::UpdateMargins()
 
 LoessSettingsDlg::LoessSettingsDlg(LoessPlotCanvas* canvas)
 : wxDialog(NULL, wxID_ANY, _("Loess Settings"), wxDefaultPosition,
-           wxSize(420, 450), wxDEFAULT_DIALOG_STYLE|wxRESIZE_BORDER),
+           wxSize(420, 250), wxDEFAULT_DIALOG_STYLE|wxRESIZE_BORDER),
 canvas(canvas)
 {
     CreateControls();
@@ -543,7 +543,9 @@ void LoessSettingsDlg::CreateControls()
     m_surface->SetSelection(0);
     gbox1->Add(st_surface, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
     gbox1->Add(m_surface, 1, wxEXPAND);
-
+    st_surface->Hide();
+    m_surface->Hide();
+    
     // statistics = c("approximate", "exact", "none"),
     wxStaticText* st_statistics = new wxStaticText(panel, wxID_ANY, _("Statistics:"));
     wxString choices16[] = {"approximate", "exact", "none"};
@@ -551,7 +553,9 @@ void LoessSettingsDlg::CreateControls()
     m_statistics->SetSelection(0);
     gbox1->Add(st_statistics, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
     gbox1->Add(m_statistics, 1, wxEXPAND);
-
+    st_statistics->Hide();
+    m_statistics->Hide();
+    
     // trace.hat = c("exact", "approximate"),
     wxStaticText* st_tracehat = new wxStaticText(panel, wxID_ANY, _("Trace Hat:"));
     wxString choices_tracehat[] = {"approximate", "exact"};
@@ -559,22 +563,29 @@ void LoessSettingsDlg::CreateControls()
     m_tracehat->SetSelection(0);
     gbox1->Add(st_tracehat, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
     gbox1->Add(m_tracehat, 1, wxEXPAND);
-
+    st_tracehat->Hide();
+    m_tracehat->Hide();
+    
     // cell 0.2
     wxStaticText* st_cell = new wxStaticText(panel, wxID_ANY, _("Cell:"));
     m_cell = new wxTextCtrl(panel, wxID_ANY, "0.2", wxDefaultPosition, wxSize(200,-1));
     gbox1->Add(st_cell, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
     gbox1->Add(m_cell, 1, wxEXPAND);
-
+    st_cell->Hide();
+    m_cell->Hide();
+    
     // iterations 4
     wxStaticText* st_iteration = new wxStaticText(panel, wxID_ANY, _("Iterations:"));
     m_iterations = new wxTextCtrl(panel, wxID_ANY, "4", wxDefaultPosition, wxSize(200,-1));
     gbox1->Add(st_iteration, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
     gbox1->Add(m_iterations, 1, wxEXPAND);
-
-    wxStaticBoxSizer *hbox1 = new wxStaticBoxSizer(wxHORIZONTAL, panel, _("Loess Control Parameters:"));
-    hbox1->Add(gbox1, 1, wxEXPAND);
-
+    
+    st_iteration->Hide();
+    m_iterations->Hide();
+    
+    //wxStaticBoxSizer *hbox1 = new wxStaticBoxSizer(wxHORIZONTAL, panel, _("Loess Control Parameters:"));
+    //hbox1->Add(gbox1, 1, wxEXPAND);
+    
     // buttons
     wxButton *okButton = new wxButton(panel, wxID_OK, _("Apply"), wxDefaultPosition,
                                       wxSize(70, 30));
@@ -585,7 +596,7 @@ void LoessSettingsDlg::CreateControls()
     hbox2->Add(closeButton, 1, wxALIGN_CENTER | wxALL, 5);
 
     vbox->Add(hbox, 1, wxALIGN_CENTER | wxTOP | wxLEFT | wxRIGHT, 10);
-    vbox->Add(hbox1, 1, wxEXPAND | wxALL, 10);
+    //vbox->Add(hbox1, 1, wxEXPAND | wxALL, 10);
     vbox->Add(hbox2, 1, wxALIGN_CENTER | wxALL, 10);
 
 
