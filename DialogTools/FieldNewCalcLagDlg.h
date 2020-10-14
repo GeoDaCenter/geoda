@@ -53,7 +53,8 @@ public:
     void OnLagOperandUpdated( wxCommandEvent& event );
 	void OnLagOperandTmUpdated( wxCommandEvent& event );
 	void OnOpenWeightClick( wxCommandEvent& event );
-
+    void OnMedianLag( wxCommandEvent& event );
+    
 	void UpdateOtherPanels();
 	void SetOtherPanelPointers(FieldNewCalcSpecialDlg* s_panel_s,
 							   FieldNewCalcUniDlg* u_panel_s,
@@ -84,7 +85,7 @@ public:
     wxTextCtrl* m_text;
     wxCheckBox* m_row_stand;
     wxCheckBox* m_self_neighbor;
-    
+    wxCheckBox* m_median_lag;
     
 	Project* project;
 	WeightsManInterface* w_man_int;

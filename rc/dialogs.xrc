@@ -6012,6 +6012,13 @@
                       </object>
                       <flag>wxALIGN_CENTRE_VERTICAL</flag>
                   </object>
+                  <object class="sizeritem">
+                      <object class="wxCheckBox" name="ID_LAG_MEDIAN">
+                          <checked>0</checked>
+                          <label>Median spatial lag</label>
+                      </object>
+                      <flag>wxALIGN_CENTRE_VERTICAL</flag>
+                  </object>
                   <orient>wxVERTICAL</orient>
               </object>
             <flag>wxTOP|wxALIGN_CENTER</flag>
