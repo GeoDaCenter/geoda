@@ -2457,7 +2457,7 @@ void MapCanvas::PopulateCanvas()
         if (var_info.size() > 0) {
             const GdaVarTools::VarInfo& vi = var_info[0];
             if (table_int) {
-                int col_idx = table_int->GetColIdx(vi.name);
+                int col_idx = table_int->GetColIdx(vi.name, !project->IsFieldCaseSensitive());
                 int time_idx = vi.time;
                 std::vector<wxString> labels;
                 GdaConst::FieldType col_type = table_int->GetColType(col_idx, time_idx);

@@ -89,7 +89,25 @@ void FieldNewCalcLagDlg::CreateControls()
     // ID_LAG_USE_ROWSTAND_W  ID_LAG_INCLUDE_DIAGNOAL_W
     m_row_stand = XRCCTRL(*this, "ID_LAG_USE_ROWSTAND_W", wxCheckBox);
     m_self_neighbor = XRCCTRL(*this, "ID_LAG_INCLUDE_DIAGNOAL_W", wxCheckBox);
+    m_median_lag = XRCCTRL(*this, "ID_LAG_MEDIAN", wxCheckBox);
     
+    m_median_lag->Bind(wxEVT_CHECKBOX, &FieldNewCalcLagDlg::OnMedianLag, this);
+}
+
+void FieldNewCalcLagDlg::OnMedianLag(wxCommandEvent& evt)
+{
+    bool median_checked = m_median_lag->IsChecked();
+    
+    if (median_checked) {
+        m_row_stand->SetValue(false);
+        m_self_neighbor->SetValue(false);
+    } else {
+        m_row_stand->SetValue(true);
+        m_self_neighbor->SetValue(false);
+    }
+    
+    m_row_stand->Enable(!median_checked);
+    m_self_neighbor->Enable(!median_checked);
 }
 
 void FieldNewCalcLagDlg::Apply()
@@ -180,60 +198,80 @@ void FieldNewCalcLagDlg::Apply()
 			table_int->GetColUndefined(var_col, time_list[t], undefined);
 		}
 		
-		for (int i=0, iend=table_int->GetNumberRows(); i<iend; i++) {
+		for (int i=0; i < table_int->GetNumberRows(); ++i) {
 			double lag = 0;
 			const GalElement& elm_i = W[i];
-			if (elm_i.Size() == 0)
+            if (elm_i.Size() == 0) {
                 r_undefined[i] = true;
-           
+            }
             double nn = 0;
             const std::vector<double> & w_values = W[i].GetNbrWeights();
             
-            int self_idx = -1;
-			for (int j=0, sz=W[i].Size(); j<sz && !r_undefined[i]; j++) {
-				if (undefined[elm_i[j]] == false) {
-                    if (elm_i[j] == i) {
-                        self_idx = j;
-                    } else {
-                        if (not_binary_w) {
-                            lag += data[elm_i[j]] * w_values[j];
-                            nn += w_values[j];
+            if (m_median_lag->IsChecked()) {
+                // median 
+                int nn = (int)W[i].Size();
+                if (W[i].Check(i)) {
+                    // exclude self from neighbors
+                    nn -= 1;
+                }
+                std::vector<double> nbr_data(nn);
+                const std::vector<long>& nbrs = W[i].GetNbrs();
+                for (size_t j=0, k=0; j<nbrs.size(); ++j) {
+                    if (nbrs[j] != i) {
+                        nbr_data[k++] = data[nbrs[j]];
+                    }
+                }
+                lag = GenUtils::Median(nbr_data);
+                r_data[i] = lag;
+                
+            } else {
+                // other than median, using mean, or weighted average
+                int self_idx = -1;
+                for (int j=0; j<W[i].Size() && !r_undefined[i]; j++) {
+                    if (undefined[elm_i[j]] == false) {
+                        if (elm_i[j] == i) {
+                            self_idx = j;
                         } else {
-                            lag += data[elm_i[j]];
-                            nn += 1;
-                        }
-                    }
-				}
-			}
-            r_data[i] =  0;
-            
-            if (r_undefined[i]==false) {
-                if ( not_binary_w == false) {
-                    // contiguity weights
-                    if (m_self_neighbor->IsChecked() ) {
-                        lag += data[i];
-                        nn += 1;
-                    }
-                    if (m_row_stand->IsChecked()) {
-                        lag = nn > 0 ? lag / nn : 0;
-                    }
-                    
-                } else {
-                    // inverse or kernel weights
-                    if (m_row_stand->IsChecked()) {
-                        lag = nn > 0 ? lag / nn : 0;
-                    }
-                    if (m_self_neighbor->IsChecked() ) {
-                        if (self_idx > 0) {
-                            // only case: kernel weights with diagonal
-                            lag += data[i] * w_values[self_idx];
-                        } else {
-                            lag += data[i];
+                            if (not_binary_w) {
+                                lag += data[elm_i[j]] * w_values[j];
+                                nn += w_values[j];
+                            } else {
+                                lag += data[elm_i[j]];
+                                nn += 1;
+                            }
                         }
                     }
                 }
+                r_data[i] =  0;
                 
-                r_data[i] = lag;
+                if (r_undefined[i]==false) {
+                    if ( not_binary_w == false) {
+                        // contiguity weights
+                        if (m_self_neighbor->IsChecked() ) {
+                            lag += data[i];
+                            nn += 1;
+                        }
+                        if (m_row_stand->IsChecked()) {
+                            lag = nn > 0 ? lag / nn : 0;
+                        }
+                        
+                    } else {
+                        // inverse or kernel weights
+                        if (m_row_stand->IsChecked()) {
+                            lag = nn > 0 ? lag / nn : 0;
+                        }
+                        if (m_self_neighbor->IsChecked() ) {
+                            if (self_idx > 0) {
+                                // only case: kernel weights with diagonal
+                                lag += data[i] * w_values[self_idx];
+                            } else {
+                                lag += data[i];
+                            }
+                        }
+                    }
+                    
+                    r_data[i] = lag;
+                }
             }
 		}
 		table_int->SetColData(result_col, time_list[t], r_data);
