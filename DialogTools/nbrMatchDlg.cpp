@@ -74,7 +74,7 @@ NbrMatchDlg::~NbrMatchDlg()
 void NbrMatchDlg::CreateControls()
 {
     wxScrolledWindow* scrl = new wxScrolledWindow(this, wxID_ANY, wxDefaultPosition,
-                                                  wxSize(440,620), wxHSCROLL|wxVSCROLL );
+                                                  wxSize(440,600), wxHSCROLL|wxVSCROLL );
     scrl->SetScrollRate( 5, 5 );
     
     wxPanel *panel = new wxPanel(scrl);
@@ -130,6 +130,10 @@ void NbrMatchDlg::CreateControls()
         chk_seed->SetValue(true);
         seedButton->Enable();
     }
+    
+    chk_seed->Hide();
+    st27->Hide();
+    seedButton->Hide();
     
     wxStaticBoxSizer *hbox = new wxStaticBoxSizer(wxHORIZONTAL, panel, _("Parameters:"));
     hbox->Add(gbox, 1, wxEXPAND);
