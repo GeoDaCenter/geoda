@@ -1105,9 +1105,17 @@ void MapCanvas::DrawLayer2()
             w_graph[i]->setBrush(*wxTRANSPARENT_BRUSH);
         }
     }
-    BOOST_FOREACH( GdaShape* shp, foreground_shps ) {
+#ifdef __WXOSX__
+	BOOST_FOREACH( GdaShape* shp, foreground_shps ) {
         shp->paintSelf(dc);
     }
+#else
+	// for drawing heat map with transparency on Windows
+	wxGraphicsContext *gc = wxGraphicsContext::Create( dc );
+    BOOST_FOREACH( GdaShape* shp, foreground_shps ) {
+        shp->paintSelf(gc);
+    }
+#endif
     dc.SelectObject(wxNullBitmap);
     layer2_valid = true;
     if ( MapCanvas::has_thumbnail_saved == false) {
