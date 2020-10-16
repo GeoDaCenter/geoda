@@ -205,7 +205,7 @@ extern void GdaInitXmlResource();
 
 IMPLEMENT_APP(GdaApp)
 
-GdaApp::GdaApp() : m_pLogFile(0)
+GdaApp::GdaApp() : checker(0), m_pLogFile(0)
 {
 	//Don't call wxHandleFatalExceptions so that a core dump file will be
 	//produced for debugging.
@@ -229,6 +229,8 @@ bool GdaApp::OnInit(void)
     // initialize OGR connection
 	OGRDataAdapter::GetInstance();
 
+    checker = new wxSingleInstanceChecker("GdaApp");
+    
     // load preferences
     PreferenceDlg::ReadFromCache();
     
@@ -283,7 +285,7 @@ bool GdaApp::OnInit(void)
     GdaInitXmlResource();  // call the init function in GdaAppResources.cpp	
 	
     // check crash
-    if (GdaConst::disable_crash_detect == false) {
+    if (GdaConst::disable_crash_detect == false && !checker->IsAnotherRunning()) {
         std::vector<wxString> items = OGRDataAdapter::GetInstance().GetHistory("NoCrash");
         if (items.size() > 0) {
             wxString no_crash = items[0];
@@ -471,6 +473,7 @@ void GdaApp::MacOpenFiles(const wxArrayString& fileNames)
 
 int GdaApp::OnExit(void)
 {
+    if (checker) delete checker;
 	return 0;
 }
 

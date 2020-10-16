@@ -60,6 +60,7 @@ public:
     virtual void MacOpenFiles(const wxArrayString& fileNames);
     static const wxCmdLineEntryDesc globalCmdLineDesc[];
 private:
+    wxSingleInstanceChecker* checker;
     wxString cmd_line_proj_file_name;
     wxTranslationHelper* m_TranslationHelper;
     FILE *m_pLogFile;
