@@ -642,7 +642,7 @@ void MLJCMapFrame::OnRanOtherPer(wxCommandEvent& event)
 		long num;
         wxString input = dlg.m_number->GetValue();
         
-        wxLogMessage(input);
+        wxLogMessage("%s", input);
         
         input.ToLong(&num);
 		RanXPer(num);
@@ -671,7 +671,7 @@ void MLJCMapFrame::OnSpecifySeedDlg(wxCommandEvent& event)
 	if (dlg.ShowModal() != wxID_OK) return;
 	dlg_val = dlg.GetValue();
     
-    wxLogMessage(dlg_val);
+    wxLogMessage("%s", dlg_val);
     
 	dlg_val.Trim(true);
 	dlg_val.Trim(false);

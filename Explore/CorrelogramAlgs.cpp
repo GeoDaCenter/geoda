@@ -274,13 +274,7 @@ bool CorrelogramAlgs::MakeCorrAllPairs(const std::vector<wxRealPoint>& pts,
             out[b].corr_avg /= ((double) out[b].num_pairs);
         }
 	}
-    
-	/*
-		stringstream ss;
-		ss << "MakeCorrMakeCorrAllPairs with " << pairs
-		   << " pairs finished in " << sw.Time() << " ms.";
-		wxLogMessage(ss.str());
-	*/
+
 	wxLogMessage("Exiting CorrelogramAlgs::MakeCorrAllPairs");
 	return true;
 }
@@ -364,12 +358,6 @@ bool CorrelogramAlgs::MakeCorrThresh(const rtree_pt_2d_t& rtree,
 		}
 	}
 
-	/*
-		stringstream ss;
-		ss << "MakeCorrThresh with threshold " << thresh
-		   << " finished in " << sw.Time() << " ms.";
-		wxLogMessage(ss.str());
-	*/
 	wxLogMessage("Exiting CorrelogramAlgs::MakeCorrThresh (plane)");
 	return true;
 }
@@ -457,13 +445,7 @@ bool CorrelogramAlgs::MakeCorrThresh(const rtree_pt_3d_t& rtree,
 			out[b].corr_avg /= ((double) out[b].num_pairs);
 		}
 	}
-	
-	/*
-		stringstream ss;
-		ss << "MakeCorrThresh with threshold " << thresh
-		<< " finished in " << sw.Time() << " ms.";
-		wxLogMessage(ss.str());
-	*/
+
 	wxLogMessage("Exiting CorrelogramAlgs::MakeCorrThresh (sphere)");
 	return true;
 }

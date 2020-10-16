@@ -362,7 +362,7 @@ void DataViewerEditFieldPropertiesDlg::OnCellChanging( wxGridEvent& ev )
 	wxString msg;
 	msg << "changing row " << row << ", col " << col << " from ";
 	msg << cur_str << " to " << new_str;
-    wxLogMessage(msg);
+    wxLogMessage("%s", msg);
 	
 	GdaConst::FieldType type = GdaConst::unknown_type;
 	wxString type_str = field_grid->GetCellValue(row, COL_T);

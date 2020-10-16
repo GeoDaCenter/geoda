@@ -318,7 +318,7 @@ void ReportBugDlg::OnOkClick(wxCommandEvent& event)
 
 	wxLogMessage("Submit Bug Report Error:");
 	wxLogMessage("title:");
-	wxLogMessage(title);
+	wxLogMessage("%s", title);
 }
 
 void ReportBugDlg::OnCancelClick(wxCommandEvent& event)

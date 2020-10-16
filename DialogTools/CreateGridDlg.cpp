@@ -470,7 +470,7 @@ void CreateGridDlg::OnCEdit1Updated( wxCommandEvent& event )
     wxLogMessage("In CreateGridDlg::OnCEdit1Updated()");
 	if (!isCreated) return;
     wxString input = m_lower_x->GetValue();
-    wxLogMessage(input);
+    wxLogMessage("%s", input);
 	input.ToDouble(&m_xBot);
 	EnableItems();
     
@@ -481,7 +481,7 @@ void CreateGridDlg::OnCEdit2Updated( wxCommandEvent& event )
     wxLogMessage("In CreateGridDlg::OnCEdit2Updated()");
 	if (!isCreated) return;
     wxString input = m_lower_y->GetValue();
-    wxLogMessage(input);
+    wxLogMessage("%s", input);
 	input.ToDouble(&m_yBot);
 	EnableItems();
 }
@@ -491,7 +491,7 @@ void CreateGridDlg::OnCEdit3Updated( wxCommandEvent& event )
     wxLogMessage("In CreateGridDlg::OnCEdit3Updated()");
 	if (!isCreated) return;
     wxString input = m_upper_x->GetValue();
-    wxLogMessage(input);
+    wxLogMessage("%s", input);
 	input.ToDouble(&m_xTop);
 	EnableItems();
 }
@@ -501,7 +501,7 @@ void CreateGridDlg::OnCEdit4Updated( wxCommandEvent& event )
     wxLogMessage("In CreateGridDlg::OnCEdit4Updated()");
 	if (!isCreated) return;
     wxString input = m_upper_y->GetValue();
-    wxLogMessage(input);
+    wxLogMessage("%s", input);
     input.ToDouble(&m_yTop);
 	EnableItems();
 }

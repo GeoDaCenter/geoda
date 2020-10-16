@@ -404,9 +404,7 @@ void LineChartFrame::OnSelectionChange()
     TableInterface* table_int = project->GetTableInt();
     wxString col_name = variable_names[var_selection];
     int col = table_int->FindColId(col_name);
-    
-    wxLogMessage(wxString::Format("var: %s, time1:%d, time2:%d, group1:%d, group2:%d", col_name, time1, time2, group1, group2));
-    
+
     std::vector<double> min_vals;
     std::vector<double> max_vals;
     table_int->GetMinMaxVals(col, min_vals, max_vals);
@@ -605,7 +603,6 @@ void LineChartFrame::OnGroupsChoice(wxCommandEvent& event)
         return;
     
     wxString col_name = variable_names[variable_selection];
-    wxLogMessage(_("var name:") + col_name);
     
     TableInterface* table_int = project->GetTableInt();
     if (!table_int->IsColTimeVariant(col_name) ||table_int->GetTimeSteps() <= 1) {

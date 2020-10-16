@@ -408,7 +408,7 @@ bool GdaApp::OnInit(void)
                                            Gda::version_build,
                                            Gda::version_subbuild);
     wxLogMessage(versionlog);
-    wxLogMessage(loggerFile);
+    wxLogMessage("%s", loggerFile);
     
    
     if (!cmd_line_proj_file_name.IsEmpty()) {
@@ -453,7 +453,7 @@ void GdaApp::OnInitCmdLine(wxCmdLineParser& parser)
 void GdaApp::MacOpenFiles(const wxArrayString& fileNames)
 {
     wxLogMessage("MacOpenFiles");
-    wxLogMessage(fileNames[0]);
+    wxLogMessage("%s", fileNames[0]);
     int sz=fileNames.GetCount();
 
     if (sz > 0) {
@@ -1198,7 +1198,7 @@ void GdaFrame::OnRecentDSClick(wxCommandEvent& event)
     if (ds_name.IsEmpty())
         return;
     
-    wxLogMessage(ds_name);
+    wxLogMessage("%s", ds_name);
     
     if (ds_name.EndsWith(".gda")) {
         OpenProject(ds_name);
@@ -1344,7 +1344,7 @@ void GdaFrame::ShowOpenDatasourceDlg(wxPoint pos, bool init)
 void GdaFrame::OpenProject(const wxString& full_proj_path)
 {
 	wxLogMessage("GdaFrame::OpenProject()");
-    wxLogMessage(full_proj_path);
+    wxLogMessage("%s", full_proj_path);
     
     wxString msg;
     wxFileName fn(full_proj_path);
@@ -1556,7 +1556,7 @@ void GdaFrame::OnSaveAsProject(wxCommandEvent& event)
 		dlg.ShowModal();
 		return;
 	}
-	wxLogMessage(_("Wrote GeoDa Project File: ") + proj_fname);
+	wxLogMessage("%s", _("Wrote GeoDa Project File: ") + proj_fname);
 }
 
 void GdaFrame::OnSelectWithRect(wxCommandEvent& event)

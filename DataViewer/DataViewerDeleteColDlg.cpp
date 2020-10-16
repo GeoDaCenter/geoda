@@ -106,7 +106,7 @@ void DataViewerDeleteColDlg::OnDelete( wxCommandEvent& ev )
         int idx = selections[i];
         wxString nm = name_to_nm[m_field->GetString(idx)];
         int col = table_int->FindColId(nm);
-        wxLogMessage(nm);
+        wxLogMessage("%s", nm);
 
     	try{
     		table_int->DeleteCol(col);

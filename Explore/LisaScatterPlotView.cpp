@@ -1154,7 +1154,6 @@ void LisaScatterPlotFrame::OnRanOtherPer(wxCommandEvent& event)
 	if (dlg.ShowModal() == wxID_OK) {
 		long num;
         wxString input = dlg.m_number->GetValue();
-        wxLogMessage(input);
         input.ToLong(&num);
 		RanXPer(num);
 	}

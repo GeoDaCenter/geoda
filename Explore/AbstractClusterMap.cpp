@@ -592,7 +592,7 @@ void AbstractMapFrame::OnRanOtherPer(wxCommandEvent& event)
 		long num;
 		wxString input = dlg.m_number->GetValue();
         
-        wxLogMessage(input);
+        wxLogMessage("%s", input);
         
         input.ToLong(&num);
 		RanXPer(num);

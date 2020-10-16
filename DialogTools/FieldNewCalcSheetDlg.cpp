@@ -138,9 +138,6 @@ void FieldNewCalcSheetDlg::OnPageChange( wxBookCtrlEvent& event )
         pDT->InitFieldChoices();
          */
 	}
-    wxString msg;
-    msg << "page idx: " << var_sel_idx;
-    wxLogMessage(msg);
 }
 
 void FieldNewCalcSheetDlg::OnApplyClick( wxCommandEvent& event )

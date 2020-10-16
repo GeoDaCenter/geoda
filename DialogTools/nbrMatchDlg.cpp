@@ -1549,7 +1549,7 @@ void LocalMatchSignificanceFrame::OnSpecifySeedDlg(wxCommandEvent& event)
     if (dlg.ShowModal() != wxID_OK) return;
     dlg_val = dlg.GetValue();
     
-    wxLogMessage(dlg_val);
+    //wxLogMessage(dlg_val);
     
     dlg_val.Trim(true);
     dlg_val.Trim(false);
