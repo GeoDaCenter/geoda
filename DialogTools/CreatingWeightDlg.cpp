@@ -568,8 +568,6 @@ void CreatingWeightDlg::OnCThresholdTextEdit( wxCommandEvent& event )
 	wxString val = m_threshold->GetValue();
 	val.Trim(false);
 	val.Trim(true);
-    
-    wxLogMessage(val);
 
     int dist_var_type = m_nb_distance_variables->GetSelection();
     if (dist_var_type == 0) {
@@ -612,8 +610,6 @@ void CreatingWeightDlg::OnCBandwidthThresholdTextEdit( wxCommandEvent& event )
     wxString val = m_manu_bandwidth->GetValue();
     val.Trim(false);
     val.Trim(true);
-    
-    wxLogMessage(val);
 
     int dist_var_type = m_nb_distance_variables->GetSelection();
     if (dist_var_type == 0) {
@@ -661,18 +657,12 @@ void CreatingWeightDlg::OnCThresholdSliderUpdated( wxCommandEvent& event )
         if (m_threshold_val > 0)  {
             FindWindow(XRCID("wxID_OK"))->Enable(true);
         }
-        wxString str_val;
-        str_val << m_threshold_val;
-        wxLogMessage(str_val);
     } else {
         m_threshold_val_multivars = (m_sliderdistance->GetValue() * (m_thres_max_multivars-m_thres_min_multivars)/100.0) + m_thres_min_multivars;
         m_threshold->ChangeValue( wxString::Format("%f", (double) m_threshold_val_multivars));
         if (m_threshold_val_multivars > 0)  {
             FindWindow(XRCID("wxID_OK"))->Enable(true);
         }
-        wxString str_val;
-        str_val << m_threshold_val_multivars;
-        wxLogMessage(str_val);
     }
 }
 
@@ -689,18 +679,12 @@ void CreatingWeightDlg::OnCBandwidthThresholdSliderUpdated( wxCommandEvent& even
         if (m_bandwidth_thres_val > 0)  {
             m_btn_ok->Enable(true);
         }
-        wxString str_val;
-        str_val << m_bandwidth_thres_val;
-        wxLogMessage(str_val);
     } else {
         m_bandwidth_thres_val_multivars = (m_bandwidth_slider->GetValue() * (m_thres_max_multivars-m_thres_min_multivars)/100.0) + m_thres_min_multivars;
         m_manu_bandwidth->ChangeValue( wxString::Format("%f", (double) m_bandwidth_thres_val_multivars));
         if (m_bandwidth_thres_val_multivars > 0)  {
             m_btn_ok->Enable(true);
         }
-        wxString str_val;
-        str_val << m_bandwidth_thres_val_multivars;
-        wxLogMessage(str_val);
     }
 }
 
@@ -1043,10 +1027,6 @@ void CreatingWeightDlg::OnXSelected(wxCommandEvent& event )
 	UpdateTmSelEnableState();
 	UpdateThresholdValues();
 	UpdateCreateButtonState();
-    
-    wxString msg;
-    msg << _("selected:") << m_X->GetSelection();
-    wxLogMessage(msg);
 }
 
 void CreatingWeightDlg::OnYSelected(wxCommandEvent& event )
@@ -1066,10 +1046,6 @@ void CreatingWeightDlg::OnYSelected(wxCommandEvent& event )
 	UpdateTmSelEnableState();
 	UpdateThresholdValues();
 	UpdateCreateButtonState();
-    
-    wxString msg;
-    msg << "selected:" << m_Y->GetSelection();
-    wxLogMessage(msg);
 }
 
 void CreatingWeightDlg::OnXTmSelected(wxCommandEvent& event )
@@ -1159,10 +1135,6 @@ void CreatingWeightDlg::OnIdVariableSelected( wxCommandEvent& event )
         UpdateThresholdValuesMultiVars();
     }
 	UpdateCreateButtonState();
-    
-    wxString msg;
-    msg << _("selected:") << m_id_field->GetSelection();
-    wxLogMessage(msg);
 }
 
 double CreatingWeightDlg::GetBandwidth()
@@ -1457,7 +1429,7 @@ void CreatingWeightDlg::CreateWeights()
         project->SetWorkingDir(new_dir);
     }
     wxLogMessage("CreateWeights()");
-    wxLogMessage(outputfile);
+    wxLogMessage("%s", outputfile);
     
     // 1/2 case social weights:
     if (m_nb_weights_type->GetSelection() == 1 &&

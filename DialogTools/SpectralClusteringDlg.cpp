@@ -502,7 +502,6 @@ void SpectralClusteringDlg::OnClickClose(wxCommandEvent& event )
     
     event.Skip();
     EndDialog(wxID_CANCEL);
-    Destroy();
 }
 
 void SpectralClusteringDlg::OnClose(wxCloseEvent& ev)

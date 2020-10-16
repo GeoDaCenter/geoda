@@ -583,7 +583,7 @@ void LisaCoordinator::CalcPseudoP()
 			CalcPseudoP_threaded();
 		}
     }
-    wxLogMessage(wxString::Format("GPU took %ld ms", sw_vd.Time()));
+    LOG_MSG(wxString::Format("GPU took %ld ms", sw_vd.Time()));
 }
 
 void LisaCoordinator::ComputeLarger(int cnt, std::vector<int>& permNeighbors, std::vector<uint64_t>& countLarger)

@@ -1109,7 +1109,7 @@ if %GDA_BUILD% == BUILD_32 (
     %MSBUILD_EXE% GeoDa.vs2017.sln /t:GeoDa /property:Configuration="Debug2017" /p:Platform="x64"
   ) else (
     %MSBUILD_EXE% GeoDa.vs2010.sln /t:GeoDa /property:Configuration="Release" /p:Platform="x64"
-    %MSBUILD_EXE% GeoDa.vs2010.sln /t:GeoDa /property:Configuration="Debug" /p:Platform="x64"
+    REM %MSBUILD_EXE% GeoDa.vs2010.sln /t:GeoDa /property:Configuration="Debug" /p:Platform="x64"
   )
 )
 set CHK_LIB=%BUILD_HOME%\Release\GeoDa.lib

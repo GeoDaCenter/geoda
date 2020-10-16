@@ -949,8 +949,8 @@ CatClassifState* CatClassifPanel::PromptNew(const CatClassifDef& ccd,
     }
     
     wxLogMessage("In CatClassifPanel::PromptNew");
-    wxLogMessage(_("suggested title:") + suggested_title);
-    wxLogMessage(_("field name:") + field_name);
+    wxLogMessage("%s", _("suggested title:") + suggested_title);
+    wxLogMessage("%s", _("field name:") + field_name);
     
     if (success || (prompt_title_dlg == false && !new_title.IsEmpty()) ) {
         cc_data = ccd;
@@ -1205,7 +1205,7 @@ void CatClassifPanel::OnAssocVarChoice(wxCommandEvent& ev)
     
 	wxString cur_fc_str = assoc_var_choice->GetStringSelection();
     
-    wxLogMessage(cur_fc_str);
+    wxLogMessage("%s", cur_fc_str);
     
 	bool is_tm_var = table_int->IsColTimeVariant(cur_fc_str);
     if (is_tm_var)

@@ -136,6 +136,7 @@ protected:
     // -- functions
     virtual void AddInputCtrls(wxPanel *panel, wxBoxSizer* vbox,
                                bool show_auto_button = false,
+                               bool integer_only = false,
                                bool show_spatial_weights = true,
                                bool single_variable = false,
                                bool add_centroids = true);

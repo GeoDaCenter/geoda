@@ -761,7 +761,7 @@ void LocalGearyMapFrame::RanXPer(int permutation)
 {
     wxString msg;
     msg << "Entering LocalGearyMapFrame::RanXPer() " << permutation;
-    wxLogMessage(msg);
+    wxLogMessage("%s", msg);
     
 	if (permutation < 9) permutation = 9;
 	if (permutation > 99999) permutation = 99999;
@@ -800,7 +800,7 @@ void LocalGearyMapFrame::OnRanOtherPer(wxCommandEvent& event)
         
 		wxString input = dlg.m_number->GetValue();
         
-        wxLogMessage(input);
+        wxLogMessage("%s", input);
         
         input.ToLong(&num);
 		RanXPer(num);
@@ -832,9 +832,7 @@ void LocalGearyMapFrame::OnSpecifySeedDlg(wxCommandEvent& event)
 	wxTextEntryDialog dlg(NULL, m, _("Enter a seed value"), cur_val);
 	if (dlg.ShowModal() != wxID_OK) return;
 	dlg_val = dlg.GetValue();
-    
-    wxLogMessage(dlg_val);
-    
+        
 	dlg_val.Trim(true);
 	dlg_val.Trim(false);
 	if (dlg_val.IsEmpty()) return;
@@ -855,7 +853,7 @@ void LocalGearyMapFrame::SetSigFilterX(int filter)
 {
     wxString msg;
     msg << "Entering LocalGearyMapFrame::SetSigFilterX() " << filter;
-    wxLogMessage(msg);
+    wxLogMessage("%s", msg);
     
 	if (filter == local_geary_coord->GetSignificanceFilter()) return;
 	local_geary_coord->SetSignificanceFilter(filter);

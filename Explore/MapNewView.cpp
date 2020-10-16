@@ -928,6 +928,10 @@ bool MapCanvas::InitBasemap()
 void MapCanvas::SetNoBasemap()
 {
     ResetBrushing();
+
+	// reset to default transparency for unhilighted objects
+    tran_unhighlighted = GdaConst::transparency_unhighlighted;
+
     isDrawBasemap = false;
     basemap_item.Reset();
     if ( basemap ) {
@@ -1101,9 +1105,17 @@ void MapCanvas::DrawLayer2()
             w_graph[i]->setBrush(*wxTRANSPARENT_BRUSH);
         }
     }
-    BOOST_FOREACH( GdaShape* shp, foreground_shps ) {
+#ifdef __WXOSX__
+	BOOST_FOREACH( GdaShape* shp, foreground_shps ) {
         shp->paintSelf(dc);
     }
+#else
+	// for drawing heat map with transparency on Windows
+	wxGraphicsContext *gc = wxGraphicsContext::Create( dc );
+    BOOST_FOREACH( GdaShape* shp, foreground_shps ) {
+        shp->paintSelf(gc);
+    }
+#endif
     dc.SelectObject(wxNullBitmap);
     layer2_valid = true;
     if ( MapCanvas::has_thumbnail_saved == false) {
@@ -2445,7 +2457,7 @@ void MapCanvas::PopulateCanvas()
         if (var_info.size() > 0) {
             const GdaVarTools::VarInfo& vi = var_info[0];
             if (table_int) {
-                int col_idx = table_int->GetColIdx(vi.name);
+                int col_idx = table_int->GetColIdx(vi.name, !project->IsFieldCaseSensitive());
                 int time_idx = vi.time;
                 std::vector<wxString> labels;
                 GdaConst::FieldType col_type = table_int->GetColType(col_idx, time_idx);

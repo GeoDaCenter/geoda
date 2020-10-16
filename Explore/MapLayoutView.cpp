@@ -557,7 +557,6 @@ void CanvasLayoutDialog::SaveToPS(wxString path)
     
     int w, h;
     dc.GetSize(&w, &h);  // A4 paper like?
-    wxLogMessage(wxString::Format("wxPostScriptDC GetSize = (%d,%d)", w, h));
     
     if (dc.IsOk()) {
         dc.StartDoc("printing...");

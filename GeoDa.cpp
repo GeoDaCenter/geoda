@@ -205,7 +205,7 @@ extern void GdaInitXmlResource();
 
 IMPLEMENT_APP(GdaApp)
 
-GdaApp::GdaApp() : m_pLogFile(0)
+GdaApp::GdaApp() : checker(0), m_pLogFile(0)
 {
 	//Don't call wxHandleFatalExceptions so that a core dump file will be
 	//produced for debugging.
@@ -229,6 +229,8 @@ bool GdaApp::OnInit(void)
     // initialize OGR connection
 	OGRDataAdapter::GetInstance();
 
+    checker = new wxSingleInstanceChecker("GdaApp");
+    
     // load preferences
     PreferenceDlg::ReadFromCache();
     
@@ -283,7 +285,7 @@ bool GdaApp::OnInit(void)
     GdaInitXmlResource();  // call the init function in GdaAppResources.cpp	
 	
     // check crash
-    if (GdaConst::disable_crash_detect == false) {
+    if (GdaConst::disable_crash_detect == false && !checker->IsAnotherRunning()) {
         std::vector<wxString> items = OGRDataAdapter::GetInstance().GetHistory("NoCrash");
         if (items.size() > 0) {
             wxString no_crash = items[0];
@@ -406,7 +408,7 @@ bool GdaApp::OnInit(void)
                                            Gda::version_build,
                                            Gda::version_subbuild);
     wxLogMessage(versionlog);
-    wxLogMessage(loggerFile);
+    wxLogMessage("%s", loggerFile);
     
    
     if (!cmd_line_proj_file_name.IsEmpty()) {
@@ -451,7 +453,7 @@ void GdaApp::OnInitCmdLine(wxCmdLineParser& parser)
 void GdaApp::MacOpenFiles(const wxArrayString& fileNames)
 {
     wxLogMessage("MacOpenFiles");
-    wxLogMessage(fileNames[0]);
+    wxLogMessage("%s", fileNames[0]);
     int sz=fileNames.GetCount();
 
     if (sz > 0) {
@@ -471,6 +473,7 @@ void GdaApp::MacOpenFiles(const wxArrayString& fileNames)
 
 int GdaApp::OnExit(void)
 {
+    if (checker) delete checker;
 	return 0;
 }
 
@@ -1195,7 +1198,7 @@ void GdaFrame::OnRecentDSClick(wxCommandEvent& event)
     if (ds_name.IsEmpty())
         return;
     
-    wxLogMessage(ds_name);
+    wxLogMessage("%s", ds_name);
     
     if (ds_name.EndsWith(".gda")) {
         OpenProject(ds_name);
@@ -1341,7 +1344,7 @@ void GdaFrame::ShowOpenDatasourceDlg(wxPoint pos, bool init)
 void GdaFrame::OpenProject(const wxString& full_proj_path)
 {
 	wxLogMessage("GdaFrame::OpenProject()");
-    wxLogMessage(full_proj_path);
+    wxLogMessage("%s", full_proj_path);
     
     wxString msg;
     wxFileName fn(full_proj_path);
@@ -1553,7 +1556,7 @@ void GdaFrame::OnSaveAsProject(wxCommandEvent& event)
 		dlg.ShowModal();
 		return;
 	}
-	wxLogMessage(_("Wrote GeoDa Project File: ") + proj_fname);
+	wxLogMessage("%s", _("Wrote GeoDa Project File: ") + proj_fname);
 }
 
 void GdaFrame::OnSelectWithRect(wxCommandEvent& event)
@@ -3252,7 +3255,7 @@ void GdaFrame::OnExploreBubbleChart(wxCommandEvent& WXUNUSED(event))
 							false, false,
 							_("Bubble Chart Variables"),
 							_("X-Axis"), _("Y-Axis"),
-							_("Bubble Size"), _("Standard Deviation Color"),
+							_("Bubble Size"), _("Bubble Color"),
 							false, true); // set fourth variable from third
 	if (dlg.ShowModal() != wxID_OK) return;
 	

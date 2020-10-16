@@ -901,7 +901,9 @@ void GdaPoint::paintSelf(wxGraphicsContext* gc)
     
 	wxGraphicsPath path = gc->CreatePath();
 	path.AddCircle(n_center.x, n_center.y, radius);
+	gc->FillPath(path);
 	gc->StrokePath(path);
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////

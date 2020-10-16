@@ -38,7 +38,7 @@ MapTransparencyDlg::MapTransparencyDlg(wxWindow * parent,
                                        const wxPoint & position,
                                        const wxSize & size,
                                        long style )
-: wxDialog( parent, id, caption, position, size, style)
+: wxDialog( parent, id, caption, position, size, style | wxRESIZE_BORDER)
 {
 
     wxLogMessage("Open MapTransparencyDlg");
@@ -49,7 +49,7 @@ MapTransparencyDlg::MapTransparencyDlg(wxWindow * parent,
     this->SetSizer(topSizer);
 
     wxBoxSizer* boxSizer = new wxBoxSizer(wxVERTICAL);
-    topSizer->Add(boxSizer, 0, wxALIGN_CENTER_HORIZONTAL|wxALL, 5);
+    topSizer->Add(boxSizer, 0, wxALL|wxEXPAND, 5);
 
     // A text control for the user’s name
     double trasp = (double)canvas->tran_unhighlighted / 255.0;
@@ -61,11 +61,11 @@ MapTransparencyDlg::MapTransparencyDlg(wxWindow * parent,
                           wxSL_HORIZONTAL);
     subSizer->Add(new wxStaticText(this, wxID_ANY,"1.0"), 0,
                   wxALIGN_CENTER_VERTICAL|wxALL);
-    subSizer->Add(slider, 0, wxALIGN_CENTER_VERTICAL|wxALL);
+    subSizer->Add(slider, 1, wxALL|wxEXPAND);
     subSizer->Add(new wxStaticText(this, wxID_ANY,"0.0"), 0,
                   wxALIGN_CENTER_VERTICAL|wxALL);
 
-    boxSizer->Add(subSizer);
+    boxSizer->Add(subSizer, 1, wxEXPAND);
     wxString txt_transparency = wxString::Format(_("Current Transparency: %.2f"), 1.0 - trasp);
 
     slider_text = new wxStaticText(this,

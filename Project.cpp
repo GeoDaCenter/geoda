@@ -93,7 +93,7 @@ sourceSR(NULL), rtree_bbox_ready(false), has_null_geometry(false)
 {
     
 	wxLogMessage("Entering Project::Project (existing project)");
-	wxLogMessage(proj_fname);
+	wxLogMessage("%s", proj_fname);
 
 	SetProjectFullPath(proj_fname);
 	bool wd_success = SetWorkingDir(proj_fname);
@@ -1610,7 +1610,7 @@ bool Project::InitFromOgrLayer()
     
     wxLogMessage("Datasource name:");
     wxString ds_str = datasource->ToString();
-    wxLogMessage(ds_str);
+    wxLogMessage("%s", ds_str);
     
     GdaConst::DataSourceType ds_type = datasource->GetType();
     OGRDataAdapter& ogr_adapter = OGRDataAdapter::GetInstance();
@@ -1891,7 +1891,7 @@ bool Project::IsTableOnlyProject()
 void Project::SetupEncoding(wxString encode_str)
 {
 	wxLogMessage("Project::SetupEncoding()");
-	wxLogMessage(encode_str);
+	wxLogMessage("%s", encode_str);
 
     if (table_int == NULL || encode_str.IsEmpty() )
         return;

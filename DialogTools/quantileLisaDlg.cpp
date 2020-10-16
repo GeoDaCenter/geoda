@@ -65,7 +65,8 @@ void QuantileLisaDlg::CreateControls()
     wxBoxSizer *vbox = new wxBoxSizer(wxVERTICAL);
    
     // Input
-    AddInputCtrls(panel, vbox, false/*no auto button*/,  true/*spatial weights*/,
+    AddInputCtrls(panel, vbox, false/*no auto button*/, false/*integer + real*/,
+                  true/*spatial weights*/,
                   /*single variable*/true, /*add centroids*/true);
 
     // parameters

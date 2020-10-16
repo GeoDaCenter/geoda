@@ -364,7 +364,6 @@ void MaxpDlg::OnClickClose(wxCommandEvent& event )
     
     event.Skip();
     EndDialog(wxID_CANCEL);
-    Destroy();
 }
 
 void MaxpDlg::OnClose(wxCloseEvent& ev)
