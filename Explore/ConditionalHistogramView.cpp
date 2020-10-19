@@ -65,13 +65,15 @@ ConditionalHistogramCanvas(wxWindow *parent,
                            const wxPoint& pos, const wxSize& size)
 : ConditionalNewCanvas(parent, t_frame, project_s, v_info, col_ids,
 					   false, true, pos, size),
-show_axes(true), scale_x_over_time(true), scale_y_over_time(true)
+show_axes(true), scale_x_over_time(true), scale_y_over_time(true), set_uniquevalue(false)
 {
     full_map_redraw_needed = true;
-	int hist_var_tms = data[HIST_VAR].shape()[0];
+	int hist_var_tms = (int)data[HIST_VAR].shape()[0];
     
 	data_stats.resize(hist_var_tms);
 	data_sorted.resize(hist_var_tms);
+    s_data_sorted.resize(hist_var_tms);
+    VAR_STRING.resize(hist_var_tms);
     
     // create bins for histogram
 	for (int t=0; t<hist_var_tms; t++) {
@@ -93,7 +95,7 @@ show_axes(true), scale_x_over_time(true), scale_y_over_time(true)
         undef_tms.push_back(undefs);
 	}
 	
-    if ( undef_tms.size() < num_time_vals) {
+    if (undef_tms.size() < num_time_vals) {
         // case that histogram is non time variable, but horizontal / vertical may be time variable
         for (int i=1; i<num_time_vals; i++) {
             std::vector<bool> undefs(num_obs, false);
@@ -145,6 +147,61 @@ void ConditionalHistogramCanvas::DisplayRightClickMenu(const wxPoint& pos)
 	template_frame->UpdateOptionMenuItems();
 }
 
+void ConditionalHistogramCanvas::OnSetUniqueValue(wxCommandEvent& event)
+{
+    set_uniquevalue = !set_uniquevalue;
+    
+    if (set_uniquevalue)  {
+        for (int t=0; t<num_time_vals; t++) {
+            std::vector<wxString> sel_data(num_obs);
+            data[HIST_VAR];
+            for (int i=0; i<num_obs; ++i) {
+                sel_data[i] << data[HIST_VAR][t][i];
+            }
+            s_data_sorted[t].resize(num_obs);
+            std::map<wxString, int> unique_dict;
+            // data_sorted is a pair value {string value: index}
+            VAR_STRING[t].resize(num_obs);
+            for (int i=0; i<num_obs; i++) {
+                s_data_sorted[t][i].first = sel_data[i];
+                s_data_sorted[t][i].second = i;
+                if (unique_dict.find(sel_data[i]) == unique_dict.end()) {
+                    unique_dict[sel_data[i]] = 0;
+                    VAR_STRING[t][i]  = sel_data[i];
+                }
+                unique_dict[sel_data[i]] += 1;
+            }
+            // add current [id] to ival_to_obs_ids
+            max_intervals = (int)unique_dict.size();
+            cur_intervals = (int)unique_dict.size();
+        }
+    } else {
+        // restore bins for histogram
+        for (int t=0; t<num_time_vals; t++) {
+            data_sorted[t].resize(num_obs);
+            
+            std::vector<bool> undefs(num_obs, false);
+            
+            for (int i=0; i<num_obs; i++) {
+                data_sorted[t][i].first = data[HIST_VAR][t][i];
+                data_sorted[t][i].second = i;
+                undefs[i] = data_undef[HIST_VAR][t][i];
+            }
+            std::sort(data_sorted[t].begin(), data_sorted[t].end(),
+                      Gda::dbl_int_pair_cmp_less);
+            data_stats[t].CalculateFromSample(data_sorted[t], undefs);
+            
+            data_min_over_time = data_stats[t].min;
+            data_max_over_time = data_stats[t].max;
+            undef_tms.push_back(undefs);
+        }
+    }
+    InitIntervals();
+    invalidateBms();
+    PopulateCanvas();
+    Refresh();
+}
+
 void ConditionalHistogramCanvas::SetCheckMarks(wxMenu* menu)
 {
 	// Update the checkmarks and enable/disable state for the
@@ -192,9 +249,6 @@ void ConditionalHistogramCanvas::ResizeSelectableShps(int virtual_scrn_w,
 	//    and fit_to_window_mode being false currently.
 	int vs_w=virtual_scrn_w, vs_h=virtual_scrn_h;
 	if (vs_w <= 0 && vs_h <= 0) GetVirtualSize(&vs_w, &vs_h);
-	
-	//double image_width, image_height;
-	bool ftwm = GetFitToWindowMode();
 	
 	// last_scale_trans is only used in calls made to ApplyLastResizeToShp
 	// which are made in ScaterNewPlotView
@@ -249,9 +303,7 @@ void ConditionalHistogramCanvas::ResizeSelectableShps(int virtual_scrn_w,
 	
 	bin_extents.resize(boost::extents[vert_num_cats][horiz_num_cats]);
 	for (int row=0; row<vert_num_cats; row++) {
-		double drow = row;
 		for (int col=0; col<horiz_num_cats; col++) {
-			double dcol = col;
 			double ml = marg_left + col*(pad+del_width);
 			double mr = marg_right + ((d_cols-1)-col)*(pad+del_width);
 			double mt = marg_top + row*(pad+del_height);
@@ -713,6 +765,8 @@ void ConditionalHistogramCanvas::HistogramIntervals()
  obs_id_to_sel_shp, ival_obs_cnt and ival_obs_sel_cnt */ 
 void ConditionalHistogramCanvas::InitIntervals()
 {
+    s_ival_breaks.resize(boost::extents[num_time_vals][cur_intervals]);
+    
 	std::vector<bool>& hs = highlight_state->GetHighlight();
 		
 	// determine correct ivals for each obs in current time period
@@ -726,27 +780,49 @@ void ConditionalHistogramCanvas::InitIntervals()
 	
 	ival_breaks.resize(boost::extents[num_time_vals][cur_intervals-1]);
 	for (int t=0; t<num_time_vals; t++) {
-        std::vector<bool> undefs = undef_tms[t];
-		if (scale_x_over_time) {
-			min_ival_val[t] = data_min_over_time;
-			max_ival_val[t] = data_max_over_time;
-		} else {
-			min_ival_val[t] = data_sorted[t][0].first;
-			max_ival_val[t] = data_sorted[t][num_obs-1].first;
-		}
-		if (min_ival_val[t] == max_ival_val[t]) {
-			if (min_ival_val[t] == 0) {
-				max_ival_val[t] = 1;
-			} else {
-				max_ival_val[t] += fabs(max_ival_val[t])/2.0;
-			}
-		}
-		double range = max_ival_val[t] - min_ival_val[t];
-		double ival_size = range/((double) cur_intervals);
-		
-		for (int i=0; i<cur_intervals-1; i++) {
-			ival_breaks[0][i] = min_ival_val[t]+ival_size*((double) (i+1));
-		}
+        if (set_uniquevalue) {
+            std::map<wxString, int> unique_dict;
+            // data_sorted is a pair value {string value: index}
+            for (int i=0; i<num_obs; i++) {
+                wxString val = s_data_sorted[t][i].first;
+                if (unique_dict.find(val) == unique_dict.end()) {
+                    unique_dict[val] = 0;
+                }
+                unique_dict[val] += 1;
+            }
+            
+            // add current [id] to ival_to_obs_ids
+            int cur_ival = 0;
+            std::map<wxString, int>::iterator it;
+            for (it=unique_dict.begin(); it!=unique_dict.end();it++){
+                wxString lbl = it->first;
+                s_ival_breaks[t][cur_ival] = lbl;
+                cur_ival += 1;
+            }
+            
+        } else {
+            std::vector<bool> undefs = undef_tms[t];
+            if (scale_x_over_time) {
+                min_ival_val[t] = data_min_over_time;
+                max_ival_val[t] = data_max_over_time;
+            } else {
+                min_ival_val[t] = data_sorted[t][0].first;
+                max_ival_val[t] = data_sorted[t][num_obs-1].first;
+            }
+            if (min_ival_val[t] == max_ival_val[t]) {
+                if (min_ival_val[t] == 0) {
+                    max_ival_val[t] = 1;
+                } else {
+                    max_ival_val[t] += fabs(max_ival_val[t])/2.0;
+                }
+            }
+            double range = max_ival_val[t] - min_ival_val[t];
+            double ival_size = range/((double) cur_intervals);
+            
+            for (int i=0; i<cur_intervals-1; i++) {
+                ival_breaks[0][i] = min_ival_val[t]+ival_size*((double) (i+1));
+            }
+        }
 	}
 	
 	obs_id_to_sel_shp.resize(boost::extents[num_time_vals][num_obs]);
@@ -1044,6 +1120,15 @@ void ConditionalHistogramFrame::MapMenus()
 	((ConditionalHistogramCanvas*) template_canvas)->SetCheckMarks(optMenu);
 	GeneralWxUtils::ReplaceMenu(mb, _("Options"), optMenu);	
 	UpdateOptionMenuItems();
+    
+    // connect menu item ID_VIEW_HISTOGRAM_SET_UNIQUE
+    wxMenuItem* uniquevalue_menu = optMenu->FindItem(XRCID("ID_VIEW_HISTOGRAM_SET_UNIQUE"));
+    Connect(uniquevalue_menu->GetId(), wxEVT_MENU, wxCommandEventHandler(ConditionalHistogramFrame::OnSetUniqueValue));
+}
+
+void ConditionalHistogramFrame::OnSetUniqueValue(wxCommandEvent& event)
+{
+    ((ConditionalHistogramCanvas*) template_canvas)->OnSetUniqueValue(event);
 }
 
 void ConditionalHistogramFrame::UpdateOptionMenuItems()

@@ -68,14 +68,17 @@ public:
 	virtual void UpdateStatusBar();
 	
 	virtual void TimeSyncVariableToggle(int var_index);
-	
+	virtual void UserChangedCellCategories();
+    
 	void ShowAxes(bool show_axes);
 	bool IsShowAxes() { return show_axes; }
 
 	void HistogramIntervals();
 	void InitIntervals();
 	void UpdateIvalSelCnts();
-	virtual void UserChangedCellCategories();
+	
+    void OnSetUniqueValue(wxCommandEvent& event);
+    
 protected:
 	void sel_shp_to_cell_gen(int i, int& r, int& c, int& ival,
 							 int cols, int ivals);
@@ -85,7 +88,10 @@ protected:
 		
 	static const int HIST_VAR; // histogram variable
 	
-	// size = time_steps if HIST_VAR is time variant
+    bool set_uniquevalue;
+    std::vector<std::vector<wxString> > VAR_STRING;
+    std::vector<Gda::str_int_pair_vec_type> s_data_sorted;
+    
 	std::vector<Gda::dbl_int_pair_vec_type> data_sorted;
 	std::vector<SampleStatistics> data_stats;
     std::vector<std::vector<bool> > undef_tms;
@@ -101,6 +107,7 @@ protected:
 	
 	bool show_axes;
 	
+    s_array_type s_ival_breaks;
 	double data_min_over_time;
 	double data_max_over_time;
 	d_array_type ival_breaks; // size = num_time_vals * cur_num_intervals-1
@@ -147,7 +154,8 @@ public:
 	
 	void OnShowAxes(wxCommandEvent& event);
 	void OnHistogramIntervals(wxCommandEvent& event);
-	
+    void OnSetUniqueValue(wxCommandEvent& event);
+    
     DECLARE_EVENT_TABLE()
 };
 

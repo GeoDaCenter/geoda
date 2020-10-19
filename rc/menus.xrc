@@ -2333,6 +2333,11 @@
     </object>
     <object class="wxMenu" name="ID_COND_SCATTER_VIEW_MENU">
         <label>View</label>
+        <object class="wxMenuItem" name="ID_VIEW_HISTOGRAM_SET_UNIQUE">
+            <label>Set as Unique Value</label>
+            <checkable>1</checkable>
+            <checked>0</checked>
+        </object>
         <object class="wxMenuItem" name="ID_VIEW_DISPLAY_PRECISION">
             <label>Set Display Precision</label>
         </object>
