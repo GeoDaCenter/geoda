@@ -58,7 +58,7 @@ MultiQuantileLisaDlg::~MultiQuantileLisaDlg()
 void MultiQuantileLisaDlg::CreateControls()
 {
     wxScrolledWindow* scrl = new wxScrolledWindow(this, wxID_ANY, wxDefaultPosition,
-                                                  wxSize(800,560), wxHSCROLL|wxVSCROLL );
+                                                  wxSize(800,520), wxHSCROLL|wxVSCROLL );
     scrl->SetScrollRate(5, 5);
     
     wxPanel *panel = new wxPanel(scrl);
@@ -108,7 +108,7 @@ void MultiQuantileLisaDlg::CreateControls()
     var_box->Add(gbox, 0,  wxEXPAND);
 
     // list contrl
-    lst_quantile = new wxListCtrl(panel, wxID_ANY, wxDefaultPosition, wxSize(400, 180), wxLC_REPORT);
+    lst_quantile = new wxListCtrl(panel, wxID_ANY, wxDefaultPosition, wxSize(400, 160), wxLC_REPORT);
     lst_quantile->AppendColumn(_("Variable"));
     lst_quantile->SetColumnWidth(0, 80);
     lst_quantile->AppendColumn(_("Number of Quantiles"), wxLIST_FORMAT_RIGHT);
@@ -118,7 +118,6 @@ void MultiQuantileLisaDlg::CreateControls()
     lst_quantile->AppendColumn(_("New Field"));
     lst_quantile->SetColumnWidth(3, 80);
     
-
     // move buttons
     move_left = new wxButton(panel, wxID_ANY, "<", wxDefaultPosition, wxSize(25,25));
     move_right = new wxButton(panel, wxID_ANY, ">", wxDefaultPosition, wxSize(25,25));
@@ -127,7 +126,10 @@ void MultiQuantileLisaDlg::CreateControls()
 
     left_box->Add(var_box);
     right_box->Add(lst_quantile, 1, wxALL|wxEXPAND, 5);
-
+    
+    chk_nocolocation = new wxCheckBox(panel, wxID_ANY, "No co-location");
+    right_box->Add(chk_nocolocation, 0, wxALL, 5);
+    
     hbox_quantile->Add(left_box);
     hbox_quantile->Add(middle_box);
     hbox_quantile->Add(right_box, 1, wxALL|wxEXPAND);
@@ -217,6 +219,13 @@ void MultiQuantileLisaDlg::OnAddRow(wxCommandEvent& event)
     // check if inputs are valid
     if (project == NULL) return;
 
+    if (chk_nocolocation->GetValue() && lst_quantile->GetItemCount() >= 2) {
+        wxString err_msg = _("No-colocation only works with two variables for Quantile LISA.");
+        wxMessageDialog dlg(NULL, err_msg, _("Error"), wxOK | wxICON_ERROR);
+        dlg.ShowModal();
+        return;
+    }
+    
     // get selected variable
     int sel_var = combo_var->GetSelection();
     if (sel_var < 0) {
@@ -343,6 +352,13 @@ void MultiQuantileLisaDlg::OnOK(wxCommandEvent& event )
         return;
     }
 
+    if (chk_nocolocation->GetValue() && lst_quantile->GetItemCount() != 2) {
+        wxString err_msg = _("No-colocation only works with two variables for Quantile LISA.");
+        wxMessageDialog dlg(NULL, err_msg, _("Error"), wxOK | wxICON_ERROR);
+        dlg.ShowModal();
+        return;
+    }
+    
     std::vector<int> col_ids(num_vars);
     std::vector<GdaVarTools::VarInfo> var_info(num_vars);
     wxString var_details;
