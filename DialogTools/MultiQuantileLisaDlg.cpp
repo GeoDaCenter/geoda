@@ -457,6 +457,63 @@ void MultiQuantileLisaDlg::OnOK(wxCommandEvent& event )
     }
     boost::uuids::uuid w_id = weights_ids[sel];
 
+    // check if satisfy colocation and no-colocation cases
+    if (num_vars >= 2) {
+        std::vector<d_array_type> data(num_vars); // data[variable][time][obs]
+        std::vector<b_array_type> undef_data(num_vars);
+        for (int i=0; i<var_info.size(); i++) {
+            table_int->GetColData(col_ids[i], data[i]);
+            table_int->GetColUndefined(col_ids[i], undef_data[i]);
+        }
+        GalElement* W = gw->gal;
+        int t = 0;
+        vector<int> local_t;
+        for (int v=0; v<num_vars; v++) {
+            if (data[v].size()==1) {
+                local_t.push_back(0);
+            } else {
+                local_t.push_back(t);
+            }
+        }
+        vector<bool> undefs;
+        for (int i=0; i<rows; i++){
+            bool is_undef = false;
+            for (int v=0; v<undef_data.size(); v++) {
+                for (int var_t=0; var_t<undef_data[v].size(); var_t++){
+                    is_undef = is_undef || undef_data[v][var_t][i];
+                }
+            }
+            undefs.push_back(is_undef);
+        }
+        int* zz = new int[rows];
+        for (int i=0; i<rows; i++) zz[i] = 1;
+        for (int i=0; i<rows; i++) {
+            if (undefs[i] == true) {
+                zz[i] = 0;
+                continue;
+            }
+            for (int v=0; v<num_vars; v++) {
+                int _t = local_t[v];
+                int _v = data[v][_t][i];
+                zz[i] = zz[i] * _v;
+            }
+        }
+        int sum = 0;
+        for (int i=0; i<rows; i++) {
+            sum += zz[i];
+        }
+        bool nocolocation = sum == 0;
+        if (nocolocation && !chk_nocolocation->GetValue()) {
+            wxMessageDialog dlg (this, _("The selected variables have no co-location. Please change your selection, or select \"No colocation\" option for bivariate case."), _("Error"), wxOK | wxICON_WARNING);
+            dlg.ShowModal();
+            return;
+        } else if (chk_nocolocation->GetValue() && nocolocation == false) {
+            wxMessageDialog dlg (this, _("The selected variables have co-location. Please change your selection, or unselect \"No colocation\" option for bivariate case."), _("Error"), wxOK | wxICON_WARNING);
+            dlg.ShowModal();
+            return;
+        }
+    }
+    
     JCCoordinator* lc = new JCCoordinator(w_id, project, var_info, col_ids);
     MLJCMapFrame *sf = new MLJCMapFrame(parent, project, lc, false);
 
