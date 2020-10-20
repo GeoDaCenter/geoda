@@ -228,9 +228,9 @@ bool GdaApp::OnInit(void)
 
     // initialize OGR connection
 	OGRDataAdapter::GetInstance();
-
-    checker = new wxSingleInstanceChecker("GdaApp");
-    
+#ifdef __WIN32__
+    checker = new wxSingleInstanceChecker();
+#endif
     // load preferences
     PreferenceDlg::ReadFromCache();
     
@@ -285,7 +285,7 @@ bool GdaApp::OnInit(void)
     GdaInitXmlResource();  // call the init function in GdaAppResources.cpp	
 	
     // check crash
-    if (GdaConst::disable_crash_detect == false && !checker->IsAnotherRunning()) {
+    if (GdaConst::disable_crash_detect == false && (checker &&  !checker->IsAnotherRunning())) {
         std::vector<wxString> items = OGRDataAdapter::GetInstance().GetHistory("NoCrash");
         if (items.size() > 0) {
             wxString no_crash = items[0];
