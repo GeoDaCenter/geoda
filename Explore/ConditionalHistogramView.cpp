@@ -338,14 +338,43 @@ void ConditionalHistogramCanvas::ResizeSelectableShps(int virtual_scrn_w,
 	
 	GdaShape* s;
 	if (show_axes) {
+        int t = var_info[HIST_VAR].time;
+        double x_min = 0;
+        double x_max = left_pad_const + right_pad_const + interval_width_const * cur_intervals + interval_gap_const * (cur_intervals-1);
+
+        // orig_x_pos is the center of each histogram bar
+        std::vector<double> orig_x_pos(cur_intervals);
+        for (int i=0; i<cur_intervals; i++) {
+            orig_x_pos[i] = left_pad_const + interval_width_const/2.0 + i * (interval_width_const + interval_gap_const);
+        }
+
 		for (int r=0; r<vert_num_cats; r++) {
 			for (int c=0; c<horiz_num_cats; c++) {
 				s = new GdaAxis(*x_axis);
 				s->applyScaleTrans(st[r][c]);
 				foreground_shps.push_front(s);
+
 				s = new GdaAxis(*y_axis);
 				s->applyScaleTrans(st[r][c]);
 				foreground_shps.push_front(s);
+
+                if (set_uniquevalue) {
+                    for (int ival=0; ival<cur_intervals; ival++) {
+                        double x0 = orig_x_pos[ival] - interval_width_const/2.0;
+                        double x1 = orig_x_pos[ival] + interval_width_const/2.0;
+                        double y0 = 0;
+                        double y1 = cell_data[0][r][c].ival_obs_cnt[ival];
+                        // add label for x-axis
+
+                        GdaShapeText* brk = new GdaShapeText(s_ival_breaks[t][ival],
+                                                             *GdaConst::small_font,
+                                                             wxRealPoint(x0 /2.0 + x1 /2.0, y0), 0,
+                                                             GdaShapeText::h_center,
+                                                             GdaShapeText::v_center, 0, 25);
+                        brk->applyScaleTrans(st[r][c]);
+                        foreground_shps.push_back(brk);
+                    }
+                }
 			}
 		}
 	}
@@ -531,22 +560,23 @@ void ConditionalHistogramCanvas::PopulateCanvas()
 		axis_scale_x.tics_str.resize(axis_scale_x.ticks);
 		axis_scale_x.tics_str_show.resize(axis_scale_x.tics_str.size());
 		for (int i=0; i<axis_scale_x.ticks; i++) {
-			axis_scale_x.tics[i] =
-			axis_scale_x.data_min +
-			range*((double) i)/((double) axis_scale_x.ticks-1);
+			axis_scale_x.tics[i] = axis_scale_x.data_min + range*((double) i)/((double) axis_scale_x.ticks-1);
             wxString flt = GenUtils::DblToStr(axis_scale_x.tics[i],
                                               axis_display_precision,
                                               axis_display_fixed_point);
 			axis_scale_x.tics_str[i] = flt.ToStdString();
 			axis_scale_x.tics_str_show[i] = false;
 		}
-		int tick_freq = ceil(((double) cur_intervals)/5.0);
-		for (int i=0; i<axis_scale_x.ticks; i++) {
-			if (i % tick_freq == 0) {
-				axis_scale_x.tics_str_show[i] = true;
-			}
-		}
+        if (!set_uniquevalue) {
+            int tick_freq = ceil(((double) cur_intervals)/5.0);
+            for (int i=0; i<axis_scale_x.ticks; i++) {
+                if (i % tick_freq == 0) {
+                    axis_scale_x.tics_str_show[i] = true;
+                }
+            }
+        }
 		axis_scale_x.tic_inc = axis_scale_x.tics[1]-axis_scale_x.tics[0];
+
 		x_axis = new GdaAxis(GetNameWithTime(2), axis_scale_x, wxRealPoint(0,0),
 							wxRealPoint(x_max, 0), 0, 9);
 	}
@@ -560,13 +590,10 @@ void ConditionalHistogramCanvas::PopulateCanvas()
 				double x1 = orig_x_pos[ival] + interval_width_const/2.0;
 				double y0 = 0;
 				double y1 = cell_data[0][r][c].ival_obs_cnt[ival];
-				selectable_shps[i] = new GdaRectangle(wxRealPoint(x0, 0),
-													 wxRealPoint(x1, y1));
+				selectable_shps[i] = new GdaRectangle(wxRealPoint(x0, 0), wxRealPoint(x1, y1));
 				int sz = GdaConst::qualitative_colors.size();
-				selectable_shps[i]->
-					setPen(GdaConst::qualitative_colors[ival%sz]);
-				selectable_shps[i]->
-					setBrush(GdaConst::qualitative_colors[ival%sz]);
+				selectable_shps[i]->setPen(GdaConst::qualitative_colors[ival%sz]);
+				selectable_shps[i]->setBrush(GdaConst::qualitative_colors[ival%sz]);
 				i++;
 			}
 		}
@@ -765,9 +792,7 @@ void ConditionalHistogramCanvas::HistogramIntervals()
  obs_id_to_sel_shp, ival_obs_cnt and ival_obs_sel_cnt */ 
 void ConditionalHistogramCanvas::InitIntervals()
 {
-    s_ival_breaks.resize(boost::extents[num_time_vals][cur_intervals]);
-    
-	std::vector<bool>& hs = highlight_state->GetHighlight();
+    std::vector<bool>& hs = highlight_state->GetHighlight();
 		
 	// determine correct ivals for each obs in current time period
 	min_ival_val.resize(num_time_vals);
@@ -775,10 +800,14 @@ void ConditionalHistogramCanvas::InitIntervals()
 	max_num_obs_in_ival.resize(num_time_vals);
 	
 	overall_max_num_obs_in_ival = 0;
-	for (int t=0; t<num_time_vals; t++)
+    for (int t=0; t<num_time_vals; t++) {
         max_num_obs_in_ival[t] = 0;
-	
+    }
+
+    std::map<wxString, int> unique_ival_dict;
 	ival_breaks.resize(boost::extents[num_time_vals][cur_intervals-1]);
+    s_ival_breaks.resize(boost::extents[num_time_vals][cur_intervals]);
+
 	for (int t=0; t<num_time_vals; t++) {
         if (set_uniquevalue) {
             std::map<wxString, int> unique_dict;
@@ -797,6 +826,7 @@ void ConditionalHistogramCanvas::InitIntervals()
             for (it=unique_dict.begin(); it!=unique_dict.end();it++){
                 wxString lbl = it->first;
                 s_ival_breaks[t][cur_ival] = lbl;
+                unique_ival_dict[lbl] = cur_ival;
                 cur_ival += 1;
             }
             
@@ -862,40 +892,78 @@ void ConditionalHistogramCanvas::InitIntervals()
 		int dt = var_info[HIST_VAR].time_min;
 		if (var_info[HIST_VAR].sync_with_global_time)
             dt += t;
-        
-		// record each obs in the correct cell and ival.
+
         int cur_ival = 0;
-		for (int i=0; i<num_obs; i++) {
-			int id = data_sorted[dt][i].second;
-            if (undef_tms[t][id]) continue;
-			while (cur_ival <= cur_intervals-2 &&
-				   data_sorted[dt][i].first >= ival_breaks[0][cur_ival])
-            {
-				cur_ival++;
-			}
-            int r = 0, c = 0;
-            if (!vert_cat_data.categories.empty()) {
-                r = vert_cat_data.categories[vt].id_to_cat[id];
+
+		// record each obs in the correct cell and ival.
+        if (set_uniquevalue) {
+            for (int i=0; i<num_obs; i++) {
+                int id = s_data_sorted[dt][i].second;
+                if (undef_tms[t][id]) {
+                    continue;
+                }
+                wxString cat = s_data_sorted[dt][i].first;
+                cur_ival = unique_ival_dict[cat];
+
+                s_ival_breaks[dt];
+                int r = 0, c = 0;
+                if (!vert_cat_data.categories.empty()) {
+                    r = vert_cat_data.categories[vt].id_to_cat[id];
+                }
+                if (!horiz_cat_data.categories.empty()) {
+                    c = horiz_cat_data.categories[ht].id_to_cat[id];
+                }
+                obs_id_to_sel_shp[t][id] = cell_to_sel_shp_gen(r, c, cur_ival,
+                                                               cols, cur_intervals);
+                cell_data[0][r][c].ival_to_obs_ids[cur_ival].push_front(id);
+                cell_data[0][r][c].ival_obs_cnt[cur_ival]++;
+                if (cell_data[0][r][c].ival_obs_cnt[cur_ival] > max_num_obs_in_ival[t])
+                {
+                    max_num_obs_in_ival[t] = cell_data[0][r][c].ival_obs_cnt[cur_ival];
+                    if (max_num_obs_in_ival[t] > overall_max_num_obs_in_ival) {
+                        overall_max_num_obs_in_ival = max_num_obs_in_ival[t];
+                    }
+                }
+                if (hs[s_data_sorted[dt][i].second]) {
+                    cell_data[0][r][c].ival_obs_sel_cnt[cur_ival]++;
+                }
             }
-            if (!horiz_cat_data.categories.empty()) {
-                c = horiz_cat_data.categories[ht].id_to_cat[id];
+
+        } else {
+
+            for (int i=0; i<num_obs; i++) {
+                int id = data_sorted[dt][i].second;
+                if (undef_tms[t][id]) {
+                    continue;
+                }
+                while (cur_ival <= cur_intervals-2 &&
+                       data_sorted[dt][i].first >= ival_breaks[0][cur_ival])
+                {
+                    cur_ival++;
+                }
+                int r = 0, c = 0;
+                if (!vert_cat_data.categories.empty()) {
+                    r = vert_cat_data.categories[vt].id_to_cat[id];
+                }
+                if (!horiz_cat_data.categories.empty()) {
+                    c = horiz_cat_data.categories[ht].id_to_cat[id];
+                }
+                obs_id_to_sel_shp[t][id] = cell_to_sel_shp_gen(r, c, cur_ival,
+                                                               cols, cur_intervals);
+                cell_data[0][r][c].ival_to_obs_ids[cur_ival].push_front(id);
+                cell_data[0][r][c].ival_obs_cnt[cur_ival]++;
+                if (cell_data[0][r][c].ival_obs_cnt[cur_ival] > max_num_obs_in_ival[t])
+                {
+                    max_num_obs_in_ival[t] = cell_data[0][r][c].ival_obs_cnt[cur_ival];
+                    if (max_num_obs_in_ival[t] > overall_max_num_obs_in_ival) {
+                        overall_max_num_obs_in_ival = max_num_obs_in_ival[t];
+                    }
+                }
+                if (hs[data_sorted[dt][i].second]) {
+                    cell_data[0][r][c].ival_obs_sel_cnt[cur_ival]++;
+                }
             }
-			obs_id_to_sel_shp[t][id] = cell_to_sel_shp_gen(r, c, cur_ival,
-														   cols, cur_intervals);
-			cell_data[0][r][c].ival_to_obs_ids[cur_ival].push_front(id);
-			cell_data[0][r][c].ival_obs_cnt[cur_ival]++;
-			if (cell_data[0][r][c].ival_obs_cnt[cur_ival] > max_num_obs_in_ival[t])
-            {
-				max_num_obs_in_ival[t] =
-					cell_data[0][r][c].ival_obs_cnt[cur_ival];
-				if (max_num_obs_in_ival[t] > overall_max_num_obs_in_ival) {
-					overall_max_num_obs_in_ival = max_num_obs_in_ival[t];
-				}
-			}
-			if (hs[data_sorted[dt][i].second]) {
-				cell_data[0][r][c].ival_obs_sel_cnt[cur_ival]++;
-			}
-		}
+        }
 	}
 	
 }
