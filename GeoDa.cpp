@@ -778,9 +778,9 @@ GdaFrame::GdaFrame(const wxString& title, const wxPoint& pos,
     //CallAfter(&GdaFrame::ShowOpenDatasourceDlg,wxPoint(80, 220),true);
     
     // check update in a new thread
-    if (GdaConst::disable_auto_upgrade == false) {
-        CallAfter(&GdaFrame::CheckUpdate);
-    }
+    //if (GdaConst::disable_auto_upgrade == false) {
+    //    CallAfter(&GdaFrame::CheckUpdate);
+    //}
 }
 
 GdaFrame::~GdaFrame()
