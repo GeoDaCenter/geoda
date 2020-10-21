@@ -228,9 +228,9 @@ bool GdaApp::OnInit(void)
 
     // initialize OGR connection
 	OGRDataAdapter::GetInstance();
-
-    checker = new wxSingleInstanceChecker("GdaApp");
-    
+#ifdef __WIN32__
+    checker = new wxSingleInstanceChecker();
+#endif
     // load preferences
     PreferenceDlg::ReadFromCache();
     
@@ -285,7 +285,7 @@ bool GdaApp::OnInit(void)
     GdaInitXmlResource();  // call the init function in GdaAppResources.cpp	
 	
     // check crash
-    if (GdaConst::disable_crash_detect == false && !checker->IsAnotherRunning()) {
+    if (GdaConst::disable_crash_detect == false && (checker &&  !checker->IsAnotherRunning())) {
         std::vector<wxString> items = OGRDataAdapter::GetInstance().GetHistory("NoCrash");
         if (items.size() > 0) {
             wxString no_crash = items[0];
@@ -778,9 +778,9 @@ GdaFrame::GdaFrame(const wxString& title, const wxPoint& pos,
     //CallAfter(&GdaFrame::ShowOpenDatasourceDlg,wxPoint(80, 220),true);
     
     // check update in a new thread
-    if (GdaConst::disable_auto_upgrade == false) {
-        CallAfter(&GdaFrame::CheckUpdate);
-    }
+    //if (GdaConst::disable_auto_upgrade == false) {
+    //    CallAfter(&GdaFrame::CheckUpdate);
+    //}
 }
 
 GdaFrame::~GdaFrame()
@@ -4256,22 +4256,54 @@ void GdaFrame::OnOpenBivariateLJC(wxCommandEvent& event)
     }
     
     // check if binary data
-    std::vector<double> data;
+    std::vector<double> data1, data2;
+    std::vector<bool> undef_data1, undef_data2;
     TableInterface* table_int = p->GetTableInt();
-    table_int->GetColData(VS.col_ids[0], VS.var_info[0].time, data);
-    for (int i=0; i<data.size(); i++) {
-        if (data[i] !=0 && data[i] != 1) {
+    table_int->GetColData(VS.col_ids[0], VS.var_info[0].time, data1);
+    table_int->GetColUndefined(VS.col_ids[0], VS.var_info[0].time, undef_data1);
+    for (int i=0; i<data1.size(); i++) {
+        if (data1[i] !=0 && data1[i] != 1) {
             wxString msg = _("Please select two binary variables for Bivariate Local Join Count.");
             wxMessageDialog dlg (this, msg, _("Warning"), wxOK | wxICON_WARNING);
             dlg.ShowModal();
             return;
         }
     }
-    table_int->GetColData(VS.col_ids[1], VS.var_info[1].time, data);
-    for (int i=0; i<data.size(); i++) {
-        if (data[i] !=0 && data[i] != 1) {
+    table_int->GetColData(VS.col_ids[1], VS.var_info[1].time, data2);
+    table_int->GetColUndefined(VS.col_ids[1], VS.var_info[1].time, undef_data2);
+    for (int i=0; i<data2.size(); i++) {
+        if (data2[i] !=0 && data2[i] != 1) {
             wxString msg = _("Please select two binary variables for Bivariate Local Join Count.");
             wxMessageDialog dlg (this, msg, _("Warning"), wxOK | wxICON_WARNING);
+            dlg.ShowModal();
+            return;
+        }
+    }
+    
+    // check if 2 variables has NO colocation
+    {
+        int num_obs = p->GetNumRecords();
+
+        vector<bool> undefs;
+        for (int i=0; i<num_obs; i++){
+            bool is_undef = undef_data1[i] || undef_data2[i];
+            undefs.push_back(is_undef);
+        }
+        
+        bool nocolocation = true;
+        
+        for (int i=0; i<num_obs; i++) {
+            if (undefs[i] == true) {
+                continue;
+            }
+            if (data1[i] == 1  && data2[i] == 1) {
+                nocolocation = false;
+                break;
+            }
+        }
+        
+        if (!nocolocation) {
+            wxMessageDialog dlg (this, _("Bivariate Join Count only applies to no co-location case. The selected variables have co-locations. Please change your selection, or use Co-location Join Count."), _("Error"), wxOK | wxICON_WARNING);
             dlg.ShowModal();
             return;
         }
@@ -4329,7 +4361,7 @@ void GdaFrame::OnOpenMultiLJC(wxCommandEvent& event)
     }
     
     // check if more than 2 variables has colocation
-    if (num_vars > 2) {
+    if (num_vars >= 2) {
         std::vector<d_array_type> data(num_vars); // data[variable][time][obs]
         std::vector<b_array_type> undef_data(num_vars);
         for (int i=0; i<VS.var_info.size(); i++) {

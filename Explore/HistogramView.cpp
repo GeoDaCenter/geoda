@@ -244,8 +244,12 @@ void HistogramCanvas::OnSetUniqueValue(wxCommandEvent& event)
                 unique_dict[sel_data[i]] += 1;
             }
             // add current [id] to ival_to_obs_ids
-            max_intervals = (int)unique_dict.size();
-            cur_intervals = (int)unique_dict.size();
+            max_intervals = std::min(MAX_INTERVALS, (int)unique_dict.size());
+            if (t > 0) {
+                cur_intervals = std::max(cur_intervals, (int)unique_dict.size());
+            }  else {
+                cur_intervals  = (int)unique_dict.size();
+            }
         }
     } else {
         // restore
