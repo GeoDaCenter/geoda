@@ -35,8 +35,10 @@ ChangesAssociations=yes
 ShowLanguageDialog=yes
 
 [Languages]
-Name: "en"; MessagesFile: "compiler:Default.isl"
-Name: "zh"; MessagesFile: "compiler:Languages\ChineseSimplified.isl"
+Name: "english"; MessagesFile: "compiler:Default.isl"
+Name: "chinesesimplified"; MessagesFile: "compiler:Languages\ChineseSimplified.isl"
+Name: "spanish"; MessagesFile: "compiler:Languages\Spanish.isl"
+Name: "russian"; MessagesFile: "compiler:Languages\Russian.isl"
 
 [dirs]
 Name: "{app}";  Permissions: everyone-full; Check: InitializeSetup
