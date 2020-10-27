@@ -245,6 +245,14 @@ void MultiQuantileLisaDlg::OnAddRow(wxCommandEvent& event)
         return;
     }
 
+    int tm = name_to_tm_id[var_name];
+    if (CheckEmptyColumn(col, tm)) {
+        wxString err_msg = wxString::Format(_("The selected variable %s is not valid. If it's a grouped variable, please modify it in Time->Time Editor. Or please select another variable."), var_name);
+        wxMessageDialog dlg(NULL, err_msg, _("Error"), wxOK | wxICON_ERROR);
+        dlg.ShowModal();
+        return;
+    }
+    
     // get num quantiles
     long l_quantiles = 0;
     wxString tmp_quantiles = txt_quantiles->GetValue();

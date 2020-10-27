@@ -370,8 +370,12 @@ int GdaVarTools::UpdateVarInfoSecondaryAttribs(std::vector<VarInfo>& var_info)
 		var_info[i].is_ref_variable = (i == ref_var);
 		// The following parameters are set to default values here
 		var_info[i].ref_time_offset = 0;
-		var_info[i].min_over_time = var_info[i].min[var_info[i].time];
-		var_info[i].max_over_time = var_info[i].max[var_info[i].time];
+        if (i < var_info[i].min.size()) {
+            var_info[i].min_over_time = var_info[i].min[var_info[i].time];
+        }
+        if (i < var_info[i].max.size()) {
+            var_info[i].max_over_time = var_info[i].max[var_info[i].time];
+        }
 	}
 	
     if (ref_var == -1) {
