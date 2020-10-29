@@ -92,12 +92,12 @@ void SparseMatrix::createGAL(const GalElement* my_gal, int obs)
             int oix = row[r].getIx(cnt);
             if (oix < key[0].first || oix > key[dim-1].first)  {
 				wxMessageBox("Error: value does not exist in the weights file");
-				exit(0);
+                return;
             }
             int lx = ik[ oix - key[0].first ];
             if (lx < 0) {
 				wxMessageBox("Error: value does not exist in the weights file");
-				exit(0);
+                return;
             }
             this->row[r].setIx(cnt, lx);
         }

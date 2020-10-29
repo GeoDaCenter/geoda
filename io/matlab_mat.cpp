@@ -30,12 +30,14 @@ GalElement* ReadMatAsGal(const wxString& fname, TableInterface* table_int)
     }
     MatfileReader mmr(istream);
     mmr.parseHeader();
-    // cout << mmr->descriptiveText() << endl;
-    // cout << mmr->subsysDataOffset() << endl;
-    // cout << mmr->version() << endl;
-    // cout << mmr->endianIndicator() << endl;
+    //cout << mmr.descriptiveText() << endl;
+    //cout << mmr.subsysDataOffset() << endl;
+    //cout << mmr.version() << endl;
+    //cout << mmr.endianIndicator() << endl;
     mmr.gotoData();
-    mmr.parseDataElement();
+    if (mmr.parseDataElement()  ==  false) {
+        throw WeightsNotValidException();
+    }
     vector<DataElement*> des = mmr.dataElements();
     // cout << des[0]->dataType() << endl;
     DataElement* de = des[0];

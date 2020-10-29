@@ -56,7 +56,7 @@ float* gpu_distmatrix(const char* cl_path, int rows, int columns, double** data,
     fp = fopen(cl_path, "r");
     if (!fp) {
         fprintf(stderr, "Failed to load kernel.\n");
-        exit(1);
+        return 0;
     }
     source_str = (char*)malloc(MAX_SOURCE_SIZE);
     source_size = fread( source_str, 1, MAX_SOURCE_SIZE, fp);
