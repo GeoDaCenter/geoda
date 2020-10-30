@@ -79,7 +79,7 @@ void AZPDlg::CreateControls()
     AddSimpleInputCtrls(panel, vbox, false, true/*show spatial weights controls*/);
     
     // Parameters
-    wxFlexGridSizer* gbox = new wxFlexGridSizer(9,2,5,0);
+    wxFlexGridSizer* gbox = new wxFlexGridSizer(10,2,5,0);
 
     // Number of Regions
     wxStaticText* st_region = new wxStaticText(panel, wxID_ANY, _("Number of Regions:"));
@@ -90,25 +90,47 @@ void AZPDlg::CreateControls()
     
     // Method
     wxStaticText* st19 = new wxStaticText(panel, wxID_ANY, _("Method:"));
-    wxString choices19[] = {"AZP", "AZP-Tabu Search", "AZP-Simulated Annealing"};
-    m_localsearch = new wxChoice(panel, wxID_ANY, wxDefaultPosition, wxSize(200,-1), 3, choices19);
+    wxString choices19[] = {"AZP", "AZP-Tabu Search", "AZP-Simulated Annealing", "ARiSeL"};
+    m_localsearch = new wxChoice(panel, wxID_ANY, wxDefaultPosition, wxSize(200,-1), 4, choices19);
     m_localsearch->SetSelection(0);
-    wxBoxSizer *hbox19_1 = new wxBoxSizer(wxHORIZONTAL);
-    hbox19_1->Add(new wxStaticText(panel, wxID_ANY, _("Tabu Length:")));
-    m_tabulength = new wxTextCtrl(panel, wxID_ANY, "10");
-    hbox19_1->Add(m_tabulength);
-    m_tabulength->Disable();
+    
     wxBoxSizer *hbox19_2 = new wxBoxSizer(wxHORIZONTAL);
     hbox19_2->Add(new wxStaticText(panel, wxID_ANY, _("Cooling Rate:")));
     m_coolrate= new wxTextCtrl(panel, wxID_ANY, "0.85");
     hbox19_2->Add(m_coolrate);
     m_coolrate->Disable();
+    
+    wxBoxSizer *hbox19_1 = new wxBoxSizer(wxHORIZONTAL);
+    hbox19_1->Add(new wxStaticText(panel, wxID_ANY, _("Tabu Length:")));
+    m_tabulength = new wxTextCtrl(panel, wxID_ANY, "10");
+    hbox19_1->Add(m_tabulength);
+    m_tabulength->Disable();
+    
     wxBoxSizer *vbox19 = new wxBoxSizer(wxVERTICAL);
     vbox19->Add(m_localsearch, 1, wxEXPAND);
     vbox19->Add(hbox19_1, 1, wxEXPAND);
     vbox19->Add(hbox19_2, 1, wxEXPAND);
     gbox->Add(st19, 0, wxALIGN_TOP | wxRIGHT | wxLEFT, 10);
     gbox->Add(vbox19, 1, wxEXPAND);
+    
+    // ARiSeL
+    wxBoxSizer *hbox19_3 = new wxBoxSizer(wxHORIZONTAL);
+    hbox19_3->Add(new wxStaticText(panel, wxID_ANY, _("Inits:")));
+    m_inits = new wxTextCtrl(panel, wxID_ANY, "5");
+    hbox19_3->Add(m_inits);
+    m_inits->Disable();
+    
+    wxStaticText* st20 = new wxStaticText(panel, wxID_ANY, _("ARiSeL:"));
+    wxBoxSizer *hbox20 = new wxBoxSizer(wxHORIZONTAL);
+    chk_arisel = new wxCheckBox(panel, wxID_ANY, "");
+    m_inits = new wxTextCtrl(panel, wxID_ANY, "10", wxDefaultPosition, wxSize(30,-1));
+    m_inits->Disable();
+    
+    hbox20->Add(chk_arisel,0, wxALIGN_CENTER_VERTICAL);
+    hbox20->Add(m_inits,0,wxALIGN_CENTER_VERTICAL);
+    hbox20->Add(new wxStaticText(panel, wxID_ANY, _("Construction Re-runs (inits)")),0,wxALIGN_CENTER_VERTICAL);
+    gbox->Add(st20, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
+    gbox->Add(hbox20, 1, wxEXPAND);
     
     // Minimum Bound Control
     AddMinBound(panel, gbox);
@@ -224,7 +246,12 @@ void AZPDlg::CreateControls()
     seedButton->Bind(wxEVT_BUTTON, &AZPDlg::OnChangeSeed, this);
     chk_lisa->Bind(wxEVT_CHECKBOX, &AZPDlg::OnLISACheck, this);
     m_localsearch->Bind(wxEVT_CHOICE, &AZPDlg::OnLocalSearch, this);
+    chk_arisel->Bind(wxEVT_CHECKBOX, &AZPDlg::OnAriselCheck, this);
+}
 
+void AZPDlg::OnAriselCheck(wxCommandEvent& event)
+{
+    m_inits->Enable(chk_arisel->IsChecked());
 }
 
 void AZPDlg::OnLocalSearch(wxCommandEvent& event)
@@ -594,6 +621,22 @@ void AZPDlg::OnOK(wxCommandEvent& event )
         }
     }
 
+    // no ARiSeL by default
+    int inits = 0;
+    if (chk_arisel->IsChecked()) {
+        wxString str_inits = m_inits->GetValue();
+        long n_inits;
+        if (str_inits.ToLong(&n_inits)) {
+            inits = (int)n_inits;
+        }
+        if (inits < 1) {
+            wxString err_msg = _("Inits for ARISeL is the number of times the construction of initial feasible solution repeated, it has to be an integer number larger than 1 (default is 10).");
+            wxMessageDialog dlg(NULL, err_msg, _("Error"), wxOK | wxICON_ERROR);
+            dlg.ShowModal();
+            return;
+        }
+    }
+    
 	// Get random seed
     long long rnd_seed = (long long) time(0);
     if (chk_seed->GetValue()) rnd_seed = GdaConst::gda_user_seed;
@@ -607,17 +650,17 @@ void AZPDlg::OnOK(wxCommandEvent& event )
     RegionMaker* azp;
     if ( local_search_method == 0) {
         azp =  new AZP(p, gw->gal, input_data, &dm, rows, columns,
-                       controllers, init_regions, rnd_seed);
+                       controllers, inits, init_regions, rnd_seed);
 
     } else if ( local_search_method == 1) {
         int convergence_criteria = std::max(10, rows / p); // vs 230 * sqrt(p)
         azp = new AZPTabu(p, gw->gal, input_data, &dm, rows, columns,
                           controllers, tabu_length, convergence_criteria,
-                          init_regions, rnd_seed);
+                          inits, init_regions, rnd_seed);
     } else {
         int max_iter = 1;
         azp = new AZPSA(p, gw->gal, input_data, &dm, rows, columns,
-                        controllers, cool_rate, max_iter, init_regions, rnd_seed);
+                        controllers, cool_rate, max_iter, inits, init_regions, rnd_seed);
     }
     if (azp->IsSatisfyControls() == false) {
         wxString msg = _("The clustering results violate the requirement of minimum bound  or minimum number per region. Please adjust the input and try again.");

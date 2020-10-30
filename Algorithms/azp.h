@@ -379,19 +379,22 @@ public:
     // Sets the initial seeds for clustering
     void setSeeds(std::vector<int> seeds);
     
-    virtual void LocalImproving() = 0;
+    virtual void LocalImproving()  {}
     
-    virtual std::vector<int> GetResults() = 0;
+    virtual std::vector<int> GetResults() { return std::vector<int>();}
 
-    virtual double GetInitObjectiveFunction() = 0;
+    virtual double GetInitObjectiveFunction() { return 0;}
 
-    virtual double GetFinalObjectiveFunction() = 0;
+    virtual double GetFinalObjectiveFunction() { return 0;}
 
     // Check is_control_satisfied
     bool IsSatisfyControls();
 
     int GetPRegions() { return region2Area.size();}
 
+    
+    void Copy(RegionMaker& rm);
+    
 protected:
     // Return the areas of a region
     //boost::unordered_map<int, bool> returnRegion2Area(int regionID);
@@ -452,6 +455,14 @@ protected:
 
     ObjectiveFunction* objective_function;
 
+    std::vector<ZoneControl> controls;
+
+    Xoroshiro128Random rng;
+    
+    bool is_control_satisfied;
+    
+public:
+    // for copy
     std::vector<int> init_regions;
 
     boost::unordered_map<int, bool> unassignedAreas;
@@ -476,12 +487,6 @@ protected:
 
     // object function value
     double objInfo;
-
-    std::vector<ZoneControl> controls;
-
-    Xoroshiro128Random rng;
-    
-    bool is_control_satisfied;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -585,11 +590,21 @@ public:
     AZP(int p, GalElement* const w,
         double** data, // row-wise
         RawDistMatrix* dist_matrix,
-        int n, int m, const std::vector<ZoneControl>& c,
+        int n, int m, const std::vector<ZoneControl>& c, int inits=0,
         const std::vector<int>& init_regions=std::vector<int>(),
         long long seed=123456789)
     : RegionMaker(p,w,data,dist_matrix,n,m,c,init_regions, seed)
     {
+        if (inits > 0) {
+            // ARiSeL
+            for (int i=0; i<inits-1; ++i) {
+                RegionMaker rm(p,w,data,dist_matrix,n,m,c,init_regions, seed + i);
+                if (rm.objInfo < this->objInfo)  {
+                    // better initial solution
+                    this->Copy(rm);
+                }
+            }
+        }
         initial_objectivefunction = this->objInfo;
         double best_score = this->objInfo;
         bool improvement = true;
@@ -655,12 +670,23 @@ public:
           double** data, // row-wise
           RawDistMatrix* dist_matrix,
           int n, int m, const std::vector<ZoneControl>& c,
-          double _alpha = 0.85, int _max_iter= 1,
+          double _alpha = 0.85, int _max_iter= 1, int inits=0,
           const std::vector<int>& init_regions=std::vector<int>(),
           long long seed=123456789)
     : RegionMaker(p,w,data,dist_matrix,n,m,c,init_regions,seed), temperature(1.0),
     alpha(_alpha), max_iter(_max_iter)
     {
+        if (inits > 0) {
+            // ARiSeL
+            for (int i=0; i<inits-1; ++i) {
+                RegionMaker rm(p,w,data,dist_matrix,n,m,c,init_regions, seed + i);
+                if (rm.objInfo < this->objInfo)  {
+                    // better initial solution
+                    this->Copy(rm);
+                }
+            }
+        }
+        
         std::vector<int> init_sol = this->returnRegions();
         initial_objectivefunction = this->objInfo;
 
@@ -748,12 +774,23 @@ public:
             double** data, // row-wise
             RawDistMatrix* dist_matrix,
             int n, int m, const std::vector<ZoneControl>& c,
-            int tabu_length=10, int _convTabu=0,
+            int tabu_length=10, int _convTabu=0,  int inits = 0,
             const std::vector<int>& init_regions=std::vector<int>(),
             long long seed=123456789)
     : RegionMaker(p,w,data,dist_matrix,n,m,c,init_regions, seed),
     tabuLength(tabu_length), convTabu(_convTabu)
     {
+        if (inits > 0) {
+            // ARiSeL
+            for (int i=0; i<inits-1; ++i) {
+                RegionMaker rm(p,w,data,dist_matrix,n,m,c,init_regions, seed + i);
+                if (rm.objInfo < this->objInfo)  {
+                    // better initial solution
+                    this->Copy(rm);
+                }
+            }
+        }
+        
         if (tabuLength <= 0) {
             tabuLength = 10;
         }

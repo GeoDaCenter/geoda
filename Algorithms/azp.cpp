@@ -341,6 +341,19 @@ RegionMaker::~RegionMaker()
     }
 }
 
+void RegionMaker::Copy(RegionMaker& rm)
+{
+    this->init_regions = rm.init_regions;
+    this->unassignedAreas = rm.unassignedAreas;
+    this->assignedAreas = rm.assignedAreas;
+    this->areaNoNeighbor = rm.areaNoNeighbor;
+    this->area2Region = rm.area2Region;
+    this->region2Area = rm.region2Area;
+    this->potentialRegions4Area = rm.potentialRegions4Area;
+    this->candidateInfo = rm.candidateInfo;
+    this->objInfo = rm.objInfo;
+}
+
 void RegionMaker::InitFromRegion(std::vector<int>& init_regions)
 {
     // check init regions, index start from 1
@@ -989,7 +1002,7 @@ void MaxpRegionMaker::InitSolution()
             r = r + 1; // create another region
         }
     }
-    std::cout << r << std::endl;
+    //std::cout << r << std::endl;
     // find potential
     if (unassignedAreas.size() > 0) {
         for (int i=0; i<region2Area.size(); ++i) {
@@ -1068,7 +1081,7 @@ init_areas(_init_areas), max_attemps(_max_attemps)
             for (int i=0; i<solution.size(); ++i) {
                 solution[i] += 1; // index starts from 1 not 0
             }
-            AZP azp(p, w, data, dist_matrix, n, m, c, solution, seed);
+            AZP azp(p, w, data, dist_matrix, n, m, c, 0, solution, seed);
             std::vector<int> results = azp.GetResults();
             double init_of = azp.GetInitObjectiveFunction();
             double of = azp.GetFinalObjectiveFunction();
