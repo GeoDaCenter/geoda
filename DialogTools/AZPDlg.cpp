@@ -90,8 +90,8 @@ void AZPDlg::CreateControls()
     
     // Method
     wxStaticText* st19 = new wxStaticText(panel, wxID_ANY, _("Method:"));
-    wxString choices19[] = {"AZP", "AZP-Tabu Search", "AZP-Simulated Annealing", "ARiSeL"};
-    m_localsearch = new wxChoice(panel, wxID_ANY, wxDefaultPosition, wxSize(200,-1), 4, choices19);
+    wxString choices19[] = {"AZP", "AZP-Tabu Search", "AZP-Simulated Annealing"};
+    m_localsearch = new wxChoice(panel, wxID_ANY, wxDefaultPosition, wxSize(200,-1), 3  , choices19);
     m_localsearch->SetSelection(0);
     
     wxBoxSizer *hbox19_2 = new wxBoxSizer(wxHORIZONTAL);
@@ -252,6 +252,15 @@ void AZPDlg::CreateControls()
 void AZPDlg::OnAriselCheck(wxCommandEvent& event)
 {
     m_inits->Enable(chk_arisel->IsChecked());
+    if (chk_arisel->IsChecked())  {
+        m_localsearch->SetSelection(1);
+        m_tabulength->Enable();
+        m_coolrate->Disable();
+    }  else {
+        m_localsearch->SetSelection(0);
+        m_tabulength->Disable();
+        m_coolrate->Disable();
+    }
 }
 
 void AZPDlg::OnLocalSearch(wxCommandEvent& event)
