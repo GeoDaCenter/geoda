@@ -106,11 +106,11 @@ bool SCHCDlg::Run(vector<wxInt64>& clusters)
     // get pairwise distance
     double* pwdist = NULL;
     if (dist == 'e') {
-        pwdist = DataUtils::getContiguityPairWiseDistance(gw->gal, input_data, weight, rows,
+        pwdist = DataUtils::getPairWiseDistance(input_data, weight, rows,
                                                 columns,
                                                 DataUtils::EuclideanDistance);
     } else {
-        pwdist = DataUtils::getContiguityPairWiseDistance(gw->gal, input_data, weight, rows,
+        pwdist = DataUtils::getPairWiseDistance(input_data, weight, rows,
                                                 columns,
                                                 DataUtils::ManhattanDistance);
     }
@@ -124,20 +124,20 @@ bool SCHCDlg::Run(vector<wxInt64>& clusters)
     fastcluster::cluster_result Z2(rows-1);
 
     if (method == 's') {
-        fastcluster::MST_linkage_core(rows, pwdist, Z2);
+        fastcluster::NN_chain_core_w<fastcluster::METHOD_METR_SINGLE, t_index>(gw->gal, rows, pwdist, NULL, Z2);
     } else if (method == 'w') {
         members.init(rows, 1);
-        fastcluster::NN_chain_core<fastcluster::METHOD_METR_WARD, t_index>(rows, pwdist, members, Z2);
+        fastcluster::NN_chain_core_w<fastcluster::METHOD_METR_WARD, t_index>(gw->gal, rows, pwdist, members, Z2);
     } else if (method == 'm') {
-        fastcluster::NN_chain_core<fastcluster::METHOD_METR_COMPLETE, t_index>(rows, pwdist, NULL, Z2);
+        fastcluster::NN_chain_core_w<fastcluster::METHOD_METR_COMPLETE, t_index>(gw->gal, rows, pwdist, NULL, Z2);
     } else if (method == 'a') {
         members.init(rows, 1);
-        fastcluster::NN_chain_core<fastcluster::METHOD_METR_AVERAGE, t_index>(rows, pwdist, members, Z2);
+        fastcluster::NN_chain_core_w<fastcluster::METHOD_METR_AVERAGE, t_index>(gw->gal, rows, pwdist, members, Z2);
     }
 
     delete[] pwdist;
 
-    std::stable_sort(Z2[0], Z2[rows-1]);
+    //std::stable_sort(Z2[0], Z2[rows-1]);
     t_index node1, node2;
     int i=0, clst_cnt=0;
     fastcluster::union_find nodes(rows);
@@ -155,14 +155,9 @@ bool SCHCDlg::Run(vector<wxInt64>& clusters)
             node2 = node2 < rows ? node2 : rows-node2-1;
             node1 = node1 < rows ? node1 : rows-node1-1;
             
-            //cout << i<< ":" << node2 <<", " <<  node1 << ", " << Z2[i]->dist <<endl;
+            cout << i<< ":" << node2 <<", " <<  node1 << ", " << Z2[i]->dist <<endl;
             htree[i].left = node1;
             htree[i].right = node2;
-
-            double dist = Z2[i]->dist;
-            if (dist == DBL_MAX) {
-                n_cluster += 1;
-            }
 
             clst_cnt += 1;
             htree[i].distance = clst_cnt;

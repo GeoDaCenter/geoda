@@ -38,12 +38,16 @@
 #ifndef __GEODA_CENTER_FASTCLUSTER_H__
 #define __GEODA_CENTER_FASTCLUSTER_H__
 
+#include <iostream>
 #include <cstddef> // for std::ptrdiff_t
 #include <limits> // for std::numeric_limits<...>::infinity()
 #include <algorithm> // for std::fill_n
 #include <stdexcept> // for std::runtime_error
 #include <string> // for std::string
 #include <math.h>
+#include <vector>
+#include <stack>
+#include "../ShapeOperations/GalWeight.h"
 
 // Microsoft Visual Studio does not have fenv.h
 #ifdef _MSC_VER
@@ -1086,6 +1090,9 @@ namespace fastcluster {
 #endif
         
         for (t_index j=0; j<N-1; ++j) {
+            // set a point (arbitrarily)
+            // grow the NN-chain from the object chosen, until a pair of RNNs
+            // are obtained: i ->NN(i)=j -> NN(j)=k ->...->
             if (NN_chain_tip <= 3) {
                 NN_chain[0] = idx1 = active_nodes.start;
                 NN_chain_tip = 1;
@@ -1127,6 +1134,7 @@ namespace fastcluster {
                 
             } while (idx2 != NN_chain[NN_chain_tip-2]);
             
+            // agglomerate these objects
             Z2.append(idx1, idx2, min);
             
             if (idx1>idx2) {
@@ -1135,6 +1143,7 @@ namespace fastcluster {
                 idx2 = tmp;
             }
             
+            // update the dissimilarity table
             if (method==METHOD_METR_AVERAGE ||
                 method==METHOD_METR_WARD) {
                 size1 = static_cast<t_float>(members[idx1]);
@@ -1292,6 +1301,311 @@ namespace fastcluster {
         if (fetestexcept(FE_INVALID)) throw fenv_error();
 #endif
     }
+
+    bool CheckContiguity(GalElement* w, t_index idx1, t_index idx2, std::map<std::pair<t_index, t_index>, bool>  & conn_dict);
+
+    template <const unsigned char method, typename t_members>
+        void NN_chain_core_w(GalElement* w, const t_index N, t_float * const D, t_members * const members, cluster_result & Z2)
+        {
+            std::map<std::pair<t_index, t_index>, bool> conn_dict;
+            /*
+             N: integer
+             D: condensed distance matrix N*(N-1)/2
+             Z2: output data structure
+             
+             This is the NN-chain algorithm, described on page 86 in the following book:
+             
+             Fionn Murtagh, Multidimensional Clustering Algorithms,
+             Vienna, Würzburg: Physica-Verlag, 1985.
+             */
+            t_index i;
+            
+            auto_array_ptr<t_index> NN_chain(N);
+            t_index NN_chain_tip = 0;
+            
+            t_index idx1, idx2;
+            
+            t_float size1, size2;
+            doubly_linked_list active_nodes(N);
+            
+            t_float min;
+            
+            for (t_float const * DD=D; DD!=D+(static_cast<std::ptrdiff_t>(N)*(N-1)>>1);
+                 ++DD) {
+                if (fc_isnan(*DD)) {
+                    throw(nan_error());
+                }
+            }
+            
+            for (t_index j=0; j<N-1; ++j) {
+                // set a point (arbitrarily)
+                // grow the NN-chain from the object chosen, until a pair of RNNs
+                // are obtained: i ->NN(i)=j -> NN(j)=k ->...->
+                
+                bool  singleton = false;
+                
+                if (NN_chain_tip <= 3) {
+                    idx1 = active_nodes.start;
+                    NN_chain[0] = active_nodes.start;
+                    NN_chain_tip = 1; // find next in the chain
+                    
+                    // NN of idx1
+                    idx2 = active_nodes.succ[idx1];
+                    min = DBL_MAX;
+                    if (CheckContiguity(w, idx1, idx2, conn_dict)) {
+                        min = D_(idx1,idx2);
+                    }
+                    for (i=active_nodes.succ[idx2]; i<N; i=active_nodes.succ[i]) {
+                        if (D_(idx1,i) < min &&  CheckContiguity(w, idx1, i, conn_dict)) {
+                            min = D_(idx1,i);
+                            idx2 = i;
+                        }
+                    }
+                    if (min == DBL_MAX) {
+                        // not found
+                        singleton = true;
+                    }
+                }  // a: idx1   b: idx2
+                else {
+                    // o->p<->q
+                    // (p,q) will be merged, so go back to -3 index and continue search
+                    NN_chain_tip -= 3;
+                    idx1 = NN_chain[NN_chain_tip-1];
+                    idx2 = NN_chain[NN_chain_tip];
+                    min = idx1<idx2 ? D_(idx1,idx2) : D_(idx2,idx1);
+                    if (!CheckContiguity(w, idx1, idx2, conn_dict)) {
+                        std::cout << "not conn 0" << std::endl;
+                    }
+                }  // a: idx1   b: idx2
+                
+                if (singleton) {
+                    // can't find contiguity pair for idx1
+                    // assign idx1 to a neareast cluster
+                    const std::vector<long>& nbrs = w[idx1].GetNbrs();
+                    for (int i=0; i<nbrs.size(); i++ ) {
+                        t_index nid = nbrs[i];
+                        if (conn_dict[std::make_pair(idx1, nid)] == false) {
+                            double _min = idx1<nid ? D_(idx1,nid) : D_(nid,idx1);
+                            if (_min < min) {
+                                min = _min;
+                                idx2 = nid;
+                                //singleton = false;
+                            }
+                        }
+                    }
+
+                } else {
+                    do {
+                        NN_chain[NN_chain_tip] = idx2;
+                        
+                        bool found = false;
+                        
+                        // then find NN of idx2
+                        for (i=active_nodes.start; i<idx2; i=active_nodes.succ[i]) {
+                            if (i!= idx1 && D_(i,idx2) < min &&  CheckContiguity(w, i, idx2, conn_dict)) {
+                                min = D_(i,idx2);
+                                idx1 = i;
+                                found = true;
+                            }
+                        }
+                        for (i=active_nodes.succ[idx2]; i<N; i=active_nodes.succ[i]) {
+                            if (D_(idx2,i) < min  &&  CheckContiguity(w, i, idx2, conn_dict)) {
+                                min = D_(idx2,i);
+                                idx1 = i;
+                                found = true;
+                            }
+                        }
+                        
+                        if (found) {
+                            idx2 = idx1;
+                            idx1 = NN_chain[NN_chain_tip++];
+                        } else {
+                            NN_chain_tip++;
+                            break;
+                        }
+                        
+                        if (!CheckContiguity(w, idx1, idx2, conn_dict)) {
+                            std::cout << "not conn 1" << std::endl;
+                        }
+                    } while (idx2 != NN_chain[NN_chain_tip-2]);
+                }
+                // idx1 and idx2 are RNN
+                // merge the two points
+                Z2.append(idx1, idx2, min);
+                std::cout << "merge:" << idx1 << "," <<idx2 << "," << min << std::endl;
+                
+                if (!CheckContiguity(w, idx1, idx2, conn_dict)) {
+                    std::cout << "not conn 2" << std::endl;
+                }
+                
+                conn_dict[std::make_pair(idx1, idx2)] = true;
+                conn_dict[std::make_pair(idx2, idx1)] = true;
+                
+                if (idx1>idx2) {
+                    t_index tmp = idx1;
+                    idx1 = idx2;
+                    idx2 = tmp;
+                }
+                
+                // update the dissimilarity table
+                if (method==METHOD_METR_AVERAGE ||
+                    method==METHOD_METR_WARD) {
+                    size1 = static_cast<t_float>(members[idx1]);
+                    size2 = static_cast<t_float>(members[idx2]);
+                    members[idx2] += members[idx1];
+                }
+                
+                // Remove the smaller index from the valid indices (active_nodes).
+                active_nodes.remove(idx1);
+                
+                switch (method) {
+                    case METHOD_METR_SINGLE:
+                        /*
+                         Single linkage.
+                         
+                         Characteristic: new distances are never longer than the old distances.
+                         */
+                        // Update the distance matrix in the range [start, idx1).
+                        for (i=active_nodes.start; i<idx1; i=active_nodes.succ[i]) {
+                            if (D_(i, idx2) != DBL_MAX && D_(i, idx1) != DBL_MAX) {
+                                f_single(&D_(i, idx2), D_(i, idx1) );
+                            }
+                        }
+                        // Update the distance matrix in the range (idx1, idx2).
+                        for (; i<idx2; i=active_nodes.succ[i]) {
+                            if (D_(i, idx2) != DBL_MAX && D_(idx1, i) != DBL_MAX) {
+                                f_single(&D_(i, idx2), D_(idx1, i) );
+                            }
+                        }
+                        // Update the distance matrix in the range (idx2, N).
+                        for (i=active_nodes.succ[idx2]; i<N; i=active_nodes.succ[i]) {
+                            if (D_(idx2, i) != DBL_MAX && D_(idx1, i) != DBL_MAX) {
+                                f_single(&D_(idx2, i), D_(idx1, i) );
+                            }
+                        }
+                        break;
+                        
+                    case METHOD_METR_COMPLETE:
+                        /*
+                         Complete linkage.
+                         
+                         Characteristic: new distances are never shorter than the old distances.
+                         */
+                        // Update the distance matrix in the range [start, idx1).
+                        for (i=active_nodes.start; i<idx1; i=active_nodes.succ[i]) {
+                            if (D_(i, idx2) != DBL_MAX && D_(i, idx1) != DBL_MAX) {
+                                f_complete(&D_(i, idx2), D_(i, idx1) );
+                            }
+                        }
+                        // Update the distance matrix in the range (idx1, idx2).
+                        for (; i<idx2; i=active_nodes.succ[i]) {
+                            if (D_(i, idx2) != DBL_MAX && D_(idx1, i) != DBL_MAX) {
+                                f_complete(&D_(i, idx2), D_(idx1, i) );
+                            }
+                        }
+                        // Update the distance matrix in the range (idx2, N).
+                        for (i=active_nodes.succ[idx2]; i<N; i=active_nodes.succ[i]) {
+                            if (D_(idx2, i) != DBL_MAX && D_(idx1, i) != DBL_MAX) {
+                                f_complete(&D_(idx2, i), D_(idx1, i) );
+                            }
+                        }
+                        break;
+                        
+                    case METHOD_METR_AVERAGE: {
+                        /*
+                         Average linkage.
+                         
+                         Shorter and longer distances can occur.
+                         */
+                        // Update the distance matrix in the range [start, idx1).
+                        t_float s = size1/(size1+size2);
+                        t_float t = size2/(size1+size2);
+                        for (i=active_nodes.start; i<idx1; i=active_nodes.succ[i]) {
+                            if (D_(i, idx2) != DBL_MAX && D_(i, idx1) != DBL_MAX) {
+                                f_average(&D_(i, idx2), D_(i, idx1), s, t );
+                            }
+                        }
+                        // Update the distance matrix in the range (idx1, idx2).
+                        for (; i<idx2; i=active_nodes.succ[i]) {
+                            if (D_(i, idx2) != DBL_MAX && D_(idx1, i) != DBL_MAX) {
+                                f_average(&D_(i, idx2), D_(idx1, i), s, t );
+                            }
+                        }
+                        // Update the distance matrix in the range (idx2, N).
+                        for (i=active_nodes.succ[idx2]; i<N; i=active_nodes.succ[i]) {
+                            if (D_(idx2, i) != DBL_MAX && D_(idx1, i) != DBL_MAX) {
+                                f_average(&D_(idx2, i), D_(idx1, i), s, t );
+                            }
+                        }
+                        break;
+                    }
+                        
+                    case METHOD_METR_WEIGHTED:
+                        /*
+                         Weighted linkage.
+                         
+                         Shorter and longer distances can occur.
+                         */
+                        // Update the distance matrix in the range [start, idx1).
+                        for (i=active_nodes.start; i<idx1; i=active_nodes.succ[i]) {
+                            if (D_(i, idx2) != DBL_MAX && D_(i, idx1) != DBL_MAX) {
+                                f_weighted(&D_(i, idx2), D_(i, idx1) );
+                            }
+                        }
+                        // Update the distance matrix in the range (idx1, idx2).
+                        for (; i<idx2; i=active_nodes.succ[i]) {
+                            if (D_(i, idx2) != DBL_MAX && D_(idx1, i) != DBL_MAX) {
+                                f_weighted(&D_(i, idx2), D_(idx1, i) );
+                            }
+                        }
+                        // Update the distance matrix in the range (idx2, N).
+                        for (i=active_nodes.succ[idx2]; i<N; i=active_nodes.succ[i]) {
+                            if (D_(idx2, i) != DBL_MAX && D_(idx1, i) != DBL_MAX) {
+                                f_weighted(&D_(idx2, i), D_(idx1, i) );
+                            }
+                        }
+                        break;
+                        
+                    case METHOD_METR_WARD:
+                        /*
+                         Ward linkage.
+                         
+                         Shorter and longer distances can occur, not smaller than min(d1,d2)
+                         but maybe bigger than max(d1,d2).
+                         */
+                        // Update the distance matrix in the range [start, idx1).
+                        //t_float v = static_cast<t_float>(members[i]);
+                        for (i=active_nodes.start; i<idx1; i=active_nodes.succ[i]) {
+                            if (D_(i, idx2) != DBL_MAX && D_(i, idx1) != DBL_MAX) {
+                                f_ward(&D_(i, idx2), D_(i, idx1), min,
+                                   size1, size2, static_cast<t_float>(members[i]) );
+                            }
+                        }
+                        // Update the distance matrix in the range (idx1, idx2).
+                        for (; i<idx2; i=active_nodes.succ[i]) {
+                            if (D_(i, idx2) != DBL_MAX && D_(idx1, i) != DBL_MAX) {
+                                f_ward(&D_(i, idx2), D_(idx1, i), min,
+                                   size1, size2, static_cast<t_float>(members[i]) );
+                            }
+                        }
+                        // Update the distance matrix in the range (idx2, N).
+                        for (i=active_nodes.succ[idx2]; i<N; i=active_nodes.succ[i]) {
+                            if (D_(idx2, i) != DBL_MAX && D_(idx1, i) != DBL_MAX) {
+                                f_ward(&D_(idx2, i), D_(idx1, i), min,
+                                   size1, size2, static_cast<t_float>(members[i]) );
+                            }
+                        }
+                        break;
+                        
+                    default:
+                        throw std::runtime_error(std::string("Invalid method."));
+                }
+                if (singleton == true) {
+                    // something wrong is here!
+                    active_nodes.remove(idx2);
+                }
+            }
+        }
     
     template <const unsigned char method, typename t_members>
     void generic_linkage(const t_index N, t_float * const D, t_members * const members, cluster_result & Z2)
