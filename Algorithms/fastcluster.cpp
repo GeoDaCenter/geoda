@@ -150,3 +150,19 @@ bool fastcluster::CheckContiguity(GalElement* w, t_index idx1, t_index idx2, std
     }
     return false;
 }
+
+bool fastcluster::empty_intersection(const std::set<t_index>& x, const std::set<t_index>& y)
+{
+    std::set<t_index>::iterator i = x.begin();
+    std::set<t_index>::iterator j = y.begin();
+    while (i != x.end() && j != y.end())
+    {
+      if (*i == *j)
+        return false;
+      else if (*i < *j)
+        ++i;
+      else
+        ++j;
+    }
+    return true;
+}

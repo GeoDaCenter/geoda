@@ -124,10 +124,11 @@ bool SCHCDlg::Run(vector<wxInt64>& clusters)
     fastcluster::cluster_result Z2(rows-1);
 
     if (method == 's') {
-        fastcluster::NN_chain_core_w<fastcluster::METHOD_METR_SINGLE, t_index>(gw->gal, rows, pwdist, NULL, Z2);
+        fastcluster::NN_chain_core_w1<fastcluster::METHOD_METR_SINGLE, t_index>(rows, pwdist, NULL, Z2);
     } else if (method == 'w') {
         members.init(rows, 1);
         fastcluster::NN_chain_core_w<fastcluster::METHOD_METR_WARD, t_index>(gw->gal, rows, pwdist, members, Z2);
+        
     } else if (method == 'm') {
         fastcluster::NN_chain_core_w<fastcluster::METHOD_METR_COMPLETE, t_index>(gw->gal, rows, pwdist, NULL, Z2);
     } else if (method == 'a') {
@@ -137,7 +138,7 @@ bool SCHCDlg::Run(vector<wxInt64>& clusters)
 
     delete[] pwdist;
 
-    //std::stable_sort(Z2[0], Z2[rows-1]);
+    std::stable_sort(Z2[0], Z2[rows-1]);
     t_index node1, node2;
     int i=0, clst_cnt=0;
     fastcluster::union_find nodes(rows);
@@ -160,18 +161,12 @@ bool SCHCDlg::Run(vector<wxInt64>& clusters)
             htree[i].right = node2;
 
             clst_cnt += 1;
-            htree[i].distance = clst_cnt;
+            htree[i].distance = Z2[i]->dist;
         }
     }
 
     if (n_cluster == 0) n_cluster = 2;
     CutTree(rows, htree, n_cluster, clusters);
-
-    // check if additional cluster/split is needed
-    if (CheckContiguity(gw->gal, clusters)  == false) {
-        n_cluster += 1;
-        CutTree(rows, htree, n_cluster, clusters);
-    }
 
     cutoff_n_cluster = n_cluster;
 

@@ -499,7 +499,8 @@ bool HClusterDlg::Run(vector<wxInt64>& clusters)
     fastcluster::cluster_result Z2(rows-1);
 
     if (method == 's') {
-        fastcluster::MST_linkage_core(rows, pwdist, Z2);
+        //fastcluster::MST_linkage_core(rows, pwdist, Z2);
+        fastcluster::NN_chain_core<fastcluster::METHOD_METR_SINGLE, t_index>(rows, pwdist, NULL, Z2);
     } else if (method == 'w') {
         members.init(rows, 1);
         fastcluster::NN_chain_core<fastcluster::METHOD_METR_WARD, t_index>(rows, pwdist, members, Z2);
@@ -528,7 +529,7 @@ bool HClusterDlg::Run(vector<wxInt64>& clusters)
             node2 = node2 < rows ? node2 : rows-node2-1;
             node1 = node1 < rows ? node1 : rows-node1-1;
             
-            //cout << i<< ":" << node2 <<", " <<  node1 << ", " << Z2[i]->dist <<endl;
+            cout << i<< ":" << node2 <<", " <<  node1 << ", " << Z2[i]->dist <<endl;
             //cout << i<< ":" << htree[i].left << ", " << htree[i].right << ", " << htree[i].distance <<endl;
             htree[i].left = node1;
             htree[i].right = node2;
