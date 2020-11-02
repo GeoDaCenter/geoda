@@ -158,7 +158,7 @@ void RedcapDlg::CreateControls()
     // Output
     wxStaticText* st3 = new wxStaticText (panel, wxID_ANY, _("Save Cluster in Field:"));
     m_textbox = new wxTextCtrl(panel, wxID_ANY, "CL", wxDefaultPosition, wxSize(158,-1));
-    chk_save_mst = new wxCheckBox(panel, wxID_ANY, "Save Minimum Spanning Tree");
+    chk_save_mst = new wxCheckBox(panel, wxID_ANY, "Save Complete Spanning Tree");
 
     wxFlexGridSizer* gbox_out = new wxFlexGridSizer(2,2,5,0);
     gbox_out->Add(st3, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
