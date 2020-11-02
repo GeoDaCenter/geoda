@@ -122,17 +122,14 @@ bool SCHCDlg::Run(vector<wxInt64>& clusters)
     }
     htree = new GdaNode[rows-1];
     fastcluster::cluster_result Z2(rows-1);
-
+    members.init(rows, 1);
     if (method == 's') {
-        fastcluster::NN_chain_core_w1<fastcluster::METHOD_METR_SINGLE, t_index>(gw->gal, rows, pwdist, NULL, Z2);
+        fastcluster::NN_chain_core_w1<fastcluster::METHOD_METR_SINGLE, t_index>(gw->gal, rows, pwdist, members, Z2);
     } else if (method == 'w') {
-        members.init(rows, 1);
         fastcluster::NN_chain_core_w1<fastcluster::METHOD_METR_WARD, t_index>(gw->gal, rows, pwdist, members, Z2);
-        
     } else if (method == 'm') {
-        fastcluster::NN_chain_core_w1<fastcluster::METHOD_METR_COMPLETE, t_index>(gw->gal, rows, pwdist, NULL, Z2);
+        fastcluster::NN_chain_core_w1<fastcluster::METHOD_METR_COMPLETE, t_index>(gw->gal, rows, pwdist, members, Z2);
     } else if (method == 'a') {
-        members.init(rows, 1);
         fastcluster::NN_chain_core_w1<fastcluster::METHOD_METR_AVERAGE, t_index>(gw->gal, rows, pwdist, members, Z2);
     }
 
@@ -161,7 +158,7 @@ bool SCHCDlg::Run(vector<wxInt64>& clusters)
             htree[i].right = node2;
 
             clst_cnt += 1;
-            htree[i].distance = Z2[i]->dist;
+            htree[i].distance = clst_cnt;
         }
     }
 
