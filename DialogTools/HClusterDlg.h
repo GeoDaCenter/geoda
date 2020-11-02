@@ -246,7 +246,7 @@ private:
 class HClusterDlg : public AbstractClusterDlg, public HighlightStateObserver
 {
 public:
-    HClusterDlg(wxFrame *parent, Project* project, bool show_centroids=true);
+    HClusterDlg(wxFrame *parent, Project* project, bool show_centroids=true, bool show_weights=false);
     virtual ~HClusterDlg();
     
     void CreateControls();
@@ -283,6 +283,7 @@ protected:
     double cutoffDistance;
     vector<wxInt64> clusters;
     bool show_centroids;
+    bool show_weights;
     
     wxButton *saveButton;
     wxChoice* combo_cov;

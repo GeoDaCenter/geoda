@@ -156,7 +156,7 @@ bool SCHCDlg::Run(vector<wxInt64>& clusters)
             node2 = node2 < rows ? node2 : rows-node2-1;
             node1 = node1 < rows ? node1 : rows-node1-1;
             
-            cout << i<< ":" << node2 <<", " <<  node1 << ", " << Z2[i]->dist <<endl;
+            //cout << i<< ":" << node2 <<", " <<  node1 << ", " << Z2[i]->dist <<endl;
             htree[i].left = node1;
             htree[i].right = node2;
 
