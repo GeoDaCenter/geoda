@@ -1304,13 +1304,46 @@ namespace fastcluster {
 #endif
     }
 
-        inline double get_lowest(const t_index N, t_index& idx1, t_index& idx2, t_float * const D, std::map<t_index, int>& clsts)
+inline bool is_conn(GalElement* w, t_index idx1, t_index idx2, std::map<t_index, int>& clsts)
+{
+    if (w[idx1].Check(idx2))  {
+        return true;
+    }
+    
+    int c1 = clsts[idx1];
+    int c2 = clsts[idx2];
+    
+    if (c1 == 0 && c2 == 0) {
+        return  false;
+    }
+    
+    if (c1 != 0) {
+        const std::vector<long>& nbrs = w[idx2].GetNbrs();
+        for (int i=0; i<nbrs.size(); i++ ) {
+            t_index nid = nbrs[i];
+            if ( clsts[nid]  ==  c1)  {
+                return true;
+            }
+        }
+    }  else if (c2 != 0) {
+        const std::vector<long>& nbrs = w[idx1].GetNbrs();
+        for (int i=0; i<nbrs.size(); i++ ) {
+            t_index nid = nbrs[i];
+            if ( clsts[nid]  ==  c2)  {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+        inline double get_lowest(GalElement* w, const t_index N, t_index& idx1, t_index& idx2, t_float * const D, std::map<t_index, int>& clsts)
         {
             t_index a, b;
             double dist = DBL_MAX;
             for (t_index i=0; i<N; ++i) {
                 for (t_index j=i+1; j<N; ++j) {
-                    if (D_(i,j) < dist && (clsts[i]==0 || clsts[j] == 0 || clsts[i] != clsts[j]) ) {
+                    if (D_(i,j) < dist && (clsts[i]==0 || clsts[j] == 0 || clsts[i] != clsts[j]) && is_conn(w, i, j, clsts)) {
                         dist = D_(i,j);
                         a = i;
                         b = j;
@@ -1323,7 +1356,7 @@ namespace fastcluster {
         }
 
         template <const unsigned char method, typename t_members>
-        void NN_chain_core_w1(const t_index N, t_float * const D, t_members * const members, cluster_result & Z2)
+        void NN_chain_core_w1(GalElement* w, const t_index N, t_float * const D, t_members * const members, cluster_result & Z2)
         {
             /*
              N: integer
@@ -1364,7 +1397,7 @@ namespace fastcluster {
             for (t_index j=0; j<N-1; ++j) {
                 
                 // get current lowest value
-                min = get_lowest(N, idx1, idx2, D, clsts);
+                min = get_lowest(w, N, idx1, idx2, D, clsts);
                 
                 // make idx1 < idx2
                 if (idx1>idx2) {
@@ -1378,33 +1411,70 @@ namespace fastcluster {
                 
                 std::cout << "merge:" << idx1 << "," <<idx2 << "," << min << std::endl;
                 
-                if (clsts[idx1] == 0 && clsts[idx2] == 0) {
-                    clsts[idx1] = cluster_idx++;
-                    clsts[idx2] = clsts[idx1];
-                } else if (clsts[idx1] == 0)  {
-                    clsts[idx1]  = clsts[idx2];
-                } else if (clsts[idx2] == 0)  {
-                    clsts[idx2]  = clsts[idx1];
-                } else if (clsts[idx1] != clsts[idx2])  {
-                    // merge two clusters
-                    int c1 = clsts[idx1];
-                    int c2 = clsts[idx2];
-                    for (cit = clsts.begin(); cit != clsts.end(); ++cit) {
-                        if (cit->second == c1 || cit->second == c2) {
-                            clsts[cit->first]  =  cluster_idx;
+                // size of idx1 cluster and idx2 cluster
+                size1 = clsts[idx1] == 0 ? 1 : 0;
+                size2 = clsts[idx2] == 0 ? 1 : 0;
+                if (clsts[idx1]!=0) {
+                    for (i=0; i<N; ++i) {
+                        if (clsts[i] == clsts[idx1]) {
+                            size1 += 1;
                         }
                     }
-                    cluster_idx ++;
                 }
-                
+                if (clsts[idx2]!=0) {
+                    for (i=0; i<N; ++i) {
+                        if ( clsts[i] == clsts[idx2]) {
+                            size2 += 1;
+                        }
+                    }
+                }
                 
                 // update the dissimilarity table
                 if (method==METHOD_METR_AVERAGE ||
                     method==METHOD_METR_WARD) {
-                    size1 = static_cast<t_float>(members[idx1]);
-                    size2 = static_cast<t_float>(members[idx2]);
-                    members[idx2] += members[idx1];
+                    //size1 = static_cast<t_float>(members[idx1]);
+                    //size2 = static_cast<t_float>(members[idx2]);
+                    //members[idx2] += members[idx1];
+                    //members[idx2]  = members[idx1];
                 }
+                
+                
+                // assign idx1 and idx2 to cluster
+                if (clsts[idx1] == 0 && clsts[idx2] == 0) {
+                    clsts[idx1] = cluster_idx++;
+                    clsts[idx2] = clsts[idx1];
+                    
+                    members[idx1] += 1;
+                    members[idx2] += 1;
+                    
+                } else if (clsts[idx1] == 0)  {
+                    clsts[idx1]  = clsts[idx2];
+                    
+                    members[idx2] += 1;
+                    members[idx1] = members[idx2];
+                    
+                } else if (clsts[idx2] == 0)  {
+                    clsts[idx2]  = clsts[idx1];
+                    
+                    members[idx1] += 1;
+                    members[idx2] = members[idx1];
+                    
+                } else if (clsts[idx1] != clsts[idx2])  {
+                    // merge two clusters
+                    int c1 = clsts[idx1];
+                    int c2 = clsts[idx2];
+                    int cnt = 0;
+                    for (cit = clsts.begin(); cit != clsts.end(); ++cit) {
+                        if (cit->second == c1 || cit->second == c2) {
+                            clsts[cit->first]  =  cluster_idx;
+                            cnt += 1;
+                        }
+                    }
+                    members[idx1] = cnt;
+                    members[idx2] = cnt;
+                    cluster_idx ++;
+                }
+                
                 
                 switch (method) {
                     case METHOD_METR_SINGLE:
@@ -1415,20 +1485,30 @@ namespace fastcluster {
                          */
                         // Update the distance matrix in the range [start, idx1).
                         for (i=0; i<idx1; ++i) {
-                            if (D_(i, idx2) != DBL_MAX && D_(i, idx1) != DBL_MAX) {
-                                f_single(&D_(i, idx1), D_(i, idx2) );
-                            }
+                            f_single(&D_(i, idx1), D_(i, idx2) );
                         }
                         // Update the distance matrix in the range (idx1, idx2).
                         for (i=idx1+1; i<idx2; ++i) {
-                            if (D_(i, idx2) != DBL_MAX && D_(idx1, i) != DBL_MAX) {
-                                f_single(&D_(i, idx1), D_(idx2, i) );
-                            }
+                            f_single(&D_(idx1, i), D_(i, idx2) );
                         }
                         // Update the distance matrix in the range (idx2, N).
                         for (i=idx2+1; i<N; ++i) {
-                            if (D_(idx2, i) != DBL_MAX && D_(idx1, i) != DBL_MAX) {
-                                f_single(&D_(idx1, i), D_(idx2, i) );
+                            f_single(&D_(idx1, i), D_(idx2, i) );
+                        }
+                        // Update the current cluster to (i, idx1)
+                        for (int k=0; k<N; ++k)  {
+                            if (clsts[k] == clsts[idx1] && k != idx1) {
+                                // k is member of current cluster
+                                for (i=0; i<k; ++i) {
+                                    if (clsts[i]  != clsts[idx1]) {
+                                        D_(i, k) = i < idx1 ? D_(i, idx1) : D_(idx1, i);
+                                    }
+                                }
+                                for (i=k+1; i<N; ++i) {
+                                    if (clsts[i]  != clsts[idx1]) {
+                                        D_(k, i) = i < idx1 ? D_(i, idx1) : D_(idx1, i);
+                                    }
+                                }
                             }
                         }
                         break;
@@ -1440,21 +1520,31 @@ namespace fastcluster {
                          Characteristic: new distances are never shorter than the old distances.
                          */
                         // Update the distance matrix in the range [start, idx1).
-                        for (i=active_nodes.start; i<idx1; i=active_nodes.succ[i]) {
-                            if (D_(i, idx2) != DBL_MAX && D_(i, idx1) != DBL_MAX) {
-                                f_complete(&D_(i, idx2), D_(i, idx1) );
-                            }
+                        for (i=0; i<idx1; ++i) {
+                            f_complete(&D_(i, idx1), D_(i, idx2) );
                         }
                         // Update the distance matrix in the range (idx1, idx2).
-                        for (; i<idx2; i=active_nodes.succ[i]) {
-                            if (D_(i, idx2) != DBL_MAX && D_(idx1, i) != DBL_MAX) {
-                                f_complete(&D_(i, idx2), D_(idx1, i) );
-                            }
+                        for (i=idx1+1; i<idx2; ++i) {
+                            f_complete(&D_(idx1, i), D_(i, idx2) );
                         }
                         // Update the distance matrix in the range (idx2, N).
-                        for (i=active_nodes.succ[idx2]; i<N; i=active_nodes.succ[i]) {
-                            if (D_(idx2, i) != DBL_MAX && D_(idx1, i) != DBL_MAX) {
-                                f_complete(&D_(idx2, i), D_(idx1, i) );
+                        for (i=idx2+1; i<N; ++i) {
+                            f_complete(&D_(idx1, i), D_(idx2, i) );
+                        }
+                        // Update the current cluster to (i, idx1)
+                        for (int k=0; k<N; ++k)  {
+                            if (clsts[k] == clsts[idx1] && k != idx1) {
+                                // k is member of current cluster
+                                for (i=0; i<k; ++i) {
+                                    if (clsts[i]  != clsts[idx1]) {
+                                        D_(i, k) = i < idx1 ? D_(i, idx1) : D_(idx1, i);
+                                    }
+                                }
+                                for (i=k+1; i<N; ++i) {
+                                    if (clsts[i]  != clsts[idx1]) {
+                                        D_(k, i) = i < idx1 ? D_(i, idx1) : D_(idx1, i);
+                                    }
+                                }
                             }
                         }
                         break;
@@ -1466,54 +1556,41 @@ namespace fastcluster {
                          Shorter and longer distances can occur.
                          */
                         // Update the distance matrix in the range [start, idx1).
-                        t_float s = size1/(size1+size2);
-                        t_float t = size2/(size1+size2);
-                        for (i=active_nodes.start; i<idx1; i=active_nodes.succ[i]) {
-                            if (D_(i, idx2) != DBL_MAX && D_(i, idx1) != DBL_MAX) {
-                                f_average(&D_(i, idx2), D_(i, idx1), s, t );
-                            }
+                        
+                        t_float s = size1/(size1+size2); // idx1
+                        t_float t = size2/(size1+size2);  // idx2
+                        
+                        for (i=0; i<idx1; ++i) {
+                            f_average(&D_(i, idx1), D_(i, idx2), t, s);
                         }
                         // Update the distance matrix in the range (idx1, idx2).
-                        for (; i<idx2; i=active_nodes.succ[i]) {
-                            if (D_(i, idx2) != DBL_MAX && D_(idx1, i) != DBL_MAX) {
-                                f_average(&D_(i, idx2), D_(idx1, i), s, t );
-                            }
+                        for (i=idx1+1; i<idx2; ++i) {
+                            f_average(&D_(idx1, i), D_(i, idx2), t, s);
                         }
                         // Update the distance matrix in the range (idx2, N).
-                        for (i=active_nodes.succ[idx2]; i<N; i=active_nodes.succ[i]) {
-                            if (D_(idx2, i) != DBL_MAX && D_(idx1, i) != DBL_MAX) {
-                                f_average(&D_(idx2, i), D_(idx1, i), s, t );
+                        for (i=idx2+1; i<N; ++i) {
+                            f_average(&D_(idx1, i), D_(idx2, i), t, s );
+                        }
+                        
+                        // Update the current cluster to (i, idx1)
+                        for (int k=0; k<N; ++k)  {
+                            if (clsts[k] == clsts[idx1] && k != idx1) {
+                                // k is member of current cluster
+                                for (i=0; i<k; ++i) {
+                                    if (clsts[i]  != clsts[idx1]) {
+                                        D_(i, k) = i < idx1 ? D_(i, idx1) : D_(idx1, i);
+                                    }
+                                }
+                                for (i=k+1; i<N; ++i) {
+                                    if (clsts[i]  != clsts[idx1]) {
+                                        D_(k, i) = i < idx1 ? D_(i, idx1) : D_(idx1, i);
+                                    }
+                                }
                             }
                         }
                         break;
                     }
-                        
-                    case METHOD_METR_WEIGHTED:
-                        /*
-                         Weighted linkage.
-                         
-                         Shorter and longer distances can occur.
-                         */
-                        // Update the distance matrix in the range [start, idx1).
-                        for (i=active_nodes.start; i<idx1; i=active_nodes.succ[i]) {
-                            if (D_(i, idx2) != DBL_MAX && D_(i, idx1) != DBL_MAX) {
-                                f_weighted(&D_(i, idx2), D_(i, idx1) );
-                            }
-                        }
-                        // Update the distance matrix in the range (idx1, idx2).
-                        for (; i<idx2; i=active_nodes.succ[i]) {
-                            if (D_(i, idx2) != DBL_MAX && D_(idx1, i) != DBL_MAX) {
-                                f_weighted(&D_(i, idx2), D_(idx1, i) );
-                            }
-                        }
-                        // Update the distance matrix in the range (idx2, N).
-                        for (i=active_nodes.succ[idx2]; i<N; i=active_nodes.succ[i]) {
-                            if (D_(idx2, i) != DBL_MAX && D_(idx1, i) != DBL_MAX) {
-                                f_weighted(&D_(idx2, i), D_(idx1, i) );
-                            }
-                        }
-                        break;
-                        
+
                     case METHOD_METR_WARD:
                         /*
                          Ward linkage.
@@ -1523,30 +1600,43 @@ namespace fastcluster {
                          */
                         // Update the distance matrix in the range [start, idx1).
                         //t_float v = static_cast<t_float>(members[i]);
-                        for (i=active_nodes.start; i<idx1; i=active_nodes.succ[i]) {
-                            if (D_(i, idx2) != DBL_MAX && D_(i, idx1) != DBL_MAX) {
-                                f_ward(&D_(i, idx2), D_(i, idx1), min,
-                                   size1, size2, static_cast<t_float>(members[i]) );
-                            }
+                       
+                        for (i=0; i<idx1; ++i) {
+                            f_ward(&D_(i, idx1), D_(i, idx2), min, size2, size1, static_cast<t_float>(members[i]));
                         }
                         // Update the distance matrix in the range (idx1, idx2).
-                        for (; i<idx2; i=active_nodes.succ[i]) {
-                            if (D_(i, idx2) != DBL_MAX && D_(idx1, i) != DBL_MAX) {
-                                f_ward(&D_(i, idx2), D_(idx1, i), min,
-                                   size1, size2, static_cast<t_float>(members[i]) );
-                            }
+                        for (i=idx1+1; i<idx2; ++i) {
+                            f_ward(&D_(idx1, i), D_(i, idx2), min, size2, size1, static_cast<t_float>(members[i]));
                         }
                         // Update the distance matrix in the range (idx2, N).
-                        for (i=active_nodes.succ[idx2]; i<N; i=active_nodes.succ[i]) {
-                            if (D_(idx2, i) != DBL_MAX && D_(idx1, i) != DBL_MAX) {
-                                f_ward(&D_(idx2, i), D_(idx1, i), min,
-                                   size1, size2, static_cast<t_float>(members[i]) );
+                        for (i=idx2+1; i<N; ++i) {
+                            f_ward(&D_(idx1, i), D_(idx2, i), min, size2, size1, static_cast<t_float>(members[i]));
+                        }
+                        
+                        // Update the current cluster to (i, idx1)
+                        for (int k=0; k<N; ++k)  {
+                            if (clsts[k] == clsts[idx1] && k != idx1) {
+                                // k is member of current cluster
+                                for (i=0; i<k; ++i) {
+                                    if (clsts[i]  != clsts[idx1]) {
+                                        D_(i, k) = i < idx1 ? D_(i, idx1) : D_(idx1, i);
+                                    }
+                                }
+                                for (i=k+1; i<N; ++i) {
+                                    if (clsts[i]  != clsts[idx1]) {
+                                        D_(k, i) = i < idx1 ? D_(i, idx1) : D_(idx1, i);
+                                    }
+                                }
                             }
                         }
                         break;
                         
                     default:
                         throw std::runtime_error(std::string("Invalid method."));
+                }
+                if (method==METHOD_METR_AVERAGE ||
+                    method==METHOD_METR_WARD) {
+                    //members[idx2] = members[idx1];
                 }
             }
         }
