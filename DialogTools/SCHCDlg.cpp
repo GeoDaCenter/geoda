@@ -135,7 +135,7 @@ bool SCHCDlg::Run(vector<wxInt64>& clusters)
 
     delete[] pwdist;
 
-    std::stable_sort(Z2[0], Z2[rows-1]);
+    //std::stable_sort(Z2[0], Z2[rows-1]);
     t_index node1, node2;
     int i=0, clst_cnt=0;
     fastcluster::union_find nodes(rows);
