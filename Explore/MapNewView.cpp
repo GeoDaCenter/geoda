@@ -2936,7 +2936,6 @@ void MapCanvas::DisplayWeightsGraph()
 {
     wxLogMessage("MapCanvas::DisplayWeightsGraph()");
     display_weights_graph = !display_weights_graph;
-    display_neighbors = display_weights_graph ? false : true;
     RedrawMap();
 }
 
@@ -2944,10 +2943,6 @@ void MapCanvas::DisplayNeighbors()
 {
     wxLogMessage("MapCanvas::DisplayNeighbors()");
     display_neighbors = !display_neighbors;
-    if (display_neighbors) {
-        display_map_with_graph = true;
-        display_weights_graph = false;
-    } 
     RedrawMap();
 }
 
