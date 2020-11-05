@@ -7,6 +7,11 @@ from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
 from po2csv import po2dict, dict2PO
 
+# NOTE
+# author: lixun910@gmail.com
+# delete the token.pickle under this directory
+# then, run the script to download sheet from google spreadsheet
+#
 # If modifying these scopes, delete the file token.pickle.
 SCOPES = ['https://www.googleapis.com/auth/spreadsheets.readonly']
 

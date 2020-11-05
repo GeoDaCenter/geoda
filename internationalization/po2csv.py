@@ -10,7 +10,7 @@ def dict2PO(po_items, file_path):
     msgid_list = sorted(po_items)
     for msgid in msgid_list:
         msgstr, contrib = po_items[msgid]
-        line = '# contributors:' + contrib + '\n'
+        line = '#contributors:' + contrib + '\n'
         f.write(line)
         line = 'msgid "' + msgid + '"\n'
         f.write(line)
@@ -46,7 +46,7 @@ def po2dict(po_file, result):
         for i, line in enumerate(f, 1):
             line = line.strip()
             if(line.startswith('#') or len(line) == 0):
-                if (line.startswith('# contributors')):
+                if (line.startswith('#contributors')):
                     if (mode == 2):
                         next_contrib = line.split(':')[1] 
                     else:

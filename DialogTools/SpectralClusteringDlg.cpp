@@ -120,7 +120,7 @@ void SpectralClusteringDlg::CreateControls()
     int suggest_k = ceil(log10((double)rows));
     wxString str_k;
     str_k << suggest_k;
-    lbl_knn = new wxStaticText(panel, wxID_ANY, _("        K-NN:"));
+    lbl_knn = new wxStaticText(panel, wxID_ANY, "        " + _("K-NN:"));
     wxBoxSizer* hbox19 = new wxBoxSizer(wxHORIZONTAL);
     chk_knn = new wxCheckBox(panel, wxID_ANY, "");
     lbl_neighbors = new wxStaticText(panel, wxID_ANY, _("# Neighors:"));
@@ -137,7 +137,7 @@ void SpectralClusteringDlg::CreateControls()
     gbox->Add(hbox19, 1, wxEXPAND);
     
     // Mutual KNN
-    wxStaticText *lbl_mknn = new wxStaticText(panel, wxID_ANY, _("        Mutual K-NN:"));
+    wxStaticText *lbl_mknn = new wxStaticText(panel, wxID_ANY, "        " + _("Mutual K-NN:"));
     wxBoxSizer* hbox20 = new wxBoxSizer(wxHORIZONTAL);
     chk_mknn = new wxCheckBox(panel, wxID_ANY, "");
     lbl_m_neighbors = new wxStaticText(panel, wxID_ANY, _("# Neighors:"));
@@ -154,7 +154,7 @@ void SpectralClusteringDlg::CreateControls()
     m_mknn->Enable(false);
     
 	// Spectral Controls: Kernel
-    lbl_kernel = new wxStaticText(panel, wxID_ANY, _("        Gaussian:"));
+    lbl_kernel = new wxStaticText(panel, wxID_ANY, "        " + _("Gaussian:"));
     wxBoxSizer* hbox18 = new wxBoxSizer(wxHORIZONTAL);
     chk_kernel = new wxCheckBox(panel, wxID_ANY, "");
     lbl_sigma = new wxStaticText(panel, wxID_ANY, _(" Sigma:"));

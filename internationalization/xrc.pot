@@ -178,6 +178,9 @@ msgstr ""
 msgid "West European Latin-9 (ISO-8859-15)"
 msgstr ""
 
+msgid "Setup Number Formatting"
+msgstr ""
+
 msgid "&Map"
 msgstr ""
 
@@ -289,6 +292,9 @@ msgstr ""
 msgid "MDS"
 msgstr ""
 
+msgid "t-SNE"
+msgstr ""
+
 msgid "K Means"
 msgstr ""
 
@@ -304,13 +310,22 @@ msgstr ""
 msgid "Hierarchical"
 msgstr ""
 
+msgid "DBScan"
+msgstr ""
+
 msgid "HDBScan"
+msgstr ""
+
+msgid "SCHC"
 msgstr ""
 
 msgid "skater"
 msgstr ""
 
 msgid "redcap"
+msgstr ""
+
+msgid "AZP"
 msgstr ""
 
 msgid "max-p"
@@ -332,6 +347,9 @@ msgid "Moran's I with EB Rate"
 msgstr ""
 
 msgid "Univariate Local Moran's I"
+msgstr ""
+
+msgid "Univariate Median Local Moran's I"
 msgstr ""
 
 msgid "Bivariate Local Moran's I"
@@ -367,7 +385,19 @@ msgstr ""
 msgid "Multivariate Local Geary"
 msgstr ""
 
+msgid "Univariate Quantile LISA"
+msgstr ""
+
+msgid "Multivariate Quantile LISA"
+msgstr ""
+
+msgid "Local Neighbor Match Test"
+msgstr ""
+
 msgid "Spatial Correlogram"
+msgstr ""
+
+msgid "Distance Scatter Plot"
 msgstr ""
 
 msgid "Tim&e"
@@ -517,6 +547,9 @@ msgstr ""
 msgid "Choose Intervals"
 msgstr ""
 
+msgid "Set as Unique Value"
+msgstr ""
+
 msgid "Show Axes"
 msgstr ""
 
@@ -563,6 +596,51 @@ msgid "Save Duplicate Thiessen Polygons to Table"
 msgstr ""
 
 msgid "Thiessen Polygons"
+msgstr ""
+
+msgid "Display Minimum Spanning Tree"
+msgstr ""
+
+msgid "Save Minimum Spanning Tree"
+msgstr ""
+
+msgid "Change Edge Thickness"
+msgstr ""
+
+msgid "Light"
+msgstr ""
+
+msgid "Normal"
+msgstr ""
+
+msgid "Strong"
+msgstr ""
+
+msgid "Change Edge Color"
+msgstr ""
+
+msgid "Minimum Spanning Tree"
+msgstr ""
+
+msgid "Display Heat Map"
+msgstr ""
+
+msgid "Specify Bandwith"
+msgstr ""
+
+msgid "Specify Core Distance"
+msgstr ""
+
+msgid "Change Fill Color"
+msgstr ""
+
+msgid "Change Outline Color"
+msgstr ""
+
+msgid "Change Transparency"
+msgstr ""
+
+msgid "Heat Map"
 msgstr ""
 
 msgid "Selection Mode"
@@ -643,25 +721,13 @@ msgstr ""
 msgid "Show Graph"
 msgstr ""
 
-msgid "Change Edge Thickness"
-msgstr ""
-
-msgid "Light"
-msgstr ""
-
-msgid "Normal"
-msgstr ""
-
-msgid "Strong"
-msgstr ""
-
-msgid "Change Edge Color"
-msgstr ""
-
 msgid "Hide Map"
 msgstr ""
 
 msgid "Change Outline Color of Selected"
+msgstr ""
+
+msgid "Change Fill Color of Selected"
 msgstr ""
 
 msgid "Select All..."
@@ -704,6 +770,9 @@ msgid "Save Centroids"
 msgstr ""
 
 msgid "Shape Centers"
+msgstr ""
+
+msgid "Save Local Match Weights"
 msgstr ""
 
 msgid "Regimes Regression"
@@ -781,6 +850,12 @@ msgstr ""
 msgid "Change Parameters"
 msgstr ""
 
+msgid "LOESS Setup"
+msgstr ""
+
+msgid "Show Data Points"
+msgstr ""
+
 msgid "Curve Color"
 msgstr ""
 
@@ -797,6 +872,9 @@ msgid "Change Font"
 msgstr ""
 
 msgid "Moran Scatter Plot"
+msgstr ""
+
+msgid "Distance based Methods"
 msgstr ""
 
 msgid "Local Moran's I Maps"
@@ -1093,7 +1171,7 @@ msgstr ""
 msgid "Use max knn distance as bandwidth"
 msgstr ""
 
-msgid "Adaptive kernel"
+msgid "Kernel"
 msgstr ""
 
 msgid "Create"
@@ -1294,6 +1372,9 @@ msgstr ""
 msgid "Include diagonal of weights matrix"
 msgstr ""
 
+msgid "Median spatial lag"
+msgstr ""
+
 msgid "Method"
 msgstr ""
 
@@ -1301,6 +1382,9 @@ msgid "Variable Name"
 msgstr ""
 
 msgid "SELECTED"
+msgstr ""
+
+msgid "include neighbors?"
 msgstr ""
 
 msgid "&Cancel"
@@ -1399,6 +1483,9 @@ msgstr ""
 msgid "Use the bounding box of shape datasource"
 msgstr ""
 
+msgid "Use the bounding box of existing layers"
+msgstr ""
+
 msgid "Grid Size"
 msgstr ""
 
@@ -1450,6 +1537,33 @@ msgstr ""
 msgid "Zoom : press right-mouse button"
 msgstr ""
 
+msgid "Show selection and neighbors"
+msgstr ""
+
+msgid "Show connection line"
+msgstr ""
+
+msgid "Points"
+msgstr ""
+
+msgid "Rendering quality of points:"
+msgstr ""
+
+msgid "Radius of points:"
+msgstr ""
+
+msgid "Lines"
+msgstr ""
+
+msgid "Line width/thickness:"
+msgstr ""
+
+msgid "Line color:"
+msgstr ""
+
+msgid "OpenGL"
+msgstr ""
+
 msgid "Welcome to GeoDa 1.8.16"
 msgstr ""
 
@@ -1499,18 +1613,6 @@ msgid "WFS URL"
 msgstr ""
 
 msgid "Web"
-msgstr ""
-
-msgid "User Name"
-msgstr ""
-
-msgid "App Key"
-msgstr ""
-
-msgid "Get a free Carto account: "
-msgstr ""
-
-msgid "Carto"
 msgstr ""
 
 msgid "Recent"
@@ -1579,6 +1681,12 @@ msgstr ""
 msgid "Set Number Separators in Table"
 msgstr ""
 
+msgid "User Name"
+msgstr ""
+
+msgid "App Key"
+msgstr ""
+
 msgid "Title of Visualization"
 msgstr ""
 
@@ -1600,10 +1708,10 @@ msgstr ""
 msgid "HERE App ID"
 msgstr ""
 
-msgid "HERE App Key"
+msgid "HERE App Code"
 msgstr ""
 
-msgid "Get a free Nokia/HERE account: "
+msgid "Get a free HERE account: "
 msgstr ""
 
 msgid "Reset"
