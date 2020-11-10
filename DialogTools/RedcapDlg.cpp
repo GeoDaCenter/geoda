@@ -140,7 +140,9 @@ void RedcapDlg::CreateControls()
     wxBoxSizer *hbox17 = new wxBoxSizer(wxHORIZONTAL);
     chk_seed = new wxCheckBox(panel, wxID_ANY, "");
     seedButton = new wxButton(panel, wxID_OK, _("Change Seed"));
-    
+    st17->Hide();
+    chk_seed->Hide();
+    seedButton->Hide();
     hbox17->Add(chk_seed,0, wxALIGN_CENTER_VERTICAL);
     hbox17->Add(seedButton,0,wxALIGN_CENTER_VERTICAL);
     seedButton->Disable();
