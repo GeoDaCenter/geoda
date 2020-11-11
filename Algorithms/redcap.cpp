@@ -799,8 +799,8 @@ double FullOrderSLKRedCap::UpdateClusterDist(int cur_id, int o_id, int d_id, boo
         int d_endpos = clst_startpos[d_id] + clst_nodenum[d_id];
         for (int i=clst_startpos[cur_id]; i<c_endpos; i++) {
             for (int j=clst_startpos[d_id]; j<d_endpos; j++) {
-                if (dist_dict[clst_ids[i]] [clst_ids[j]] < new_dist) {
-                    new_dist = dist_dict[clst_ids[i]] [clst_ids[j]];
+                if (dist_matrix[clst_ids[i]] [clst_ids[j]] < new_dist) {
+                    new_dist = dist_matrix[clst_ids[i]] [clst_ids[j]];
                 }
             }
         }
@@ -881,11 +881,11 @@ void FullOrderALKRedCap::Clustering()
         int orig_id = ids[orig->id];
         int dest_id = ids[dest->id];
         
-        Node* root1 = djset.FindSet(orig);
-        Node* root2 = djset.FindSet(dest);
+        Node* root1 = djset.FindSet(orig); // find ancestor of orig
+        Node* root2 = djset.FindSet(dest); // find ancester of dest
         
         if (root1 != root2) {
-            // find the shortest e in edges
+            // merge root1 and root2
             for (int i=0; i<this->edges.size(); i++) {
                 ++cnt;
                 Edge* tmp_edge = this->edges[i];
@@ -894,12 +894,12 @@ void FullOrderALKRedCap::Clustering()
                 if ((tmp_o_id==orig_id && tmp_d_id == dest_id) ||
                     (tmp_d_id==orig_id && tmp_o_id == dest_id))
                 {
-                    // add edge
+                    // add current edge to solution
                     this->ordered_edges[index++] = tmp_edge;
                     break;
                 }
             }
-            // add e to cluster
+            // add e to cluster, create a parent node
             djset.Union(orig, dest);
             
             if (index == num_nodes -1) {
@@ -929,10 +929,10 @@ void FullOrderALKRedCap::Clustering()
             for (i=0; i<num_nodes; ++i) {
                 ++cnt;
                 int tmp_id = ids[i];
-                if (!access_flag[tmp_id] && tmp_id != dest_id && tmp_id != orig_id) {
+                if (!access_flag[tmp_id] && tmp_id != dest_id && tmp_id != orig_id) { // any node[i] not (o,d)
                     bool d_is_nbr = dist_dict[tmp_id].find(dest_id) != dist_dict[tmp_id].end();
                     bool o_is_nbr = dist_dict[tmp_id].find(orig_id) != dist_dict[tmp_id].end();
-                    if (d_is_nbr || o_is_nbr) {
+                    if (d_is_nbr || o_is_nbr) { // node[i] is neighbor of (o,d)
                         double update_dist = UpdateClusterDist(tmp_id, orig_id, dest_id, o_is_nbr, d_is_nbr, cluster_ids, cluster_startpos, cluster_nodenum);
                         
                         Edge* new_e = new Edge(ordered_nodes[tmp_id], ordered_nodes[orig_id], update_dist);
@@ -946,13 +946,13 @@ void FullOrderALKRedCap::Clustering()
                         dist_dict[orig_id][tmp_id] = update_dist;
                     }
                     access_flag[tmp_id] = true;
-                } else if (tmp_id == dest_id || tmp_id == orig_id) {
+                } else if (tmp_id == dest_id || tmp_id == orig_id) { // node[i] is (o,d)
                     ids[i] = orig_id;
                  }
             }
             
             cluster_nodenum[orig_id] += cluster_nodenum[dest_id];
-            cluster_nodenum[dest_id] = 0;
+            cluster_nodenum[dest_id] = 0; // no need to check with dest_id anymore?
             
             cluster_startpos[0] = 0;
             counts[0] = 0;
@@ -1063,29 +1063,34 @@ FullOrderCLKRedCap::~FullOrderCLKRedCap()
 double FullOrderCLKRedCap::UpdateClusterDist(int cur_id, int o_id, int d_id, bool conn_c_o, bool conn_c_d, vector<int>& clst_ids, vector<int>& clst_startpos, vector<int>& clst_nodenum)
 {
     double new_dist = 0.0;
-    if (conn_c_o && conn_c_d) {
+    if (conn_c_o && conn_c_d) { // cur_id connects to both o and d now
         double d_c_o = dist_dict[cur_id][o_id];
         double d_c_d = dist_dict[cur_id][d_id];
-        if ((new_dist = d_c_o) < d_c_d) {
+        new_dist = d_c_o;
+        if (new_dist < d_c_d) {
             new_dist = d_c_d;
         }
         
-    } else if (conn_c_o || conn_c_d) {
-        if (conn_c_d) {
+    } else if (conn_c_o || conn_c_d) { // cur_id connects to either o or d
+        if (conn_c_d) {  // if connect to d, switch o and d, so process o always
             int tmp_id = o_id;
             o_id = d_id;
             d_id = tmp_id;
         }
         new_dist = dist_dict[cur_id][o_id];
-        int c_endpos = clst_startpos[cur_id] + clst_nodenum[cur_id];
-        int d_endpos = clst_startpos[d_id] + clst_nodenum[d_id];
+        int c_endpos = clst_startpos[cur_id] + clst_nodenum[cur_id]; // process all other nodes in the cluster of cur_id
+        int d_endpos = clst_startpos[d_id] + clst_nodenum[d_id]; // process all other nodes in the cluster of d_id
         for (int i=clst_startpos[cur_id]; i<c_endpos; i++) {
             for (int j=clst_startpos[d_id]; j<d_endpos; j++) {
-                if (dist_dict[clst_ids[i]] [clst_ids[j]] > new_dist) {
-                    new_dist = dist_dict[clst_ids[i]] [clst_ids[j]];
+                int n1 = clst_ids[i];
+                int n2 = clst_ids[j];
+                if (dist_matrix[n1][n2] > new_dist) { // n1 and n2 now connect so use dist_matrix
+                    new_dist = dist_matrix[n1][n2];
                 }
             }
         }
+    } else {
+        std::cout << "should not be here?" << std::endl;
     }
     return new_dist;
 }

@@ -263,7 +263,11 @@ namespace SpanningTreeClustering {
         
         virtual void Clustering()=0;
         
-        virtual double UpdateClusterDist(int cur_id, int orig_id, int dest_id, bool is_orig_nbr, bool is_dest_nbr, vector<int>& clst_ids, vector<int>& clst_startpos, vector<int>& clst_nodenum) { return 0;}
+        virtual double UpdateClusterDist(int cur_id, int orig_id, int dest_id,
+                                         bool is_orig_nbr, bool is_dest_nbr,
+                                         vector<int>& clst_ids,
+                                         vector<int>& clst_startpos,
+                                         vector<int>& clst_nodenum) { return 0;}
         
         Edge* GetShortestEdge(vector<Edge*>& edges, int start, int end){ return NULL;}
         
