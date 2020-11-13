@@ -185,9 +185,6 @@ void CountPointsInPolygon::sub_run(int start, int end)
             double y = v.first.get<1>();
             OGRPoint ogr_pt(x, y);
             if (ogr_pt.Within(ogr_poly)) {
-                if (i == 12) {
-                    std::cout << pt_idx << std::endl;
-                }
                 spatial_counts[i] += 1;
                 if (join_variable) {
                     mutex.lock();

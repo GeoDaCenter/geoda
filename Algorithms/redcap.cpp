@@ -1148,7 +1148,7 @@ double FullOrderCLKRedCap::UpdateClusterDist(int cur_id, int o_id, int d_id, boo
             }
         }
     } else {
-        std::cout << "should not be here?" << std::endl;
+        //std::cout << "should not be here?" << std::endl;
     }
     return new_dist;
 }
