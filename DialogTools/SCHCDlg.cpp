@@ -42,7 +42,7 @@ EVT_CLOSE( SCHCDlg::OnClose )
 END_EVENT_TABLE()
 
 SCHCDlg::SCHCDlg(wxFrame* parent_s, Project* project_s)
-: HClusterDlg(parent_s, project_s, false /*dont show centroids control*/)
+: HClusterDlg(parent_s, project_s, false /*dont show centroids control*/), redcap(0)
 {
     wxLogMessage("Open SCHCDlg.");
     SetTitle(_("Spatial Constrained Hierarchical Clustering Settings"));
@@ -56,6 +56,12 @@ SCHCDlg::SCHCDlg(wxFrame* parent_s, Project* project_s)
 
 SCHCDlg::~SCHCDlg()
 {
+    wxLogMessage("On SCHCDlg::~SCHCDlg");
+    //frames_manager->removeObserver(this);
+    if (redcap) {
+        delete redcap;
+        redcap = NULL;
+    }
 }
 
 void SCHCDlg::OnSave(wxCommandEvent& event )
@@ -104,48 +110,59 @@ bool SCHCDlg::Run(vector<wxInt64>& clusters)
     }
 
     // get pairwise distance
-    double* pwdist = NULL;
-    if (dist == 'e') {
-        pwdist = DataUtils::getPairWiseDistance(input_data, weight, rows,
-                                                columns,
-                                                DataUtils::EuclideanDistance);
-    } else {
-        pwdist = DataUtils::getPairWiseDistance(input_data, weight, rows,
-                                                columns,
-                                                DataUtils::ManhattanDistance);
-    }
+    int transpose = 0; // row wise
+    double** ragged_distances = distancematrix(rows, columns, input_data,  mask, weight, dist, transpose);
+    double** distances = DataUtils::fullRaggedMatrix(ragged_distances, rows, rows);
+    for (int i = 1; i < rows; i++) free(ragged_distances[i]);
+    free(ragged_distances);
 
-    fastcluster::auto_array_ptr<t_index> members;
+    // run RedCap
+      std::vector<bool> undefs(rows, false);
+    
+      if (redcap != NULL) {
+          delete redcap;
+          redcap = NULL;
+      }
+    double* bound_vals = 0;
+    double min_bound = 0;
+      if (method == 's') {
+          redcap = new SpanningTreeClustering::FullOrderSLKRedCap(rows, columns, distances, input_data, undefs, gw->gal, bound_vals, min_bound);
+      } else if (method == 'w') {
+          redcap = new SpanningTreeClustering::FullOrderWardRedCap(rows, columns, distances, input_data, undefs, gw->gal, bound_vals, min_bound);
+      } else if (method == 'm') {
+          redcap = new SpanningTreeClustering::FullOrderCLKRedCap(rows, columns, distances, input_data, undefs, gw->gal, bound_vals, min_bound);
+      } else if (method == 'a') {
+          redcap = new SpanningTreeClustering::FullOrderALKRedCap(rows, columns, distances, input_data, undefs, gw->gal, bound_vals, min_bound);
+      }
+     
+      if (redcap==NULL) {
+          for (int i = 1; i < rows; i++) delete[] distances[i];
+          delete[] distances;
+          delete[] bound_vals;
+          bound_vals = NULL;
+          return false;
+      }
+    
+    redcap->ordered_edges;
+    
     if (htree != NULL) {
         delete[] htree;
         htree = NULL;
     }
     htree = new GdaNode[rows-1];
-    fastcluster::cluster_result Z2(rows-1);
-    members.init(rows, 1);
-    if (method == 's') {
-        fastcluster::NN_chain_core_w1<fastcluster::METHOD_METR_SINGLE, t_index>(gw->gal, rows, pwdist, members, Z2);
-    } else if (method == 'w') {
-        fastcluster::NN_chain_core_w1<fastcluster::METHOD_METR_WARD, t_index>(gw->gal, rows, pwdist, members, Z2);
-    } else if (method == 'm') {
-        fastcluster::NN_chain_core_w1<fastcluster::METHOD_METR_COMPLETE, t_index>(gw->gal, rows, pwdist, members, Z2);
-    } else if (method == 'a') {
-        fastcluster::NN_chain_core_w1<fastcluster::METHOD_METR_AVERAGE, t_index>(gw->gal, rows, pwdist, members, Z2);
-    }
-
-    delete[] pwdist;
 
     //std::stable_sort(Z2[0], Z2[rows-1]);
     t_index node1, node2;
-    int i=0, clst_cnt=0;
     fastcluster::union_find nodes(rows);
-
-    n_cluster = 0;
-    for (fastcluster::node const * NN=Z2[0]; NN!=Z2[rows-1]; ++NN, ++i) {
-        if (NN) {
+    int cluster_idx = 1;
+    
+    for (int i=0; i<redcap->ordered_edges.size(); ++i) {
+        SpanningTreeClustering::Edge* e = redcap->ordered_edges[i];
+        if (e) {
             // Find the cluster identifiers for these points.
-            node1 = nodes.Find(NN->node1);
-            node2 = nodes.Find(NN->node2);
+            node1 = nodes.Find(e->orig->id);
+            node2 = nodes.Find(e->dest->id);
+                        
             // Merge the nodes in the union-find data structure by making them
             // children of a new node.
             nodes.Union(node1, node2);
@@ -153,12 +170,10 @@ bool SCHCDlg::Run(vector<wxInt64>& clusters)
             node2 = node2 < rows ? node2 : rows-node2-1;
             node1 = node1 < rows ? node1 : rows-node1-1;
             
-            //cout << i<< ":" << node2 <<", " <<  node1 << ", " << Z2[i]->dist <<endl;
             htree[i].left = node1;
             htree[i].right = node2;
-
-            clst_cnt += 1;
-            htree[i].distance = clst_cnt;
+            htree[i].distance = cluster_idx;
+            cluster_idx += 1;
         }
     }
 

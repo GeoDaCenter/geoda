@@ -26,6 +26,8 @@
 #include "../FramesManager.h"
 #include "../VarTools.h"
 #include "../logger.h"
+#include "../Algorithms/redcap.h"
+
 #include "AbstractClusterDlg.h"
 #include "HClusterDlg.h"
 
@@ -48,6 +50,8 @@ protected:
 
     int cutoff_n_cluster;
 
+    SpanningTreeClustering::AbstractClusterFactory* redcap;
+    
     DECLARE_EVENT_TABLE()
 };
 

@@ -109,8 +109,8 @@ void RedcapDlg::CreateControls()
     gbox->Add(m_max_region, 1, wxEXPAND);
 
     wxStaticText* st20 = new wxStaticText(panel, wxID_ANY, _("Method:"));
-    wxString choices20[] = {"FirstOrder-SingleLinkage", "FullOrder-CompleteLinkage", "FullOrder-AverageLinkage", "FullOrder-SingleLinkage"};
-    combo_method = new wxChoice(panel, wxID_ANY, wxDefaultPosition, wxSize(200,-1), 4, choices20);
+    wxString choices20[] = {"FirstOrder-SingleLinkage", "FullOrder-CompleteLinkage", "FullOrder-AverageLinkage", "FullOrder-SingleLinkage", "FullOrder-WardLinkage"};
+    combo_method = new wxChoice(panel, wxID_ANY, wxDefaultPosition, wxSize(200,-1), 5, choices20);
     combo_method->SetSelection(2);
     
     gbox->Add(st20, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
@@ -574,6 +574,8 @@ void RedcapDlg::OnOK(wxCommandEvent& event )
         redcap = new FullOrderALKRedCap(rows, columns, distances, input_data, undefs, gw->gal, bound_vals, min_bound);
     } else if (method_idx == 3) {
         redcap = new FullOrderSLKRedCap(rows, columns, distances, input_data, undefs, gw->gal, bound_vals, min_bound);
+    } else if (method_idx == 4) {
+        redcap = new FullOrderWardRedCap(rows, columns, distances, input_data, undefs, gw->gal, bound_vals, min_bound);
     }
 
    

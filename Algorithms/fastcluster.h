@@ -1137,7 +1137,7 @@ namespace fastcluster {
             
             // agglomerate these objects
             Z2.append(idx1, idx2, min);
-            std::cout << "merge:" << idx1 << "," <<idx2 << "," << min << std::endl;
+            //std::cout << "merge:" << idx1 << "," <<idx2 << "," << min << std::endl;
             
             if (idx1>idx2) {
                 t_index tmp = idx1;
@@ -1409,7 +1409,7 @@ inline bool is_conn(GalElement* w, t_index idx1, t_index idx2, std::map<t_index,
                 // merge idx1 and idx2
                 Z2.append(idx1, idx2, min);
                 
-                std::cout << "merge:" << idx1 << "," <<idx2 << "," << min << std::endl;
+                //std::cout << "merge:" << idx1 << "," <<idx2 << "," << min << std::endl;
                 
                 // size of idx1 cluster and idx2 cluster
                 size1 = clsts[idx1] == 0 ? 1 : 0;
@@ -1778,7 +1778,7 @@ inline bool is_conn(GalElement* w, t_index idx1, t_index idx2, std::map<t_index,
                 // idx1 and idx2 are RNN
                 // merge the two points
                 Z2.append(idx1, idx2, min);
-                std::cout << "merge:" << idx1 << "," <<idx2 << "," << min << std::endl;
+                //std::cout << "merge:" << idx1 << "," <<idx2 << "," << min << std::endl;
                 
                 if (!CheckContiguity(w, idx1, idx2, conn_dict)) {
                     std::cout << "not conn 2" << std::endl;
