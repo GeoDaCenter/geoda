@@ -5,7 +5,7 @@ namespace Gda {
     const int version_subbuild = 26;
 	const int version_year = 2020;
     const int version_month = 11;
-    const int version_day = 12;
+    const int version_day = 13;
 	const int version_night = 0;
 	const int version_type = 2; // 0: alpha, 1: beta, 2: release
 }
