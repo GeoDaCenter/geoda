@@ -317,8 +317,8 @@ void ReportBugDlg::OnOkClick(wxCommandEvent& event)
 	msgDlg.ShowModal();
 
 	wxLogMessage("Submit Bug Report Error:");
-	wxLogMessage("title:");
-	wxLogMessage("%s", title);
+	//wxLogMessage("title:");
+	//wxLogMessage("%s", title);
 }
 
 void ReportBugDlg::OnCancelClick(wxCommandEvent& event)
@@ -338,9 +338,7 @@ bool ReportBugDlg::CreateIssue(wxString title, wxString body)
 	wxTextFile tfile;
     if (tfile.Open(logger_path)) {
     	while (!tfile.Eof()) {
-			wxString ln = tfile.GetNextLine();
-			ln.Replace("\\", "\\\\");
-    		body << ln << "\\n";
+    		body << tfile.GetNextLine() << "\\n";
     	}
     }
 
