@@ -720,8 +720,8 @@ FirstOrderSLKRedCap::~FirstOrderSLKRedCap()
 
 void FirstOrderSLKRedCap::Clustering()
 {
-    //std::sort(edges.begin(), edges.end(), EdgeLess);
-    quickSort(edges, 0, edges.size()-1);
+    std::sort(edges.begin(), edges.end(), EdgeLess);
+    //quickSort(edges, 0, edges.size()-1);
     
     int num_nodes = (int)nodes.size();
 
@@ -895,8 +895,8 @@ void FullOrderALKRedCap::Clustering()
         ordered_nodes[ dest->id ] = dest;
     }
 
-    //std::sort(edges.begin(), edges.end(), EdgeLess);
-    quickSort(edges, 0, edges.size()-1);
+    std::sort(edges.begin(), edges.end(), EdgeLess);
+    //quickSort(edges, 0, edges.size()-1);
     
     int num_edges = (int)edges.size();
     vector<Edge*> edges_copy(num_edges);
@@ -1178,8 +1178,8 @@ void FullOrderWardRedCap::Clustering()
         ordered_nodes[ dest->id ] = dest;
     }
 
-    //std::sort(edges.begin(), edges.end(), EdgeLess);
-    quickSort(edges, 0, edges.size()-1);
+    std::sort(edges.begin(), edges.end(), EdgeLess);
+    //quickSort(edges, 0, edges.size()-1);
     
     int num_edges = (int)edges.size();
     vector<Edge*> edges_copy(num_edges);
