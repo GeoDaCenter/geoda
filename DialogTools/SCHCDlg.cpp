@@ -46,9 +46,6 @@ SCHCDlg::SCHCDlg(wxFrame* parent_s, Project* project_s)
 {
     wxLogMessage("Open SCHCDlg.");
     SetTitle(_("Spatial Constrained Hierarchical Clustering Settings"));
-
-    // disable number of cluster control
-    combo_n->Disable();
     
     // bind new event
     saveButton->Bind(wxEVT_BUTTON, &SCHCDlg::OnSave, this);
@@ -66,17 +63,6 @@ SCHCDlg::~SCHCDlg()
 
 void SCHCDlg::OnSave(wxCommandEvent& event )
 {
-    long user_select_n;
-    combo_n->GetValue().ToLong(&user_select_n);
-    if (user_select_n < cutoff_n_cluster) {
-        wxString msg = _("The selected number of clusters is %d. It is less than the minimum number of clusters (%d) that guarantees spatially constrained results.\n\nDo you want to continue?");
-        wxMessageDialog dlg(NULL, wxString::Format(msg, (int)user_select_n, cutoff_n_cluster),
-                            _("Warning"), wxYES_NO | wxNO_DEFAULT | wxICON_WARNING);
-        if (dlg.ShowModal() == wxID_NO) {
-            return;
-        }
-    }
-
     HClusterDlg::OnSave(event);
 
     // check cluster connectivity
@@ -138,8 +124,6 @@ bool SCHCDlg::Run(vector<wxInt64>& clusters)
       if (redcap==NULL) {
           for (int i = 1; i < rows; i++) delete[] distances[i];
           delete[] distances;
-          delete[] bound_vals;
-          bound_vals = NULL;
           return false;
       }
     
@@ -176,14 +160,15 @@ bool SCHCDlg::Run(vector<wxInt64>& clusters)
             cluster_idx += 1;
         }
     }
-
-    if (n_cluster == 0) n_cluster = 2;
-    CutTree(rows, htree, n_cluster, clusters);
-
-    cutoff_n_cluster = n_cluster;
-
-    combo_n->SetValue(wxString::Format("%d", n_cluster));
-    combo_n->Enable();
+    
+    clusters.clear();
+    int* clusterid = new int[rows];
+    cutoffDistance = cuttree (rows, htree, n_cluster, clusterid);
+    for (int i=0; i<rows; i++) {
+        clusters.push_back(clusterid[i]+1);
+    }
+    delete[] clusterid;
+    clusterid = NULL;
 
     return true;
 }
