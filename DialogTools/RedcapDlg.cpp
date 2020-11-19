@@ -111,7 +111,7 @@ void RedcapDlg::CreateControls()
     wxStaticText* st20 = new wxStaticText(panel, wxID_ANY, _("Method:"));
     wxString choices20[] = {"FirstOrder-SingleLinkage", "FullOrder-WardLinkage",  "FullOrder-AverageLinkage", "FullOrder-CompleteLinkage",  "FullOrder-SingleLinkage" };
     combo_method = new wxChoice(panel, wxID_ANY, wxDefaultPosition, wxSize(200,-1), 5, choices20);
-    combo_method->SetSelection(2);
+    combo_method->SetSelection(1);
     
     gbox->Add(st20, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
     gbox->Add(combo_method, 1, wxEXPAND);
@@ -551,9 +551,12 @@ void RedcapDlg::OnOK(wxCommandEvent& event )
     int rnd_seed = -1;
     if (chk_seed->GetValue()) rnd_seed = GdaConst::gda_user_seed;
  
+    int method_idx = combo_method->GetSelection();
+    
     int transpose = 0; // row wise
     double** ragged_distances = distancematrix(rows, columns, input_data,  mask, weight, dist, transpose);
-    double** distances = DataUtils::fullRaggedMatrix(ragged_distances, rows, rows);
+    bool isSqrt = method_idx == 2 ? true : false;
+    double** distances = DataUtils::fullRaggedMatrix(ragged_distances, rows, rows, isSqrt);
     for (int i = 1; i < rows; i++) free(ragged_distances[i]);
     free(ragged_distances);
     
@@ -564,8 +567,7 @@ void RedcapDlg::OnOK(wxCommandEvent& event )
         delete redcap;
         redcap = NULL;
     }
-                               
-    int method_idx = combo_method->GetSelection();
+    
     if (method_idx == 0) {
         redcap = new FirstOrderSLKRedCap(rows, columns, distances, input_data, undefs, gw->gal, bound_vals, min_bound);
         
@@ -584,8 +586,10 @@ void RedcapDlg::OnOK(wxCommandEvent& event )
     }
 
     if (redcap==NULL) {
-        for (int i = 1; i < rows; i++) delete[] distances[i];
-        delete[] distances;
+        if (distances) {
+            for (int i = 1; i < rows; i++) delete[] distances[i];
+            delete[] distances;
+        }
         delete[] bound_vals;
         bound_vals = NULL;
         return;

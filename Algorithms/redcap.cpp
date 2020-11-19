@@ -720,8 +720,8 @@ FirstOrderSLKRedCap::~FirstOrderSLKRedCap()
 
 void FirstOrderSLKRedCap::Clustering()
 {
-    std::sort(edges.begin(), edges.end(), EdgeLess);
-    //quickSort(edges, 0, edges.size()-1);
+    //std::sort(edges.begin(), edges.end(), EdgeLess);
+    quickSort(edges, 0, edges.size()-1);
     
     int num_nodes = (int)nodes.size();
 
@@ -895,8 +895,8 @@ void FullOrderALKRedCap::Clustering()
         ordered_nodes[ dest->id ] = dest;
     }
 
-    std::sort(edges.begin(), edges.end(), EdgeLess);
-    //quickSort(edges, 0, edges.size()-1);
+    //std::sort(edges.begin(), edges.end(), EdgeLess);
+    quickSort(edges, 0, edges.size()-1);
     
     int num_edges = (int)edges.size();
     vector<Edge*> edges_copy(num_edges);
@@ -1005,7 +1005,7 @@ void FullOrderALKRedCap::Clustering()
                     }
                     access_flag[tmp_id] = true;
                 } else if (tmp_id == dest_id || tmp_id == orig_id) { // node[i] is (o,d)
-                    ids[i] = orig_id;
+                    ids[i] = orig_id; //?
                  }
             }
             
@@ -1064,11 +1064,11 @@ double FullOrderALKRedCap::UpdateClusterDist(int cur_id, int o_id, int d_id, boo
         
         // (avg_d(c,o) * numEdges(c,o)  + avg_d(c,d)*numEdges(c,d)) /
         // (numEdges(c, o) + numEdges(c, d))
-        new_dist = (d_c_o * clst_nodenum[o_id] * clst_nodenum[cur_id] + d_c_d * clst_nodenum[d_id] * clst_nodenum[cur_id]) / ((clst_nodenum[o_id] + clst_nodenum[d_id]) * clst_nodenum[cur_id]);
+        new_dist = (d_c_o * clst_nodenum[o_id] + d_c_d * clst_nodenum[d_id]) / (clst_nodenum[o_id] + clst_nodenum[d_id]);
         
         
     } else if (conn_c_o || conn_c_d) {
-        if (conn_c_d) {
+        if (conn_c_d) {  // c <--->o      c<-!->d   now c is <->(o,d)
             int tmp_id = o_id;
             o_id = d_id;
             d_id = tmp_id;
@@ -1080,11 +1080,18 @@ double FullOrderALKRedCap::UpdateClusterDist(int cur_id, int o_id, int d_id, boo
         
         for (int i=clst_startpos[cur_id]; i<c_endpos; i++) {
             for (int j=clst_startpos[d_id]; j<d_endpos; j++) {
-                sumval_c_d += dist_matrix[clst_ids[i]] [clst_ids[j]];
+                //sumval_c_d += dist_matrix[clst_ids[i]] [clst_ids[j]];
+                int ii = clst_ids[i];
+                int jj = clst_ids[j];
+                if (dist_dict[ii].find(jj) != dist_dict[ii].end()) {
+                    sumval_c_d += dist_matrix[ii] [jj];
+                } else {
+                    sumval_c_d += dist_matrix[ii] [jj];
+                }
             }
         }
         
-        new_dist = (d_c_o * clst_nodenum[o_id] * clst_nodenum[cur_id] + sumval_c_d) / ((clst_nodenum[o_id] + clst_nodenum[d_id]) * clst_nodenum[cur_id]);
+        new_dist = (d_c_o * clst_nodenum[o_id] + sumval_c_d) / (clst_nodenum[o_id] + clst_nodenum[d_id]);
         
     }
     return new_dist;
@@ -1178,8 +1185,8 @@ void FullOrderWardRedCap::Clustering()
         ordered_nodes[ dest->id ] = dest;
     }
 
-    std::sort(edges.begin(), edges.end(), EdgeLess);
-    //quickSort(edges, 0, edges.size()-1);
+    //std::sort(edges.begin(), edges.end(), EdgeLess);
+    quickSort(edges, 0, edges.size()-1);
     
     int num_edges = (int)edges.size();
     vector<Edge*> edges_copy(num_edges);
@@ -1220,7 +1227,7 @@ void FullOrderWardRedCap::Clustering()
         int orig_id = ids[orig->id];
         int dest_id = ids[dest->id];
         double min_dist = cur_edge->length;
-        //std::cout << "merge:" << orig_id << ", " << dest_id << ", " << cur_edge->length << std::endl;
+        std::cout << "merge:" << orig_id << ", " << dest_id << ", " << cur_edge->length << std::endl;
         
         Node* root1 = djset.FindSet(orig); // find ancestor of orig
         Node* root2 = djset.FindSet(dest); // find ancester of dest
@@ -1275,7 +1282,7 @@ void FullOrderWardRedCap::Clustering()
                     bool o_is_nbr = dist_dict[tmp_id].find(orig_id) != dist_dict[tmp_id].end();
                     if (d_is_nbr || o_is_nbr) { // node[i] is neighbor of (o,d)
                         double update_dist = UpdateClusterDist(tmp_id, orig_id, dest_id, min_dist, o_is_nbr, d_is_nbr, cluster_ids, cluster_startpos, cluster_nodenum);
-                        
+                        //std::cout << "new distance from " << tmp_id << " to (" << orig_id << "-" << dest_id << ") :" << update_dist << std::endl;
                         Edge* new_e = new Edge(ordered_nodes[tmp_id], ordered_nodes[orig_id], update_dist);
                         
                         edges_copy[num_edges++] = new_e;
@@ -1351,25 +1358,54 @@ double FullOrderWardRedCap::UpdateClusterDist(int cur_id, int o_id, int d_id,  d
         
     } else if (conn_c_o || conn_c_d) {
         if (conn_c_d) {
-            int tmp_id = o_id;
+            int tmp_id = o_id; // make c->o connected
             o_id = d_id;
             d_id = tmp_id;
         }
         double d_c_o = dist_dict[cur_id][o_id];
-        double sumval_c_d = 0;
+        
         int c_endpos = clst_startpos[cur_id] + clst_nodenum[cur_id];
         int d_endpos = clst_startpos[d_id] + clst_nodenum[d_id];
         
+        double d_c_d = 0, sum_all = 0, sum_c = 0, sum_d = 0;
+        double n_all = clst_nodenum[cur_id] + clst_nodenum[d_id];
+        // from [cur] to [d_id]
+        // e.g. AB -> CD
+        // = 2/4*AC^2 + 2/4*AD^2 + 2/4*BC^2 + 2/4*BD^2 - 2/4* AB^2 - 2/4 * CD^2
+        // = sum_all - sum_c - sum_d
         for (int i=clst_startpos[cur_id]; i<c_endpos; i++) {
+            int ii = clst_ids[i];
             for (int j=clst_startpos[d_id]; j<d_endpos; j++) {
-                sumval_c_d += dist_matrix[clst_ids[i]] [clst_ids[j]];
+                int jj = clst_ids[j];
+                sum_all += dist_matrix[ii][jj] * 2 / n_all;
             }
         }
         
-        double d_c_d = sumval_c_d;
-        //new_dist = (d_c_o * clst_nodenum[o_id] * clst_nodenum[cur_id] + sumval_c_d) / ((clst_nodenum[o_id] + clst_nodenum[d_id]) * clst_nodenum[cur_id]);
+        for (int i=clst_startpos[cur_id]; i<c_endpos; i++) {
+            int ii = clst_ids[i];
+            for (int j=i+1; j<c_endpos; j++) {
+                int jj = clst_ids[j];
+                if (dist_dict[ii].find(jj) != dist_dict[ii].end()) {
+                    sum_c += dist_dict[ii][jj] * clst_nodenum[d_id] / n_all;
+                }
+            }
+        }
         
-        new_dist = (d_c_o * (clst_nodenum[o_id] + clst_nodenum[cur_id]) + d_c_d * (clst_nodenum[d_id] + clst_nodenum[cur_id]) - min_dist *clst_nodenum[cur_id]) / new_nodenum;
+        for (int i=clst_startpos[d_id]; i<d_endpos; i++) {
+            int ii = clst_ids[i];
+            for (int j=i+1; j<d_endpos; j++) {
+                int jj = clst_ids[j];
+                if (dist_dict[ii].find(jj) != dist_dict[ii].end()) {
+                    sum_d += dist_dict[ii][jj] * clst_nodenum[cur_id] / n_all;
+                } 
+            }
+        }
+        
+        d_c_d = sum_all - sum_c - sum_d;
+                
+        new_dist = (d_c_o * (clst_nodenum[o_id] + clst_nodenum[cur_id]) +
+                    d_c_d * (clst_nodenum[d_id] + clst_nodenum[cur_id]) -
+                    min_dist *clst_nodenum[cur_id]) / new_nodenum;
     }
     return new_dist;
 }

@@ -170,6 +170,23 @@ bool SCHCDlg::Run(vector<wxInt64>& clusters)
     delete[] clusterid;
     clusterid = NULL;
 
+    // sort result
+    std::vector<std::vector<int> > cluster_ids(n_cluster);
+    
+    for (int i=0; i < clusters.size(); i++) {
+        cluster_ids[ clusters[i] - 1 ].push_back(i);
+    }
+    
+    std::sort(cluster_ids.begin(), cluster_ids.end(), GenUtils::less_vectors);
+    
+    for (int i=0; i < n_cluster; i++) {
+        int c = i + 1;
+        for (int j=0; j<cluster_ids[i].size(); j++) {
+            int idx = cluster_ids[i][j];
+            clusters[idx] = c;
+        }
+    }
+    
     return true;
 }
 
