@@ -1080,18 +1080,10 @@ double FullOrderALKRedCap::UpdateClusterDist(int cur_id, int o_id, int d_id, boo
         
         for (int i=clst_startpos[cur_id]; i<c_endpos; i++) {
             for (int j=clst_startpos[d_id]; j<d_endpos; j++) {
-                //sumval_c_d += dist_matrix[clst_ids[i]] [clst_ids[j]];
-                int ii = clst_ids[i];
-                int jj = clst_ids[j];
-                if (dist_dict[ii].find(jj) != dist_dict[ii].end()) {
-                    sumval_c_d += dist_matrix[ii] [jj];
-                } else {
-                    sumval_c_d += dist_matrix[ii] [jj];
-                }
+                sumval_c_d += dist_matrix[clst_ids[i]] [clst_ids[j]];
             }
         }
-        
-        new_dist = (d_c_o * clst_nodenum[o_id] + sumval_c_d) / (clst_nodenum[o_id] + clst_nodenum[d_id]);
+        new_dist = (d_c_o * clst_nodenum[o_id] * clst_nodenum[cur_id] + sumval_c_d) / ((clst_nodenum[o_id] + clst_nodenum[d_id]) * clst_nodenum[cur_id]);
         
     }
     return new_dist;
@@ -1395,10 +1387,7 @@ double FullOrderWardRedCap::UpdateClusterDist(int cur_id, int o_id, int d_id,  d
         
         double d_c_d = 0, sum_all = 0, sum_c = 0, sum_d = 0;
         double n_all = clst_nodenum[cur_id] + clst_nodenum[d_id];
-        // from [cur] to [d_id]
-        // e.g. AB -> CD
-        // = 2/4*AC^2 + 2/4*AD^2 + 2/4*BC^2 + 2/4*BD^2 - 2/4* AB^2 - 2/4 * CD^2
-        // = sum_all - sum_c - sum_d
+
         for (int i=clst_startpos[cur_id]; i<c_endpos; i++) {
             int ii = clst_ids[i];
             for (int j=clst_startpos[d_id]; j<d_endpos; j++) {

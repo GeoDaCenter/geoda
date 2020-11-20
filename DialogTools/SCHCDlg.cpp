@@ -97,38 +97,38 @@ bool SCHCDlg::Run(vector<wxInt64>& clusters)
 
     // get pairwise distance
     int transpose = 0; // row wise
+    // todo should be replaced
     double** ragged_distances = distancematrix(rows, columns, input_data,  mask, weight, dist, transpose);
-    double** distances = DataUtils::fullRaggedMatrix(ragged_distances, rows, rows);
+    bool isSqrt = method == 'a' ? true : false;
+    double** distances = DataUtils::fullRaggedMatrix(ragged_distances, rows, rows, isSqrt);
     for (int i = 1; i < rows; i++) free(ragged_distances[i]);
     free(ragged_distances);
 
     // run RedCap
-      std::vector<bool> undefs(rows, false);
+    std::vector<bool> undefs(rows, false);
     
-      if (redcap != NULL) {
-          delete redcap;
-          redcap = NULL;
-      }
+    if (redcap != NULL) {
+        delete redcap;
+        redcap = NULL;
+    }
     double* bound_vals = 0;
     double min_bound = 0;
-      if (method == 's') {
-          redcap = new SpanningTreeClustering::FullOrderSLKRedCap(rows, columns, distances, input_data, undefs, gw->gal, bound_vals, min_bound);
-      } else if (method == 'w') {
-          redcap = new SpanningTreeClustering::FullOrderWardRedCap(rows, columns, distances, input_data, undefs, gw->gal, bound_vals, min_bound);
-      } else if (method == 'm') {
-          redcap = new SpanningTreeClustering::FullOrderCLKRedCap(rows, columns, distances, input_data, undefs, gw->gal, bound_vals, min_bound);
-      } else if (method == 'a') {
-          redcap = new SpanningTreeClustering::FullOrderALKRedCap(rows, columns, distances, input_data, undefs, gw->gal, bound_vals, min_bound);
-      }
+    if (method == 's') {
+        redcap = new SpanningTreeClustering::FullOrderSLKRedCap(rows, columns, distances, input_data, undefs, gw->gal, bound_vals, min_bound);
+    } else if (method == 'w') {
+        redcap = new SpanningTreeClustering::FullOrderWardRedCap(rows, columns, distances, input_data, undefs, gw->gal, bound_vals, min_bound);
+    } else if (method == 'm') {
+        redcap = new SpanningTreeClustering::FullOrderCLKRedCap(rows, columns, distances, input_data, undefs, gw->gal, bound_vals, min_bound);
+    } else if (method == 'a') {
+        redcap = new SpanningTreeClustering::FullOrderALKRedCap(rows, columns, distances, input_data, undefs, gw->gal, bound_vals, min_bound);
+    }
      
-      if (redcap==NULL) {
-          for (int i = 1; i < rows; i++) delete[] distances[i];
-          delete[] distances;
-          return false;
-      }
-    
-    redcap->ordered_edges;
-    
+    if (redcap==NULL) {
+        for (int i = 1; i < rows; i++) delete[] distances[i];
+        delete[] distances;
+        return false;
+    }
+        
     if (htree != NULL) {
         delete[] htree;
         htree = NULL;

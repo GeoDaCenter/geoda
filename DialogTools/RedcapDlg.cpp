@@ -554,9 +554,12 @@ void RedcapDlg::OnOK(wxCommandEvent& event )
     int method_idx = combo_method->GetSelection();
     
     int transpose = 0; // row wise
+    // todo should be replaced
     double** ragged_distances = distancematrix(rows, columns, input_data,  mask, weight, dist, transpose);
     bool isSqrt = method_idx == 2 ? true : false;
     double** distances = DataUtils::fullRaggedMatrix(ragged_distances, rows, rows, isSqrt);
+    for (int i = 1; i < rows; i++) free(ragged_distances[i]);
+    free(ragged_distances);
     
     // run RedCap
     std::vector<bool> undefs(rows, false);
