@@ -458,7 +458,7 @@ namespace SpanningTreeClustering {
         
         virtual void Clustering();
         
-        virtual double UpdateClusterDist(int cur_id, int orig_id, int dest_id, double min_dist, bool is_orig_nbr, bool is_dest_nbr, vector<int>& clst_ids, vector<int>& clst_startpos, vector<int>& clst_nodenum);
+        virtual double UpdateClusterDist(int cur_id, int orig_id, int dest_id, double min_dist, bool is_orig_nbr, bool is_dest_nbr, vector<int>& clst_ids, vector<int>& clst_startpos, vector<int>& clst_nodenum, vector<int>& ids);
     };
 }
 

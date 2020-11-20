@@ -568,7 +568,7 @@ void AbstractClusterFactory::Partitioning(int k)
     
     while (!sub_trees.empty() && sub_trees.size() < k) {
         Tree* tmp_tree = sub_trees.top();
-        cout << tmp_tree->ssd_reduce << endl;
+        //cout << tmp_tree->ssd_reduce << endl;
         sub_trees.pop();
         
         if (tmp_tree->ssd == 0) {
@@ -1227,7 +1227,7 @@ void FullOrderWardRedCap::Clustering()
         int orig_id = ids[orig->id];
         int dest_id = ids[dest->id];
         double min_dist = cur_edge->length;
-        std::cout << "merge:" << orig_id << ", " << dest_id << ", " << cur_edge->length << std::endl;
+        //std::cout << "merge:" << orig_id << ", " << dest_id << ", " << cur_edge->length << std::endl;
         
         Node* root1 = djset.FindSet(orig); // find ancestor of orig
         Node* root2 = djset.FindSet(dest); // find ancester of dest
@@ -1273,15 +1273,34 @@ void FullOrderWardRedCap::Clustering()
                 access_flag[i] = false;
             }
             
+            // get start pos of each cluster
+            int o_endpos = cluster_startpos[orig_id] + cluster_nodenum[orig_id];
+            for (int j=cluster_startpos[orig_id]; j<o_endpos; j++) {
+                int ii = cluster_ids[j];
+                access_flag[ii] = true;// no need to process cur already in (o,d)
+            }
+            int d_endpos = cluster_startpos[dest_id] + cluster_nodenum[dest_id];
+            for (int j=cluster_startpos[dest_id]; j<d_endpos; j++) {
+                int ii = cluster_ids[j];
+                access_flag[ii] = true;// no need to process cur already in (o,d)
+            }
+            
             // update distance to (o,d) cluster
             for (i=0; i<num_nodes; ++i) {
                 ++cnt;
                 int tmp_id = ids[i];
                 if (!access_flag[tmp_id] && tmp_id != dest_id && tmp_id != orig_id) { // any node[i] not (o,d)
+                    // update dist_matrix, from tmp_id to (o,d)
+                    int new_nodenum = cluster_nodenum[orig_id] + cluster_nodenum[dest_id] + cluster_nodenum[tmp_id];
+                    double d_c_o = dist_matrix[tmp_id][orig_id];
+                    double d_c_d = dist_matrix[tmp_id][dest_id];
+                    double update_dist = (d_c_o * (cluster_nodenum[orig_id] + cluster_nodenum[tmp_id]) + d_c_d * (cluster_nodenum[dest_id] + cluster_nodenum[tmp_id]) - min_dist *cluster_nodenum[tmp_id]) / new_nodenum;
+                    dist_matrix[tmp_id][orig_id] = update_dist;
+                    dist_matrix[orig_id][tmp_id] = update_dist;
                     bool d_is_nbr = dist_dict[tmp_id].find(dest_id) != dist_dict[tmp_id].end();
                     bool o_is_nbr = dist_dict[tmp_id].find(orig_id) != dist_dict[tmp_id].end();
                     if (d_is_nbr || o_is_nbr) { // node[i] is neighbor of (o,d)
-                        double update_dist = UpdateClusterDist(tmp_id, orig_id, dest_id, min_dist, o_is_nbr, d_is_nbr, cluster_ids, cluster_startpos, cluster_nodenum);
+                        //double update_dist = UpdateClusterDist(tmp_id, orig_id, dest_id, min_dist, o_is_nbr, d_is_nbr, cluster_ids, cluster_startpos, cluster_nodenum, ids);
                         //std::cout << "new distance from " << tmp_id << " to (" << orig_id << "-" << dest_id << ") :" << update_dist << std::endl;
                         Edge* new_e = new Edge(ordered_nodes[tmp_id], ordered_nodes[orig_id], update_dist);
                         
@@ -1293,12 +1312,19 @@ void FullOrderWardRedCap::Clustering()
                         dist_dict[tmp_id][orig_id] = update_dist;
                         dist_dict[orig_id][tmp_id] = update_dist;
                     }
+                    // no need to compute for other nodes in the same cluster of tmp_id
+                    int c_endpos = cluster_startpos[tmp_id] + cluster_nodenum[tmp_id];
+                    for (int j=cluster_startpos[tmp_id]; j<c_endpos; j++) {
+                        int ii = cluster_ids[j];
+                        access_flag[ii] = true;
+                    }
                     access_flag[tmp_id] = true;
                 } else if (tmp_id == dest_id || tmp_id == orig_id) { // node[i] is (o,d)
                     ids[i] = orig_id;
                  }
             }
-            
+            //ids[dest_id] =  orig_id;
+            //std::cout <<"48-12:" << dist_matrix[48][12] << std::endl;
             cluster_nodenum[orig_id] += cluster_nodenum[dest_id];
             cluster_nodenum[dest_id] = 0; // no need to check with dest_id anymore?
             
@@ -1345,7 +1371,7 @@ void FullOrderWardRedCap::Clustering()
     }
 }
 
-double FullOrderWardRedCap::UpdateClusterDist(int cur_id, int o_id, int d_id,  double min_dist, bool conn_c_o, bool conn_c_d, vector<int>& clst_ids, vector<int>& clst_startpos, vector<int>& clst_nodenum)
+double FullOrderWardRedCap::UpdateClusterDist(int cur_id, int o_id, int d_id,  double min_dist, bool conn_c_o, bool conn_c_d, vector<int>& clst_ids, vector<int>& clst_startpos, vector<int>& clst_nodenum, vector<int>& ids)
 {
     double new_dist = 0;
     int new_nodenum = clst_nodenum[o_id] + clst_nodenum[d_id] + clst_nodenum[cur_id];
@@ -1397,7 +1423,7 @@ double FullOrderWardRedCap::UpdateClusterDist(int cur_id, int o_id, int d_id,  d
                 int jj = clst_ids[j];
                 if (dist_dict[ii].find(jj) != dist_dict[ii].end()) {
                     sum_d += dist_dict[ii][jj] * clst_nodenum[cur_id] / n_all;
-                } 
+                }
             }
         }
         

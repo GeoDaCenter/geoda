@@ -557,8 +557,6 @@ void RedcapDlg::OnOK(wxCommandEvent& event )
     double** ragged_distances = distancematrix(rows, columns, input_data,  mask, weight, dist, transpose);
     bool isSqrt = method_idx == 2 ? true : false;
     double** distances = DataUtils::fullRaggedMatrix(ragged_distances, rows, rows, isSqrt);
-    for (int i = 1; i < rows; i++) free(ragged_distances[i]);
-    free(ragged_distances);
     
     // run RedCap
     std::vector<bool> undefs(rows, false);
@@ -590,8 +588,10 @@ void RedcapDlg::OnOK(wxCommandEvent& event )
             for (int i = 1; i < rows; i++) delete[] distances[i];
             delete[] distances;
         }
-        delete[] bound_vals;
-        bound_vals = NULL;
+        if (bound_vals) {
+            delete[] bound_vals;
+            bound_vals = NULL;
+        }
         return;
     }
     
