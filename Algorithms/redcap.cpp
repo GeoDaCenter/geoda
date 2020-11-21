@@ -1083,7 +1083,7 @@ double FullOrderALKRedCap::UpdateClusterDist(int cur_id, int o_id, int d_id, boo
                 sumval_c_d += dist_matrix[clst_ids[i]] [clst_ids[j]];
             }
         }
-        new_dist = (d_c_o * clst_nodenum[o_id] * clst_nodenum[cur_id] + sumval_c_d) / ((clst_nodenum[o_id] + clst_nodenum[d_id]) * clst_nodenum[cur_id]);
+        new_dist = (d_c_o * clst_nodenum[o_id]  + (sumval_c_d / clst_nodenum[cur_id])) / (clst_nodenum[o_id] + clst_nodenum[d_id]);
         
     }
     return new_dist;
@@ -1315,8 +1315,6 @@ void FullOrderWardRedCap::Clustering()
                     ids[i] = orig_id;
                  }
             }
-            //ids[dest_id] =  orig_id;
-            //std::cout <<"48-12:" << dist_matrix[48][12] << std::endl;
             cluster_nodenum[orig_id] += cluster_nodenum[dest_id];
             cluster_nodenum[dest_id] = 0; // no need to check with dest_id anymore?
             
