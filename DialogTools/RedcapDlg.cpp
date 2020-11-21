@@ -361,7 +361,7 @@ wxString RedcapDlg::_printConfiguration()
         txt << "Minimum region size:\t" << txt_minregions->GetValue() << "\n";
     }
     
-    txt << _("Minimum region size:\t") << m_textbox->GetValue() << "\n";
+    txt << _("Save cluster in field:\t") << m_textbox->GetValue() << "\n";
     
     txt << _("Transformation:") << "\t" << combo_tranform->GetString(combo_tranform->GetSelection()) << "\n";
     
