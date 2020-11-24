@@ -446,6 +446,10 @@ wxString AZPDlg::_printConfiguration()
         txt << _("Cooling rate:") << "\t" << m_coolrate->GetValue() << "\n";
         txt << _("MaxIt:") << "\t" << m_maxit->GetValue() << "\n";
     }
+    
+    if (chk_arisel->IsChecked()) {
+        txt << _("ARiSeL construction re-runs:") << "\t" << m_inits->GetValue() << "\n";
+    }
     if (chk_floor && chk_floor->IsChecked() && combo_floor->GetSelection() >= 0) {
         int idx = combo_floor->GetSelection();
         wxString nm = name_to_nm[combo_floor->GetString(idx)];
