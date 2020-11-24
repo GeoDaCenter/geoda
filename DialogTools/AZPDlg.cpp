@@ -114,17 +114,12 @@ void AZPDlg::CreateControls()
     gbox->Add(vbox19, 1, wxEXPAND);
     
     // ARiSeL
-    wxBoxSizer *hbox19_3 = new wxBoxSizer(wxHORIZONTAL);
-    hbox19_3->Add(new wxStaticText(panel, wxID_ANY, _("Inits:")));
-    m_inits = new wxTextCtrl(panel, wxID_ANY, "5");
-    hbox19_3->Add(m_inits);
+    m_inits = new wxTextCtrl(panel, wxID_ANY, "10", wxDefaultPosition, wxSize(30,-1));
     m_inits->Disable();
     
     wxStaticText* st20 = new wxStaticText(panel, wxID_ANY, _("ARiSeL:"));
     wxBoxSizer *hbox20 = new wxBoxSizer(wxHORIZONTAL);
     chk_arisel = new wxCheckBox(panel, wxID_ANY, "");
-    m_inits = new wxTextCtrl(panel, wxID_ANY, "10", wxDefaultPosition, wxSize(30,-1));
-    m_inits->Disable();
     
     hbox20->Add(chk_arisel,0, wxALIGN_CENTER_VERTICAL);
     hbox20->Add(m_inits,0,wxALIGN_CENTER_VERTICAL);
@@ -429,7 +424,7 @@ wxString AZPDlg::_printConfiguration()
 
     //txt << _("# iterations:\t") << m_iterations->GetValue() << "\n";
 
-    txt << _("Number of regions:\t") << txt_minregions->GetValue() << "\n";
+    txt << _("Number of regions:\t") << txt_regions->GetValue() << "\n";
 
     int local_search_method = m_localsearch->GetSelection();
     if (local_search_method == 0) {
@@ -453,7 +448,7 @@ wxString AZPDlg::_printConfiguration()
     }
         
     if (chk_lisa->IsChecked() && combo_lisa->GetSelection() >=0) {
-        txt << _("Initial rroups:\t") << combo_lisa->GetString(combo_lisa->GetSelection()) << "\n";
+        txt << _("Initial groups:\t") << combo_lisa->GetString(combo_lisa->GetSelection()) << "\n";
     }
     txt << _("Initial value of objective function:") << "\t" << initial_of << "\n";
     txt << _("Final value of objective function:") << "\t" << final_of << "\n";

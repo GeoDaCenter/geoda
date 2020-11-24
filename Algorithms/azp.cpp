@@ -1185,23 +1185,32 @@ void AZPSA::LocalImproving()
                                     double random = rng.nextDouble();
                                     totalMoves += 1;
                                     double sa = std::exp(-(obj - currentOBJ) * n / (currentOBJ * temperature));
-                                    if (sa > random) {
-                                        objective_function->MakeMove(randomArea, region, move);
-                                        moved = true;
-                                        this->area2Region[randomArea] = move;
-                                        this->objInfo = obj;
+                                    if (sa > random && region2Area[region].size() > 1) { // make move if SA satisfies
+                                        double new_obj = objective_function->MakeMove(randomArea, region, move);
+                                        if (new_obj > 0) { // prevent empty region
+                                            moved = true;
+                                            this->area2Region[randomArea] = move;
+                                            this->objInfo = new_obj;
 
-                                        // update SA variables
-                                        acceptedMoves += 1;
-                                        currentOBJ = obj;
+                                            // update SA variables
+                                            acceptedMoves += 1;
+                                            currentOBJ = new_obj;
+                                            if (new_obj < bestOBJ) {
+                                                bestOBJ = new_obj;
+                                                currentOBJ = new_obj;
+                                                bestRegions = this->returnRegions();
+                                                region2AreaBest = this->region2Area;
+                                                area2RegionBest = this->area2Region;
+                                            }
 
-                                        // move happens, update bordering area
-                                        getBorderingAreas(region);
-                                        //getBorderingAreas(move);
+                                            // move happens, update bordering area
+                                            getBorderingAreas(region);
+                                            //getBorderingAreas(move);
 
-                                        //std::cout << "--- NON-Local improvement (area, region)" << randomArea << "," << move << std::endl;
-                                        //std::cout << "--- New Objective Function value: " << currentOBJ << std::endl;
-                                        // step 4
+                                            //std::cout << "--- NON-Local improvement (area, region)" << randomArea << "," << move << std::endl;
+                                            //std::cout << "--- New Objective Function value: " << currentOBJ << std::endl;
+                                            // step 4
+                                        }
                                     }
                                 }
                             }
@@ -1218,6 +1227,7 @@ void AZPSA::LocalImproving()
     this->objInfo = bestOBJ;
     this->region2Area = region2AreaBest;
     this->area2Region = area2RegionBest;
+    objective_function->UpdateRegions();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1270,7 +1280,7 @@ void AZPTabu::LocalImproving()
                         // check connectivity
                         int a = it->first.first;
                         int from = area2Region[a];
-                        // move "a" to region "r"
+                        // move "a" to region "r", if "a" can be removed from 'from'
                         if (objective_function->checkFeasibility(from, a)) {
                             find_global = true;
                             move = it->first;

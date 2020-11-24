@@ -161,6 +161,20 @@ public:
         }
         return ss;
     }
+    
+    virtual double GetRawValue() {
+        // Calculate the value of the objective function
+        double ss = 0; // e.g. sum of squares
+        REGION_AREAS::iterator it;
+        for (it = regions.begin(); it != regions.end(); ++it) {
+            int region = it->first;
+            // objective function of region needs to be computed
+            double obj = getObjectiveValue(regions[region]);
+            ss += obj;
+        }
+        return ss;
+    }
+    
 
     virtual void UpdateRegions() {
         // region changes, update it's
@@ -261,7 +275,7 @@ public:
         boost::unordered_map<int, bool> to_areas = regions[to_region];
         from_areas.erase(area);
         to_areas[area] = false;
-
+        
         double ss_from = getObjectiveValue(from_areas);
         double ss_to = getObjectiveValue(to_areas);
 
@@ -288,6 +302,11 @@ public:
         // use reference here to make actual change
         boost::unordered_map<int, bool>& from_areas = regions[from_region];
         boost::unordered_map<int, bool>& to_areas = regions[to_region];
+        
+        if (from_areas.size() <=1) {
+            // has to make sure each region has at least one area
+            return 0;
+        }
         from_areas.erase(area);
         to_areas[area] = false;
 
@@ -692,6 +711,7 @@ public:
 
         // local search
         BasicMemory basicMemory, localBasicMemory;
+        basicMemory.updateBasicMemory(this->objInfo, this->returnRegions());
         
         // step a
         int k = 0;
