@@ -357,7 +357,7 @@ public:
         // all should be removed if all connected
         return areas2Eval.empty();
     }
-
+    
 protected:
     // n: number of observations
     int n;
@@ -731,6 +731,7 @@ public:
                     basicMemory.updateBasicMemory(this->objInfo, this->returnRegions());
                 }
             }
+            //std::cout << basicMemory.objInfo << std::endl;
             // step c
             temperature *= alpha; // annealing
             if (improved == 1) {

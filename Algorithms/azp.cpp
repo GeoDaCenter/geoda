@@ -352,6 +352,10 @@ void RegionMaker::Copy(RegionMaker& rm)
     this->potentialRegions4Area = rm.potentialRegions4Area;
     this->candidateInfo = rm.candidateInfo;
     this->objInfo = rm.objInfo;
+    if (objective_function) {
+        delete objective_function;
+    }
+    this->objective_function = new ObjectiveFunction(n, m, data, w, region2Area);
 }
 
 void RegionMaker::InitFromRegion(std::vector<int>& init_regions)
@@ -1255,6 +1259,9 @@ void AZPTabu::LocalImproving()
     std::vector<std::pair<std::pair<int, int>, double> > tabuList;
     boost::unordered_map<std::pair<int, int>, double>::iterator it;
 
+    BasicMemory basicMemory;
+    basicMemory.updateBasicMemory(this->objInfo, this->returnRegions());
+    
     int c = 1;
     double epsilon = 1e-10;
 
@@ -1267,7 +1274,7 @@ void AZPTabu::LocalImproving()
             int minFound = 0;
             c += 1;
 
-            // find global best move
+            // find global best move that is not tabu
             bool find_global = false;
             std::pair<int, int> move;
             double obj4Move;
@@ -1295,13 +1302,14 @@ void AZPTabu::LocalImproving()
                 minFound = 1;
 
             } else if (tabuList.size() > 0){
-                // get from tabu list
+                // if no improving move can be made, then get from tabu list for aspirational move
                 std::vector<std::pair<std::pair<int, int>, double> > tabuListCopy = tabuList;
                 std::sort(tabuListCopy.begin(), tabuListCopy.end(), CompareTabu);
 
                 double min_obj = obj4Move;
+                std::pair<std::pair<int, int>, double> m;
                 for (int i=0; i<tabuListCopy.size(); ++i) {
-                    std::pair<std::pair<int, int>, double>& m = tabuListCopy[i];
+                    m = tabuListCopy[i];
                     int a = m.first.first;
                     int to = m.first.second;
                     int from = area2Region[a];
@@ -1312,12 +1320,12 @@ void AZPTabu::LocalImproving()
                     if (objective_function->checkFeasibility(from, a) &&
                         objective_function->checkFeasibility(to, a, false)) {
                         min_obj = m.second;
-                        move = m.first;
                         break;
                     }
                 }
                 obj4Move = min_obj;
                 if (aspireOBJ - obj4Move >= epsilon) {
+                    move = m.first;
                     minFound = 1;
                 }
             }
@@ -1340,7 +1348,11 @@ void AZPTabu::LocalImproving()
             // update
             objective_function->UpdateRegion(region);
             objective_function->UpdateRegion(oldRegion);
-
+            double raw_ssd = objective_function->GetValue();
+            if (obj4Move < basicMemory.objInfo) {
+                basicMemory.updateBasicMemory(obj4Move, this->returnRegions());
+            }
+            
             if (minFound == 1) {
                 this->objInfo = obj4Move;
                 if (aspireOBJ - obj4Move > epsilon) {
@@ -1361,8 +1373,8 @@ void AZPTabu::LocalImproving()
             }
         }
     }
-    this->objInfo = aspireOBJ;
-    this->regions = aspireRegions;
+    this->objInfo = basicMemory.objInfo; //this->objInfo = aspireOBJ;
+    this->regions = basicMemory.regions; //this->regions = aspireRegions;
     this->region2Area = region2AreaAspire;
     this->area2Region = area2RegionAspire;
 }

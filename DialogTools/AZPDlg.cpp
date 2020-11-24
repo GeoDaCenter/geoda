@@ -95,9 +95,13 @@ void AZPDlg::CreateControls()
     m_localsearch->SetSelection(0);
     
     wxBoxSizer *hbox19_2 = new wxBoxSizer(wxHORIZONTAL);
-    hbox19_2->Add(new wxStaticText(panel, wxID_ANY, _("Cooling Rate:")));
-    m_coolrate= new wxTextCtrl(panel, wxID_ANY, "0.85");
-    hbox19_2->Add(m_coolrate);
+    m_coolrate= new wxTextCtrl(panel, wxID_ANY, "0.85", wxDefaultPosition, wxSize(45,-1));
+    m_maxit= new wxTextCtrl(panel, wxID_ANY, "1", wxDefaultPosition, wxSize(30,-1));
+    hbox19_2->Add(new wxStaticText(panel, wxID_ANY, _("Cooling Rate:")), 0, wxALIGN_CENTER_VERTICAL);
+    hbox19_2->Add(m_coolrate, 0, wxALIGN_CENTER_VERTICAL);
+    hbox19_2->Add(new wxStaticText(panel, wxID_ANY, _("MaxIt:")), 0, wxALIGN_CENTER_VERTICAL);
+    hbox19_2->Add(m_maxit, 0, wxALIGN_CENTER_VERTICAL);
+    m_maxit->Disable();
     m_coolrate->Disable();
     
     wxBoxSizer *hbox19_1 = new wxBoxSizer(wxHORIZONTAL);
@@ -251,10 +255,12 @@ void AZPDlg::OnAriselCheck(wxCommandEvent& event)
         m_localsearch->SetSelection(1);
         m_tabulength->Enable();
         m_coolrate->Disable();
+        m_maxit->Disable();
     }  else {
         m_localsearch->SetSelection(0);
         m_tabulength->Disable();
         m_coolrate->Disable();
+        m_maxit->Disable();
     }
 }
 
@@ -264,12 +270,15 @@ void AZPDlg::OnLocalSearch(wxCommandEvent& event)
     if ( m_localsearch->GetSelection() == 0) {
         m_tabulength->Disable();
         m_coolrate->Disable();
+        m_maxit->Disable();
     } else if ( m_localsearch->GetSelection() == 1) {
         m_tabulength->Enable();
         m_coolrate->Disable();
+        m_maxit->Disable();
     } else if ( m_localsearch->GetSelection() == 2) {
         m_tabulength->Disable();
         m_coolrate->Enable();
+        m_maxit->Enable();
     }
 }
 void AZPDlg::OnCheckMinBound(wxCommandEvent& event)
@@ -435,6 +444,7 @@ wxString AZPDlg::_printConfiguration()
     } else if (local_search_method == 2) {
         txt << _("Local search:") << "\t" << _("AZP-Simulated Annealing") << "\n";
         txt << _("Cooling rate:") << "\t" << m_coolrate->GetValue() << "\n";
+        txt << _("MaxIt:") << "\t" << m_maxit->GetValue() << "\n";
     }
     if (chk_floor && chk_floor->IsChecked() && combo_floor->GetSelection() >= 0) {
         int idx = combo_floor->GetSelection();
@@ -599,6 +609,7 @@ void AZPDlg::OnOK(wxCommandEvent& event )
     int local_search_method = m_localsearch->GetSelection();
     int tabu_length = 10;
     double cool_rate = 0.85;
+    int max_it = 1;
     if ( local_search_method == 0) {
         m_tabulength->Disable();
         m_coolrate->Disable();
@@ -623,6 +634,16 @@ void AZPDlg::OnOK(wxCommandEvent& event )
             dlg.ShowModal();
             return;
         }
+        wxString str_maxit = m_maxit->GetValue();
+        long l_max_it = 1;
+        str_maxit.ToLong(&l_max_it);
+        if ( l_max_it <= 0) {
+            wxString err_msg = _("MaxIt for Simulated Annealing algorithm has to be a positive integer number.");
+            wxMessageDialog dlg(NULL, err_msg, _("Error"), wxOK | wxICON_ERROR);
+            dlg.ShowModal();
+            return;
+        }
+        max_it = l_max_it;
     }
 
     // no ARiSeL by default
@@ -642,8 +663,11 @@ void AZPDlg::OnOK(wxCommandEvent& event )
     }
     
 	// Get random seed
-    long long rnd_seed = (long long) time(0);
-    if (chk_seed->GetValue()) rnd_seed = GdaConst::gda_user_seed;
+    long long rnd_seed = GdaConst::gda_user_seed;
+    if (!chk_seed->GetValue()) {
+        srand(time(0));
+        rnd_seed = rand();
+    }
 
     //azp
     int transpose = 0; // row wise
@@ -662,9 +686,8 @@ void AZPDlg::OnOK(wxCommandEvent& event )
                           controllers, tabu_length, convergence_criteria,
                           inits, init_regions, rnd_seed);
     } else {
-        int max_iter = 1;
         azp = new AZPSA(p, gw->gal, input_data, &dm, rows, columns,
-                        controllers, cool_rate, max_iter, inits, init_regions, rnd_seed);
+                        controllers, cool_rate, max_it, inits, init_regions, rnd_seed);
     }
     if (azp->IsSatisfyControls() == false) {
         wxString msg = _("The clustering results violate the requirement of minimum bound  or minimum number per region. Please adjust the input and try again.");

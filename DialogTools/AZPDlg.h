@@ -72,6 +72,7 @@ private:
     wxTextCtrl* txt_regions;
     wxTextCtrl* m_tabulength;
     wxTextCtrl* m_coolrate;
+    wxTextCtrl* m_maxit;
     wxTextCtrl* m_inits;
     wxButton* seedButton;
     
