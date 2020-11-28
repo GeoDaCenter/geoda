@@ -547,6 +547,8 @@ public:
     }
 
 protected:
+    std::vector<int> returnRegions();
+    
     void InitSolution();
 
 protected:
@@ -565,10 +567,10 @@ class MaxpRegion : public RegionMaker
     double final_objectivefunction;
 
 public:
-    MaxpRegion(int max_attemps, GalElement* const w,
+    MaxpRegion(int max_iter, GalElement* const w,
                double** data, // row-wise
                RawDistMatrix* dist_matrix,
-               int n, int m, const std::vector<ZoneControl>& c,
+               int n, int m, const std::vector<ZoneControl>& c, int inits=0,
                const std::vector<int>& init_areas=std::vector<int>(),
                long long seed=123456789);
 
@@ -591,7 +593,7 @@ public:
 protected:
     std::vector<int> init_areas;
 
-    int max_attemps;
+    int max_iter;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
