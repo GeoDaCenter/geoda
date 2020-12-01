@@ -5,6 +5,7 @@
 
 #include "DataUtils.h"
 #include "azp.h"
+#include "threadpool.h"
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// ZoneControl
@@ -1071,48 +1072,61 @@ init_areas(init_regions), max_iter(_max_iter)
     objective_function = 0;
     
     // construction phase: find a collection of feasible solution with largest p
-    std::map<double, std::vector<int> > candidates;
-    int largest_p = 0;
-    
+    largest_p = 0;
+    thread_pool *construct_pool = new thread_pool();
     for (int iter=0; iter< max_iter; ++iter) {
-        MaxpRegionMaker rm_local(w, data, dist_matrix, n, m, c, init_areas, seed+iter);
-        int tmp_p = rm_local.GetPRegions();
-        double of = rm_local.GetInitObjectiveFunction();
-        if (largest_p < tmp_p) {
-            candidates.clear(); // new collection for largest p
-            largest_p = tmp_p;
-        }
-        if (largest_p == tmp_p) {
-            candidates[of] = rm_local.GetResults(); // could have duplicates
-        }
+        construct_pool->enqueue(boost::bind(&MaxpRegion::RunConstruction, this, seed+iter));
     }
+    delete construct_pool;
     
     int i=0;
-    double best_of = 0;
-    std::vector<int> best_result;
+    best_of = DBL_MAX;
     std::map<double, std::vector<int> >::iterator it;
     
+    thread_pool *azp_pool = new thread_pool();
     for (it = candidates.begin(); it != candidates.end(); ++it) {
         // local improvement all candidates
-        initial_objectivefunction = it->first;
+        //initial_objectivefunction = it->first;
         std::vector<int> solution = it->second;
-        
-        AZP azp(largest_p, w, data, dist_matrix, n, m, c, 0, solution, seed+i);
-        
-        std::vector<int> result = azp.GetResults();
-        double of = azp.GetFinalObjectiveFunction();
-        if (i == 0) {
-            best_result = result;
-            best_of = of;
-        } else if (of < best_of) {
-            best_result = result;
-            best_of = of;
-        }
+        azp_pool->enqueue(boost::bind(&MaxpRegion::RunAZP, this, solution, seed+i, i));
         i++;
     }
+    delete azp_pool;
 
     final_objectivefunction = best_of;
     final_solution = best_result;
+}
+
+void MaxpRegion::RunConstruction(long long seed)
+{
+    MaxpRegionMaker rm_local(w, data, dist_matrix, n, m, controls, init_areas, seed);
+    int tmp_p = rm_local.GetPRegions();
+    double of = rm_local.GetInitObjectiveFunction();
+    
+    mutex.lock();
+    if (largest_p < tmp_p) {
+        candidates.clear(); // new collection for largest p
+        largest_p = tmp_p;
+    }
+    if (largest_p == tmp_p) {
+        candidates[of] = rm_local.GetResults(); // could have duplicates
+    }
+    mutex.unlock();
+}
+
+void MaxpRegion::RunAZP(std::vector<int>& solution, long long seed, int i)
+{
+    AZP azp(largest_p, w, data, dist_matrix, n, m, controls, 0, solution, seed);
+    
+    std::vector<int> result = azp.GetResults();
+    double of = azp.GetFinalObjectiveFunction();
+    
+    mutex.lock();
+    if (of < best_of) {
+        best_result = result;
+        best_of = of;
+    }
+    mutex.unlock();
 }
 
 MaxpSA::MaxpSA(int _max_iter, GalElement* const _w,
@@ -1453,6 +1467,7 @@ void AZPTabu::LocalImproving()
                             // tabu move improves local beset objectives
                             best_tabuobj = obj;
                             best_tabumove = m;
+                            break;
                         }
                     }
                 }
@@ -1462,7 +1477,7 @@ void AZPTabu::LocalImproving()
                     move = best_tabumove;
                     minFound = 1;
                     // don't remove it from tabuList, since it's reversed move
-                    // , not itself, will be adde to tabuList
+                    // will be adde to tabuList
                 }
             }
 
@@ -1494,12 +1509,9 @@ void AZPTabu::LocalImproving()
             //double raw_ssd = objective_function->GetRawValue();
             std::cout << area << "," << oldRegion << "," << region << "," << obj4Move << "," << currentOBJ << "," << aspireOBJ << std::endl;
             
+            // update feasible neighboring set
             
-            if (obj4Move < basicMemory.objInfo) {
-                //basicMemory.updateBasicMemory(obj4Move, this->returnRegions());
-                //c = 1; // only reset conv when global objective improved
-            }
-            
+            // save interim best result
             if (minFound == 1) {
                 if (currentOBJ - obj4Move > epsilon) {
                     currentOBJ = obj4Move; // update global best, don't get worse

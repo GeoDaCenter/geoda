@@ -595,10 +595,24 @@ public:
         return final_objectivefunction;
     }
 
+    void RunAZP(std::vector<int>& solution, long long seed, int i);
+    
+    void RunConstruction(long long seed);
+    
 protected:
     std::vector<int> init_areas;
 
     int max_iter;
+    
+    std::map<double, std::vector<int> > candidates;
+    
+    int largest_p;
+    
+    double best_of;
+    
+    std::vector<int> best_result;
+    
+    boost::mutex mutex;
 };
 
 class MaxpSA : public RegionMaker
@@ -633,6 +647,10 @@ public:
     virtual double GetFinalObjectiveFunction() {
         return final_objectivefunction;
     }
+    
+    void RunAZP(std::vector<int>& solution, long long seed, int i);
+    
+    void RunConstruction(long long seed);
 
 protected:
     std::vector<int> init_areas;

@@ -413,7 +413,7 @@ wxString MaxpDlg::_printConfiguration()
     } else if (local_search_method == 2) {
         txt << _("Local search:") << "\t" << _("Simulated Annealing") << "\n";
         txt << _("Cooling rate:") << "\t" << m_coolrate->GetValue() << "\n";
-        txt << _("MaxIt:") << "\t" << m_sait->GetValue() << "\n";
+        txt << _("Max Iterations:") << "\t" << m_sait->GetValue() << "\n";
     }
     
     txt << _("Distance function:\t") << m_distance->GetString(m_distance->GetSelection()) << "\n";
@@ -513,6 +513,14 @@ void MaxpDlg::OnOK(wxCommandEvent& event )
                       ZoneControl::MORE_THAN, min_bound);
         controllers.push_back(zc);
         delete[] bound_vals;
+    } else {
+        wxString str_floor = txt_minregions->GetValue();
+        if (str_floor.IsEmpty()) {
+            wxString err_msg = _("Please enter minimum number of observations per regions, or use minimum bound instead.");
+            wxMessageDialog dlg(NULL, err_msg, _("Error"), wxOK | wxICON_ERROR);
+            dlg.ShowModal();
+            return;
+        }
     }
         
 	// Get iteration numbers
