@@ -41,7 +41,7 @@
 #include "../Explore/MapNewView.h"
 #include "../Project.h"
 #include "../Algorithms/cluster.h"
-#include "../Algorithms/maxp.h"
+#include "../Algorithms/azp.h"
 
 #include "../GeneralWxUtils.h"
 #include "../GenUtils.h"
@@ -466,65 +466,73 @@ void MaxpDlg::OnOK(wxCommandEvent& event )
         dlg.ShowModal();
     }
     
-	// Get Bounds
+	// zonecontrls
+    std::vector<ZoneControl> controllers;
+    
+    // Get Min regions
+    wxString str_min_region = txt_minregions->GetValue();
+    long l_min_region  = 0;
+    if (!str_min_region.IsEmpty() && str_min_region.ToLong(&l_min_region) == false) {
+        wxString err_msg = _("Please enter a valid number for Min Region Size.");
+        wxMessageDialog dlg(NULL, err_msg, _("Error"), wxOK | wxICON_ERROR);
+        dlg.ShowModal();
+        return;
+    }
+    if  (l_min_region  > 0) {
+        std::vector<double> ids(rows, 1);
+        ZoneControl zc(ids);
+        zc.AddControl(ZoneControl::SUM,
+                      ZoneControl::MORE_THAN, l_min_region);
+        controllers.push_back(zc);
+    }
+    
+    // Get Bounds
     double min_bound = GetMinBound();
+    double* bound_vals = GetBoundVals();
     if (chk_floor->IsChecked()) {
-        wxString str_floor = txt_floor->GetValue();
-        if (str_floor.IsEmpty() || combo_floor->GetSelection() < 0) {
+        if (combo_floor->GetSelection() < 0) {
             wxString err_msg = _("Please enter minimum bound value");
             wxMessageDialog dlg(NULL, err_msg, _("Error"), wxOK | wxICON_ERROR);
             dlg.ShowModal();
             return;
         }
         select_floor = combo_floor->GetString(combo_floor->GetSelection());
-    } else {
-        wxString str_floor = txt_minregions->GetValue();
-        if (str_floor.IsEmpty()) {
-            wxString err_msg = _("Please enter minimum number of observations per regions, or use minimum bound instead.");
-            wxMessageDialog dlg(NULL, err_msg, _("Error"), wxOK | wxICON_ERROR);
-            dlg.ShowModal();
-            return;
-        }
-    }
-    double* bound_vals = GetBoundVals();
-    if (bound_vals == NULL) {
-        wxString str_min_regions = txt_minregions->GetValue();
-        long val_min_regions;
-        if (str_min_regions.ToLong(&val_min_regions)) {
-            min_bound = val_min_regions;
-        }
-        bound_vals = new double[rows];
-        for (int i=0; i<rows; i++) bound_vals[i] = 1;
+        ZoneControl zc(rows, bound_vals);
+        zc.AddControl(ZoneControl::SUM,
+                      ZoneControl::MORE_THAN, min_bound);
+        controllers.push_back(zc);
+        delete[] bound_vals;
     }
         
 	// Get iteration numbers
-    int initial = 99;
-    long value_initial;
-    if(str_initial.ToLong(&value_initial)) {
-        initial = value_initial;
+    int iterations = 99;
+    long value_iter;
+    if(str_initial.ToLong(&value_iter)) {
+        iterations = value_iter;
     }
     
 	// Get initial seed e.g LISA clusters
-    vector<wxInt64> seeds;
-    bool use_lisa_seed = chk_lisa->GetValue();
-    if (use_lisa_seed) {
+    std::vector<int> init_regions;
+    bool use_init_regions = chk_lisa->GetValue();
+    if (use_init_regions) {
         int idx = combo_lisa->GetSelection();
         if (idx < 0) {
-            use_lisa_seed = false;
+            use_init_regions = false;
         } else {
             select_lisa = combo_lisa->GetString(idx);
             wxString nm = name_to_nm[select_lisa];
             int col = table_int->FindColId(nm);
             if (col == wxNOT_FOUND) {
-                if (bound_vals) delete[] bound_vals;
                 wxString err_msg = wxString::Format(_("Variable %s is no longer in the Table.  Please close and reopen this dialog to synchronize with Table data."), nm);
                 wxMessageDialog dlg(NULL, err_msg, _("Error"), wxOK | wxICON_ERROR);
                 dlg.ShowModal();
                 return;
             }
             int tm = name_to_tm_id[combo_lisa->GetString(idx)];
-            
-            table_int->GetColData(col, tm, seeds);
+            std::vector<wxInt64> vals;
+            table_int->GetColData(col, tm, vals);
+            init_regions.resize(vals.size());
+            for (int i=0; i<vals.size(); ++i) init_regions[i] = vals[i];
         }
     }
    
@@ -532,6 +540,7 @@ void MaxpDlg::OnOK(wxCommandEvent& event )
     int local_search_method = m_localsearch->GetSelection();
     int tabu_length = 85;
     double cool_rate = 0.85;
+    int sa_iter = 1;
     if ( local_search_method == 0) {
         m_tabulength->Disable();
         m_coolrate->Disable();
@@ -563,6 +572,48 @@ void MaxpDlg::OnOK(wxCommandEvent& event )
     int rnd_seed = -1;
     if (chk_seed->GetValue()) rnd_seed = GdaConst::gda_user_seed;
     
+    //maxp
+    int inits = 0; // ARiSel
+    int transpose = 0; // row wise
+    double** ragged_distances = distancematrix(rows, columns, input_data,  mask, weight, dist, transpose);
+    RawDistMatrix dm(ragged_distances);
+
+    std::vector<int> final_solution;
+    RegionMaker* maxp;
+    if ( local_search_method == 0) {
+        maxp = new MaxpRegion(iterations, gw->gal, input_data, &dm, rows, columns,
+                             controllers, inits, init_regions, rnd_seed);
+    } else if ( local_search_method == 1) {
+        maxp = new MaxpTabu(iterations, gw->gal, input_data, &dm, rows, columns,
+                            controllers, tabu_length, inits, init_regions, rnd_seed);
+    } else {
+        maxp = new MaxpSA(iterations, gw->gal, input_data, &dm, rows, columns,
+                          controllers, cool_rate, sa_iter, inits, init_regions, rnd_seed);
+    }
+    if (maxp->IsSatisfyControls() == false) {
+        wxString msg = _("The clustering results violate the requirement of minimum bound  or minimum number per region. Please adjust the input and try again.");
+        wxMessageDialog dlg(NULL, msg, _("Warning"), wxOK | wxICON_WARNING);
+        dlg.ShowModal();
+    }
+    final_solution = maxp->GetResults();
+    //initial_of = maxp->GetInitObjectiveFunction();
+    //final_of = maxp->GetFinalObjectiveFunction();
+    delete maxp;
+    
+    vector<vector<int> > cluster_ids;
+    std::map<int, std::vector<int> > solution;
+    for (int i=0; i<final_solution.size(); ++i) {
+        solution[final_solution[i]].push_back(i);
+    }
+    std::map<int, std::vector<int> >::iterator it;
+    for (it = solution.begin(); it != solution.end(); ++it) {
+        cluster_ids.push_back(it->second);
+    }
+
+    for (int i = 1; i < rows; i++) free(ragged_distances[i]);
+    free(ragged_distances);
+    
+    /*
 	// Run MaxP
 	vector<vector<double> > z;
 	for (int i=0; i<rows; i++) {
@@ -578,8 +629,9 @@ void MaxpDlg::OnOK(wxCommandEvent& event )
     if (bound_vals) delete[] bound_vals;
 
     vector<vector<int> > cluster_ids = maxp.GetRegions();
-    int ncluster = cluster_ids.size();
+     */
     
+    int ncluster = cluster_ids.size();
     vector<wxInt64> clusters(rows, 0);
     vector<bool> clusters_undef(rows, false);
 

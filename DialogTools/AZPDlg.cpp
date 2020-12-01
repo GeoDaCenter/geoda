@@ -681,10 +681,8 @@ void AZPDlg::OnOK(wxCommandEvent& event )
     std::vector<int> final_solution;
     RegionMaker* azp;
     if ( local_search_method == 0) {
-        //azp =  new AZP(p, gw->gal, input_data, &dm, rows, columns,
-        //               controllers, inits, init_regions, rnd_seed);
-        azp = new MaxpRegion(p, gw->gal, input_data, &dm, rows, columns,
-                             controllers, inits, init_regions, rnd_seed);
+        azp =  new AZP(p, gw->gal, input_data, &dm, rows, columns,
+                       controllers, inits, init_regions, rnd_seed);
     } else if ( local_search_method == 1) {
         int convergence_criteria = std::max(10, rows / p); // vs 230 * sqrt(p)
         azp = new AZPTabu(p, gw->gal, input_data, &dm, rows, columns,

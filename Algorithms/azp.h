@@ -334,7 +334,11 @@ public:
             // adding an area from a region)
             areas2Eval[areaID] = true;
         }
-
+        
+        if (areas2Eval.empty()) {
+            return false;
+        }
+        
         // remove the area first
         int seedArea = areas2Eval.begin()->first;
 
@@ -555,6 +559,7 @@ protected:
     std::vector<int> init_areas;
 };
 
+
 ////////////////////////////////////////////////////////////////////////////////
 ////// MaxpRegion
 ////////////////////////////////////////////////////////////////////////////////
@@ -594,6 +599,92 @@ protected:
     std::vector<int> init_areas;
 
     int max_iter;
+};
+
+class MaxpSA : public RegionMaker
+{
+    std::vector<int> final_solution;
+
+    double initial_objectivefunction;
+
+    double final_objectivefunction;
+
+public:
+    MaxpSA(int max_iter, GalElement* const w,
+               double** data, // row-wise
+               RawDistMatrix* dist_matrix,
+               int n, int m, const std::vector<ZoneControl>& c,
+               double alpha = 0.85, int sa_iter= 1, int inits=0,
+               const std::vector<int>& init_regions=std::vector<int>(),
+               long long seed=123456789);
+
+    virtual ~MaxpSA() {}
+
+    virtual void LocalImproving() {}
+
+    virtual std::vector<int> GetResults() {
+        return final_solution;
+    }
+
+    virtual double GetInitObjectiveFunction() {
+        return initial_objectivefunction;
+    }
+
+    virtual double GetFinalObjectiveFunction() {
+        return final_objectivefunction;
+    }
+
+protected:
+    std::vector<int> init_areas;
+
+    int max_iter;
+    
+    double temperature;
+    
+    double alpha;
+    
+    int sa_iter;
+};
+
+class MaxpTabu : public RegionMaker
+{
+    std::vector<int> final_solution;
+
+    double initial_objectivefunction;
+
+    double final_objectivefunction;
+
+public:
+    MaxpTabu(int max_iter, GalElement* const w,
+               double** data, // row-wise
+               RawDistMatrix* dist_matrix,
+               int n, int m, const std::vector<ZoneControl>& c,
+                int tabu_length=10, int inits=0,
+               const std::vector<int>& init_areas=std::vector<int>(),
+               long long seed=123456789);
+
+    virtual ~MaxpTabu() {}
+
+    virtual void LocalImproving() {}
+
+    virtual std::vector<int> GetResults() {
+        return final_solution;
+    }
+
+    virtual double GetInitObjectiveFunction() {
+        return initial_objectivefunction;
+    }
+
+    virtual double GetFinalObjectiveFunction() {
+        return final_objectivefunction;
+    }
+
+protected:
+    std::vector<int> init_areas;
+
+    int max_iter;
+    
+    int tabuLength; //5
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -853,7 +944,7 @@ public:
 protected:
     int tabuLength; //5
 
-    int convTabu; // 5:  230*numpy.sqrt(pRegions)?ß
+    int convTabu; // 5:  230*numpy.sqrt(pRegions)?
 
     boost::unordered_map<std::pair<int, int>, double> neighSolutions;
 
