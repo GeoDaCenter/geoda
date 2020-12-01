@@ -302,8 +302,11 @@ void AZPDlg::OnLISACheck(wxCommandEvent& event)
     
     if (use_lisa_seed) {
         combo_lisa->Enable();
+        chk_arisel->SetValue(false);
+        chk_arisel->Disable();
     } else {
         combo_lisa->Disable();
+        chk_arisel->Enable();
     }
 }
 

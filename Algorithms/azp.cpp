@@ -1075,7 +1075,7 @@ init_areas(init_regions), max_iter(_max_iter)
     int largest_p = 0;
     
     for (int iter=0; iter< max_iter; ++iter) {
-        MaxpRegionMaker rm_local(w, data, dist_matrix, n, m, c, init_areas, seed++);
+        MaxpRegionMaker rm_local(w, data, dist_matrix, n, m, c, init_areas, seed+iter);
         int tmp_p = rm_local.GetPRegions();
         double of = rm_local.GetInitObjectiveFunction();
         if (largest_p < tmp_p) {
@@ -1097,7 +1097,7 @@ init_areas(init_regions), max_iter(_max_iter)
         initial_objectivefunction = it->first;
         std::vector<int> solution = it->second;
         
-        AZP azp(largest_p, w, data, dist_matrix, n, m, c, 0, solution, seed++);
+        AZP azp(largest_p, w, data, dist_matrix, n, m, c, 0, solution, seed+i);
         
         std::vector<int> result = azp.GetResults();
         double of = azp.GetFinalObjectiveFunction();
@@ -1133,7 +1133,7 @@ alpha(_alpha), sa_iter(_sa_iter)
     int largest_p = 0;
     
     for (int iter=0; iter< max_iter; ++iter) {
-        MaxpRegionMaker rm_local(w, data, dist_matrix, n, m, c, init_areas, seed++);
+        MaxpRegionMaker rm_local(w, data, dist_matrix, n, m, c, init_areas, seed+iter);
         int tmp_p = rm_local.GetPRegions();
         double of = rm_local.GetInitObjectiveFunction();
         if (largest_p < tmp_p) {
@@ -1155,7 +1155,7 @@ alpha(_alpha), sa_iter(_sa_iter)
         initial_objectivefunction = it->first;
         std::vector<int> solution = it->second;
         
-        AZPSA azp(largest_p, w, data, dist_matrix, n, m, c, alpha, sa_iter, 0, solution, seed++);
+        AZPSA azp(largest_p, w, data, dist_matrix, n, m, c, alpha, sa_iter, 0, solution, seed+i);
         
         std::vector<int> result = azp.GetResults();
         double of = azp.GetFinalObjectiveFunction();
@@ -1191,7 +1191,7 @@ tabuLength(_tabu_length)
     int largest_p = 0;
     
     for (int iter=0; iter< max_iter; ++iter) {
-        MaxpRegionMaker rm_local(w, data, dist_matrix, n, m, c, init_areas, seed++);
+        MaxpRegionMaker rm_local(w, data, dist_matrix, n, m, c, init_areas, seed+iter);
         int tmp_p = rm_local.GetPRegions();
         double of = rm_local.GetInitObjectiveFunction();
         if (largest_p < tmp_p) {
@@ -1214,7 +1214,7 @@ tabuLength(_tabu_length)
         initial_objectivefunction = it->first;
         std::vector<int> solution = it->second;
         
-        AZPTabu azp(largest_p, w, data, dist_matrix, n, m, c, tabuLength, convTabu, 0, solution, seed++);
+        AZPTabu azp(largest_p, w, data, dist_matrix, n, m, c, tabuLength, convTabu, 0, solution, seed+i);
         
         std::vector<int> result = azp.GetResults();
         double of = azp.GetFinalObjectiveFunction();

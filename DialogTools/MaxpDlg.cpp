@@ -113,16 +113,23 @@ void MaxpDlg::CreateControls()
     wxString choices19[] = {"Greedy", "Tabu Search", "Simulated Annealing"};
     m_localsearch = new wxChoice(panel, wxID_ANY, wxDefaultPosition, wxSize(200,-1), 3, choices19);
     m_localsearch->SetSelection(0);
+    
     wxBoxSizer *hbox19_1 = new wxBoxSizer(wxHORIZONTAL);
     hbox19_1->Add(new wxStaticText(panel, wxID_ANY, _("Tabu Length:")));
-    m_tabulength = new wxTextCtrl(panel, wxID_ANY, "85");
+    m_tabulength = new wxTextCtrl(panel, wxID_ANY, "10");
     hbox19_1->Add(m_tabulength);
     m_tabulength->Disable();
+    
     wxBoxSizer *hbox19_2 = new wxBoxSizer(wxHORIZONTAL);
-    hbox19_2->Add(new wxStaticText(panel, wxID_ANY, _("Cooling Rate:")));
-    m_coolrate= new wxTextCtrl(panel, wxID_ANY, "0.85");
-    hbox19_2->Add(m_coolrate);
+    m_coolrate= new wxTextCtrl(panel, wxID_ANY, "0.85", wxDefaultPosition, wxSize(45,-1));
+    m_sait= new wxTextCtrl(panel, wxID_ANY, "1", wxDefaultPosition, wxSize(30,-1));
+    hbox19_2->Add(new wxStaticText(panel, wxID_ANY, _("Cooling Rate:")), 0, wxALIGN_CENTER_VERTICAL);
+    hbox19_2->Add(m_coolrate, 0, wxALIGN_CENTER_VERTICAL);
+    hbox19_2->Add(new wxStaticText(panel, wxID_ANY, _("MaxIt:")), 0, wxALIGN_CENTER_VERTICAL);
+    hbox19_2->Add(m_sait, 0, wxALIGN_CENTER_VERTICAL);
+    m_sait->Disable();
     m_coolrate->Disable();
+    
     wxBoxSizer *vbox19 = new wxBoxSizer(wxVERTICAL);
     vbox19->Add(m_localsearch, 1, wxEXPAND);
     vbox19->Add(hbox19_1, 1, wxEXPAND);
@@ -222,12 +229,15 @@ void MaxpDlg::OnLocalSearch(wxCommandEvent& event)
     if ( m_localsearch->GetSelection() == 0) {
         m_tabulength->Disable();
         m_coolrate->Disable();
+        m_sait->Disable();
     } else if ( m_localsearch->GetSelection() == 1) {
         m_tabulength->Enable();
         m_coolrate->Disable();
+        m_sait->Disable();
     } else if ( m_localsearch->GetSelection() == 2) {
         m_tabulength->Disable();
         m_coolrate->Enable();
+        m_sait->Enable();
     }
 }
 void MaxpDlg::OnCheckMinBound(wxCommandEvent& event)
@@ -403,6 +413,7 @@ wxString MaxpDlg::_printConfiguration()
     } else if (local_search_method == 2) {
         txt << _("Local search:") << "\t" << _("Simulated Annealing") << "\n";
         txt << _("Cooling rate:") << "\t" << m_coolrate->GetValue() << "\n";
+        txt << _("MaxIt:") << "\t" << m_sait->GetValue() << "\n";
     }
     
     txt << _("Distance function:\t") << m_distance->GetString(m_distance->GetSelection()) << "\n";
@@ -538,7 +549,7 @@ void MaxpDlg::OnOK(wxCommandEvent& event )
    
     // Get local search method
     int local_search_method = m_localsearch->GetSelection();
-    int tabu_length = 85;
+    int tabu_length = 10;
     double cool_rate = 0.85;
     int sa_iter = 1;
     if ( local_search_method == 0) {
@@ -566,6 +577,16 @@ void MaxpDlg::OnOK(wxCommandEvent& event )
             dlg.ShowModal();
             return;
         }
+        wxString str_maxit = m_sait->GetValue();
+        long l_max_it = 1;
+        str_maxit.ToLong(&l_max_it);
+        if ( l_max_it <= 0) {
+            wxString err_msg = _("MaxIt for Simulated Annealing algorithm has to be a positive integer number.");
+            wxMessageDialog dlg(NULL, err_msg, _("Error"), wxOK | wxICON_ERROR);
+            dlg.ShowModal();
+            return;
+        }
+        sa_iter = l_max_it;
     }
 
 	// Get random seed

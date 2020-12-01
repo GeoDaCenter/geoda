@@ -70,7 +70,7 @@ private:
     wxTextCtrl* m_tabulength;
     wxTextCtrl* m_coolrate;
     wxButton* seedButton;
-    
+    wxTextCtrl* m_sait;
     wxString select_floor;
     wxString select_lisa;
     
