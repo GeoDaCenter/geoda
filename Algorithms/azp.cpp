@@ -1143,48 +1143,60 @@ alpha(_alpha), sa_iter(_sa_iter)
     objective_function = 0;
     
     // construction phase: find a collection of feasible solution with largest p
-    std::map<double, std::vector<int> > candidates;
-    int largest_p = 0;
-    
+    largest_p = 0;
+    thread_pool *construct_pool = new thread_pool();
     for (int iter=0; iter< max_iter; ++iter) {
-        MaxpRegionMaker rm_local(w, data, dist_matrix, n, m, c, init_areas, seed+iter);
-        int tmp_p = rm_local.GetPRegions();
-        double of = rm_local.GetInitObjectiveFunction();
-        if (largest_p < tmp_p) {
-            candidates.clear(); // new collection for largest p
-            largest_p = tmp_p;
-        }
-        if (largest_p == tmp_p) {
-            candidates[of] = rm_local.GetResults(); // could have duplicates
-        }
+        construct_pool->enqueue(boost::bind(&MaxpSA::RunConstruction, this, seed+iter));
     }
+    delete construct_pool;
     
     int i=0;
-    double best_of = 0;
-    std::vector<int> best_result;
+    best_of = DBL_MAX;
     std::map<double, std::vector<int> >::iterator it;
     
+    thread_pool *azp_pool = new thread_pool();
     for (it = candidates.begin(); it != candidates.end(); ++it) {
         // local improvement all candidates
-        initial_objectivefunction = it->first;
         std::vector<int> solution = it->second;
-        
-        AZPSA azp(largest_p, w, data, dist_matrix, n, m, c, alpha, sa_iter, 0, solution, seed+i);
-        
-        std::vector<int> result = azp.GetResults();
-        double of = azp.GetFinalObjectiveFunction();
-        if (i == 0) {
-            best_result = result;
-            best_of = of;
-        } else if (of < best_of) {
-            best_result = result;
-            best_of = of;
-        }
+        azp_pool->enqueue(boost::bind(&MaxpSA::RunAZP, this, solution, seed+i, i));
         i++;
     }
-
+    delete azp_pool;
+    
     final_objectivefunction = best_of;
     final_solution = best_result;
+}
+
+void MaxpSA::RunConstruction(long long seed)
+{
+    MaxpRegionMaker rm_local(w, data, dist_matrix, n, m, controls, init_areas, seed);
+    int tmp_p = rm_local.GetPRegions();
+    double of = rm_local.GetInitObjectiveFunction();
+    
+    mutex.lock();
+    if (largest_p < tmp_p) {
+        candidates.clear(); // new collection for largest p
+        largest_p = tmp_p;
+    }
+    if (largest_p == tmp_p) {
+        candidates[of] = rm_local.GetResults(); // could have duplicates
+    }
+    mutex.unlock();
+}
+
+void MaxpSA::RunAZP(std::vector<int>& solution, long long seed, int i)
+{
+    AZPSA azp(largest_p, w, data, dist_matrix, n, m, controls, alpha, sa_iter, 0, solution, seed);
+    
+    std::vector<int> result = azp.GetResults();
+    double of = azp.GetFinalObjectiveFunction();
+    
+    mutex.lock();
+    if (of < best_of) {
+        best_result = result;
+        best_of = of;
+    }
+    mutex.unlock();
 }
 
 MaxpTabu::MaxpTabu(int _max_iter, GalElement* const _w,
@@ -1201,49 +1213,60 @@ tabuLength(_tabu_length)
     objective_function = 0;
     
     // construction phase: find a collection of feasible solution with largest p
-    std::map<double, std::vector<int> > candidates;
-    int largest_p = 0;
-    
+    largest_p = 0;
+    thread_pool *construct_pool = new thread_pool();
     for (int iter=0; iter< max_iter; ++iter) {
-        MaxpRegionMaker rm_local(w, data, dist_matrix, n, m, c, init_areas, seed+iter);
-        int tmp_p = rm_local.GetPRegions();
-        double of = rm_local.GetInitObjectiveFunction();
-        if (largest_p < tmp_p) {
-            candidates.clear(); // new collection for largest p
-            largest_p = tmp_p;
-        }
-        if (largest_p == tmp_p) {
-            candidates[of] = rm_local.GetResults(); // could have duplicates
-        }
+        construct_pool->enqueue(boost::bind(&MaxpTabu::RunConstruction, this, seed+iter));
     }
-    
-    int convTabu = std::max(10, n/largest_p); // vs 230 * sqrt(p)
+    delete construct_pool;
+
+    convTabu = std::max(10, n/largest_p); // vs 230 * sqrt(p)
     int i=0;
-    double best_of = 0;
-    std::vector<int> best_result;
+    best_of = DBL_MAX;
     std::map<double, std::vector<int> >::iterator it;
-    
+    thread_pool *azp_pool = new thread_pool();
     for (it = candidates.begin(); it != candidates.end(); ++it) {
         // local improvement all candidates
-        initial_objectivefunction = it->first;
         std::vector<int> solution = it->second;
-        
-        AZPTabu azp(largest_p, w, data, dist_matrix, n, m, c, tabuLength, convTabu, 0, solution, seed+i);
-        
-        std::vector<int> result = azp.GetResults();
-        double of = azp.GetFinalObjectiveFunction();
-        if (i == 0) {
-            best_result = result;
-            best_of = of;
-        } else if (of < best_of) {
-            best_result = result;
-            best_of = of;
-        }
+        azp_pool->enqueue(boost::bind(&MaxpTabu::RunAZP, this, solution, seed+i, i));
         i++;
     }
-
+    delete azp_pool;
+    
     final_objectivefunction = best_of;
     final_solution = best_result;
+}
+
+void MaxpTabu::RunConstruction(long long seed)
+{
+    MaxpRegionMaker rm_local(w, data, dist_matrix, n, m, controls, init_areas, seed);
+    int tmp_p = rm_local.GetPRegions();
+    double of = rm_local.GetInitObjectiveFunction();
+    
+    mutex.lock();
+    if (largest_p < tmp_p) {
+        candidates.clear(); // new collection for largest p
+        largest_p = tmp_p;
+    }
+    if (largest_p == tmp_p) {
+        candidates[of] = rm_local.GetResults(); // could have duplicates
+    }
+    mutex.unlock();
+}
+
+void MaxpTabu::RunAZP(std::vector<int>& solution, long long seed, int i)
+{
+    AZPTabu azp(largest_p, w, data, dist_matrix, n, m, controls, tabuLength, convTabu, 0, solution, seed);
+    
+    std::vector<int> result = azp.GetResults();
+    double of = azp.GetFinalObjectiveFunction();
+    
+    mutex.lock();
+    if (of < best_of) {
+        best_result = result;
+        best_of = of;
+    }
+    mutex.unlock();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1489,13 +1512,15 @@ void AZPTabu::LocalImproving()
 
             // Add the reverse of current move to the tabu list.
             // always added to the front and remove the last one
-            std::pair<int, int> add_tabu(area, oldRegion);
-            tabuList.insert(tabuList.begin(), std::make_pair(add_tabu, obj4Move));
-            tabuDict[add_tabu] = obj4Move;
-            if (tabuList.size() > tabuLength) {
-                std::pair<std::pair<int, int>, double> pop_tabu = tabuList.back();
-                tabuDict.erase(pop_tabu.first);
-                tabuList.pop_back();
+            if (currentOBJ - obj4Move > epsilon) {
+                std::pair<int, int> add_tabu(area, oldRegion);
+                tabuList.insert(tabuList.begin(), std::make_pair(add_tabu, obj4Move));
+                tabuDict[add_tabu] = obj4Move;
+                if (tabuList.size() > tabuLength) {
+                    std::pair<std::pair<int, int>, double> pop_tabu = tabuList.back();
+                    tabuDict.erase(pop_tabu.first);
+                    tabuList.pop_back();
+                }
             }
             
             // implement move
@@ -1507,7 +1532,7 @@ void AZPTabu::LocalImproving()
             objective_function->UpdateRegion(region);
             objective_function->UpdateRegion(oldRegion);
             //double raw_ssd = objective_function->GetRawValue();
-            std::cout << area << "," << oldRegion << "," << region << "," << obj4Move << "," << currentOBJ << "," << aspireOBJ << std::endl;
+            //std::cout << area << "," << oldRegion << "," << region << "," << obj4Move << "," << currentOBJ << "," << aspireOBJ << std::endl;
             
             // update feasible neighboring set
             

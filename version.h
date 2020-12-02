@@ -2,7 +2,7 @@ namespace Gda {
 	const int version_major = 1;
 	const int version_minor = 16;
 	const int version_build = 0;
-    const int version_subbuild = 34;
+    const int version_subbuild = 36;
 	const int version_year = 2020;
     const int version_month = 12;
     const int version_day = 1;
