@@ -1086,9 +1086,9 @@ init_areas(init_regions), max_iter(_max_iter)
     thread_pool *azp_pool = new thread_pool();
     for (it = candidates.begin(); it != candidates.end(); ++it) {
         // local improvement all candidates
-        //initial_objectivefunction = it->first;
+        initial_objectivefunction = it->first;
         std::vector<int> solution = it->second;
-        azp_pool->enqueue(boost::bind(&MaxpRegion::RunAZP, this, solution, seed+i, i));
+        azp_pool->enqueue(boost::bind(&MaxpRegion::RunAZP, this, solution, seed+initial_objectivefunction, i));
         i++;
     }
     delete azp_pool;
@@ -1157,8 +1157,9 @@ alpha(_alpha), sa_iter(_sa_iter)
     thread_pool *azp_pool = new thread_pool();
     for (it = candidates.begin(); it != candidates.end(); ++it) {
         // local improvement all candidates
+        initial_objectivefunction = it->first;
         std::vector<int> solution = it->second;
-        azp_pool->enqueue(boost::bind(&MaxpSA::RunAZP, this, solution, seed+i, i));
+        azp_pool->enqueue(boost::bind(&MaxpSA::RunAZP, this, solution, seed+initial_objectivefunction, i));
         i++;
     }
     delete azp_pool;
@@ -1227,8 +1228,9 @@ tabuLength(_tabu_length)
     thread_pool *azp_pool = new thread_pool();
     for (it = candidates.begin(); it != candidates.end(); ++it) {
         // local improvement all candidates
+        initial_objectivefunction = it->first;
         std::vector<int> solution = it->second;
-        azp_pool->enqueue(boost::bind(&MaxpTabu::RunAZP, this, solution, seed+i, i));
+        azp_pool->enqueue(boost::bind(&MaxpTabu::RunAZP, this, solution, seed+initial_objectivefunction, i));
         i++;
     }
     delete azp_pool;
