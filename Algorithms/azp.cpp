@@ -1423,8 +1423,8 @@ void AZPTabu::LocalImproving()
     double aspireOBJ = this->objInfo;  // local best obj
     double currentOBJ = this->objInfo; // global best obj
 
-    boost::unordered_map<std::pair<int, int>, double> tabuDict;
-    std::vector<std::pair<std::pair<int, int>, double> > tabuList;
+    boost::unordered_map<std::pair<int, int>, bool> tabuDict;
+    std::vector<std::pair<int, int> > tabuList;
     
     boost::unordered_map<std::pair<int, int>, double>::iterator it;
 
@@ -1473,9 +1473,12 @@ void AZPTabu::LocalImproving()
                 }
             }
 
+            // best move in set
+            
+            
             if (currentOBJ - obj4Move >= epsilon) {
                 minFound = 1; // use the global best move if improvement can be made
-
+                //std::cout << move.first << "," << area2Region[move.first] << "," << move.second << "," << obj4Move << ",,,,,";
             } else if (tabuList.size() > 0){
                 // if no improving move can be made,
                 // then check tabu list for aspirational move
@@ -1484,10 +1487,10 @@ void AZPTabu::LocalImproving()
                 std::pair<int, int> best_tabumove;
                 
                 for (int j=0; j<tabuList.size(); ++j) {
-                    std::pair<int, int> m = tabuList[j].first;
-                    double obj = tabuList[j].second;
+                    std::pair<int, int> m = tabuList[j];
                     if (neighSolutions.find(move) != neighSolutions.end()) {
                         // valid tabu move only exists in neighSolutions
+                        double obj = neighSolutions[move];
                         if (obj < best_tabuobj && aspireOBJ - obj >= epsilon) {
                             // tabu move improves local beset objectives
                             best_tabuobj = obj;
@@ -1498,6 +1501,7 @@ void AZPTabu::LocalImproving()
                 }
                 
                 if (aspireOBJ - best_tabuobj >= epsilon) {
+                    //std::cout << move.first << "," << area2Region[move.first] << "," << move.second << "," << obj4Move << "," << best_tabumove.first << "," << area2Region[best_tabumove.first] << "," << best_tabumove.second << "," << best_tabuobj <<",";
                     obj4Move = best_tabuobj;
                     move = best_tabumove;
                     minFound = 1;
@@ -1514,16 +1518,20 @@ void AZPTabu::LocalImproving()
 
             // Add the reverse of current move to the tabu list.
             // always added to the front and remove the last one
-            if (currentOBJ - obj4Move > epsilon) {
-                std::pair<int, int> add_tabu(area, oldRegion);
-                tabuList.insert(tabuList.begin(), std::make_pair(add_tabu, obj4Move));
-                tabuDict[add_tabu] = obj4Move;
-                if (tabuList.size() > tabuLength) {
-                    std::pair<std::pair<int, int>, double> pop_tabu = tabuList.back();
-                    tabuDict.erase(pop_tabu.first);
-                    tabuList.pop_back();
-                }
+            std::pair<int, int> add_tabu(area, oldRegion);
+            if (tabuDict.find(add_tabu) != tabuDict.end()) {
+                // if it already existed in tabuList,
+                // remove it first then add to the front
+                tabuList.erase(std::remove(tabuList.begin(), tabuList.end(), add_tabu), tabuList.end());
             }
+            tabuList.insert(tabuList.begin(), add_tabu);
+            tabuDict[add_tabu] = true;
+            if (tabuList.size() > tabuLength) {
+                std::pair<int, int> pop_tabu = tabuList.back();
+                tabuDict.erase(pop_tabu);
+                tabuList.pop_back();
+            }
+           
             
             // implement move
             region2Area[oldRegion].erase(area);
@@ -1533,8 +1541,8 @@ void AZPTabu::LocalImproving()
             // update objective
             objective_function->UpdateRegion(region);
             objective_function->UpdateRegion(oldRegion);
-            //double raw_ssd = objective_function->GetRawValue();
-            //std::cout << area << "," << oldRegion << "," << region << "," << obj4Move << "," << currentOBJ << "," << aspireOBJ << std::endl;
+            double raw_ssd = objective_function->GetRawValue();
+            std::cout << area << "," << oldRegion << "," << region << "," << obj4Move << "," << currentOBJ << "," << aspireOBJ << "," << raw_ssd << std::endl;
             
             // update feasible neighboring set
             

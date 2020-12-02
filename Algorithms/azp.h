@@ -960,7 +960,7 @@ public:
 
         this->LocalImproving();
 
-        final_solution = this->returnRegions();
+        final_solution = this->regions;
         final_objectivefunction = this->objInfo;
     }
 
