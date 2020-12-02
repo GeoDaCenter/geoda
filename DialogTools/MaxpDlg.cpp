@@ -68,7 +68,7 @@ MaxpDlg::~MaxpDlg()
 void MaxpDlg::CreateControls()
 {
     wxLogMessage("On MaxpDlg::CreateControls");
-    wxScrolledWindow* scrl = new wxScrolledWindow(this, wxID_ANY, wxDefaultPosition, wxSize(800,820), wxHSCROLL|wxVSCROLL );
+    wxScrolledWindow* scrl = new wxScrolledWindow(this, wxID_ANY, wxDefaultPosition, wxSize(900,820), wxHSCROLL|wxVSCROLL );
     scrl->SetScrollRate( 5, 5 );
     
     wxPanel *panel = new wxPanel(scrl);
@@ -95,6 +95,9 @@ void MaxpDlg::CreateControls()
     wxBoxSizer *hbox18 = new wxBoxSizer(wxHORIZONTAL);
     chk_lisa = new wxCheckBox(panel, wxID_ANY, "");
     combo_lisa = new wxChoice(panel, wxID_ANY, wxDefaultPosition, wxSize(160,-1));
+    st18->Hide();
+    chk_lisa->Hide();
+    combo_lisa->Hide();
     
     hbox18->Add(chk_lisa,0, wxALIGN_CENTER_VERTICAL);
     hbox18->Add(combo_lisa,0,wxALIGN_CENTER_VERTICAL);
@@ -115,9 +118,15 @@ void MaxpDlg::CreateControls()
     m_localsearch->SetSelection(0);
     
     wxBoxSizer *hbox19_1 = new wxBoxSizer(wxHORIZONTAL);
-    hbox19_1->Add(new wxStaticText(panel, wxID_ANY, _("Tabu Length:")));
-    m_tabulength = new wxTextCtrl(panel, wxID_ANY, "10");
-    hbox19_1->Add(m_tabulength);
+    m_tabulength = new wxTextCtrl(panel, wxID_ANY, "10", wxDefaultPosition, wxSize(45,-1));
+    //wxString str_convTabu;
+    //int convTabu = 230 * sqrt(rows);
+    //str_convTabu << convTabu;
+    //m_convTabu = new wxTextCtrl(panel, wxID_ANY, str_convTabu, wxDefaultPosition, wxSize(45,-1));
+    hbox19_1->Add(new wxStaticText(panel, wxID_ANY, _("Tabu Length:")), 0, wxALIGN_CENTER_VERTICAL);
+    hbox19_1->Add(m_tabulength, 0, wxALIGN_CENTER_VERTICAL);
+    //hbox19_1->Add(new wxStaticText(panel, wxID_ANY, _("Conv Steps:")), 0, wxALIGN_CENTER_VERTICAL);
+    //hbox19_1->Add(m_convTabu, 0, wxALIGN_CENTER_VERTICAL);
     m_tabulength->Disable();
     
     wxBoxSizer *hbox19_2 = new wxBoxSizer(wxHORIZONTAL);

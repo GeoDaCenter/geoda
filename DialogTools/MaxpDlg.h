@@ -64,7 +64,7 @@ private:
     wxChoice* m_distance;
     wxTextCtrl* m_textbox;
     wxTextCtrl* m_iterations;
-    
+    wxTextCtrl* m_convTabu;
     wxStaticText* st_minregions;
     wxTextCtrl* txt_minregions;
     wxTextCtrl* m_tabulength;

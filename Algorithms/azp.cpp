@@ -1221,7 +1221,7 @@ tabuLength(_tabu_length)
     }
     delete construct_pool;
 
-    convTabu = std::max(10, n/largest_p); // vs 230 * sqrt(p)
+    convTabu = 230 * sqrt(largest_p);
     int i=0;
     best_of = DBL_MAX;
     std::map<double, std::vector<int> >::iterator it;
