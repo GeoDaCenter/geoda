@@ -1447,7 +1447,7 @@ void AZPTabu::LocalImproving()
             // find  best feasible move not prohibited
             bool find_global = false;
             std::pair<int, int> move;
-            double obj4Move; // current best objective from feasible moves
+            double obj4Move  = 0; // current best objective from feasible moves
 
             while (!find_global && !neighSolObjs.empty()) {
                 double minObj = neighSolObjs.top();
@@ -1473,9 +1473,12 @@ void AZPTabu::LocalImproving()
                 }
             }
 
+            if (obj4Move == 0 && find_global == false) {
+                // no more feasible move
+                c = convTabu;
+                break;
+            }
             // best move in set
-            
-            
             if (currentOBJ - obj4Move >= epsilon) {
                 minFound = 1; // use the global best move if improvement can be made
                 //std::cout << move.first << "," << area2Region[move.first] << "," << move.second << "," << obj4Move << ",,,,,";
@@ -1488,14 +1491,17 @@ void AZPTabu::LocalImproving()
                 
                 for (int j=0; j<tabuList.size(); ++j) {
                     std::pair<int, int> m = tabuList[j];
-                    if (neighSolutions.find(move) != neighSolutions.end()) {
+                    if (neighSolutions.find(m) != neighSolutions.end()) {
                         // valid tabu move only exists in neighSolutions
-                        double obj = neighSolutions[move];
+                        double obj = neighSolutions[m];
                         if (obj < best_tabuobj && aspireOBJ - obj >= epsilon) {
-                            // tabu move improves local beset objectives
-                            best_tabuobj = obj;
-                            best_tabumove = m;
-                            break;
+                            // also need to check if this move breaks contiguity
+                            if (objective_function->checkFeasibility(area2Region[m.first], m.first)) {
+                                // tabu move improves local beset objectives
+                                best_tabuobj = obj;
+                                best_tabumove = m;
+                                //break;
+                            }
                         }
                     }
                 }
@@ -1541,8 +1547,9 @@ void AZPTabu::LocalImproving()
             // update objective
             objective_function->UpdateRegion(region);
             objective_function->UpdateRegion(oldRegion);
-            double raw_ssd = objective_function->GetRawValue();
-            std::cout << area << "," << oldRegion << "," << region << "," << obj4Move << "," << currentOBJ << "," << aspireOBJ << "," << raw_ssd << std::endl;
+            //double ssd = objective_function->GetValue();
+            //double raw_ssd = objective_function->GetRawValue();
+            //std::cout << area << "," << oldRegion << "," << region << "," << obj4Move << "," << currentOBJ << "," << aspireOBJ << "," << raw_ssd << std::endl;
             
             // update feasible neighboring set
             
