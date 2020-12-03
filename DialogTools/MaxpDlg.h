@@ -74,6 +74,7 @@ private:
     wxString select_floor;
     wxString select_lisa;
     
+    int conv_tabu;
     DECLARE_EVENT_TABLE()
 };
 

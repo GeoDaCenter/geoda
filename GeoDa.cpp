@@ -6681,10 +6681,11 @@ void GdaFrame::OnHelpAbout(wxCommandEvent& WXUNUSED(event) )
 	if (Gda::version_type == 0) {
 		vl_s << " (alpha),";
 	} else if (Gda::version_type == 1) {
-        if (Gda::version_night > 0)
+        if (Gda::version_night > 0) {
             vl_s << "-" << Gda::version_night << " (nightly),";
-        else
+        } else {
     		vl_s << " (beta),";
+        }
 	} // otherwise assumed to be release
 	vl_s << " " << Gda::version_day << " ";
 	if (Gda::version_month == 1) {

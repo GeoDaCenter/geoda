@@ -711,6 +711,8 @@ public:
     
     void RunConstruction(long long seed);
     
+    int GetConvTabu() { return convTabu;}
+    
 protected:
     std::vector<int> init_areas;
 
