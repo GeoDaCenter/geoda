@@ -1204,12 +1204,12 @@ MaxpTabu::MaxpTabu(int _max_iter, GalElement* const _w,
                double** _data, // row-wise
                RawDistMatrix* _dist_matrix,
                int _n, int _m, const std::vector<ZoneControl>& c,
-               int _tabu_length, int inits,
+               int _tabu_length, int _conv_tabu, int inits,
                const std::vector<int>& init_regions,
                long long seed)
 : RegionMaker(-1, _w, _data, _dist_matrix, _n, _m, c, std::vector<int>(), seed),
 init_areas(init_regions), max_iter(_max_iter),
-tabuLength(_tabu_length)
+tabuLength(_tabu_length), convTabu(_conv_tabu)
 {
     objective_function = 0;
     
@@ -1221,7 +1221,9 @@ tabuLength(_tabu_length)
     }
     delete construct_pool;
 
-    convTabu = 230 * sqrt(largest_p);
+    //if (convTabu == 0) {
+        convTabu = 230 * sqrt(largest_p);
+    //}
     int i=0;
     best_of = DBL_MAX;
     std::map<double, std::vector<int> >::iterator it;
@@ -1549,7 +1551,7 @@ void AZPTabu::LocalImproving()
             objective_function->UpdateRegion(oldRegion);
             //double ssd = objective_function->GetValue();
             //double raw_ssd = objective_function->GetRawValue();
-            //std::cout << area << "," << oldRegion << "," << region << "," << obj4Move << "," << currentOBJ << "," << aspireOBJ << "," << raw_ssd << std::endl;
+            //std::cout << area << "," << oldRegion << "," << region << "," << obj4Move << "," << currentOBJ << "," << aspireOBJ << std::endl;
             
             // update feasible neighboring set
             

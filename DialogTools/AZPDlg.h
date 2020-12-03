@@ -71,6 +71,7 @@ private:
     wxTextCtrl* txt_minregions;
     wxTextCtrl* txt_regions;
     wxTextCtrl* m_tabulength;
+    wxTextCtrl* m_convtabu;
     wxTextCtrl* m_coolrate;
     wxTextCtrl* m_maxit;
     wxTextCtrl* m_inits;

@@ -119,15 +119,13 @@ void MaxpDlg::CreateControls()
     
     wxBoxSizer *hbox19_1 = new wxBoxSizer(wxHORIZONTAL);
     m_tabulength = new wxTextCtrl(panel, wxID_ANY, "10", wxDefaultPosition, wxSize(45,-1));
-    //wxString str_convTabu;
-    //int convTabu = 230 * sqrt(rows);
-    //str_convTabu << convTabu;
-    //m_convTabu = new wxTextCtrl(panel, wxID_ANY, str_convTabu, wxDefaultPosition, wxSize(45,-1));
+    m_convtabu = new wxTextCtrl(panel, wxID_ANY, "10", wxDefaultPosition, wxSize(45,-1));
     hbox19_1->Add(new wxStaticText(panel, wxID_ANY, _("Tabu Length:")), 0, wxALIGN_CENTER_VERTICAL);
     hbox19_1->Add(m_tabulength, 0, wxALIGN_CENTER_VERTICAL);
-    //hbox19_1->Add(new wxStaticText(panel, wxID_ANY, _("Conv Steps:")), 0, wxALIGN_CENTER_VERTICAL);
-    //hbox19_1->Add(m_convTabu, 0, wxALIGN_CENTER_VERTICAL);
+    hbox19_1->Add(new wxStaticText(panel, wxID_ANY, _("ConvTabu:")), 0, wxALIGN_CENTER_VERTICAL);
+    hbox19_1->Add(m_convtabu, 0, wxALIGN_CENTER_VERTICAL);
     m_tabulength->Disable();
+    m_convtabu->Disable();
     
     wxBoxSizer *hbox19_2 = new wxBoxSizer(wxHORIZONTAL);
     m_coolrate= new wxTextCtrl(panel, wxID_ANY, "0.85", wxDefaultPosition, wxSize(45,-1));
@@ -237,14 +235,17 @@ void MaxpDlg::OnLocalSearch(wxCommandEvent& event)
     wxLogMessage("On MaxpDlg::OnLocalSearch");
     if ( m_localsearch->GetSelection() == 0) {
         m_tabulength->Disable();
+        m_convtabu->Disable();
         m_coolrate->Disable();
         m_sait->Disable();
     } else if ( m_localsearch->GetSelection() == 1) {
         m_tabulength->Enable();
+        m_convtabu->Enable();
         m_coolrate->Disable();
         m_sait->Disable();
     } else if ( m_localsearch->GetSelection() == 2) {
         m_tabulength->Disable();
+        m_convtabu->Disable();
         m_coolrate->Enable();
         m_sait->Enable();
     }
@@ -567,6 +568,7 @@ void MaxpDlg::OnOK(wxCommandEvent& event )
     // Get local search method
     int local_search_method = m_localsearch->GetSelection();
     int tabu_length = 10;
+    int conv_tabu = 10;
     double cool_rate = 0.85;
     int sa_iter = 1;
     if ( local_search_method == 0) {
@@ -579,7 +581,18 @@ void MaxpDlg::OnOK(wxCommandEvent& event )
             tabu_length = n_tabulength;
         }
         if (tabu_length < 1) {
-            wxString err_msg = _("Tabu length for Tabu Search algorithm has to be an integer number larger than 1 (e.g. 85).");
+            wxString err_msg = _("Tabu length for Tabu Search algorithm has to be an integer number larger than 1 (e.g. 10).");
+            wxMessageDialog dlg(NULL, err_msg, _("Error"), wxOK | wxICON_ERROR);
+            dlg.ShowModal();
+            return;
+        }
+        wxString str_convtabu= m_convtabu->GetValue();
+        long n_convtabu;
+        if (str_convtabu.ToLong(&n_convtabu)) {
+            conv_tabu = (int)n_convtabu;
+        }
+        if (conv_tabu < 1) {
+            wxString err_msg = _("ConvTabu for Tabu Search algorithm has to be an integer number larger than 1.");
             wxMessageDialog dlg(NULL, err_msg, _("Error"), wxOK | wxICON_ERROR);
             dlg.ShowModal();
             return;
@@ -623,7 +636,7 @@ void MaxpDlg::OnOK(wxCommandEvent& event )
                              controllers, inits, init_regions, rnd_seed);
     } else if ( local_search_method == 1) {
         maxp = new MaxpTabu(iterations, gw->gal, input_data, &dm, rows, columns,
-                            controllers, tabu_length, inits, init_regions, rnd_seed);
+                            controllers, tabu_length, conv_tabu, inits, init_regions, rnd_seed);
     } else {
         maxp = new MaxpSA(iterations, gw->gal, input_data, &dm, rows, columns,
                           controllers, cool_rate, sa_iter, inits, init_regions, rnd_seed);

@@ -687,7 +687,7 @@ public:
                double** data, // row-wise
                RawDistMatrix* dist_matrix,
                int n, int m, const std::vector<ZoneControl>& c,
-                int tabu_length=10, int inits=0,
+                int tabu_length=10, int _conv_tabu=0, int inits=0,
                const std::vector<int>& init_areas=std::vector<int>(),
                long long seed=123456789);
 

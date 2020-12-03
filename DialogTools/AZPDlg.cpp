@@ -105,10 +105,14 @@ void AZPDlg::CreateControls()
     m_coolrate->Disable();
     
     wxBoxSizer *hbox19_1 = new wxBoxSizer(wxHORIZONTAL);
-    hbox19_1->Add(new wxStaticText(panel, wxID_ANY, _("Tabu Length:")));
-    m_tabulength = new wxTextCtrl(panel, wxID_ANY, "10");
-    hbox19_1->Add(m_tabulength);
+    m_tabulength = new wxTextCtrl(panel, wxID_ANY, "10", wxDefaultPosition, wxSize(45,-1));
+    m_convtabu = new wxTextCtrl(panel, wxID_ANY, "10", wxDefaultPosition, wxSize(45,-1));
+    hbox19_1->Add(new wxStaticText(panel, wxID_ANY, _("Tabu Length: ")), 0, wxALIGN_CENTER_VERTICAL);
+    hbox19_1->Add(m_tabulength, 0, wxALIGN_CENTER_VERTICAL);
+    hbox19_1->Add(new wxStaticText(panel, wxID_ANY, _("ConvTabu:")), 0, wxALIGN_CENTER_VERTICAL);
+    hbox19_1->Add(m_convtabu, 0, wxALIGN_CENTER_VERTICAL);
     m_tabulength->Disable();
+    m_convtabu->Disable();
     
     wxBoxSizer *vbox19 = new wxBoxSizer(wxVERTICAL);
     vbox19->Add(m_localsearch, 1, wxEXPAND);
@@ -254,11 +258,13 @@ void AZPDlg::OnAriselCheck(wxCommandEvent& event)
     if (chk_arisel->IsChecked())  {
         m_localsearch->SetSelection(1);
         m_tabulength->Enable();
+        m_convtabu->Enable();
         m_coolrate->Disable();
         m_maxit->Disable();
     }  else {
         m_localsearch->SetSelection(0);
         m_tabulength->Disable();
+        m_convtabu->Disable();
         m_coolrate->Disable();
         m_maxit->Disable();
     }
@@ -269,14 +275,17 @@ void AZPDlg::OnLocalSearch(wxCommandEvent& event)
     wxLogMessage("On AZPDlg::OnLocalSearch");
     if ( m_localsearch->GetSelection() == 0) {
         m_tabulength->Disable();
+        m_convtabu->Disable();
         m_coolrate->Disable();
         m_maxit->Disable();
     } else if ( m_localsearch->GetSelection() == 1) {
         m_tabulength->Enable();
+        m_convtabu->Enable();
         m_coolrate->Disable();
         m_maxit->Disable();
     } else if ( m_localsearch->GetSelection() == 2) {
         m_tabulength->Disable();
+        m_convtabu->Disable();
         m_coolrate->Enable();
         m_maxit->Enable();
     }
@@ -444,6 +453,7 @@ wxString AZPDlg::_printConfiguration()
     } else if (local_search_method == 1) {
         txt << _("Local search:") << "\t" << _("AZP-Tabu") << "\n";
         txt << _("Tabu length:") << "\t" << m_tabulength->GetValue() << "\n";
+        txt << _("ConvTabu:") << "\t" << m_convtabu->GetValue() << "\n";
     } else if (local_search_method == 2) {
         txt << _("Local search:") << "\t" << _("AZP-Simulated Annealing") << "\n";
         txt << _("Cooling rate:") << "\t" << m_coolrate->GetValue() << "\n";
@@ -615,6 +625,7 @@ void AZPDlg::OnOK(wxCommandEvent& event )
     // Get local search method
     int local_search_method = m_localsearch->GetSelection();
     int tabu_length = 10;
+    int conv_tabu = 230 * sqrt(p);
     double cool_rate = 0.85;
     int max_it = 1;
     if ( local_search_method == 0) {
@@ -627,7 +638,18 @@ void AZPDlg::OnOK(wxCommandEvent& event )
             tabu_length = (int)n_tabulength;
         }
         if (tabu_length < 1) {
-            wxString err_msg = _("Tabu length for Tabu Search algorithm has to be an integer number larger than 1 (e.g. 85).");
+            wxString err_msg = _("Tabu length for Tabu Search algorithm has to be an integer number larger than 1 (e.g. 10).");
+            wxMessageDialog dlg(NULL, err_msg, _("Error"), wxOK | wxICON_ERROR);
+            dlg.ShowModal();
+            return;
+        }
+        wxString str_convtabu= m_convtabu->GetValue();
+        long n_convtabu;
+        if (str_convtabu.ToLong(&n_convtabu)) {
+            conv_tabu = (int)n_convtabu;
+        }
+        if (conv_tabu < 1) {
+            wxString err_msg = _("ConvTabu for Tabu Search algorithm has to be an integer number larger than 1.");
             wxMessageDialog dlg(NULL, err_msg, _("Error"), wxOK | wxICON_ERROR);
             dlg.ShowModal();
             return;
@@ -687,7 +709,6 @@ void AZPDlg::OnOK(wxCommandEvent& event )
         azp =  new AZP(p, gw->gal, input_data, &dm, rows, columns,
                        controllers, inits, init_regions, rnd_seed);
     } else if ( local_search_method == 1) {
-        //int convergence_criteria = std::max(10, rows / p); // vs 230 * sqrt(p)
         int convergence_criteria = 230 * sqrt(p);
         azp = new AZPTabu(p, gw->gal, input_data, &dm, rows, columns,
                           controllers, tabu_length, convergence_criteria,
