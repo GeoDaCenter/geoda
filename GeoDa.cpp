@@ -6684,7 +6684,7 @@ void GdaFrame::OnHelpAbout(wxCommandEvent& WXUNUSED(event) )
         if (Gda::version_night > 0) {
             vl_s << "-" << Gda::version_night << " (nightly),";
         } else {
-    		vl_s << " (beta),";
+    		vl_s << " (beta),"; 
         }
 	} // otherwise assumed to be release
 	vl_s << " " << Gda::version_day << " ";

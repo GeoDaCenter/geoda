@@ -757,7 +757,7 @@ public:
             // ARiSeL
             for (int i=0; i<inits-1; ++i) {
                 RegionMaker rm(p,w,data,dist_matrix,n,m,c,init_regions, seed + i);
-                if (rm.objInfo < this->objInfo)  {
+                if (rm.objInfo < this->objInfo && rm.IsSatisfyControls())  {
                     // better initial solution
                     this->Copy(rm);
                 }
@@ -838,7 +838,7 @@ public:
             // ARiSeL
             for (int i=0; i<inits-1; ++i) {
                 RegionMaker rm(p,w,data,dist_matrix,n,m,c,init_regions, seed + i);
-                if (rm.objInfo < this->objInfo)  {
+                if (rm.objInfo < this->objInfo && rm.IsSatisfyControls())  {
                     // better initial solution
                     this->Copy(rm);
                 }
@@ -944,7 +944,7 @@ public:
             // ARiSeL
             for (int i=0; i<inits-1; ++i) {
                 RegionMaker rm(p,w,data,dist_matrix,n,m,c,init_regions, seed + i);
-                if (rm.objInfo < this->objInfo)  {
+                if (rm.objInfo < this->objInfo && rm.IsSatisfyControls())  {
                     // better initial solution
                     this->Copy(rm);
                 }
