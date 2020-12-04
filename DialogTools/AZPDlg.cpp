@@ -466,7 +466,9 @@ wxString AZPDlg::_printConfiguration()
     if (chk_floor && chk_floor->IsChecked() && combo_floor->GetSelection() >= 0) {
         int idx = combo_floor->GetSelection();
         wxString nm = name_to_nm[combo_floor->GetString(idx)];
-        txt << _("Minimum bound:\t") << txt_floor->GetValue() << "(" << nm << ")" << "\n";
+        txt << _("Minimum bound:\t") << txt_floor->GetValue() << "(" << nm << ")";
+        if (satisfy_min_bound == false) txt << " - failed to meet";
+        txt << "\n";
     }
 
     wxString min_region = txt_minregions->GetValue();
@@ -710,6 +712,7 @@ void AZPDlg::OnOK(wxCommandEvent& event )
         azp = new AZPSA(p, gw->gal, input_data, &dm, rows, columns,
                         controllers, cool_rate, max_it, inits, init_regions, rnd_seed);
     }
+    satisfy_min_bound = azp->IsSatisfyControls();
     if (azp->IsSatisfyControls() == false) {
         wxString msg = _("The clustering results violate the requirement of minimum bound  or minimum number per region. Please adjust the input and try again.");
         wxMessageDialog dlg(NULL, msg, _("Warning"), wxOK | wxICON_WARNING);

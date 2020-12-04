@@ -80,6 +80,7 @@ private:
     wxString select_floor;
     wxString select_lisa;
 
+    bool satisfy_min_bound;
     int conv_tabu;
     double initial_of;
     double final_of;
