@@ -1141,11 +1141,11 @@ set LIB_NAME=geoda_package
 cd %BUILD_HOME%
 
 set INNO_EXE=not_found
-IF EXIST "\Program Files (x86)\Inno Setup 5\ISCC.exe" (
-	set INNO_EXE="\Program Files (x86)\Inno Setup 5\ISCC.exe"
+IF EXIST "\Program Files (x86)\Inno Setup 6\ISCC.exe" (
+	set INNO_EXE="\Program Files (x86)\Inno Setup 6\ISCC.exe"
 )
-IF EXIST "\Program Files\Inno Setup 5\ISCC.exe" (
-	set INNO_EXE="\Program Files\Inno Setup 5\ISCC.exe"
+IF EXIST "\Program Files\Inno Setup 6\ISCC.exe" (
+	set INNO_EXE="\Program Files\Inno Setup 6\ISCC.exe"
 )
 if %INNO_EXE% == not_found (
 	echo Could not find location of Inno 5 command line installer ISCC.exe.  Please install Inno 5.
