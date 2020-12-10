@@ -23,9 +23,9 @@
 	<key>CFBundleSignature</key>
 	<string>io.gitub.geodacenter</string>
 	<key>CFBundleVersion</key>
-	<string>1.16</string>
+	<string>1.18</string>
 	<key>CFBundleShortVersionString</key>
-	<string>1.16</string>
+	<string>1.18</string>
 	<key>DTCompiler</key>
 	<string>4.2</string>
 	<key>DTPlatformBuild</key>
