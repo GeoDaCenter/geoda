@@ -3452,7 +3452,7 @@ msgstr "Опции:"
 
 # contributors:
 msgid "Order of contiguity"
-msgstr "Порядок ассоциативных связей"
+msgstr "Порядок из смежность"
 
 # contributors:
 msgid "Other (up to 99999)"
