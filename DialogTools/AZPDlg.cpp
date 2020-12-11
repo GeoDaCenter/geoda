@@ -561,7 +561,7 @@ void AZPDlg::OnOK(wxCommandEvent& event )
     //    initial = value_initial;
     //}
     
-    // Get initial seed e.g LISA clusters
+    // Get initial seed e.g LISA clusters, not used
     std::vector<int> init_regions;
     bool use_init_regions = chk_lisa->GetValue();
     if (use_init_regions) {
