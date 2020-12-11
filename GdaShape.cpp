@@ -1740,6 +1740,19 @@ void GdaPolyLine::paintSelf(wxDC& dc)
 
 void GdaPolyLine::paintSelf(wxGraphicsContext* gc)
 {
+	if (null_shape) return;
+	gc->SetPen(getPen());
+	gc->SetBrush(getBrush());
+	int nx = getXNudge();
+	int ny = getYNudge();
+	if (n > 1) {
+		wxGraphicsPath path = gc->CreatePath();
+		path.MoveToPoint(points[0].x+nx, points[0].y+ny);
+		for (int i=0, its=n-1; i<its; i++) {
+			path.AddLineToPoint(points[i+1].x+nx, points[i+1].y+ny);
+		}
+		gc->StrokePath(path);
+	} 
 }
 
 wxString GdaPolyLine::printDetails()

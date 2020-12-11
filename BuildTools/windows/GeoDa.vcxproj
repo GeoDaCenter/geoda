@@ -482,6 +482,7 @@
     <ClInclude Include="..\..\Algorithms\pam.h" />
     <ClInclude Include="..\..\Algorithms\pca.h" />
     <ClInclude Include="..\..\Algorithms\redcap.h" />
+    <ClInclude Include="..\..\Algorithms\rng.h" />
     <ClInclude Include="..\..\Algorithms\S.h" />
     <ClInclude Include="..\..\Algorithms\skater.h" />
     <ClInclude Include="..\..\Algorithms\smacof.h" />

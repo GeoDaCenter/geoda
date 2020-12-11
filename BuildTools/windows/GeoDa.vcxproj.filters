@@ -935,6 +935,9 @@
     <ClInclude Include="..\..\Algorithms\azp.h">
       <Filter>Algorithms</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\Algorithms\rng.h">
+      <Filter>Algorithms</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\rc\GdaAppResources.cpp">
