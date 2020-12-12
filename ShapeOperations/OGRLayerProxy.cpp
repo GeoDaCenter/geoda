@@ -106,11 +106,11 @@ OGRLayerProxy::~OGRLayerProxy()
 
 bool OGRLayerProxy::IsFieldCaseSensitive(GdaConst::DataSourceType ds_type)
 {
-    if (ds_type == GdaConst::ds_sqlite ||
-        ds_type == GdaConst::ds_gpkg || // based on sqlite
+    if (ds_type == GdaConst::ds_gpkg || // based on sqlite
         ds_type == GdaConst::ds_mysql || // on windows only
         ds_type == GdaConst::ds_postgresql || // old version
         ds_type == GdaConst::ds_cartodb // based on postgresql
+        //ds_type == GdaConst::ds_sqlite
     ) {
         return false;
     }

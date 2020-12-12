@@ -38,12 +38,17 @@
 #ifndef __GEODA_CENTER_FASTCLUSTER_H__
 #define __GEODA_CENTER_FASTCLUSTER_H__
 
+#include <iostream>
 #include <cstddef> // for std::ptrdiff_t
 #include <limits> // for std::numeric_limits<...>::infinity()
 #include <algorithm> // for std::fill_n
 #include <stdexcept> // for std::runtime_error
 #include <string> // for std::string
 #include <math.h>
+#include <vector>
+#include <set>
+#include <stack>
+#include "../ShapeOperations/GalWeight.h"
 
 // Microsoft Visual Studio does not have fenv.h
 #ifdef _MSC_VER
@@ -1086,6 +1091,9 @@ namespace fastcluster {
 #endif
         
         for (t_index j=0; j<N-1; ++j) {
+            // set a point (arbitrarily)
+            // grow the NN-chain from the object chosen, until a pair of RNNs
+            // are obtained: i ->NN(i)=j -> NN(j)=k ->...->
             if (NN_chain_tip <= 3) {
                 NN_chain[0] = idx1 = active_nodes.start;
                 NN_chain_tip = 1;
@@ -1127,7 +1135,9 @@ namespace fastcluster {
                 
             } while (idx2 != NN_chain[NN_chain_tip-2]);
             
+            // agglomerate these objects
             Z2.append(idx1, idx2, min);
+            //std::cout << "merge:" << idx1 << "," <<idx2 << "," << min << std::endl;
             
             if (idx1>idx2) {
                 t_index tmp = idx1;
@@ -1135,6 +1145,7 @@ namespace fastcluster {
                 idx2 = tmp;
             }
             
+            // update the dissimilarity table
             if (method==METHOD_METR_AVERAGE ||
                 method==METHOD_METR_WARD) {
                 size1 = static_cast<t_float>(members[idx1]);
@@ -1292,7 +1303,40 @@ namespace fastcluster {
         if (fetestexcept(FE_INVALID)) throw fenv_error();
 #endif
     }
-    
+
+    inline bool is_conn(GalElement* w, t_index idx1, t_index idx2, std::map<t_index, int>& clsts)
+    {
+        if (w[idx1].Check(idx2))  {
+            return true;
+        }
+        
+        int c1 = clsts[idx1];
+        int c2 = clsts[idx2];
+        
+        if (c1 == 0 && c2 == 0) {
+            return  false;
+        }
+        
+        if (c1 != 0) {
+            const std::vector<long>& nbrs = w[idx2].GetNbrs();
+            for (int i=0; i<nbrs.size(); i++ ) {
+                t_index nid = nbrs[i];
+                if ( clsts[nid]  ==  c1)  {
+                    return true;
+                }
+            }
+        }  else if (c2 != 0) {
+            const std::vector<long>& nbrs = w[idx1].GetNbrs();
+            for (int i=0; i<nbrs.size(); i++ ) {
+                t_index nid = nbrs[i];
+                if ( clsts[nid]  ==  c2)  {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
     template <const unsigned char method, typename t_members>
     void generic_linkage(const t_index N, t_float * const D, t_members * const members, cluster_result & Z2)
     {

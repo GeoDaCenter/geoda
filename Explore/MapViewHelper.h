@@ -43,7 +43,7 @@ public:
                         const wxString & caption=_("Transparency Setup Dialog"),
                         const wxPoint & pos = wxDefaultPosition,
                         const wxSize & size = wxDefaultSize,
-                        long style = wxDEFAULT_DIALOG_STYLE );
+                        long style = wxDEFAULT_DIALOG_STYLE | wxRESIZE_BORDER );
     virtual ~MapTransparencyDlg ();
     virtual void OnSliderChange(wxCommandEvent& event);
 

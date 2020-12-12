@@ -688,9 +688,7 @@ void GetisOrdMapFrame::OnRanOtherPer(wxCommandEvent& event)
 	if (dlg.ShowModal() == wxID_OK) {
 		long num;
         wxString input = dlg.m_number->GetValue();
-        
-        wxLogMessage(input);
-        
+
         input.ToLong(&num);
 		RanXPer(num);
 	}
@@ -717,9 +715,7 @@ void GetisOrdMapFrame::OnSpecifySeedDlg(wxCommandEvent& event)
 	wxTextEntryDialog dlg(NULL, m, "\nEnter a seed value", cur_val);
 	if (dlg.ShowModal() != wxID_OK) return;
 	dlg_val = dlg.GetValue();
-    
-    wxLogMessage(dlg_val);
-    
+        
 	dlg_val.Trim(true);
 	dlg_val.Trim(false);
 	if (dlg_val.IsEmpty()) return;

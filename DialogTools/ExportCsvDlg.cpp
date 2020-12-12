@@ -103,7 +103,7 @@ void ExportCsvDlg::OnOkClick( wxCommandEvent& event )
 		}
 	}
 
-    wxLogMessage(_("csv file:") + new_csv);
+    //wxLogMessage("%s", _("csv file:") + new_csv);
 #ifdef __WIN32__
 	std::ofstream out_file(new_csv.wc_str(),std::ios::out | std::ios::binary);
 #else

@@ -5,7 +5,7 @@ AppPublisherURL=https://spatial.uchiago.edu/
 AppSupportURL=https://spatial.uchiago.edu/
 AppUpdatesURL=https://spatial.uchiago.edu/
 AppSupportPhone=(480)965-7533
-AppVersion=1.16
+AppVersion=1.18
 DefaultDirName={pf}\GeoDa Software
 DefaultGroupName=GeoDa Software
 ; Since no icons will be created in "{group}", we don't need the wizard
@@ -35,8 +35,10 @@ ChangesAssociations=yes
 ShowLanguageDialog=yes
 
 [Languages]
-Name: "en"; MessagesFile: "compiler:Default.isl"
-Name: "zh"; MessagesFile: "compiler:Languages\ChineseSimplified.isl"
+Name: "english"; MessagesFile: "compiler:Default.isl"
+Name: "chinesesimplified"; MessagesFile: "compiler:Languages\ChineseSimplified.isl"
+Name: "spanish"; MessagesFile: "compiler:Languages\Spanish.isl"
+Name: "russian"; MessagesFile: "compiler:Languages\Russian.isl"
 
 [dirs]
 Name: "{app}";  Permissions: everyone-full; Check: InitializeSetup

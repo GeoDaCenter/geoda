@@ -1109,7 +1109,7 @@ if %GDA_BUILD% == BUILD_32 (
     %MSBUILD_EXE% GeoDa.vs2017.sln /t:GeoDa /property:Configuration="Debug2017" /p:Platform="x64"
   ) else (
     %MSBUILD_EXE% GeoDa.vs2010.sln /t:GeoDa /property:Configuration="Release" /p:Platform="x64"
-    %MSBUILD_EXE% GeoDa.vs2010.sln /t:GeoDa /property:Configuration="Debug" /p:Platform="x64"
+    REM %MSBUILD_EXE% GeoDa.vs2010.sln /t:GeoDa /property:Configuration="Debug" /p:Platform="x64"
   )
 )
 set CHK_LIB=%BUILD_HOME%\Release\GeoDa.lib
@@ -1141,11 +1141,11 @@ set LIB_NAME=geoda_package
 cd %BUILD_HOME%
 
 set INNO_EXE=not_found
-IF EXIST "\Program Files (x86)\Inno Setup 5\ISCC.exe" (
-	set INNO_EXE="\Program Files (x86)\Inno Setup 5\ISCC.exe"
+IF EXIST "\Program Files (x86)\Inno Setup 6\ISCC.exe" (
+	set INNO_EXE="\Program Files (x86)\Inno Setup 6\ISCC.exe"
 )
-IF EXIST "\Program Files\Inno Setup 5\ISCC.exe" (
-	set INNO_EXE="\Program Files\Inno Setup 5\ISCC.exe"
+IF EXIST "\Program Files\Inno Setup 6\ISCC.exe" (
+	set INNO_EXE="\Program Files\Inno Setup 6\ISCC.exe"
 )
 if %INNO_EXE% == not_found (
 	echo Could not find location of Inno 5 command line installer ISCC.exe.  Please install Inno 5.

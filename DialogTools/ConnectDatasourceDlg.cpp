@@ -773,7 +773,7 @@ void ConnectDatasourceDlg::OnOkClick( wxCommandEvent& event )
             GdaFrame* gda_frame = GdaFrame::GetGdaFrame();
             if (gda_frame) {
                 gda_frame->OpenProject(ds_file_path.GetFullPath());
-                wxLogMessage(_("Open project file:") + ds_file_path.GetFullPath());
+                //wxLogMessage("%s", _("Open project file:") + ds_file_path.GetFullPath());
                 try {
                     Project* project = gda_frame->GetProject();
                     wxString layer_name;
@@ -782,7 +782,7 @@ void ConnectDatasourceDlg::OnOkClick( wxCommandEvent& event )
                     RecentDatasource recent_ds;
                     recent_ds.Add(ds_file_path.GetFullPath(), ds_file_path.GetFullPath(), layer_name);
                 } catch( GdaException ex) {
-                    wxLogMessage(ex.what());
+                    wxLogMessage("Open project error.");
                 }
                 EndDialog(wxID_CANCEL);
             }
@@ -847,8 +847,8 @@ void ConnectDatasourceDlg::OnOkClick( wxCommandEvent& event )
         if (layer_name.IsEmpty())
             layer_name = layername;
       
-        wxLogMessage(_("Open Datasource:") + datasource->ToString());
-        wxLogMessage(_("Open Layer:") + layername);
+        //wxLogMessage("%s", _("Open Datasource:") + datasource->ToString());
+        //wxLogMessage("%s", _("Open Layer:") + layername);
         
         SaveRecentDataSource(datasource, layer_name);
         

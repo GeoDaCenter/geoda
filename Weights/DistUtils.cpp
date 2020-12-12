@@ -132,6 +132,10 @@ double DistUtils::GetMaxThreshold()
 {
     srand(0);
     int k = n_valid_rows;
+    if  (k == 0) {
+        return 0;
+    }
+    
     int x_idx;
     int y_idx;
     double dist_cand = 0;

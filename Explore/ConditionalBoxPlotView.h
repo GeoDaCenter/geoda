@@ -43,6 +43,7 @@ public:
 	virtual wxString GetVariableNames();
 	virtual void SetCheckMarks(wxMenu* menu);
     virtual void update(HLStateInt* o);
+    virtual void TimeChange();
 	virtual void ResizeSelectableShps(int virtual_scrn_w = 0,
 									  int virtual_scrn_h = 0);
     //virtual void UpdateSelection(bool shiftdown = false,

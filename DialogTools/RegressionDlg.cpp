@@ -278,7 +278,7 @@ void RegressionDlg::OnRunClick( wxCommandEvent& event )
 	
 	wxString m_Yname = m_dependent->GetValue();
    
-    wxLogMessage(_("y:") + m_Yname);
+    //wxLogMessage("%s", _("y:") + m_Yname);
     
     // Y and X's data
     //wxString st;
@@ -301,11 +301,11 @@ void RegressionDlg::OnRunClick( wxCommandEvent& event )
     std::vector<double> vec(m_obs);
     undefs.resize(m_obs);
     
-    wxLogMessage("x:");
+    //wxLogMessage("x:");
     
     for (int i=0; i < m_independentlist->GetCount(); i++) {
         wxString nm = name_to_nm[m_independentlist->GetString(i)];
-        wxLogMessage(nm);
+        //wxLogMessage("%s", nm);
         
         int col = table_int->FindColId(nm);
         if (col == wxNOT_FOUND) {
@@ -839,7 +839,7 @@ void RegressionDlg::SetupXNames(bool m_constant_term)
 }
 void RegressionDlg::OnViewResultsClick( wxCommandEvent& event )
 {
-    wxLogMessage(_("Click RegressionDlg::OnViewResultsClick"));
+    wxLogMessage("Click RegressionDlg::OnViewResultsClick");
  	if (m_OpenDump) {
 		GdaFrame::GetGdaFrame()->DisplayRegression(logReport);
 	}
@@ -847,7 +847,7 @@ void RegressionDlg::OnViewResultsClick( wxCommandEvent& event )
 
 void RegressionDlg::OnSaveToTxtFileClick( wxCommandEvent& event )
 {
-    wxLogMessage(_("Click RegressionDlg::OnSaveToTxtFileClick"));
+    wxLogMessage("Click RegressionDlg::OnSaveToTxtFileClick");
     
  	if (!m_OpenDump)
         return;
@@ -1048,26 +1048,38 @@ void RegressionDlg::OnCSaveRegressionClick( wxCommandEvent& event )
 	wxString pre = "";
 	if (RegressModel==1) {
 		pre = "OLS_";
+		int idx = 0;
 		for (int i=0; i<n_obs; i++) {
-			yhat[i] = m_yhat1[i];
-			resid[i] = m_resid1[i];
-            save_undefs[i] = undefs[i];
+			if (undefs[i] == false) {
+				yhat[i] = m_yhat1[idx];
+				resid[i] = m_resid1[idx];
+				idx += 1;
+			}
+			save_undefs[i] = undefs[idx];
 		}
 	} else if (RegressModel==2) {
 		pre = "LAG_";
+		int idx = 0;
 		for (int i=0; i<n_obs; i++) {
-			yhat[i] = m_yhat2[i];
-			resid[i] = m_resid2[i];
-			prederr[i] = m_prederr2[i];
+			if (undefs[i] == false) {
+				yhat[i] = m_yhat2[idx];
+				resid[i] = m_resid2[idx];
+				prederr[i] = m_prederr2[idx];
+				idx += 1;
+			}
             save_undefs[i] = undefs[i];
 		}
 	} else { // RegressModel==3
 		pre = "ERR_";
+		int idx = 0;
 		for (int i=0; i<n_obs; i++) {
-			yhat[i] = m_yhat3[i];
-			resid[i] = m_resid3[i];
-			prederr[i] = m_prederr3[i];
-            save_undefs[i] = undefs[i];
+			if (undefs[i] == false) {
+				yhat[i] = m_yhat3[idx];
+				resid[i] = m_resid3[idx];
+				prederr[i] = m_prederr3[idx];
+				idx += 1;
+			}
+			save_undefs[i] = undefs[i];
 		}
 	}	
 	
@@ -1478,9 +1490,17 @@ void RegressionDlg::printAndShowClassicalResults(const wxString& datasetname,
 		slog << "        PREDICTED        RESIDUAL\n"; cnt++;
 		double *res = r->GetResidual();
 		double *yh = r->GetYHAT();
-		for (int i=0; i<Obs; i++) {
-			slog << wxString::Format("%5d     %12.5f    %12.5f    %12.5f\n",
-									 i+1, y[i], yh[i], res[i]); cnt++;
+		int idx = 0;
+		for (int i=0; i<m_obs; i++) {
+			if (undefs[i]) {
+				slog << wxString::Format("%5d\n", i+1);
+				cnt++;
+			} else {
+				slog << wxString::Format("%5d     %12.5f    %12.5f    %12.5f\n",
+									 i+1, y[idx], yh[idx], res[idx]); 
+				idx += 1;
+				cnt++;
+			}
 		}
 		res = NULL;
 		yh = NULL;
@@ -1605,9 +1625,15 @@ void RegressionDlg::printAndShowLagResults(const wxString& datasetname,
 		double *res  = r->GetResidual();
 		double *yh = r->GetYHAT();
 		double *pe = r->GetPredError();
-		for (int i=0; i<Obs; i++) {
-			f = "%5d     %12.5g    %12.5f    %12.5f    %12.5f\n"; cnt++;
-			slog << wxString::Format(f, i+1, y[i], yh[i], res[i], pe[i]);
+		int idx = 0;
+		for (int i=0; i<m_obs; i++) {
+			if (undefs[i]) {
+				slog << wxString::Format("%5d\n", i+1); cnt++;
+			} else {
+				f = "%5d     %12.5g    %12.5f    %12.5f    %12.5f\n"; cnt++;
+				slog << wxString::Format(f, i+1, y[idx], yh[idx], res[idx], pe[idx]);
+				idx += 1;
+			}
 		}
 		res = NULL;
 		yh = NULL;
@@ -1727,9 +1753,16 @@ void RegressionDlg::printAndShowErrorResults(const wxString& datasetname,
 		double *res  = r->GetResidual();
 		double *yh = r->GetYHAT();
 		double *pe = r->GetPredError();
+		int idx = 0;
 		for (int i=0; i<m_obs; i++) {
-			f = "%5d     %12.5g    %12.5f    %12.5f    %12.5f\n"; cnt++;
-			slog << wxString::Format(f, i+1, y[i], yh[i], res[i], pe[i]);
+			if (undefs[i]) {
+				slog << wxString::Format("%5d\n", i+1);
+				cnt ++;
+			} else {
+				f = "%5d     %12.5g    %12.5f    %12.5f    %12.5f\n"; cnt++;
+				slog << wxString::Format(f, i+1, y[idx], yh[idx], res[idx], pe[idx]);
+				idx +=1;
+			}
 		}
 		res = NULL;
 		yh = NULL;

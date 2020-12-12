@@ -185,9 +185,6 @@ void CountPointsInPolygon::sub_run(int start, int end)
             double y = v.first.get<1>();
             OGRPoint ogr_pt(x, y);
             if (ogr_pt.Within(ogr_poly)) {
-                if (i == 12) {
-                    std::cout << pt_idx << std::endl;
-                }
                 spatial_counts[i] += 1;
                 if (join_variable) {
                     mutex.lock();
@@ -493,9 +490,9 @@ SpatialJoinDlg::SpatialJoinDlg(wxWindow* parent, Project* _project)
     cbox->Add(rb_box, 0, wxALL, 10);
     cbox->Add(main_box, wxALL, 10);
 
-    wxButton* ok_btn = new wxButton(this, wxID_ANY, _("OK"), wxDefaultPosition,
+    wxButton* ok_btn = new wxButton(panel, wxID_ANY, _("OK"), wxDefaultPosition,
                                     wxDefaultSize, wxBU_EXACTFIT);
-    wxButton* cancel_btn = new wxButton(this, wxID_CANCEL, _("Close"),
+    wxButton* cancel_btn = new wxButton(panel, wxID_CANCEL, _("Close"),
                                         wxDefaultPosition, wxDefaultSize,
                                         wxBU_EXACTFIT);
 

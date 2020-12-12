@@ -65,7 +65,8 @@ void QuantileLisaDlg::CreateControls()
     wxBoxSizer *vbox = new wxBoxSizer(wxVERTICAL);
    
     // Input
-    AddInputCtrls(panel, vbox, false/*no auto button*/,  true/*spatial weights*/,
+    AddInputCtrls(panel, vbox, false/*no auto button*/, false/*integer + real*/,
+                  true/*spatial weights*/,
                   /*single variable*/true, /*add centroids*/true);
 
     // parameters
@@ -206,6 +207,13 @@ void QuantileLisaDlg::OnOK(wxCommandEvent& event )
     std::vector<double> data;
     table_int->GetColData(col, tm, data);
 
+    if (CheckEmptyColumn(col, tm)) {
+        wxString err_msg = wxString::Format(_("The selected variable %s is not valid. If it's a grouped variable, please modify it in Time->Time Editor. Or please select another variable."), var_name);
+        wxMessageDialog dlg(NULL, err_msg, _("Error"), wxOK | wxICON_ERROR);
+        dlg.ShowModal();
+        return;
+    }
+    
     // Weights selection
     GalWeight* gw = CheckSpatialWeights();
     if (gw == NULL) {

@@ -92,7 +92,7 @@ void AddIdVariable::OnOkClick( wxCommandEvent& event )
 		return;
 	}
 	
-    wxLogMessage(wxString::Format("Try to insert unique id (integer, %s) column in table.", new_id_var_name));
+    wxLogMessage("%s", wxString::Format("Try to insert unique id (integer, %s) column in table.", new_id_var_name));
     
     int col_insert_pos = 0;
 	int add_pos = table_int->InsertCol(GdaConst::long64_type,new_id_var_name, col_insert_pos);

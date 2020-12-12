@@ -58,7 +58,7 @@ MultiQuantileLisaDlg::~MultiQuantileLisaDlg()
 void MultiQuantileLisaDlg::CreateControls()
 {
     wxScrolledWindow* scrl = new wxScrolledWindow(this, wxID_ANY, wxDefaultPosition,
-                                                  wxSize(800,560), wxHSCROLL|wxVSCROLL );
+                                                  wxSize(800,520), wxHSCROLL|wxVSCROLL );
     scrl->SetScrollRate(5, 5);
     
     wxPanel *panel = new wxPanel(scrl);
@@ -76,7 +76,7 @@ void MultiQuantileLisaDlg::CreateControls()
     combo_var = new wxListBox(panel, wxID_ANY, wxDefaultPosition,
                               wxSize(280,250), 0, NULL,
                               wxLB_SINGLE | wxLB_HSCROLL| wxLB_NEEDED_SB);
-    InitVariableCombobox(combo_var, false, false);
+    InitVariableCombobox(combo_var, false, /*integer+real*/ false);
     // parameters
     wxFlexGridSizer* gbox = new wxFlexGridSizer(15,2,10,0);
 
@@ -108,7 +108,7 @@ void MultiQuantileLisaDlg::CreateControls()
     var_box->Add(gbox, 0,  wxEXPAND);
 
     // list contrl
-    lst_quantile = new wxListCtrl(panel, wxID_ANY, wxDefaultPosition, wxSize(400, 180), wxLC_REPORT);
+    lst_quantile = new wxListCtrl(panel, wxID_ANY, wxDefaultPosition, wxSize(400, 160), wxLC_REPORT);
     lst_quantile->AppendColumn(_("Variable"));
     lst_quantile->SetColumnWidth(0, 80);
     lst_quantile->AppendColumn(_("Number of Quantiles"), wxLIST_FORMAT_RIGHT);
@@ -118,7 +118,6 @@ void MultiQuantileLisaDlg::CreateControls()
     lst_quantile->AppendColumn(_("New Field"));
     lst_quantile->SetColumnWidth(3, 80);
     
-
     // move buttons
     move_left = new wxButton(panel, wxID_ANY, "<", wxDefaultPosition, wxSize(25,25));
     move_right = new wxButton(panel, wxID_ANY, ">", wxDefaultPosition, wxSize(25,25));
@@ -127,7 +126,10 @@ void MultiQuantileLisaDlg::CreateControls()
 
     left_box->Add(var_box);
     right_box->Add(lst_quantile, 1, wxALL|wxEXPAND, 5);
-
+    
+    chk_nocolocation = new wxCheckBox(panel, wxID_ANY, "No co-location");
+    right_box->Add(chk_nocolocation, 0, wxALL, 5);
+    
     hbox_quantile->Add(left_box);
     hbox_quantile->Add(middle_box);
     hbox_quantile->Add(right_box, 1, wxALL|wxEXPAND);
@@ -217,6 +219,13 @@ void MultiQuantileLisaDlg::OnAddRow(wxCommandEvent& event)
     // check if inputs are valid
     if (project == NULL) return;
 
+    if (chk_nocolocation->GetValue() && lst_quantile->GetItemCount() >= 2) {
+        wxString err_msg = _("No-colocation only works with two variables for Quantile LISA.");
+        wxMessageDialog dlg(NULL, err_msg, _("Error"), wxOK | wxICON_ERROR);
+        dlg.ShowModal();
+        return;
+    }
+    
     // get selected variable
     int sel_var = combo_var->GetSelection();
     if (sel_var < 0) {
@@ -236,6 +245,14 @@ void MultiQuantileLisaDlg::OnAddRow(wxCommandEvent& event)
         return;
     }
 
+    int tm = name_to_tm_id[var_name];
+    if (CheckEmptyColumn(col, tm)) {
+        wxString err_msg = wxString::Format(_("The selected variable %s is not valid. If it's a grouped variable, please modify it in Time->Time Editor. Or please select another variable."), var_name);
+        wxMessageDialog dlg(NULL, err_msg, _("Error"), wxOK | wxICON_ERROR);
+        dlg.ShowModal();
+        return;
+    }
+    
     // get num quantiles
     long l_quantiles = 0;
     wxString tmp_quantiles = txt_quantiles->GetValue();
@@ -319,7 +336,6 @@ void MultiQuantileLisaDlg::OnCloseClick(wxCommandEvent& event )
     
     event.Skip();
     EndDialog(wxID_CANCEL);
-    Destroy();
 }
 
 void MultiQuantileLisaDlg::OnOK(wxCommandEvent& event )
@@ -344,6 +360,13 @@ void MultiQuantileLisaDlg::OnOK(wxCommandEvent& event )
         return;
     }
 
+    if (chk_nocolocation->GetValue() && lst_quantile->GetItemCount() != 2) {
+        wxString err_msg = _("No-colocation only works with two variables for Quantile LISA.");
+        wxMessageDialog dlg(NULL, err_msg, _("Error"), wxOK | wxICON_ERROR);
+        dlg.ShowModal();
+        return;
+    }
+    
     std::vector<int> col_ids(num_vars);
     std::vector<GdaVarTools::VarInfo> var_info(num_vars);
     wxString var_details;
@@ -442,6 +465,63 @@ void MultiQuantileLisaDlg::OnOK(wxCommandEvent& event )
     }
     boost::uuids::uuid w_id = weights_ids[sel];
 
+    // check if satisfy colocation and no-colocation cases
+    if (num_vars >= 2) {
+        std::vector<d_array_type> data(num_vars); // data[variable][time][obs]
+        std::vector<b_array_type> undef_data(num_vars);
+        for (int i=0; i<var_info.size(); i++) {
+            table_int->GetColData(col_ids[i], data[i]);
+            table_int->GetColUndefined(col_ids[i], undef_data[i]);
+        }
+        GalElement* W = gw->gal;
+        int t = 0;
+        vector<int> local_t;
+        for (int v=0; v<num_vars; v++) {
+            if (data[v].size()==1) {
+                local_t.push_back(0);
+            } else {
+                local_t.push_back(t);
+            }
+        }
+        vector<bool> undefs;
+        for (int i=0; i<rows; i++){
+            bool is_undef = false;
+            for (int v=0; v<undef_data.size(); v++) {
+                for (int var_t=0; var_t<undef_data[v].size(); var_t++){
+                    is_undef = is_undef || undef_data[v][var_t][i];
+                }
+            }
+            undefs.push_back(is_undef);
+        }
+        int* zz = new int[rows];
+        for (int i=0; i<rows; i++) zz[i] = 1;
+        for (int i=0; i<rows; i++) {
+            if (undefs[i] == true) {
+                zz[i] = 0;
+                continue;
+            }
+            for (int v=0; v<num_vars; v++) {
+                int _t = local_t[v];
+                int _v = data[v][_t][i];
+                zz[i] = zz[i] * _v;
+            }
+        }
+        int sum = 0;
+        for (int i=0; i<rows; i++) {
+            sum += zz[i];
+        }
+        bool nocolocation = sum == 0;
+        if (nocolocation && !chk_nocolocation->GetValue()) {
+            wxMessageDialog dlg (this, _("The selected variables have no co-location. Please change your selection, or select \"No colocation\" option for bivariate case."), _("Error"), wxOK | wxICON_WARNING);
+            dlg.ShowModal();
+            return;
+        } else if (chk_nocolocation->GetValue() && nocolocation == false) {
+            wxMessageDialog dlg (this, _("The selected variables have co-location. Please change your selection, or unselect \"No colocation\" option for bivariate case."), _("Error"), wxOK | wxICON_WARNING);
+            dlg.ShowModal();
+            return;
+        }
+    }
+    
     JCCoordinator* lc = new JCCoordinator(w_id, project, var_info, col_ids);
     MLJCMapFrame *sf = new MLJCMapFrame(parent, project, lc, false);
 

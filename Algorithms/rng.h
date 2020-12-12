@@ -74,8 +74,7 @@ public:
 #ifdef __WXOSX__
         return ((unsigned long long)nextLong() >> 11) * 0x1.0p-53;
 #else
-        char tempStr[] = "0x1.0p-53";
-        double nd = std::strtod(tempStr, NULL);
+        double nd = pow(2.0, -53);
         return ((unsigned long long)nextLong() >> 11) * nd;
 #endif
     }

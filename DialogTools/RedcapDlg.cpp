@@ -109,9 +109,9 @@ void RedcapDlg::CreateControls()
     gbox->Add(m_max_region, 1, wxEXPAND);
 
     wxStaticText* st20 = new wxStaticText(panel, wxID_ANY, _("Method:"));
-    wxString choices20[] = {"FirstOrder-SingleLinkage", "FullOrder-CompleteLinkage", "FullOrder-AverageLinkage", "FullOrder-SingleLinkage"};
-    combo_method = new wxChoice(panel, wxID_ANY, wxDefaultPosition, wxSize(200,-1), 4, choices20);
-    combo_method->SetSelection(2);
+    wxString choices20[] = {"FirstOrder-SingleLinkage", "FullOrder-WardLinkage",  "FullOrder-AverageLinkage", "FullOrder-CompleteLinkage",  "FullOrder-SingleLinkage" };
+    combo_method = new wxChoice(panel, wxID_ANY, wxDefaultPosition, wxSize(200,-1), 5, choices20);
+    combo_method->SetSelection(1);
     
     gbox->Add(st20, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
     gbox->Add(combo_method, 1, wxEXPAND);
@@ -140,7 +140,9 @@ void RedcapDlg::CreateControls()
     wxBoxSizer *hbox17 = new wxBoxSizer(wxHORIZONTAL);
     chk_seed = new wxCheckBox(panel, wxID_ANY, "");
     seedButton = new wxButton(panel, wxID_OK, _("Change Seed"));
-    
+    st17->Hide();
+    chk_seed->Hide();
+    seedButton->Hide();
     hbox17->Add(chk_seed,0, wxALIGN_CENTER_VERTICAL);
     hbox17->Add(seedButton,0,wxALIGN_CENTER_VERTICAL);
     seedButton->Disable();
@@ -158,7 +160,7 @@ void RedcapDlg::CreateControls()
     // Output
     wxStaticText* st3 = new wxStaticText (panel, wxID_ANY, _("Save Cluster in Field:"));
     m_textbox = new wxTextCtrl(panel, wxID_ANY, "CL", wxDefaultPosition, wxSize(158,-1));
-    chk_save_mst = new wxCheckBox(panel, wxID_ANY, "Save Minimum Spanning Tree");
+    chk_save_mst = new wxCheckBox(panel, wxID_ANY, "Save Complete Spanning Tree");
 
     wxFlexGridSizer* gbox_out = new wxFlexGridSizer(2,2,5,0);
     gbox_out->Add(st3, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
@@ -334,7 +336,6 @@ void RedcapDlg::OnClickClose(wxCommandEvent& event )
     
     event.Skip();
     EndDialog(wxID_CANCEL);
-    Destroy();
 }
 
 void RedcapDlg::OnClose(wxCloseEvent& ev)
@@ -360,7 +361,7 @@ wxString RedcapDlg::_printConfiguration()
         txt << "Minimum region size:\t" << txt_minregions->GetValue() << "\n";
     }
     
-    txt << _("Minimum region size:\t") << m_textbox->GetValue() << "\n";
+    txt << _("Save cluster in field:\t") << m_textbox->GetValue() << "\n";
     
     txt << _("Transformation:") << "\t" << combo_tranform->GetString(combo_tranform->GetSelection()) << "\n";
     
@@ -404,6 +405,7 @@ void RedcapDlg::OnSaveTree(wxCommandEvent& event )
         header << "0 " << project->GetNumRecords() << " ";
         header << "\"" << project->GetProjectTitle() << "\" ";
         header << id;
+		file.AddLine(header);
 
         vector<vector<int> > cluster_ids = redcap->GetRegions();
         map<int, int> nid_cid; // node id -> cluster id
@@ -549,9 +551,13 @@ void RedcapDlg::OnOK(wxCommandEvent& event )
     int rnd_seed = -1;
     if (chk_seed->GetValue()) rnd_seed = GdaConst::gda_user_seed;
  
+    int method_idx = combo_method->GetSelection();
+    
     int transpose = 0; // row wise
+    // todo should be replaced
     double** ragged_distances = distancematrix(rows, columns, input_data,  mask, weight, dist, transpose);
-    double** distances = DataUtils::fullRaggedMatrix(ragged_distances, rows, rows);
+    bool isSqrt = method_idx == 2 ? true : false;
+    double** distances = DataUtils::fullRaggedMatrix(ragged_distances, rows, rows, isSqrt);
     for (int i = 1; i < rows; i++) free(ragged_distances[i]);
     free(ragged_distances);
     
@@ -562,24 +568,33 @@ void RedcapDlg::OnOK(wxCommandEvent& event )
         delete redcap;
         redcap = NULL;
     }
-                               
-    int method_idx = combo_method->GetSelection();
+    
     if (method_idx == 0) {
         redcap = new FirstOrderSLKRedCap(rows, columns, distances, input_data, undefs, gw->gal, bound_vals, min_bound);
+        
     } else if (method_idx == 1) {
-        redcap = new FullOrderCLKRedCap(rows, columns, distances, input_data, undefs, gw->gal, bound_vals, min_bound);
+        redcap = new FullOrderWardRedCap(rows, columns, distances, input_data, undefs, gw->gal, bound_vals, min_bound);
+        
     } else if (method_idx == 2) {
         redcap = new FullOrderALKRedCap(rows, columns, distances, input_data, undefs, gw->gal, bound_vals, min_bound);
+        
     } else if (method_idx == 3) {
+        redcap = new FullOrderCLKRedCap(rows, columns, distances, input_data, undefs, gw->gal, bound_vals, min_bound);
+        
+    } else if (method_idx == 4) {
         redcap = new FullOrderSLKRedCap(rows, columns, distances, input_data, undefs, gw->gal, bound_vals, min_bound);
+        
     }
 
-   
     if (redcap==NULL) {
-        for (int i = 1; i < rows; i++) delete[] distances[i];
-        delete[] distances;
-        delete[] bound_vals;
-        bound_vals = NULL;
+        if (distances) {
+            for (int i = 1; i < rows; i++) delete[] distances[i];
+            delete[] distances;
+        }
+        if (bound_vals) {
+            delete[] bound_vals;
+            bound_vals = NULL;
+        }
         return;
     }
     

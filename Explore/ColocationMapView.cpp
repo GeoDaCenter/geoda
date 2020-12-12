@@ -81,7 +81,7 @@ void ColocationSelectDlg::update(TableState* o)
     var_selections.Clear();
     clear_colo_control();
     
-    InitVariableCombobox(combo_var, true);
+    InitVariableCombobox(combo_var, true/*integer only*/);
     wxCommandEvent ev;
     OnVarSelect(ev);
 }
@@ -541,7 +541,6 @@ void ColocationSelectDlg::OnClickClose( wxCommandEvent& event)
     wxLogMessage("ColocationSelectDlg::OnClose()");
     event.Skip();
     EndDialog(wxID_CANCEL);
-    Destroy();
 }
 
 ////////////////////////////////////////////////////////////////////////////////

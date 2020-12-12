@@ -321,7 +321,11 @@ BackgroundMapLayer* BackgroundMapLayer::Clone(bool clone_style)
         copy->map_boundary = map_boundary->clone();
     }
     for (int i=0; i<shapes.size(); ++i) {
-        copy->shapes.push_back(shapes[i]->clone());
+        if (shapes[i]) {
+            copy->shapes.push_back(shapes[i]->clone());
+        } else {
+            copy->shapes.push_back(0);
+        }
     }
     // not deep copy
     copy->geoms = geoms;

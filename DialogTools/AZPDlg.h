@@ -48,6 +48,7 @@ public:
     void OnSeedCheck(wxCommandEvent& event);
     void OnChangeSeed(wxCommandEvent& event);
     void OnLISACheck(wxCommandEvent& event);
+    void OnAriselCheck(wxCommandEvent& event);
     
     virtual void update(TableState* o);
     virtual void OnCheckMinBound(wxCommandEvent& event);
@@ -57,6 +58,7 @@ public:
 private:
     wxCheckBox* chk_seed;
     wxCheckBox* chk_lisa;
+    wxCheckBox* chk_arisel;
     
     wxChoice* combo_lisa;
    
@@ -69,12 +71,17 @@ private:
     wxTextCtrl* txt_minregions;
     wxTextCtrl* txt_regions;
     wxTextCtrl* m_tabulength;
+    wxTextCtrl* m_convtabu;
     wxTextCtrl* m_coolrate;
+    wxTextCtrl* m_maxit;
+    wxTextCtrl* m_inits;
     wxButton* seedButton;
     
     wxString select_floor;
     wxString select_lisa;
 
+    bool satisfy_min_bound;
+    int conv_tabu;
     double initial_of;
     double final_of;
     DECLARE_EVENT_TABLE()

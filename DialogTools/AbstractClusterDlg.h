@@ -136,6 +136,7 @@ protected:
     // -- functions
     virtual void AddInputCtrls(wxPanel *panel, wxBoxSizer* vbox,
                                bool show_auto_button = false,
+                               bool integer_only = false,
                                bool show_spatial_weights = true,
                                bool single_variable = false,
                                bool add_centroids = true);
@@ -149,6 +150,7 @@ protected:
                                       bool integer_only=false,
                                       bool add_centroids=true);
     virtual bool GetInputData(int transform, int min_num_var=2);
+    virtual bool CheckEmptyColumn(int col_id, int time);
     virtual void OnInputWeights(wxCommandEvent& event);
 
     virtual bool CheckContiguity(GalWeight* weights, double w, double& ssd);

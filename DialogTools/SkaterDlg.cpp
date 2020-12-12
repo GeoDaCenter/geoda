@@ -140,7 +140,7 @@ void SkaterDlg::CreateControls()
     m_textbox = new wxTextCtrl(panel, wxID_ANY, "CL", wxDefaultPosition, wxSize(158,-1));
     gbox_out->Add(st3, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
     gbox_out->Add(m_textbox, 1, wxEXPAND);
-    chk_save_mst = new wxCheckBox(panel, wxID_ANY, "Save Minimum Spanning Tree");
+    chk_save_mst = new wxCheckBox(panel, wxID_ANY, "Save Complete Spanning Tree");
     gbox_out->Add(new wxStaticText(panel, wxID_ANY, _("(Optional)")),
                   0, wxALIGN_RIGHT | wxRIGHT | wxLEFT, 10);
     gbox_out->Add(chk_save_mst, 1, wxEXPAND);
@@ -390,7 +390,6 @@ void SkaterDlg::OnClickClose(wxCommandEvent& event )
     
     event.Skip();
     EndDialog(wxID_CANCEL);
-    Destroy();
 }
 
 void SkaterDlg::OnClose(wxCloseEvent& ev)

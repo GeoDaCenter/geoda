@@ -2544,7 +2544,8 @@ double goldeno(const double left, const double right, const SparseMatrix &w,
     Lco(y, lag, X, w, f1, sol);
     Lco(y, lag, X, w, f2, sol);
     Lco(y, lag, X, w, -0.0586045, sol);
-    exit(0);
+    
+    //exit(0);
     //  while (fabs(x3-x0) > tol*(fabs(x1)+fabs(x2)))  {			// here tol is used as RELATIVE accuracy
     while (fabs(x3-x0) > TOLERANCE)  {							// here tol is used as an ABSOLUTE accuracy
         if (f1 < f2)  {

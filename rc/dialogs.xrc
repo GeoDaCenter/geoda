@@ -3591,6 +3591,7 @@
                               <flag>wxALIGN_CENTRE_HORIZONTAL|wxALL|wxEXPAND</flag>
                               <border>15</border>
                           </object>
+                          <flag>wxALIGN_CENTRE_HORIZONTAL|wxALL|wxEXPAND</flag>
                       </object>
                   </object>
                   <label>Contiguity Weight</label>
@@ -6012,6 +6013,13 @@
                       </object>
                       <flag>wxALIGN_CENTRE_VERTICAL</flag>
                   </object>
+                  <object class="sizeritem">
+                      <object class="wxCheckBox" name="ID_LAG_MEDIAN">
+                          <checked>0</checked>
+                          <label>Median spatial lag</label>
+                      </object>
+                      <flag>wxALIGN_CENTRE_VERTICAL</flag>
+                  </object>
                   <orient>wxVERTICAL</orient>
               </object>
             <flag>wxTOP|wxALIGN_CENTER</flag>
@@ -8287,7 +8295,7 @@
     </object>
     <title>Connect to Data Source</title>
     <centered>1</centered>
-    <style>wxCAPTION|wxSYSTEM_MENU|wxCLOSE_BOX</style>
+    <style>wxCAPTION|wxSYSTEM_MENU|wxRESIZE_BORDER|wxCLOSE_BOX</style>
   </object>
   
   <object class="wxDialog" name="IDD_CONNECT_DATASOURCE_SIMPLE" subclass="ConnectDatasourceDlg">
@@ -8646,7 +8654,7 @@
       </object>
       <title>Connect to Data Source</title>
       <centered>1</centered>
-      <style>wxCAPTION|wxSYSTEM_MENU|wxCLOSE_BOX</style>
+      <style>wxCAPTION|wxSYSTEM_MENU|wxRESIZE_BORDER|wxCLOSE_BOX</style>
   </object>
   
   <object class="wxDialog" name="IDD_FIELDCALC_SHEET" subclass="FieldNewCalcSheetDlg">

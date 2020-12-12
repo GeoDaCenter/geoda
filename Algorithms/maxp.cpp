@@ -98,8 +98,8 @@ Maxp::Maxp(const GalElement* _w,  const vector<vector<double> >& _z, double _flo
         int attemps = 0;
         
         // parallize following block, comparing the objective_function() return values
-        //for (int i=0; i<initial; i++)  init_solution(i);
-        run_threaded();
+        for (int i=0; i<initial; i++)  init_solution(i);
+        //run_threaded();
         
         for (int i=0; i<initial; i++) {
             vector<vector<int> >& current_regions = regions_group[i];
@@ -351,7 +351,7 @@ void Maxp::init_solution(int solution_idx)
                 _area2region = a2r;
             }
         } else {
-            if (attempts == MAX_ATTEMPTS) {
+            if (attempts >= MAX_ATTEMPTS) {
                 LOG_MSG("No initial solution found");
                 p = 0;
             }

@@ -5,7 +5,7 @@ AppPublisherURL=https://spatial.uchiago.edu/
 AppSupportURL=https://spatial.uchiago.edu/
 AppUpdatesURL=https://spatial.uchiago.edu/
 AppSupportPhone=(480)965-7533
-AppVersion=1.16
+AppVersion=1.18
 DefaultDirName={pf}\GeoDa Software
 DefaultGroupName=GeoDa Software
 ; Since no icons will be created in "{group}", we don't need the wizard

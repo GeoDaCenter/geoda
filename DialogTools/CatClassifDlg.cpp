@@ -949,8 +949,8 @@ CatClassifState* CatClassifPanel::PromptNew(const CatClassifDef& ccd,
     }
     
     wxLogMessage("In CatClassifPanel::PromptNew");
-    wxLogMessage(_("suggested title:") + suggested_title);
-    wxLogMessage(_("field name:") + field_name);
+    //wxLogMessage("%s", _("suggested title:") + suggested_title);
+    //wxLogMessage("%s", _("field name:") + field_name);
     
     if (success || (prompt_title_dlg == false && !new_title.IsEmpty()) ) {
         cc_data = ccd;
@@ -1008,7 +1008,7 @@ void CatClassifPanel::OnCurCatsChoice(wxCommandEvent& event)
 	cc_data = cc_state->GetCatClassif();
 	SetSyncVars(true);
    
-    wxLogMessage(_("choice:") + cc_str_sel);
+    //wxLogMessage(_("choice:") + cc_str_sel);
 
 	// Verify that cc data is self-consistent and correct if not.  This
 	// will result in all breaks, colors and names being initialized.
@@ -1143,7 +1143,7 @@ void CatClassifPanel::OnNumCatsChoice(wxCommandEvent& event)
     } else {
         brk_slider->Enable(true);
     }
-    wxLogMessage(wxString::Format("choice: %d", new_num_cats));
+    //wxLogMessage(wxString::Format("choice: %d", new_num_cats));
     // reserve the choice of "Breaks" control
     int old_breaks_choice = breaks_choice->GetSelection();
 
@@ -1205,7 +1205,7 @@ void CatClassifPanel::OnAssocVarChoice(wxCommandEvent& ev)
     
 	wxString cur_fc_str = assoc_var_choice->GetStringSelection();
     
-    wxLogMessage(cur_fc_str);
+    //wxLogMessage("%s", cur_fc_str);
     
 	bool is_tm_var = table_int->IsColTimeVariant(cur_fc_str);
     if (is_tm_var)

@@ -40,7 +40,7 @@ pair<EDataType, EMatrixClass> classify(char* data, bool endianSwap) {
     if (static_cast<EDataType>(dataType) != miMATRIX)
         return make_pair(static_cast<EDataType>(dataType), mxINVALID);
     // miMATRIX must not be small element
-    assert(!isSmallDataElement);
+    //assert(!isSmallDataElement);
 
     ArrayFlags* af = new ArrayFlags(data+8, endianSwap);
 
@@ -147,16 +147,13 @@ DataElement* parse(char* data, bool endianSwap) {
             break;
         default:
             cerr << "invalid EMatrixClass!\n";
-            exit(1);
         }
         break;
     default:
         cerr << "invalid EDataType!\n";
-        exit(1);
     }
     if (!de) {
         cerr << "failed to parse!\n";
-        exit(1);
     }
     return de;
 }
@@ -216,14 +213,12 @@ CompressedDataElement::CompressedDataElement(char* data, bool endianSwap) :
             _decompressedData = new char[size];
             if (!_decompressedData) {
                 cerr << "FlatDataElement::parseData new failed!\n";
-                exit(1);
             }
             rsize = size;
             res = uncompress(reinterpret_cast<unsigned char*>(_decompressedData), &size,
                              reinterpret_cast<unsigned char*>(data), _numberOfBytes);
         } else {
             cerr << "FlatDataElement::parseData uncompress failed!\n";
-            exit(1);
         }
     }
     _decompressedSize = static_cast<uint32_t>(rsize);
@@ -255,7 +250,7 @@ NumericArray<T>::NumericArray(char* data, bool endianSwap) :
         parseImag(data);
         data += _imag->totalBytes();
     }
-    assert(data == start+_numberOfBytes+8);
+    //assert(data == start+_numberOfBytes+8);
 }
 
 template <typename T>
@@ -283,7 +278,7 @@ SparseArray<T>::SparseArray(char* data, bool endianSwap) :
         parseImag(data);
         data += _imag->totalBytes();
     }
-    assert(data == start+_numberOfBytes+8);
+    //assert(data == start+_numberOfBytes+8);
 }
 
 Cell::Cell(char* data, bool endianSwap) : MatrixDataElement(endianSwap), _cells() {
@@ -303,11 +298,11 @@ Cell::Cell(char* data, bool endianSwap) : MatrixDataElement(endianSwap), _cells(
     while(data < start + _numberOfBytes + 8) {
         // create matrix and add to _cells
         cell = dynamic_cast<MatrixDataElement*>(parse(data, endianSwap));
-        assert(cell);
+        //assert(cell);
         _cells.push_back(cell);
         data += cell->totalBytes();
     }
-    assert(data == start+_numberOfBytes+8);
+    //assert(data == start+_numberOfBytes+8);
 }
 
 Struct::Struct(char* data, bool endianSwap) :
@@ -332,11 +327,11 @@ Struct::Struct(char* data, bool endianSwap) :
     while(data < start + _numberOfBytes + 8) {
         // create matrix and add to _fields
         field = dynamic_cast<MatrixDataElement*>(parse(data, endianSwap));
-        assert(field);
+        //assert(field);
         _fields.push_back(field);
         data += field->totalBytes();
     }
-    assert(data == start+_numberOfBytes+8);
+    //assert(data == start+_numberOfBytes+8);
 }
 
 Object::Object(char* data, bool endianSwap) : _className(NULL), Struct(endianSwap) {
@@ -362,11 +357,11 @@ Object::Object(char* data, bool endianSwap) : _className(NULL), Struct(endianSwa
     while(data < start + _numberOfBytes + 8) {
         // create matrix and add to _fields
         field = dynamic_cast<MatrixDataElement*>(parse(data, endianSwap));
-        assert(field);
+        //assert(field);
         _fields.push_back(field);
         data += field->totalBytes();
     }
-    assert(data == start+_numberOfBytes+8);
+    //assert(data == start+_numberOfBytes+8);
 }
 
 
@@ -376,13 +371,13 @@ MatfileReader::MatfileReader(std::ifstream& inputStream)
     //_inputStream.open(_matfile.c_str(), ios_base::in | ios_base::binary);
     if(!_inputStream.is_open()) {
         cerr << "open " << _matfile.c_str() << " error!\n";
-        exit(1);
     }
 }
 
 MatfileReader::~MatfileReader() {
-    for (int i = 0; i < _dataElements.size(); ++i)
+    for (int i = 0; i < _dataElements.size(); ++i)  {
         delete _dataElements[i];
+    }
 }
 
 void MatfileReader::parseHeader() {
@@ -392,15 +387,16 @@ void MatfileReader::parseHeader() {
     memcpy(&_subsysDataOffset, _header+116, 8);
     memcpy(&_version, _header+124, 2);
     _endianIndicator.assign(_header+126, 2);
-    if (_endianIndicator.compare("IM"))
+    if (_endianIndicator.compare("IM")) {
         _endianSwap = true;
-    else
+    } else {
         _endianSwap = false;
+    }
 }
 
-void MatfileReader::parseDataElement() {
+bool MatfileReader::parseDataElement() {
     if (_inputStream.eof())
-        return;
+        return false;
     uint32_t dataType;
     uint32_t numberOfBytes;
     bool isSmallDataElement;
@@ -417,27 +413,36 @@ void MatfileReader::parseDataElement() {
     }
     char* data = NULL;
     DataElement* de = NULL;
-    if (isSmallDataElement)
+    if (isSmallDataElement) {
         de = parse(tag, _endianSwap);
-    else {
+        if (de == NULL) {
+            return false;
+        }
+    } else {
         data = new char[numberOfBytes+8];
         if (!data) {
-            cerr << "MatfileReader::parseDataElement new failed!\n";
-            exit(1);
+            //cerr << "MatfileReader::parseDataElement new failed!\n";
+            return false;
         }
         memcpy(data, tag, 8);
         _inputStream.read(reinterpret_cast<char*>(data+8), numberOfBytes);
         de = parse(data, _endianSwap);
     }
-    assert(de);
+    //assert(de);
+    if (de == NULL) {
+        return false;
+    }
     _dataElements.push_back(de);
     // padding
-    if (numberOfBytes % 8)
+    if (numberOfBytes % 8) {
         _inputStream.ignore(8 - numberOfBytes % 8);
+    }
+    return true;
 }
 
 void MatfileReader::parseAllDataElements() {
     gotoData();
-    while (!_inputStream.eof())
+    while (!_inputStream.eof()) {
         parseDataElement();
+    }
 }

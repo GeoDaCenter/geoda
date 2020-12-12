@@ -288,8 +288,16 @@ void MapCanvas::OnHeatMap(int menu_id)
         display_heat_map = true;
         heat_map.SetRadiusVariable(this, project);
     } else if (menu_id == XRCID("ID_HEATMAP_TOGGLE")) {
-        display_heat_map = !display_heat_map;
-        RedrawMap();
+        if (display_heat_map == false &&  heat_map.HasInitialized()  == false)  {
+            // if user click Display Heat Map for the first time,
+            // brings up Set Bandwidth dialog
+            display_heat_map = true;
+            heat_map.SetBandwidth(this, project);
+        } else {
+            // Toggle heat map if already have one
+            display_heat_map = !display_heat_map;
+            RedrawMap();
+        }
     } else if (display_heat_map) {
         // none of the following menu items will work if
         // heat map toggle is not checked
@@ -928,6 +936,10 @@ bool MapCanvas::InitBasemap()
 void MapCanvas::SetNoBasemap()
 {
     ResetBrushing();
+
+	// reset to default transparency for unhilighted objects
+    tran_unhighlighted = GdaConst::transparency_unhighlighted;
+
     isDrawBasemap = false;
     basemap_item.Reset();
     if ( basemap ) {
@@ -1101,9 +1113,17 @@ void MapCanvas::DrawLayer2()
             w_graph[i]->setBrush(*wxTRANSPARENT_BRUSH);
         }
     }
-    BOOST_FOREACH( GdaShape* shp, foreground_shps ) {
+#ifdef __WXOSX__
+	BOOST_FOREACH( GdaShape* shp, foreground_shps ) {
         shp->paintSelf(dc);
     }
+#else
+	// for drawing heat map with transparency on Windows
+	wxGraphicsContext *gc = wxGraphicsContext::Create( dc );
+    BOOST_FOREACH( GdaShape* shp, foreground_shps ) {
+        shp->paintSelf(gc);
+    }
+#endif
     dc.SelectObject(wxNullBitmap);
     layer2_valid = true;
     if ( MapCanvas::has_thumbnail_saved == false) {
@@ -1723,7 +1743,7 @@ void MapCanvas::SetCheckMarks(wxMenu* menu)
                                    display_map_boundary);
     GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_MAP_MST_TOGGLE"), display_mst);
     GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_HEATMAP_TOGGLE"), display_heat_map);
-    GeneralWxUtils::EnableMenuItem(menu, XRCID("ID_HEATMAP_TOGGLE"), heat_map.HasInitialized());
+    GeneralWxUtils::EnableMenuItem(menu, XRCID("ID_HEATMAP_TOGGLE"),true);
 
     GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_MAP_MST_THICKNESS_LIGHT"),
                                   display_mst && mst_map.GetThickness() == 0);
@@ -2445,7 +2465,7 @@ void MapCanvas::PopulateCanvas()
         if (var_info.size() > 0) {
             const GdaVarTools::VarInfo& vi = var_info[0];
             if (table_int) {
-                int col_idx = table_int->GetColIdx(vi.name);
+                int col_idx = table_int->GetColIdx(vi.name, !project->IsFieldCaseSensitive());
                 int time_idx = vi.time;
                 std::vector<wxString> labels;
                 GdaConst::FieldType col_type = table_int->GetColType(col_idx, time_idx);
@@ -2916,7 +2936,6 @@ void MapCanvas::DisplayWeightsGraph()
 {
     wxLogMessage("MapCanvas::DisplayWeightsGraph()");
     display_weights_graph = !display_weights_graph;
-    display_neighbors = display_weights_graph ? false : true;
     RedrawMap();
 }
 
@@ -2924,10 +2943,6 @@ void MapCanvas::DisplayNeighbors()
 {
     wxLogMessage("MapCanvas::DisplayNeighbors()");
     display_neighbors = !display_neighbors;
-    if (display_neighbors) {
-        display_map_with_graph = true;
-        display_weights_graph = false;
-    } 
     RedrawMap();
 }
 

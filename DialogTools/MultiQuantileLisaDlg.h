@@ -58,6 +58,7 @@ protected:
     wxListCtrl* lst_quantile;
     wxButton* move_left;
     wxButton* move_right;
+    wxCheckBox* chk_nocolocation;
 
     std::set<wxString> new_fields;
 

@@ -902,7 +902,7 @@ void VariableSettingsDlg::OnOkClick(wxCommandEvent& event)
 		if (!table_int->IsColTimeVariant(v1_col_id))
             v1_time = 0;
 	}
-    wxLogMessage(v1_name);
+    //wxLogMessage("%s", v1_name);
     
 	if (num_var >= 2) {
 		if (lb2->GetSelection() == wxNOT_FOUND) {
@@ -921,7 +921,7 @@ void VariableSettingsDlg::OnOkClick(wxCommandEvent& event)
 			if (!table_int->IsColTimeVariant(v2_col_id))
                 v2_time = 0;
 		}
-        wxLogMessage(v2_name);
+        //wxLogMessage("%s", v2_name);
 	}
 	if (num_var >= 3) {
 		if (lb3->GetSelection() == wxNOT_FOUND) {
@@ -939,7 +939,7 @@ void VariableSettingsDlg::OnOkClick(wxCommandEvent& event)
 			if (!table_int->IsColTimeVariant(v3_col_id))
                 v3_time = 0;
 		}
-        wxLogMessage(v3_name);
+        //wxLogMessage("%s", v3_name);
 	}
 	if (num_var >= 4) {
 		if (lb4->GetSelection() == wxNOT_FOUND) {
@@ -957,7 +957,7 @@ void VariableSettingsDlg::OnOkClick(wxCommandEvent& event)
 			if (!table_int->IsColTimeVariant(v4_col_id))
                 v4_time = 0;
 		}
-        wxLogMessage(v4_name);
+        //wxLogMessage("%s", v4_name);
 	}
 	
     wxString emptyVar = FillData();
@@ -1033,10 +1033,10 @@ boost::uuids::uuid VariableSettingsDlg::GetWeightsId()
 	if (sel < 0) sel = 0;
 	if (sel >= weights_ids.size()) sel = weights_ids.size()-1;
     
-	wxString s;
-	s << "VariableSettingsDlg::GetWeightsId() weight: ";
-	s << project->GetWManInt()->GetShortDispName(weights_ids[sel]);
-    wxLogMessage(s);
+	//wxString s;
+	//s << "VariableSettingsDlg::GetWeightsId() weight: ";
+	//s << project->GetWManInt()->GetShortDispName(weights_ids[sel]);
+    //wxLogMessage("%s", s);
     
 	return weights_ids[sel];
 }

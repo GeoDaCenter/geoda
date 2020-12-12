@@ -249,7 +249,8 @@ void AbstractClusterDlg::AddSimpleInputCtrls(wxPanel *panel, wxBoxSizer* vbox,
 }
 
 void AbstractClusterDlg::AddInputCtrls(wxPanel *panel, wxBoxSizer* vbox,
-                                       bool show_auto_button, bool show_spatial_weights,
+                                       bool show_auto_button, bool integer_only,
+                                       bool show_spatial_weights,
                                        bool single_variable, bool add_centroids)
 {
     wxString ttl = single_variable ? _("Select a Variable") : _("Select Variables");
@@ -260,7 +261,7 @@ void AbstractClusterDlg::AddInputCtrls(wxPanel *panel, wxBoxSizer* vbox,
 
     combo_var = new wxListBox(panel, wxID_ANY, wxDefaultPosition,
                               wxSize(250,250), 0, NULL, style);
-    InitVariableCombobox(combo_var, add_centroids);
+    InitVariableCombobox(combo_var, integer_only, add_centroids);
     
     m_use_centroids = new wxCheckBox(panel, wxID_ANY, _("Use geometric centroids"));
     auto_btn = new wxButton(panel, wxID_OK, _("Auto Weighting"));
@@ -946,6 +947,12 @@ bool AbstractClusterDlg::GetInputData(int transform, int min_num_var)
         std::vector<std::vector<double> > data(num_var - has_x_cent - has_y_cent);
         for (int i=0; i<var_info.size(); i++) {
             table_int->GetColData(col_ids[i], var_info[i].time, data[i]);
+            if (CheckEmptyColumn(col_ids[i], var_info[i].time)) {
+                wxString err_msg = wxString::Format(_("The selected variable %s is not valid. If it's a grouped variable, please modify it in Time->Time Editor. Or please select another variable."), var_info[i].name);
+                wxMessageDialog dlg(NULL, err_msg, _("Error"), wxOK | wxICON_ERROR);
+                dlg.ShowModal();
+                return false;
+            }
         }
 
         // for special table variables: <X-Centroids>, <Y-Centroids>
@@ -1043,6 +1050,18 @@ bool AbstractClusterDlg::GetInputData(int transform, int min_num_var)
         return true;
     }
     return false;
+}
+
+bool AbstractClusterDlg::CheckEmptyColumn(int col_id, int time)
+{
+    std::vector<bool> undefs;
+    table_int->GetColUndefined(col_id, time, undefs);
+    for (int i=0; i<undefs.size(); i++) {
+        if (undefs[i]==false)  {
+            return false;
+        }
+    }
+    return true;
 }
 
 double* AbstractClusterDlg::GetWeights(int columns)
