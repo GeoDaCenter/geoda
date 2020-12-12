@@ -60,9 +60,9 @@ EVT_CLOSE( HClusterDlg::OnClose )
 END_EVENT_TABLE()
 
 
-HClusterDlg::HClusterDlg(wxFrame* parent_s, Project* project_s, bool show_centroids)
+HClusterDlg::HClusterDlg(wxFrame* parent_s, Project* project_s, bool show_centroids, bool show_weights)
 : AbstractClusterDlg(parent_s, project_s,  _("Hierarchical Clustering Settings")),
-show_centroids(show_centroids)
+show_centroids(show_centroids), show_weights(show_weights)
 {
     wxLogMessage("Open HClusterDlg.");
     htree = NULL;
@@ -142,7 +142,7 @@ void HClusterDlg::CreateControls()
         AddInputCtrls(panel, vbox, true);
     } else {
         // for SCHC, show spatial weights control
-        AddSimpleInputCtrls(panel, vbox, false/*no show_auto_button*/, false/*integer + real*/, true);
+        AddSimpleInputCtrls(panel, vbox, false/*no show_auto_button*/, true/*show spatial weights*/);
     }
     
     // Parameters
@@ -528,7 +528,7 @@ bool HClusterDlg::Run(vector<wxInt64>& clusters)
             node2 = node2 < rows ? node2 : rows-node2-1;
             node1 = node1 < rows ? node1 : rows-node1-1;
             
-            //cout << i<< ":" << node2 <<", " <<  node1 << ", " << Z2[i]->dist <<endl;
+            cout << i<< ":" << NN->node1 <<", " <<  NN->node2 << ", " << NN->dist <<endl;
             //cout << i<< ":" << htree[i].left << ", " << htree[i].right << ", " << htree[i].distance <<endl;
             htree[i].left = node1;
             htree[i].right = node2;

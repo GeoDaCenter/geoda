@@ -424,7 +424,7 @@ wxString ScrolledWidgetsPane::TruncateFieldName(const wxString& old_name,
                                                    int max_len)
 {
     wxLogMessage("ScrolledWidgetsPane::TruncateFieldName");
-    wxLogMessage("%s", old_name);
+    //wxLogMessage("%s", old_name);
 	if (GdaConst::datasrc_field_lens.find(ds_type) ==
 			GdaConst::datasrc_field_lens.end())
 	{
@@ -446,14 +446,14 @@ wxString ScrolledWidgetsPane::TruncateFieldName(const wxString& old_name,
 	new_name << old_name.substr(0, front_chars) << separator
 	<< old_name.substr(str_len - back_chars);
 	
-    wxLogMessage("%s", new_name);
+    //wxLogMessage("%s", new_name);
 	return new_name;
 }
 
 wxString ScrolledWidgetsPane::RemoveIllegalChars(const wxString& old_name)
 {
     wxLogMessage("ScrolledWidgetsPane::RemoveIllegalChars");
-    wxLogMessage("%s", old_name);
+    //wxLogMessage("%s", old_name);
 	if (GdaConst::datasrc_field_illegal_regex.find(ds_type) ==
 			GdaConst::datasrc_field_illegal_regex.end())
 	{
@@ -469,7 +469,7 @@ wxString ScrolledWidgetsPane::RemoveIllegalChars(const wxString& old_name)
 	
 	if (new_name.size()==0) new_name = "NONAME";
     
-    wxLogMessage("%s", new_name);
+    //wxLogMessage("%s", new_name);
 	return new_name;
 }
 
@@ -477,7 +477,7 @@ wxString ScrolledWidgetsPane::RemoveIllegalChars(const wxString& old_name)
 wxString ScrolledWidgetsPane::RenameDupFieldName(const wxString& old_name)
 {
     wxLogMessage("ScrolledWidgetsPane::RenameDupFieldName");
-    wxLogMessage("%s", old_name);
+    //wxLogMessage("%s", old_name);
     
 	wxString new_name(old_name);
 
@@ -509,7 +509,7 @@ wxString ScrolledWidgetsPane::RenameDupFieldName(const wxString& old_name)
     		new_name = first_part + "_" + last_part;
     	}
     }
-    wxLogMessage("%s", new_name);
+    //wxLogMessage("%s", new_name);
     return new_name;
 }
 

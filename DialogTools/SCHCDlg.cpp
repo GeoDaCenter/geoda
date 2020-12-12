@@ -42,13 +42,10 @@ EVT_CLOSE( SCHCDlg::OnClose )
 END_EVENT_TABLE()
 
 SCHCDlg::SCHCDlg(wxFrame* parent_s, Project* project_s)
-: HClusterDlg(parent_s, project_s, false /*dont show centroids control*/)
+: HClusterDlg(parent_s, project_s, false /*dont show centroids control*/), redcap(0)
 {
     wxLogMessage("Open SCHCDlg.");
     SetTitle(_("Spatial Constrained Hierarchical Clustering Settings"));
-
-    // disable number of cluster control
-    combo_n->Disable();
     
     // bind new event
     saveButton->Bind(wxEVT_BUTTON, &SCHCDlg::OnSave, this);
@@ -56,21 +53,16 @@ SCHCDlg::SCHCDlg(wxFrame* parent_s, Project* project_s)
 
 SCHCDlg::~SCHCDlg()
 {
+    wxLogMessage("On SCHCDlg::~SCHCDlg");
+    //frames_manager->removeObserver(this);
+    if (redcap) {
+        delete redcap;
+        redcap = NULL;
+    }
 }
 
 void SCHCDlg::OnSave(wxCommandEvent& event )
 {
-    long user_select_n;
-    combo_n->GetValue().ToLong(&user_select_n);
-    if (user_select_n < cutoff_n_cluster) {
-        wxString msg = _("The selected number of clusters is %d. It is less than the minimum number of clusters (%d) that guarantees spatially constrained results.\n\nDo you want to continue?");
-        wxMessageDialog dlg(NULL, wxString::Format(msg, (int)user_select_n, cutoff_n_cluster),
-                            _("Warning"), wxYES_NO | wxNO_DEFAULT | wxICON_WARNING);
-        if (dlg.ShowModal() == wxID_NO) {
-            return;
-        }
-    }
-
     HClusterDlg::OnSave(event);
 
     // check cluster connectivity
@@ -104,50 +96,57 @@ bool SCHCDlg::Run(vector<wxInt64>& clusters)
     }
 
     // get pairwise distance
-    double* pwdist = NULL;
-    if (dist == 'e') {
-        pwdist = DataUtils::getContiguityPairWiseDistance(gw->gal, input_data, weight, rows,
-                                                columns,
-                                                DataUtils::EuclideanDistance);
-    } else {
-        pwdist = DataUtils::getContiguityPairWiseDistance(gw->gal, input_data, weight, rows,
-                                                columns,
-                                                DataUtils::ManhattanDistance);
-    }
+    int transpose = 0; // row wise
+    // todo should be replaced
+    double** ragged_distances = distancematrix(rows, columns, input_data,  mask, weight, dist, transpose);
+    bool isSqrt = method == 'a' ? true : false;
+    double** distances = DataUtils::fullRaggedMatrix(ragged_distances, rows, rows, isSqrt);
+    for (int i = 1; i < rows; i++) free(ragged_distances[i]);
+    free(ragged_distances);
 
-    fastcluster::auto_array_ptr<t_index> members;
+    // run RedCap
+    std::vector<bool> undefs(rows, false);
+    
+    if (redcap != NULL) {
+        delete redcap;
+        redcap = NULL;
+    }
+    double* bound_vals = 0;
+    double min_bound = 0;
+    if (method == 's') {
+        redcap = new SpanningTreeClustering::FullOrderSLKRedCap(rows, columns, distances, input_data, undefs, gw->gal, bound_vals, min_bound);
+    } else if (method == 'w') {
+        redcap = new SpanningTreeClustering::FullOrderWardRedCap(rows, columns, distances, input_data, undefs, gw->gal, bound_vals, min_bound);
+    } else if (method == 'm') {
+        redcap = new SpanningTreeClustering::FullOrderCLKRedCap(rows, columns, distances, input_data, undefs, gw->gal, bound_vals, min_bound);
+    } else if (method == 'a') {
+        redcap = new SpanningTreeClustering::FullOrderALKRedCap(rows, columns, distances, input_data, undefs, gw->gal, bound_vals, min_bound);
+    }
+     
+    if (redcap==NULL) {
+        for (int i = 1; i < rows; i++) delete[] distances[i];
+        delete[] distances;
+        return false;
+    }
+        
     if (htree != NULL) {
         delete[] htree;
         htree = NULL;
     }
     htree = new GdaNode[rows-1];
-    fastcluster::cluster_result Z2(rows-1);
 
-    if (method == 's') {
-        fastcluster::MST_linkage_core(rows, pwdist, Z2);
-    } else if (method == 'w') {
-        members.init(rows, 1);
-        fastcluster::NN_chain_core<fastcluster::METHOD_METR_WARD, t_index>(rows, pwdist, members, Z2);
-    } else if (method == 'm') {
-        fastcluster::NN_chain_core<fastcluster::METHOD_METR_COMPLETE, t_index>(rows, pwdist, NULL, Z2);
-    } else if (method == 'a') {
-        members.init(rows, 1);
-        fastcluster::NN_chain_core<fastcluster::METHOD_METR_AVERAGE, t_index>(rows, pwdist, members, Z2);
-    }
-
-    delete[] pwdist;
-
-    std::stable_sort(Z2[0], Z2[rows-1]);
+    //std::stable_sort(Z2[0], Z2[rows-1]);
     t_index node1, node2;
-    int i=0, clst_cnt=0;
     fastcluster::union_find nodes(rows);
-
-    n_cluster = 0;
-    for (fastcluster::node const * NN=Z2[0]; NN!=Z2[rows-1]; ++NN, ++i) {
-        if (NN) {
+    int cluster_idx = 1;
+    
+    for (int i=0; i<redcap->ordered_edges.size(); ++i) {
+        SpanningTreeClustering::Edge* e = redcap->ordered_edges[i];
+        if (e) {
             // Find the cluster identifiers for these points.
-            node1 = nodes.Find(NN->node1);
-            node2 = nodes.Find(NN->node2);
+            node1 = nodes.Find(e->orig->id);
+            node2 = nodes.Find(e->dest->id);
+                        
             // Merge the nodes in the union-find data structure by making them
             // children of a new node.
             nodes.Union(node1, node2);
@@ -155,34 +154,39 @@ bool SCHCDlg::Run(vector<wxInt64>& clusters)
             node2 = node2 < rows ? node2 : rows-node2-1;
             node1 = node1 < rows ? node1 : rows-node1-1;
             
-            //cout << i<< ":" << node2 <<", " <<  node1 << ", " << Z2[i]->dist <<endl;
             htree[i].left = node1;
             htree[i].right = node2;
-
-            double dist = Z2[i]->dist;
-            if (dist == DBL_MAX) {
-                n_cluster += 1;
-            }
-
-            clst_cnt += 1;
-            htree[i].distance = clst_cnt;
+            htree[i].distance = cluster_idx;
+            cluster_idx += 1;
         }
     }
-
-    if (n_cluster == 0) n_cluster = 2;
-    CutTree(rows, htree, n_cluster, clusters);
-
-    // check if additional cluster/split is needed
-    if (CheckContiguity(gw->gal, clusters)  == false) {
-        n_cluster += 1;
-        CutTree(rows, htree, n_cluster, clusters);
+    
+    clusters.clear();
+    int* clusterid = new int[rows];
+    cutoffDistance = cuttree (rows, htree, n_cluster, clusterid);
+    for (int i=0; i<rows; i++) {
+        clusters.push_back(clusterid[i]+1);
     }
+    delete[] clusterid;
+    clusterid = NULL;
 
-    cutoff_n_cluster = n_cluster;
-
-    combo_n->SetValue(wxString::Format("%d", n_cluster));
-    combo_n->Enable();
-
+    // sort result
+    std::vector<std::vector<int> > cluster_ids(n_cluster);
+    
+    for (int i=0; i < clusters.size(); i++) {
+        cluster_ids[ clusters[i] - 1 ].push_back(i);
+    }
+    
+    std::sort(cluster_ids.begin(), cluster_ids.end(), GenUtils::less_vectors);
+    
+    for (int i=0; i < n_cluster; i++) {
+        int c = i + 1;
+        for (int j=0; j<cluster_ids[i].size(); j++) {
+            int idx = cluster_ids[i][j];
+            clusters[idx] = c;
+        }
+    }
+    
     return true;
 }
 

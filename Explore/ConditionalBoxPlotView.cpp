@@ -84,6 +84,39 @@ ConditionalBoxPlotCanvas::~ConditionalBoxPlotCanvas()
 {
 }
 
+void ConditionalBoxPlotCanvas::TimeChange()
+{
+    LOG_MSG("Entering ConditionalNewCanvas::TimeChange");
+    if (!is_any_sync_with_global_time) return;
+    
+    int cts = project->GetTimeState()->GetCurrTime();
+    int ref_time = var_info[ref_var_index].time;
+    int ref_time_min = var_info[ref_var_index].time_min;
+    int ref_time_max = var_info[ref_var_index].time_max;
+    
+    if ((cts == ref_time) ||
+        (cts > ref_time_max && ref_time == ref_time_max) ||
+        (cts < ref_time_min && ref_time == ref_time_min)) return;
+    if (cts > ref_time_max) {
+        ref_time = ref_time_max;
+    } else if (cts < ref_time_min) {
+        ref_time = ref_time_min;
+    } else {
+        ref_time = cts;
+    }
+    for (size_t i=0; i<var_info.size(); i++) {
+        if (var_info[i].sync_with_global_time) {
+            var_info[i].time = ref_time + var_info[i].ref_time_offset;
+        }
+    }
+    UpdateNumVertHorizCats();
+    InitBoxPlot();
+    invalidateBms();
+    PopulateCanvas();
+    Refresh();
+    LOG_MSG("Exiting ConditionalNewCanvas::TimeChange");
+}
+
 void ConditionalBoxPlotCanvas::InitBoxPlot()
 {
     // Init box plots (data and stats) by rows and columns
@@ -125,7 +158,7 @@ void ConditionalBoxPlotCanvas::InitBoxPlot()
         // undef is full with size = num_obs
         std::vector<bool> undefs(num_obs, false);
         for (int i=0; i<num_obs; i++) {
-            undefs[i] = undefs[i] || data_undef[BOX_VAR][t][i];
+            undefs[i] = undefs[i] || data_undef[BOX_VAR][dt][i];
         }
         // compute hinge stats for each cell
         hinge_stats.clear();
@@ -726,7 +759,7 @@ void ConditionalBoxPlotFrame::UpdateContextMenuItems(wxMenu* menu)
 /** Implementation of TimeStateObserver interface */
 void  ConditionalBoxPlotFrame::update(TimeState* o)
 {
-	template_canvas->TimeChange();
+	((ConditionalBoxPlotCanvas*)template_canvas)->TimeChange();
 	UpdateTitle();
 }
 

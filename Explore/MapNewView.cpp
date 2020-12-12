@@ -288,8 +288,16 @@ void MapCanvas::OnHeatMap(int menu_id)
         display_heat_map = true;
         heat_map.SetRadiusVariable(this, project);
     } else if (menu_id == XRCID("ID_HEATMAP_TOGGLE")) {
-        display_heat_map = !display_heat_map;
-        RedrawMap();
+        if (display_heat_map == false &&  heat_map.HasInitialized()  == false)  {
+            // if user click Display Heat Map for the first time,
+            // brings up Set Bandwidth dialog
+            display_heat_map = true;
+            heat_map.SetBandwidth(this, project);
+        } else {
+            // Toggle heat map if already have one
+            display_heat_map = !display_heat_map;
+            RedrawMap();
+        }
     } else if (display_heat_map) {
         // none of the following menu items will work if
         // heat map toggle is not checked
@@ -1735,7 +1743,7 @@ void MapCanvas::SetCheckMarks(wxMenu* menu)
                                    display_map_boundary);
     GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_MAP_MST_TOGGLE"), display_mst);
     GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_HEATMAP_TOGGLE"), display_heat_map);
-    GeneralWxUtils::EnableMenuItem(menu, XRCID("ID_HEATMAP_TOGGLE"), heat_map.HasInitialized());
+    GeneralWxUtils::EnableMenuItem(menu, XRCID("ID_HEATMAP_TOGGLE"),true);
 
     GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_MAP_MST_THICKNESS_LIGHT"),
                                   display_mst && mst_map.GetThickness() == 0);
@@ -2928,7 +2936,6 @@ void MapCanvas::DisplayWeightsGraph()
 {
     wxLogMessage("MapCanvas::DisplayWeightsGraph()");
     display_weights_graph = !display_weights_graph;
-    display_neighbors = display_weights_graph ? false : true;
     RedrawMap();
 }
 
@@ -2936,10 +2943,6 @@ void MapCanvas::DisplayNeighbors()
 {
     wxLogMessage("MapCanvas::DisplayNeighbors()");
     display_neighbors = !display_neighbors;
-    if (display_neighbors) {
-        display_map_with_graph = true;
-        display_weights_graph = false;
-    } 
     RedrawMap();
 }
 

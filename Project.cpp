@@ -93,7 +93,7 @@ sourceSR(NULL), rtree_bbox_ready(false), has_null_geometry(false)
 {
     
 	wxLogMessage("Entering Project::Project (existing project)");
-	wxLogMessage("%s", proj_fname);
+	//wxLogMessage("%s", proj_fname);
 
 	SetProjectFullPath(proj_fname);
 	bool wd_success = SetWorkingDir(proj_fname);
@@ -153,7 +153,7 @@ sourceSR(NULL), rtree_bbox_ready(false)
 		wxString fp = fds->GetFilePath();
 		wd_success = SetWorkingDir(fp);
 		if (!wd_success) {
-			wxLogMessage("Warning: could not set Working Dir from " + fp);
+			wxLogMessage("Warning: could not set Working Dir" );
 		}
 	}
 	if (!wd_success) {
@@ -1610,7 +1610,7 @@ bool Project::InitFromOgrLayer()
     
     wxLogMessage("Datasource name:");
     wxString ds_str = datasource->ToString();
-    wxLogMessage("%s", ds_str);
+    //wxLogMessage("%s", ds_str);
     
     GdaConst::DataSourceType ds_type = datasource->GetType();
     OGRDataAdapter& ogr_adapter = OGRDataAdapter::GetInstance();
@@ -1731,7 +1731,7 @@ BackgroundMapLayer* Project::AddMapLayer(wxString datasource_name,
                                          GdaConst::DataSourceType ds_type,
                                          wxString layer_name)
 {
-    wxLogMessage("ds:" + datasource_name + " layer: " + layer_name);
+    wxLogMessage("Project::AddMapLayer()");
     BackgroundMapLayer* map_layer = NULL;
     // Use global OGR adapter to manage all datasources, so they can be reused
     OGRDataAdapter& ogr_adapter = OGRDataAdapter::GetInstance();

@@ -1429,7 +1429,7 @@ void CreatingWeightDlg::CreateWeights()
         project->SetWorkingDir(new_dir);
     }
     wxLogMessage("CreateWeights()");
-    wxLogMessage("%s", outputfile);
+    //wxLogMessage("%s", outputfile);
     
     // 1/2 case social weights:
     if (m_nb_weights_type->GetSelection() == 1 &&

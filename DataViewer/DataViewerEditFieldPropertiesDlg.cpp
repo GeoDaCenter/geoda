@@ -359,10 +359,10 @@ void DataViewerEditFieldPropertiesDlg::OnCellChanging( wxGridEvent& ev )
 		new_str.ToLong(&new_val);
 	}
 	
-	wxString msg;
-	msg << "changing row " << row << ", col " << col << " from ";
-	msg << cur_str << " to " << new_str;
-    wxLogMessage("%s", msg);
+	//wxString msg;
+	//msg << "changing row " << row << ", col " << col << " from ";
+	//msg << cur_str << " to " << new_str;
+    //wxLogMessage("%s", msg);
 	
 	GdaConst::FieldType type = GdaConst::unknown_type;
 	wxString type_str = field_grid->GetCellValue(row, COL_T);
@@ -701,7 +701,6 @@ void DataViewerEditFieldPropertiesDlg::OnGridComboBox(wxCommandEvent& ev )
     ev.Skip();
     
 	wxLogMessage("In DataViewerEditFieldPropertiesDlg::OnGridComboBox");
-    wxLogMessage(wxString::Format("%d", sel));
 }
 
 void DataViewerEditFieldPropertiesDlg::OnCellEditorCreated( wxGridEditorCreatedEvent& ev )

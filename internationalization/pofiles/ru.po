@@ -236,7 +236,7 @@ msgstr "&Сохранить в Таблицу"
 
 # contributors:
 msgid "&Space"
-msgstr "&Пробел"
+msgstr "&Пространство"
 
 # contributors:
 msgid "&Tools"
@@ -320,11 +320,11 @@ msgstr "3D график"
 
 # contributors:
 msgid "3D Scatter Plot"
-msgstr "3D график множества точек"
+msgstr "3D Диаграмма рассеяния"
 
 # contributors:
 msgid "3D Scatter Plot Variables"
-msgstr "Переменные 3D графика множества точек"
+msgstr "Переменные 3D Диаграмма рассеяния"
 
 # contributors:
 msgid "3rd Variable (Z)"
@@ -508,11 +508,11 @@ msgstr "Близость к ядру:"
 
 # contributors:
 msgid "Aggregate"
-msgstr "Агрегированный показатель"
+msgstr "Агрегировать данные"
 
 # contributors:
 msgid "Aggregate - "
-msgstr "Агрегированный показатель - "
+msgstr "Агрегировать данные - "
 
 # contributors:
 msgid "All"
@@ -700,11 +700,11 @@ msgstr "С двумя переменными"
 
 # contributors:
 msgid "Bivariate Local Join Count"
-msgstr "Подсчет локальных соединений с двумя переменными"
+msgstr "Двумерная оценка локальных соединений"
 
 # contributors:
 msgid "Bivariate Local Moran's I"
-msgstr "Локальный индекс Морана I с двумя переменными"
+msgstr "Локальный индекс Морана с двумя переменными"
 
 # contributors:
 msgid "Bivariate Moran Variable Settings"
@@ -712,11 +712,11 @@ msgstr "Параметры настройки переменных Индекс�
 
 # contributors:
 msgid "Bivariate Moran's I"
-msgstr "Двумерный индекс Морана I"
+msgstr "Двумерный индекс Морана"
 
 # contributors:
 msgid "Bivariate Moran's I (%s): %s and lagged %s"
-msgstr "Двумерный индекс Морана I (%s): %s и лаг (отставание) %s"
+msgstr "Двумерный индекс Морана (%s): %s и лаг (отставание) %s"
 
 # contributors:
 msgid "Bonferroni bound:"
@@ -744,7 +744,7 @@ msgstr "Блочная карта (Линия створа=3.0)"
 
 # contributors:
 msgid "Box Plot"
-msgstr "Блочный график"
+msgstr "Диаграмма размаха"
 
 # contributors:
 msgid "Boxplot Theme"
@@ -1123,6 +1123,46 @@ msgid "Co-location Join Count only applies to co-location case. The selected var
 msgstr "Подсчет соединения ко-локаций распространяется только на случай ко-локаций. Выбранные переменные не имеют ко-локации. Пожалуйста, измените выбранные объекты или используйте Одномерный/Двухмерный подсчет локальных соеднинений."
 
 # contributors:
+msgid "Draw the values of selected variable on map (input font size):"
+msgstr "Отображать значения выбранных переменных на карте (размер шрифта)"
+
+# contributors:
+msgid "Show Recent/Sample data panel in Connect Datasource Dialog:"
+msgstr "Показывать панель недавно открытых/рекомендуемы х данных в окне открытия данных"
+
+# contributors:
+msgid "Show CSV configuration in Merge Data Dialog:"
+msgstr "Показывать параметры CSV в окне объединения данных"
+
+# contributors:
+msgid "Use GPU to accelerate computation:"
+msgstr "Использовать GPU для ускорения вычислений"
+
+# contributors:
+msgid "Source:"
+msgstr "Источники:"
+
+# contributors:
+msgid "Table:"
+msgstr "Таблица:"
+
+# contributors:
+msgid "Clustering:"
+msgstr "Кластеризация:"
+
+# contributors:
+msgid "Stop criterion for auto-weighting:"
+msgstr "Условие остановки автовзвешивания:"
+
+# contributors:
+msgid "Create CSVT when saving CSV file:"
+msgstr "Создавать CSVT при сохранении данных в CSV:"
+
+# contributors:
+msgid "Setup Number Formatting"
+msgstr "Выбор разделителя в числах"
+
+# contributors:
 msgid "Co-location Map"
 msgstr "Карта ко-локаций"
 
@@ -1228,7 +1268,7 @@ msgstr "Переменные условного графика множеств�
 
 # contributors:
 msgid "Connect"
-msgstr "Связать"
+msgstr "Открыть"
 
 # contributors:
 msgid "Connect to Data Source"
@@ -1496,7 +1536,7 @@ msgstr "База данных"
 
 # contributors:
 msgid "Database Host"
-msgstr "Хост базы даных"
+msgstr "Хост базы данных"
 
 # contributors:
 msgid "Database Name/Instance"
@@ -1600,7 +1640,7 @@ msgstr "Тест разности между средними:"
 
 # contributors:
 msgid "Differential Local Moran's I"
-msgstr "Дифференциальный локальный индекс Морана I"
+msgstr "Дифференциальный локальный индекс Морана"
 
 # contributors:
 msgid "Differential Moran Variable Settings"
@@ -1608,15 +1648,15 @@ msgstr "Настройка параметров переменных диффе�
 
 # contributors:
 msgid "Differential Moran's I"
-msgstr "Дифференциальный индекс Морана I"
+msgstr "Дифференциальный индекс Морана"
 
 # contributors:
 msgid "Differential Moran's I (%s): %s - %s"
-msgstr "Дифференциальный индекс Морана I (%s): %s - %s"
+msgstr "Дифференциальный индекс Морана (%s): %s - %s"
 
 # contributors:
 msgid "Differential Moran's I tests whether the change in a variable over time is spatially correlated.\n\nPlease first group variables by time period: Select Time --> Time Editor."
-msgstr "Тесты с применением дифференциального индекса Морана I для проверки пространственной корреляции изменений в переменных во времении.\n\nПожалуйста, сначала сгруппируйте переменные по временному периоду: Выбрать время --> Редактор времени."
+msgstr "Тесты с применением дифференциального индекса Морана для проверки пространственной корреляции изменений в переменных во времении.\n\nПожалуйста, сначала сгруппируйте переменные по временному периоду: Выбрать время --> Редактор времени."
 
 # contributors:
 msgid "Disable auto upgrade:"
@@ -1800,7 +1840,7 @@ msgstr "Редактировать свойства переменных"
 
 # contributors:
 msgid "Emp Bayes Rate Std Moran's I (%s): %s / %s"
-msgstr "Стандартизированная по индексу Морана I скорость с исп. эмп. подхода Байеса (%s): %s / %s"
+msgstr "Стандартизированная по индексу Морана скорость с исп. эмп. подхода Байеса (%s): %s / %s"
 
 # contributors:
 msgid "Empirical Bayes"
@@ -1832,7 +1872,7 @@ msgstr "Разрешить настройку прозрачности цвет�
 
 # contributors:
 msgid "Encode"
-msgstr "Зашифровать"
+msgstr "Кодировка"
 
 # contributors:
 msgid "Enter a seed value"
@@ -1948,7 +1988,7 @@ msgstr "Выйти?"
 
 # contributors:
 msgid "Explore"
-msgstr "Изучить"
+msgstr "Диаграмма"
 
 # contributors:
 msgid "Export or save layer to"
@@ -2504,11 +2544,11 @@ msgstr "Источник вводных данных"
 
 # contributors:
 msgid "Input file "
-msgstr "Вводный файл"
+msgstr "Открываемый файл"
 
 # contributors:
 msgid "Input file (text file)"
-msgstr "Вводный файл (текстовый файл)"
+msgstr "Открываемый файл (текстовый файл)"
 
 # contributors:
 msgid "Input is duplicated."
@@ -2756,7 +2796,7 @@ msgstr "Загружаются данные..."
 
 # contributors:
 msgid "Local G"
-msgstr "Локальный G"
+msgstr "Локальный индекс Гетиса Орда"
 
 # contributors:
 msgid "Local G Maps"
@@ -2768,7 +2808,7 @@ msgstr "Статистические карты локальных G"
 
 # contributors:
 msgid "Local G*"
-msgstr "Локальный G*"
+msgstr "Локальный индекс Гетиса Орда*"
 
 # contributors:
 msgid "Local Geary"
@@ -2784,11 +2824,15 @@ msgstr "Подсчет локальных соединений"
 
 # contributors:
 msgid "Local Moran's I Maps"
-msgstr "Карты по локальному индексу Морана I"
+msgstr "Карты по локальному индексу Морана"
 
 # contributors:
 msgid "Local Moran's I with EB Rate"
-msgstr "Локальный индекс Морана I с показателем ЭБ (эмпирического Байеса)"
+msgstr "Локальный индекс Морана с показателем ЭБ (эмпирического Байеса)"
+
+# contributors:
+msgid "Univariate Median Local Moran's I:"
+msgstr "Одномерный медианный локальный индекс Морана:"
 
 # contributors:
 msgid "Local Search:"
@@ -2940,11 +2984,11 @@ msgstr "Среднее"
 
 # contributors:
 msgid "Merge"
-msgstr "Объединить"
+msgstr "Добавить данные"
 
 # contributors:
 msgid "Merge - "
-msgstr "Объединить - "
+msgstr "Добавить данные - "
 
 # contributors:
 msgid "Merge by key values"
@@ -3040,11 +3084,11 @@ msgstr "График множества точек по индексу Мора�
 
 # contributors:
 msgid "Moran's I (%s): %s"
-msgstr "Индекс Морана I (%s): %s"
+msgstr "Индекс Морана (%s): %s"
 
 # contributors:
 msgid "Moran's I with EB Rate"
-msgstr "Индекс Морана I с показателем ЭБ"
+msgstr "Индекс Морана с показателем ЭБ"
 
 # contributors:
 msgid "Move Down"
@@ -3064,7 +3108,19 @@ msgstr "Настройки множества переменных"
 
 # contributors:
 msgid "Multivariate Local Geary"
-msgstr "Местный индекс Гири с множеством переменных"
+msgstr "Многомерный локальный индекс Джири"
+
+# contributors:
+msgid "Univariate Quantile LISA"
+msgstr "Одномерная квантильная LISA"
+
+# contributors:
+msgid "Multivariate Quantile LISA"
+msgstr "Многомерная квантильная LISA"
+
+# contributors:
+msgid "Local Neighbor Match Test"
+msgstr "Тест на соответствие локального соседства"
 
 # contributors:
 msgid "Name"
@@ -3252,7 +3308,7 @@ msgstr "Количество Столбиков:"
 
 # contributors:
 msgid "Number of Box Plots"
-msgstr "Количество Блочных графиков"
+msgstr "Количество Диаграмма размаха"
 
 # contributors:
 msgid "Number of Categories"
@@ -3396,7 +3452,7 @@ msgstr "Опции:"
 
 # contributors:
 msgid "Order of contiguity"
-msgstr "Порядок ассоциативных связей"
+msgstr "Порядок из смежность"
 
 # contributors:
 msgid "Other (up to 99999)"
@@ -3920,7 +3976,7 @@ msgstr "Читать из файла ASCII"
 
 # contributors:
 msgid "Recent"
-msgstr "Недавний"
+msgstr "Последний"
 
 # contributors:
 msgid "Record order specified, but found minimum and maximum observation values of %d and %d which is incompatible with number of observations specified in first line of weights file:  %d ."
@@ -4048,7 +4104,7 @@ msgstr "Автокорреляция выборки"
 
 # contributors:
 msgid "Sample Data"
-msgstr "Данные выборки"
+msgstr "Рекомендуемые"
 
 # contributors:
 msgid "Sample Size:"
@@ -4184,7 +4240,7 @@ msgstr "Сохранить Результаты: ММШ"
 
 # contributors:
 msgid "Save Results: Moran's I"
-msgstr "Сохранить Результаты: Индекс Морана I"
+msgstr "Сохранить Результаты: Индекс Морана"
 
 # contributors:
 msgid "Save Selected As"
@@ -4272,31 +4328,31 @@ msgstr "Опции масштабирования"
 
 # contributors:
 msgid "Scatter Plot"
-msgstr "График множества точек"
+msgstr "Диаграмма рассеяния"
 
 # contributors:
 msgid "Scatter Plot - x: %s, y: %s"
-msgstr "График множества точек - x: %s, y: %s"
+msgstr "Диаграмма рассеяния - x: %s, y: %s"
 
 # contributors:
 msgid "Scatter Plot Matrix"
-msgstr "Матрица Графика множества точек"
+msgstr "Составная диаграмма рассеяния"
 
 # contributors:
 msgid "Scatter Plot Matrix Help"
-msgstr "Справка Матрицы Графика множества точек"
+msgstr "Справка Составная диаграмма рассеяния"
 
 # contributors:
 msgid "Scatter Plot Matrix Variables Add/Remove"
-msgstr "Добавить/Удалить переменные Матрицы Графика множества точек"
+msgstr "Добавить/Удалить переменные Составная диаграмма рассеяния"
 
 # contributors:
 msgid "Scatter Plot Variables"
-msgstr "Переменные Графика множества точек"
+msgstr "Переменные Диаграмма рассеяния"
 
 # contributors:
 msgid "Scatter Plot- x: %s, y: %s"
-msgstr "График множества точек- x: %s, y: %s"
+msgstr "Диаграмма рассеяния- x: %s, y: %s"
 
 # contributors:
 msgid "Second Variable (Y)"
@@ -4532,7 +4588,7 @@ msgstr "Настройка ко-локаций:"
 
 # contributors:
 msgid "Shape"
-msgstr "Форма"
+msgstr "Создание нового слоя"
 
 # contributors:
 msgid "Shape Centers"
@@ -5220,19 +5276,19 @@ msgstr "Одномерный"
 
 # contributors:
 msgid "Univariate Local Geary"
-msgstr "Одномерный локальный индекс Гири"
+msgstr "Одномерный локальный индекс Джири"
 
 # contributors:
 msgid "Univariate Local Join Count"
-msgstr "Одномерный подсчет локальных соединений"
+msgstr "Одномерная оценка локальных соединений"
 
 # contributors:
 msgid "Univariate Local Moran's I"
-msgstr "Одномерный локальный индекс Морана I"
+msgstr "Одномерный локальный индекс Морана"
 
 # contributors:
 msgid "Univariate Moran's I"
-msgstr "Одномерный индекс Морана I"
+msgstr "Одномерный индекс Морана"
 
 # contributors:
 msgid "Unknow exception. Please contact GeoDa support."

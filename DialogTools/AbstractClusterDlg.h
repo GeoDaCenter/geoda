@@ -150,6 +150,7 @@ protected:
                                       bool integer_only=false,
                                       bool add_centroids=true);
     virtual bool GetInputData(int transform, int min_num_var=2);
+    virtual bool CheckEmptyColumn(int col_id, int time);
     virtual void OnInputWeights(wxCommandEvent& event);
 
     virtual bool CheckContiguity(GalWeight* weights, double w, double& ssd);

@@ -340,7 +340,7 @@ void PartitionM::initIx(const int incl, const double lwr, const double upr)  {
     if (lower < 0 || upper > cells || incl < 0 || incl >= elements)
     {
         //     cout << "PartM: incl= " << incl << " l= " << lwr << "  " << upr;
-        exit(1);
+        return;
     }
 
     

@@ -3591,6 +3591,7 @@
                               <flag>wxALIGN_CENTRE_HORIZONTAL|wxALL|wxEXPAND</flag>
                               <border>15</border>
                           </object>
+                          <flag>wxALIGN_CENTRE_HORIZONTAL|wxALL|wxEXPAND</flag>
                       </object>
                   </object>
                   <label>Contiguity Weight</label>

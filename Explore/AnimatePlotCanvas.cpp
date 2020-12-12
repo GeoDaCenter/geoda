@@ -194,7 +194,7 @@ void AnimatePlotcanvas::UpdateCanvas(int idx, const std::vector<std::vector<doub
             PopulateCanvas();
             Refresh();
         } else {
-            std::cout << "not drawing: " << idx << std::endl;
+            //std::cout << "not drawing: " << idx << std::endl;
         }
     }
 }

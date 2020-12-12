@@ -354,7 +354,7 @@ public:
     void gotoHeader() { _inputStream.seekg(0, ios_base::beg); }
     void gotoData() { _inputStream.seekg(128, ios_base::beg); }
     void parseHeader();
-    void parseDataElement();
+    bool parseDataElement();
     void parseAllDataElements();
     bool eof() { return _inputStream.eof(); }
 

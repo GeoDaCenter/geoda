@@ -278,7 +278,7 @@ void RegressionDlg::OnRunClick( wxCommandEvent& event )
 	
 	wxString m_Yname = m_dependent->GetValue();
    
-    wxLogMessage("%s", _("y:") + m_Yname);
+    //wxLogMessage("%s", _("y:") + m_Yname);
     
     // Y and X's data
     //wxString st;
@@ -301,11 +301,11 @@ void RegressionDlg::OnRunClick( wxCommandEvent& event )
     std::vector<double> vec(m_obs);
     undefs.resize(m_obs);
     
-    wxLogMessage("x:");
+    //wxLogMessage("x:");
     
     for (int i=0; i < m_independentlist->GetCount(); i++) {
         wxString nm = name_to_nm[m_independentlist->GetString(i)];
-        wxLogMessage("%s", nm);
+        //wxLogMessage("%s", nm);
         
         int col = table_int->FindColId(nm);
         if (col == wxNOT_FOUND) {

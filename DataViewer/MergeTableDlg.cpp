@@ -233,7 +233,7 @@ void MergeTableDlg::OnOpenClick( wxCommandEvent& ev )
         wxString datasource_name = datasource->GetOGRConnectStr();
         GdaConst::DataSourceType ds_type = datasource->GetType();
        
-        wxLogMessage("ds:" + datasource_name + " layer: " + layer_name);
+        //wxLogMessage("ds:" + datasource_name + " layer: " + layer_name);
         
         if (merge_datasource_proxy != NULL) {
             delete merge_datasource_proxy;

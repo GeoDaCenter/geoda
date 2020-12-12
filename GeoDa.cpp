@@ -453,7 +453,7 @@ void GdaApp::OnInitCmdLine(wxCmdLineParser& parser)
 void GdaApp::MacOpenFiles(const wxArrayString& fileNames)
 {
     wxLogMessage("MacOpenFiles");
-    wxLogMessage("%s", fileNames[0]);
+    //wxLogMessage("%s", fileNames[0]);
     int sz=fileNames.GetCount();
 
     if (sz > 0) {
@@ -596,6 +596,7 @@ void GdaFrame::UpdateToolbarAndMenus()
     GeneralWxUtils::EnableMenuItem(mb,XRCID("ID_TOOLS_DATA_DBSCAN"), proj_open);
     GeneralWxUtils::EnableMenuItem(mb,XRCID("ID_TOOLS_DATA_HDBSCAN"), proj_open);
     GeneralWxUtils::EnableMenuItem(mb, XRCID("ID_TOOLS_DATA_MAXP"), proj_open);
+    GeneralWxUtils::EnableMenuItem(mb, XRCID("ID_TOOLS_DATA_AZP"), proj_open);
     GeneralWxUtils::EnableMenuItem(mb, XRCID("ID_TOOLS_DATA_SKATER"), proj_open);
     GeneralWxUtils::EnableMenuItem(mb, XRCID("ID_TOOLS_DATA_SCHC"), proj_open);
     GeneralWxUtils::EnableMenuItem(mb, XRCID("ID_TOOLS_DATA_SPECTRAL"), proj_open);
@@ -1198,7 +1199,7 @@ void GdaFrame::OnRecentDSClick(wxCommandEvent& event)
     if (ds_name.IsEmpty())
         return;
     
-    wxLogMessage("%s", ds_name);
+    //wxLogMessage("%s", ds_name);
     
     if (ds_name.EndsWith(".gda")) {
         OpenProject(ds_name);
@@ -1344,7 +1345,7 @@ void GdaFrame::ShowOpenDatasourceDlg(wxPoint pos, bool init)
 void GdaFrame::OpenProject(const wxString& full_proj_path)
 {
 	wxLogMessage("GdaFrame::OpenProject()");
-    wxLogMessage("%s", full_proj_path);
+    //wxLogMessage("%s", full_proj_path);
     
     wxString msg;
     wxFileName fn(full_proj_path);
@@ -1556,7 +1557,7 @@ void GdaFrame::OnSaveAsProject(wxCommandEvent& event)
 		dlg.ShowModal();
 		return;
 	}
-	wxLogMessage("%s", _("Wrote GeoDa Project File: ") + proj_fname);
+	wxLogMessage("Exit GdaFrame::OnSaveAsProject");
 }
 
 void GdaFrame::OnSelectWithRect(wxCommandEvent& event)
@@ -5785,6 +5786,7 @@ void GdaFrame::OnSpecifySeedDlg(wxCommandEvent& event)
 
 void GdaFrame::OnDisplayPrecision(wxCommandEvent& event)
 {
+    wxLogMessage("In OnDisplayPrecision()");
     TemplateFrame* t = TemplateFrame::GetActiveFrame();
     if (!t) return;
     if (PCPFrame* f = dynamic_cast<PCPFrame*>(t)) {
@@ -6452,6 +6454,7 @@ void GdaFrame::OnDisplaySlopeValues(wxCommandEvent& event)
 
 void GdaFrame::OnTimeSyncVariable(int var_index)
 {
+    wxLogMessage("In GdaFrame::OnTimeSyncVariable()");
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
 	if (!t) return;
 	t->OnTimeSyncVariable(var_index);
@@ -6483,6 +6486,7 @@ void GdaFrame::OnTimeSyncVariable4(wxCommandEvent& event)
 
 void GdaFrame::OnFixedScaleVariable(int var_index)
 {
+    wxLogMessage("In GdaFrame::OnFixedScaleVariable()");
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
 	if (!t) return;
 	t->OnFixedScaleVariable(var_index);
@@ -6514,6 +6518,7 @@ void GdaFrame::OnFixedScaleVariable4(wxCommandEvent& event)
 
 void GdaFrame::OnPlotsPerView(int plots_per_view)
 {
+    wxLogMessage("In GdaFrame::OnPlotsPerView()");
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
 	if (!t) return;
 	t->OnPlotsPerView(plots_per_view);
@@ -6677,10 +6682,11 @@ void GdaFrame::OnHelpAbout(wxCommandEvent& WXUNUSED(event) )
 	if (Gda::version_type == 0) {
 		vl_s << " (alpha),";
 	} else if (Gda::version_type == 1) {
-        if (Gda::version_night > 0)
+        if (Gda::version_night > 0) {
             vl_s << "-" << Gda::version_night << " (nightly),";
-        else
-    		vl_s << " (beta),";
+        } else {
+    		vl_s << " (beta),"; 
+        }
 	} // otherwise assumed to be release
 	vl_s << " " << Gda::version_day << " ";
 	if (Gda::version_month == 1) {

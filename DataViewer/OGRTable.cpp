@@ -1367,7 +1367,6 @@ int OGRTable::InsertCol(GdaConst::FieldType type,
 bool OGRTable::DeleteCol(int pos)
 {
 	wxLogMessage("Inside OGRTable::DeleteCol");
-	wxLogMessage(wxString::Format("Deleting column from table at postion %d", pos));
 	if (pos < 0 || pos >= var_order.GetNumVarGroups() ||
 		var_order.GetNumVarGroups() == 0) {
         return false;
@@ -1402,7 +1401,7 @@ bool OGRTable::DeleteCol(int pos)
 	table_state->notifyObservers();
     
 	SetChangedSinceLastSave(true);
-    
+    wxLogMessage("Exit OGRTable::DeleteCol");
 	return true;
 }
 

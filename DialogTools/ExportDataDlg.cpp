@@ -336,7 +336,7 @@ void ExportDataDlg::OnOkClick( wxCommandEvent& event )
     datasource_name = ds_name;
 	GdaConst::DataSourceType ds_type = datasource->GetType();
    
-    wxLogMessage("%s", _("ds:") + ds_name);
+    //wxLogMessage("%s", _("ds:") + ds_name);
     if (ds_name.length() <= 0 ) {
         wxMessageDialog dlg(this, _("Please specify a valid data source name."),
                             _("Warning"), wxOK | wxICON_WARNING);

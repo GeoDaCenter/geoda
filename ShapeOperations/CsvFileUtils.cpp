@@ -177,7 +177,7 @@ bool Gda::FillStringTableFromCsv(const std::string& csv_fname,
 	
 	ifstream file(csv_fname.c_str());
 	if (!file.is_open()) {
-		cout << "Error: unable to open CSV file." << endl;
+		//cout << "Error: unable to open CSV file." << endl;
 		return false;
 	}
 	

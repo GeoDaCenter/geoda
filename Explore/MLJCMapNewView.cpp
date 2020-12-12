@@ -671,7 +671,7 @@ void MLJCMapFrame::OnSpecifySeedDlg(wxCommandEvent& event)
 	if (dlg.ShowModal() != wxID_OK) return;
 	dlg_val = dlg.GetValue();
     
-    wxLogMessage("%s", dlg_val);
+    //wxLogMessage("%s", dlg_val);
     
 	dlg_val.Trim(true);
 	dlg_val.Trim(false);

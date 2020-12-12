@@ -364,7 +364,7 @@ void PreferenceDlg::Init()
 #ifdef __WIN32__
 	gdal_page->SetBackgroundColour(*wxWHITE);
 #endif
-	notebook->AddPage(gdal_page, "Data");
+	notebook->AddPage(gdal_page, _("Data"));
 	wxFlexGridSizer* grid_sizer2 = new wxFlexGridSizer(12, 2, 8, 10);
 
     grid_sizer2->Add(new wxStaticText(gdal_page, wxID_ANY, _("Source:")), 1);

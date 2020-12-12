@@ -295,8 +295,8 @@ void TSNEDlg::CreateControls()
     hbox_4->Add(m_slider, 1, wxALIGN_CENTER_VERTICAL | wxALL, 5);
 
     wxBoxSizer *hbox_3 = new wxBoxSizer(wxHORIZONTAL);
-    playButton = new wxButton(panel, wxID_OK, _(">"), wxDefaultPosition, wxSize(30, 30));
-    pauseButton = new wxButton(panel, wxID_OK, _("||"), wxDefaultPosition, wxSize(30, 30));
+    playButton = new wxButton(panel, wxID_OK, ">", wxDefaultPosition, wxSize(30, 30));
+    pauseButton = new wxButton(panel, wxID_OK, "||", wxDefaultPosition, wxSize(30, 30));
     //stopButton = new wxButton(panel, wxID_OK, _("■"), wxDefaultPosition, wxSize(30, 30));
     playButton->Enable(false);
     pauseButton->Enable(false);

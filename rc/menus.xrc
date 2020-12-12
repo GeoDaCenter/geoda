@@ -336,10 +336,6 @@
           <label>10</label>
 	    </object>
       </object>
-      <object class="wxMenuItem" name="ID_HIERARCHICAL_MAP">
-          <label>Hierarchical Map</label>
-          <checkable>0</checkable>
-      </object>
       <object class="wxMenu" name="ID_OPEN_CUSTOM_BREAKS_SUBMENU">
           <label>Custom Breaks</label>
           <object class="wxMenuItem" name="ID_NEW_CUSTOM_CAT_CLASSIF_A">
@@ -872,10 +868,6 @@
 		  <checkable>1</checkable>
         </object>
 	  </object>
-      <object class="wxMenuItem" name="ID_HIERARCHICAL_MAP">
-          <label>Hierarchical Map</label>
-          <checkable>0</checkable>
-      </object>
       <object class="wxMenu" name="ID_OPEN_CUSTOM_BREAKS_SUBMENU">
           <label>Custom Breaks</label>
           <object class="wxMenuItem" name="ID_NEW_CUSTOM_CAT_CLASSIF_A">
@@ -4666,10 +4658,6 @@
 		  <checkable>1</checkable>
         </object>
 	  </object>
-      <object class="wxMenuItem" name="ID_HIERARCHICAL_MAP">
-          <label>Hierarchical Map</label>
-          <checkable>0</checkable>
-      </object>
       <object class="wxMenu" name="ID_OPEN_CUSTOM_BREAKS_SUBMENU">
           <label>Custom Breaks</label>
           <object class="wxMenuItem" name="ID_NEW_CUSTOM_CAT_CLASSIF_A">
@@ -6370,10 +6358,6 @@
         <label>10</label>
 	  </object>
     </object>
-    <object class="wxMenuItem" name="ID_HIERARCHICAL_MAP">
-        <label>Hierarchical Map</label>
-        <checkable>0</checkable>
-    </object>
     <object class="wxMenu" name="ID_OPEN_CUSTOM_BREAKS_SUBMENU">
         <label>Custom Breaks</label>
         <object class="wxMenuItem" name="ID_NEW_CUSTOM_CAT_CLASSIF_A">
@@ -6513,10 +6497,6 @@
 	  <object class="wxMenuItem" name="ID_OPEN_EQUAL_INTERVALS_10">
         <label>10</label>
 	  </object>
-    </object>
-    <object class="wxMenuItem" name="ID_HIERARCHICAL_MAP">
-        <label>Hierarchical Map</label>
-        <checkable>0</checkable>
     </object>
     <object class="wxMenu" name="ID_OPEN_CUSTOM_BREAKS_SUBMENU">
         <label>Custom Breaks</label>

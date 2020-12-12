@@ -41,7 +41,7 @@
 #include "../Explore/MapNewView.h"
 #include "../Project.h"
 #include "../Algorithms/cluster.h"
-#include "../Algorithms/maxp.h"
+#include "../Algorithms/azp.h"
 
 #include "../GeneralWxUtils.h"
 #include "../GenUtils.h"
@@ -68,7 +68,7 @@ MaxpDlg::~MaxpDlg()
 void MaxpDlg::CreateControls()
 {
     wxLogMessage("On MaxpDlg::CreateControls");
-    wxScrolledWindow* scrl = new wxScrolledWindow(this, wxID_ANY, wxDefaultPosition, wxSize(800,820), wxHSCROLL|wxVSCROLL );
+    wxScrolledWindow* scrl = new wxScrolledWindow(this, wxID_ANY, wxDefaultPosition, wxSize(900,820), wxHSCROLL|wxVSCROLL );
     scrl->SetScrollRate( 5, 5 );
     
     wxPanel *panel = new wxPanel(scrl);
@@ -95,6 +95,9 @@ void MaxpDlg::CreateControls()
     wxBoxSizer *hbox18 = new wxBoxSizer(wxHORIZONTAL);
     chk_lisa = new wxCheckBox(panel, wxID_ANY, "");
     combo_lisa = new wxChoice(panel, wxID_ANY, wxDefaultPosition, wxSize(160,-1));
+    st18->Hide();
+    chk_lisa->Hide();
+    combo_lisa->Hide();
     
     hbox18->Add(chk_lisa,0, wxALIGN_CENTER_VERTICAL);
     hbox18->Add(combo_lisa,0,wxALIGN_CENTER_VERTICAL);
@@ -113,16 +116,27 @@ void MaxpDlg::CreateControls()
     wxString choices19[] = {"Greedy", "Tabu Search", "Simulated Annealing"};
     m_localsearch = new wxChoice(panel, wxID_ANY, wxDefaultPosition, wxSize(200,-1), 3, choices19);
     m_localsearch->SetSelection(0);
+    
     wxBoxSizer *hbox19_1 = new wxBoxSizer(wxHORIZONTAL);
-    hbox19_1->Add(new wxStaticText(panel, wxID_ANY, _("Tabu Length:")));
-    m_tabulength = new wxTextCtrl(panel, wxID_ANY, "85");
-    hbox19_1->Add(m_tabulength);
+    m_tabulength = new wxTextCtrl(panel, wxID_ANY, "10", wxDefaultPosition, wxSize(45,-1));
+    m_convtabu = new wxTextCtrl(panel, wxID_ANY, "", wxDefaultPosition, wxSize(45,-1));
+    hbox19_1->Add(new wxStaticText(panel, wxID_ANY, _("Tabu Length:")), 0, wxALIGN_CENTER_VERTICAL);
+    hbox19_1->Add(m_tabulength, 0, wxALIGN_CENTER_VERTICAL);
+    hbox19_1->Add(new wxStaticText(panel, wxID_ANY, _("ConvTabu:")), 0, wxALIGN_CENTER_VERTICAL);
+    hbox19_1->Add(m_convtabu, 0, wxALIGN_CENTER_VERTICAL);
     m_tabulength->Disable();
+    m_convtabu->Disable();
+    
     wxBoxSizer *hbox19_2 = new wxBoxSizer(wxHORIZONTAL);
-    hbox19_2->Add(new wxStaticText(panel, wxID_ANY, _("Cooling Rate:")));
-    m_coolrate= new wxTextCtrl(panel, wxID_ANY, "0.85");
-    hbox19_2->Add(m_coolrate);
+    m_coolrate= new wxTextCtrl(panel, wxID_ANY, "0.85", wxDefaultPosition, wxSize(45,-1));
+    m_sait= new wxTextCtrl(panel, wxID_ANY, "1", wxDefaultPosition, wxSize(30,-1));
+    hbox19_2->Add(new wxStaticText(panel, wxID_ANY, _("Cooling Rate:")), 0, wxALIGN_CENTER_VERTICAL);
+    hbox19_2->Add(m_coolrate, 0, wxALIGN_CENTER_VERTICAL);
+    hbox19_2->Add(new wxStaticText(panel, wxID_ANY, _("MaxIt:")), 0, wxALIGN_CENTER_VERTICAL);
+    hbox19_2->Add(m_sait, 0, wxALIGN_CENTER_VERTICAL);
+    m_sait->Disable();
     m_coolrate->Disable();
+    
     wxBoxSizer *vbox19 = new wxBoxSizer(wxVERTICAL);
     vbox19->Add(m_localsearch, 1, wxEXPAND);
     vbox19->Add(hbox19_1, 1, wxEXPAND);
@@ -221,13 +235,19 @@ void MaxpDlg::OnLocalSearch(wxCommandEvent& event)
     wxLogMessage("On MaxpDlg::OnLocalSearch");
     if ( m_localsearch->GetSelection() == 0) {
         m_tabulength->Disable();
+        m_convtabu->Disable();
         m_coolrate->Disable();
+        m_sait->Disable();
     } else if ( m_localsearch->GetSelection() == 1) {
         m_tabulength->Enable();
+        m_convtabu->Enable();
         m_coolrate->Disable();
+        m_sait->Disable();
     } else if ( m_localsearch->GetSelection() == 2) {
         m_tabulength->Disable();
+        m_convtabu->Disable();
         m_coolrate->Enable();
+        m_sait->Enable();
     }
 }
 void MaxpDlg::OnCheckMinBound(wxCommandEvent& event)
@@ -400,9 +420,11 @@ wxString MaxpDlg::_printConfiguration()
     } else if (local_search_method == 1) {
         txt << _("Local search:") << "\t" << _("Tabu Search") << "\n";
         txt << _("Tabu length:") << "\t" << m_tabulength->GetValue() << "\n";
+        txt << _("ConvTabu:") << "\t" << conv_tabu << "\n";
     } else if (local_search_method == 2) {
         txt << _("Local search:") << "\t" << _("Simulated Annealing") << "\n";
         txt << _("Cooling rate:") << "\t" << m_coolrate->GetValue() << "\n";
+        txt << _("MaxIt:") << "\t" << m_sait->GetValue() << "\n";
     }
     
     txt << _("Distance function:\t") << m_distance->GetString(m_distance->GetSelection()) << "\n";
@@ -466,17 +488,42 @@ void MaxpDlg::OnOK(wxCommandEvent& event )
         dlg.ShowModal();
     }
     
-	// Get Bounds
+	// zonecontrls
+    std::vector<ZoneControl> controllers;
+    
+    // Get Min regions
+    wxString str_min_region = txt_minregions->GetValue();
+    long l_min_region  = 0;
+    if (!str_min_region.IsEmpty() && str_min_region.ToLong(&l_min_region) == false) {
+        wxString err_msg = _("Please enter a valid number for Min Region Size.");
+        wxMessageDialog dlg(NULL, err_msg, _("Error"), wxOK | wxICON_ERROR);
+        dlg.ShowModal();
+        return;
+    }
+    if  (l_min_region  > 0) {
+        std::vector<double> ids(rows, 1);
+        ZoneControl zc(ids);
+        zc.AddControl(ZoneControl::SUM,
+                      ZoneControl::MORE_THAN, l_min_region);
+        controllers.push_back(zc);
+    }
+    
+    // Get Bounds
     double min_bound = GetMinBound();
+    double* bound_vals = GetBoundVals();
     if (chk_floor->IsChecked()) {
-        wxString str_floor = txt_floor->GetValue();
-        if (str_floor.IsEmpty() || combo_floor->GetSelection() < 0) {
+        if (combo_floor->GetSelection() < 0) {
             wxString err_msg = _("Please enter minimum bound value");
             wxMessageDialog dlg(NULL, err_msg, _("Error"), wxOK | wxICON_ERROR);
             dlg.ShowModal();
             return;
         }
         select_floor = combo_floor->GetString(combo_floor->GetSelection());
+        ZoneControl zc(rows, bound_vals);
+        zc.AddControl(ZoneControl::SUM,
+                      ZoneControl::MORE_THAN, min_bound);
+        controllers.push_back(zc);
+        delete[] bound_vals;
     } else {
         wxString str_floor = txt_minregions->GetValue();
         if (str_floor.IsEmpty()) {
@@ -486,52 +533,45 @@ void MaxpDlg::OnOK(wxCommandEvent& event )
             return;
         }
     }
-    double* bound_vals = GetBoundVals();
-    if (bound_vals == NULL) {
-        wxString str_min_regions = txt_minregions->GetValue();
-        long val_min_regions;
-        if (str_min_regions.ToLong(&val_min_regions)) {
-            min_bound = val_min_regions;
-        }
-        bound_vals = new double[rows];
-        for (int i=0; i<rows; i++) bound_vals[i] = 1;
-    }
         
 	// Get iteration numbers
-    int initial = 99;
-    long value_initial;
-    if(str_initial.ToLong(&value_initial)) {
-        initial = value_initial;
+    int iterations = 99;
+    long value_iter;
+    if(str_initial.ToLong(&value_iter)) {
+        iterations = value_iter;
     }
     
 	// Get initial seed e.g LISA clusters
-    vector<wxInt64> seeds;
-    bool use_lisa_seed = chk_lisa->GetValue();
-    if (use_lisa_seed) {
+    std::vector<int> init_regions;
+    bool use_init_regions = chk_lisa->GetValue();
+    if (use_init_regions) {
         int idx = combo_lisa->GetSelection();
         if (idx < 0) {
-            use_lisa_seed = false;
+            use_init_regions = false;
         } else {
             select_lisa = combo_lisa->GetString(idx);
             wxString nm = name_to_nm[select_lisa];
             int col = table_int->FindColId(nm);
             if (col == wxNOT_FOUND) {
-                if (bound_vals) delete[] bound_vals;
                 wxString err_msg = wxString::Format(_("Variable %s is no longer in the Table.  Please close and reopen this dialog to synchronize with Table data."), nm);
                 wxMessageDialog dlg(NULL, err_msg, _("Error"), wxOK | wxICON_ERROR);
                 dlg.ShowModal();
                 return;
             }
             int tm = name_to_tm_id[combo_lisa->GetString(idx)];
-            
-            table_int->GetColData(col, tm, seeds);
+            std::vector<wxInt64> vals;
+            table_int->GetColData(col, tm, vals);
+            init_regions.resize(vals.size());
+            for (int i=0; i<vals.size(); ++i) init_regions[i] = vals[i];
         }
     }
    
     // Get local search method
     int local_search_method = m_localsearch->GetSelection();
-    int tabu_length = 85;
+    int tabu_length = 10;
+    conv_tabu = 0;
     double cool_rate = 0.85;
+    int sa_iter = 1;
     if ( local_search_method == 0) {
         m_tabulength->Disable();
         m_coolrate->Disable();
@@ -542,10 +582,15 @@ void MaxpDlg::OnOK(wxCommandEvent& event )
             tabu_length = n_tabulength;
         }
         if (tabu_length < 1) {
-            wxString err_msg = _("Tabu length for Tabu Search algorithm has to be an integer number larger than 1 (e.g. 85).");
+            wxString err_msg = _("Tabu length for Tabu Search algorithm has to be an integer number larger than 1 (e.g. 10).");
             wxMessageDialog dlg(NULL, err_msg, _("Error"), wxOK | wxICON_ERROR);
             dlg.ShowModal();
             return;
+        }
+        wxString str_convtabu= m_convtabu->GetValue();
+        long n_convtabu;
+        if (str_convtabu.ToLong(&n_convtabu)) {
+            conv_tabu = (int)n_convtabu;
         }
     } else if ( local_search_method == 2) {
         wxString str_coolrate = m_coolrate->GetValue();
@@ -557,29 +602,65 @@ void MaxpDlg::OnOK(wxCommandEvent& event )
             dlg.ShowModal();
             return;
         }
+        wxString str_maxit = m_sait->GetValue();
+        long l_max_it = 1;
+        str_maxit.ToLong(&l_max_it);
+        if ( l_max_it <= 0) {
+            wxString err_msg = _("MaxIt for Simulated Annealing algorithm has to be a positive integer number.");
+            wxMessageDialog dlg(NULL, err_msg, _("Error"), wxOK | wxICON_ERROR);
+            dlg.ShowModal();
+            return;
+        }
+        sa_iter = l_max_it;
     }
 
 	// Get random seed
     int rnd_seed = -1;
     if (chk_seed->GetValue()) rnd_seed = GdaConst::gda_user_seed;
     
-	// Run MaxP
-	vector<vector<double> > z;
-	for (int i=0; i<rows; i++) {
-		vector<double> vals;
-		for (int j=0; j<columns; j++) {
-			vals.push_back(input_data[i][j]);
-		}
-		z.push_back(vals);
-	}
-    Maxp maxp(gw->gal, z, min_bound, bound_vals, initial, seeds,
-              local_search_method, tabu_length, cool_rate, rnd_seed, dist);
+    //maxp
+    int inits = 0; // ARiSel
+    int transpose = 0; // row wise
+    double** ragged_distances = distancematrix(rows, columns, input_data,  mask, weight, dist, transpose);
+    RawDistMatrix dm(ragged_distances);
 
-    if (bound_vals) delete[] bound_vals;
-
-    vector<vector<int> > cluster_ids = maxp.GetRegions();
-    int ncluster = cluster_ids.size();
+    std::vector<int> final_solution;
+    RegionMaker* maxp;
+    if ( local_search_method == 0) {
+        maxp = new MaxpRegion(iterations, gw->gal, input_data, &dm, rows, columns,
+                             controllers, inits, init_regions, rnd_seed);
+    } else if ( local_search_method == 1) {
+        maxp = new MaxpTabu(iterations, gw->gal, input_data, &dm, rows, columns,
+                            controllers, tabu_length, conv_tabu, inits, init_regions, rnd_seed);
+        conv_tabu = ((MaxpTabu*)maxp)->GetConvTabu();
+    } else {
+        maxp = new MaxpSA(iterations, gw->gal, input_data, &dm, rows, columns,
+                          controllers, cool_rate, sa_iter, inits, init_regions, rnd_seed);
+    }
+    if (maxp->IsSatisfyControls() == false) {
+        wxString msg = _("The clustering results violate the requirement of minimum bound  or minimum number per region. Please adjust the input and try again.");
+        wxMessageDialog dlg(NULL, msg, _("Warning"), wxOK | wxICON_WARNING);
+        dlg.ShowModal();
+    }
+    final_solution = maxp->GetResults();
+    //initial_of = maxp->GetInitObjectiveFunction();
+    //final_of = maxp->GetFinalObjectiveFunction();
+    delete maxp;
     
+    vector<vector<int> > cluster_ids;
+    std::map<int, std::vector<int> > solution;
+    for (int i=0; i<final_solution.size(); ++i) {
+        solution[final_solution[i]].push_back(i);
+    }
+    std::map<int, std::vector<int> >::iterator it;
+    for (it = solution.begin(); it != solution.end(); ++it) {
+        cluster_ids.push_back(it->second);
+    }
+
+    for (int i = 1; i < rows; i++) free(ragged_distances[i]);
+    free(ragged_distances);
+    
+    int ncluster = cluster_ids.size();
     vector<wxInt64> clusters(rows, 0);
     vector<bool> clusters_undef(rows, false);
 
