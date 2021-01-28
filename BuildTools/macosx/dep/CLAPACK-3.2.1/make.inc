@@ -24,13 +24,13 @@ PLAT =
 CC        = gcc
 # if no wrapping of the blas library is needed, uncomment next line
 #CC        = gcc -DNO_BLAS_WRAP
-CFLAGS    = -O3 -m64 -arch x86_64 -isysroot $GDA_WITH_SYSROOT -mmacosx-version-min=10.6 -I$(GEODA_HOME)/temp/CLAPACK-3.2.1/INCLUDE -I$(GEODA_HOME)/temp/CLAPACK-3.2.1/
-CFLAGS    = -O3 -m64 -arch x86_64  -I$(GEODA_HOME)/temp/CLAPACK-3.2.1/INCLUDE -I$(GEODA_HOME)/temp/CLAPACK-3.2.1/
+CFLAGS    = -O3 -m64 -arch arm64 -isysroot $GDA_WITH_SYSROOT -mmacosx-version-min=10.10 -I$(GEODA_HOME)/temp/CLAPACK-3.2.1/INCLUDE -I$(GEODA_HOME)/temp/CLAPACK-3.2.1/
+CFLAGS    = -O3 -m64 -arch arm64  -I$(GEODA_HOME)/temp/CLAPACK-3.2.1/INCLUDE -I$(GEODA_HOME)/temp/CLAPACK-3.2.1/
 LOADER    =  gcc
-LOADOPTS  =  -m64 -arch x86_64 -isysroot $GDA_WITH_SYSROOT -mmacosx-version-min=10.6
-LOADOPTS  =  -m64 -arch x86_64 
-NOOPT     = -O0 -m64 -arch x86_64 -isysroot $GDA_WITH_SYSROOT -mmacosx-version-min=10.6 -I$(GEODA_HOME)/temp/CLAPACK-3.2.1/INCLUDE
-NOOPT     = -O0 -m64 -arch x86_64 -I$(GEODA_HOME)/temp/CLAPACK-3.2.1/INCLUDE
+LOADOPTS  =  -m64 -arch arm64 -isysroot $GDA_WITH_SYSROOT -mmacosx-version-min=10.10
+LOADOPTS  =  -m64 -arch arm64 
+NOOPT     = -O0 -m64 -arch arm64 -isysroot $GDA_WITH_SYSROOT -mmacosx-version-min=10.10 -I$(GEODA_HOME)/temp/CLAPACK-3.2.1/INCLUDE
+NOOPT     = -O0 -m64 -arch arm64 -I$(GEODA_HOME)/temp/CLAPACK-3.2.1/INCLUDE
 DRVCFLAGS = $(CFLAGS)
 F2CCFLAGS = $(CFLAGS)
 #######################################################################

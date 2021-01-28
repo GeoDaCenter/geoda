@@ -225,7 +225,7 @@ bool GdaApp::OnInit(void)
 {
 	if (!wxApp::OnInit())
         return false;
-
+    
     // initialize OGR connection
 	OGRDataAdapter::GetInstance();
 #ifdef __WIN32__

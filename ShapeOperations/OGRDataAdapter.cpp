@@ -33,7 +33,7 @@
 OGRDataAdapter::OGRDataAdapter()
 {
     CPLSetConfigOption("FGDB_BULK_LOAD", "YES");
-	OGRRegisterAll();
+    GDALAllRegister();
 	
 	layer_thread = NULL;
 	gda_cache = NULL;

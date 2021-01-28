@@ -295,7 +295,7 @@ if ! [ -f "$PREFIX/lib/$LIB_CHECKER" ] ; then
 fi
 # in some case, the make install doens't work because of .la file content error,
 # so copy the compiled files manually
-cd $LIB_NAME
+cd $LIB_NAE
 cp src/.libs/libspatialite.* $PREFIX/lib/
 
 if ! [ -f "$PREFIX/lib/$LIB_CHECKER" ] ; then
