@@ -21,6 +21,8 @@
 #include <boost/uuid/nil_generator.hpp>
 #include <wx/textdlg.h>
 #include <wx/xrc/xmlres.h>
+#include <wx/settings.h>
+
 #include "../FramesManager.h"
 #include "../Project.h"
 #include "../ShapeOperations/WeightsManager.h"
@@ -83,8 +85,10 @@ void SelectWeightsDlg::InitNoWeights()
 void SelectWeightsDlg::InitNormal()
 {
 	panel = new wxPanel(this);
-	panel->SetBackgroundColour(*wxWHITE);
-	SetBackgroundColour(*wxWHITE);
+    if (!wxSystemSettings::GetAppearance().IsDark()) {
+        panel->SetBackgroundColour(*wxWHITE);
+        SetBackgroundColour(*wxWHITE);
+    }
 	
 	ok_btn = new wxButton(panel, XRCID("wxID_OK"), "OK",
 						  wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT);

@@ -32,6 +32,7 @@
 #include <wx/valnum.h>
 #include <wx/valtext.h>
 #include <wx/xrc/xmlres.h>
+#include <wx/settings.h>
 #include "../FramesManager.h"
 #include "../GdaConst.h"
 #include "../GeneralWxUtils.h"
@@ -899,7 +900,9 @@ has_custom_color(false)
     	ResetValuesToDefault();
     	EnableControls(false);
     }
-	SetBackgroundColour(*wxWHITE);
+    if (!wxSystemSettings::GetAppearance().IsDark()) {
+        SetBackgroundColour(*wxWHITE);
+    }
 	table_state->registerObserver(this);
     GetSizer()->Fit(this);
     GetSizer()->SetSizeHints(this);

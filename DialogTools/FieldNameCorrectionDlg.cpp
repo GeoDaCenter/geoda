@@ -24,6 +24,7 @@
 #include <wx/button.h>
 #include <wx/regex.h>
 #include <wx/xrc/xmlres.h>
+#include <wx/settings.h>
 
 #include "../GdaConst.h"
 #include "../ShapeOperations/OGRLayerProxy.h"
@@ -145,7 +146,9 @@ void ScrolledWidgetsPane::Init(vector<int>& dup_fname_idx_s,
 	wxFlexGridSizer* sizer = new wxFlexGridSizer(nrow, ncol, 10, 0);
 	
 	// add a series of widgets
-    SetBackgroundColour(*wxWHITE);
+    if (!wxSystemSettings::GetAppearance().IsDark()) {
+        SetBackgroundColour(*wxWHITE);
+    }
 	
 	txt_fname.clear(); // ID_FNAME_STAT_TXT_BASE
 	txt_input.clear(); // ID_INPUT_TXT_CTRL_BASE

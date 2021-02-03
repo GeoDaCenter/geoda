@@ -284,7 +284,7 @@ boost::uuids::uuid DiffMoranVarSettingDlg::GetWeightsId()
    
     int sel = combo_weights->GetSelection();
     if (sel < 0) sel = 0;
-    if (sel >= weights_ids.size()) sel = weights_ids.size()-1;
+    if (sel >= weights_ids.size()) sel = (int)weights_ids.size()-1;
 
     return weights_ids[sel];
 }

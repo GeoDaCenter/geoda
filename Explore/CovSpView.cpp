@@ -480,8 +480,7 @@ void CovSpFrame::UpdatePanel()
 		}
 	}
 	panel_v_szr->Add(bag_szr, 1, wxEXPAND);
-	LOG(bag_szr->GetItemCount());
-	top_h_sizer->RecalcSizes();
+	top_h_sizer->RepositionChildren(top_h_sizer->CalcMin());
 	UpdateTitle();
 	Refresh();
 }

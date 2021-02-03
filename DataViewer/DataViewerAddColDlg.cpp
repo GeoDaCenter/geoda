@@ -25,6 +25,7 @@
 
 #include <wx/xrc/xmlres.h>
 #include <wx/regex.h>
+#include <wx/settings.h>
 #include "TableInterface.h"
 #include "TimeState.h"
 #include "../Project.h"
@@ -93,7 +94,9 @@ fixed_lengths(project_s->GetTableInt()->HasFixedLengths())
 void DataViewerAddColDlg::CreateControls()
 {
     wxLogMessage("DataViewerAddColDlg::CreateControls()");
-    SetBackgroundColour(*wxWHITE);
+    if (!wxSystemSettings::GetAppearance().IsDark()) {
+        SetBackgroundColour(*wxWHITE);
+    }
 	if (time_variant && fixed_lengths) {
 		wxXmlResource::Get()->LoadDialog(this, GetParent(), "ID_DATA_VIEWER_ADD_COL_TIME_FIXED_DLG");
 	} else if (time_variant && !fixed_lengths) {

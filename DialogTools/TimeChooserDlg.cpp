@@ -20,6 +20,8 @@
 #include <wx/wx.h>
 #include <wx/sizer.h>
 #include <wx/xrc/xmlres.h>
+#include <wx/settings.h>
+
 #include "../FramesManager.h"
 #include "../DataViewer/TimeState.h"
 #include "../DataViewer/TableState.h"
@@ -76,8 +78,9 @@ loop(true), forward(true)
 	wxLogMessage("Open TimeChooserDlg.");
 	SetParent(parent);
 	wxXmlResource::Get()->LoadDialog(this, GetParent(), "ID_TIME_CHOOSER_DLG");
-    SetBackgroundColour(*wxWHITE);
-    
+    if (!wxSystemSettings::GetAppearance().IsDark()) {
+        SetBackgroundColour(*wxWHITE);
+    }
 	play_button = wxDynamicCast(FindWindow(XRCID("ID_PLAY")), wxButton);
     forward_button = wxDynamicCast(FindWindow(XRCID("ID_STEP_FORWARD")), wxButton);
     backward_button = wxDynamicCast(FindWindow(XRCID("ID_STEP_BACK")), wxButton);

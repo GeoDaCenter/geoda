@@ -22,6 +22,7 @@
 #include <wx/image.h>
 #include <wx/xrc/xmlres.h>
 #include <wx/dcbuffer.h>
+#include <wx/settings.h>
 
 #include "../rc/GeoDaIcon-16x16.xpm"
 #include "../ShapeOperations/GalWeight.h"
@@ -794,6 +795,10 @@ void RandomizationDlg::CreateControls()
 {
     wxButton *button = new wxButton(this, ID_BUTTON, _("Run"));
    
+    if (wxSystemSettings::GetAppearance().IsDark()) {
+        button->SetForegroundColour(*wxBLACK);
+    }
+    
     wxBoxSizer* panel_box = new wxBoxSizer(wxVERTICAL);
     panel_box->Add(button, 0, wxALIGN_CENTER | wxALIGN_TOP | wxALL, 10);
     panel_box->Add(panel, 1, wxEXPAND | wxALL, 10);

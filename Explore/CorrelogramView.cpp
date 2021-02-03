@@ -97,7 +97,7 @@ axis_display_fixed_point(false)
 	SetSizer(top_h_sizer);
 	DisplayStatusBar(true);
 	
-	local_hl_state->SetSize(par.bins);
+	local_hl_state->SetSize((int)par.bins);
     
 	UpdateDataMapFromVarMan();
 	UpdateCorrelogramData();
@@ -319,7 +319,7 @@ void CorrelogramFrame::OnDisplayStatistics(wxCommandEvent& event)
     if (shs_plot) {
         if (display_statistics) shs_plot->Show();
         else shs_plot->Hide();
-        top_h_sizer->RecalcSizes();
+        top_h_sizer->RepositionChildren(panel_v_szr->CalcMin());
     }
     Refresh();
 	UpdateOptionMenuItems();
@@ -508,7 +508,6 @@ void CorrelogramFrame::SetupPanelForNumVariables(int num_vars)
 	} else {
 		for (int row=0; row<num_vars; ++row) {
 			wxString nm=var_man.GetName(row);
-			int tm=var_man.GetTime(row);
 			double y_min = -1;
 			double y_max = 1;
 			if (row == 0) {
@@ -686,7 +685,7 @@ void CorrelogramFrame::SetupPanelForNumVariables(int num_vars)
 		AxisScale h_axs;
         h_axs.lbl_precision = axis_display_precision;
         h_axs.lbl_prec_fixed_point = axis_display_fixed_point;
-		h_axs.ticks = cbins.size()+1;
+		h_axs.ticks = (int)cbins.size()+1;
 		h_axs.data_min = cbins[0].dist_min;
 		h_axs.data_max = cbins[cbins.size()-1].dist_max;
 		h_axs.scale_min = h_axs.data_min;
@@ -812,7 +811,7 @@ void CorrelogramFrame::SetupPanelForNumVariables(int num_vars)
     
     panel_v_szr->Add(shs_can, 0, wxLEFT | wxRIGHT | wxEXPAND);
    
-	top_h_sizer->RecalcSizes();
+	top_h_sizer->RepositionChildren(panel_v_szr->CalcMin());
     
     if (valid_sampling == false ) {
         wxString msg = _("The sample size for random sampling is too small.\nPlease increase the number of iterations.");
@@ -999,23 +998,23 @@ bool CorrelogramFrame::UpdateCorrelogramData()
 	project->GetCentroids(pts);
 
 	if (par.method == CorrelParams::ALL_PAIRS) {	
-		success = MakeCorrAllPairs(pts, Z, Z_undef, is_arc, par.bins, cbins);
+		success = MakeCorrAllPairs(pts, Z, Z_undef, is_arc, (int)par.bins, cbins);
 	
 	} else if (par.method == CorrelParams::ALL_PAIRS_THRESH) {
 		if (is_arc) {
 			success = MakeCorrThresh(project->GetUnitSphereRtree(), Z, Z_undef,
-                                     th_rad, par.bins, cbins);
+                                     th_rad, (int)par.bins, cbins);
 		} else {
 			success = MakeCorrThresh(project->GetEucPlaneRtree(), Z, Z_undef,
-                                     par.threshold, par.bins, cbins);
+                                     par.threshold, (int)par.bins, cbins);
 		}
 	} else if (par.method == CorrelParams::RAND_SAMP) {
 		success = MakeCorrRandSamp(pts, Z, Z_undef, is_arc, -1,
-                                   par.bins,  par.max_iterations, cbins);
+                                   (int)par.bins,  (int)par.max_iterations, cbins);
 	}	else if (par.method == CorrelParams::RAND_SAMP_THRESH) {
 		success = MakeCorrRandSamp(pts, Z, Z_undef, is_arc,
                                    (is_arc ? th_rad : par.threshold),
-                                   par.bins,  par.max_iterations, cbins);
+                                   (int)par.bins,  (int)par.max_iterations, cbins);
 	}
     
     if (success == false) {
@@ -1027,7 +1026,7 @@ bool CorrelogramFrame::UpdateCorrelogramData()
     }
     
 	if (success && par.bins != local_hl_state->GetHighlightSize()) {
-		local_hl_state->SetSize(par.bins);
+		local_hl_state->SetSize((int)par.bins);
 	}
 	
 	if (success && is_arc) {
