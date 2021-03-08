@@ -536,8 +536,8 @@ uint64_t Gda::factorial(unsigned int n)
 
 double Gda::combinatorial(unsigned int n, unsigned int k) {
    
-    uint64_t r = 1;
-    uint64_t s = 1;
+    double r = 1;
+    double s = 1;
     
     size_t i;
     int kk = k > n/2 ? k : n-k;
@@ -546,7 +546,7 @@ double Gda::combinatorial(unsigned int n, unsigned int k) {
     
     for(i=(n-kk); i>0; i--) s *= i;
     
-    return (double)r / s;
+    return r / s;
 }
 
 wxString Gda::CreateUUID(int nSize)

@@ -459,8 +459,14 @@ void NbrMatchDlg::OnOK(wxCommandEvent& event )
     }
     wxString tmp = _("Local Neighbor Match Test Map (%d-nn: %s)");
     wxString ttl = wxString::Format(tmp, k, var_name);
-    
-    std::vector<std::vector<int> > groups(k);
+
+    int max_k = 0;
+    for (int i=0; i<rows; ++i) {
+        if (val_cnbrs[i] > max_k) {
+            max_k = val_cnbrs[i];
+        }
+    }
+    std::vector<std::vector<int> > groups(max_k+1);
     for (int i=0; i<rows; ++i) {
         groups[val_cnbrs[i]].push_back(i);
     }
