@@ -222,7 +222,7 @@ void DataViewerAddColDlg::SetDefaultsByType(GdaConst::FieldType type)
 	m_displayed_decimals->Disable();
 	if (fixed_lengths) {
 		m_length->Enable();
-		m_decimals_lable->SetLabelText("Decimals");
+		m_decimals_lable->SetLabelText(_("Decimals"));
 		m_decimals->SetValue("15");
 		m_decimals->Disable();
 		m_max_label->SetLabelText("");
@@ -240,15 +240,15 @@ void DataViewerAddColDlg::SetDefaultsByType(GdaConst::FieldType type)
 			m_displayed_decimals->Enable();
 			m_displayed_decimals->SetSelection(0);
 			if (fixed_lengths) {
-				m_length_lable->SetLabelText(wxString::Format("Length (max %d)", GdaConst::max_dbf_double_len));
+				m_length_lable->SetLabelText(wxString::Format(_("Length (max %d)"), GdaConst::max_dbf_double_len));
 				m_length->SetValue(wxString::Format("%d", GdaConst::default_dbf_double_len));
-				m_decimals_lable->SetLabelText(wxString::Format("Decimals (max %d)", GdaConst::max_dbf_double_decimals));
+				m_decimals_lable->SetLabelText(wxString::Format(_("Decimals (max %d)"), GdaConst::max_dbf_double_decimals));
 				m_decimals->Enable();
 				m_decimals->SetValue(wxString::Format("%d", GdaConst::default_dbf_double_decimals));
 
-				m_max_label->SetLabelText("maximum");
+				m_max_label->SetLabelText(_("maximum"));
 				m_max_val->SetLabelText(wxString::Format("%d", 9));
-				m_min_label->SetLabelText("minimum");
+				m_min_label->SetLabelText(_("minimum"));
 				m_min_val->SetLabelText(wxString::Format("-%d", 9));
 			}
 		}
@@ -257,11 +257,11 @@ void DataViewerAddColDlg::SetDefaultsByType(GdaConst::FieldType type)
 		{
 			cur_type = GdaConst::long64_type;
 			if (fixed_lengths) {
-				m_length_lable->SetLabelText(wxString::Format("Length (max %d)", GdaConst::max_dbf_long_len));
+				m_length_lable->SetLabelText(wxString::Format(_("Length (max %d)"), GdaConst::max_dbf_long_len));
 				m_length->SetValue(wxString::Format("%d", GdaConst::default_dbf_long_len));
-				m_max_label->SetLabelText("maximum");
+				m_max_label->SetLabelText(_("maximum"));
 				m_max_val->SetLabelText(wxString::Format("%d", 9));
-				m_min_label->SetLabelText("minimum");
+				m_min_label->SetLabelText(_("minimum"));
 				m_min_val->SetLabelText(wxString::Format("-%d", 9));
 			}
 		}
@@ -270,7 +270,7 @@ void DataViewerAddColDlg::SetDefaultsByType(GdaConst::FieldType type)
 		{
 			cur_type = GdaConst::string_type;
 			if (fixed_lengths) {
-				m_length_lable->SetLabelText(wxString::Format("Length (max %d)", GdaConst::max_dbf_string_len));
+				m_length_lable->SetLabelText(wxString::Format(_("Length (max %d)"), GdaConst::max_dbf_string_len));
 				m_length->SetValue(wxString::Format("%d", GdaConst::default_dbf_string_len));
 			}
 		}
@@ -280,7 +280,7 @@ void DataViewerAddColDlg::SetDefaultsByType(GdaConst::FieldType type)
 		{
 			cur_type = GdaConst::date_type;
 			if (fixed_lengths) {
-				m_length_lable->SetLabelText("Length");
+				m_length_lable->SetLabelText(_("Length"));
 				m_length->SetValue(wxString::Format("%d", GdaConst::default_dbf_date_len));
 				m_length->Disable();
 			}

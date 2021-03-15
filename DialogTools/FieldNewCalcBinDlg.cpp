@@ -70,11 +70,11 @@ is_space_time(project_s->GetTableInt()->IsTimeVariant())
     CreateControls();
     Centre();
     
-	op_string[add_op] = "ADD";
-	op_string[subtract_op] = "SUBTRACT";
-	op_string[multiply_op] = "MULTIPLY";
-	op_string[divide_op] = "DIVIDE";
-	op_string[power_op] = "POWER";
+	op_string[add_op] = _("ADD");
+	op_string[subtract_op] = _("SUBTRACT");
+	op_string[multiply_op] = _("MULTIPLY");
+	op_string[divide_op] = _("DIVIDE");
+	op_string[power_op] = _("POWER");
 		
 	for (int i=0, iend=op_string.size(); i<iend; i++) {
 		m_op->Append(op_string[i]);

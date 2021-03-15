@@ -97,7 +97,7 @@ void NbrMatchDlg::CreateControls()
     
     // distance function
     wxStaticText* st13 = new wxStaticText(panel, wxID_ANY, _("Variable Distance Function:"));
-    wxString choices13[] = {"Euclidean", "Manhattan"};
+    wxString choices13[] = {_("Euclidean"), _("Manhattan")};
     m_distance = new wxChoice(panel, wxID_ANY, wxDefaultPosition, wxSize(200,-1), 2, choices13);
     m_distance->SetSelection(0);
     gbox->Add(st13, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
@@ -105,7 +105,7 @@ void NbrMatchDlg::CreateControls()
     
     // geo distance function
     wxStaticText* st14 = new wxStaticText(panel, wxID_ANY, _("Geographic Distance Metric:"));
-    wxString choices14[] = {"Euclidean Distance", "Arc Distance (mile)", "Arc Distance (km)"};
+    wxString choices14[] = {_("Euclidean Distance"), _("Arc Distance (mile)"), _("Arc Distance (km)")};
     m_geo_dist_metric = new wxChoice(panel, wxID_ANY, wxDefaultPosition, wxSize(200,-1), 3, choices14);
     m_geo_dist_metric->SetSelection(0);
     gbox->Add(st14, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
@@ -431,13 +431,13 @@ void NbrMatchDlg::OnOK(wxCommandEvent& event )
     wxString field_name = "card";
     
     new_data[0].l_val = &val_cnbrs;
-    new_data[0].label = "Cardinality";
+    new_data[0].label = _("Cardinality");
     new_data[0].field_default = field_name;
     new_data[0].type = GdaConst::long64_type;
     new_data[0].undefined = &undefs_cnbrs;
     
     new_data[1].d_val = &val_p;
-    new_data[1].label = "Probability";
+    new_data[1].label = _("Probability");
     new_data[1].field_default = "cpval";
     new_data[1].type = GdaConst::double_type;
     new_data[1].undefined = &undefs_pval;
@@ -597,7 +597,7 @@ void LocalMatchMapCanvas::CreateAndUpdateCategories()
     for (int cat=0; cat<num_categories; cat++) {
         cat_data.SetCategoryCount(t, cat, cat_data.GetNumObsInCategory(t, cat));
     }
-    cat_data.SetCategoryLabel(t, 0, "No Match");
+    cat_data.SetCategoryLabel(t, 0, _("No Match"));
     
     full_map_redraw_needed = true;
     PopulateCanvas();
@@ -1178,7 +1178,7 @@ wxString LocalMatchSignificanceCanvas::GetCanvasTitle()
     wxString new_title;
     
     new_title << _("Local Neighbor Match Test");
-    new_title << " Significance Map ";
+    new_title << _(" Significance Map ");
     new_title << wxString::Format(", pseudo p (%d perm)", gs_coord->permutations);
     
     return new_title;

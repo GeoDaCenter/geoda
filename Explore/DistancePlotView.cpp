@@ -306,8 +306,8 @@ void DistancePlotDlg::CreateControls()
     vardist_txt = new wxStaticText(panel, XRCID("ID_VARDIST_TXT"), _("Variable Distance:"));
     vardist_choice = new wxChoice(panel, XRCID("ID_VARDIST_CHOICE"),
                                wxDefaultPosition, wxSize(160,-1));
-    vardist_choice->Append("Euclidean Distance");
-    vardist_choice->Append("Manhatten Distance");
+    vardist_choice->Append(_("Euclidean Distance"));
+    vardist_choice->Append(_("Manhatten Distance"));
 	vardist_choice->SetSelection(0);
 
     wxBoxSizer* vardist_h_szr = new wxBoxSizer(wxHORIZONTAL);
@@ -318,9 +318,9 @@ void DistancePlotDlg::CreateControls()
     dist_txt = new wxStaticText(panel, XRCID("ID_DIST_TXT"), _("Geographic Distance:"));
     dist_choice = new wxChoice(panel, XRCID("ID_DIST_CHOICE"),
                                wxDefaultPosition, wxSize(160,-1));
-    dist_choice->Append("Euclidean Distance");
-    dist_choice->Append("Arc Distance (mi)");
-    dist_choice->Append("Arc Distance (km)");
+    dist_choice->Append(_("Euclidean Distance"));
+    dist_choice->Append(_("Arc Distance (mi)"));
+    dist_choice->Append(_("Arc Distance (km)"));
 	dist_choice->SetSelection(0);
 
     wxBoxSizer* dist_h_szr = new wxBoxSizer(wxHORIZONTAL);
@@ -336,8 +336,8 @@ void DistancePlotDlg::CreateControls()
     thresh_cbx->SetValue(true);
     maxdist_choice = new wxChoice(panel, XRCID("ID_MAXDIST_CHOICE"),
                                wxDefaultPosition, wxSize(160,-1));
-    maxdist_choice->Append("Maximum pairwise distance");
-    maxdist_choice->Append("1/2 diagonal of bounding box");
+    maxdist_choice->Append(_("Maximum pairwise distance"));
+    maxdist_choice->Append(_("1/2 diagonal of bounding box"));
 
     size_t nobs = project->GetNumRecords();
     if (nobs < 10000) maxdist_choice->SetSelection(0);
@@ -689,19 +689,19 @@ void DistancePlotDlg::OnOK(wxCommandEvent &ev)
 
     wxString X_label = _("Geographical distance");
     if (!str_threshold.IsEmpty())
-        X_label << ": threshold=" << str_threshold;
+        X_label << ": " << _("threshold") << "=" << str_threshold;
     if (distplot->IsArc() && distplot->IsMile())
-        X_label << " (mile)";
+        X_label << " (" << "mile" << ")";
     else if (distplot->IsArc() && !distplot->IsMile())
-        X_label << " (km)";
+        X_label << " (" << "km" << ")";
     wxString Y_label = _("Variable distance");
     if (distplot->DistMethod() == 'e')
-        Y_label << " (Euclidean)";
+        Y_label << " (" << "Euclidean" << ")";
     else if (distplot->DistMethod() == 'm')
-        Y_label << " (Manhanttan)";
+        Y_label << " (" << "Manhattan" << ")";
 
     wxString win_title = title;
-    win_title << " (" << X.size() << " data points)";
+    win_title << " (" << X.size() << " " << "data points" << ")";
     DistancePlotFrame* f = new DistancePlotFrame(parent, project,
                                                  X, Y, X_undefs, Y_undefs,
                                                  x_min, x_max,

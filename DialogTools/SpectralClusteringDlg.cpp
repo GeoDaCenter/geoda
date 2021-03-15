@@ -113,7 +113,7 @@ void SpectralClusteringDlg::CreateControls()
     AddNumberOfClusterCtrl(panel, gbox);
     
     // Affinity heading
-    gbox->Add(new wxStaticText(panel, wxID_ANY,"Affinity"), 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
+    gbox->Add(new wxStaticText(panel, wxID_ANY, _("Affinity")), 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
     gbox->Add(new wxStaticText(panel, wxID_ANY,""), 1, wxEXPAND);
     
     // Spectral controls: KNN

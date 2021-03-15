@@ -329,7 +329,7 @@
 /* Begin PBXCopyFilesBuildPhase section */
 		DD2EB0FF19E6EF940073E36F /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
+			buildActionMask = 12;
 			dstPath = "";
 			dstSubfolderSpec = 6;
 			files = (
