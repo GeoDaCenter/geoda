@@ -696,12 +696,12 @@ void DistancePlotDlg::OnOK(wxCommandEvent &ev)
         X_label << " (" << "km" << ")";
     wxString Y_label = _("Variable distance");
     if (distplot->DistMethod() == 'e')
-        Y_label << " (" << "Euclidean" << ")";
+        Y_label << " (" << _("Euclidean") << ")";
     else if (distplot->DistMethod() == 'm')
-        Y_label << " (" << "Manhattan" << ")";
+        Y_label << " (" << _("Manhattan") << ")";
 
     wxString win_title = title;
-    win_title << " (" << X.size() << " " << "data points" << ")";
+    win_title << " (" << X.size() << " " << _("data points") << ")";
     DistancePlotFrame* f = new DistancePlotFrame(parent, project,
                                                  X, Y, X_undefs, Y_undefs,
                                                  x_min, x_max,

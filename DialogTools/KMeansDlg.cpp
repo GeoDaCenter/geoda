@@ -139,7 +139,7 @@ void KClusterDlg::CreateControls()
     }
     
     wxStaticText* st13 = new wxStaticText(panel, wxID_ANY, _("Distance Function:"));
-    wxString choices13[] = {"Euclidean", "Manhattan"};
+    wxString choices13[] = {_("Euclidean"), _("Manhattan")};
     m_distance = new wxChoice(panel, wxID_ANY, wxDefaultPosition, wxSize(200,-1), 2, choices13);
     m_distance->SetSelection(0);
     gbox->Add(st13, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
@@ -953,7 +953,7 @@ void KMedoidsDlg::CreateControls()
     gbox->Add(m_keepmed, 1, wxEXPAND);
 
     wxStaticText* st13 = new wxStaticText(panel, wxID_ANY, _("Distance Function:"));
-    wxString choices13[] = {"Euclidean", "Manhattan"};
+    wxString choices13[] = {_("Euclidean"), _("Manhattan")};
     m_distance = new wxChoice(panel, wxID_ANY, wxDefaultPosition, wxSize(200,-1), 2, choices13);
     m_distance->SetSelection(0);
     gbox->Add(st13, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);

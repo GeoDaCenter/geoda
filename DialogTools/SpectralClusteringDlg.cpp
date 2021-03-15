@@ -230,7 +230,7 @@ void SpectralClusteringDlg::CreateControls()
 
     wxStaticText* st13 = new wxStaticText(panel, wxID_ANY,
                                           _("Distance Function:"));
-    wxString choices13[] = {"Euclidean", "Manhattan"};
+    wxString choices13[] = {_("Euclidean"), _("Manhattan")};
     wxChoice* box13 = new wxChoice(panel, wxID_ANY, wxDefaultPosition,
                                    wxSize(160,-1), 2, choices13);
     box13->SetSelection(0);

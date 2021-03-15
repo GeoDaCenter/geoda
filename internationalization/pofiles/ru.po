@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "POT-Creation-Date: 2019-10-10 14:58+0800\n"
-"PO-Revision-Date: 2021-03-15 15:19-0700\n"
+"PO-Revision-Date: 2021-03-15 15:53-0700\n"
 "Last-Translator: \n"
 "Language-Team: <LL@li.org>\n"
 "Language: ru\n"
@@ -6726,7 +6726,7 @@ msgid "Union"
 msgstr "Объединение"
 
 # contributors:
-msgid "Make symmetric"
+msgid "Make Symmetric"
 msgstr "Симметрия"
 
 # contributors:

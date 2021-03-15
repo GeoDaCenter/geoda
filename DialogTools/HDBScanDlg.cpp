@@ -179,7 +179,7 @@ void HDBScanDlg::CreateControls()
     AddTransformation(panel, gbox);
     
     wxStaticText* st13 = new wxStaticText(panel, wxID_ANY, _("Distance Function:"));
-    wxString choices13[] = {"Euclidean", "Manhattan"};
+    wxString choices13[] = {_("Euclidean"), _("Manhattan")};
     wxChoice* box13 = new wxChoice(panel, wxID_ANY, wxDefaultPosition, wxSize(120,-1), 2, choices13);
     box13->SetSelection(0);
     gbox->Add(st13, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
