@@ -44,10 +44,6 @@ jobs:
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
-
-      # Runs a single command using the runners shell
-      - name: Run a one-line script
-        run: echo Hello, world!
         
       - name: Set environment
         shell: pwsh
@@ -67,13 +63,6 @@ jobs:
           echo "::set-env name=PATH::$env:PATH"
           echo "::set-env name=ARCHITECTURE::$env:ARCHITECTURE"
           echo "::set-env name=WIN64_ARG::$env:WIN64_ARG"
-          echo "::set-env name=CMAKE_ARCHITECTURE::$env:CMAKE_ARCHITECTURE
-
-      # Runs a set of commands using the runners shell
-      - name: Run a multi-line script
-        run: |
-          echo Add other actions to build,
-          echo test, and deploy your project.
           
       - name: Set compiler environment
         shell: cmd
