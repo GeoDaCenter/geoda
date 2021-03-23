@@ -1,0 +1,145 @@
+# This is a basic workflow to help you get started with Actions
+
+name: Windows builds
+
+# Controls when the action will run. 
+on:
+  # Triggers the workflow on push or pull request events but only for the master branch
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # This workflow contains a single job called "build"
+  windows_build:
+    # The type of runner that the job will run on
+    runs-on: windows-latest
+    if: "!contains(github.event.head_commit.message, '[ci skip]') && !contains(github.event.head_commit.message, '[skip ci]')"
+
+    strategy:
+      matrix:
+        include:
+          - VS_VERSION: Visual Studio 16
+            VS_VER: 2019
+            SDK: release-1911 # gisinternals SDK version still to 2017
+            MSVC_VER: 1920
+            platform: x86
+            
+    env:
+      VS_VERSION: ${{ matrix.VS_VERSION }}
+      VS_VER: ${{ matrix.VS_VER }}
+      SDK: ${{ matrix.SDK }}
+      MSVC_VER: ${{ matrix.MSVC_VER }}
+      platform: ${{ matrix.platform }}
+      APPVEYOR: true # to skip some tests
+      ACTIONS_ALLOW_UNSECURE_COMMANDS: true # see https://github.blog/changelog/2020-10-01-github-actions-deprecating-set-env-and-add-path-commands/
+    
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v2
+
+      # Runs a single command using the runners shell
+      - name: Run a one-line script
+        run: echo Hello, world!
+        
+      - name: Set environment
+        shell: pwsh
+        run: |
+          if($env:platform -eq "x86")
+          {
+              $env:ARCHITECTURE="x86"
+              $env:WIN64_ARG=""
+              $env:CMAKE_ARCHITECTURE="Win32"
+          }
+          else
+          {
+              $env:ARCHITECTURE="amd64"
+              $env:WIN64_ARG="WIN64=YES"
+              $env:CMAKE_ARCHITECTURE="x64"
+          }
+          echo "::set-env name=PATH::$env:PATH"
+          echo "::set-env name=ARCHITECTURE::$env:ARCHITECTURE"
+          echo "::set-env name=WIN64_ARG::$env:WIN64_ARG"
+          echo "::set-env name=CMAKE_ARCHITECTURE::$env:CMAKE_ARCHITECTURE
+
+      # Runs a set of commands using the runners shell
+      - name: Run a multi-line script
+        run: |
+          echo Add other actions to build,
+          echo test, and deploy your project.
+          
+      - name: Set compiler environment
+        shell: cmd
+        run: |
+          if "%VS_VER%" == "2019" CALL "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\Common7\Tools\VsDevCmd.bat" -arch=%ARCHITECTURE%
+          echo ::set-env name=PATH::%PATH%
+          echo ::set-env name=INCLUDE::%INCLUDE%
+          echo ::set-env name=LIB::%LIB%
+          echo ::set-env name=LIBPATH::%LIBPATH%
+                  
+      - name: Build
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'continue'
+          function exec
+          {
+            param ( [ScriptBlock] $ScriptBlock )
+            & $ScriptBlock 2>&1 | ForEach-Object -Process { "$_" }
+            if ($LastExitCode -ne 0) { exit $LastExitCode }
+          }
+          echo "ARCH_FLAGS = $env:ARCH_FLAGS"
+          Import-PackageProvider NuGet -Force
+          Set-PSRepository -Name PSGallery -InstallationPolicy Trusted
+          # install pscx powershell and vSSetup
+          Install-Module Pscx -AllowClobber
+          Install-Module VSSetup -Scope CurrentUser
+          if($env:VS_VER -eq "2019")
+          {
+          }
+          else
+          {
+              Import-VisualStudioVars -VisualStudioVersion $env:VS_VER -Architecture $env:ARCHITECTURE
+          }
+          #
+          # prepare
+          #
+          $env:GDA_PATH="$env:GITHUB_WORKSPACE\BuildTools\windows"
+          cd $env:GDA_PATH
+          mkdir temp
+          #
+          # GDAL
+          #
+          $env:SDK_ZIP="$env:SDK"+"-dev.zip"
+          $env:SDK_URL="http://download.gisinternals.com/sdk/downloads/$env:SDK_ZIP"
+          cd temp 
+          if(-Not (Test-Path -Path $env:SDK_ZIP )) { Invoke-WebRequest "$env:SDK_URL" -OutFile "$env:SDK_ZIP" }
+          cd ..
+          exec { 7z x .\temp\$env:SDK_ZIP }
+          Rename-Item $env:SDK_ZIP libraries
+          #
+          # CLAPACK
+          #
+          cd downloads
+          if(-Not (Test-Path -Path $env:SDK_ZIP )) { Invoke-WebRequest "https://github.com/GeoDaCenter/software/releases/download/v2000/CLAPACK-3.1.1-VisualStudio.zip" -OutFile "CLAPACK-3.1.1-VisualStudio.zip" } 
+          7z x CLAPACK-3.1.1-VisualStudio.zip
+          cd CLAPACK-3.1.1-VisualStudio
+          xcopy /E /Y $env:GDA_PATH\dep\CLAPACK-3.1.1-VisualStudio .
+          if($env:platform -eq "x86")
+          {
+            msbuild clapack.sln /t:libf2c /property:Configuration="ReleaseDLL"
+            msbuild clapack.sln /t:BLAS\blas /property:Configuration="ReleaseDLL"
+            msbuild clapack.sln /t:clapack /property:Configuration="ReleaseDLL"
+          }
+          else 
+          {
+            msbuild clapack.sln /t:libf2c /property:Configuration="ReleaseDLL" /p:Platform="x64"
+            msbuild clapack.sln /t:BLAS\blas /property:Configuration="ReleaseDLL" /p:Platform="x64"
+            msbuild clapack.sln /t:clapack /property:Configuration="ReleaseDLL" /p:Platform="x64"
+          }
