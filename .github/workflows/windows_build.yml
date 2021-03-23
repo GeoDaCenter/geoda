@@ -111,11 +111,11 @@ jobs:
           if(-Not (Test-Path -Path $env:SDK_ZIP )) { Invoke-WebRequest "$env:SDK_URL" -OutFile "$env:SDK_ZIP" }
           cd ..
           exec { 7z x .\temp\$env:SDK_ZIP }
-          Rename-Item $env:SDK_ZIP libraries
+          rename $env:SDK libraries
           #
           # CLAPACK
           #
-          cd downloads
+          cd temp
           if(-Not (Test-Path -Path $env:SDK_ZIP )) { Invoke-WebRequest "https://github.com/GeoDaCenter/software/releases/download/v2000/CLAPACK-3.1.1-VisualStudio.zip" -OutFile "CLAPACK-3.1.1-VisualStudio.zip" } 
           7z x CLAPACK-3.1.1-VisualStudio.zip
           cd CLAPACK-3.1.1-VisualStudio
