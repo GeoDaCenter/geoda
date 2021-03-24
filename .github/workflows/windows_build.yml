@@ -132,3 +132,64 @@ jobs:
             msbuild.exe clapack_vs2019.sln /t:BLAS\blas_vs2019 /property:Configuration="ReleaseDLL" /p:Platform="x64"
             msbuild.exe clapack_vs2019.sln /t:clapack_vs2019 /property:Configuration="ReleaseDLL" /p:Platform="x64"
           }
+          cd ..
+          #
+          # JsonSpirit
+          #
+          Invoke-WebRequest "https://github.com/GeoDaCenter/software/releases/download/v2000/json_spirit_v4.08.zip" -OutFile "json_spirit_v4.08.zip"
+          7z x json_spirit_v4.08.zip
+          cd json_spirit_v4.08
+          xcopy /E /Y $env:GDA_PATH\dep\json_spirit .
+          if($env:platform -eq "x86") 
+          {
+            msbuild.exe json.sln /property:Configuration="Release" /p:Platform="Win32"
+          }
+          else 
+          {
+            msbuild.exe json.sln /property:Configuration="Release" /p:Platform="x64"
+          }
+          cd ..
+          #
+          # Eigen3
+          #
+          Invoke-WebRequest "https://github.com/GeoDaCenter/software/releases/download/v2000/eigen3.zip" -OutFile "eigen3.zip"
+          7z x eigen3.zip
+          #
+          # Spectra
+          #
+          Invoke-WebRequest "https://github.com/yixuan/spectra/archive/refs/tags/v0.8.0.zip" -OutFile "spectra.zip"
+          7z x spectra.zip
+          #
+          # Boost 1.75
+          #
+          Invoke-WebRequest "https://github.com/lixun910/pygeoda_boost/archive/refs/tags/v0.0.8.zip" -OutFile "boost.zip"
+          7z x boost.zip
+          #
+          # wxWidgets 3.1.4
+          #
+          Invoke-WebRequest "https://github.com/wxWidgets/wxWidgets/releases/download/v3.1.4/wxWidgets-3.1.4.zip" -OutFile "wxWidgets.zip"
+          7z x wxWidgets.zip
+          cd wxWidgets-3.1.4
+          if($env:platform -eq "x86") 
+          {
+            nmake -f makefile.vc UNICODE=1 SHARED=1 RUNTIME_LIBS=dynamic BUILD=release MONOLITHIC=1 USE_OPENGL=1 USE_POSTSCRIPT=1
+          }
+          else 
+          {
+            nmake -f makefile.vc UNICODE=1 SHARED=1 RUNTIME_LIBS=dynamic BUILD=release MONOLITHIC=1 USE_OPENGL=1 USE_POSTSCRIPT=1 TARGET_CPU=AMD64
+          }
+          cd ..
+          #
+          # InnoSetup
+          #
+          Choco-Install -PackageName innosetup
+          Invoke-PesterTests -TestFile "Tools" -TestName "InnoSetup"
+          #
+          # GeoDa
+          #
+          ISCC.exe 
+
+
+
+
+
