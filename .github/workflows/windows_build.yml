@@ -113,6 +113,37 @@ jobs:
           exec { 7z x .\temp\$env:SDK_ZIP }
           Rename-Item $env:SDK libraries
           #
+          # JsonSpirit
+          #
+          Invoke-WebRequest "https://github.com/GeoDaCenter/software/releases/download/v2000/json_spirit_v4.08.zip" -OutFile "json_spirit_v4.08.zip"
+          7z x json_spirit_v4.08.zip
+          cd json_spirit_v4.08
+          xcopy /E /Y $env:GDA_PATH\dep\json_spirit .
+          if($env:platform -eq "x86") 
+          {
+            msbuild.exe json.sln /property:Configuration="Release" /p:Platform="Win32"
+          }
+          else 
+          {
+            msbuild.exe json.sln /property:Configuration="Release" /p:Platform="x64"
+          }
+          cd ..
+          #
+          # wxWidgets 3.1.4
+          #
+          Invoke-WebRequest "https://github.com/wxWidgets/wxWidgets/releases/download/v3.1.4/wxWidgets-3.1.4.zip" -OutFile "wxWidgets.zip"
+          7z x wxWidgets.zip
+          cd wxWidgets
+          if($env:platform -eq "x86") 
+          {
+            nmake -f makefile.vc UNICODE=1 SHARED=1 RUNTIME_LIBS=dynamic BUILD=release MONOLITHIC=1 USE_OPENGL=1 USE_POSTSCRIPT=1
+          }
+          else 
+          {
+            nmake -f makefile.vc UNICODE=1 SHARED=1 RUNTIME_LIBS=dynamic BUILD=release MONOLITHIC=1 USE_OPENGL=1 USE_POSTSCRIPT=1 TARGET_CPU=AMD64
+          }
+          cd ..
+          #
           # CLAPACK
           #
           cd temp
@@ -134,22 +165,6 @@ jobs:
           }
           cd ..
           #
-          # JsonSpirit
-          #
-          Invoke-WebRequest "https://github.com/GeoDaCenter/software/releases/download/v2000/json_spirit_v4.08.zip" -OutFile "json_spirit_v4.08.zip"
-          7z x json_spirit_v4.08.zip
-          cd json_spirit_v4.08
-          xcopy /E /Y $env:GDA_PATH\dep\json_spirit .
-          if($env:platform -eq "x86") 
-          {
-            msbuild.exe json.sln /property:Configuration="Release" /p:Platform="Win32"
-          }
-          else 
-          {
-            msbuild.exe json.sln /property:Configuration="Release" /p:Platform="x64"
-          }
-          cd ..
-          #
           # Eigen3
           #
           Invoke-WebRequest "https://github.com/GeoDaCenter/software/releases/download/v2000/eigen3.zip" -OutFile "eigen3.zip"
@@ -164,21 +179,6 @@ jobs:
           #
           Invoke-WebRequest "https://github.com/lixun910/pygeoda_boost/archive/refs/tags/v0.0.8.zip" -OutFile "boost.zip"
           7z x boost.zip
-          #
-          # wxWidgets 3.1.4
-          #
-          Invoke-WebRequest "https://github.com/wxWidgets/wxWidgets/releases/download/v3.1.4/wxWidgets-3.1.4.zip" -OutFile "wxWidgets.zip"
-          7z x wxWidgets.zip
-          cd wxWidgets-3.1.4
-          if($env:platform -eq "x86") 
-          {
-            nmake -f makefile.vc UNICODE=1 SHARED=1 RUNTIME_LIBS=dynamic BUILD=release MONOLITHIC=1 USE_OPENGL=1 USE_POSTSCRIPT=1
-          }
-          else 
-          {
-            nmake -f makefile.vc UNICODE=1 SHARED=1 RUNTIME_LIBS=dynamic BUILD=release MONOLITHIC=1 USE_OPENGL=1 USE_POSTSCRIPT=1 TARGET_CPU=AMD64
-          }
-          cd ..
           #
           # InnoSetup
           #
