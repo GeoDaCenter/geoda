@@ -46,6 +46,7 @@
     <ProjectGuid>{EE6016A9-8075-41FE-846D-58F771CDD175}</ProjectGuid>
     <RootNamespace>cblaswrap</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <ProjectName>cblaswrap_vs2019</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug without wrap|Win32'" Label="Configuration">

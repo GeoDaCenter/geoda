@@ -122,13 +122,13 @@ jobs:
           xcopy /E /Y $env:GDA_PATH\dep\CLAPACK-3.1.1-VisualStudio .
           if($env:platform -eq "x86")
           {
-            msbuild.exe clapack.vs2019.sln /t:libf2c.vs2019 /property:Configuration="ReleaseDLL"
-            msbuild.exe clapack.vs2019.sln /t:BLAS\blas.vs2019 /property:Configuration="ReleaseDLL"
-            msbuild.exe clapack.vs2019.sln /t:clapack.vs2019 /property:Configuration="ReleaseDLL"
+            msbuild.exe clapack_vs2019.sln /t:libf2c_vs2019 /property:Configuration="ReleaseDLL"
+            msbuild.exe clapack_vs2019.sln /t:BLAS\blas_vs2019 /property:Configuration="ReleaseDLL"
+            msbuild.exe clapack_vs2019.sln /t:clapack_vs2019 /property:Configuration="ReleaseDLL"
           }
           else 
           {
-            msbuild.exe clapack.vs2019.sln /t:libf2c.vs2019 /property:Configuration="ReleaseDLL" /p:Platform="x64"
-            msbuild.exe clapack.vs2019.sln /t:BLAS\blas.vs2019 /property:Configuration="ReleaseDLL" /p:Platform="x64"
-            msbuild.exe clapack.vs2019.sln /t:clapack.vs2019 /property:Configuration="ReleaseDLL" /p:Platform="x64"
+            msbuild.exe clapack_vs2019.sln /t:libf2c_vs2019 /property:Configuration="ReleaseDLL" /p:Platform="x64"
+            msbuild.exe clapack_vs2019.sln /t:BLAS\blas_vs2019 /property:Configuration="ReleaseDLL" /p:Platform="x64"
+            msbuild.exe clapack_vs2019.sln /t:clapack_vs2019 /property:Configuration="ReleaseDLL" /p:Platform="x64"
           }

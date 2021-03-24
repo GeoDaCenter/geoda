@@ -46,6 +46,7 @@
     <ProjectGuid>{2A338F34-FA2F-4D65-8037-E92E25A4C222}</ProjectGuid>
     <RootNamespace>libf2c</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <ProjectName>libf2c_vs2019</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug without wrap|Win32'" Label="Configuration">
