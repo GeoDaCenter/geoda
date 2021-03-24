@@ -113,6 +113,12 @@ jobs:
           exec { 7z x .\temp\$env:SDK_ZIP }
           Rename-Item $env:SDK libraries
           #
+          # Boost 1.75
+          #
+          Invoke-WebRequest "https://github.com/lixun910/pygeoda_boost/archive/refs/tags/v0.0.8.zip" -OutFile "boost.zip"
+          7z x boost.zip
+          dir
+          #
           # JsonSpirit
           #
           if(-Not (Test-Path -Path json_spirit_v4.08.zip )) { Invoke-WebRequest "https://github.com/GeoDaCenter/software/releases/download/v2000/json_spirit_v4.08.zip" -OutFile "json_spirit_v4.08.zip" }
@@ -132,8 +138,7 @@ jobs:
           # wxWidgets 3.1.4
           #
           if(-Not (Test-Path -Path wxWidgets.zip)) { Invoke-WebRequest "https://github.com/wxWidgets/wxWidgets/releases/download/v3.1.4/wxWidgets-3.1.4.zip" -OutFile "wxWidgets.zip" }
-          dir
-          7z x wxWidgets.zip
+          7z x wxWidgets.zip -o$env:GDA_PATH\wxWidgets
           cd wxWidgets
           if($env:platform -eq "x86") 
           {
@@ -175,11 +180,6 @@ jobs:
           #
           Invoke-WebRequest "https://github.com/yixuan/spectra/archive/refs/tags/v0.8.0.zip" -OutFile "spectra.zip"
           7z x spectra.zip
-          #
-          # Boost 1.75
-          #
-          Invoke-WebRequest "https://github.com/lixun910/pygeoda_boost/archive/refs/tags/v0.0.8.zip" -OutFile "boost.zip"
-          7z x boost.zip
           #
           # InnoSetup
           #
