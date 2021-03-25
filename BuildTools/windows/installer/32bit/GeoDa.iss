@@ -24,7 +24,6 @@ ShowLanguageDialog=yes
 
 [Languages]
 Name: "en"; MessagesFile: "compiler:Default.isl"
-Name: "zh"; MessagesFile: "compiler:Languages\ChineseSimplified.isl"
 
 [dirs]
 Name: "{app}";  Permissions: everyone-full; Check: InitializeSetup
