@@ -127,7 +127,6 @@ jobs:
           {
             nmake -f makefile.vc UNICODE=1 SHARED=1 RUNTIME_LIBS=dynamic BUILD=release MONOLITHIC=1 USE_OPENGL=1 USE_POSTSCRIPT=1 TARGET_CPU=AMD64
           }
-          dir ..\..\
           cd $env:GDA_PATH\temp
           #
           # Boost 1.75
@@ -182,14 +181,38 @@ jobs:
           Invoke-WebRequest "https://github.com/yixuan/spectra/archive/refs/tags/v0.8.0.zip" -OutFile "spectra.zip"
           7z x spectra.zip
           #
+          # OpenCL
+          #
+          Invoke-WebRequest "https://github.com/GeoDaCenter/software/releases/download/v2000/OpenCL.zip" -OutFile "OpenCL.zip"
+          7z x OpenCL.zip
+          dir
+          #
+          # GeoDa
+          #
+          if($env:platform -eq "x86")
+          {
+            msbuild.exe GeoDa.vs2010.sln /t:GeoDa /property:Configuration="Release" /p:Platform="Win32"
+          }
+          else
+          {
+            msbuild.exe GeoDa.vs2010.sln /t:GeoDa /property:Configuration="Release" /p:Platform="x64"  
+          }
+          #
           # InnoSetup
           #
           Choco-Install -PackageName innosetup
           Invoke-PesterTests -TestFile "Tools" -TestName "InnoSetup"
           #
-          # GeoDa
+          # Binary
           #
-          ISCC.exe 
+          if($env:platform -eq "x86")
+          {
+            ISCC.exe /q installer\32bit\GeoDa.iss
+          } 
+          else
+          {
+            ISCC.exe /q installer\64bit\GeoDa.iss
+          } 
 
 
 
