@@ -217,6 +217,11 @@ jobs:
           } 
           dir
 
+      - uses: actions/upload-artifact@v2
+        with:
+          name: GeoDa-Windows-32bit-installer
+          path: GeoDa_1.18_x86_Setup.exe
+
 
 
 
