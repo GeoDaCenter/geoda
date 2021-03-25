@@ -1,0 +1,903 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug2017|Win32">
+      <Configuration>Debug2017</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug2017|x64">
+      <Configuration>Debug2017</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{B3CB134F-61C6-48C7-B6E4-353AC473A467}</ProjectGuid>
+    <RootNamespace>GeoDa</RootNamespace>
+    <Keyword>Win32Proj</Keyword>
+    <WindowsTargetPlatformVersion>10.0.17134.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>Windows7.1SDK</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>Windows7.1SDK</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>Windows7.1SDK</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug2017|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>Windows7.1SDK</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>Windows7.1SDK</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug2017|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>v141</PlatformToolset>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug2017|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug2017|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>10.0.30319.1</_ProjectFileVersion>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Debug\</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug2017|Win32'">Debug\</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Debug\</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug2017|x64'">Debug\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Debug\</IntDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug2017|Win32'">Debug\</IntDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Debug\</IntDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug2017|x64'">Debug\</IntDir>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</LinkIncremental>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug2017|Win32'">true</LinkIncremental>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</LinkIncremental>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug2017|x64'">true</LinkIncremental>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Release\</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Release\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Release\</IntDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Release\</IntDir>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</LinkIncremental>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug2017|x64'">
+    <EnableManagedIncrementalBuild>true</EnableManagedIncrementalBuild>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>C:\Intel\OpenCL\sdk\include;C:\OSGeo4W\include;temp\boost_1_57_0;temp\wxWidgets-3.1.0\include;temp\wxWidgets-3.1.0\lib\vc_dll\mswud;temp\json_spirit_v4.08;temp\eigen3;temp\spectra\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;DEBUG;_DEBUG;_WINDOWS;__WXMSW__;__WXDEBUG__;WXUSINGDLL;UNICODE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>false</MinimalRebuild>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+      <DisableSpecificWarnings>4996;4522;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <AdditionalOptions>/MP %(AdditionalOptions)</AdditionalOptions>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>__WXMSW__;_UNICODE;_WINDOWS;NOPCH;WXUSINGDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Culture>0x0409</Culture>
+      <AdditionalIncludeDirectories>temp\wxWidgets-3.1.0\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Link>
+      <AdditionalDependencies>opencl.lib;zlibstat.lib;gdal_i.lib;libcurl.lib;libboost_date_time-vc100-mt-gd-1_57.lib;libboost_thread-vc100-mt-gd-1_57.lib;BLAS.lib;clapack.lib;libf2c.lib;json_spirit_lib.lib;sqlite3_i.lib;GlU32.lib;OpenGL32.lib;wxmsw31ud.lib;wxmsw31ud_gl.lib;wxtiffd.lib;wxjpegd.lib;wxpngd.lib;wxzlibd.lib;wxregexud.lib;wxexpatd.lib;wsock32.lib;comctl32.lib;winmm.lib;rpcrt4.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>C:\Intel\OpenCL\sdk\lib\x86;dep\zlib\lib;C:\OSGeo4W\lib;temp\wxWidgets-3.1.0\lib\vc_dll;temp\CLAPACK-3.1.1-VisualStudio\LIB\Win32;temp\boost_1_57_0\stage\lib;temp\json_spirit_v4.08\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
+      <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+      <TargetMachine>MachineX86</TargetMachine>
+      <AdditionalOptions>/NODEFAULTLIB:library %(AdditionalOptions)</AdditionalOptions>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug2017|Win32'">
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>C:\OSGeo4W\include;temp\boost_1_57_0;temp\wxWidgets-3.1.0\include;temp\wxWidgets-3.1.0\lib\vc_dll\mswud;temp\json_spirit_v4.08;temp\eigen3;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;DEBUG;_DEBUG;_WINDOWS;__WXMSW__;__WXDEBUG__;WXUSINGDLL;UNICODE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>false</MinimalRebuild>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+      <DisableSpecificWarnings>4996;4522;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <AdditionalOptions>/MP %(AdditionalOptions)</AdditionalOptions>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>__WXMSW__;_UNICODE;_WINDOWS;NOPCH;WXUSINGDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Culture>0x0409</Culture>
+      <AdditionalIncludeDirectories>temp\wxWidgets-3.1.0\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Link>
+      <AdditionalDependencies>opencl.lib;zlibstat.lib;gdal_i.lib;libcurl.lib;libboost_date_time-vc100-mt-gd-1_57.lib;libboost_thread-vc100-mt-gd-1_57.lib;BLAS.lib;clapack.lib;libf2c.lib;json_spirit_lib.lib;sqlite3_i.lib;GlU32.lib;OpenGL32.lib;wxmsw31ud.lib;wxmsw31ud_gl.lib;wxtiffd.lib;wxjpegd.lib;wxpngd.lib;wxzlibd.lib;wxregexud.lib;wxexpatd.lib;wsock32.lib;comctl32.lib;winmm.lib;rpcrt4.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>C:\Intel\OpenCL\sdk\lib\x64;dep\zlib\lib;C:\OSGeo4W\lib;temp\wxWidgets-3.1.0\lib\vc_dll;temp\CLAPACK-3.1.1-VisualStudio\LIB\Win32;temp\boost_1_57_0\stage\lib;temp\json_spirit_v4.08\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
+      <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+      <TargetMachine>MachineX86</TargetMachine>
+      <AdditionalOptions>/NODEFAULTLIB:library %(AdditionalOptions)</AdditionalOptions>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>C:\Intel\OpenCL\sdk\include;dep\zlib\include;C:\OSGeo4W\include;temp\boost_1_57_0;temp\wxWidgets-3.1.0\include;temp\wxWidgets-3.1.0\lib\vc_x64_dll\mswud;temp\json_spirit_v4.08;temp\eigen3;temp\spectra\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;DEBUG;_DEBUG;_WINDOWS;__WXMSW__;__WXDEBUG__;WXUSINGDLL;UNICODE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>false</MinimalRebuild>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <DisableSpecificWarnings>4996;4522;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <AdditionalOptions>/MP %(AdditionalOptions)</AdditionalOptions>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <PreprocessToFile>false</PreprocessToFile>
+      <UndefinePreprocessorDefinitions>
+      </UndefinePreprocessorDefinitions>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>__WXMSW__;_UNICODE;_WINDOWS;NOPCH;WXUSINGDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Culture>0x0409</Culture>
+      <AdditionalIncludeDirectories>temp\wxWidgets-3.1.0\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Link>
+      <AdditionalDependencies>opencl.lib;zlibstat.lib;gdal_i.lib;libcurl.lib;libboost_atomic-vc100-mt-gd-1_57.lib;libboost_regex-vc100-mt-gd-1_57.lib;libboost_date_time-vc100-mt-gd-1_57.lib;libboost_thread-vc100-mt-gd-1_57.lib;BLAS.lib;clapack.lib;libf2c.lib;json_spirit_lib.lib;GlU32.lib;OpenGL32.lib;wxmsw31ud.lib;wxmsw31ud_gl.lib;wxtiffd.lib;wxjpegd.lib;wxpngd.lib;wxzlibd.lib;wxregexud.lib;wxexpatd.lib;wsock32.lib;comctl32.lib;winmm.lib;rpcrt4.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>C:\Intel\OpenCL\sdk\lib\x64;dep\zlib\lib;C:\OSGeo4W\lib;temp\wxWidgets-3.1.0\lib\vc_x64_dll;temp\CLAPACK-3.1.1-VisualStudio\LIB\x64;temp\boost_1_57_0\stage\lib;temp\json_spirit_v4.08\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <IgnoreAllDefaultLibraries>
+      </IgnoreAllDefaultLibraries>
+      <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+    </Link>
+    <Manifest>
+      <AdditionalManifestFiles>%(AdditionalManifestFiles)</AdditionalManifestFiles>
+      <EnableDPIAwareness>false</EnableDPIAwareness>
+    </Manifest>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug2017|x64'">
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>..\..\deps\OpenCL\include;..\..\deps\zlib\include;..\..\deps\boost_1_57_0\include;..\..\deps\wxWidgets-3.1.0\include;..\..\deps\wxWidgets-3.1.0\lib\vc_x64_dll\mswud;..\..\deps\json_spirit_v4.08\include;..\..\deps\eigen3;..\..\deps\gdal-1.9.0\include;..\..\deps\curl-7.46.0\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;DEBUG;_WINDOWS;__WXMSW__;__WXDEBUG__;WXUSINGDLL;UNICODE;_UNICODE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>false</MinimalRebuild>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <DisableSpecificWarnings>4996;4522;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <AdditionalOptions>/MP %(AdditionalOptions)</AdditionalOptions>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <PreprocessToFile>false</PreprocessToFile>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>__WXMSW__;_UNICODE;_WINDOWS;NOPCH;WXUSINGDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Culture>0x0409</Culture>
+      <AdditionalIncludeDirectories>..\..\deps\wxWidgets-3.1.0\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Link>
+      <AdditionalDependencies>opencl.lib;zlibstat.lib;gdal_i.lib;libcurl.lib;libboost_date_time-vc140-mt-gd-1_57.lib;libboost_thread-vc140-mt-gd-1_57.lib;libboost_system-vc140-mt-gd-1_57.lib;BLAS.lib;clapack.lib;libf2c.lib;json_spirit_libd.lib;wxmsw31ud.lib;wxmsw31ud_gl.lib;wxtiffd.lib;wxjpegd.lib;wxpngd.lib;wxzlibd.lib;wxregexud.lib;wxexpatd.lib;wxscintillad.lib;wsock32.lib;comctl32.lib;winmm.lib;rpcrt4.lib;GlU32.lib;OpenGL32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\..\deps\zlib\lib;..\..\deps\boost_1_57_0\lib\x64;..\..\deps\wxWidgets-3.1.0\lib\vc_x64_dll;..\..\deps\OpenCL\lib\x64;..\..\deps\CLAPACK-3.1.1\lib\x64;..\..\deps\gdal-1.9.0\lib\x64;..\..\deps\json_spirit_v4.08\lib\x64;..\..\deps\curl-7.46.0\lib\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <IgnoreAllDefaultLibraries>
+      </IgnoreAllDefaultLibraries>
+      <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+    </Link>
+    <Manifest>
+      <AdditionalManifestFiles>%(AdditionalManifestFiles)</AdditionalManifestFiles>
+      <EnableDPIAwareness>false</EnableDPIAwareness>
+    </Manifest>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>C:\Intel\OpenCL\sdk\include;C:\OSGeo4W\include;temp\boost_1_57_0;temp\wxWidgets-3.1.0\include;temp\wxWidgets-3.1.0\lib\vc_dll\mswu;temp\json_spirit_v4.08;temp\eigen3;temp\spectra\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;__WXMSW__;__NO_VC_CRTDBG__;WXUSINGDLL;UNICODE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <DisableSpecificWarnings>4996;4522;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <AdditionalOptions>/MP %(AdditionalOptions)</AdditionalOptions>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>__WXMSW__;_UNICODE;_WINDOWS;NOPCH;WXUSINGDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Culture>0x0409</Culture>
+      <AdditionalIncludeDirectories>temp\wxWidgets-3.1.0\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Link>
+      <AdditionalDependencies>opencl.lib;zlibstat.lib;gdal_i.lib;libcurl.lib;libboost_date_time-vc100-mt-1_57.lib;libboost_thread-vc100-mt-1_57.lib;BLAS.lib;clapack.lib;libf2c.lib;json_spirit_lib.lib;sqlite3_i.lib;GlU32.lib;OpenGL32.lib;wxmsw31u.lib;wxmsw31u_gl.lib;wxtiff.lib;wxjpeg.lib;wxpng.lib;wxzlib.lib;wxregexu.lib;wxexpat.lib;wsock32.lib;comctl32.lib;winmm.lib;rpcrt4.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>C:\Intel\OpenCL\sdk\lib\x86;dep\zlib\lib;C:\OSGeo4W\lib;temp\wxWidgets-3.1.0\lib\vc_dll;temp\CLAPACK-3.1.1-VisualStudio\LIB\Win32;temp\boost_1_57_0\stage\lib;temp\json_spirit_v4.08\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+      <OptimizeReferences>true</OptimizeReferences>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>C:\Intel\OpenCL\sdk\include;C:\OSGeo4W\include;temp\boost_1_57_0;temp\wxWidgets-3.1.0\include;temp\wxWidgets-3.1.0\lib\vc_x64_dll\mswu;temp\json_spirit_v4.08;temp\eigen3;dep\zlib\include;temp\spectra\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;__WXMSW__;__NO_VC_CRTDBG__;WXUSINGDLL;UNICODE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <DisableSpecificWarnings>4996;4522;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <AdditionalOptions>/MP %(AdditionalOptions)</AdditionalOptions>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>__WXMSW__;_UNICODE;_WINDOWS;NOPCH;WXUSINGDLL;UNICODE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Culture>0x0409</Culture>
+      <AdditionalIncludeDirectories>temp\wxWidgets-3.1.0\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Link>
+      <AdditionalDependencies>opencl.lib;zlibstat.lib;libcurl.lib;gdal_i.lib;libboost_date_time-vc100-mt-1_57.lib;libboost_thread-vc100-mt-1_57.lib;BLAS.lib;clapack.lib;libf2c.lib;json_spirit_lib.lib;sqlite3_i.lib;GlU32.lib;OpenGL32.lib;wxmsw31u.lib;wxmsw31u_gl.lib;wxtiff.lib;wxjpeg.lib;wxpng.lib;wxzlib.lib;wxregexu.lib;wxexpat.lib;wsock32.lib;comctl32.lib;winmm.lib;rpcrt4.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>C:\Intel\OpenCL\sdk\lib\x64;dep\zlib\lib;C:\OSGeo4W\lib;temp\wxWidgets-3.1.0\lib\vc_x64_dll;temp\CLAPACK-3.1.1-VisualStudio\LIB\x64;temp\boost_1_57_0\stage\lib;temp\json_spirit_v4.08\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+      <OptimizeReferences>true</OptimizeReferences>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <None Include="..\..\Algorithms\distmat_kernel.cl" />
+    <None Include="..\..\Algorithms\lisa_kernel.cl" />
+    <None Include="..\..\Algorithms\localjc_kernel.cl" />
+    <None Include="..\..\rc\GeoDa.ico" />
+    <None Include="..\..\rc\dialogs.xrc" />
+    <None Include="..\..\rc\GeoDaIcon-16x16.xpm" />
+    <None Include="..\..\rc\menus.xrc">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="..\..\rc\release-notes.txt" />
+    <None Include="..\..\rc\toolbar.xrc" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="..\..\GeoDa.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\Algorithms\azp.cpp" />
+    <ClCompile Include="..\..\Algorithms\cluster.cpp" />
+    <ClCompile Include="..\..\Algorithms\dbscan.cpp" />
+    <ClCompile Include="..\..\Algorithms\distanceplot.cpp" />
+    <ClCompile Include="..\..\Algorithms\distmatrix.cpp" />
+    <ClCompile Include="..\..\Algorithms\fastcluster.cpp" />
+    <ClCompile Include="..\..\Algorithms\gpu_lisa.cpp" />
+    <ClCompile Include="..\..\Algorithms\hdbscan.cpp" />
+    <ClCompile Include="..\..\Algorithms\jacobi.c" />
+    <ClCompile Include="..\..\Algorithms\lapacke.c" />
+    <ClCompile Include="..\..\Algorithms\linpack_lite.c" />
+    <ClCompile Include="..\..\Algorithms\loess.c" />
+    <ClCompile Include="..\..\Algorithms\loessc.c" />
+    <ClCompile Include="..\..\Algorithms\loessf.c" />
+    <ClCompile Include="..\..\Algorithms\maxp.cpp" />
+    <ClCompile Include="..\..\Algorithms\mds.cpp" />
+    <ClCompile Include="..\..\Algorithms\misc.c" />
+    <ClCompile Include="..\..\Algorithms\pam.cpp" />
+    <ClCompile Include="..\..\Algorithms\pca.cpp" />
+    <ClCompile Include="..\..\Algorithms\predict.c" />
+    <ClCompile Include="..\..\Algorithms\redcap.cpp" />
+    <ClCompile Include="..\..\Algorithms\skater.cpp" />
+    <ClCompile Include="..\..\Algorithms\smacof.c" />
+    <ClCompile Include="..\..\Algorithms\smacof_utils.c" />
+    <ClCompile Include="..\..\Algorithms\spectral.cpp" />
+    <ClCompile Include="..\..\Algorithms\splittree.cpp" />
+    <ClCompile Include="..\..\Algorithms\tsne.cpp" />
+    <ClCompile Include="..\..\arizona\viz3\mathstuff.cpp" />
+    <ClCompile Include="..\..\arizona\viz3\oglpfuncs.cpp" />
+    <ClCompile Include="..\..\arizona\viz3\oglstuff.cpp" />
+    <ClCompile Include="..\..\arizona\viz3\plots\scatterplot.cpp" />
+    <ClCompile Include="..\..\DialogTools\AbstractClusterDlg.cpp" />
+    <ClCompile Include="..\..\DialogTools\AdjustYAxisDlg.cpp" />
+    <ClCompile Include="..\..\DialogTools\AggregateDlg.cpp" />
+    <ClCompile Include="..\..\DialogTools\AutoUpdateDlg.cpp" />
+    <ClCompile Include="..\..\DialogTools\AZPDlg.cpp" />
+    <ClCompile Include="..\..\DialogTools\BasemapConfDlg.cpp" />
+    <ClCompile Include="..\..\DialogTools\CsvFieldConfDlg.cpp" />
+    <ClCompile Include="..\..\DialogTools\DBScanDlg.cpp" />
+    <ClCompile Include="..\..\DialogTools\DissolveDlg.cpp" />
+    <ClCompile Include="..\..\DialogTools\FieldNewCalcDateTimeDlg.cpp" />
+    <ClCompile Include="..\..\DialogTools\GdaChoice.cpp" />
+    <ClCompile Include="..\..\DialogTools\GdaListBox.cpp" />
+    <ClCompile Include="..\..\DialogTools\HClusterDlg.cpp" />
+    <ClCompile Include="..\..\DialogTools\HDBScanDlg.cpp" />
+    <ClCompile Include="..\..\DialogTools\KMeansDlg.cpp" />
+    <ClCompile Include="..\..\DialogTools\MaxpDlg.cpp" />
+    <ClCompile Include="..\..\DialogTools\MDSDlg.cpp" />
+    <ClCompile Include="..\..\DialogTools\MultiQuantileLisaDlg.cpp" />
+    <ClCompile Include="..\..\DialogTools\MultiVarSettingsDlg.cpp" />
+    <ClCompile Include="..\..\DialogTools\nbrMatchDlg.cpp" />
+    <ClCompile Include="..\..\DialogTools\PCASettingsDlg.cpp" />
+    <ClCompile Include="..\..\DialogTools\PreferenceDlg.cpp" />
+    <ClCompile Include="..\..\DialogTools\PublishDlg.cpp" />
+    <ClCompile Include="..\..\DialogTools\quantileLisaDlg.cpp" />
+    <ClCompile Include="..\..\DialogTools\RedcapDlg.cpp" />
+    <ClCompile Include="..\..\DialogTools\ReportBugDlg.cpp" />
+    <ClCompile Include="..\..\DialogTools\SCHCDlg.cpp" />
+    <ClCompile Include="..\..\DialogTools\SelectWeightsDlg.cpp" />
+    <ClCompile Include="..\..\DialogTools\SkaterDlg.cpp" />
+    <ClCompile Include="..\..\DialogTools\SpatialJoinDlg.cpp" />
+    <ClCompile Include="..\..\DialogTools\SpectralClusteringDlg.cpp" />
+    <ClCompile Include="..\..\DialogTools\tSNEDlg.cpp" />
+    <ClCompile Include="..\..\DialogTools\WebViewHelpWin.cpp" />
+    <ClCompile Include="..\..\DialogTools\WeightsManDlg.cpp" />
+    <ClCompile Include="..\..\Explore\AbstractClusterMap.cpp" />
+    <ClCompile Include="..\..\Explore\AbstractCoordinator.cpp" />
+    <ClCompile Include="..\..\Explore\AnimatePlotCanvas.cpp" />
+    <ClCompile Include="..\..\Explore\Basemap.cpp" />
+    <ClCompile Include="..\..\Explore\ColocationMapView.cpp" />
+    <ClCompile Include="..\..\Explore\ConditionalBoxPlotView.cpp" />
+    <ClCompile Include="..\..\Explore\ConditionalClusterMapView.cpp" />
+    <ClCompile Include="..\..\Explore\ConnectivityMapView.cpp" />
+    <ClCompile Include="..\..\Explore\CorrelogramAlgs.cpp" />
+    <ClCompile Include="..\..\Explore\CorrelogramView.cpp" />
+    <ClCompile Include="..\..\Explore\CorrelParamsDlg.cpp" />
+    <ClCompile Include="..\..\Explore\CorrelParamsObservable.cpp" />
+    <ClCompile Include="..\..\Explore\CovSpHLStateProxy.cpp" />
+    <ClCompile Include="..\..\Explore\CovSpView.cpp" />
+    <ClCompile Include="..\..\Explore\DistancePlotView.cpp" />
+    <ClCompile Include="..\..\Explore\DistancesCalc.cpp" />
+    <ClCompile Include="..\..\Explore\GroupingMapView.cpp" />
+    <ClCompile Include="..\..\Explore\LineChartCanvas.cpp" />
+    <ClCompile Include="..\..\Explore\LineChartStats.cpp" />
+    <ClCompile Include="..\..\Explore\LineChartView.cpp" />
+    <ClCompile Include="..\..\Explore\LocalGearyCoordinator.cpp" />
+    <ClCompile Include="..\..\Explore\LocalGearyMapNewView.cpp" />
+    <ClCompile Include="..\..\Explore\LoessPlotCanvas.cpp" />
+    <ClCompile Include="..\..\Explore\LowessParamDlg.cpp" />
+    <ClCompile Include="..\..\Explore\LowessParamObservable.cpp" />
+    <ClCompile Include="..\..\Explore\MapLayer.cpp" />
+    <ClCompile Include="..\..\Explore\MapLayerTree.cpp" />
+    <ClCompile Include="..\..\Explore\MapLayoutView.cpp" />
+    <ClCompile Include="..\..\Explore\MapViewHelper.cpp" />
+    <ClCompile Include="..\..\Explore\MLJCCoordinator.cpp" />
+    <ClCompile Include="..\..\Explore\MLJCMapNewView.cpp" />
+    <ClCompile Include="..\..\Explore\ScatterPlotMatView.cpp" />
+    <ClCompile Include="..\..\Explore\SimpleAxisCanvas.cpp" />
+    <ClCompile Include="..\..\Explore\SimpleBinsHistCanvas.cpp" />
+    <ClCompile Include="..\..\Explore\SimpleHistCanvas.cpp" />
+    <ClCompile Include="..\..\Explore\SimpleScatterPlotCanvas.cpp" />
+    <ClCompile Include="..\..\Explore\VarsChooserDlg.cpp" />
+    <ClCompile Include="..\..\Explore\VarsChooserObservable.cpp" />
+    <ClCompile Include="..\..\Explore\WebViewExampleWin.cpp" />
+    <ClCompile Include="..\..\GdaJson.cpp" />
+    <ClCompile Include="..\..\GdaShape.cpp" />
+    <ClCompile Include="..\..\GenColor.cpp" />
+    <ClCompile Include="..\..\HighlightState.cpp" />
+    <ClCompile Include="..\..\io\arcgis_swm.cpp" />
+    <ClCompile Include="..\..\io\MatfileReader.cpp" />
+    <ClCompile Include="..\..\io\matlab_mat.cpp" />
+    <ClCompile Include="..\..\kNN\ANN.cpp" />
+    <ClCompile Include="..\..\kNN\bd_fix_rad_search.cpp" />
+    <ClCompile Include="..\..\kNN\bd_pr_search.cpp" />
+    <ClCompile Include="..\..\kNN\bd_search.cpp" />
+    <ClCompile Include="..\..\kNN\bd_tree.cpp" />
+    <ClCompile Include="..\..\kNN\brute.cpp" />
+    <ClCompile Include="..\..\kNN\kd_dump.cpp" />
+    <ClCompile Include="..\..\kNN\kd_fix_rad_search.cpp" />
+    <ClCompile Include="..\..\kNN\kd_pr_search.cpp" />
+    <ClCompile Include="..\..\kNN\kd_search.cpp" />
+    <ClCompile Include="..\..\kNN\kd_split.cpp" />
+    <ClCompile Include="..\..\kNN\kd_tree.cpp" />
+    <ClCompile Include="..\..\kNN\kd_util.cpp" />
+    <ClCompile Include="..\..\kNN\perf.cpp" />
+    <ClCompile Include="..\..\libgdiam\gdiam.cpp" />
+    <ClCompile Include="..\..\ogl\basic.cpp" />
+    <ClCompile Include="..\..\ogl\basic2.cpp" />
+    <ClCompile Include="..\..\ogl\bmpshape.cpp" />
+    <ClCompile Include="..\..\ogl\canvas.cpp" />
+    <ClCompile Include="..\..\ogl\composit.cpp" />
+    <ClCompile Include="..\..\ogl\constrnt.cpp" />
+    <ClCompile Include="..\..\ogl\divided.cpp" />
+    <ClCompile Include="..\..\ogl\drawn.cpp" />
+    <ClCompile Include="..\..\ogl\lines.cpp" />
+    <ClCompile Include="..\..\ogl\mfutils.cpp" />
+    <ClCompile Include="..\..\ogl\ogldiag.cpp" />
+    <ClCompile Include="..\..\ogl\oglmisc.cpp" />
+    <ClCompile Include="..\..\PointSetAlgs.cpp" />
+    <ClCompile Include="..\..\ShapeOperations\Lowess.cpp" />
+    <ClCompile Include="..\..\ShapeOperations\PolysToContigWeights.cpp" />
+    <ClCompile Include="..\..\ShapeOperations\SmoothingUtils.cpp" />
+    <ClCompile Include="..\..\ShapeOperations\WeightsManState.cpp" />
+    <ClCompile Include="..\..\ShapeOperations\WeightUtils.cpp" />
+    <ClCompile Include="..\..\ShpFile.cpp" />
+    <ClCompile Include="..\..\SpatialIndAlgs.cpp" />
+    <ClCompile Include="..\..\VarCalc\CalcHelp.cpp" />
+    <ClCompile Include="..\..\VarCalc\GdaFlexValue.cpp" />
+    <ClCompile Include="..\..\VarCalc\GdaLexer.cpp" />
+    <ClCompile Include="..\..\VarCalc\GdaParser.cpp" />
+    <ClCompile Include="..\..\VarCalc\NumericTests.cpp" />
+    <ClCompile Include="..\..\VarCalc\WeightsMetaInfo.cpp" />
+    <ClCompile Include="..\..\VarTools.cpp" />
+    <ClCompile Include="..\..\Weights\DistUtils.cpp" />
+    <ClCompile Include="..\..\wxTranslationHelper.cpp" />
+    <ClInclude Include="..\..\Algorithms\azp.h" />
+    <ClInclude Include="..\..\Algorithms\cluster.h" />
+    <ClInclude Include="..\..\Algorithms\DataUtils.h" />
+    <ClInclude Include="..\..\Algorithms\dbscan.h" />
+    <ClInclude Include="..\..\Algorithms\distanceplot.h" />
+    <ClInclude Include="..\..\Algorithms\distmatrix.h" />
+    <ClInclude Include="..\..\Algorithms\fastcluster.h" />
+    <ClInclude Include="..\..\Algorithms\gpu_lisa.h" />
+    <ClInclude Include="..\..\Algorithms\hdbscan.h" />
+    <ClInclude Include="..\..\Algorithms\loess.h" />
+    <ClInclude Include="..\..\Algorithms\maxp.h" />
+    <ClInclude Include="..\..\Algorithms\mds.h" />
+    <ClInclude Include="..\..\Algorithms\pam.h" />
+    <ClInclude Include="..\..\Algorithms\pca.h" />
+    <ClInclude Include="..\..\Algorithms\redcap.h" />
+    <ClInclude Include="..\..\Algorithms\rng.h" />
+    <ClInclude Include="..\..\Algorithms\S.h" />
+    <ClInclude Include="..\..\Algorithms\skater.h" />
+    <ClInclude Include="..\..\Algorithms\smacof.h" />
+    <ClInclude Include="..\..\Algorithms\spectral.h" />
+    <ClInclude Include="..\..\Algorithms\splittree.h" />
+    <ClInclude Include="..\..\Algorithms\texttable.h" />
+    <ClInclude Include="..\..\Algorithms\tsne.h" />
+    <ClInclude Include="..\..\Algorithms\vptree.h" />
+    <ClInclude Include="..\..\arizona\viz3\mathstuff.h" />
+    <ClInclude Include="..\..\arizona\viz3\oglpfuncs.h" />
+    <ClInclude Include="..\..\arizona\viz3\oglstuff.h" />
+    <ClInclude Include="..\..\arizona\viz3\plots\scatterplot.h" />
+    <ClInclude Include="..\..\DataViewer\CustomClassifPtree.h" />
+    <ClInclude Include="..\..\DataViewer\DataSource.h" />
+    <ClInclude Include="..\..\DataViewer\OGRColumn.h" />
+    <ClInclude Include="..\..\DataViewer\OGRTable.h" />
+    <ClInclude Include="..\..\DataViewer\OGRTableOperation.h" />
+    <ClInclude Include="..\..\DataViewer\TableBase.h" />
+    <ClInclude Include="..\..\DataViewer\TableFrame.h" />
+    <ClInclude Include="..\..\DataViewer\TableInterface.h" />
+    <ClInclude Include="..\..\DataViewer\VarGroup.h" />
+    <ClInclude Include="..\..\DataViewer\VarOrderPtree.h" />
+    <ClInclude Include="..\..\DataViewer\VarOrderMapper.h" />
+    <ClInclude Include="..\..\DefaultVarsPtree.h" />
+    <ClInclude Include="..\..\DialogTools\AbstractClusterDlg.h" />
+    <ClInclude Include="..\..\DialogTools\AdjustYAxisDlg.h" />
+    <ClInclude Include="..\..\DialogTools\AggregateDlg.h" />
+    <ClInclude Include="..\..\DialogTools\AutoCompTextCtrl.h" />
+    <ClInclude Include="..\..\DialogTools\AutoUpdateDlg.h" />
+    <ClInclude Include="..\..\DialogTools\AZPDlg.h" />
+    <ClInclude Include="..\..\DialogTools\BasemapConfDlg.h" />
+    <ClInclude Include="..\..\DialogTools\CalculatorDlg.h" />
+    <ClInclude Include="..\..\DialogTools\CsvFieldConfDlg.h" />
+    <ClInclude Include="..\..\DialogTools\DatasourceDlg.h" />
+    <ClInclude Include="..\..\DialogTools\DBScanDlg.h" />
+    <ClInclude Include="..\..\DialogTools\DissolveDlg.h" />
+    <ClInclude Include="..\..\DialogTools\ExportDataDlg.h" />
+    <ClInclude Include="..\..\DialogTools\FieldNameCorrectionDlg.h" />
+    <ClInclude Include="..\..\DialogTools\FieldNewCalcDateTimeDlg.h" />
+    <ClInclude Include="..\..\DialogTools\GdaChoice.h" />
+    <ClInclude Include="..\..\DialogTools\GdaListBox.h" />
+    <ClInclude Include="..\..\DialogTools\HClusterDlg.h" />
+    <ClInclude Include="..\..\DialogTools\HDBScanDlg.h" />
+    <ClInclude Include="..\..\DialogTools\KMeansDlg.h" />
+    <ClInclude Include="..\..\DialogTools\LocaleSetupDlg.h" />
+    <ClInclude Include="..\..\DialogTools\MaxpDlg.h" />
+    <ClInclude Include="..\..\DialogTools\MDSDlg.h" />
+    <ClInclude Include="..\..\DialogTools\MultiQuantileLisaDlg.h" />
+    <ClInclude Include="..\..\DialogTools\MultiVarSettingsDlg.h" />
+    <ClInclude Include="..\..\DialogTools\nbrMatchDlg.h" />
+    <ClInclude Include="..\..\DialogTools\NumCategoriesDlg.h" />
+    <ClInclude Include="..\..\DialogTools\PCASettingsDlg.h" />
+    <ClInclude Include="..\..\DialogTools\PreferenceDlg.h" />
+    <ClInclude Include="..\..\DialogTools\ProjectInfoDlg.h" />
+    <ClInclude Include="..\..\DialogTools\PublishDlg.h" />
+    <ClInclude Include="..\..\DialogTools\quantileLisaDlg.h" />
+    <ClInclude Include="..\..\DialogTools\RedcapDlg.h" />
+    <ClInclude Include="..\..\DialogTools\ReportBugDlg.h" />
+    <ClInclude Include="..\..\DialogTools\SaveAsDlg.h" />
+    <ClInclude Include="..\..\DialogTools\SCHCDlg.h" />
+    <ClInclude Include="..\..\DialogTools\SelectWeightsDlg.h" />
+    <ClInclude Include="..\..\DialogTools\SkaterDlg.h" />
+    <ClInclude Include="..\..\DialogTools\SpatialJoinDlg.h" />
+    <ClInclude Include="..\..\DialogTools\SpectralClusteringDlg.h" />
+    <ClInclude Include="..\..\DialogTools\TimeEditorDlg.h" />
+    <ClInclude Include="..\..\DialogTools\tSNEDlg.h" />
+    <ClInclude Include="..\..\DialogTools\VarGroupingEditorDlg.h" />
+    <ClInclude Include="..\..\DialogTools\WebViewHelpWin.h" />
+    <ClInclude Include="..\..\DialogTools\WeightsManDlg.h" />
+    <ClInclude Include="..\..\Explore\AbstractClusterMap.h" />
+    <ClInclude Include="..\..\Explore\AbstractCoordinator.h" />
+    <ClInclude Include="..\..\Explore\AnimatePlotCanvas.h" />
+    <ClInclude Include="..\..\Explore\Basemap.h" />
+    <ClInclude Include="..\..\Explore\ColocationMapView.h" />
+    <ClInclude Include="..\..\Explore\ConditionalBoxPlotView.h" />
+    <ClInclude Include="..\..\Explore\ConditionalClusterMapView.h" />
+    <ClInclude Include="..\..\Explore\ConnectivityMapView.h" />
+    <ClInclude Include="..\..\Explore\CorrelogramAlgs.h" />
+    <ClInclude Include="..\..\Explore\CorrelogramView.h" />
+    <ClInclude Include="..\..\Explore\CorrelParamsDlg.h" />
+    <ClInclude Include="..\..\Explore\CorrelParamsObservable.h" />
+    <ClInclude Include="..\..\Explore\CorrelParamsObserver.h" />
+    <ClInclude Include="..\..\Explore\CovSpHLStateProxy.h" />
+    <ClInclude Include="..\..\Explore\CovSpView.h" />
+    <ClInclude Include="..\..\Explore\DistancePlotView.h" />
+    <ClInclude Include="..\..\Explore\DistancesCalc.h" />
+    <ClInclude Include="..\..\Explore\GroupingMapView.h" />
+    <ClInclude Include="..\..\Explore\LineChartCanvas.h" />
+    <ClInclude Include="..\..\Explore\LineChartStats.h" />
+    <ClInclude Include="..\..\Explore\LineChartView.h" />
+    <ClInclude Include="..\..\Explore\LocalGearyCoordinator.h" />
+    <ClInclude Include="..\..\Explore\LocalGearyCoordinatorObserver.h" />
+    <ClInclude Include="..\..\Explore\LocalGearyMapNewView.h" />
+    <ClInclude Include="..\..\Explore\LoessPlotCanvas.h" />
+    <ClInclude Include="..\..\Explore\LowessParamDlg.h" />
+    <ClInclude Include="..\..\Explore\LowessParamObservable.h" />
+    <ClInclude Include="..\..\Explore\LowessParamObserver.h" />
+    <ClInclude Include="..\..\Explore\MapLayer.hpp" />
+    <ClInclude Include="..\..\Explore\MapLayerTree.hpp" />
+    <ClInclude Include="..\..\Explore\MapLayoutView.h" />
+    <ClInclude Include="..\..\Explore\MapViewHelper.h" />
+    <ClInclude Include="..\..\Explore\MLJCCoordinator.h" />
+    <ClInclude Include="..\..\Explore\MLJCCoordinatorObserver.h" />
+    <ClInclude Include="..\..\Explore\MLJCMapNewView.h" />
+    <ClInclude Include="..\..\Explore\ScatterPlotMatView.h" />
+    <ClInclude Include="..\..\Explore\SimpleAxisCanvas.h" />
+    <ClInclude Include="..\..\Explore\SimpleBinsHistCanvas.h" />
+    <ClInclude Include="..\..\Explore\SimpleHistCanvas.h" />
+    <ClInclude Include="..\..\Explore\SimpleScatterPlotCanvas.h" />
+    <ClInclude Include="..\..\Explore\VarsChooserDlg.h" />
+    <ClInclude Include="..\..\Explore\VarsChooserObservable.h" />
+    <ClInclude Include="..\..\Explore\VarsChooserObserver.h" />
+    <ClInclude Include="..\..\Explore\WebViewExampleWin.h" />
+    <ClInclude Include="..\..\GdaConst.h" />
+    <ClInclude Include="..\..\GdaException.h" />
+    <ClInclude Include="..\..\GdaJson.h" />
+    <ClInclude Include="..\..\GdaShape.h" />
+    <ClInclude Include="..\..\GenColor.h" />
+    <ClInclude Include="..\..\HighlightState.h" />
+    <ClInclude Include="..\..\HighlightStateObserver.h" />
+    <ClInclude Include="..\..\HLStateInt.h" />
+    <ClInclude Include="..\..\io\arcgis_swm.h" />
+    <ClInclude Include="..\..\io\MatfileReader.h" />
+    <ClInclude Include="..\..\io\matlab_mat.h" />
+    <ClInclude Include="..\..\io\weights_interface.h" />
+    <ClInclude Include="..\..\kNN\ANN\ANN.h" />
+    <ClInclude Include="..\..\kNN\ANN\ANNperf.h" />
+    <ClInclude Include="..\..\kNN\ANN\ANNx.h" />
+    <ClInclude Include="..\..\kNN\bd_tree.h" />
+    <ClInclude Include="..\..\kNN\kd_fix_rad_search.h" />
+    <ClInclude Include="..\..\kNN\kd_pr_search.h" />
+    <ClInclude Include="..\..\kNN\kd_search.h" />
+    <ClInclude Include="..\..\kNN\kd_split.h" />
+    <ClInclude Include="..\..\kNN\kd_tree.h" />
+    <ClInclude Include="..\..\kNN\kd_util.h" />
+    <ClInclude Include="..\..\kNN\pr_queue.h" />
+    <ClInclude Include="..\..\kNN\pr_queue_k.h" />
+    <ClInclude Include="..\..\libgdiam\gdiam.hpp" />
+    <ClInclude Include="..\..\MapLayerStateObserver.h" />
+    <ClInclude Include="..\..\Observable.h" />
+    <ClInclude Include="..\..\Observer.h" />
+    <ClInclude Include="..\..\ogl\basic.h" />
+    <ClInclude Include="..\..\ogl\basicp.h" />
+    <ClInclude Include="..\..\ogl\bmpshape.h" />
+    <ClInclude Include="..\..\ogl\canvas.h" />
+    <ClInclude Include="..\..\ogl\composit.h" />
+    <ClInclude Include="..\..\ogl\constrnt.h" />
+    <ClInclude Include="..\..\ogl\divided.h" />
+    <ClInclude Include="..\..\ogl\drawn.h" />
+    <ClInclude Include="..\..\ogl\drawnp.h" />
+    <ClInclude Include="..\..\ogl\lines.h" />
+    <ClInclude Include="..\..\ogl\linesp.h" />
+    <ClInclude Include="..\..\ogl\mfutils.h" />
+    <ClInclude Include="..\..\ogl\misc.h" />
+    <ClInclude Include="..\..\ogl\ogl.h" />
+    <ClInclude Include="..\..\ogl\ogldiag.h" />
+    <ClInclude Include="..\..\PointSetAlgs.h" />
+    <ClInclude Include="..\..\ProjectConf.h" />
+    <ClInclude Include="..\..\resource.h" />
+    <ClInclude Include="..\..\SaveButtonManager.h" />
+    <ClInclude Include="..\..\ShapeOperations\CsvFileUtils.h" />
+    <ClInclude Include="..\..\ShapeOperations\DorlingCartogram.h" />
+    <ClInclude Include="..\..\shapeoperations\GalWeight.h" />
+    <ClInclude Include="..\..\ShapeOperations\GdaCache.h" />
+    <ClInclude Include="..\..\shapeoperations\GeodaWeight.h" />
+    <ClInclude Include="..\..\shapeoperations\GwtWeight.h" />
+    <ClInclude Include="..\..\ShapeOperations\Lowess.h" />
+    <ClInclude Include="..\..\ShapeOperations\OGRDatasourceProxy.h" />
+    <ClInclude Include="..\..\ShapeOperations\OGRFieldProxy.h" />
+    <ClInclude Include="..\..\ShapeOperations\OGRLayerProxy.h" />
+    <ClInclude Include="..\..\ShapeOperations\PolysToContigWeights.h" />
+    <ClInclude Include="..\..\shapeoperations\Randik.h" />
+    <ClInclude Include="..\..\shapeoperations\RateSmoothing.h" />
+    <ClInclude Include="..\..\ShapeOperations\SmoothingUtils.h" />
+    <ClInclude Include="..\..\ShapeOperations\VoronoiUtils.h" />
+    <ClInclude Include="..\..\shapeoperations\WeightsManager.h" />
+    <ClInclude Include="..\..\shapeoperations\OGRDataAdapter.h" />
+    <ClInclude Include="..\..\regression\blaswrap.h" />
+    <ClInclude Include="..\..\regression\clapack.h" />
+    <ClInclude Include="..\..\regression\DenseMatrix.h" />
+    <ClInclude Include="..\..\regression\DenseVector.h" />
+    <ClInclude Include="..\..\regression\DiagnosticReport.h" />
+    <ClInclude Include="..\..\regression\f2c.h" />
+    <ClInclude Include="..\..\regression\Link.h" />
+    <ClInclude Include="..\..\regression\Lite2.h" />
+    <ClInclude Include="..\..\regression\mix.h" />
+    <ClInclude Include="..\..\regression\ML_im.h" />
+    <ClInclude Include="..\..\regression\polym.h" />
+    <ClInclude Include="..\..\regression\PowerLag.h" />
+    <ClInclude Include="..\..\regression\PowerSymLag.h" />
+    <ClInclude Include="..\..\regression\smile.h" />
+    <ClInclude Include="..\..\regression\SparseMatrix.h" />
+    <ClInclude Include="..\..\regression\SparseRow.h" />
+    <ClInclude Include="..\..\regression\SparseVector.h" />
+    <ClInclude Include="..\..\regression\Weights.h" />
+    <ClInclude Include="..\..\dialogtools\3DControlPan.h" />
+    <ClInclude Include="..\..\dialogtools\AddIdVariable.h" />
+    <ClInclude Include="..\..\dialogtools\Bnd2ShpDlg.h" />
+    <ClInclude Include="..\..\DialogTools\CatClassifDlg.h" />
+    <ClInclude Include="..\..\dialogtools\CreateGridDlg.h" />
+    <ClInclude Include="..\..\dialogtools\CreatingWeightDlg.h" />
+    <ClInclude Include="..\..\DialogTools\ExportCsvDlg.h" />
+    <ClInclude Include="..\..\DialogTools\FieldNewCalcBinDlg.h" />
+    <ClInclude Include="..\..\DialogTools\FieldNewCalcLagDlg.h" />
+    <ClInclude Include="..\..\DialogTools\FieldNewCalcRateDlg.h" />
+    <ClInclude Include="..\..\DialogTools\FieldNewCalcSheetDlg.h" />
+    <ClInclude Include="..\..\DialogTools\FieldNewCalcSpecialDlg.h" />
+    <ClInclude Include="..\..\DialogTools\FieldNewCalcUniDlg.h" />
+    <ClInclude Include="..\..\DialogTools\GetisOrdChoiceDlg.h" />
+    <ClInclude Include="..\..\dialogtools\HistIntervalDlg.h" />
+    <ClInclude Include="..\..\DialogTools\ImportCsvDlg.h" />
+    <ClInclude Include="..\..\dialogtools\LisaWhat2OpenDlg.h" />
+    <ClInclude Include="..\..\dialogtools\PCPDlg.h" />
+    <ClInclude Include="..\..\dialogtools\PermutationCounterDlg.h" />
+    <ClInclude Include="..\..\dialogtools\ProgressDlg.h" />
+    <ClInclude Include="..\..\dialogtools\RandomizationDlg.h" />
+    <ClInclude Include="..\..\DialogTools\RangeSelectionDlg.h" />
+    <ClInclude Include="..\..\dialogtools\RegressionDlg.h" />
+    <ClInclude Include="..\..\dialogtools\RegressionReportDlg.h" />
+    <ClInclude Include="..\..\dialogtools\SaveSelectionDlg.h" />
+    <ClInclude Include="..\..\DialogTools\SaveToTableDlg.h" />
+    <ClInclude Include="..\..\DialogTools\TimeChooserDlg.h" />
+    <ClInclude Include="..\..\dialogtools\VariableSettingsDlg.h" />
+    <ClCompile Include="..\..\DataViewer\CustomClassifPtree.cpp" />
+    <ClCompile Include="..\..\DataViewer\DataSource.cpp" />
+    <ClCompile Include="..\..\DataViewer\OGRColumn.cpp" />
+    <ClCompile Include="..\..\DataViewer\OGRTable.cpp" />
+    <ClCompile Include="..\..\DataViewer\OGRTableOperation.cpp" />
+    <ClCompile Include="..\..\DataViewer\TableBase.cpp" />
+    <ClCompile Include="..\..\DataViewer\TableFrame.cpp" />
+    <ClCompile Include="..\..\DataViewer\TableInterface.cpp" />
+    <ClCompile Include="..\..\DataViewer\VarGroup.cpp" />
+    <ClCompile Include="..\..\DataViewer\VarOrderPtree.cpp" />
+    <ClCompile Include="..\..\DataViewer\VarOrderMapper.cpp" />
+    <ClCompile Include="..\..\DefaultVarsPtree.cpp" />
+    <ClCompile Include="..\..\DialogTools\AutoCompTextCtrl.cpp" />
+    <ClInclude Include="..\..\DialogTools\ConnectDatasourceDlg.h" />
+    <ClInclude Include="..\..\explore\3DPlotView.h" />
+    <ClInclude Include="..\..\Explore\BoxNewPlotView.h" />
+    <ClInclude Include="..\..\Explore\CartogramNewView.h" />
+    <ClInclude Include="..\..\Explore\CatClassification.h" />
+    <ClInclude Include="..\..\Explore\CatClassifManager.h" />
+    <ClInclude Include="..\..\Explore\CatClassifState.h" />
+    <ClInclude Include="..\..\Explore\CatClassifStateObserver.h" />
+    <ClInclude Include="..\..\Explore\ConditionalHistogramView.h" />
+    <ClInclude Include="..\..\Explore\ConditionalMapView.h" />
+    <ClInclude Include="..\..\Explore\ConditionalNewView.h" />
+    <ClInclude Include="..\..\Explore\ConditionalScatterPlotView.h" />
+    <ClInclude Include="..\..\Explore\ConnectivityHistView.h" />
+    <ClInclude Include="..\..\DialogTools\DataMovieDlg.h" />
+    <ClInclude Include="..\..\explore\Geom3D.h" />
+    <ClInclude Include="..\..\Explore\GetisOrdMapNewView.h" />
+    <ClInclude Include="..\..\explore\GStatCoordinator.h" />
+    <ClInclude Include="..\..\Explore\HistogramView.h" />
+    <ClInclude Include="..\..\Explore\LisaCoordinator.h" />
+    <ClInclude Include="..\..\Explore\LisaCoordinatorObserver.h" />
+    <ClInclude Include="..\..\Explore\LisaMapNewView.h" />
+    <ClInclude Include="..\..\Explore\LisaScatterPlotView.h" />
+    <ClInclude Include="..\..\Explore\MapNewView.h" />
+    <ClInclude Include="..\..\Explore\PCPNewView.h" />
+    <ClInclude Include="..\..\Explore\ScatterNewPlotView.h" />
+    <ClInclude Include="..\..\DataViewer\DataViewerAddColDlg.h" />
+    <ClInclude Include="..\..\DataViewer\DataViewerDeleteColDlg.h" />
+    <ClInclude Include="..\..\DataViewer\DataViewerEditFieldPropertiesDlg.h" />
+    <ClInclude Include="..\..\DataViewer\DataViewerResizeColDlg.h" />
+    <ClInclude Include="..\..\DataViewer\MergeTableDlg.h" />
+    <ClInclude Include="..\..\DataViewer\TableState.h" />
+    <ClInclude Include="..\..\DataViewer\TableStateObserver.h" />
+    <ClInclude Include="..\..\DataViewer\TimeState.h" />
+    <ClInclude Include="..\..\DataViewer\TimeStateObserver.h" />
+    <ClInclude Include="..\..\FramesManager.h" />
+    <ClInclude Include="..\..\FramesManagerObserver.h" />
+    <ClInclude Include="..\..\GeneralWxUtils.h" />
+    <ClInclude Include="..\..\GenGeomAlgs.h" />
+    <ClInclude Include="..\..\GenUtils.h" />
+    <ClInclude Include="..\..\GeoDa.h" />
+    <ClInclude Include="..\..\GdaCartoDB.h" />
+    <ClInclude Include="..\..\logger.h" />
+    <ClInclude Include="..\..\nullstream.h" />
+    <ClInclude Include="..\..\Project.h" />
+    <ClInclude Include="..\..\ShapeOperations\WeightsManPtree.h" />
+    <ClInclude Include="..\..\ShapeOperations\WeightsManState.h" />
+    <ClInclude Include="..\..\ShapeOperations\WeightsManStateObserver.h" />
+    <ClInclude Include="..\..\ShapeOperations\WeightUtils.h" />
+    <ClInclude Include="..\..\ShpFile.h" />
+    <ClInclude Include="..\..\SpatialIndAlgs.h" />
+    <ClInclude Include="..\..\SpatialIndTypes.h" />
+    <ClInclude Include="..\..\TemplateCanvas.h" />
+    <ClInclude Include="..\..\TemplateFrame.h" />
+    <ClInclude Include="..\..\TemplateLegend.h" />
+    <ClInclude Include="..\..\VarCalc\CalcHelp.h" />
+    <ClInclude Include="..\..\VarCalc\GdaFlexValue.h" />
+    <ClInclude Include="..\..\VarCalc\GdaLexer.h" />
+    <ClInclude Include="..\..\VarCalc\GdaParser.h" />
+    <ClInclude Include="..\..\VarCalc\NumericTests.h" />
+    <ClInclude Include="..\..\VarCalc\WeightsManInterface.h" />
+    <ClInclude Include="..\..\VarCalc\WeightsMetaInfo.h" />
+    <ClInclude Include="..\..\VarTools.h" />
+    <ClInclude Include="..\..\version.h" />
+    <ClInclude Include="..\..\Weights\DistUtils.h" />
+    <ClInclude Include="..\..\wxTranslationHelper.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\DialogTools\CalculatorDlg.cpp" />
+    <ClCompile Include="..\..\DialogTools\DatasourceDlg.cpp" />
+    <ClCompile Include="..\..\DialogTools\ExportDataDlg.cpp" />
+    <ClCompile Include="..\..\DialogTools\FieldNameCorrectionDlg.cpp" />
+    <ClCompile Include="..\..\DialogTools\LocaleSetupDlg.cpp" />
+    <ClCompile Include="..\..\DialogTools\NumCategoriesDlg.cpp" />
+    <ClCompile Include="..\..\DialogTools\ProjectInfoDlg.cpp" />
+    <ClCompile Include="..\..\DialogTools\SaveAsDlg.cpp" />
+    <ClCompile Include="..\..\DialogTools\TimeEditorDlg.cpp" />
+    <ClCompile Include="..\..\DialogTools\VarGroupingEditorDlg.cpp" />
+    <ClCompile Include="..\..\GdaConst.cpp" />
+    <ClCompile Include="..\..\ProjectConf.cpp" />
+    <ClCompile Include="..\..\rc\GdaAppResources.cpp" />
+    <ClCompile Include="..\..\SaveButtonManager.cpp" />
+    <ClCompile Include="..\..\ShapeOperations\CsvFileUtils.cpp" />
+    <ClCompile Include="..\..\ShapeOperations\DorlingCartogram.cpp" />
+    <ClCompile Include="..\..\shapeoperations\GalWeight.cpp" />
+    <ClCompile Include="..\..\ShapeOperations\GdaCache.cpp" />
+    <ClCompile Include="..\..\shapeoperations\GeodaWeight.cpp" />
+    <ClCompile Include="..\..\shapeoperations\GwtWeight.cpp" />
+    <ClCompile Include="..\..\ShapeOperations\OGRDatasourceProxy.cpp" />
+    <ClCompile Include="..\..\ShapeOperations\OGRFieldProxy.cpp" />
+    <ClCompile Include="..\..\ShapeOperations\OGRLayerProxy.cpp" />
+    <ClCompile Include="..\..\shapeoperations\Randik.cpp" />
+    <ClCompile Include="..\..\shapeoperations\RateSmoothing.cpp" />
+    <ClCompile Include="..\..\ShapeOperations\VoronoiUtils.cpp" />
+    <ClCompile Include="..\..\shapeoperations\WeightsManager.cpp" />
+    <ClCompile Include="..\..\shapeoperations\OGRDataAdapter.cpp" />
+    <ClCompile Include="..\..\regression\DenseMatrix.cpp" />
+    <ClCompile Include="..\..\regression\DenseVector.cpp" />
+    <ClCompile Include="..\..\regression\DiagnosticReport.cpp" />
+    <ClCompile Include="..\..\regression\mix.cpp" />
+    <ClCompile Include="..\..\regression\ML_im.cpp" />
+    <ClCompile Include="..\..\regression\PowerLag.cpp" />
+    <ClCompile Include="..\..\regression\PowerSymLag.cpp" />
+    <ClCompile Include="..\..\regression\smile2.cpp" />
+    <ClCompile Include="..\..\regression\SparseMatrix.cpp" />
+    <ClCompile Include="..\..\regression\SparseRow.cpp" />
+    <ClCompile Include="..\..\regression\SparseVector.cpp" />
+    <ClCompile Include="..\..\regression\Weights.cpp" />
+    <ClCompile Include="..\..\dialogtools\ConnectDatasourceDlg.cpp" />
+    <ClCompile Include="..\..\dialogtools\3DControlPan.cpp" />
+    <ClCompile Include="..\..\dialogtools\AddIdVariable.cpp" />
+    <ClCompile Include="..\..\dialogtools\Bnd2ShpDlg.cpp" />
+    <ClCompile Include="..\..\DialogTools\CatClassifDlg.cpp" />
+    <ClCompile Include="..\..\dialogtools\CreateGridDlg.cpp" />
+    <ClCompile Include="..\..\dialogtools\CreatingWeightDlg.cpp" />
+    <ClCompile Include="..\..\DialogTools\ExportCsvDlg.cpp" />
+    <ClCompile Include="..\..\DialogTools\FieldNewCalcBinDlg.cpp" />
+    <ClCompile Include="..\..\DialogTools\FieldNewCalcLagDlg.cpp" />
+    <ClCompile Include="..\..\DialogTools\FieldNewCalcRateDlg.cpp" />
+    <ClCompile Include="..\..\DialogTools\FieldNewCalcSheetDlg.cpp" />
+    <ClCompile Include="..\..\DialogTools\FieldNewCalcSpecialDlg.cpp" />
+    <ClCompile Include="..\..\DialogTools\FieldNewCalcUniDlg.cpp" />
+    <ClCompile Include="..\..\DialogTools\GetisOrdChoiceDlg.cpp" />
+    <ClCompile Include="..\..\dialogtools\HistIntervalDlg.cpp" />
+    <ClCompile Include="..\..\DialogTools\ImportCsvDlg.cpp" />
+    <ClCompile Include="..\..\dialogtools\LisaWhat2OpenDlg.cpp" />
+    <ClCompile Include="..\..\dialogtools\PCPDlg.cpp" />
+    <ClCompile Include="..\..\dialogtools\PermutationCounterDlg.cpp" />
+    <ClCompile Include="..\..\dialogtools\ProgressDlg.cpp" />
+    <ClCompile Include="..\..\dialogtools\RandomizationDlg.cpp" />
+    <ClCompile Include="..\..\DialogTools\RangeSelectionDlg.cpp" />
+    <ClCompile Include="..\..\dialogtools\RegressionDlg.cpp" />
+    <ClCompile Include="..\..\dialogtools\RegressionReportDlg.cpp" />
+    <ClCompile Include="..\..\dialogtools\SaveSelectionDlg.cpp" />
+    <ClCompile Include="..\..\DialogTools\SaveToTableDlg.cpp" />
+    <ClCompile Include="..\..\DialogTools\TimeChooserDlg.cpp" />
+    <ClCompile Include="..\..\dialogtools\VariableSettingsDlg.cpp" />
+    <ClCompile Include="..\..\explore\3DPlotView.cpp" />
+    <ClCompile Include="..\..\Explore\BoxNewPlotView.cpp" />
+    <ClCompile Include="..\..\Explore\CartogramNewView.cpp" />
+    <ClCompile Include="..\..\Explore\CatClassification.cpp" />
+    <ClCompile Include="..\..\Explore\CatClassifManager.cpp" />
+    <ClCompile Include="..\..\Explore\CatClassifState.cpp" />
+    <ClCompile Include="..\..\Explore\ConditionalHistogramView.cpp" />
+    <ClCompile Include="..\..\Explore\ConditionalMapView.cpp" />
+    <ClCompile Include="..\..\Explore\ConditionalNewView.cpp" />
+    <ClCompile Include="..\..\Explore\ConditionalScatterPlotView.cpp" />
+    <ClCompile Include="..\..\Explore\ConnectivityHistView.cpp" />
+    <ClCompile Include="..\..\DialogTools\DataMovieDlg.cpp" />
+    <ClCompile Include="..\..\explore\Geom3D.cpp" />
+    <ClCompile Include="..\..\Explore\GetisOrdMapNewView.cpp" />
+    <ClCompile Include="..\..\explore\GStatCoordinator.cpp" />
+    <ClCompile Include="..\..\Explore\HistogramView.cpp" />
+    <ClCompile Include="..\..\Explore\LisaCoordinator.cpp" />
+    <ClCompile Include="..\..\Explore\LisaMapNewView.cpp" />
+    <ClCompile Include="..\..\Explore\LisaScatterPlotView.cpp" />
+    <ClCompile Include="..\..\Explore\MapNewView.cpp" />
+    <ClCompile Include="..\..\Explore\PCPNewView.cpp" />
+    <ClCompile Include="..\..\Explore\ScatterNewPlotView.cpp" />
+    <ClCompile Include="..\..\DataViewer\DataViewerAddColDlg.cpp" />
+    <ClCompile Include="..\..\DataViewer\DataViewerDeleteColDlg.cpp" />
+    <ClCompile Include="..\..\DataViewer\DataViewerEditFieldPropertiesDlg.cpp" />
+    <ClCompile Include="..\..\DataViewer\DataViewerResizeColDlg.cpp" />
+    <ClCompile Include="..\..\DataViewer\MergeTableDlg.cpp" />
+    <ClCompile Include="..\..\DataViewer\TableState.cpp" />
+    <ClCompile Include="..\..\DataViewer\TimeState.cpp" />
+    <ClCompile Include="..\..\FramesManager.cpp" />
+    <ClCompile Include="..\..\GeneralWxUtils.cpp" />
+    <ClCompile Include="..\..\GenGeomAlgs.cpp" />
+    <ClCompile Include="..\..\GenUtils.cpp" />
+    <ClCompile Include="..\..\GeoDa.cpp" />
+    <ClCompile Include="..\..\GdaCartoDB.cpp" />
+    <ClCompile Include="..\..\logger.cpp" />
+    <ClCompile Include="..\..\Project.cpp" />
+    <ClCompile Include="..\..\ShapeOperations\WeightsManPtree.cpp" />
+    <ClCompile Include="..\..\TemplateCanvas.cpp" />
+    <ClCompile Include="..\..\TemplateFrame.cpp" />
+    <ClCompile Include="..\..\TemplateLegend.cpp" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
