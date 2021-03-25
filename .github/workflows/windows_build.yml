@@ -116,9 +116,8 @@ jobs:
           # wxWidgets 3.1.4
           #
           if(-Not (Test-Path -Path wxWidgets.zip)) { Invoke-WebRequest "https://github.com/wxWidgets/wxWidgets/releases/download/v3.1.4/wxWidgets-3.1.4.zip" -OutFile "wxWidgets.zip" }
-          7z x wxWidgets.zip
-          dir
-          cd 3.1.4
+          7z x wxWidgets.zip -owxWidgets
+          cd wxWidgets
           if($env:platform -eq "x86") 
           {
             nmake -f makefile.vc UNICODE=1 SHARED=1 RUNTIME_LIBS=dynamic BUILD=release MONOLITHIC=1 USE_OPENGL=1 USE_POSTSCRIPT=1
@@ -133,7 +132,7 @@ jobs:
           #
           Invoke-WebRequest "https://github.com/lixun910/pygeoda_boost/archive/refs/tags/v0.0.8.zip" -OutFile "boost.zip"
           7z x boost.zip
-          Rename-Item pygeoda_boost-0.0.8 pygeoda_boost
+          Rename-Item pygeoda_boost-0.0.8 boost
           dir
           #
           # JsonSpirit
