@@ -42,7 +42,8 @@ jobs:
           # prepare
           #
           pwd
-          cd BuildTools\macosx
+          cd BuildTools
+          cd macosx
           mkdir temp
           mkdir libraries
           #
