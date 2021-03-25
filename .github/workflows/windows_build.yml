@@ -108,14 +108,14 @@ jobs:
           #
           if($env:platform -eq "x86") 
           {
-            $env:GDAL_SDK_VER="release-1911-dev"
+            $env:GDAL_SDK_VER="release-1911"
           }
           else
           {
-            $env:GDAL_SDK_VER="release-1911-x64-dev"
+            $env:GDAL_SDK_VER="release-1911-x64"
           }
           cd temp 
-          Invoke-WebRequest "https://github.com/GeoDaCenter/software/releases/download/v2000/$env:GDAL_SDK_VER.zip" -OutFile "$env:GDAL_SDK_VER.zip" 
+          Invoke-WebRequest "https://github.com/GeoDaCenter/software/releases/download/v2000/$env:GDAL_SDK_VER-dev.zip" -OutFile "$env:GDAL_SDK_VER.zip" 
           cd ..
           7z x .\temp\$env:GDAL_SDK_VER.zip
           dir
