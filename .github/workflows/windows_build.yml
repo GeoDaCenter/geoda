@@ -180,6 +180,7 @@ jobs:
           #
           Invoke-WebRequest "https://github.com/yixuan/spectra/archive/refs/tags/v0.8.0.zip" -OutFile "spectra.zip"
           7z x spectra.zip
+          Rename-Item spectra-0.8.0 spectra
           #
           # OpenCL
           #
