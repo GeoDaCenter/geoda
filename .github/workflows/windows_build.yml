@@ -186,6 +186,7 @@ jobs:
           Invoke-WebRequest "https://github.com/GeoDaCenter/software/releases/download/v2000/OpenCL.zip" -OutFile "OpenCL.zip"
           7z x OpenCL.zip
           dir
+          cd ..
           #
           # GeoDa
           #
@@ -213,6 +214,7 @@ jobs:
           {
             ISCC.exe /q installer\64bit\GeoDa.iss
           } 
+          dir
 
 
 
