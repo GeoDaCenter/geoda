@@ -1,0 +1,90 @@
+# This is a basic workflow to help you get started with Actions
+
+name: Mac OSX builds
+
+# Controls when the action will run. 
+on:
+  # Triggers the workflow on push or pull request events but only for the master branch
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # This workflow contains a single job called "build"
+  osx_build:
+    # The type of runner that the job will run on
+    runs-on: macos-latest
+    if: "!contains(github.event.head_commit.message, '[ci skip]') && !contains(github.event.head_commit.message, '[skip ci]')"
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v2
+
+      # Install libgdal-dev
+      - name: Install libgdal-dev
+        run: brew install gdal
+
+      # Install boost 1.75
+      - name: Install Boost
+        run: brew install boost
+
+      # Build GeoDa
+      - name: Build GeoDa
+        run: |
+          #
+          # prepare
+          #
+          $env:GDA_PATH="$env:GITHUB_WORKSPACE\BuildTools\macosx"
+          cd $env:GDA_PATH
+          mkdir temp
+          mkdir libraries
+          #
+          # wxWidgets 3.1.4
+          #
+          cd $env:GDA_PATH\temp
+          #
+          # Boost 1.75
+          #
+          #
+          # JSON Spirit v4.08
+          #
+          #
+          # CLAPACK 3.1.1
+          #
+          #
+          # Eigen3
+          #
+          #
+          # Spectra v0.8.0
+          #
+          #
+          #
+          # GeoDa
+          #
+          export GEODA_HOME=$PWD
+          make
+          make app
+      
+      # Create Dmg
+      - name: Create DMG
+        run: |
+          cd create-dmg
+          ./geoda.sh 1.18
+
+      # Upload artifact
+      - uses: actions/upload-artifact@v2
+        with:
+          name: GeoDa-1.18-MacOS
+          path: create-dmg/GeoDa1.18.dmg
+
+
+
+
+

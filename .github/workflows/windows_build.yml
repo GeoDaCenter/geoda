@@ -117,7 +117,8 @@ jobs:
           cd temp 
           Invoke-WebRequest "http://download.gisinternals.com/sdk/downloads/$env:GDAL_SDK_VER.zip" -OutFile "$env:GDAL_SDK_VER.zip" 
           cd ..
-          exec { 7z x .\temp\$env:GDAL_SDK_VER.zip }
+          7z x .\temp\$env:GDAL_SDK_VER.zip
+          dir
           Rename-Item $env:GDAL_SDK_VER libraries
           cd temp
           #
