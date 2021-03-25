@@ -118,7 +118,9 @@ jobs:
           #
           if(-Not (Test-Path -Path wxWidgets.zip)) { Invoke-WebRequest "https://github.com/wxWidgets/wxWidgets/releases/download/v3.1.4/wxWidgets-3.1.4.zip" -OutFile "wxWidgets.zip" }
           7z x wxWidgets.zip -owxWidgets
-          cd wxWidgets\build\msw
+          cd wxWidgets
+          xcopy /E /Y $env:GDA_PATH\dep\wxWidgets .
+          cd build\msw
           if($env:platform -eq "x86") 
           {
             nmake -f makefile.vc UNICODE=1 SHARED=1 RUNTIME_LIBS=dynamic BUILD=release MONOLITHIC=1 USE_OPENGL=1 USE_POSTSCRIPT=1
