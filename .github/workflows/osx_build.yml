@@ -41,14 +41,13 @@ jobs:
           #
           # prepare
           #
-          $env:GDA_PATH="$env:GITHUB_WORKSPACE\BuildTools\macosx"
-          cd $env:GDA_PATH
+          pwd
+          cd BuildTools\macosx
           mkdir temp
           mkdir libraries
           #
           # wxWidgets 3.1.4
           #
-          cd $env:GDA_PATH\temp
           #
           # Boost 1.75
           #

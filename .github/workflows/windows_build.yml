@@ -106,13 +106,10 @@ jobs:
           #
           # GDAL # gisinternals SDK version still to 2016
           #
+          $env:GDAL_SDK_VER="release-1911-x64-dev"
           if($env:platform -eq "x86") 
           {
             $env:GDAL_SDK_VER="release-1911-dev"
-          }
-          else
-          {
-            $env:GDAL_SDK_VER="release-1911-x64-dev"
           }
           cd temp 
           Invoke-WebRequest "http://download.gisinternals.com/sdk/downloads/$env:GDAL_SDK_VER.zip" -OutFile "$env:GDAL_SDK_VER.zip" 
