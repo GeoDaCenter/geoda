@@ -133,7 +133,7 @@ jobs:
           #
           # Boost 1.75
           #
-          Invoke-WebRequest "https://github.com/lixun910/pygeoda_boost/archive/refs/tags/v0.0.8.zip" -OutFile "boost.zip"
+          Invoke-WebRequest "https://github.com/lixun910/pygeoda_boost/archive/refs/tags/v1.18.zip" -OutFile "boost.zip"
           7z x boost.zip
           Rename-Item pygeoda_boost-0.0.8 boost
           #

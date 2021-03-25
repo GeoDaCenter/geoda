@@ -286,7 +286,6 @@
       <TargetEnvironment>X64</TargetEnvironment>
     </Midl>
     <ClCompile>
-      <AdditionalOptions>-Ot1 %(AdditionalOptions)</AdditionalOptions>
       <Optimization>MaxSpeed</Optimization>
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
       <PreprocessorDefinitions>MSDOS;USE_CLOCK;NO_ONEXIT;%(PreprocessorDefinitions)</PreprocessorDefinitions>

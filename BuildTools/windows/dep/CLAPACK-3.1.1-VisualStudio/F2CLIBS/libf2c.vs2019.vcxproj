@@ -276,7 +276,7 @@ del arithchk.obj
 </Command>
     </PreBuildEvent>
     <ClCompile>
-      <AdditionalOptions>-Ot1
+      <AdditionalOptions>
  %(AdditionalOptions)</AdditionalOptions>
       <Optimization>MaxSpeed</Optimization>
       <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -365,8 +365,6 @@ del arithchk.obj
       <TargetEnvironment>X64</TargetEnvironment>
     </Midl>
     <ClCompile>
-      <AdditionalOptions>-Ot1
- %(AdditionalOptions)</AdditionalOptions>
       <Optimization>MaxSpeed</Optimization>
       <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>MSDOS;USE_CLOCK;NO_ONEXIT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
