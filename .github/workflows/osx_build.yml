@@ -36,10 +36,13 @@ jobs:
           cd macosx
           mkdir temp
           mkdir libraries
-          
+
       # Build wxWidgets 3.1.4
       - name: Build wxWidgets 3.1.4
         run: |
+          pwd
+          cd BuildTools
+          cd macosx
           cd temp
           curl -k -o wxWidgets.tar.gz2 https://github.com/wxWidgets/wxWidgets/releases/download/v3.1.4/wxWidgets-3.1.4.tar.bz2
           tar -xf wxWidgets.tar.bz2
@@ -59,6 +62,9 @@ jobs:
       # Build GeoDa
       - name: Build GeoDa
         run: |
+          pwd
+          cd BuildTools
+          cd macosx
           #
           # JSON Spirit v4.08
           #
