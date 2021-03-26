@@ -71,6 +71,7 @@ jobs:
           unzip eigen3.zip
           curl -L -O https://github.com/yixuan/spectra/archive/refs/tags/v0.8.0.zip
           unzip v0.8.0.zip
+          mv spectra-0.8.0 spectra
           ls
 
       # Install boost 1.75
@@ -92,8 +93,8 @@ jobs:
           cd bld
           LDFLAGS="-arch x86_64" cmake ..
           make
-          cp -R "../json_spirit" "../../../libraries/include/."
-          cp json_spirit/libjson_spirit.a ../../../libraries/lib/.
+          cp -R ../json_spirit ../../libraries/include/.
+          cp json_spirit/libjson_spirit.a ../../libraries/lib/.
 
       # Build wxWidgets 3.1.4
       - name: Build wxWidgets 3.1.4
