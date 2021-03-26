@@ -27,6 +27,27 @@ jobs:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
 
+      # Prepare
+      - name: Prepare
+        run: |
+          pwd
+          mkdir o
+          cd BuildTools
+          cd macosx
+          mkdir temp
+          mkdir libraries
+          
+      # Build wxWidgets 3.1.4
+      - name: Build wxWidgets 3.1.4
+        run: |
+          cd temp
+          curl -k -o wxWidgets.tar.gz2 https://github.com/wxWidgets/wxWidgets/releases/download/v3.1.4/wxWidgets-3.1.4.tar.bz2
+          tar -xf wxWidgets.tar.bz2
+          cd wxWidgets-3.1.4
+          ./configure LDFLAGS="-arch x86_64" OBJCFLAGS="-arch x86_64" OBJCXXFLAGS="-arch x86_64" --with-cocoa --disable-shared --disable-monolithic --with-opengl --enable-postscript --enable-textfile --without-liblzma --enable-webview --enable-compat28 --prefix=../../libraries
+          make
+          make install
+
       # Install libgdal-dev
       - name: Install libgdal-dev
         run: brew install gdal
@@ -38,20 +59,6 @@ jobs:
       # Build GeoDa
       - name: Build GeoDa
         run: |
-          #
-          # prepare
-          #
-          pwd
-          cd BuildTools
-          cd macosx
-          mkdir temp
-          mkdir libraries
-          #
-          # wxWidgets 3.1.4
-          #
-          #
-          # Boost 1.75
-          #
           #
           # JSON Spirit v4.08
           #
