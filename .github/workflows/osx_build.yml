@@ -40,6 +40,28 @@ jobs:
           mkdir include
           mkdir lib
 
+      # Install boost 1.75
+      - name: Install Boost
+        run: brew install boost
+
+      # Build JSON Spirit v4.08
+      - name: Build JSON Spirit v4.08
+        run: |
+          pwd
+          cd BuildTools
+          cd macosx
+          cd temp
+          curl -L -O https://github.com/GeoDaCenter/software/releases/download/v2000/json_spirit_v4.08.zip
+          unzip json_spirit_v4.08.zip
+          cd json_spirit_v4.08
+          cp ../../dep/json_spirit/CMakeLists.txt .
+          mkdir bld
+          cd bld
+          LDFLAGS="-arch x86_64" cmake ..
+          make
+          cp -R ../json_spirit ../../../libraries/include/.
+          cp json_spirit/libjson_spirit.a ../../../libraries/lib/.
+
       # Build CLAPACK
       - name: Build CLAPACK 3.2.1
         run: |
@@ -76,28 +98,6 @@ jobs:
           unzip v0.8.0.zip
           mv spectra-0.8.0 spectra
           ls
-
-      # Install boost 1.75
-      - name: Install Boost
-        run: brew install boost
-
-      # Build JSON Spirit v4.08
-      - name: Build JSON Spirit v4.08
-        run: |
-          pwd
-          cd BuildTools
-          cd macosx
-          cd temp
-          curl -L -O https://github.com/GeoDaCenter/software/releases/download/v2000/json_spirit_v4.08.zip
-          unzip json_spirit_v4.08.zip
-          cd json_spirit_v4.08
-          cp ../../dep/json_spirit/CMakeLists.txt .
-          mkdir bld
-          cd bld
-          LDFLAGS="-arch x86_64" cmake ..
-          make
-          cp -R ../json_spirit ../../../libraries/include/.
-          cp json_spirit/libjson_spirit.a ../../../libraries/lib/.
 
       # Build wxWidgets 3.1.4
       - name: Build wxWidgets 3.1.4
