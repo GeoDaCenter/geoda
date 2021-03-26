@@ -14,16 +14,16 @@ LIBS	=	$(WXLIBS) \
             $(GEODA_HOME)/temp/CLAPACK-3.2.1/blas.a \
             $(GEODA_HOME)/temp/CLAPACK-3.2.1/F2CLIBS/libf2c.a \
             $(GEODA_HOME)/temp/CLAPACK-3.2.1/lapack.a \
-            -L/usr/lib -liconv -framework opencl \
-            -L$(GEODA_HOME)/libraries/lib -lgdal -lcurl \
-            $(GEODA_HOME)/libraries/include/boost/stage/lib/libboost_date_time.a \
-            $(GEODA_HOME)/libraries/include/boost/stage/lib/libboost_thread.a \
-            $(GEODA_HOME)/libraries/include/boost/stage/lib/libboost_system.a \
-	    $(GEODA_HOME)/libraries/lib/libjson_spirit.a
+            -L/usr/lib -liconv -lcurl -framework opencl \
+            -L/usr/local/opt/gdal/lib -lgdal \
+            /usr/local/opt/boost/lib/libboost_date_time.a \
+            /usr/local/opt/boost/lib/libboost_thread.a \
+            /usr/local/opt/boost/lib/libboost_system.a \
+	    	$(GEODA_HOME)/libraries/lib/libjson_spirit.a
 
 
-BOOST_HEADER = -I$(GEODA_HOME)/libraries/include/boost 
-GDAL_HEADER = -I$(GEODA_HOME)/libraries/include
+BOOST_HEADER = -I/usr/local/opt/boost/include
+GDAL_HEADER = -I/usr/loca/opt/gdal/include
 EIGEN_HEADER = -I$(GEODA_HOME)/libraries/include/eigen3 -I$(GEODA_HOME)/temp/spectra/include
 
 CPPFLAGS	=  -I$(GeoDa_ROOT) $(USER_LOG)

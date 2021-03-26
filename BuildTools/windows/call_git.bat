@@ -1,1 +1,0 @@
-c:\Users\xun\AppData\Local\GitHub\PortableGit_f02737a78695063deace08e96d5042710d3e32db\cmd\git.exe pull

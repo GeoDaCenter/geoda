@@ -416,7 +416,7 @@ void OGRLayerProxy::DeleteField(int pos)
         OGRFeature* my_feature = data[i];
 #ifdef __WIN32__
 	// move to official gdal on linux and mac, so no need to call DeleteField()
-		my_feature->DeleteField(pos);
+		//my_feature->DeleteField(pos);
 #endif
     }
 	// delete field in actual datasource
