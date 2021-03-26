@@ -213,7 +213,6 @@ jobs:
           # InnoSetup
           #
           Choco-Install -PackageName innosetup
-          Invoke-PesterTests -TestFile "Tools" -TestName "InnoSetup"
           #
           # Binary
           #
@@ -229,8 +228,8 @@ jobs:
 
       - uses: actions/upload-artifact@v2
         with:
-          name: GeoDa-Windows-32bit-installer
-          path: GeoDa_1.18_x86_Setup.exe
+          name: GeoDa-Windows-$env:platform-installer
+          path: GeoDa_1.18_$env:platform_Setup.exe
 
 
 

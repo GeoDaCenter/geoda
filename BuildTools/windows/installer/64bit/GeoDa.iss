@@ -15,7 +15,7 @@ UninstallDisplayIcon={app}\GeoDa.exe
 Compression=lzma2
 SolidCompression=yes
 OutputDir=..\..
-OutputBaseFilename=geoda_setup
+OutputBaseFilename=GeoDa_1.18_x64_Setup
 ;OutputDir=userdocs:Inno Setup Examples Output
 
 ; "ArchitecturesAllowed=x64" specifies that Setup cannot run on
@@ -36,7 +36,6 @@ ShowLanguageDialog=yes
 
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"
-Name: "chinesesimplified"; MessagesFile: "compiler:Languages\ChineseSimplified.isl"
 Name: "spanish"; MessagesFile: "compiler:Languages\Spanish.isl"
 Name: "russian"; MessagesFile: "compiler:Languages\Russian.isl"
 
@@ -57,34 +56,33 @@ Source: "..\..\..\CommonDistFiles\geoda_prefs.sqlite"; DestDir: "{app}"
 Source: "..\..\..\CommonDistFiles\geoda_prefs.json"; DestDir: "{app}"
 Source: "..\..\..\CommonDistFiles\web_plugins\*"; DestDir: "{app}\web_plugins"; Flags: recursesubdirs
 
-Source: "vcredist_x64.exe"; DestDir: "{app}"
+Source: "VC_redist.x64.exe"; DestDir: "{app}"
 Source: "OpenCL.dll"; DestDir: "{app}"
-Source: "ogr_FileGDB.dll"; DestDir: "{app}"
-Source: "ogr_OCI.dll"; DestDir: "{app}"
-Source: "ogr_SDE.dll"; DestDir: "{app}"
-Source: "..\..\run_geoda.bat"; DestDir: "{app}"
-Source: "..\..\Release\sqlite.dll"; DestDir: "{app}"
-Source: "..\..\temp\curl-7.46.0\builds\curlib\bin\libcurl.dll"; DestDir: "{app}"
-Source: "..\..\temp\expat-2.1.0\build\Release\expat.dll"; DestDir: "{app}"
-Source: "..\..\temp\gdal\gdal_geoda20.dll"; DestDir: "{app}"
-Source: "..\..\temp\libspatialite-4.0.0\spatialite.dll"; DestDir: "{app}"
-Source: "..\..\temp\geos-3.3.8\src\geos_c.dll"; DestDir: "{app}"
-Source: "..\..\temp\freexl-1.0.0e\freexl.dll"; DestDir: "{app}"
-Source: "..\..\temp\proj-4.8.0\src\proj.dll"; DestDir: "{app}"
-Source: "..\..\temp\pgsql\lib\libpq.dll"; DestDir: "{app}"
-Source: "..\..\temp\pgsql\bin\ssleay32.dll"; DestDir: "{app}"
-Source: "..\..\temp\pgsql\bin\libintl-8.dll"; DestDir: "{app}"
-Source: "..\..\temp\pgsql\bin\libeay32.dll"; DestDir: "{app}"
-Source: "..\..\temp\wxWidgets-3.1.0\lib\vc_x64_dll\wxmsw310u_vc_custom.dll"; DestDir: "{app}"
-Source: "..\..\temp\wxWidgets-3.1.0\lib\vc_x64_dll\wxmsw310u_gl_vc_custom.dll"; DestDir: "{app}"
-Source: "..\..\temp\boost_1_57_0\stage\lib\boost_chrono-vc100-mt-1_57.dll"; DestDir: "{app}"
-Source: "..\..\temp\boost_1_57_0\stage\lib\boost_thread-vc100-mt-1_57.dll"; DestDir: "{app}"
-Source: "..\..\temp\boost_1_57_0\stage\lib\boost_system-vc100-mt-1_57.dll"; DestDir: "{app}"
-
+Source: "..\..\temp\wxWidgets\lib\vc_dll\wxmsw314u_vc_custom.dll"; DestDir: "{app}"
+Source: "..\..\temp\wxWidgets\lib\vc_dll\wxmsw314u_gl_vc_custom.dll"; DestDir: "{app}"
+Source: "..\..\libraries\bin\expat.dll"; DestDir: "{app}"
+Source: "..\..\libraries\bin\freexl.dll"; DestDir: "{app}"
+Source: "..\..\libraries\bin\gdal302.dll"; DestDir: "{app}"
+Source: "..\..\libraries\bin\geos.dll"; DestDir: "{app}"
+Source: "..\..\libraries\bin\geos_c.dll"; DestDir: "{app}"
+Source: "..\..\libraries\bin\iconv.dll"; DestDir: "{app}"
+Source: "..\..\libraries\bin\libcrypto-1_1-x64.dll"; DestDir: "{app}"
+Source: "..\..\libraries\bin\libcurl.dll"; DestDir: "{app}"
+Source: "..\..\libraries\bin\libmysql.dll"; DestDir: "{app}"
+Source: "..\..\libraries\bin\libpq.dll"; DestDir: "{app}"
+Source: "..\..\libraries\bin\libssl-1_1-x64.dll"; DestDir: "{app}"
+Source: "..\..\libraries\bin\libxml2.dll"; DestDir: "{app}"
+Source: "..\..\libraries\bin\openjp2.dll"; DestDir: "{app}"
+Source: "..\..\libraries\bin\proj.dll"; DestDir: "{app}"
+Source: "..\..\libraries\bin\proj_6_1.dll"; DestDir: "{app}"
+Source: "..\..\libraries\bin\spatialite.dll"; DestDir: "{app}"
+Source: "..\..\libraries\bin\sqlite3.dll"; DestDir: "{app}"
+Source: "..\..\libraries\bin\xerces-c_3_2.dll"; DestDir: "{app}"
+Source: "..\..\libraries\bin\zlib1.dll"; DestDir: "{app}"
 Source: "..\..\..\..\Algorithms\lisa_kernel.cl"; DestDir: "{app}"
 Source: "..\..\..\..\internationalization\lang\*"; DestDir: "{app}\lang"; Flags: recursesubdirs
 Source: "..\..\..\..\SampleData\Examples\*"; DestDir: "{app}\Examples"; Flags: recursesubdirs
-Source: "..\..\temp\gdal\data\*"; DestDir: "{app}\data"; Flags: recursesubdirs
+Source: "..\..\libraries\bin\gdal-data\*"; DestDir: "{app}\data"; Flags: recursesubdirs
 
 ;Source: "Readme.txt"; DestDir: "{app}"; Flags: isreadme
 

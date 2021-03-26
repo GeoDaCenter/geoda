@@ -43,6 +43,7 @@ jobs:
           pwd
           cd BuildTools
           cd macosx
+          export GEODA_HOME=$PWD
           cd temp
           curl -L -O https://github.com/GeoDaCenter/software/releases/download/v2000/clapack.tgz
           tar -xf clapack.tgz
