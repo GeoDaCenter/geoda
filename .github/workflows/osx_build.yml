@@ -37,20 +37,6 @@ jobs:
           mkdir temp
           mkdir libraries
 
-      # Build wxWidgets 3.1.4
-      - name: Build wxWidgets 3.1.4
-        run: |
-          pwd
-          cd BuildTools
-          cd macosx
-          cd temp
-          curl -L -O https://github.com/wxWidgets/wxWidgets/releases/download/v3.1.4/wxWidgets-3.1.4.tar.bz2
-          tar -xf wxWidgets-3.1.4.tar.bz2
-          cd wxWidgets-3.1.4
-          ./configure LDFLAGS="-arch x86_64" OBJCFLAGS="-arch x86_64" OBJCXXFLAGS="-arch x86_64" --with-cocoa --disable-shared --disable-monolithic --with-opengl --enable-postscript --enable-textfile --without-liblzma --enable-webview --enable-compat28 --prefix=/Users/runner/work/geoda/geoda/BuildTools/macosx/libraries
-          make
-          make install
-
       # Build CLAPACK
       - name: Build CLAPACK 3.2.1
         run: |
@@ -108,14 +94,29 @@ jobs:
           cp -R "../json_spirit" "../../../libraries/include/."
           cp json_spirit/libjson_spirit.a ../../../libraries/lib/.
 
+      # Build wxWidgets 3.1.4
+      - name: Build wxWidgets 3.1.4
+        run: |
+          pwd
+          cd BuildTools
+          cd macosx
+          cd temp
+          curl -L -O https://github.com/wxWidgets/wxWidgets/releases/download/v3.1.4/wxWidgets-3.1.4.tar.bz2
+          tar -xf wxWidgets-3.1.4.tar.bz2
+          cd wxWidgets-3.1.4
+          ./configure LDFLAGS="-arch x86_64" OBJCFLAGS="-arch x86_64" OBJCXXFLAGS="-arch x86_64" --with-cocoa --disable-shared --disable-monolithic --with-opengl --enable-postscript --enable-textfile --without-liblzma --enable-webview --enable-compat28 --prefix=/Users/runner/work/geoda/geoda/BuildTools/macosx/libraries
+          make
+          make install
+          
       # Install libgdal-dev
       - name: Install libgdal-dev
         run: brew install gdal
-        
+
       # Build GeoDa
       - name: Build GeoDa
         run: |
           pwd
+          cp GeoDamake.macosx.top GeoDamake.opt
           cd BuildTools
           cd macosx
           export GEODA_HOME=$PWD
