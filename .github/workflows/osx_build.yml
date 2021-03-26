@@ -96,8 +96,8 @@ jobs:
           cd bld
           LDFLAGS="-arch x86_64" cmake ..
           make
-          cp -R ../json_spirit ../../libraries/include/.
-          cp json_spirit/libjson_spirit.a ../../libraries/lib/.
+          cp -R ../json_spirit ../../../libraries/include/.
+          cp json_spirit/libjson_spirit.a ../../../libraries/lib/.
 
       # Build wxWidgets 3.1.4
       - name: Build wxWidgets 3.1.4
