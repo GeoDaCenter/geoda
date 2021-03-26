@@ -229,7 +229,7 @@ jobs:
       - uses: actions/upload-artifact@v2
         with:
           name: GeoDa-Windows-$env:platform-installer
-          path: GeoDa_1.18_$env:platform_Setup.exe
+          path: $env:GITHUB_WORKSPACE\BuildTools\windows\GeoDa_1.18_$env:platform_Setup.exe
 
 
 

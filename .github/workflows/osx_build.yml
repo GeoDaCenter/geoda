@@ -36,6 +36,9 @@ jobs:
           cd macosx
           mkdir temp
           mkdir libraries
+          cd libraries
+          mkdir include
+          mkdir lib
 
       # Build CLAPACK
       - name: Build CLAPACK 3.2.1
