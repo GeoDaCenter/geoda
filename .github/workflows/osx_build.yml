@@ -44,8 +44,8 @@ jobs:
           cd BuildTools
           cd macosx
           cd temp
-          curl -k -o wxWidgets.tar.bz2 https://github.com/wxWidgets/wxWidgets/releases/download/v3.1.4/wxWidgets-3.1.4.tar.bz2
-          tar -xf wxWidgets.tar.bz2
+          curl -O https://github.com/wxWidgets/wxWidgets/releases/download/v3.1.4/wxWidgets-3.1.4.tar.bz2
+          tar -xf wxWidgets-3.1.4.tar.bz2
           cd wxWidgets-3.1.4
           ./configure LDFLAGS="-arch x86_64" OBJCFLAGS="-arch x86_64" OBJCXXFLAGS="-arch x86_64" --with-cocoa --disable-shared --disable-monolithic --with-opengl --enable-postscript --enable-textfile --without-liblzma --enable-webview --enable-compat28 --prefix=../../libraries
           make
@@ -91,8 +91,8 @@ jobs:
           cp F2CLIBS/libf2c.a .
           cd ..
 
-      # Build CLAPACK
-      - name: Build CLAPACK 3.2.1
+      # Build Eigen3 and Spectra
+      - name: Build Eigen3 and Spectra V0.8.0
         run: |
           pwd
           cd BuildTools
