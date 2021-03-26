@@ -12,7 +12,6 @@
 #ifndef TSNE_H
 #define TSNE_H
 
-#include <boost/chrono.hpp>
 #include <boost/thread/thread.hpp>
 #include <boost/lockfree/queue.hpp>
 
