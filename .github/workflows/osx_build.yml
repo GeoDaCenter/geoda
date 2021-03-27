@@ -121,7 +121,7 @@ jobs:
       - name: Build GeoDa
         run: |
           pwd
-          cp GeoDamake.macosx.top GeoDamake.opt
+          cp GeoDamake.macosx.opt GeoDamake.opt
           cd BuildTools
           cd macosx
           export GEODA_HOME=$PWD

@@ -549,6 +549,8 @@ Shapefile::ShapeType OGRLayerProxy::GetOGRGeometries(vector<OGRGeometry*>& geoms
 {
     OGRCoordinateTransformation *poCT = NULL;
     if (dest_sr && spatialRef) {
+        spatialRef->SetAxisMappingStrategy(OAMS_TRADITIONAL_GIS_ORDER);
+        dest_sr->SetAxisMappingStrategy(OAMS_TRADITIONAL_GIS_ORDER);
         poCT = OGRCreateCoordinateTransformation(spatialRef, dest_sr);
     }
     Shapefile::ShapeType shape_type = Shapefile::NULL_SHAPE;
@@ -586,6 +588,8 @@ Shapefile::ShapeType OGRLayerProxy::GetGdaGeometries(vector<GdaShape*>& geoms,
     bool is_geoms_init = !geoms.empty();
     OGRCoordinateTransformation *poCT = NULL;
     if (dest_sr && spatialRef) {
+        spatialRef->SetAxisMappingStrategy(OAMS_TRADITIONAL_GIS_ORDER);
+        dest_sr->SetAxisMappingStrategy(OAMS_TRADITIONAL_GIS_ORDER);
         poCT = OGRCreateCoordinateTransformation(spatialRef, dest_sr);
     }
     Shapefile::ShapeType shape_type = Shapefile::NULL_SHAPE;
@@ -1178,6 +1182,8 @@ bool OGRLayerProxy::GetExtent(double& minx, double& miny,
     
     OGRCoordinateTransformation *poCT = NULL;
     if (dest_sr && spatialRef) {
+        spatialRef->SetAxisMappingStrategy(OAMS_TRADITIONAL_GIS_ORDER);
+        dest_sr->SetAxisMappingStrategy(OAMS_TRADITIONAL_GIS_ORDER);
         poCT = OGRCreateCoordinateTransformation(spatialRef, dest_sr);
     }
     if (poCT) {

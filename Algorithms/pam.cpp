@@ -727,8 +727,8 @@ std::vector<int> PAMUtils::randomSample(Xoroshiro128Random& rand,
     }
     int cnt = 0;
     std::vector<int> sample(samplesize);
-    unordered_map<int, bool> sample_dict;
-    unordered_map<int, bool>::iterator it;
+    boost::unordered_map<int, bool> sample_dict;
+    boost::unordered_map<int, bool>::iterator it;
     for (int i=0; i<previous.size(); ++i) {
         if (sample_dict.find(previous[i]) == sample_dict.end()) {
             sample[cnt++] = previous[i];
@@ -831,7 +831,7 @@ std::vector<int> CLARA::getResults()
 
 double CLARA::assignRemainingToNearestCluster(std::vector<int>& means, std::vector<int>& rids, std::vector<int>& r_assignment, std::vector<int>& assignment)
 {
-    unordered_map<int, bool> rid_dict;
+    boost::unordered_map<int, bool> rid_dict;
     assignment.resize(num_obs);
     for (int j=0; j<r_assignment.size(); ++j) {
         assignment[rids[j]] = r_assignment[j];

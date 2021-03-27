@@ -659,6 +659,8 @@ void MapCanvas::ExtentTo(double minx, double miny, double maxx, double maxy)
         if (project->sourceSR != NULL) {
             OGRSpatialReference destSR;
             destSR.importFromEPSG(4326);
+            destSR.SetAxisMappingStrategy(OAMS_TRADITIONAL_GIS_ORDER);
+            //project->sourceSR->SetAxisMappingStrategy(OAMS_TRADITIONAL_GIS_ORDER);
             poCT = OGRCreateCoordinateTransformation(project->sourceSR,
                                                      &destSR);
         }
@@ -891,7 +893,10 @@ bool MapCanvas::InitBasemap()
         OGRCoordinateTransformation *poCT = NULL;
         if (project->sourceSR != NULL) {
             OGRSpatialReference destSR;
+            //destSR.SetWellKnownGeogCS("WGS84");
             destSR.importFromEPSG(4326);
+            destSR.SetAxisMappingStrategy(OAMS_TRADITIONAL_GIS_ORDER);
+            //project->sourceSR->SetAxisMappingStrategy(OAMS_TRADITIONAL_GIS_ORDER);
             poCT = OGRCreateCoordinateTransformation(project->sourceSR,&destSR);
         }
         Gda::Screen* screen = new Gda::Screen(screenW, screenH);
@@ -1485,6 +1490,8 @@ void MapCanvas::RenderToDC(wxDC &dc, int w, int h)
         if (project->sourceSR != NULL) {
             OGRSpatialReference destSR;
             destSR.importFromEPSG(4326);
+            destSR.SetAxisMappingStrategy(OAMS_TRADITIONAL_GIS_ORDER);
+            //project->sourceSR->SetAxisMappingStrategy(OAMS_TRADITIONAL_GIS_ORDER);
             poCT = OGRCreateCoordinateTransformation(project->sourceSR, &destSR);
         }
         double shps_orig_ymax = last_scale_trans.orig_data_y_max;

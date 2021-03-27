@@ -655,6 +655,8 @@ void Project::SaveDataSourceAs(const wxString& new_ds_name, bool is_update)
             OGRSpatialReference wgs84_ref;
             wgs84_ref.importFromEPSG(4326);
             OGRCoordinateTransformation *poCT;
+            spatial_ref->SetAxisMappingStrategy(OAMS_TRADITIONAL_GIS_ORDER);
+            wgs84_ref.SetAxisMappingStrategy(OAMS_TRADITIONAL_GIS_ORDER);
             poCT = OGRCreateCoordinateTransformation(spatial_ref, &wgs84_ref);
             for (size_t i=0; i < ogr_geometries.size(); i++) {
                 ogr_geometries[i]->transform(poCT);

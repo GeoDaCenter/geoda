@@ -22,8 +22,17 @@
 		A1230E652130E81A002AB30A /* MapLayerTree.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A1230E632130E81A002AB30A /* MapLayerTree.cpp */; };
 		A128C5862441368000EAEDFA /* wxGLString.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A128C5842441367D00EAEDFA /* wxGLString.cpp */; };
 		A12E0F4F1705087A00B6059C /* OGRDataAdapter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A12E0F4E1705087A00B6059C /* OGRDataAdapter.cpp */; };
-		A1311C6720FFDF7100008D7F /* localjc_kernel.cl in CopyFiles */ = {isa = PBXBuildFile; fileRef = A4E00F0F20FD8ECC0038BA80 /* localjc_kernel.cl */; };
+		A1311C6720FFDF7100008D7F /* localjc_kernel.cl in CopyFiles */ = {isa = PBXBuildFile; fileRef = A4E00F0F20FD8ECC0038BA80 /* localjc_kernel.cl */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		A13B6B9418760CF100F93ACF /* SaveAsDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A13B6B9318760CF100F93ACF /* SaveAsDlg.cpp */; };
+		A14129DF260EC2D1006B0D6D /* basemap_cache in CopyFiles */ = {isa = PBXBuildFile; fileRef = A14129DE260EC2D1006B0D6D /* basemap_cache */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		A14129E9260EC435006B0D6D /* libgdal.28.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = A14129E8260EC434006B0D6D /* libgdal.28.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		A14129EA260EC4AF006B0D6D /* libgdal.28.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = A14129E8260EC434006B0D6D /* libgdal.28.dylib */; };
+		A14129F7260EC6E9006B0D6D /* samples.sqlite in Resources */ = {isa = PBXBuildFile; fileRef = A14129F6260EC6E9006B0D6D /* samples.sqlite */; };
+		A14129FF260EC96B006B0D6D /* cache.sqlite in CopyFiles */ = {isa = PBXBuildFile; fileRef = A14129FE260EC96B006B0D6D /* cache.sqlite */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		A1412A02260EE6EC006B0D6D /* libwx_osx_cocoau_gl-3.1.4.0.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = A1412A00260EE6EC006B0D6D /* libwx_osx_cocoau_gl-3.1.4.0.0.dylib */; };
+		A1412A03260EE6EC006B0D6D /* libwx_osx_cocoau-3.1.4.0.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = A1412A01260EE6EC006B0D6D /* libwx_osx_cocoau-3.1.4.0.0.dylib */; };
+		A1412A06260EE6F5006B0D6D /* libwx_osx_cocoau_gl-3.1.4.0.0.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = A1412A04260EE6F5006B0D6D /* libwx_osx_cocoau_gl-3.1.4.0.0.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		A1412A07260EE6F5006B0D6D /* libwx_osx_cocoau-3.1.4.0.0.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = A1412A05260EE6F5006B0D6D /* libwx_osx_cocoau-3.1.4.0.0.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		A144201D23FF2EDB00BD6F93 /* nbrMatchDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A144201B23FF2EDB00BD6F93 /* nbrMatchDlg.cpp */; };
 		A14420202405DB7400BD6F93 /* GenColor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A144201E2405DB7300BD6F93 /* GenColor.cpp */; };
 		A14735AA21A5F72D00CA69B2 /* DistUtils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A14735A921A5F72D00CA69B2 /* DistUtils.cpp */; };
@@ -74,7 +83,6 @@
 		A19F51501756A11E006E31B4 /* plugins in Resources */ = {isa = PBXBuildFile; fileRef = A19F514D1756A11E006E31B4 /* plugins */; };
 		A1AAF2912509E70F00578A90 /* quantileLisaDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A1AAF28F2509E70F00578A90 /* quantileLisaDlg.cpp */; };
 		A1AC05BF1C8645F300B6FE5F /* AdjustYAxisDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A1AC05BD1C8645F300B6FE5F /* AdjustYAxisDlg.cpp */; };
-		A1B04ADD1B1921710045AA6F /* basemap_cache in CopyFiles */ = {isa = PBXBuildFile; fileRef = A1B04ADC1B1921710045AA6F /* basemap_cache */; };
 		A1B13EE31C3EDFF90064AD87 /* BasemapConfDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A1B13EE21C3EDFF90064AD87 /* BasemapConfDlg.cpp */; };
 		A1B18E9D23F36F0900465937 /* distanceplot.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A1B18E9C23F36F0900465937 /* distanceplot.cpp */; };
 		A1B18EA223F4C29E00465937 /* DistancePlotView.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A1B18EA123F4C29E00465937 /* DistancePlotView.cpp */; };
@@ -83,7 +91,6 @@
 		A1B18EB323FEF50400465937 /* splittree.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A1B18EB123FEF50400465937 /* splittree.cpp */; };
 		A1B93AC017D18735007F8195 /* ProjectConf.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A1B93ABF17D18735007F8195 /* ProjectConf.cpp */; };
 		A1BE9E51174DD85F007B9C64 /* GdaAppResources.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A1BE9E4F174DD85F007B9C64 /* GdaAppResources.cpp */; };
-		A1C194A31B38FC67003DA7CA /* libc++.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = A1C194A21B38FC67003DA7CA /* libc++.dylib */; };
 		A1C9F3ED18B55EE000E14394 /* FieldNameCorrectionDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A1C9F3EC18B55EE000E14394 /* FieldNameCorrectionDlg.cpp */; };
 		A1CE3D331C1A427A0010F170 /* PublishDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A1CE3D311C1A427A0010F170 /* PublishDlg.cpp */; };
 		A1D82DEF174D3EB6003DE20A /* ConnectDatasourceDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A1D82DEE174D3EB6003DE20A /* ConnectDatasourceDlg.cpp */; };
@@ -97,14 +104,9 @@
 		A1EBC88F1CD2B2FD001DCFE9 /* AutoUpdateDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A1EBC88D1CD2B2FD001DCFE9 /* AutoUpdateDlg.cpp */; };
 		A1EF332F18E35D8300E19375 /* LocaleSetupDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A1EF332D18E35D8300E19375 /* LocaleSetupDlg.cpp */; };
 		A1F1BA5C178D3B46005A46E5 /* GdaCache.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A1F1BA5A178D3B46005A46E5 /* GdaCache.cpp */; };
-		A1F1BA99178D46B8005A46E5 /* cache.sqlite in CopyFiles */ = {isa = PBXBuildFile; fileRef = A1F1BA98178D46B8005A46E5 /* cache.sqlite */; };
 		A1F37C8124B4F85C007E98F0 /* SCHCDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A1F37C7F24B4F85B007E98F0 /* SCHCDlg.cpp */; };
 		A1FD8C19186908B800C35C41 /* CustomClassifPtree.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A1FD8C17186908B800C35C41 /* CustomClassifPtree.cpp */; };
 		A40A6A7E20226B3C003CDD79 /* PreferenceDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A40A6A7D20226B3B003CDD79 /* PreferenceDlg.cpp */; };
-		A40AB92120F559F500F94543 /* scatterplot.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A40AB92020F559F500F94543 /* scatterplot.cpp */; };
-		A40AB92820F675B600F94543 /* mathstuff.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A40AB92420F675B600F94543 /* mathstuff.cpp */; };
-		A40AB92920F675B600F94543 /* oglstuff.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A40AB92520F675B600F94543 /* oglstuff.cpp */; };
-		A40AB92A20F675B600F94543 /* oglpfuncs.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A40AB92720F675B600F94543 /* oglpfuncs.cpp */; };
 		A414C88B207BED2700520546 /* MatfileReader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A414C88A207BED2700520546 /* MatfileReader.cpp */; };
 		A416A1771F84122B001F2884 /* PCASettingsDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A416A1751F84122B001F2884 /* PCASettingsDlg.cpp */; };
 		A42018031FB3C0AC0029709C /* skater.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A42018011FB3C0AC0029709C /* skater.cpp */; };
@@ -120,7 +122,7 @@
 		A43D31581E845C3D007488D9 /* LocalGearyMapNewView.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A43D31561E845C3D007488D9 /* LocalGearyMapNewView.cpp */; };
 		A4404A02208E65DD0007753D /* wxTranslationHelper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A4404A00208E65DC0007753D /* wxTranslationHelper.cpp */; };
 		A4404A05208E9E390007753D /* lang in Resources */ = {isa = PBXBuildFile; fileRef = A4404A03208E9E380007753D /* lang */; };
-		A4404A07208E9E5A0007753D /* lang in CopyFiles */ = {isa = PBXBuildFile; fileRef = A4404A03208E9E380007753D /* lang */; };
+		A4404A07208E9E5A0007753D /* lang in CopyFiles */ = {isa = PBXBuildFile; fileRef = A4404A03208E9E380007753D /* lang */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		A4404A0F209270FB0007753D /* pofiles in Resources */ = {isa = PBXBuildFile; fileRef = A4404A0E209270FB0007753D /* pofiles */; };
 		A4404A12209275550007753D /* hdbscan.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A4404A10209275540007753D /* hdbscan.cpp */; };
 		A4596B4E2033DB8E00C9BCC8 /* AbstractCoordinator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A4596B4D2033DB8E00C9BCC8 /* AbstractCoordinator.cpp */; };
@@ -132,12 +134,11 @@
 		A47F792020A9F67A000AFE57 /* gpu_lisa.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A47F791E20A9F679000AFE57 /* gpu_lisa.cpp */; };
 		A47F792220AA082A000AFE57 /* lisa_kernel.cl in Sources */ = {isa = PBXBuildFile; fileRef = A47F792120AA082A000AFE57 /* lisa_kernel.cl */; };
 		A47F792420AA084B000AFE57 /* distmat_kernel.cl in Sources */ = {isa = PBXBuildFile; fileRef = A47F792320AA084B000AFE57 /* distmat_kernel.cl */; };
-		A47F792520AA0885000AFE57 /* distmat_kernel.cl in CopyFiles */ = {isa = PBXBuildFile; fileRef = A47F792320AA084B000AFE57 /* distmat_kernel.cl */; };
-		A47F792620AA0885000AFE57 /* lisa_kernel.cl in CopyFiles */ = {isa = PBXBuildFile; fileRef = A47F792120AA082A000AFE57 /* lisa_kernel.cl */; };
+		A47F792520AA0885000AFE57 /* distmat_kernel.cl in CopyFiles */ = {isa = PBXBuildFile; fileRef = A47F792320AA084B000AFE57 /* distmat_kernel.cl */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		A47F792620AA0885000AFE57 /* lisa_kernel.cl in CopyFiles */ = {isa = PBXBuildFile; fileRef = A47F792120AA082A000AFE57 /* lisa_kernel.cl */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		A47FC9DB1F74DE1600BEFBF2 /* MLJCCoordinator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A47FC9D91F74DE1600BEFBF2 /* MLJCCoordinator.cpp */; };
 		A48356BB1E456310002791C8 /* ConditionalClusterMapView.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A48356B91E456310002791C8 /* ConditionalClusterMapView.cpp */; };
 		A48814EB20A50B0F005490A7 /* fastcluster.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A48814EA20A50B0F005490A7 /* fastcluster.cpp */; };
-		A496C99E1E6A184C008F87DD /* samples.sqlite in Resources */ = {isa = PBXBuildFile; fileRef = A496C99D1E6A184C008F87DD /* samples.sqlite */; };
 		A496C9A81E6A43C0008F87DD /* BaltimoreHomeSales.png in Resources */ = {isa = PBXBuildFile; fileRef = A496C9A71E6A43C0008F87DD /* BaltimoreHomeSales.png */; };
 		A496C9AA1E6A43CC008F87DD /* BostonHomeSales.png in Resources */ = {isa = PBXBuildFile; fileRef = A496C9A91E6A43CC008F87DD /* BostonHomeSales.png */; };
 		A496C9AC1E6A43D0008F87DD /* BuenosAiresElections.png in Resources */ = {isa = PBXBuildFile; fileRef = A496C9AB1E6A43D0008F87DD /* BuenosAiresElections.png */; };
@@ -189,7 +190,6 @@
 		DD2B42B11522552B00888E51 /* BoxNewPlotView.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DD2B42AF1522552B00888E51 /* BoxNewPlotView.cpp */; };
 		DD2B433F1522A93700888E51 /* HistogramView.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DD2B433D1522A93700888E51 /* HistogramView.cpp */; };
 		DD2B43421522A95100888E51 /* PCPNewView.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DD2B43401522A95100888E51 /* PCPNewView.cpp */; };
-		DD2EB10219E6F0270073E36F /* geoda_prefs.json in CopyFiles */ = {isa = PBXBuildFile; fileRef = DD2EB10019E6EFC50073E36F /* geoda_prefs.json */; };
 		DD30798E19ED80E0001E5E89 /* Lowess.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DD30798C19ED80E0001E5E89 /* Lowess.cpp */; };
 		DD3079C719ED9F61001E5E89 /* LowessParamObservable.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DD3079C419ED9F61001E5E89 /* LowessParamObservable.cpp */; };
 		DD3079E319EDAE6C001E5E89 /* LowessParamDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DD3079E119EDAE6C001E5E89 /* LowessParamDlg.cpp */; };
@@ -200,7 +200,6 @@
 		DD409DFB19FF099E00C21A2B /* ScatterPlotMatView.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DD409DF919FF099E00C21A2B /* ScatterPlotMatView.cpp */; };
 		DD409E4C19FFD43000C21A2B /* VarTools.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DD409E4A19FFD43000C21A2B /* VarTools.cpp */; };
 		DD40B083181894F20084173C /* VarGroupingEditorDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DD40B081181894F20084173C /* VarGroupingEditorDlg.cpp */; };
-		DD45117119E5F65E006C5DAA /* geoda_prefs.sqlite in CopyFiles */ = {isa = PBXBuildFile; fileRef = DD45117019E5F65E006C5DAA /* geoda_prefs.sqlite */; };
 		DD4974B71770AC700007BB9F /* TableFrame.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DD4974B61770AC700007BB9F /* TableFrame.cpp */; };
 		DD4974BA1770AC840007BB9F /* TableBase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DD4974B91770AC840007BB9F /* TableBase.cpp */; };
 		DD4974E21770CE9E0007BB9F /* TableInterface.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DD4974E11770CE9E0007BB9F /* TableInterface.cpp */; };
@@ -327,6 +326,18 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
+		A158871D260EBD3F005AF322 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				A14129E9260EC435006B0D6D /* libgdal.28.dylib in CopyFiles */,
+				A1412A06260EE6F5006B0D6D /* libwx_osx_cocoau_gl-3.1.4.0.0.dylib in CopyFiles */,
+				A1412A07260EE6F5006B0D6D /* libwx_osx_cocoau-3.1.4.0.0.dylib in CopyFiles */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		DD2EB0FF19E6EF940073E36F /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 12;
@@ -337,10 +348,8 @@
 				A47F792520AA0885000AFE57 /* distmat_kernel.cl in CopyFiles */,
 				A47F792620AA0885000AFE57 /* lisa_kernel.cl in CopyFiles */,
 				A4404A07208E9E5A0007753D /* lang in CopyFiles */,
-				DD2EB10219E6F0270073E36F /* geoda_prefs.json in CopyFiles */,
-				A1B04ADD1B1921710045AA6F /* basemap_cache in CopyFiles */,
-				A1F1BA99178D46B8005A46E5 /* cache.sqlite in CopyFiles */,
-				DD45117119E5F65E006C5DAA /* geoda_prefs.sqlite in CopyFiles */,
+				A14129DF260EC2D1006B0D6D /* basemap_cache in CopyFiles */,
+				A14129FF260EC96B006B0D6D /* cache.sqlite in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -374,6 +383,14 @@
 		A12E0F4E1705087A00B6059C /* OGRDataAdapter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = OGRDataAdapter.cpp; sourceTree = "<group>"; };
 		A13B6B9218760CF100F93ACF /* SaveAsDlg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SaveAsDlg.h; sourceTree = "<group>"; };
 		A13B6B9318760CF100F93ACF /* SaveAsDlg.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SaveAsDlg.cpp; sourceTree = "<group>"; };
+		A14129DE260EC2D1006B0D6D /* basemap_cache */ = {isa = PBXFileReference; lastKnownFileType = folder; name = basemap_cache; path = BuildTools/CommonDistFiles/basemap_cache; sourceTree = "<group>"; };
+		A14129E8260EC434006B0D6D /* libgdal.28.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libgdal.28.dylib; path = ../../../../usr/local/Cellar/gdal/3.2.2/lib/libgdal.28.dylib; sourceTree = "<group>"; };
+		A14129F6260EC6E9006B0D6D /* samples.sqlite */ = {isa = PBXFileReference; lastKnownFileType = file; name = samples.sqlite; path = BuildTools/CommonDistFiles/web_plugins/samples.sqlite; sourceTree = "<group>"; };
+		A14129FE260EC96B006B0D6D /* cache.sqlite */ = {isa = PBXFileReference; lastKnownFileType = file; name = cache.sqlite; path = BuildTools/CommonDistFiles/cache.sqlite; sourceTree = "<group>"; };
+		A1412A00260EE6EC006B0D6D /* libwx_osx_cocoau_gl-3.1.4.0.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libwx_osx_cocoau_gl-3.1.4.0.0.dylib"; path = "BuildTools/macosx/libraries/lib/libwx_osx_cocoau_gl-3.1.4.0.0.dylib"; sourceTree = "<group>"; };
+		A1412A01260EE6EC006B0D6D /* libwx_osx_cocoau-3.1.4.0.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libwx_osx_cocoau-3.1.4.0.0.dylib"; path = "BuildTools/macosx/libraries/lib/libwx_osx_cocoau-3.1.4.0.0.dylib"; sourceTree = "<group>"; };
+		A1412A04260EE6F5006B0D6D /* libwx_osx_cocoau_gl-3.1.4.0.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libwx_osx_cocoau_gl-3.1.4.0.0.dylib"; path = "BuildTools/macosx/libraries/lib/libwx_osx_cocoau_gl-3.1.4.0.0.dylib"; sourceTree = "<group>"; };
+		A1412A05260EE6F5006B0D6D /* libwx_osx_cocoau-3.1.4.0.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libwx_osx_cocoau-3.1.4.0.0.dylib"; path = "BuildTools/macosx/libraries/lib/libwx_osx_cocoau-3.1.4.0.0.dylib"; sourceTree = "<group>"; };
 		A144201B23FF2EDB00BD6F93 /* nbrMatchDlg.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = nbrMatchDlg.cpp; sourceTree = "<group>"; };
 		A144201C23FF2EDB00BD6F93 /* nbrMatchDlg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = nbrMatchDlg.h; sourceTree = "<group>"; };
 		A144201E2405DB7300BD6F93 /* GenColor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GenColor.cpp; sourceTree = "<group>"; };
@@ -473,7 +490,6 @@
 		A1AAF2902509E70F00578A90 /* quantileLisaDlg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = quantileLisaDlg.h; sourceTree = "<group>"; };
 		A1AC05BD1C8645F300B6FE5F /* AdjustYAxisDlg.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AdjustYAxisDlg.cpp; sourceTree = "<group>"; };
 		A1AC05BE1C8645F300B6FE5F /* AdjustYAxisDlg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AdjustYAxisDlg.h; sourceTree = "<group>"; };
-		A1B04ADC1B1921710045AA6F /* basemap_cache */ = {isa = PBXFileReference; lastKnownFileType = folder; name = basemap_cache; path = BuildTools/CommonDistFiles/basemap_cache; sourceTree = "<group>"; };
 		A1B13EE11C3EDFF90064AD87 /* BasemapConfDlg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BasemapConfDlg.h; sourceTree = "<group>"; };
 		A1B13EE21C3EDFF90064AD87 /* BasemapConfDlg.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = BasemapConfDlg.cpp; sourceTree = "<group>"; };
 		A1B18E9C23F36F0900465937 /* distanceplot.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = distanceplot.cpp; path = Algorithms/distanceplot.cpp; sourceTree = "<group>"; };
@@ -491,7 +507,6 @@
 		A1B93ABE17D18735007F8195 /* ProjectConf.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ProjectConf.h; sourceTree = "<group>"; };
 		A1B93ABF17D18735007F8195 /* ProjectConf.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ProjectConf.cpp; sourceTree = "<group>"; };
 		A1BE9E4F174DD85F007B9C64 /* GdaAppResources.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GdaAppResources.cpp; sourceTree = "<group>"; };
-		A1C194A21B38FC67003DA7CA /* libc++.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libc++.dylib"; path = "usr/lib/libc++.dylib"; sourceTree = SDKROOT; };
 		A1C9F3EB18B55EE000E14394 /* FieldNameCorrectionDlg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FieldNameCorrectionDlg.h; sourceTree = "<group>"; };
 		A1C9F3EC18B55EE000E14394 /* FieldNameCorrectionDlg.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FieldNameCorrectionDlg.cpp; sourceTree = "<group>"; };
 		A1CE3D311C1A427A0010F170 /* PublishDlg.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PublishDlg.cpp; sourceTree = "<group>"; };
@@ -518,21 +533,12 @@
 		A1EF332E18E35D8300E19375 /* LocaleSetupDlg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LocaleSetupDlg.h; sourceTree = "<group>"; };
 		A1F1BA5A178D3B46005A46E5 /* GdaCache.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GdaCache.cpp; sourceTree = "<group>"; };
 		A1F1BA5B178D3B46005A46E5 /* GdaCache.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GdaCache.h; sourceTree = "<group>"; };
-		A1F1BA98178D46B8005A46E5 /* cache.sqlite */ = {isa = PBXFileReference; lastKnownFileType = file; name = cache.sqlite; path = BuildTools/CommonDistFiles/cache.sqlite; sourceTree = "<group>"; };
 		A1F37C7F24B4F85B007E98F0 /* SCHCDlg.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SCHCDlg.cpp; sourceTree = "<group>"; };
 		A1F37C8024B4F85B007E98F0 /* SCHCDlg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SCHCDlg.h; sourceTree = "<group>"; };
 		A1FD8C17186908B800C35C41 /* CustomClassifPtree.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CustomClassifPtree.cpp; path = DataViewer/CustomClassifPtree.cpp; sourceTree = "<group>"; };
 		A1FD8C18186908B800C35C41 /* CustomClassifPtree.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CustomClassifPtree.h; path = DataViewer/CustomClassifPtree.h; sourceTree = "<group>"; };
 		A40A6A7C20226B3B003CDD79 /* PreferenceDlg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PreferenceDlg.h; sourceTree = "<group>"; };
 		A40A6A7D20226B3B003CDD79 /* PreferenceDlg.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PreferenceDlg.cpp; sourceTree = "<group>"; };
-		A40AB91F20F559F500F94543 /* scatterplot.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = scatterplot.h; sourceTree = "<group>"; };
-		A40AB92020F559F500F94543 /* scatterplot.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = scatterplot.cpp; sourceTree = "<group>"; };
-		A40AB92220F675B500F94543 /* mathstuff.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = mathstuff.h; sourceTree = "<group>"; };
-		A40AB92320F675B600F94543 /* oglpfuncs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = oglpfuncs.h; sourceTree = "<group>"; };
-		A40AB92420F675B600F94543 /* mathstuff.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = mathstuff.cpp; sourceTree = "<group>"; };
-		A40AB92520F675B600F94543 /* oglstuff.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = oglstuff.cpp; sourceTree = "<group>"; };
-		A40AB92620F675B600F94543 /* oglstuff.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = oglstuff.h; sourceTree = "<group>"; };
-		A40AB92720F675B600F94543 /* oglpfuncs.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = oglpfuncs.cpp; sourceTree = "<group>"; };
 		A414C889207BED2700520546 /* MatfileReader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MatfileReader.h; path = io/MatfileReader.h; sourceTree = "<group>"; };
 		A414C88A207BED2700520546 /* MatfileReader.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MatfileReader.cpp; path = io/MatfileReader.cpp; sourceTree = "<group>"; };
 		A416A1751F84122B001F2884 /* PCASettingsDlg.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PCASettingsDlg.cpp; sourceTree = "<group>"; };
@@ -591,7 +597,6 @@
 		A48356B91E456310002791C8 /* ConditionalClusterMapView.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ConditionalClusterMapView.cpp; sourceTree = "<group>"; };
 		A48356BA1E456310002791C8 /* ConditionalClusterMapView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ConditionalClusterMapView.h; sourceTree = "<group>"; };
 		A48814EA20A50B0F005490A7 /* fastcluster.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = fastcluster.cpp; path = Algorithms/fastcluster.cpp; sourceTree = "<group>"; };
-		A496C99D1E6A184C008F87DD /* samples.sqlite */ = {isa = PBXFileReference; lastKnownFileType = file; name = samples.sqlite; path = BuildTools/CommonDistFiles/web_plugins/samples.sqlite; sourceTree = "<group>"; };
 		A496C9A71E6A43C0008F87DD /* BaltimoreHomeSales.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = BaltimoreHomeSales.png; path = BuildTools/CommonDistFiles/web_plugins/BaltimoreHomeSales.png; sourceTree = "<group>"; };
 		A496C9A91E6A43CC008F87DD /* BostonHomeSales.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = BostonHomeSales.png; path = BuildTools/CommonDistFiles/web_plugins/BostonHomeSales.png; sourceTree = "<group>"; };
 		A496C9AB1E6A43D0008F87DD /* BuenosAiresElections.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = BuenosAiresElections.png; path = BuildTools/CommonDistFiles/web_plugins/BuenosAiresElections.png; sourceTree = "<group>"; };
@@ -678,7 +683,6 @@
 		DD2B433E1522A93700888E51 /* HistogramView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HistogramView.h; sourceTree = "<group>"; };
 		DD2B43401522A95100888E51 /* PCPNewView.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PCPNewView.cpp; sourceTree = "<group>"; };
 		DD2B43411522A95100888E51 /* PCPNewView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PCPNewView.h; sourceTree = "<group>"; };
-		DD2EB10019E6EFC50073E36F /* geoda_prefs.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = geoda_prefs.json; path = BuildTools/CommonDistFiles/geoda_prefs.json; sourceTree = "<group>"; };
 		DD30798C19ED80E0001E5E89 /* Lowess.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Lowess.cpp; sourceTree = "<group>"; };
 		DD30798D19ED80E0001E5E89 /* Lowess.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Lowess.h; sourceTree = "<group>"; };
 		DD3079C419ED9F61001E5E89 /* LowessParamObservable.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = LowessParamObservable.cpp; sourceTree = "<group>"; };
@@ -700,7 +704,6 @@
 		DD409E4B19FFD43000C21A2B /* VarTools.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VarTools.h; sourceTree = "<group>"; };
 		DD40B081181894F20084173C /* VarGroupingEditorDlg.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = VarGroupingEditorDlg.cpp; sourceTree = "<group>"; };
 		DD40B082181894F20084173C /* VarGroupingEditorDlg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VarGroupingEditorDlg.h; sourceTree = "<group>"; };
-		DD45117019E5F65E006C5DAA /* geoda_prefs.sqlite */ = {isa = PBXFileReference; lastKnownFileType = file; name = geoda_prefs.sqlite; path = BuildTools/CommonDistFiles/geoda_prefs.sqlite; sourceTree = "<group>"; };
 		DD4974B51770AC700007BB9F /* TableFrame.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TableFrame.h; path = DataViewer/TableFrame.h; sourceTree = "<group>"; };
 		DD4974B61770AC700007BB9F /* TableFrame.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = TableFrame.cpp; path = DataViewer/TableFrame.cpp; sourceTree = "<group>"; };
 		DD4974B81770AC840007BB9F /* TableBase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TableBase.h; path = DataViewer/TableBase.h; sourceTree = "<group>"; };
@@ -983,7 +986,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				A1C194A31B38FC67003DA7CA /* libc++.dylib in Frameworks */,
+				A14129EA260EC4AF006B0D6D /* libgdal.28.dylib in Frameworks */,
+				A1412A02260EE6EC006B0D6D /* libwx_osx_cocoau_gl-3.1.4.0.0.dylib in Frameworks */,
+				A1412A03260EE6EC006B0D6D /* libwx_osx_cocoau-3.1.4.0.0.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -999,6 +1004,14 @@
 			path = visualization;
 			sourceTree = "<group>";
 		};
+		A14129F9260EC88E006B0D6D /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				A14129F6260EC6E9006B0D6D /* samples.sqlite */,
+			);
+			name = Resources;
+			sourceTree = "<group>";
+		};
 		A14735A721A5F6CE00CA69B2 /* Weights */ = {
 			isa = PBXGroup;
 			children = (
@@ -1006,6 +1019,15 @@
 				A14735A921A5F72D00CA69B2 /* DistUtils.cpp */,
 			);
 			path = Weights;
+			sourceTree = "<group>";
+		};
+		A1588720260EBDF0005AF322 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				A1412A00260EE6EC006B0D6D /* libwx_osx_cocoau_gl-3.1.4.0.0.dylib */,
+				A1412A01260EE6EC006B0D6D /* libwx_osx_cocoau-3.1.4.0.0.dylib */,
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 		A170116724AAA8C800844D84 /* ANN */ = {
@@ -1077,53 +1099,6 @@
 				A119BEB9243BE844006E1BE6 /* smacof.h */,
 			);
 			name = smacof;
-			sourceTree = "<group>";
-		};
-		A40AB91A20F5336600F94543 /* arizona */ = {
-			isa = PBXGroup;
-			children = (
-				A40AB91C20F5338D00F94543 /* models */,
-				A40AB91B20F5338200F94543 /* viz3 */,
-			);
-			path = arizona;
-			sourceTree = "<group>";
-		};
-		A40AB91B20F5338200F94543 /* viz3 */ = {
-			isa = PBXGroup;
-			children = (
-				A40AB92420F675B600F94543 /* mathstuff.cpp */,
-				A40AB92220F675B500F94543 /* mathstuff.h */,
-				A40AB92720F675B600F94543 /* oglpfuncs.cpp */,
-				A40AB92320F675B600F94543 /* oglpfuncs.h */,
-				A40AB92520F675B600F94543 /* oglstuff.cpp */,
-				A40AB92620F675B600F94543 /* oglstuff.h */,
-				A40AB91E20F533A500F94543 /* plots */,
-				A40AB91D20F533A000F94543 /* maps */,
-			);
-			path = viz3;
-			sourceTree = "<group>";
-		};
-		A40AB91C20F5338D00F94543 /* models */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = models;
-			sourceTree = "<group>";
-		};
-		A40AB91D20F533A000F94543 /* maps */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = maps;
-			sourceTree = "<group>";
-		};
-		A40AB91E20F533A500F94543 /* plots */ = {
-			isa = PBXGroup;
-			children = (
-				A40AB92020F559F500F94543 /* scatterplot.cpp */,
-				A40AB91F20F559F500F94543 /* scatterplot.h */,
-			);
-			path = plots;
 			sourceTree = "<group>";
 		};
 		A45DBDEF1EDDDD2600C2AA8A /* Algorithms */ = {
@@ -1203,17 +1178,6 @@
 			name = _SampleImages;
 			sourceTree = "<group>";
 		};
-		A45DBDF71EDDEDDA00C2AA8A /* _InternalData */ = {
-			isa = PBXGroup;
-			children = (
-				A496C99D1E6A184C008F87DD /* samples.sqlite */,
-				A1F1BA98178D46B8005A46E5 /* cache.sqlite */,
-				DD2EB10019E6EFC50073E36F /* geoda_prefs.json */,
-				DD45117019E5F65E006C5DAA /* geoda_prefs.sqlite */,
-			);
-			name = _InternalData;
-			sourceTree = "<group>";
-		};
 		A47614AC20759E6100D9F3BE /* io */ = {
 			isa = PBXGroup;
 			children = (
@@ -1281,19 +1245,21 @@
 		DD7974650F1D1B0700496A84 /* ../../ */ = {
 			isa = PBXGroup;
 			children = (
+				A1412A04260EE6F5006B0D6D /* libwx_osx_cocoau_gl-3.1.4.0.0.dylib */,
+				A1412A05260EE6F5006B0D6D /* libwx_osx_cocoau-3.1.4.0.0.dylib */,
+				A14129FE260EC96B006B0D6D /* cache.sqlite */,
+				A14129F9260EC88E006B0D6D /* Resources */,
+				A14129E8260EC434006B0D6D /* libgdal.28.dylib */,
+				A14129DE260EC2D1006B0D6D /* basemap_cache */,
 				A14735A721A5F6CE00CA69B2 /* Weights */,
 				A10EF2ED21273E4900564FE1 /* visualization */,
 				A19483772118BA8B009A87A2 /* ogl */,
-				A40AB91A20F5336600F94543 /* arizona */,
 				A4ED7D3F2097EC0F008685D6 /* kNN */,
 				A4CFF027207D6D7500E2E6DE /* internationalization */,
 				A47614AC20759E6100D9F3BE /* io */,
 				A45DBDEF1EDDDD2600C2AA8A /* Algorithms */,
 				A45DBDF61EDDEDC400C2AA8A /* _SampleImages */,
-				A45DBDF71EDDEDDA00C2AA8A /* _InternalData */,
 				A4D9A31E1E4D5F3800EF584C /* gdaldata */,
-				A1C194A21B38FC67003DA7CA /* libc++.dylib */,
-				A1B04ADC1B1921710045AA6F /* basemap_cache */,
 				DDDFB96D134B6B73005EF636 /* DataViewer */,
 				DD7974FE0F1D296F00496A84 /* DialogTools */,
 				DD7975B70F1D2A9000496A84 /* Explore */,
@@ -1363,6 +1329,7 @@
 				DD84139218B24BF2007C39CF /* version.h */,
 				A4404A00208E65DC0007753D /* wxTranslationHelper.cpp */,
 				A4404A01208E65DD0007753D /* wxTranslationHelper.h */,
+				A1588720260EBDF0005AF322 /* Frameworks */,
 			);
 			path = ../../;
 			sourceTree = "<group>";
@@ -1846,6 +1813,7 @@
 				DD79747E0F1D1B6600496A84 /* Sources */,
 				DD79747F0F1D1B6600496A84 /* Frameworks */,
 				DD2EB0FF19E6EF940073E36F /* CopyFiles */,
+				A158871D260EBD3F005AF322 /* CopyFiles */,
 			);
 			buildRules = (
 			);
@@ -1864,6 +1832,12 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = NO;
 				LastUpgradeCheck = 0510;
+				TargetAttributes = {
+					DD7974800F1D1B6600496A84 = {
+						DevelopmentTeam = 3VRCAMAT4L;
+						ProvisioningStyle = Automatic;
+					};
+				};
 			};
 			buildConfigurationList = DD79746A0F1D1B0700496A84 /* Build configuration list for PBXProject "GeoDa" */;
 			compatibilityVersion = "Xcode 3.2";
@@ -1890,11 +1864,11 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A14129F7260EC6E9006B0D6D /* samples.sqlite in Resources */,
 				DD5A579716E53EC40047DBB1 /* GeoDa.icns in Resources */,
 				A4D9A31F1E4D5F3800EF584C /* gdaldata in Resources */,
 				A19F51501756A11E006E31B4 /* plugins in Resources */,
 				A4404A05208E9E390007753D /* lang in Resources */,
-				A496C99E1E6A184C008F87DD /* samples.sqlite in Resources */,
 				A496C9A81E6A43C0008F87DD /* BaltimoreHomeSales.png in Resources */,
 				A496C9AA1E6A43CC008F87DD /* BostonHomeSales.png in Resources */,
 				A496C9AC1E6A43D0008F87DD /* BuenosAiresElections.png in Resources */,
@@ -1932,11 +1906,9 @@
 				DD79756D0F1D296F00496A84 /* Bnd2ShpDlg.cpp in Sources */,
 				A19580B0240E15020089C6CE /* misc.c in Sources */,
 				A4F875771E94123F0079734E /* KMeansDlg.cpp in Sources */,
-				A40AB92920F675B600F94543 /* oglstuff.cpp in Sources */,
 				DD7975700F1D296F00496A84 /* CreateGridDlg.cpp in Sources */,
 				DD7975710F1D296F00496A84 /* CreatingWeightDlg.cpp in Sources */,
 				A14420202405DB7400BD6F93 /* GenColor.cpp in Sources */,
-				A40AB92120F559F500F94543 /* scatterplot.cpp in Sources */,
 				DD79757C0F1D296F00496A84 /* HistIntervalDlg.cpp in Sources */,
 				DD79757F0F1D296F00496A84 /* LisaWhat2OpenDlg.cpp in Sources */,
 				A19483942118BAAA009A87A2 /* divided.cpp in Sources */,
@@ -2061,7 +2033,6 @@
 				DD579B6A160BDAFE00BF8D53 /* DorlingCartogram.cpp in Sources */,
 				DDAD0218162754EA00748874 /* ConditionalNewView.cpp in Sources */,
 				DDDBF286163AD1D50070610C /* ConditionalMapView.cpp in Sources */,
-				A40AB92A20F675B600F94543 /* oglpfuncs.cpp in Sources */,
 				DDDBF29B163AD2BF0070610C /* ConditionalScatterPlotView.cpp in Sources */,
 				A13B6B9418760CF100F93ACF /* SaveAsDlg.cpp in Sources */,
 				A43D12521F20AE450073D408 /* SpectralClusteringDlg.cpp in Sources */,
@@ -2157,7 +2128,6 @@
 				DD26CBE419A41A480092C0F2 /* WebViewExampleWin.cpp in Sources */,
 				A170116C24AAAA4F00844D84 /* dbscan.cpp in Sources */,
 				A161939F244CDCE9004269A7 /* AnimatePlotCanvas.cpp in Sources */,
-				A40AB92820F675B600F94543 /* mathstuff.cpp in Sources */,
 				A4320FC81F4735020007BE0D /* RedcapDlg.cpp in Sources */,
 				DD2AE42A19D4F4CA00B23FB9 /* GdaJson.cpp in Sources */,
 				A119BEC0243BE845006E1BE6 /* jacobi.c in Sources */,
@@ -2251,10 +2221,14 @@
 			buildSettings = {
 				ADDITIONAL_SDKS = "";
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				CLANG_CXX_LANGUAGE_STANDARD = "compiler-default";
-				CLANG_CXX_LIBRARY = "compiler-default";
+				CLANG_CXX_LANGUAGE_STANDARD = "c++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				"CODE_SIGN_ENTITLEMENTS[sdk=*]" = "";
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = NO;
+				DEVELOPMENT_TEAM = 3VRCAMAT4L;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_ENABLE_FIX_AND_CONTINUE = YES;
@@ -2264,21 +2238,24 @@
 				GCC_PREFIX_HEADER = "";
 				GCC_VERSION = "";
 				INFOPLIST_FILE = "GeoDa-Xcode-Info.plist";
-				INSTALL_PATH = "$(HOME)/Applications";
+				INSTALL_PATH = "@executable_path/../Frameworks";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)/../..\"",
 					"\"$(SRCROOT)/../../ogr/ogrsf_frmts/oci\"",
+					/usr/local/Cellar/gdal/3.2.2/lib,
+					"$(PROJECT_DIR)/libraries/lib",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 10.7;
+				MACOSX_DEPLOYMENT_TARGET = 10.14;
 				OTHER_CPLUSPLUSFLAGS = (
 					"$(OTHER_CFLAGS)",
-					"-I./libraries/lib/wx/include/osx_cocoa-unicode-static-3.1",
+					"-I./libraries/lib/wx/include/osx_cocoa-unicode-3.1",
 					"-I./libraries/include/wx-3.1/",
-					"-I./libraries/include/boost",
+					"-I/usr/local/opt/boost/include",
 					"-I./libraries/include",
 					"-I./temp/spectra/include",
-					"-I./libraries/include/eigen3",
+					"-I./temp/eigen3",
+					"-I/usr/local/opt/gdal/include",
 					"-D_FILE_OFFSET_BITS=64",
 					"-D__WXMAC__",
 					"-D__WXOSX__",
@@ -2290,61 +2267,28 @@
 				OTHER_LDFLAGS = (
 					"-L/usr/lib",
 					"-liconv",
-					"-L./libraries/lib",
-					./libraries/include/boost/stage/lib/libboost_date_time.a,
-					./libraries/include/boost/stage/lib/libboost_system.a,
-					./libraries/include/boost/stage/lib/libboost_thread.a,
-					"-framework",
-					OpenCL,
-					"-framework",
-					IOKit,
-					"-framework",
-					Carbon,
-					"-framework",
-					Cocoa,
-					"-framework",
-					AudioToolbox,
-					"-framework",
-					System,
-					"-framework",
-					OpenGL,
-					"-framework",
-					AGL,
-					"./libraries/lib/libwx_osx_cocoau_xrc-3.1.a",
-					"./libraries/lib/libwx_osx_cocoau_html-3.1.a",
-					"./libraries/lib/libwx_osx_cocoau_qa-3.1.a",
-					"./libraries/lib/libwx_osx_cocoau_adv-3.1.a",
-					"./libraries/lib/libwx_osx_cocoau_core-3.1.a",
-					"./libraries/lib/libwx_osx_cocoau_webview-3.1.a",
-					"./libraries/lib/libwx_baseu_xml-3.1.a",
-					"./libraries/lib/libwx_baseu_net-3.1.a",
-					"./libraries/lib/libwx_baseu-3.1.a",
-					"./libraries/lib/libwx_osx_cocoau_gl-3.1.a",
-					"./libraries/lib/libwx_osx_cocoau_richtext-3.1.a",
-					"./libraries/lib/libwx_osx_cocoau_aui-3.1.a",
-					"-lpng",
-					"-ljpeg",
-					"-ltiff",
-					"-framework",
-					WebKit,
-					"-lexpat",
-					"-lwxregexu-3.1",
-					"-lwxscintilla-3.1",
+					"-lcurl",
 					"-lz",
 					"-lpthread",
-					"-liconv",
+					"/usr/local/opt/boost/lib/libboost_date_time-mt.a",
+					"/usr/local/opt/boost/lib/libboost_system-mt.a",
+					"/usr/local/opt/boost/lib/libboost_thread-mt.a",
+					./libraries/lib/libjson_spirit.a,
 					"./temp/CLAPACK-3.2.1/blas.a",
 					"./temp/CLAPACK-3.2.1/F2CLIBS/libf2c.a",
 					"./temp/CLAPACK-3.2.1/lapack.a",
-					"-L./libraries/lib",
-					"-lgdal",
-					"-lcurl",
-					./libraries/lib/libjson_spirit.a,
+					"-framework",
+					OpenCL,
+					"-framework",
+					Cocoa,
+					"-framework",
+					OpenGL,
 				);
 				PREBINDING = NO;
 				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = NO;
 				PRODUCT_NAME = GeoDa;
-				SDKROOT = /Applications/Xcode9.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.13.sdk;
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				SDKROOT = macosx;
 				SHARED_PRECOMPS_DIR = "";
 			};
 			name = Debug;
@@ -2354,11 +2298,14 @@
 			buildSettings = {
 				ADDITIONAL_SDKS = "";
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				CLANG_CXX_LANGUAGE_STANDARD = "compiler-default";
-				CLANG_CXX_LIBRARY = "compiler-default";
+				CLANG_CXX_LANGUAGE_STANDARD = "c++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = 3VRCAMAT4L;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_ENABLE_FIX_AND_CONTINUE = NO;
 				GCC_MODEL_TUNING = "";
@@ -2367,13 +2314,15 @@
 				GCC_PREFIX_HEADER = "";
 				GCC_VERSION = "";
 				INFOPLIST_FILE = "GeoDa-Xcode-Info.plist";
-				INSTALL_PATH = "$(HOME)/Applications";
+				INSTALL_PATH = "@executable_path/../Frameworks";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)/../..\"",
 					"\"$(SRCROOT)/../../ogr/ogrsf_frmts/oci\"",
+					/usr/local/Cellar/gdal/3.2.2/lib,
+					"$(PROJECT_DIR)/libraries/lib",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 10.7;
+				MACOSX_DEPLOYMENT_TARGET = 10.14;
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_CPLUSPLUSFLAGS = (
 					"$(OTHER_CFLAGS)",
@@ -2444,7 +2393,8 @@
 				PREBINDING = NO;
 				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = NO;
 				PRODUCT_NAME = GeoDa;
-				SDKROOT = /Applications/Xcode9.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.13.sdk;
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				SDKROOT = macosx;
 				SHARED_PRECOMPS_DIR = "";
 				VALID_ARCHS = x86_64;
 				ZERO_LINK = NO;
