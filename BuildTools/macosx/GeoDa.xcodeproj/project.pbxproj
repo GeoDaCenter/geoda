@@ -33,6 +33,7 @@
 		A1412A03260EE6EC006B0D6D /* libwx_osx_cocoau-3.1.4.0.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = A1412A01260EE6EC006B0D6D /* libwx_osx_cocoau-3.1.4.0.0.dylib */; };
 		A1412A06260EE6F5006B0D6D /* libwx_osx_cocoau_gl-3.1.4.0.0.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = A1412A04260EE6F5006B0D6D /* libwx_osx_cocoau_gl-3.1.4.0.0.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		A1412A07260EE6F5006B0D6D /* libwx_osx_cocoau-3.1.4.0.0.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = A1412A05260EE6F5006B0D6D /* libwx_osx_cocoau-3.1.4.0.0.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		A1412A0926126C58006B0D6D /* proj in Resources */ = {isa = PBXBuildFile; fileRef = A1412A0826126C58006B0D6D /* proj */; };
 		A144201D23FF2EDB00BD6F93 /* nbrMatchDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A144201B23FF2EDB00BD6F93 /* nbrMatchDlg.cpp */; };
 		A14420202405DB7400BD6F93 /* GenColor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A144201E2405DB7300BD6F93 /* GenColor.cpp */; };
 		A14735AA21A5F72D00CA69B2 /* DistUtils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A14735A921A5F72D00CA69B2 /* DistUtils.cpp */; };
@@ -389,8 +390,9 @@
 		A14129FE260EC96B006B0D6D /* cache.sqlite */ = {isa = PBXFileReference; lastKnownFileType = file; name = cache.sqlite; path = BuildTools/CommonDistFiles/cache.sqlite; sourceTree = "<group>"; };
 		A1412A00260EE6EC006B0D6D /* libwx_osx_cocoau_gl-3.1.4.0.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libwx_osx_cocoau_gl-3.1.4.0.0.dylib"; path = "BuildTools/macosx/libraries/lib/libwx_osx_cocoau_gl-3.1.4.0.0.dylib"; sourceTree = "<group>"; };
 		A1412A01260EE6EC006B0D6D /* libwx_osx_cocoau-3.1.4.0.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libwx_osx_cocoau-3.1.4.0.0.dylib"; path = "BuildTools/macosx/libraries/lib/libwx_osx_cocoau-3.1.4.0.0.dylib"; sourceTree = "<group>"; };
-		A1412A04260EE6F5006B0D6D /* libwx_osx_cocoau_gl-3.1.4.0.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libwx_osx_cocoau_gl-3.1.4.0.0.dylib"; path = "BuildTools/macosx/libraries/lib/libwx_osx_cocoau_gl-3.1.4.0.0.dylib"; sourceTree = "<group>"; };
-		A1412A05260EE6F5006B0D6D /* libwx_osx_cocoau-3.1.4.0.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libwx_osx_cocoau-3.1.4.0.0.dylib"; path = "BuildTools/macosx/libraries/lib/libwx_osx_cocoau-3.1.4.0.0.dylib"; sourceTree = "<group>"; };
+		A1412A04260EE6F5006B0D6D /* libwx_osx_cocoau_gl-3.1.4.0.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libwx_osx_cocoau_gl-3.1.4.0.0.dylib"; path = "../BuildTools/macosx/libraries/lib/libwx_osx_cocoau_gl-3.1.4.0.0.dylib"; sourceTree = "<group>"; };
+		A1412A05260EE6F5006B0D6D /* libwx_osx_cocoau-3.1.4.0.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libwx_osx_cocoau-3.1.4.0.0.dylib"; path = "../BuildTools/macosx/libraries/lib/libwx_osx_cocoau-3.1.4.0.0.dylib"; sourceTree = "<group>"; };
+		A1412A0826126C58006B0D6D /* proj */ = {isa = PBXFileReference; lastKnownFileType = folder; name = proj; path = BuildTools/CommonDistFiles/proj; sourceTree = "<group>"; };
 		A144201B23FF2EDB00BD6F93 /* nbrMatchDlg.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = nbrMatchDlg.cpp; sourceTree = "<group>"; };
 		A144201C23FF2EDB00BD6F93 /* nbrMatchDlg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = nbrMatchDlg.h; sourceTree = "<group>"; };
 		A144201E2405DB7300BD6F93 /* GenColor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GenColor.cpp; sourceTree = "<group>"; };
@@ -1012,6 +1014,15 @@
 			name = Resources;
 			sourceTree = "<group>";
 		};
+		A1412A0C2612719B006B0D6D /* dylibs */ = {
+			isa = PBXGroup;
+			children = (
+				A1412A04260EE6F5006B0D6D /* libwx_osx_cocoau_gl-3.1.4.0.0.dylib */,
+				A1412A05260EE6F5006B0D6D /* libwx_osx_cocoau-3.1.4.0.0.dylib */,
+			);
+			path = dylibs;
+			sourceTree = "<group>";
+		};
 		A14735A721A5F6CE00CA69B2 /* Weights */ = {
 			isa = PBXGroup;
 			children = (
@@ -1245,11 +1256,13 @@
 		DD7974650F1D1B0700496A84 /* ../../ */ = {
 			isa = PBXGroup;
 			children = (
-				A1412A04260EE6F5006B0D6D /* libwx_osx_cocoau_gl-3.1.4.0.0.dylib */,
-				A1412A05260EE6F5006B0D6D /* libwx_osx_cocoau-3.1.4.0.0.dylib */,
+				A1412A0C2612719B006B0D6D /* dylibs */,
+				A1412A0826126C58006B0D6D /* proj */,
 				A14129FE260EC96B006B0D6D /* cache.sqlite */,
 				A14129F9260EC88E006B0D6D /* Resources */,
 				A14129E8260EC434006B0D6D /* libgdal.28.dylib */,
+				A45DBDF61EDDEDC400C2AA8A /* _SampleImages */,
+				A4D9A31E1E4D5F3800EF584C /* gdaldata */,
 				A14129DE260EC2D1006B0D6D /* basemap_cache */,
 				A14735A721A5F6CE00CA69B2 /* Weights */,
 				A10EF2ED21273E4900564FE1 /* visualization */,
@@ -1258,8 +1271,6 @@
 				A4CFF027207D6D7500E2E6DE /* internationalization */,
 				A47614AC20759E6100D9F3BE /* io */,
 				A45DBDEF1EDDDD2600C2AA8A /* Algorithms */,
-				A45DBDF61EDDEDC400C2AA8A /* _SampleImages */,
-				A4D9A31E1E4D5F3800EF584C /* gdaldata */,
 				DDDFB96D134B6B73005EF636 /* DataViewer */,
 				DD7974FE0F1D296F00496A84 /* DialogTools */,
 				DD7975B70F1D2A9000496A84 /* Explore */,
@@ -1269,8 +1280,6 @@
 				DD7976950F1D2CA800496A84 /* Regression */,
 				DD7976E10F1D2D3100496A84 /* ShapeOperations */,
 				DDEA3CB6193CEE250028B746 /* VarCalc */,
-				DDBDFE6119E73E07004CCEDA /* web_plugins */,
-				A19F514D1756A11E006E31B4 /* plugins */,
 				DD3BA4471871EE9A00CA4152 /* DefaultVarsPtree.h */,
 				DD3BA4461871EE9A00CA4152 /* DefaultVarsPtree.cpp */,
 				A144201F2405DB7300BD6F93 /* GenColor.h */,
@@ -1329,6 +1338,8 @@
 				DD84139218B24BF2007C39CF /* version.h */,
 				A4404A00208E65DC0007753D /* wxTranslationHelper.cpp */,
 				A4404A01208E65DD0007753D /* wxTranslationHelper.h */,
+				DDBDFE6119E73E07004CCEDA /* web_plugins */,
+				A19F514D1756A11E006E31B4 /* plugins */,
 				A1588720260EBDF0005AF322 /* Frameworks */,
 			);
 			path = ../../;
@@ -1888,6 +1899,7 @@
 				A496C9C31E6A4417008F87DD /* USHomicides.png in Resources */,
 				A1230E5E212DF54D002AB30A /* switch-on.png in Resources */,
 				A4DB2CBC1EEA3A3E00BD4A54 /* Guerry.png in Resources */,
+				A1412A0926126C58006B0D6D /* proj in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

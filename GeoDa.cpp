@@ -32,6 +32,7 @@
 #include <boost/foreach.hpp>
 
 #include "ogrsf_frmts.h"
+#include "ogr_core.h"
 #include "cpl_conv.h"
 
 #include <wx/utils.h>
@@ -368,16 +369,32 @@ bool GdaApp::OnInit(void)
 	// Set GEODA_GDAL_DATA 
 #ifdef __WIN32__
 	wxString gal_data_dir = exeDir + "data";
-	wxSetEnv("GEODA_GDAL_DATA", gal_data_dir);
-    //CPLSetConfigOption("GEODA_GDAL_DATA", GET_ENCODED_FILENAME(gal_data_dir));
+	//wxSetEnv("GEODA_GDAL_DATA", gal_data_dir);
+    CPLSetConfigOption("GDAL_DATA", GET_ENCODED_FILENAME(gal_data_dir));
+    CPLSetConfigOption("OGR_DRIVER_PATH", GET_ENCODED_FILENAME(exeDir));
+    wxString proj6_db_dir = exeDir + "proj";
+    const char* proj_path = proj6_db_dir.mb_str();
+    const char* const apsz_proj_paths[] = { proj_path, nullptr };
+    OSRSetPROJSearchPaths(apsz_proj_paths);
 #elif defined __linux__
 	wxString gal_data_dir = exeDir + "gdaldata";
-	wxSetEnv("GEODA_GDAL_DATA", gal_data_dir);
-    CPLSetConfigOption("GEODA_GDAL_DATA", GET_ENCODED_FILENAME(gal_data_dir));
+    wxString ogr_driver_dir = exeDir + "plugins";
+	//wxSetEnv("GEODA_GDAL_DATA", gal_data_dir);
+    CPLSetConfigOption("GDAL_DATA", GET_ENCODED_FILENAME(gal_data_dir));
+    CPLSetConfigOption("OGR_DRIVER_PATH", GET_ENCODED_FILENAME(ogr_driver_dir));
+    wxString proj6_db_dir = exeDir + "proj";
+    const char* proj_path = proj6_db_dir.mb_str();
+    const char* const apsz_proj_paths[] = { proj_path, nullptr };
+    OSRSetPROJSearchPaths(apsz_proj_paths);
 #else
 	wxString gal_data_dir = exeDir + "../Resources/gdaldata";
-	wxSetEnv("GEODA_GDAL_DATA", gal_data_dir);
-    CPLSetConfigOption("GEODA_GDAL_DATA", GET_ENCODED_FILENAME(gal_data_dir));
+    wxString ogr_driver_dir = exeDir + "../Resources/plugins";
+    CPLSetConfigOption("GDAL_DATA", GET_ENCODED_FILENAME(gal_data_dir));
+    CPLSetConfigOption("OGR_DRIVER_PATH", GET_ENCODED_FILENAME(ogr_driver_dir));
+    wxString proj6_db_dir = exeDir + "../Resources/proj";
+    const char* proj_path = proj6_db_dir.mb_str();
+    const char* const apsz_proj_paths[] = { proj_path, nullptr };
+    OSRSetPROJSearchPaths(apsz_proj_paths);
 #endif
    
     // Setup new Logger after crash check

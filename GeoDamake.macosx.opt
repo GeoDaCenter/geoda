@@ -7,7 +7,7 @@ CXX     =	g++
 LD	=	g++ 
 RM	=	/bin/rm -f
 
-WXLIBS  = $(shell $(GEODA_HOME)/libraries/bin/wx-config --libs)
+WXLIBS  = $(shell $(GEODA_HOME)/libraries/bin/wx-config --libs xrc,stc,richtext,ribbon,propgrid,aui,gl,html,qa,adv,core,webview,xml,net,base)
 WX_HEADER = $(shell $(GEODA_HOME)/libraries/bin/wx-config --cppflags)
 
 LIBS	=	$(WXLIBS) \
@@ -47,13 +47,13 @@ O_OBJ =	$(foreach file,$(OBJ),../o/$(file))
 T_OBJ =	$(foreach file,$(OBJ),o/$(file))
 
 ../o/%.$(OBJ_EXT):	%.c
-	$(CC) $(CFLAGS) $(CPPFLAGS) -c -o $@ $<
+	$(CC) $(CFLAGS) -c -o $@ $<
 
 ../o/%.$(OBJ_EXT):	%.cpp
 	$(CXX) $(CXXFLAGS) $(CPPFLAGS) -c -o $@ $<
 
 o/%.$(OBJ_EXT):	%.c
-	$(CC) $(CFLAGS) $(CPPFLAGS) -c -o $@ $<
+	$(CC) $(CFLAGS) -c -o $@ $<
 
 o/%.$(OBJ_EXT):	%.cpp
 	$(CXX) $(CXXFLAGS) $(CPPFLAGS) -c -o $@ $<
