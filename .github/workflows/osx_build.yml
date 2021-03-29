@@ -138,7 +138,7 @@ jobs:
       - uses: actions/upload-artifact@v2
         with:
           name: GeoDa-1.18-MacOS
-          path: create-dmg/GeoDa1.18.dmg
+          path: ${{ github.workspace }}/BuildTools/macosx/create-dmg/GeoDa1.18.dmg
 
 
 
