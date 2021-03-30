@@ -58,7 +58,7 @@ jobs:
           mkdir bld
           cd bld
           LDFLAGS="-arch x86_64" cmake ..
-          make
+          make -j2
           cp -R ../json_spirit ../../../libraries/include/.
           cp json_spirit/libjson_spirit.a ../../../libraries/lib/.
 
@@ -74,13 +74,13 @@ jobs:
           tar -xf clapack.tgz
           cp -rf ../dep/CLAPACK-3.2.1 .
           cd CLAPACK-3.2.1
-          make f2clib
-          make blaslib
+          make -j2 f2clib
+          make -j2 blaslib
           cd INSTALL
-          make
+          make -j2
           cd ..
           cd SRC
-          make 
+          make -j2
           cd ..
           cp F2CLIBS/libf2c.a .
           cd ..
