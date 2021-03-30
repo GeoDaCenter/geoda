@@ -1,0 +1,158 @@
+# PROJ-DATUMGRID
+
+The files in this package can be unpacked in the PROJ data directory.
+For an installed PROJ this may be /usr/local/share/proj or /usr/share/proj
+on unix style operating systems.
+
+Note that this package includes "CTable2" format grid shift files for
+NAD27 in the USA and require PROJ 4.8.0 or newer.  On the plus side there
+is no need to compile ascii files into binary files with this version as
+CTable2 files are not system dependent (as distinct from the CTable files
+produced in PROJ 4.7.0 and older).
+
+## About the Datum Grid package
+
+The datum grid package for PROJ is maintained on the OSGeo proj-datumgrid
+repository on [GitHub](https://github.com/OSGeo/proj-datumgrid).
+All grids in the package are released under
+permissive licenses. New grids are accepted into the package as long as
+they are released under a license that is compatible with the [Open Source
+Definition](https://opensource.org/osd-annotated) and the source of the grid
+is clearly stated and verifiable. Suitable licenses include:
+
+  * Public domain
+  * X/MIT
+  * BSD 2/3/4 clause
+  * CC0
+  * CC-BY (v3.0 or later)
+  * CC-BY-SA (v3.0 or later)
+
+## Horizontal grids
+
+2-dimensional transformation grids for horizontal datum shifts.
+
+### Canada: NAD27 -> NAD83
+
+*Source*: [Natural Resources Canada](http://www.nrcan.gc.ca/earth-sciences/geomatics/geodetic-reference-systems/18766)  
+*Format* NTv1  
+*License*: Public Domain
+* ntv1_can.dat
+
+Grid conversion from NAD27 to NAD83 in Canada
+
+### France: NTF -> RGF93
+
+Grid transformation from NTF to RGF93 in France.
+
+*Source*: [IGN](http://www.ign.fr/)  
+*Format*: NTv2  
+*License*: Public Domain
+
+* ntf_r93.gsb
+
+### Germany: DE_DHDN -> ETRS89
+
+*Source*: [BKG](http://crs.bkg.bund.de/crseu/crs/descrtrans/BeTA/de_dhdn2etrs_beta.php)  
+*Format*: NTv2  
+*License*: Free redistribution is allowed and welcome
+
+Grid transformation from DE_DHDN to ETRS89 in Germany.
+
+* BETA2007.gsb
+
+### New Zealand: NZGD49 -> NZGD2000
+
+*Source*: [LINZ](https://www.linz.govt.nz/data/geodetic-system/download-geodetic-software/gd2000it-download)  
+*Format*: NTv2  
+*License*: [Creative Commons Attribution 3.0 New Zealand](https://creativecommons.org/licenses/by/3.0/nz/)
+
+This grid file was computed by Land Information New Zealand at approximately
+a 20 km interval for the conversion between NZGD49 and NZGD2000.
+
+* nzgd2kgrid0005.gsb
+
+### USA: NAD27 -> NAD83
+
+*Source*: USGS  
+*Format*: CTable2  
+*License*: Public Domain
+
+* alaska - Alaska
+* conus - Conterminous U.S.
+* hawaii - Hawaii
+* prvi - Puerto Rico, Virgin Is.
+* stgeorge - St. George Is, Alaska
+* stlrnc - St. Lawrence Is., Alaska
+* stpaul - St. Paul Is., Alaska
+
+### USA: NAD83 -> NAD83
+
+*Source*: USGS  
+*Format*: CTable2  
+*License*: Public Domain
+
+Grid data for high precision conversion of geographic coordinates from
+NAD83 to NAD83.
+
+* FL - Florida
+* MD - Maryland
+* TN - Tennessee
+* WI - Wisconsin
+* WO - Washington, Oregon, N. California
+
+## Vertical grids
+
+1-dimensional transformation grids for vertical datum shifts.
+
+### Worldwide: EGM96 geoid model
+
+*Source*: [NGA](http://earth-info.nga.mil/GandG/wgs84/gravitymod/egm96/egm96.html)  
+*Format*: GTX  
+*License*: Public Domain  
+
+15 minute worldwide geoid undulation grid that transforms WGS84 ellipsoidal heights to physical heights.
+
+* egm96_15.gtx
+
+# Regional PROJ resource packages
+
+In addition to the core proj-datumgrid package, regional collections of grids
+and init-files also exist. These includes grids and init-files that are not
+essential for the functionality of PROJ but still of general interest to
+PROJ-users in the package-specific regions.
+
+The regional packages can be downloaded from the
+[OSGeo download server](http://download.osgeo.org/proj/).
+
+### Europe
+
+The regional package for Europe includes resources for the following
+countries:
+
+* Denmark
+* Ireland+Northern Ireland
+* The Faroe Islands
+* The Nordic+Baltic countries
+
+More information about the included grids and init files can be found in
+[README.EUROPE](https://raw.githubusercontent.com/OSGeo/proj-datumgrid/master/europe/README.EUROPE)
+
+### North America
+
+The regional package for North America includes resources for the following
+countries:
+
+* Greenland
+
+More information about the included grids and init files can be found in
+[README.NORTHAMERICA](https://raw.githubusercontent.com/OSGeo/proj-datumgrid/master/north-america/README.NORTHAMERICA)
+
+### Oceania
+
+The regional package for Oceania includes resources for the following
+countries:
+
+* Australia
+
+More information about the included grids can be found in
+[README.OCEANIA](https://raw.githubusercontent.com/OSGeo/proj-datumgrid/master/oceania/README.OCEANIA)

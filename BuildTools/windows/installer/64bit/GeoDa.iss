@@ -96,9 +96,10 @@ Name: "{commondesktop}\GeoDa"; Filename: "{app}\GeoDa.exe"
 [Registry]
 ; set PATH
 ; set GEODA_GDAL_DATA
-Root: HKCU; Subkey: "Environment"; ValueType:string; ValueName:"GEODA_GDAL_DATA"; ValueData:"{app}\data"; Flags: preservestringtype uninsdeletevalue
+Root: HKCU; Subkey: "Environment"; ValueType:string; ValueName:"GDAL_DATA"; ValueData:"{app}\data"; Flags: preservestringtype uninsdeletevalue
 ; set GEODA_OGR_DRIVER_PATH
-Root: HKCU; Subkey: "Environment"; ValueType:string; ValueName:"GEODA_OGR_DRIVER_PATH"; ValueData:"{app}"; Flags: preservestringtype uninsdeletevalue
+Root: HKCU; Subkey: "Environment"; ValueType:string; ValueName:"OGR_DRIVER_PATH"; ValueData:"{app}"; Flags: preservestringtype uninsdeletevalue
+Root: HKCU; Subkey: "Environment"; ValueType:string; ValueName:"PROJ_LIB"; ValueData:"{app}\proj"; Flags: preservestringtype uninsdeletevalue
 
 Root: HKCR; Subkey: ".gda"; ValueType: string; ValueName: ""; ValueData: "GeoDaProjectFile"; Flags: uninsdeletevalue
 Root: HKCR; Subkey: "GeoDaProjectFile"; ValueType: string; ValueName: ""; ValueData: "GeoDa Project File"; Flags: uninsdeletekey
