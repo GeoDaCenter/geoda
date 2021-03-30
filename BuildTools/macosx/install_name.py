@@ -1,5 +1,5 @@
 import subprocess
-import os
+import os, sys
 from shutil import copyfile
 
 def ProcessDependency(dir_path, dylib_name):
@@ -23,7 +23,7 @@ def ProcessDependency(dir_path, dylib_name):
             ProcessDependency(dir_path, file_name)
 
 
-framework_path = '/Users/xun/Github/geoda/BuildTools/macosx/build/GeoDa.app/Contents/Frameworks'
+framework_path = sys.argv[1] #'/Users/xun/Github/geoda/BuildTools/macosx/build/GeoDa.app/Contents/Frameworks'
 
 ProcessDependency(framework_path, "libwx_osx_cocoau_gl-3.1.dylib")
 ProcessDependency(framework_path, "libwx_osx_cocoau-3.1.dylib")

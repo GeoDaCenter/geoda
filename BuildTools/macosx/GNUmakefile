@@ -94,7 +94,7 @@ build-geoda-mac:
 	install_name_tool -change "$(GEODA_HOME)/libraries/lib/libwx_osx_cocoau_gl-3.1.dylib" "@executable_path/../Frameworks/libwx_osx_cocoau_gl-3.1.dylib" build/GeoDa.app/Contents/MacOS/GeoDa
 	install_name_tool -change "$(GEODA_HOME)/libraries/lib/libwx_osx_cocoau-3.1.dylib" "@executable_path/../Frameworks/libwx_osx_cocoau-3.1.dylib" build/GeoDa.app/Contents/MacOS/GeoDa
 	install_name_tool -change "/usr/local/opt/gdal/lib/libgdal.28.dylib" "@executable_path/../Frameworks/libgdal.28.dylib" build/GeoDa.app/Contents/MacOS/GeoDa
-	python3 install_name.py
+	python3 install_name.py $(GEODA_HOME)/build/GeoDa.app/Contents/Frameworks
 	
 clean:
 	rm -f ../../o/*
