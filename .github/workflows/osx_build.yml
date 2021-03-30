@@ -27,6 +27,9 @@ jobs:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
 
+      - name: Get number of CPU cores
+        uses: SimenB/github-actions-cpu-cores@v1
+
       # Prepare
       - name: Prepare
         run: |
@@ -58,7 +61,7 @@ jobs:
           mkdir bld
           cd bld
           LDFLAGS="-arch x86_64" cmake ..
-          make
+          make -j ${{ steps.cpu-cores.outputs.count }}
           cp -R ../json_spirit ../../../libraries/include/.
           cp json_spirit/libjson_spirit.a ../../../libraries/lib/.
 
@@ -77,10 +80,10 @@ jobs:
           make f2clib
           make blaslib
           cd INSTALL
-          make
+          make -j ${{ steps.cpu-cores.outputs.count }}
           cd ..
           cd SRC
-          make
+          make -j ${{ steps.cpu-cores.outputs.count }}
           cd ..
           cp F2CLIBS/libf2c.a .
           cd ..
@@ -111,7 +114,7 @@ jobs:
           tar -xf wxWidgets-3.1.4.tar.bz2
           cd wxWidgets-3.1.4
           ./configure --with-cocoa --with-opengl --enable-postscript --enable-textfile --without-liblzma --enable-webview --enable-cxx11 --enable-webview --disable-mediactrl --enable-webviewwebkit --enable-monolithic --prefix=$GEODA_HOME/libraries
-          make
+          make -j ${{ steps.cpu-cores.outputs.count }}
           make install
           
       # Install libgdal-dev
@@ -125,7 +128,7 @@ jobs:
           cd BuildTools
           cd macosx
           export GEODA_HOME=$PWD
-          make
+          make -j ${{ steps.cpu-cores.outputs.count }}
           make app
       
       # Create Dmg
