@@ -140,7 +140,7 @@ jobs:
       - uses: actions/upload-artifact@v2
         with:
           name: GeoDa-1.18.2-MacOS
-          path: ${{ github.workspace }}/BuildTools/macosx/create-dmg/GeoDa1.18.2.dmg
+          path: ${{ github.workspace }}/BuildTools/macosx/create-dmg/GeoDa1.18.2-Installer.dmg
 
 
 
