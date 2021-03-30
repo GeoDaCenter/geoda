@@ -27,9 +27,6 @@ jobs:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
 
-      - name: Get number of CPU cores
-        uses: SimenB/github-actions-cpu-cores@v1
-
       # Prepare
       - name: Prepare
         run: |
@@ -61,7 +58,7 @@ jobs:
           mkdir bld
           cd bld
           LDFLAGS="-arch x86_64" cmake ..
-          make -j ${{ steps.cpu-cores.outputs.count }}
+          make
           cp -R ../json_spirit ../../../libraries/include/.
           cp json_spirit/libjson_spirit.a ../../../libraries/lib/.
 
@@ -80,10 +77,10 @@ jobs:
           make f2clib
           make blaslib
           cd INSTALL
-          make -j ${{ steps.cpu-cores.outputs.count }}
+          make
           cd ..
           cd SRC
-          make -j ${{ steps.cpu-cores.outputs.count }}
+          make 
           cd ..
           cp F2CLIBS/libf2c.a .
           cd ..
@@ -128,7 +125,7 @@ jobs:
           cd BuildTools
           cd macosx
           export GEODA_HOME=$PWD
-          make -j ${{ steps.cpu-cores.outputs.count }}
+          make
           make app
       
       # Create Dmg
