@@ -186,7 +186,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>temp\OpenCL\sdk\include;temp\wxWidgets\lib\vc_dll\mswu;temp\wxWidgets\include;temp\boost\include;temp\json_spirit_v4.08;temp\eigen3;temp\spectra-0.8.0\include;libraries\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>temp\OpenCL\sdk\include;temp\wxWidgets\lib\vc_dll\mswu;temp\wxWidgets\include;temp\boost\include;temp\json_spirit_v4.08;temp\eigen3;temp\spectra\include;libraries\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_WINDOWS;__WXMSW__;__NO_VC_CRTDBG__;WXUSINGDLL;_UNICODE;BOOST_BIND_NO_PLACEHOLDERS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <PrecompiledHeader>
@@ -204,7 +204,7 @@
     </ResourceCompile>
     <Link>
       <AdditionalDependencies>opencl.lib;zlib.lib;libcurl_imp.lib;gdal_i.lib;libboost_chrono-vc142-mt-x64-1_75.lib;libboost_date_time-vc142-mt-x64-1_75.lib;libboost_system-vc142-mt-x64-1_75.lib;libboost_thread-vc142-mt-x64-1_75.lib;libboost_atomic-vc142-mt-x64-1_75.lib;libboost_regex-vc142-mt-x64-1_75.lib;BLAS.lib;clapack.lib;libf2c.lib;json_spirit_lib.lib;GlU32.lib;OpenGL32.lib;wxmsw31u.lib;wxmsw31u_gl.lib;wxtiff.lib;wxjpeg.lib;wxpng.lib;wxzlib.lib;wxregexu.lib;wxexpat.lib;wsock32.lib;comctl32.lib;winmm.lib;rpcrt4.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>temp\OpenCL\sdk\lib\x86;temp\wxWidgets\lib\vc_dll;temp\CLAPACK-3.1.1-VisualStudio\LIB\x64;temp\boost\lib\win64;temp\json_spirit_v4.08\Release;libraries\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>temp\OpenCL\sdk\lib\x64;temp\wxWidgets\lib\vc_dll;temp\CLAPACK-3.1.1-VisualStudio\LIB\x64;temp\boost\lib\win64;temp\json_spirit_v4.08\Release;libraries\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <OptimizeReferences>true</OptimizeReferences>
