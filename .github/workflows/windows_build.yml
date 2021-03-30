@@ -27,7 +27,7 @@ jobs:
           - VS_VERSION: Visual Studio 16
             VS_VER: 2019
             MSVC_VER: 1920
-            platform: x86
+            platform: x64
             
     env:
       VS_VERSION: ${{ matrix.VS_VERSION }}

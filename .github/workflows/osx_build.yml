@@ -80,7 +80,7 @@ jobs:
           make
           cd ..
           cd SRC
-          make
+          make 
           cd ..
           cp F2CLIBS/libf2c.a .
           cd ..
