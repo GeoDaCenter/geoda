@@ -44,7 +44,7 @@ Name: "{app}";  Permissions: everyone-full; Check: InitializeSetup
 Name: "{app}\Examples";  Permissions: everyone-full
 Name: "{app}\basemap_cache";  Permissions: everyone-full
 Name: "{app}\lang";  Permissions: everyone-full
-
+Name: "{app}\proj";  Permissions: everyone-full
 
 [Files]
 Source: "..\..\Release\GeoDa.exe"; DestDir: "{app}"; DestName: "GeoDa.exe"; Check: IsX64
@@ -55,11 +55,12 @@ Source: "..\..\..\CommonDistFiles\cache.sqlite"; DestDir: "{app}"
 Source: "..\..\..\CommonDistFiles\geoda_prefs.sqlite"; DestDir: "{app}"
 Source: "..\..\..\CommonDistFiles\geoda_prefs.json"; DestDir: "{app}"
 Source: "..\..\..\CommonDistFiles\web_plugins\*"; DestDir: "{app}\web_plugins"; Flags: recursesubdirs
+Source: "..\..\..\CommonDistFiles\proj\*"; DestDir: "{app}\proj"; Flags: recursesubdirs
 
 Source: "VC_redist.x64.exe"; DestDir: "{app}"
 Source: "OpenCL.dll"; DestDir: "{app}"
-Source: "..\..\temp\wxWidgets\lib\vc_dll\wxmsw314u_vc_custom.dll"; DestDir: "{app}"
-Source: "..\..\temp\wxWidgets\lib\vc_dll\wxmsw314u_gl_vc_custom.dll"; DestDir: "{app}"
+Source: "..\..\temp\wxWidgets\lib\vc_x64_dll\wxmsw314u_vc_custom.dll"; DestDir: "{app}"
+Source: "..\..\temp\wxWidgets\lib\vc_x64_dll\wxmsw314u_gl_vc_custom.dll"; DestDir: "{app}"
 Source: "..\..\libraries\bin\expat.dll"; DestDir: "{app}"
 Source: "..\..\libraries\bin\freexl.dll"; DestDir: "{app}"
 Source: "..\..\libraries\bin\gdal302.dll"; DestDir: "{app}"

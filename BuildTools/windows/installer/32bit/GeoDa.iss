@@ -30,6 +30,7 @@ Name: "{app}";  Permissions: everyone-full; Check: InitializeSetup
 Name: "{app}\Examples";  Permissions: everyone-full
 Name: "{app}\basemap_cache";  Permissions: everyone-full
 Name: "{app}\lang";  Permissions: everyone-full
+Name: "{app}\proj";  Permissions: everyone-full
 
 [Files]
 Source: "..\..\Release\GeoDa.exe"; DestDir: "{app}"; DestName: "GeoDa.exe"
@@ -40,6 +41,8 @@ Source: "..\..\..\CommonDistFiles\cache.sqlite"; DestDir: "{app}"
 Source: "..\..\..\CommonDistFiles\geoda_prefs.sqlite"; DestDir: "{app}"
 Source: "..\..\..\CommonDistFiles\geoda_prefs.json"; DestDir: "{app}"
 Source: "..\..\..\CommonDistFiles\web_plugins\*"; DestDir: "{app}\web_plugins"; Flags: recursesubdirs
+Source: "..\..\..\CommonDistFiles\proj\*"; DestDir: "{app}\proj"; Flags: recursesubdirs
+
 
 Source: "VC_redist.x86.exe"; DestDir: "{app}"
 Source: "OpenCL.dll"; DestDir: "{app}"
