@@ -42,7 +42,7 @@ jobs:
 
       # Install boost 1.75
       - name: Install Boost
-        run: brew install boost
+        run: brew install boost@1.75
 
       # Build JSON Spirit v4.08
       - name: Build JSON Spirit v4.08
@@ -105,11 +105,12 @@ jobs:
           pwd
           cd BuildTools
           cd macosx
+          export GEODA_HOME=$PWD
           cd temp
           curl -L -O https://github.com/wxWidgets/wxWidgets/releases/download/v3.1.4/wxWidgets-3.1.4.tar.bz2
           tar -xf wxWidgets-3.1.4.tar.bz2
           cd wxWidgets-3.1.4
-          ./configure LDFLAGS="-arch x86_64" OBJCFLAGS="-arch x86_64" OBJCXXFLAGS="-arch x86_64" --with-cocoa --disable-shared --disable-monolithic --with-opengl --enable-postscript --enable-textfile --without-liblzma --enable-webview --enable-compat28 --prefix=/Users/runner/work/geoda/geoda/BuildTools/macosx/libraries
+          ./configure --with-cocoa --with-opengl --enable-postscript --enable-textfile --without-liblzma --enable-webview --enable-cxx11 --enable-webview --disable-mediactrl --enable-webviewwebkit --enable-monolithic --prefix=$GEODA_HOME/libraries
           make
           make install
           
@@ -132,13 +133,13 @@ jobs:
       - name: Create DMG
         run: |
           cd create-dmg
-          ./geoda.sh 1.18
+          ./geoda.sh 1.18.2
 
       # Upload artifact
       - uses: actions/upload-artifact@v2
         with:
-          name: GeoDa-1.18-MacOS
-          path: ${{ github.workspace }}/BuildTools/macosx/create-dmg/GeoDa1.18.dmg
+          name: GeoDa-1.18.2-MacOS
+          path: ${{ github.workspace }}/BuildTools/macosx/create-dmg/GeoDa1.18.2.dmg
 
 
 
