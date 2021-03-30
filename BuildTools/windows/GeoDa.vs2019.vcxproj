@@ -83,6 +83,9 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <TargetName>GeoDa</TargetName>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <TargetName>GeoDa</TargetName>
+  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
@@ -102,7 +105,7 @@
     <ResourceCompile>
       <PreprocessorDefinitions>__WXMSW__;_UNICODE;_WINDOWS;NOPCH;WXUSINGDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <Culture>0x0409</Culture>
-      <AdditionalIncludeDirectories>temp\wxWidgets-3.1.0\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>temp\wxWidgets\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Link>
       <AdditionalDependencies>opencl.lib;zlib.lib;gdal_i.lib;libcurl_imp.lib;libboost_chrono-vc142-mt-x64-1_75.lib;libboost_date_time-vc142-mt-x64-1_75.lib;libboost_system-vc142-mt-x64-1_75.lib;libboost_thread-vc142-mt-x64-1_75.lib;libboost_atomic-vc142-mt-x64-1_75.lib;libboost_regex-vc142-mt-x64-1_75.lib;BLAS.lib;clapack.lib;libf2c.lib;json_spirit_lib.lib;GlU32.lib;OpenGL32.lib;wxmsw31ud.lib;wxmsw31ud_gl.lib;wxtiffd.lib;wxjpegd.lib;wxpngd.lib;wxzlibd.lib;wxregexud.lib;wxexpatd.lib;wsock32.lib;comctl32.lib;winmm.lib;rpcrt4.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -118,7 +121,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>temp\wxWidgets-3.1.2\lib\vc_dll\mswud;temp\wxWidgets-3.1.2\include;C:\Intel\OpenCL\sdk\include;temp\pygeoda_boost\include;temp\json_spirit_v4.08;temp\eigen3;temp\spectra\include;libraries\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>temp\OpenCL\sdk\include;temp\wxWidgets\lib\vc_dll\mswud;temp\wxWidgets\include;temp\boost\include;temp\json_spirit_v4.08;temp\eigen3;temp\spectra\include;libraries\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;DEBUG;_DEBUG;_WINDOWS;__WXMSW__;__WXDEBUG__;WXUSINGDLL;_UNICODE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>false</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
@@ -138,11 +141,11 @@
     <ResourceCompile>
       <PreprocessorDefinitions>__WXMSW__;_UNICODE;_WINDOWS;NOPCH;WXUSINGDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <Culture>0x0409</Culture>
-      <AdditionalIncludeDirectories>temp\wxWidgets-3.1.2\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>temp\wxWidgets\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>opencl.lib;gdal_i.lib;libcurl_imp.lib;zlib.lib;libboost_chrono-vc142-mt-x64-1_75.lib;libboost_date_time-vc142-mt-x64-1_75.lib;libboost_system-vc142-mt-x64-1_75.lib;libboost_thread-vc142-mt-x64-1_75.lib;libboost_atomic-vc142-mt-x64-1_75.lib;libboost_regex-vc142-mt-x64-1_75.lib;BLAS.lib;clapack.lib;libf2c.lib;json_spirit_lib.lib;GlU32.lib;OpenGL32.lib;wxmsw31ud.lib;wxmsw31ud_gl.lib;wxtiffd.lib;wxjpegd.lib;wxpngd.lib;wxzlibd.lib;wxregexud.lib;wxexpatd.lib;wsock32.lib;comctl32.lib;winmm.lib;rpcrt4.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>C:\Intel\OpenCL\sdk\lib\x64;libraries\lib;temp\wxWidgets-3.1.2\lib\vc_dll;temp\CLAPACK-3.1.1-VisualStudio\LIB\x64;temp\pygeoda_boost\lib\win64;temp\json_spirit_v4.08\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>opencl.lib;gdal_i.lib;libcurl_imp.lib;zlib.lib;libboost_chrono-vc142-mt-x64-1_75.lib;libboost_date_time-vc142-mt-gd-x64-1_75.lib;libboost_system-vc142-mt-gd-x64-1_75.lib;libboost_thread-vc142-mt-gd-x64-1_75.lib;libboost_atomic-vc142-mt-gd-x64-1_75.lib;libboost_regex-vc142-mt-gd-x64-1_75.lib;BLAS.lib;clapack.lib;libf2c.lib;json_spirit_lib.lib;GlU32.lib;OpenGL32.lib;wxmsw31ud.lib;wxmsw31ud_gl.lib;wxtiffd.lib;wxjpegd.lib;wxpngd.lib;wxzlibd.lib;wxregexud.lib;wxexpatd.lib;wsock32.lib;comctl32.lib;winmm.lib;rpcrt4.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>temp\OpenCL\sdk\lib\x64;libraries\lib;temp\wxWidgets\lib\vc_dll;temp\CLAPACK-3.1.1-VisualStudio\LIB\x64;temp\boost\lib\win64;temp\json_spirit_v4.08\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreAllDefaultLibraries>
       </IgnoreAllDefaultLibraries>
       <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
