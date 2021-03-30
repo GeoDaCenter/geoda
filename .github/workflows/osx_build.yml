@@ -114,7 +114,7 @@ jobs:
           tar -xf wxWidgets-3.1.4.tar.bz2
           cd wxWidgets-3.1.4
           ./configure --with-cocoa --with-opengl --enable-postscript --enable-textfile --without-liblzma --enable-webview --enable-cxx11 --enable-webview --disable-mediactrl --enable-webviewwebkit --enable-monolithic --prefix=$GEODA_HOME/libraries
-          make -j ${{ steps.cpu-cores.outputs.count }}
+          make
           make install
           
       # Install libgdal-dev
