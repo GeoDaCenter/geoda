@@ -121,7 +121,6 @@ jobs:
       # Build GeoDa
       - name: Build GeoDa
         run: |
-          pwd
           cp GeoDamake.macosx.opt GeoDamake.opt
           cd BuildTools
           cd macosx
@@ -132,6 +131,8 @@ jobs:
       # Create Dmg
       - name: Create DMG
         run: |
+          cd BuildTools
+          cd macosx
           cd create-dmg
           ./geoda.sh 1.18.2
 
