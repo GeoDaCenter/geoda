@@ -61,8 +61,8 @@ jobs:
       # Upload artifact
       - uses: actions/upload-artifact@v2
         with:
-          name: GeoDa-1.18.2-Bionic
-          path: ${{ github.workspace }}/BuildTools/ubuntu/geoda_1.18.2-1bionic1_amd64.deb
+          name: GeoDa-${{ env.GEODA_VER }}-${{ env.TARGET_OS }}
+          path: ${{ github.workspace }}/BuildTools/ubuntu/geoda_${{ env.GEODA_VER }}-1${{ env.TARGET_OS }}1_amd64.deb
 
 
 
