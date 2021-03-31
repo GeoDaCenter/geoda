@@ -14,9 +14,9 @@ LIBS = $(WXLIBS) \
         $(GEODA_HOME)/temp/CLAPACK-3.2.1/lapack.a \
         $(GEODA_HOME)/temp/CLAPACK-3.2.1/libf2c.a \
         $(GEODA_HOME)/temp/CLAPACK-3.2.1/blas.a \
-        $(GEODA_HOME)/boost/stage/lib/libboost_date_time.a \
-        $(GEODA_HOME)/boost/stage/lib/libboost_thread.a \
-        $(GEODA_HOME)/boost/stage/lib/libboost_system.a \
+        $(GEODA_HOME)/temp/boost/stage/lib/libboost_date_time.a \
+        $(GEODA_HOME)/temp/boost/stage/lib/libboost_thread.a \
+        $(GEODA_HOME)/temp/boost/stage/lib/libboost_system.a \
         $(GEODA_HOME)/libraries/lib/libjson_spirit.a \
          -L/usr/lib/x86_64-linux-gnu -lgdal -lcurl -lz -lwebkitgtk-3.0 -lEGL
 # Note: Library -lrtmp causes a missing library problem at runtime on

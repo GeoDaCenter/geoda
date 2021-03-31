@@ -22,7 +22,13 @@ cd temp
 # Install libgdal
 apt-get update -y
 apt-get install -y libgdal-dev
-apt-get install -y unzip cmake dh-autoreconf libgtk-3-dev libgl1-mesa-dev libglu1-mesa-dev libwebkitgtk-3.0-dev 
+apt-get install -y unzip cmake dh-autoreconf libgtk-3-dev libgl1-mesa-dev libglu1-mesa-dev 
+
+if  [[ $OS -eq 'disco' ]] ; then
+    apt-get install -y libwebkit2gtk-4.0-dev
+else
+    apt-get install -y libwebkitgtk-3.0-dev 
+fi
 
 # Install boost 1.75
 if ! [ -f "boost_1_75_0.tar.bz2" ] ; then
@@ -43,10 +49,10 @@ if ! [ -f "json_spirit_v4.08.zip" ] ; then
 fi
 if ! [ -d "json_spirit_v4.08" ] ; then 
     unzip json_spirit_v4.08.zip
-    cd json_spirit_v4.08
-    cp ../../dep/json_spirit/CMakeLists.txt .
-    mkdir bld
 fi
+cd json_spirit_v4.08
+cp ../../dep/json_spirit/CMakeLists.txt .
+mkdir -p bld
 cd bld
 cmake -DBoost_NO_BOOST_CMAKE=TRUE -DBOOST_ROOT:PATHNAME=$GEODA_HOME/temp/boost  ..
 make -j2

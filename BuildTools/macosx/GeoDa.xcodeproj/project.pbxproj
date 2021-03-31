@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		A10EF2F021273E7E00564FE1 /* AbstractCanvas.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A10EF2EE21273E7E00564FE1 /* AbstractCanvas.cpp */; };
 		A119BEBD243BE845006E1BE6 /* smacof.c in Sources */ = {isa = PBXBuildFile; fileRef = A119BEB8243BE844006E1BE6 /* smacof.c */; };
 		A119BEBE243BE845006E1BE6 /* smacof_utils.c in Sources */ = {isa = PBXBuildFile; fileRef = A119BEBA243BE844006E1BE6 /* smacof_utils.c */; };
 		A119BEBF243BE845006E1BE6 /* lapacke.c in Sources */ = {isa = PBXBuildFile; fileRef = A119BEBB243BE844006E1BE6 /* lapacke.c */; };
@@ -33,7 +32,6 @@
 		A1412A03260EE6EC006B0D6D /* libwx_osx_cocoau-3.1.4.0.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = A1412A01260EE6EC006B0D6D /* libwx_osx_cocoau-3.1.4.0.0.dylib */; };
 		A1412A06260EE6F5006B0D6D /* libwx_osx_cocoau_gl-3.1.4.0.0.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = A1412A04260EE6F5006B0D6D /* libwx_osx_cocoau_gl-3.1.4.0.0.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		A1412A07260EE6F5006B0D6D /* libwx_osx_cocoau-3.1.4.0.0.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = A1412A05260EE6F5006B0D6D /* libwx_osx_cocoau-3.1.4.0.0.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
-		A1412A0926126C58006B0D6D /* proj in Resources */ = {isa = PBXBuildFile; fileRef = A1412A0826126C58006B0D6D /* proj */; };
 		A144201D23FF2EDB00BD6F93 /* nbrMatchDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A144201B23FF2EDB00BD6F93 /* nbrMatchDlg.cpp */; };
 		A14420202405DB7400BD6F93 /* GenColor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A144201E2405DB7300BD6F93 /* GenColor.cpp */; };
 		A14735AA21A5F72D00CA69B2 /* DistUtils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A14735A921A5F72D00CA69B2 /* DistUtils.cpp */; };
@@ -97,6 +95,7 @@
 		A1D82DEF174D3EB6003DE20A /* ConnectDatasourceDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A1D82DEE174D3EB6003DE20A /* ConnectDatasourceDlg.cpp */; };
 		A1DA623A17BCBC070070CAAB /* AutoCompTextCtrl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A1DA623817BCBC070070CAAB /* AutoCompTextCtrl.cpp */; };
 		A1E5BC841DBFE661005739E9 /* ReportBugDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A1E5BC831DBFE661005739E9 /* ReportBugDlg.cpp */; };
+		A1E621302614F9BA0017FEDC /* proj in Resources */ = {isa = PBXBuildFile; fileRef = A1E6212F2614F9BA0017FEDC /* proj */; };
 		A1E77E1A177D6A2E00CC1037 /* ExportDataDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A1E77E18177D6A2E00CC1037 /* ExportDataDlg.cpp */; };
 		A1E77FDC17889BE200CC1037 /* OGRTable.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A1E77FDA17889BE200CC1037 /* OGRTable.cpp */; };
 		A1E78139178A90A100CC1037 /* OGRDatasourceProxy.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A1E78133178A90A100CC1037 /* OGRDatasourceProxy.cpp */; };
@@ -357,8 +356,6 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		A10EF2EE21273E7E00564FE1 /* AbstractCanvas.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = AbstractCanvas.cpp; sourceTree = "<group>"; };
-		A10EF2EF21273E7E00564FE1 /* AbstractCanvas.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = AbstractCanvas.hpp; sourceTree = "<group>"; };
 		A119BEB8243BE844006E1BE6 /* smacof.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = smacof.c; path = Algorithms/smacof.c; sourceTree = "<group>"; };
 		A119BEB9243BE844006E1BE6 /* smacof.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = smacof.h; path = Algorithms/smacof.h; sourceTree = "<group>"; };
 		A119BEBA243BE844006E1BE6 /* smacof_utils.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = smacof_utils.c; path = Algorithms/smacof_utils.c; sourceTree = "<group>"; };
@@ -392,7 +389,6 @@
 		A1412A01260EE6EC006B0D6D /* libwx_osx_cocoau-3.1.4.0.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libwx_osx_cocoau-3.1.4.0.0.dylib"; path = "BuildTools/macosx/libraries/lib/libwx_osx_cocoau-3.1.4.0.0.dylib"; sourceTree = "<group>"; };
 		A1412A04260EE6F5006B0D6D /* libwx_osx_cocoau_gl-3.1.4.0.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libwx_osx_cocoau_gl-3.1.4.0.0.dylib"; path = "../BuildTools/macosx/libraries/lib/libwx_osx_cocoau_gl-3.1.4.0.0.dylib"; sourceTree = "<group>"; };
 		A1412A05260EE6F5006B0D6D /* libwx_osx_cocoau-3.1.4.0.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libwx_osx_cocoau-3.1.4.0.0.dylib"; path = "../BuildTools/macosx/libraries/lib/libwx_osx_cocoau-3.1.4.0.0.dylib"; sourceTree = "<group>"; };
-		A1412A0826126C58006B0D6D /* proj */ = {isa = PBXFileReference; lastKnownFileType = folder; name = proj; path = BuildTools/CommonDistFiles/proj; sourceTree = "<group>"; };
 		A144201B23FF2EDB00BD6F93 /* nbrMatchDlg.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = nbrMatchDlg.cpp; sourceTree = "<group>"; };
 		A144201C23FF2EDB00BD6F93 /* nbrMatchDlg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = nbrMatchDlg.h; sourceTree = "<group>"; };
 		A144201E2405DB7300BD6F93 /* GenColor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GenColor.cpp; sourceTree = "<group>"; };
@@ -519,6 +515,7 @@
 		A1DA623917BCBC070070CAAB /* AutoCompTextCtrl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AutoCompTextCtrl.h; sourceTree = "<group>"; };
 		A1E5BC821DBFE661005739E9 /* ReportBugDlg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReportBugDlg.h; sourceTree = "<group>"; };
 		A1E5BC831DBFE661005739E9 /* ReportBugDlg.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ReportBugDlg.cpp; sourceTree = "<group>"; };
+		A1E6212F2614F9BA0017FEDC /* proj */ = {isa = PBXFileReference; lastKnownFileType = folder; name = proj; path = BuildTools/CommonDistFiles/osx/proj; sourceTree = "<group>"; };
 		A1E77E18177D6A2E00CC1037 /* ExportDataDlg.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ExportDataDlg.cpp; sourceTree = "<group>"; };
 		A1E77E19177D6A2E00CC1037 /* ExportDataDlg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ExportDataDlg.h; sourceTree = "<group>"; };
 		A1E77FDA17889BE200CC1037 /* OGRTable.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = OGRTable.cpp; path = DataViewer/OGRTable.cpp; sourceTree = "<group>"; };
@@ -997,15 +994,6 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		A10EF2ED21273E4900564FE1 /* visualization */ = {
-			isa = PBXGroup;
-			children = (
-				A10EF2EE21273E7E00564FE1 /* AbstractCanvas.cpp */,
-				A10EF2EF21273E7E00564FE1 /* AbstractCanvas.hpp */,
-			);
-			path = visualization;
-			sourceTree = "<group>";
-		};
 		A14129F9260EC88E006B0D6D /* Resources */ = {
 			isa = PBXGroup;
 			children = (
@@ -1256,8 +1244,8 @@
 		DD7974650F1D1B0700496A84 /* ../../ */ = {
 			isa = PBXGroup;
 			children = (
+				A1E6212F2614F9BA0017FEDC /* proj */,
 				A1412A0C2612719B006B0D6D /* dylibs */,
-				A1412A0826126C58006B0D6D /* proj */,
 				A14129FE260EC96B006B0D6D /* cache.sqlite */,
 				A14129F9260EC88E006B0D6D /* Resources */,
 				A14129E8260EC434006B0D6D /* libgdal.28.dylib */,
@@ -1265,7 +1253,6 @@
 				A4D9A31E1E4D5F3800EF584C /* gdaldata */,
 				A14129DE260EC2D1006B0D6D /* basemap_cache */,
 				A14735A721A5F6CE00CA69B2 /* Weights */,
-				A10EF2ED21273E4900564FE1 /* visualization */,
 				A19483772118BA8B009A87A2 /* ogl */,
 				A4ED7D3F2097EC0F008685D6 /* kNN */,
 				A4CFF027207D6D7500E2E6DE /* internationalization */,
@@ -1885,6 +1872,7 @@
 				A496C9AC1E6A43D0008F87DD /* BuenosAiresElections.png in Resources */,
 				A496C9AE1E6A43D6008F87DD /* ColombiaMalaria.png in Resources */,
 				A496C9B01E6A43DA008F87DD /* ColumbusCrime.png in Resources */,
+				A1E621302614F9BA0017FEDC /* proj in Resources */,
 				A496C9B21E6A43E5008F87DD /* Milwaukee2000Census.png in Resources */,
 				A1230E5F212DF54D002AB30A /* switch-off.png in Resources */,
 				A496C9B41E6A43E8008F87DD /* NAT.png in Resources */,
@@ -1899,7 +1887,6 @@
 				A496C9C31E6A4417008F87DD /* USHomicides.png in Resources */,
 				A1230E5E212DF54D002AB30A /* switch-on.png in Resources */,
 				A4DB2CBC1EEA3A3E00BD4A54 /* Guerry.png in Resources */,
-				A1412A0926126C58006B0D6D /* proj in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2084,7 +2071,6 @@
 				DD4974E21770CE9E0007BB9F /* TableInterface.cpp in Sources */,
 				A1E77E1A177D6A2E00CC1037 /* ExportDataDlg.cpp in Sources */,
 				A14735B821A65F1800CA69B2 /* kd_fix_rad_search.cpp in Sources */,
-				A10EF2F021273E7E00564FE1 /* AbstractCanvas.cpp in Sources */,
 				A194839B2118BAAA009A87A2 /* basic2.cpp in Sources */,
 				A1717C1524F611FE003B898C /* azp.cpp in Sources */,
 				A1E77FDC17889BE200CC1037 /* OGRTable.cpp in Sources */,
@@ -2275,6 +2261,7 @@
 					"-D__WXDEBUG__",
 					"-DDEBUG",
 					"-DEIGEN_NO_DEBUG",
+					"-D__PROJ6__",
 				);
 				OTHER_LDFLAGS = (
 					"-L/usr/lib",
