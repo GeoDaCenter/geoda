@@ -1,13 +1,10 @@
-
 #!/bin/sh
 
 # stops the execution of a script if a command or pipeline has an error
 set -e
 
-OS=$OS
-VER=$VER
-CPUS=2
-DEBUG=0
+echo $OS
+echo $VER
 
 # prepare: BuildTools/ubuntu
 cd "$WORK_DIR"
