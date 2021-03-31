@@ -29,8 +29,11 @@ jobs:
 
       # Build GeoDa
       - name: Build GeoDa
-        run: docker run --privileged=true -e CI -e WORK_DIR="$PWD" -e OS="bionic" -e VER="1.18.2" -v $PWD:$PWD -v /var/run/docker.sock:/var/run/docker.sock ubuntu:18.04 $PWD/BuildTools/ubuntu/install.sh
+        run: chmod +x BuildTools/ubuntu/install.sh
 
+      # Build GeoDa
+      - name: Build GeoDa
+        run: docker run --privileged=true -e CI -e WORK_DIR="$PWD" -e OS="bionic" -e VER="1.18.2" -v $PWD:$PWD -v /var/run/docker.sock:/var/run/docker.sock ubuntu:18.04 $PWD/BuildTools/ubuntu/install.sh
       
       # Upload artifact
       - uses: actions/upload-artifact@v2
