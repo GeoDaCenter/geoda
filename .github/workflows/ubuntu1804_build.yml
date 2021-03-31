@@ -44,6 +44,8 @@ jobs:
       - name: Prepare on ${{ matrix.distro }}
         run: |
           chmod +x BuildTools/ubuntu/install.sh
+          mkdir -p o
+          chmod 644 o
           if [[ $env:platform -eq 'ubuntu:18.04' ]] ; then
             $env:TARGET_OS = "bionic"
           fi
