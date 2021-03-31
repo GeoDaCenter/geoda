@@ -19,9 +19,9 @@ mkdir -p temp
 cd temp
 
 # Install libgdal
-sudo apt-get update -y
-sudo apt-get install -y libgdal-dev
-sudo apt-get install -y cmake dh-autoreconf libgtk-3-dev libgl1-mesa-dev libglu1-mesa-dev libwebkitgtk-3.0-dev 
+apt-get update -y
+apt-get install -y libgdal-dev
+apt-get install -y cmake dh-autoreconf libgtk-3-dev libgl1-mesa-dev libglu1-mesa-dev libwebkitgtk-3.0-dev 
 
 # Install boost 1.75
 if ! [ -f "boost_1_75_0.tar.bz2" ] ; then
