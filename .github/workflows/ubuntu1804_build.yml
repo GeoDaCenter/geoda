@@ -33,6 +33,7 @@ jobs:
           cd BuildTools
           cd ubuntu
           export GEODA_HOME=$PWD
+          chmod +x install.sh
           ./install.sh bionic 1.18.2
       
       # Upload artifact
