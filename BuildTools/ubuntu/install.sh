@@ -34,6 +34,7 @@ fi
 cd boost
 ./bootstrap.sh
 ./b2 --with-thread --with-date_time --with-chrono --with-system link=static threading=multi stage
+cd ..
 
 # Build JSON Spirit v4.08
 if ! [ -f "json_spirit_v4.08.zip" ] ; then
@@ -50,6 +51,8 @@ cmake ..
 make -j2
 cp -R ../json_spirit ../../../libraries/include/.
 cp json_spirit/libjson_spirit.a ../../../libraries/lib/.
+cd ..
+cd ..
 
 # Build CLAPACK
 if ! [ -f "clapack.tgz" ] ; then
@@ -94,6 +97,7 @@ chmod +x configure
 ./configure --with-gtk=3 --disable-shared --enable-monolithic --with-opengl --enable-postscript --without-libtiff --disable-debug --enable-webview --prefix=$GEODA_HOME/libraries
 make -j2
 make install
+cd ..
 
 # Build GeoDa
 cp ../../GeoDamake.$OS.opt ../../GeoDamake.opt

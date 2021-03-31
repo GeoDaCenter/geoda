@@ -7,6 +7,6 @@ WORKDIR /tmp/geoda
 
 COPY . .
 
-CMD cd BuildTools/ubuntu
-CMD pwd
+RUN cd BuildTools/ubuntu
+RUN chmod +x install.sh
 CMD ./install.sh bionic 1.18.2
