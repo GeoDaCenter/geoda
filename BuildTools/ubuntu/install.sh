@@ -5,6 +5,7 @@ set -e
 
 echo $OS
 echo $VER
+echo $APT
 
 # prepare: BuildTools/ubuntu
 cd "$WORK_DIR"
@@ -20,14 +21,14 @@ mkdir -p temp
 cd temp
 
 # Install libgdal
-apt-get update -y
-apt-get install -y libgdal-dev
-apt-get install -y unzip cmake dh-autoreconf libgtk-3-dev libgl1-mesa-dev libglu1-mesa-dev 
+$APT update -y
+$APT install -y libgdal-dev
+$APT install -y unzip cmake dh-autoreconf libgtk-3-dev libgl1-mesa-dev libglu1-mesa-dev 
 
-if  [[ $OS -eq 'disco' ]] ; then
-    apt-get install -y libwebkit2gtk-4.0-dev
+if  [[ $OS == 'disco' ]] ; then
+    $APT install -y libwebkit2gtk-4.0-dev 
 else
-    apt-get install -y libwebkitgtk-3.0-dev 
+    $APT install -y libwebkitgtk-3.0-dev 
 fi
 
 # Install boost 1.75
