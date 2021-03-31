@@ -10,6 +10,9 @@ CPUS=2
 DEBUG=0
 
 # prepare: BuildTools/ubuntu
+cd "$WORK_DIR"
+cd BuildTools
+cd ubuntu
 export GEODA_HOME=$PWD 
 mkdir -p libraries
 mkdir -p libraries/lib
@@ -47,7 +50,7 @@ if ! [ -d "json_spirit_v4.08" ] ; then
     mkdir bld
 fi
 cd bld
-cmake ..
+cmake -DBoost_NO_BOOST_CMAKE=TRUE -DBOOST_ROOT:PATHNAME=$GEODA_HOME/temp/boost  ..
 make -j2
 cp -R ../json_spirit ../../../libraries/include/.
 cp json_spirit/libjson_spirit.a ../../../libraries/lib/.
