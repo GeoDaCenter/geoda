@@ -44,18 +44,15 @@ jobs:
       - name: Prepare on ${{ matrix.distro }}
         run: |
           chmod +x BuildTools/ubuntu/install.sh
-          if ($env:platform -eq 'ubuntu:18.04') 
-          {
+          if [[ $env:platform -eq 'ubuntu:18.04' ]] ; then
             $env:TARGET_OS = "bionic"
-          }
-          if ($env:platform -eq 'ubuntu:19.04') 
-          {
+          fi
+          if [[ $env:platform -eq 'ubuntu:19.04' ]] ; then
             $env:TARGET_OS = "disco"
-          }
-          if ($env:platform -eq 'ubuntu:16.04') 
-          {
+          fi
+          if [[ $env:platform -eq 'ubuntu:16.04' ]] ; then
             $env:TARGET_OS = "xenial"
-          }
+          fi
 
       # Build GeoDa
       - name: Build GeoDa
