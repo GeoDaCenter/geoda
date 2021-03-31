@@ -29,7 +29,9 @@ EIGEN_HEADER = -I$(GEODA_HOME)/temp/eigen3 -I$(GEODA_HOME)/temp/spectra/include
 
 GDAL_HEADER = -I/usr/include/gdal
 
-CPPFLAGS	=  -std=gnu++14 -I$(GeoDa_ROOT)
+USER_DEFS = -I$(GEODA_HOME)/libraries/include
+
+CPPFLAGS	=  -std=gnu++14 -I$(GeoDa_ROOT) 
 CFLAGS		=  -O2 -Wdeclaration-after-statement $(USER_DEFS) $(GDAL_HEADER) $(EIGEN_HEADER)
 CXXFLAGS	=  -std=gnu++14 -O2 $(USER_DEFS) $(WX_HEADER) $(BOOST_HEADER) $(GDAL_HEADER) $(EIGEN_HEADER)
 LDFLAGS     = 

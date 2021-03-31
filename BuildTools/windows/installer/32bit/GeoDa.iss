@@ -27,7 +27,6 @@ Name: "en"; MessagesFile: "compiler:Default.isl"
 
 [dirs]
 Name: "{app}";  Permissions: everyone-full; Check: InitializeSetup
-Name: "{app}\Examples";  Permissions: everyone-full
 Name: "{app}\basemap_cache";  Permissions: everyone-full
 Name: "{app}\lang";  Permissions: everyone-full
 Name: "{app}\proj";  Permissions: everyone-full
@@ -69,7 +68,6 @@ Source: "..\..\libraries\bin\xerces-c_3_2.dll"; DestDir: "{app}"
 Source: "..\..\libraries\bin\zlib1.dll"; DestDir: "{app}"
 Source: "..\..\..\..\Algorithms\lisa_kernel.cl"; DestDir: "{app}"
 Source: "..\..\..\..\internationalization\lang\*"; DestDir: "{app}\lang"; Flags: recursesubdirs
-Source: "..\..\..\..\SampleData\Examples\*"; DestDir: "{app}\Examples"; Flags: recursesubdirs
 Source: "..\..\libraries\bin\gdal-data\*"; DestDir: "{app}\data"; Flags: recursesubdirs
 
 ;Source: "Readme.txt"; DestDir: "{app}"; Flags: isreadme
