@@ -30,13 +30,12 @@
 		A14735BA21A65F1800CA69B2 /* perf.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A14735B121A65F1700CA69B2 /* perf.cpp */; };
 		A14735BB21A65F1800CA69B2 /* bd_pr_search.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A14735B221A65F1700CA69B2 /* bd_pr_search.cpp */; };
 		A14735BC21A65F1800CA69B2 /* brute.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A14735B321A65F1700CA69B2 /* brute.cpp */; };
-		A14B3AD72376229A007EE3AB /* lang in CopyFiles */ = {isa = PBXBuildFile; fileRef = A4404A03208E9E380007753D /* lang */; };
-		A14B3AD8237622A6007EE3AB /* cache.sqlite in CopyFiles */ = {isa = PBXBuildFile; fileRef = A1F1BA98178D46B8005A46E5 /* cache.sqlite */; };
-		A14B3AD9237622AE007EE3AB /* basemap_cache in CopyFiles */ = {isa = PBXBuildFile; fileRef = A1B04ADC1B1921710045AA6F /* basemap_cache */; };
+		A14B3AD72376229A007EE3AB /* lang in Copy Files */ = {isa = PBXBuildFile; fileRef = A4404A03208E9E380007753D /* lang */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		A14B3AD8237622A6007EE3AB /* cache.sqlite in Copy Files */ = {isa = PBXBuildFile; fileRef = A1F1BA98178D46B8005A46E5 /* cache.sqlite */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		A14B3AD9237622AE007EE3AB /* basemap_cache in Copy Files */ = {isa = PBXBuildFile; fileRef = A1B04ADC1B1921710045AA6F /* basemap_cache */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		A14C496F1D76174000D9831C /* CsvFieldConfDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A14C496D1D76174000D9831C /* CsvFieldConfDlg.cpp */; };
-		A1563A06237DE6E100628FA0 /* localjc_kernel.cl in CopyFiles */ = {isa = PBXBuildFile; fileRef = A4E00F0F20FD8ECC0038BA80 /* localjc_kernel.cl */; };
-		A1563A07237DE6E100628FA0 /* distmat_kernel.cl in CopyFiles */ = {isa = PBXBuildFile; fileRef = A47F792320AA084B000AFE57 /* distmat_kernel.cl */; };
-		A1563A08237DE6E100628FA0 /* lisa_kernel.cl in CopyFiles */ = {isa = PBXBuildFile; fileRef = A47F792120AA082A000AFE57 /* lisa_kernel.cl */; };
+		A1563A06237DE6E100628FA0 /* localjc_kernel.cl in Copy Files */ = {isa = PBXBuildFile; fileRef = A4E00F0F20FD8ECC0038BA80 /* localjc_kernel.cl */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		A1563A08237DE6E100628FA0 /* lisa_kernel.cl in Copy Files */ = {isa = PBXBuildFile; fileRef = A47F792120AA082A000AFE57 /* lisa_kernel.cl */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		A16BA470183D626200D3B7DA /* DatasourceDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A16BA46E183D626200D3B7DA /* DatasourceDlg.cpp */; };
 		A178F773227381CB00EB9CB7 /* DissolveDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A178F772227381CB00EB9CB7 /* DissolveDlg.cpp */; };
 		A178F776227772FD00EB9CB7 /* GdaListBox.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A178F774227772FC00EB9CB7 /* GdaListBox.cpp */; };
@@ -74,6 +73,7 @@
 		A1EBC88F1CD2B2FD001DCFE9 /* AutoUpdateDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A1EBC88D1CD2B2FD001DCFE9 /* AutoUpdateDlg.cpp */; };
 		A1EF332F18E35D8300E19375 /* LocaleSetupDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A1EF332D18E35D8300E19375 /* LocaleSetupDlg.cpp */; };
 		A1F1BA5C178D3B46005A46E5 /* GdaCache.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A1F1BA5A178D3B46005A46E5 /* GdaCache.cpp */; };
+		A1FD1CC326151D9400A59EC3 /* proj in Resources */ = {isa = PBXBuildFile; fileRef = A1FD1CC226151D9400A59EC3 /* proj */; };
 		A1FD8C19186908B800C35C41 /* CustomClassifPtree.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A1FD8C17186908B800C35C41 /* CustomClassifPtree.cpp */; };
 		A40A6A7E20226B3C003CDD79 /* PreferenceDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A40A6A7D20226B3B003CDD79 /* PreferenceDlg.cpp */; };
 		A414C88B207BED2700520546 /* MatfileReader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A414C88A207BED2700520546 /* MatfileReader.cpp */; };
@@ -323,20 +323,20 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
-		A12007F623749AC200CBA5B1 /* CopyFiles */ = {
+		A12007F623749AC200CBA5B1 /* Copy Files */ = {
 			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 8;
+			buildActionMask = 12;
 			dstPath = "";
 			dstSubfolderSpec = 6;
 			files = (
-				A1563A06237DE6E100628FA0 /* localjc_kernel.cl in CopyFiles */,
-				A1563A07237DE6E100628FA0 /* distmat_kernel.cl in CopyFiles */,
-				A1563A08237DE6E100628FA0 /* lisa_kernel.cl in CopyFiles */,
-				A14B3AD9237622AE007EE3AB /* basemap_cache in CopyFiles */,
-				A14B3AD8237622A6007EE3AB /* cache.sqlite in CopyFiles */,
-				A14B3AD72376229A007EE3AB /* lang in CopyFiles */,
+				A1563A06237DE6E100628FA0 /* localjc_kernel.cl in Copy Files */,
+				A1563A08237DE6E100628FA0 /* lisa_kernel.cl in Copy Files */,
+				A14B3AD9237622AE007EE3AB /* basemap_cache in Copy Files */,
+				A14B3AD8237622A6007EE3AB /* cache.sqlite in Copy Files */,
+				A14B3AD72376229A007EE3AB /* lang in Copy Files */,
 			);
-			runOnlyForDeploymentPostprocessing = 1;
+			name = "Copy Files";
+			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXCopyFilesBuildPhase section */
 
@@ -371,7 +371,6 @@
 		A14735B221A65F1700CA69B2 /* bd_pr_search.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = bd_pr_search.cpp; sourceTree = "<group>"; };
 		A14735B321A65F1700CA69B2 /* brute.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = brute.cpp; sourceTree = "<group>"; };
 		A14735B421A65F1700CA69B2 /* bd_tree.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = bd_tree.h; sourceTree = "<group>"; };
-		A149CA5925B2B07600A563E6 /* GeoDa.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; name = GeoDa.entitlements; path = BuildTools/macosx/GeoDa.entitlements; sourceTree = "<group>"; };
 		A14C496D1D76174000D9831C /* CsvFieldConfDlg.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CsvFieldConfDlg.cpp; sourceTree = "<group>"; };
 		A14C496E1D76174000D9831C /* CsvFieldConfDlg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CsvFieldConfDlg.h; sourceTree = "<group>"; };
 		A16BA46E183D626200D3B7DA /* DatasourceDlg.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DatasourceDlg.cpp; sourceTree = "<group>"; };
@@ -454,6 +453,7 @@
 		A1F1BA5A178D3B46005A46E5 /* GdaCache.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GdaCache.cpp; sourceTree = "<group>"; };
 		A1F1BA5B178D3B46005A46E5 /* GdaCache.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GdaCache.h; sourceTree = "<group>"; };
 		A1F1BA98178D46B8005A46E5 /* cache.sqlite */ = {isa = PBXFileReference; lastKnownFileType = file; name = cache.sqlite; path = BuildTools/CommonDistFiles/cache.sqlite; sourceTree = "<group>"; };
+		A1FD1CC226151D9400A59EC3 /* proj */ = {isa = PBXFileReference; lastKnownFileType = folder; name = proj; path = BuildTools/CommonDistFiles/osx/proj; sourceTree = "<group>"; };
 		A1FD8C17186908B800C35C41 /* CustomClassifPtree.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CustomClassifPtree.cpp; path = DataViewer/CustomClassifPtree.cpp; sourceTree = "<group>"; };
 		A1FD8C18186908B800C35C41 /* CustomClassifPtree.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CustomClassifPtree.h; path = DataViewer/CustomClassifPtree.h; sourceTree = "<group>"; };
 		A40A6A7C20226B3B003CDD79 /* PreferenceDlg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PreferenceDlg.h; sourceTree = "<group>"; };
@@ -960,7 +960,7 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
-		DD79747F0F1D1B6600496A84 /* Frameworks */ = {
+		A1FD1CD0261533E200A59EC3 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -1194,7 +1194,7 @@
 		DD7974650F1D1B0700496A84 /* ../../ */ = {
 			isa = PBXGroup;
 			children = (
-				A149CA5925B2B07600A563E6 /* GeoDa.entitlements */,
+				A1FD1CC226151D9400A59EC3 /* proj */,
 				A14735A721A5F6CE00CA69B2 /* Weights */,
 				A19483772118BA8B009A87A2 /* ogl */,
 				A4ED7D3F2097EC0F008685D6 /* kNN */,
@@ -1755,8 +1755,8 @@
 			buildPhases = (
 				DD79747D0F1D1B6600496A84 /* Resources */,
 				DD79747E0F1D1B6600496A84 /* Sources */,
-				DD79747F0F1D1B6600496A84 /* Frameworks */,
-				A12007F623749AC200CBA5B1 /* CopyFiles */,
+				A12007F623749AC200CBA5B1 /* Copy Files */,
+				A1FD1CD0261533E200A59EC3 /* Frameworks */,
 			);
 			buildRules = (
 			);
@@ -1807,6 +1807,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A1FD1CC326151D9400A59EC3 /* proj in Resources */,
 				A12007EF237497E400CBA5B1 /* data_viewer_dialogs.xrc in Resources */,
 				A12007F0237497E400CBA5B1 /* dialogs.xrc in Resources */,
 				A12007F1237497E400CBA5B1 /* toolbar.xrc in Resources */,
@@ -2221,10 +2222,11 @@
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_OBJC_WEAK = YES;
 				CODE_SIGN_ENTITLEMENTS = GeoDa.entitlements;
-				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = NO;
+				DEVELOPMENT_ASSET_PATHS = "";
 				DEVELOPMENT_TEAM = 3VRCAMAT4L;
 				ENABLE_HARDENED_RUNTIME = YES;
 				GCC_C_LANGUAGE_STANDARD = "compiler-default";
@@ -2239,17 +2241,20 @@
 					"$(inherited)",
 					"\"$(SRCROOT)/../..\"",
 					"\"$(SRCROOT)/../../ogr/ogrsf_frmts/oci\"",
+					"$(PROJECT_DIR)/Frameworks",
+					/opt/homebrew/Cellar/gdal/3.2.1/lib,
 				);
-				MACOSX_DEPLOYMENT_TARGET = 10.12;
-				MARKETING_VERSION = 1.14;
+				MACOSX_DEPLOYMENT_TARGET = 10.15;
+				MARKETING_VERSION = 1.18;
 				OTHER_CPLUSPLUSFLAGS = (
 					"$(OTHER_CFLAGS)",
-					"-I/Users/xun/Downloads/include",
+					"-I/opt/homebrew/include",
+					"-I/usr/include",
 					"-I./libraries/lib/wx/include/osx_cocoa-unicode-static-3.1",
 					"-I./libraries/include/wx-3.1/",
-					"-I./libraries/include/boost",
+					"-I./temp/boost",
 					"-I./libraries/include",
-					"-I./libraries/include/eigen3",
+					"-I./temp/eigen3",
 					"-I./temp/spectra/include",
 					"-D_FILE_OFFSET_BITS=64",
 					"-D__WXMAC__",
@@ -2258,20 +2263,24 @@
 					"-D__WXDEBUG__",
 					"-DDEBUG",
 					"-DEIGEN_NO_DEBUG",
-					"-arch",
-					arm64,
+					"-D__PROJ6__",
 				);
 				OTHER_LDFLAGS = (
 					"-L/usr/lib",
-					"-liconv",
 					"-lpthread",
+					"-lz",
+					"-lcurl",
+					"-liconv",
+					"-lexpat",
+					"-L/opt/homebrew/lib",
+					"-lgdal",
 					./libraries/lib/libjson_spirit.a,
 					"./temp/CLAPACK-3.2.1/blas.a",
 					"./temp/CLAPACK-3.2.1/F2CLIBS/libf2c.a",
 					"./temp/CLAPACK-3.2.1/lapack.a",
-					./libraries/include/boost/stage/lib/libboost_date_time.a,
-					./libraries/include/boost/stage/lib/libboost_thread.a,
-					./libraries/include/boost/stage/lib/libboost_system.a,
+					./temp/boost/stage/lib/libboost_date_time.a,
+					./temp/boost/stage/lib/libboost_thread.a,
+					./temp/boost/stage/lib/libboost_system.a,
 					"-framework",
 					OpenCL,
 					"-framework",
@@ -2308,12 +2317,6 @@
 					"./libraries/lib/libwxregexu-3.1.a",
 					"./libraries/lib/libwxzlib-3.1.a",
 					"./libraries/lib/libwxscintilla-3.1.a",
-					"-L./libraries/lib",
-					"-lcurl",
-					"-lz",
-					"-lexpat",
-					"-L/Users/xun/Downloads/lib",
-					"-lgdal",
 					"-arch",
 					arm64,
 				);
@@ -2334,12 +2337,13 @@
 				CLANG_CXX_LANGUAGE_STANDARD = "c++17";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_OBJC_WEAK = YES;
-				CODE_SIGN_ENTITLEMENTS = GeoDa.entitlements;
+				CODE_SIGN_ENTITLEMENTS = GeoDaRelease.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_ASSET_PATHS = "";
 				DEVELOPMENT_TEAM = 3VRCAMAT4L;
 				ENABLE_HARDENED_RUNTIME = YES;
 				GCC_C_LANGUAGE_STANDARD = "compiler-default";
@@ -2353,17 +2357,21 @@
 					"$(inherited)",
 					"\"$(SRCROOT)/../..\"",
 					"\"$(SRCROOT)/../../ogr/ogrsf_frmts/oci\"",
+					"$(PROJECT_DIR)/Frameworks",
+					/opt/homebrew/Cellar/gdal/3.2.1/lib,
 				);
-				MACOSX_DEPLOYMENT_TARGET = 10.12;
-				MARKETING_VERSION = 1.14;
+				MACOSX_DEPLOYMENT_TARGET = 10.15;
+				MARKETING_VERSION = 1.18;
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_CPLUSPLUSFLAGS = (
 					"$(OTHER_CFLAGS)",
+					"-I/Users/xun/Downloads/include",
 					"-I./libraries/lib/wx/include/osx_cocoa-unicode-static-3.1",
 					"-I./libraries/include/wx-3.1/",
 					"-I./libraries/include/boost",
 					"-I./libraries/include",
 					"-I./libraries/include/eigen3",
+					"-I./temp/spectra/include",
 					"-D_FILE_OFFSET_BITS=64",
 					"-D__WXMAC__",
 					"-D__WXOSX__",
@@ -2372,11 +2380,20 @@
 				);
 				OTHER_LDFLAGS = (
 					"-L/usr/lib",
+					"-lpthread",
+					"-lz",
+					"-lcurl",
 					"-liconv",
-					"-L./libraries/lib",
-					./libraries/include/boost/stage/lib/libboost_date_time.a,
-					./libraries/include/boost/stage/lib/libboost_system.a,
-					./libraries/include/boost/stage/lib/libboost_thread.a,
+					"-lexpat",
+					"-L/opt/homebrew/lib",
+					"-lgdal",
+					./libraries/lib/libjson_spirit.a,
+					"./temp/CLAPACK-3.2.1/blas.a",
+					"./temp/CLAPACK-3.2.1/F2CLIBS/libf2c.a",
+					"./temp/CLAPACK-3.2.1/lapack.a",
+					./temp/boost/stage/lib/libboost_date_time.a,
+					./temp/boost/stage/lib/libboost_thread.a,
+					./temp/boost/stage/lib/libboost_system.a,
 					"-framework",
 					OpenCL,
 					"-framework",
@@ -2393,6 +2410,9 @@
 					OpenGL,
 					"-framework",
 					AGL,
+					"-framework",
+					WebKit,
+					"./libraries/lib/libwx_baseu-3.1.a",
 					"./libraries/lib/libwx_osx_cocoau_xrc-3.1.a",
 					"./libraries/lib/libwx_osx_cocoau_html-3.1.a",
 					"./libraries/lib/libwx_osx_cocoau_qa-3.1.a",
@@ -2401,27 +2421,17 @@
 					"./libraries/lib/libwx_osx_cocoau_webview-3.1.a",
 					"./libraries/lib/libwx_baseu_xml-3.1.a",
 					"./libraries/lib/libwx_baseu_net-3.1.a",
-					"./libraries/lib/libwx_baseu-3.1.a",
 					"./libraries/lib/libwx_osx_cocoau_gl-3.1.a",
 					"./libraries/lib/libwx_osx_cocoau_richtext-3.1.a",
 					"./libraries/lib/libwx_osx_cocoau_aui-3.1.a",
-					"-lwxpng-3.1",
-					"-lwxjpeg-3.1",
-					"-framework",
-					WebKit,
-					"-lexpat",
-					"-lwxregexu-3.1",
-					"-lwxtiff-3.1",
-					"-lz",
-					"-lpthread",
-					"-liconv",
-					"./temp/CLAPACK-3.2.1/blas.a",
-					"./temp/CLAPACK-3.2.1/F2CLIBS/libf2c.a",
-					"./temp/CLAPACK-3.2.1/lapack.a",
-					"-L./libraries/lib",
-					"-lgdal",
-					"-lcurl",
-					./libraries/lib/libjson_spirit.a,
+					"./libraries/lib/libwxtiff-3.1.a",
+					"./libraries/lib/libwxjpeg-3.1.a",
+					"./libraries/lib/libwxpng-3.1.a",
+					"./libraries/lib/libwxregexu-3.1.a",
+					"./libraries/lib/libwxzlib-3.1.a",
+					"./libraries/lib/libwxscintilla-3.1.a",
+					"-arch",
+					arm64,
 				);
 				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = NO;
 				PRODUCT_BUNDLE_IDENTIFIER = edu.uchicago.edu;

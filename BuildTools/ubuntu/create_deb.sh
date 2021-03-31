@@ -13,12 +13,12 @@ fi
 
 # 64-bit platform
 MACHINE_TYPE=`uname -m`
-if [ $MACHINE_TYPE -ne 'x86_64' ]; then
+if [[ $MACHINE_TYPE == 'x86_64' ]]; then
     echo "Machine type should be x86_64"
     exit
 fi
 
-if [ $# -ne 2 ]; then
+if [[ $# -ne 2 ]]; then
     echo "create_deb.sh bionic|disco|xenial 1.18"
     exit
 fi
