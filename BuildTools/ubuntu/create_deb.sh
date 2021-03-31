@@ -13,7 +13,7 @@ fi
 
 # 64-bit platform
 MACHINE_TYPE=`uname -m`
-if [[ $MACHINE_TYPE == 'x86_64' ]]; then
+if [[ $MACHINE_TYPE = 'x86_64' ]]; then
     echo "Machine type should be x86_64"
     exit
 fi
