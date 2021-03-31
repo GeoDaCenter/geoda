@@ -84,11 +84,11 @@ build-geoda:
 	cp $(GEODA_HOME)/../CommonDistFiles/cache.sqlite build/cache.sqlite
 	cp $(GEODA_HOME)/../CommonDistFiles/geoda_prefs.sqlite build/geoda_prefs.sqlite
 	cp $(GEODA_HOME)/../CommonDistFiles/geoda_prefs.json build/geoda_prefs.json
-	#cp -rf $(GEODA_HOME)/../CommonDistFiles/proj/* build/proj
-	#cp -rf $(GEODA_HOME)/../CommonDistFiles/gdaldata/* build/gdaldata
 	cp -rf $(GEODA_HOME)/../CommonDistFiles/web_plugins/* build/web_plugins
 	cp -rf $(GeoDa_ROOT)/internationalization/lang build/
-	cp /usr/share/gdal/*/* build/gdaldata
+	cp $(GEODA_HOME)/libraries/share/gdal/* build/gdaldata
+	cp /usr/share/gdal/2.2/* build/gdaldata
+	cp $(GEODA_HOME)/../CommonDistFiles/proj/* build/proj
 	#cp $(GEODA_HOME)/libraries/lib/libcares.so.2.1.0 build/plugins/libcares.so.2
 
 clean:

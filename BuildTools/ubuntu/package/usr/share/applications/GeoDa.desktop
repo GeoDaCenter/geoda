@@ -1,10 +1,10 @@
 [Desktop Entry]
-Version=1.0
+Version=1.18
 Type=Application
 Name=GeoDa
 GenericName=GeoDa Software
 Comment=GeoDa Software
-Exec=run_geoda.sh
-TryExec=run_geoda.sh
+Exec=GeoDa
+TryExec=GeoDa
 Icon=geoda
 Categories=Education

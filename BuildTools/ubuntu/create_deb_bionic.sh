@@ -34,7 +34,7 @@ MACHINE_TYPE=`uname -m`
 if [ $MACHINE_TYPE == 'x86_64' ]; then
     # 64-bit platform
     rm product/DEBIAN/control
-    mv product/DEBIAN/control1804 product/DEBIAN/control
+    mv product/DEBIAN/control_bionic product/DEBIAN/control
 fi
 
 rm -f *.deb
