@@ -3526,7 +3526,7 @@
                                   <object class="sizeritem">
                                       <object class="wxBoxSizer">
                                           <object class="sizeritem">
-                                              <flag>wxALIGN_RIGHT|wxALIGN_CENTER_VERTICAL|wxALL|wxADJUST_MINSIZE</flag>
+                                              <flag>wxALIGN_RIGHT|wxALIGN_CENTER_VERTICAL|wxALL|wxADJUST_MINSIZE|wxEXPAND</flag>
                                               <border>2</border>
                                               <object class="wxStaticText" name="IDC_STATIC_OOC1">
                                                   <label>Order of contiguity</label>
@@ -3555,7 +3555,7 @@
                                           </object>
                                           <orient>wxHORIZONTAL</orient>
                                       </object>
-                                      <flag>wxALIGN_LEFT|wxALIGN_CENTRE_VERTICAL</flag>
+                                      <flag>wxALIGN_LEFT|wxALIGN_CENTRE_VERTICAL|wxEXPAND</flag>
                                   </object>
                                   <object class="sizeritem">
                                       <object class="wxRadioButton" name="IDC_RADIO_ROOK">
@@ -3567,7 +3567,7 @@
                                       <object class="wxCheckBox" name="IDC_CHECK1">
                                           <label>Include lower orders</label>
                                       </object>
-                                      <flag>wxALIGN_LEFT|wxALIGN_CENTRE_VERTICAL</flag>
+                                      <flag>wxALIGN_LEFT|wxALIGN_CENTRE_VERTICAL|wxEXPAND</flag>
                                   </object>
                                   <object class="sizeritem">
                                       <object class="wxCheckBox" name="IDC_PRECISION_CBX">
@@ -3581,12 +3581,13 @@
                                           <value>0</value>
                                           <style>wxTE_RIGHT</style>
                                       </object>
-                                      <flag>wxALIGN_LEFT|wxALIGN_CENTRE_VERTICAL</flag>
+                                      <flag>wxALIGN_LEFT|wxALIGN_CENTRE_VERTICAL|wxEXPAND</flag>
                                   </object>
                                   <cols>2</cols>
                                   <rows>3</rows>
                                   <vgap>10</vgap>
                                   <hgap>40</hgap>
+                                  <flag>wxALIGN_CENTRE_HORIZONTAL|wxALL|wxEXPAND</flag>
                               </object>
                               <flag>wxALIGN_CENTRE_HORIZONTAL|wxALL|wxEXPAND</flag>
                               <border>15</border>
@@ -4174,7 +4175,7 @@
                   <label>Distance Weight</label>
                   <flag>wxALL|wxEXPAND</flag>
               </object>
-              <size>500,540</size>
+              
               <flag>wxALL|wxEXPAND</flag>
           </object>
           <flag>wxALL|wxEXPAND|wxALIGN_CENTRE_HORIZONTAL</flag>

@@ -931,30 +931,30 @@ void CreatingWeightDlg::InitDlg()
     m_spinn_kernel->SetValue(n_kernel_nbrs);
     m_kernel_neighbors->SetValue(wxString::Format("%d", n_kernel_nbrs));
     m_kernel_methods->Clear();
-    m_kernel_methods->Append("Uniform");
-    m_kernel_methods->Append("Triangular");
-    m_kernel_methods->Append("Epanechnikov");
-    m_kernel_methods->Append("Quartic");
-    m_kernel_methods->Append("Gaussian");
+    m_kernel_methods->Append(_("Uniform"));
+    m_kernel_methods->Append(_("Triangular"));
+    m_kernel_methods->Append(_("Epanechnikov"));
+    m_kernel_methods->Append(_("Quartic"));
+    m_kernel_methods->Append(_("Gaussian"));
     m_kernel_methods->SetSelection(0);
 
 	m_dist_choice->Clear();
-	m_dist_choice->Append("Euclidean Distance");
-	m_dist_choice->Append("Arc Distance (mi)");
-	m_dist_choice->Append("Arc Distance (km)");
+	m_dist_choice->Append(_("Euclidean Distance"));
+	m_dist_choice->Append(_("Arc Distance (mi)"));
+	m_dist_choice->Append(_("Arc Distance (km)"));
 	m_dist_choice->SetSelection(0);
     
     m_dist_choice_vars->Clear();
     m_dist_choice_vars->Append("");
-    m_dist_choice_vars->Append("Manhattan Distance");
-    m_dist_choice_vars->Append("Euclidean Distance");
+    m_dist_choice_vars->Append(_("Manhattan Distance"));
+    m_dist_choice_vars->Append(_("Euclidean Distance"));
     m_dist_choice_vars->SetSelection(2);
 
     m_trans_choice_vars->Clear();
-    m_trans_choice_vars->Append("Raw");
-    m_trans_choice_vars->Append("Demean");
-    m_trans_choice_vars->Append("Standardize (Z)");
-    m_trans_choice_vars->Append("Standardize (MAD)");
+    m_trans_choice_vars->Append(_("Raw"));
+    m_trans_choice_vars->Append(_("Demean"));
+    m_trans_choice_vars->Append(_("Standardize (Z)"));
+    m_trans_choice_vars->Append(_("Standardize (MAD)"));
     m_trans_choice_vars->SetSelection(2);
     
     m_radio_queen->SetValue(true);

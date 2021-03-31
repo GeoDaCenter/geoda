@@ -29,12 +29,10 @@
 #include <iomanip>
 #include <stdlib.h>
 
-
-#include <boost/thread.hpp>
-#include <boost/bind.hpp>
 #include <boost/foreach.hpp>
 
 #include "ogrsf_frmts.h"
+#include "ogr_core.h"
 #include "cpl_conv.h"
 
 #include <wx/utils.h>
@@ -225,7 +223,46 @@ bool GdaApp::OnInit(void)
 {
 	if (!wxApp::OnInit())
         return false;
-    
+
+    // setup gdaldata directory for libprj
+    wxString exePath = wxStandardPaths::Get().GetExecutablePath();
+    wxFileName exeFile(exePath);
+    wxString exeDir = exeFile.GetPathWithSep();
+    // Set GEODA_GDAL_DATA 
+#ifdef __WIN32__
+    wxString gal_data_dir = exeDir + "data";
+    wxSetEnv("GDAL_DATA", gal_data_dir);
+    CPLSetConfigOption("GDAL_DATA", GET_ENCODED_FILENAME(gal_data_dir));
+    CPLSetConfigOption("OGR_DRIVER_PATH", GET_ENCODED_FILENAME(exeDir));
+    wxString proj6_db_dir = exeDir + "proj";
+    CPLSetConfigOption("PROJ_LIB", GET_ENCODED_FILENAME(proj6_db_dir));
+    wxSetEnv("PROJ_LIB", proj6_db_dir);
+    const char* proj_path = proj6_db_dir.mb_str();
+    const char* const apsz_proj_paths[] = { proj_path, nullptr };
+    OSRSetPROJSearchPaths(apsz_proj_paths);
+#elif defined __linux__
+    wxString gal_data_dir = exeDir + "gdaldata";
+    wxString ogr_driver_dir = exeDir + "plugins";
+    wxSetEnv("GDAL_DATA", gal_data_dir);
+    CPLSetConfigOption("GDAL_DATA", GET_ENCODED_FILENAME(gal_data_dir));
+    CPLSetConfigOption("OGR_DRIVER_PATH", GET_ENCODED_FILENAME(ogr_driver_dir));
+    wxString proj6_db_dir = exeDir + "proj";
+    const char* proj_path = proj6_db_dir.mb_str();
+    const char* const apsz_proj_paths[] = { proj_path, nullptr };
+#ifdef __PROJ6__
+    OSRSetPROJSearchPaths(apsz_proj_paths);
+#endif
+#else
+    wxString gal_data_dir = exeDir + "../Resources/gdaldata";
+    wxString ogr_driver_dir = exeDir + "../Resources/plugins";
+    CPLSetConfigOption("GDAL_DATA", GET_ENCODED_FILENAME(gal_data_dir));
+    CPLSetConfigOption("OGR_DRIVER_PATH", GET_ENCODED_FILENAME(ogr_driver_dir));
+    wxString proj6_db_dir = exeDir + "../Resources/proj";
+    const char* proj_path = proj6_db_dir.mb_str();
+    const char* const apsz_proj_paths[] = { proj_path, nullptr };
+    OSRSetPROJSearchPaths(apsz_proj_paths);
+#endif
+
     // initialize OGR connection
 	OGRDataAdapter::GetInstance();
 #ifdef __WIN32__
@@ -247,7 +284,7 @@ bool GdaApp::OnInit(void)
     m_TranslationHelper->SetConfigPath(config_path);
     m_TranslationHelper->Load();
     // forcing numeric settings to en_US, which is used internally in GeoDa
-    setlocale(LC_NUMERIC, "en_US");
+    //setlocale(LC_NUMERIC, "en_US");
 
     // Other GDAL configurations
     if (GdaConst::hide_sys_table_postgres == false) {
@@ -363,25 +400,6 @@ bool GdaApp::OnInit(void)
 
     wxPoint welcome_pos = appFramePos;
     welcome_pos.y += 150;
-    
-    // setup gdaldata directory for libprj
-    wxString exePath = wxStandardPaths::Get().GetExecutablePath();
-    wxFileName exeFile(exePath);
-    wxString exeDir = exeFile.GetPathWithSep();
-	// Set GEODA_GDAL_DATA 
-#ifdef __WIN32__
-	wxString gal_data_dir = exeDir + "data";
-	wxSetEnv("GEODA_GDAL_DATA", gal_data_dir);
-    //CPLSetConfigOption("GEODA_GDAL_DATA", GET_ENCODED_FILENAME(gal_data_dir));
-#elif defined __linux__
-	wxString gal_data_dir = exeDir + "gdaldata";
-	wxSetEnv("GEODA_GDAL_DATA", gal_data_dir);
-    CPLSetConfigOption("GEODA_GDAL_DATA", GET_ENCODED_FILENAME(gal_data_dir));
-#else
-	wxString gal_data_dir = exeDir + "../Resources/gdaldata";
-	wxSetEnv("GEODA_GDAL_DATA", gal_data_dir);
-    CPLSetConfigOption("GEODA_GDAL_DATA", GET_ENCODED_FILENAME(gal_data_dir));
-#endif
    
     // Setup new Logger after crash check
     wxString loggerFile = GenUtils::GetSamplesDir() +"logger.txt";

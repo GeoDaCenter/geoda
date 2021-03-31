@@ -1,0 +1,148 @@
+# This is a basic workflow to help you get started with Actions
+
+name: Mac OSX builds
+
+# Controls when the action will run. 
+on:
+  # Triggers the workflow on push or pull request events but only for the master branch
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # This workflow contains a single job called "build"
+  osx_build:
+    # The type of runner that the job will run on
+    runs-on: macos-latest
+    if: "!contains(github.event.head_commit.message, '[ci skip]') && !contains(github.event.head_commit.message, '[skip ci]')"
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v2
+
+      # Prepare
+      - name: Prepare
+        run: |
+          pwd
+          mkdir o
+          cd BuildTools
+          cd macosx
+          mkdir temp
+          mkdir libraries
+          cd libraries
+          mkdir include
+          mkdir lib
+
+      # Install boost 1.75
+      - name: Install Boost
+        run: brew install boost@1.75
+
+      # Build JSON Spirit v4.08
+      - name: Build JSON Spirit v4.08
+        run: |
+          pwd
+          cd BuildTools
+          cd macosx
+          cd temp
+          curl -L -O https://github.com/GeoDaCenter/software/releases/download/v2000/json_spirit_v4.08.zip
+          unzip json_spirit_v4.08.zip
+          cd json_spirit_v4.08
+          cp ../../dep/json_spirit/CMakeLists.txt .
+          mkdir bld
+          cd bld
+          LDFLAGS="-arch x86_64" cmake ..
+          make -j2
+          cp -R ../json_spirit ../../../libraries/include/.
+          cp json_spirit/libjson_spirit.a ../../../libraries/lib/.
+
+      # Build CLAPACK
+      - name: Build CLAPACK 3.2.1
+        run: |
+          pwd
+          cd BuildTools
+          cd macosx
+          export GEODA_HOME=$PWD
+          cd temp
+          curl -L -O https://github.com/GeoDaCenter/software/releases/download/v2000/clapack.tgz
+          tar -xf clapack.tgz
+          cp -rf ../dep/CLAPACK-3.2.1 .
+          cd CLAPACK-3.2.1
+          make -j2 f2clib
+          make -j2 blaslib
+          cd INSTALL
+          make -j2
+          cd ..
+          cd SRC
+          make -j2
+          cd ..
+          cp F2CLIBS/libf2c.a .
+          cd ..
+
+      # Build Eigen3 and Spectra
+      - name: Build Eigen3 and Spectra V0.8.0
+        run: |
+          pwd
+          cd BuildTools
+          cd macosx
+          cd temp
+          curl -L -O https://github.com/GeoDaCenter/software/releases/download/v2000/eigen3.zip
+          unzip eigen3.zip
+          curl -L -O https://github.com/yixuan/spectra/archive/refs/tags/v0.8.0.zip
+          unzip v0.8.0.zip
+          mv spectra-0.8.0 spectra
+          ls
+
+      # Build wxWidgets 3.1.4
+      - name: Build wxWidgets 3.1.4
+        run: |
+          pwd
+          cd BuildTools
+          cd macosx
+          export GEODA_HOME=$PWD
+          cd temp
+          curl -L -O https://github.com/wxWidgets/wxWidgets/releases/download/v3.1.4/wxWidgets-3.1.4.tar.bz2
+          tar -xf wxWidgets-3.1.4.tar.bz2
+          cd wxWidgets-3.1.4
+          ./configure --with-cocoa --with-opengl --enable-postscript --enable-textfile --without-liblzma --enable-webview --enable-cxx11 --enable-webview --disable-mediactrl --enable-webviewwebkit --enable-monolithic --prefix=$GEODA_HOME/libraries
+          make -j2
+          make install
+          
+      # Install libgdal-dev
+      - name: Install libgdal-dev
+        run: brew install gdal
+
+      # Build GeoDa
+      - name: Build GeoDa
+        run: |
+          cp GeoDamake.macosx.opt GeoDamake.opt
+          cd BuildTools
+          cd macosx
+          export GEODA_HOME=$PWD
+          make -j2
+          make app
+      
+      # Create Dmg
+      - name: Create DMG
+        run: |
+          cd BuildTools
+          cd macosx
+          cd create-dmg
+          ./geoda.sh 1.18.2
+
+      # Upload artifact
+      - uses: actions/upload-artifact@v2
+        with:
+          name: GeoDa-1.18.2-MacOS
+          path: ${{ github.workspace }}/BuildTools/macosx/create-dmg/GeoDa1.18.2-Installer.dmg
+
+
+
+
+

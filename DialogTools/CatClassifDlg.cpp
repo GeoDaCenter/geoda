@@ -860,7 +860,7 @@ has_custom_color(false)
 	for (int i=0, iend=brk_lbl_srt_vec.size(); i<iend; i++) {
 		brk_lbl[i] = (wxStaticText*) brk_lbl_srt_vec[i].second;
 		wxString s;
-		s << "break " << i+1 << ":";
+		s << _("break ") << i+1 << ":";
 		brk_lbl[i]->SetLabelText(s);
 	}
 	

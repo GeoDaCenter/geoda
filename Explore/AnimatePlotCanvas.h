@@ -85,7 +85,7 @@ public:
     
 	void ShowAxes(bool display);
 	void ShowRegimes(bool display);
-	bool IsShowAxes() { return show_axes; }
+	bool IsShowAxes() { return style & show_axes; }
     void UpdateCanvas(int idx, const std::vector<std::vector<double> >& tsne_results);
     void CreateAndUpdateCategories(const std::vector<std::vector<int> >& groups);
 

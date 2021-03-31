@@ -72,7 +72,7 @@ void MDSDlg::CreateControls()
 
     // method
     wxStaticText* st12 = new wxStaticText(panel, wxID_ANY, _("Method:"));
-    const wxString _methods[2] = {"classic metric", "smacof"};
+    const wxString _methods[2] = {_("classic metric"), _("smacof")};
     combo_method = new wxChoice(panel, wxID_ANY, wxDefaultPosition,
                                 wxSize(120,-1), 2, _methods);
 	combo_method->SetSelection(0);
@@ -110,7 +110,7 @@ void MDSDlg::CreateControls()
     gbox->Add(m_eps, 1, wxEXPAND);
 
     wxStaticText* st13 = new wxStaticText(panel, wxID_ANY, _("Distance Function:"));
-    wxString choices13[] = {"Euclidean", "Manhattan"};
+    wxString choices13[] = {_("Euclidean"), _("Manhattan")};
     m_distance = new wxChoice(panel, wxID_ANY, wxDefaultPosition, wxSize(200,-1), 2, choices13);
     m_distance->SetSelection(0);
     gbox->Add(st13, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);

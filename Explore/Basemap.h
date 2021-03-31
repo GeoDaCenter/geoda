@@ -235,7 +235,13 @@ namespace Gda {
                     east = _e;
                     south = _s;
                 }
-                poCT_rev = OGRCreateCoordinateTransformation(poCT->GetTargetCS(), poCT->GetSourceCS());
+                OGRSpatialReference* s1 = poCT->GetTargetCS();
+                OGRSpatialReference* s2 = poCT->GetSourceCS();
+#ifdef __PROJ6__
+                s1->SetAxisMappingStrategy(OAMS_TRADITIONAL_GIS_ORDER);
+                s2->SetAxisMappingStrategy(OAMS_TRADITIONAL_GIS_ORDER);
+#endif
+                poCT_rev = OGRCreateCoordinateTransformation(s1, s2);
             }
         }
         MapLayer(LatLng& nw, LatLng& se){
@@ -321,10 +327,22 @@ namespace Gda {
             poCT_rev = NULL;
             if (other) {
                 if (other->poCT) {
-                    poCT = OGRCreateCoordinateTransformation(other->poCT->GetSourceCS(), other->poCT->GetTargetCS());
+                    OGRSpatialReference* s1 = other->poCT->GetSourceCS();
+                    OGRSpatialReference* s2 = other->poCT->GetTargetCS();
+#ifdef __PROJ6__
+                    s1->SetAxisMappingStrategy(OAMS_TRADITIONAL_GIS_ORDER);
+                    s2->SetAxisMappingStrategy(OAMS_TRADITIONAL_GIS_ORDER);
+#endif
+                    poCT = OGRCreateCoordinateTransformation(s1, s2);
                 }
                 if (other->poCT_rev) {
-                    poCT_rev = OGRCreateCoordinateTransformation(other->poCT_rev->GetSourceCS(), other->poCT_rev->GetTargetCS());
+                    OGRSpatialReference* s1 = other->poCT_rev->GetSourceCS();
+                    OGRSpatialReference* s2 = other->poCT_rev->GetTargetCS();
+#ifdef __PROJ6__
+                    s1->SetAxisMappingStrategy(OAMS_TRADITIONAL_GIS_ORDER);
+                    s2->SetAxisMappingStrategy(OAMS_TRADITIONAL_GIS_ORDER);
+#endif
+                    poCT_rev = OGRCreateCoordinateTransformation(s1, s2);
                 }
             }
             return this;

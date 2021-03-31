@@ -2,14 +2,27 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>NSPrincipalClass</key>
-	<string>NSApplication</string>
 	<key>BuildMachineOSBuild</key>
 	<string>10K549</string>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>English</string>
-	<key>CFBundleName</key>
-	<string>GeoDa</string>
+	<key>CFBundleDocumentTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleTypeExtensions</key>
+			<array>
+				<string>gda</string>
+			</array>
+			<key>CFBundleTypeIconFile</key>
+			<string>GeoDa</string>
+			<key>CFBundleTypeName</key>
+			<string>GeoDa project file</string>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>LSHandlerRank</key>
+			<string>Owner</string>
+		</dict>
+	</array>
 	<key>CFBundleExecutable</key>
 	<string>GeoDa</string>
 	<key>CFBundleIconFile</key>
@@ -18,13 +31,15 @@
 	<string>edu.uchicago.spatial</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
+	<key>CFBundleName</key>
+	<string>GeoDa</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
+	<key>CFBundleShortVersionString</key>
+	<string>1.18</string>
 	<key>CFBundleSignature</key>
 	<string>io.gitub.geodacenter</string>
 	<key>CFBundleVersion</key>
-	<string>1.18</string>
-	<key>CFBundleShortVersionString</key>
 	<string>1.18</string>
 	<key>DTCompiler</key>
 	<string>4.2</string>
@@ -40,26 +55,13 @@
 	<string>0400</string>
 	<key>DTXcodeBuild</key>
 	<string>10M2518</string>
-	<key>CFBundleDocumentTypes</key>
-	<array>
-	  <dict>
-	    <key>CFBundleTypeExtensions</key>
-	    <array>
-	      <string>gda</string>
-	    </array>
-	    <key>CFBundleTypeIconFile</key>
-            <string>GeoDa</string>
-            <key>CFBundleTypeName</key>
-            <string>GeoDa project file</string>
-            <key>CFBundleTypeRole</key>
-            <string>Editor</string>
-	    <key>LSHandlerRank</key>
-	    <string>Owner</string>
-	  </dict>
-	</array>
+	<key>LSApplicationCategoryType</key>
+	<string>public.app-category.education</string>
 	<key>NSAppleScriptEnabled</key>
 	<string>YES</string>
 	<key>NSDownloadsFolderUsageDescription</key>
 	<string>GeoDa requires permission to access the Downloads folder.</string>
+	<key>NSPrincipalClass</key>
+	<string>NSApplication</string>
 </dict>
 </plist>

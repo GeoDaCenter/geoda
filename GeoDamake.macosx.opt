@@ -2,9 +2,9 @@ GeoDa_ROOT	=	$(GEODA_HOME)/../..
 
 TARGET      = GeoDa
 
-CC	=	gcc -Os
-CXX     =	g++ -Os -arch x86_64
-LD	=	g++ -arch x86_64
+CC	=	gcc
+CXX     =	g++
+LD	=	g++ 
 RM	=	/bin/rm -f
 
 WXLIBS  = $(shell $(GEODA_HOME)/libraries/bin/wx-config --libs xrc,stc,richtext,ribbon,propgrid,aui,gl,html,qa,adv,core,webview,xml,net,base)
@@ -14,21 +14,22 @@ LIBS	=	$(WXLIBS) \
             $(GEODA_HOME)/temp/CLAPACK-3.2.1/blas.a \
             $(GEODA_HOME)/temp/CLAPACK-3.2.1/F2CLIBS/libf2c.a \
             $(GEODA_HOME)/temp/CLAPACK-3.2.1/lapack.a \
-            -L/usr/lib -liconv -framework opencl \
-            -L$(GEODA_HOME)/libraries/lib -lgdal -lcurl \
-            $(GEODA_HOME)/libraries/include/boost/stage/lib/libboost_date_time.a \
-            $(GEODA_HOME)/libraries/include/boost/stage/lib/libboost_thread.a \
-            $(GEODA_HOME)/libraries/include/boost/stage/lib/libboost_system.a \
-	    $(GEODA_HOME)/libraries/lib/libjson_spirit.a
+            -L/usr/lib -liconv -lcurl -lz -lpthread \
+			-framework OpenCL \
+            -L/usr/local/opt/gdal/lib -lgdal \
+            /usr/local/opt/boost/lib/libboost_date_time-mt.a \
+            /usr/local/opt/boost/lib/libboost_thread-mt.a \
+            /usr/local/opt/boost/lib/libboost_system-mt.a \
+	    	$(GEODA_HOME)/libraries/lib/libjson_spirit.a
 
+USER_DEFS = -I$(GEODA_HOME)/libraries/include
+BOOST_HEADER = -I/usr/local/opt/boost/include
+GDAL_HEADER = -I/usr/loca/opt/gdal/include -D__PROJ6__
+EIGEN_HEADER = -I$(GEODA_HOME)/temp/eigen3 -I$(GEODA_HOME)/temp/spectra/include
 
-BOOST_HEADER = -I$(GEODA_HOME)/libraries/include/boost 
-GDAL_HEADER = -I$(GEODA_HOME)/libraries/include
-EIGEN_HEADER = -I$(GEODA_HOME)/libraries/include/eigen3 -I$(GEODA_HOME)/temp/spectra/include
-
-CPPFLAGS	=  -I$(GeoDa_ROOT) $(USER_LOG)
-CFLAGS		=  -std=gnu99 -Os -arch x86_64  -Wall -Wdeclaration-after-statement $(USER_DEFS) $(GDAL_HEADER) $(EIGEN_HEADER)
-CXXFLAGS	=  -Os -arch x86_64  -Wall $(USER_DEFS) $(WX_HEADER) $(BOOST_HEADER) $(GDAL_HEADER) $(EIGEN_HEADER)
+CPPFLAGS	=  -std=c++14 -I$(GeoDa_ROOT) $(USER_LOG)
+CFLAGS		=  -std=gnu99 -O3 -Wall -Wdeclaration-after-statement $(USER_DEFS) $(GDAL_HEADER) $(EIGEN_HEADER)
+CXXFLAGS	=  -std=c++14 -O3 -Wall $(USER_DEFS) $(WX_HEADER) $(BOOST_HEADER) $(GDAL_HEADER) $(EIGEN_HEADER)
 LDFLAGS     = -arch x86_64
 
 OBJ_EXT     = o
@@ -46,13 +47,13 @@ O_OBJ =	$(foreach file,$(OBJ),../o/$(file))
 T_OBJ =	$(foreach file,$(OBJ),o/$(file))
 
 ../o/%.$(OBJ_EXT):	%.c
-	$(CC) $(CFLAGS) $(CPPFLAGS) -c -o $@ $<
+	$(CC) $(CFLAGS) -c -o $@ $<
 
 ../o/%.$(OBJ_EXT):	%.cpp
 	$(CXX) $(CXXFLAGS) $(CPPFLAGS) -c -o $@ $<
 
 o/%.$(OBJ_EXT):	%.c
-	$(CC) $(CFLAGS) $(CPPFLAGS) -c -o $@ $<
+	$(CC) $(CFLAGS) -c -o $@ $<
 
 o/%.$(OBJ_EXT):	%.cpp
 	$(CXX) $(CXXFLAGS) $(CPPFLAGS) -c -o $@ $<
