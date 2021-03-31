@@ -74,7 +74,7 @@ build-geoda:
 	mkdir build/lang
 	$(LD) $(LDFLAGS) $(GeoDa_OBJ) $(LIBS) -o build/GeoDa
 	#cp run.sh build/run.sh
-	chmod +x build/run.sh
+	#chmod +x build/run.sh
 	cp -rf $(GeoDa_ROOT)/internationalization/lang/* build/lang
 	cp $(GeoDa_ROOT)/rc/data_viewer_dialogs.xrc build/Resources
 	cp $(GeoDa_ROOT)/rc/dialogs.xrc build/Resources
@@ -86,9 +86,8 @@ build-geoda:
 	cp $(GEODA_HOME)/../CommonDistFiles/geoda_prefs.json build/geoda_prefs.json
 	cp -rf $(GEODA_HOME)/../CommonDistFiles/web_plugins/* build/web_plugins
 	cp -rf $(GeoDa_ROOT)/internationalization/lang build/
-	cp $(GEODA_HOME)/libraries/share/gdal/* build/gdaldata
+	cp /usr/share/proj/* build/proj
 	cp /usr/share/gdal/2.2/* build/gdaldata
-	cp $(GEODA_HOME)/../CommonDistFiles/proj/* build/proj
 	#cp $(GEODA_HOME)/libraries/lib/libcares.so.2.1.0 build/plugins/libcares.so.2
 
 clean:

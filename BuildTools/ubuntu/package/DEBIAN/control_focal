@@ -1,10 +1,10 @@
 Package: geoda
-Version: 1.18-1bionic1
+Version: 1.18-1focal1
 Architecture: amd64
 Priority: optional
 Section: graphics
 Installed-Size: 121795
-Depends: libgdal20, zlib1g, libexpat1, freeglut3, libreadline7, libgtk-3-0, libssl1.0.0, libwebkitgtk-3.0-0
+Depends: libgdal26, zlib1g, libexpat1, freeglut3, libreadline8, libgtk-3-0, libssl1.1, libwebkit2gtk-4.0-37
 Maintainer: Luc Anselin < anselin@uchicago.edu >
 Provides: geoda
 Homepage: http://spatial.uchicago.edu

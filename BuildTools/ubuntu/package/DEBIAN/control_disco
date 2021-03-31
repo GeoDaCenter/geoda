@@ -4,7 +4,7 @@ Architecture: amd64
 Priority: optional
 Section: graphics
 Installed-Size: 121795
-Depends: libgdal, zlib1g, libexpat1, freeglut3, libreadline8, libgtk-3-0, libssl1.1, libwebkit2gtk-4.0-37
+Depends: libgdal26, zlib1g, libexpat1, freeglut3, libreadline8, libgtk-3-0, libssl1.1, libwebkit2gtk-4.0-37
 Maintainer: Luc Anselin < anselin@uchicago.edu >
 Provides: geoda
 Homepage: http://spatial.uchicago.edu

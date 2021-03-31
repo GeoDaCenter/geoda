@@ -24,7 +24,7 @@ if [ $# -ne 2 ]; then
 fi
 
 rm -rf product
-cp -rf package_$1 product
+cp -rf package product
 
 chmod +x product/DEBIAN/postinst
 mkdir product/usr/local
