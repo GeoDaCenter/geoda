@@ -76,7 +76,7 @@ build-geoda-mac:
 	cp $(GeoDa_ROOT)/BuildTools/CommonDistFiles/web_plugins/*.* build/GeoDa.app/Contents/Resources/
 	cp $(GeoDa_ROOT)/BuildTools/CommonDistFiles/cache.sqlite build/GeoDa.app/Contents/MacOS
 	cp $(GeoDa_ROOT)/Algorithms/lisa_kernel.cl build/GeoDa.app/Contents/MacOS
-	cp -rf $(GeoDa_ROOT)/BuildTools/CommonDistFiles/proj build/GeoDa.app/Contents/Resources
+	cp -rf $(GeoDa_ROOT)/BuildTools/CommonDistFiles/osx/proj build/GeoDa.app/Contents/Resources
 	cp -rf $(GeoDa_ROOT)/internationalization/lang build/GeoDa.app/Contents/MacOS
 	$(LD) $(LDFLAGS) $(GeoDa_OBJ) $(LIBS) -o build/GeoDa.app/Contents/MacOS/GeoDa
 	cp run.sh build/GeoDa.app/Contents/MacOS/run.sh
