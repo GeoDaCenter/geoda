@@ -14,7 +14,6 @@ LIBS = $(WXLIBS) \
         $(GEODA_HOME)/temp/CLAPACK-3.2.1/lapack.a \
         $(GEODA_HOME)/temp/CLAPACK-3.2.1/libf2c.a \
         $(GEODA_HOME)/temp/CLAPACK-3.2.1/blas.a \
-        $(GEODA_HOME)/temp/CLAPACK-3.2.1/tmglib.a \
         $(GEODA_HOME)/libraries/include/boost/stage/lib/libboost_date_time.a \
         $(GEODA_HOME)/libraries/include/boost/stage/lib/libboost_thread.a \
         $(GEODA_HOME)/libraries/include/boost/stage/lib/libboost_system.a \
