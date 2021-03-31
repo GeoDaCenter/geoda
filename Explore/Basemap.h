@@ -237,8 +237,10 @@ namespace Gda {
                 }
                 OGRSpatialReference* s1 = poCT->GetTargetCS();
                 OGRSpatialReference* s2 = poCT->GetSourceCS();
+#ifdef __PROJ6__
                 s1->SetAxisMappingStrategy(OAMS_TRADITIONAL_GIS_ORDER);
                 s2->SetAxisMappingStrategy(OAMS_TRADITIONAL_GIS_ORDER);
+#endif
                 poCT_rev = OGRCreateCoordinateTransformation(s1, s2);
             }
         }
@@ -327,15 +329,19 @@ namespace Gda {
                 if (other->poCT) {
                     OGRSpatialReference* s1 = other->poCT->GetSourceCS();
                     OGRSpatialReference* s2 = other->poCT->GetTargetCS();
+#ifdef __PROJ6__
                     s1->SetAxisMappingStrategy(OAMS_TRADITIONAL_GIS_ORDER);
                     s2->SetAxisMappingStrategy(OAMS_TRADITIONAL_GIS_ORDER);
+#endif
                     poCT = OGRCreateCoordinateTransformation(s1, s2);
                 }
                 if (other->poCT_rev) {
                     OGRSpatialReference* s1 = other->poCT_rev->GetSourceCS();
                     OGRSpatialReference* s2 = other->poCT_rev->GetTargetCS();
+#ifdef __PROJ6__
                     s1->SetAxisMappingStrategy(OAMS_TRADITIONAL_GIS_ORDER);
                     s2->SetAxisMappingStrategy(OAMS_TRADITIONAL_GIS_ORDER);
+#endif
                     poCT_rev = OGRCreateCoordinateTransformation(s1, s2);
                 }
             }

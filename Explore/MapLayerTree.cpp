@@ -605,12 +605,14 @@ void MapTree::OnZoomToSelected(wxCommandEvent& event)
         // re projection if needed
         OGRSpatialReference* destSR = canvas->GetSpatialReference();
         OGRSpatialReference* sourceSR = ml->GetSpatialReference();
+#ifdef __PROJ6__
         if (sourceSR) {
             sourceSR->SetAxisMappingStrategy(OAMS_TRADITIONAL_GIS_ORDER);
         }
         if (destSR) {
             destSR->SetAxisMappingStrategy(OAMS_TRADITIONAL_GIS_ORDER);
         }
+#endif
         OGRCoordinateTransformation *poCT = OGRCreateCoordinateTransformation(sourceSR, destSR);
         if (poCT!= NULL) {
             //poCT->Transform(1, &minx, &miny);

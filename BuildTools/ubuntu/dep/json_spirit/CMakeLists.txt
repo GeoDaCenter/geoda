@@ -1,7 +1,7 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 
 #add_definitions(-DJSON_SPIRIT_VALUE_ENABLED)
-SET(CMAKE_INCLUDE_PATH ${CMAKE_INCLUDE_PATH} ${CMAKE_SOURCE_DIR}/../../libraries/include/boost)
+SET(CMAKE_INCLUDE_PATH ${CMAKE_INCLUDE_PATH} ${CMAKE_SOURCE_DIR}/../../temp/boost/include)
 
 PROJECT(json_spirit)
 SUBDIRS(json_spirit json_demo json_headers_only_demo json_map_demo json_test)

@@ -655,8 +655,10 @@ void MergeTableDlg::OuterJoinMerge()
             if (spatial_ref !=NULL && in_spatial_ref != NULL) {
                 if (!spatial_ref->IsSame(in_spatial_ref) ) {
                     // convert geometry with original projection if needed
+#ifdef __PROJ6__
                     in_spatial_ref->SetAxisMappingStrategy(OAMS_TRADITIONAL_GIS_ORDER);
                     spatial_ref->SetAxisMappingStrategy(OAMS_TRADITIONAL_GIS_ORDER);
+#endif
                     poCT = OGRCreateCoordinateTransformation(in_spatial_ref,
                                                              spatial_ref);
                     merge_layer_proxy->ApplyProjection(poCT);

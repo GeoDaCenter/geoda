@@ -604,8 +604,10 @@ ExportDataDlg::CreateOGRLayer(wxString& ds_name, bool is_table,
             if (spatial_ref && spatial_ref->IsSame(&new_ref) == false) {
                 // transform geometries from old CRS to new CRS
                 OGRCoordinateTransformation *poCT;
+#ifdef __PROJ6__
                 spatial_ref->SetAxisMappingStrategy(OAMS_TRADITIONAL_GIS_ORDER);
                 new_ref.SetAxisMappingStrategy(OAMS_TRADITIONAL_GIS_ORDER);
+#endif
                 poCT = OGRCreateCoordinateTransformation(spatial_ref, &new_ref);
                 for (size_t i=0; i < ogr_geometries.size(); i++) {
                     ogr_geometries[i]->transform(poCT);

@@ -243,13 +243,15 @@ bool GdaApp::OnInit(void)
 #elif defined __linux__
     wxString gal_data_dir = exeDir + "gdaldata";
     wxString ogr_driver_dir = exeDir + "plugins";
-    //wxSetEnv("GEODA_GDAL_DATA", gal_data_dir);
+    wxSetEnv("GDAL_DATA", gal_data_dir);
     CPLSetConfigOption("GDAL_DATA", GET_ENCODED_FILENAME(gal_data_dir));
     CPLSetConfigOption("OGR_DRIVER_PATH", GET_ENCODED_FILENAME(ogr_driver_dir));
     wxString proj6_db_dir = exeDir + "proj";
     const char* proj_path = proj6_db_dir.mb_str();
     const char* const apsz_proj_paths[] = { proj_path, nullptr };
+#ifdef __PROJ6__
     OSRSetPROJSearchPaths(apsz_proj_paths);
+#endif
 #else
     wxString gal_data_dir = exeDir + "../Resources/gdaldata";
     wxString ogr_driver_dir = exeDir + "../Resources/plugins";
