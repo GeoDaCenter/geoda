@@ -4,8 +4,8 @@
 # stops the execution of a script if a command or pipeline has an error
 set -e
 
-OS=$1
-VER=$2
+OS=$OS
+VER=$VER
 CPUS=2
 DEBUG=0
 

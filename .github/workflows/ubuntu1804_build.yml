@@ -29,12 +29,8 @@ jobs:
 
       # Build GeoDa
       - name: Build GeoDa
-        run: |
-          cd BuildTools
-          cd ubuntu
-          export GEODA_HOME=$PWD
-          chmod +x install.sh
-          ./install.sh bionic 1.18.2
+        run: docker run --privileged=true -e CI -e WORK_DIR="$PWD" -e OS="bionic" -e VER="1.18.2" -v $PWD:$PWD -v /var/run/docker.sock:/var/run/docker.sock ubuntu:18.04 $PWD/BuildTools/ubuntu/install.sh
+
       
       # Upload artifact
       - uses: actions/upload-artifact@v2
