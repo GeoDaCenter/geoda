@@ -23,6 +23,7 @@
 #include <boost/uuid/uuid.hpp>
 #include <wx/wx.h>
 #include <wx/xrc/xmlres.h>
+#include <wx/settings.h>
 #include <wx/msgdlg.h>
 #include <wx/sizer.h>
 #include <wx/filedlg.h>
@@ -191,8 +192,9 @@ void VarGroupingEditorDlg::CreateControls()
     include_list->Bind(wxEVT_RIGHT_UP, &VarGroupingEditorDlg::OnIncludeListRightUp, this);
     include_list->Bind(wxEVT_RIGHT_DOWN, &VarGroupingEditorDlg::OnIncludeListRightDown, this);
 
-    this->SetBackgroundColour(*wxWHITE);
-
+    if (!wxSystemSettings::GetAppearance().IsDark()) {
+        SetBackgroundColour(*wxWHITE);
+    }
 }
 
 /** This should completely reset all info based on data from TableInterface.

@@ -482,7 +482,7 @@ wxGridCellAttr *TableCellAttrProvider::GetAttr(int row, int col,
 	} else if (col_sel) {
 		attr->SetBackgroundColour(GdaConst::table_col_sel_color);
 	} else {
-		attr->SetBackgroundColour(*wxWHITE);
+		//attr->SetBackgroundColour(*wxWHITE);
 	}
 	
     return attr;

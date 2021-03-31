@@ -23,6 +23,8 @@
 #include <wx/valnum.h>
 #include <wx/valtext.h>
 #include <wx/xrc/xmlres.h>
+#include <wx/settings.h>
+
 #include "../GdaConst.h"
 #include "../GenGeomAlgs.h"
 #include "../logger.h"
@@ -47,8 +49,11 @@ help_btn(0), apply_btn(0)
 	wxLogMessage("Entering CorrelParamsFrame::CorrelParamsFrame");
 	
 	wxPanel* panel = new wxPanel(this);
-	panel->SetBackgroundColour(*wxWHITE);
-	SetBackgroundColour(*wxWHITE);
+    if (!wxSystemSettings::GetAppearance().IsDark()) {
+        panel->SetBackgroundColour(*wxWHITE);
+        SetBackgroundColour(*wxWHITE);
+    }
+	
 	{
 		var_txt = new wxStaticText(panel, XRCID("ID_VAR_TXT"), _("Variable:"));
 		var_choice = new wxChoice(panel, XRCID("ID_VAR_CHOICE"),

@@ -40,6 +40,7 @@
 #include <wx/grid.h>
 #include <wx/sizer.h>
 #include <wx/uri.h>
+#include <wx/settings.h>
 #include <wx/slider.h>
 #include <wx/combobox.h>
 #include <wx/notebook.h>
@@ -77,7 +78,9 @@ PreferenceDlg::PreferenceDlg(wxWindow* parent,
 {
 	highlight_state = NULL;
     table_state = NULL;
-	SetBackgroundColour(*wxWHITE);
+    if (!wxSystemSettings::GetAppearance().IsDark()) {
+        SetBackgroundColour(*wxWHITE);
+    }
 	Init();
     SetMinSize(wxSize(550, -1));
 }
@@ -93,7 +96,9 @@ PreferenceDlg::PreferenceDlg(wxWindow* parent,
 {
 	highlight_state = _highlight_state;
     table_state = _table_state;
-	SetBackgroundColour(*wxWHITE);
+    if (!wxSystemSettings::GetAppearance().IsDark()) {
+        SetBackgroundColour(*wxWHITE);
+    }
 	Init();
     SetMinSize(wxSize(550, -1));
 }

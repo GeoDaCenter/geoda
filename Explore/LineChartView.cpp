@@ -27,6 +27,7 @@
 #include <wx/dcclient.h>
 #include <wx/gauge.h>
 #include <wx/splitter.h>
+#include <wx/settings.h>
 #include <wx/checkbox.h>
 #include "../HighlightState.h"
 #include "../GeneralWxUtils.h"
@@ -107,7 +108,7 @@ fixed_scale_over_change(true)
      |       |                           |
       -----------------------------------
      */
-    SetBackgroundColour(*wxWHITE);
+    
     wxSplitterWindow* splitter_win = 0;
     splitter_win = new wxSplitterWindow(this, wxID_ANY, wxDefaultPosition,
                                         wxDefaultSize,
@@ -116,7 +117,6 @@ fixed_scale_over_change(true)
     
     // Left Panel
     wxPanel* lpanel = new wxPanel(splitter_win);
-    lpanel->SetBackgroundColour(*wxWHITE);
     
     // 0 vgap, 0 hgap
     wxFlexGridSizer* variable_sizer = new wxFlexGridSizer(2,2, 10, 5);
@@ -194,7 +194,12 @@ fixed_scale_over_change(true)
     
     // Right Panel
 	panel = new wxPanel(splitter_win);
-	panel->SetBackgroundColour(*wxWHITE);
+    
+    if (!wxSystemSettings::GetAppearance().IsDark()) {
+        lpanel->SetBackgroundColour(*wxWHITE);
+        panel->SetBackgroundColour(*wxWHITE);
+        SetBackgroundColour(*wxWHITE);
+    }
 	
 	panel->Bind(wxEVT_RIGHT_UP, &LineChartFrame::OnMouseEvent, this);
 	message_win = new wxHtmlWindow(panel, wxID_ANY,
@@ -1804,7 +1809,7 @@ void LineChartFrame::notifyNewSelection(const std::vector<bool>& tms_sel,
 	for (size_t i=0, sz=stats_wins.size(); i<sz; ++i) {
 		UpdateStatsWinContent(i);
 	}
-	panel_h_szr->RecalcSizes();
+	panel_h_szr->RepositionChildren(panel_h_szr->CalcMin());
 }
 
 void LineChartFrame::notifyNewHoverMsg(const wxString& msg)
@@ -1933,7 +1938,7 @@ void LineChartFrame::SetupPanelForNumVariables(int num_vars)
 		}
 	}
 	panel_v_szr->Add(bag_szr, 1, wxEXPAND);
-	panel_h_szr->RecalcSizes();
+	panel_h_szr->RepositionChildren(panel_h_szr->CalcMin());
    
     UpdateStatsWinContent(0);
 	Refresh();

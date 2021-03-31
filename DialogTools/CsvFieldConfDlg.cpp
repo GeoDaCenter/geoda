@@ -39,6 +39,7 @@
 #include <wx/regex.h>
 #include <wx/combobox.h>
 #include <wx/spinctrl.h>
+#include <wx/settings.h>
 
 #include <ogrsf_frmts.h>
 
@@ -81,7 +82,10 @@ CsvFieldConfDlg::CsvFieldConfDlg(wxWindow* parent,
     
     // Create controls UI
     wxPanel* panel = new wxPanel(this);
-    panel->SetBackgroundColour(*wxWHITE);
+    
+    if (!wxSystemSettings::GetAppearance().IsDark()) {
+        panel->SetBackgroundColour(*wxWHITE);
+    }
     
     wxStaticText* lbl = new wxStaticText(panel, wxID_ANY, prmop_txt);
     wxBoxSizer* lbl_box = new wxBoxSizer(wxHORIZONTAL);

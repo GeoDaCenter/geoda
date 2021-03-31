@@ -39,6 +39,7 @@
 #include <wx/panel.h>
 #include <wx/filesys.h>
 #include <wx/zipstrm.h>
+#include <wx/settings.h>
 #include <wx/wfstream.h>
 #include <memory>
 
@@ -325,7 +326,9 @@ AutoUpdateDlg::AutoUpdateDlg(wxWindow* parent,
     }
     
     wxPanel* panel = new wxPanel(this);
-    panel->SetBackgroundColour(*wxWHITE);
+    if (!wxSystemSettings::GetAppearance().IsDark()) {
+        SetBackgroundColour(*wxWHITE);
+    }
     
     wxStaticText* lbl = new wxStaticText(panel, wxID_ANY, update_text);
     wxHyperlinkCtrl* whatsnew = new wxHyperlinkCtrl(panel, wxID_ANY, "Check what's new in this update.", url_update_url);

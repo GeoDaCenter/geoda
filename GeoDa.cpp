@@ -353,7 +353,7 @@ bool GdaApp::OnInit(void)
 	int frameHeight = 80;
     
 	if (GeneralWxUtils::isMac()) {
-		frameWidth = 1092;
+		frameWidth = 1100;
 		frameHeight = 80;
 	} else if (GeneralWxUtils::isWindows()) {
 		frameWidth = 1200;

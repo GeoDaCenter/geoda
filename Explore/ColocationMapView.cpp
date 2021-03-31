@@ -25,6 +25,7 @@
 #include <wx/xrc/xmlres.h>
 #include <wx/statbmp.h>
 #include <wx/checklst.h>
+#include <wx/settings.h>
 
 #include "../DataViewer/TableInterface.h"
 #include "../DataViewer/TimeState.h"
@@ -128,7 +129,9 @@ void ColocationSelectDlg::CreateControls()
     // Parameters
     wxBoxSizer *vvbox = new wxBoxSizer(wxVERTICAL);
     scrl = new wxScrolledWindow(panel, wxID_ANY, wxDefaultPosition, wxSize(260,200), wxHSCROLL|wxVSCROLL );
-    scrl->SetBackgroundColour(*wxWHITE);
+    if (!wxSystemSettings::GetAppearance().IsDark()) {
+        scrl->SetBackgroundColour(*wxWHITE);
+    }
     scrl->SetScrollRate( 5, 5 );
     vvbox->Add(scrl, 1, wxEXPAND);
     

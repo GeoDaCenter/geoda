@@ -15,7 +15,7 @@
 class logger_t {
 public:
     static bool is_activated;
-    static std::auto_ptr < std::ostream > outstream_helper_ptr;
+    static std::unique_ptr < std::ostream > outstream_helper_ptr;
     static std::ostream * outstream;
     logger_t ();private:
     logger_t ( const logger_t & );
