@@ -16,24 +16,50 @@ on:
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   # This workflow contains a single job called "build"
-  bionic_build:
+  ubuntu_build:
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
     if: "!contains(github.event.head_commit.message, '[ci skip]') && !contains(github.event.head_commit.message, '[skip ci]')"
 
+    strategy:
+      fail-fast: true
+      matrix:
+        distro:
+          - 'ubuntu:18.04'
+        include:
+          - distro: 'ubuntu:18.04'
+            pre: 'apt-get update'
+
+    env:
+      platform: ${{ matrix.distro }}
+      GEODA_VER: '1.18.2'
+      TARGET_OS: 'bionic'
+
     # Steps represent a sequence of tasks that will be executed as part of the job
-    
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
 
-      # Build GeoDa
-      - name: Build GeoDa
-        run: chmod +x BuildTools/ubuntu/install.sh
+      # Prepare 
+      - name: Prepare on ${{ matrix.distro }}
+        run: |
+          chmod +x BuildTools/ubuntu/install.sh
+          if ($env:platform -eq 'ubuntu:18.04') 
+          {
+            $env:TARGET_OS = "bionic"
+          }
+          if ($env:platform -eq 'ubuntu:19.04') 
+          {
+            $env:TARGET_OS = "disco"
+          }
+          if ($env:platform -eq 'ubuntu:16.04') 
+          {
+            $env:TARGET_OS = "xenial"
+          }
 
       # Build GeoDa
       - name: Build GeoDa
-        run: docker run --privileged=true -e CI -e WORK_DIR="$PWD" -e OS="bionic" -e VER="1.18.2" -v $PWD:$PWD -v /var/run/docker.sock:/var/run/docker.sock ubuntu:18.04 $PWD/BuildTools/ubuntu/install.sh
+        run: docker run --privileged=true -e CI -e WORK_DIR="$PWD" -e OS=${{ env.TARGET_OS }} -e VER=${{ env.GEODA_VER }} -v $PWD:$PWD -v /var/run/docker.sock:/var/run/docker.sock ${{ matrix.distro }} $PWD/BuildTools/ubuntu/install.sh
       
       # Upload artifact
       - uses: actions/upload-artifact@v2

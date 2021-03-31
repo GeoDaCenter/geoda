@@ -98,6 +98,7 @@ chmod +x configure
 make -j2
 make install
 cd ..
+cd ..
 
 # Build GeoDa
 cp ../../GeoDamake.$OS.opt ../../GeoDamake.opt
