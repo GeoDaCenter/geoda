@@ -21,7 +21,7 @@ include $(TOPDIR)/make.inc
 .c.o:
 	$(CC) -m64 -c -DSkip_f2c_Undefs $(CFLAGS) $*.c
 	#ld  -arch x86_64 -macosx_version_min 10.6 -syslibroot $GDA_WITH_SYSROOT -r -x -o $*.xxx $*.o
-	ld  -arch x86_64  -r -x -o $*.xxx $*.o
+	ld  -arch arm64  -r -x -o $*.xxx $*.o
 	mv $*.xxx $*.o
 ## Under Solaris (and other systems that do not understand ld -x),
 ## omit -x in the ld line above.
@@ -83,15 +83,15 @@ libf2c.a: $(OFILES)
 ## of "cc -shared".
 
 libf2c.so: $(OFILES)
-	$(CC) -arch x86_64 -shared -o libf2c.so $(OFILES)
+	$(CC) -arch arm64 -shared -o libf2c.so $(OFILES)
 
 ### If your system lacks ranlib, you don't need it; see README.
 
 f77vers.o: f77vers.c
-	$(CC) -arch x86_64 -c f77vers.c
+	$(CC) -arch arm64 -c f77vers.c
 
 i77vers.o: i77vers.c
-	$(CC) -arch x86_64 -c i77vers.c
+	$(CC) -arch arm64 -c i77vers.c
 
 # To get an "f2c.h" for use with "f2c -C++", first "make hadd"
 hadd: f2c.h0 f2ch.add
