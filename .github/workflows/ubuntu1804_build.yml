@@ -50,13 +50,13 @@ jobs:
           mkdir -p o
           chmod 644 o
           if [ $env:platform = 'ubuntu:18.04' ] ; then
-            $env:TARGET_OS = "bionic"
+            ::set-env name=TARGET_OS::"bionic"
           elif [ $env:platform = 'ubuntu:20.04' ] ; then
-            $env:TARGET_OS = "focal"
+            ::set-env name=TARGET_OS::"focal"
           elif [ $env:platform = 'ubuntu:16.04' ] ; then
-            $env:TARGET_OS = "xenial"
+            ::set-env name=TARGET_OS::"xenial"
           fi
-          echo $env:TARGET_OS
+          echo ${{ env.TARGET_OS }}
 
       # Build GeoDa
       - name: Build GeoDa
