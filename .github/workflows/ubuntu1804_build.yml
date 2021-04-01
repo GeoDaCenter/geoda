@@ -30,13 +30,16 @@ jobs:
           - 'ubuntu:20.04'
         include:
           - distro: 'ubuntu:18.04'
+            pre: 'bionic'
           - distro: 'ubuntu:16.04'
+            pre: 'xenial'
           - distro: 'ubuntu:20.04'
+            pre: 'focal'
 
     env:
       platform: ${{ matrix.distro }}
       GEODA_VER: '1.18.2'
-      TARGET_OS: 'bionic'
+      TARGET_OS: ${{ matrix.pre }}
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
@@ -49,13 +52,6 @@ jobs:
           chmod +x BuildTools/ubuntu/install.sh
           mkdir -p o
           chmod 644 o
-          if [ $env:platform = 'ubuntu:18.04' ] ; then
-            ::set-env name=TARGET_OS::"bionic"
-          elif [ $env:platform = 'ubuntu:20.04' ] ; then
-            ::set-env name=TARGET_OS::"focal"
-          elif [ $env:platform = 'ubuntu:16.04' ] ; then
-            ::set-env name=TARGET_OS::"xenial"
-          fi
           echo ${{ env.TARGET_OS }}
 
       # Build GeoDa
