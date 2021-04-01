@@ -26,13 +26,10 @@ jobs:
       matrix:
         distro:
           - 'ubuntu:18.04'
-          - 'ubuntu:16.04'
           - 'ubuntu:20.04'
         include:
           - distro: 'ubuntu:18.04'
             pre: 'bionic'
-          - distro: 'ubuntu:16.04'
-            pre: 'xenial'
           - distro: 'ubuntu:20.04'
             pre: 'focal'
 
