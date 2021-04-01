@@ -28,7 +28,14 @@ jobs:
           - 'ubuntu:18.04'
         include:
           - distro: 'ubuntu:18.04'
-            pre: 'apt-get update'
+        distro:
+          - 'ubuntu:19.04'
+        include:
+          - distro: 'ubuntu:19.04'
+        distro:
+          - 'ubuntu:20.04'
+        include:
+          - distro: 'ubuntu:20.04'
 
     env:
       platform: ${{ matrix.distro }}
@@ -52,7 +59,7 @@ jobs:
           if [[ $env:platform = 'ubuntu:19.04' ]] ; then
             $env:TARGET_OS = "disco"
           fi
-          if [[ $env:platform = 'ubuntu:16.04' ]] ; then
+          if [[ $env:platform = 'ubuntu:20.04' ]] ; then
             $env:TARGET_OS = "xenial"
           fi
 
@@ -64,7 +71,7 @@ jobs:
       - uses: actions/upload-artifact@v2
         with:
           name: GeoDa-${{ env.GEODA_VER }}-${{ env.TARGET_OS }}
-          path: ${{ github.workspace }}/BuildTools/ubuntu/geoda_${{ env.GEODA_VER }}-1${{ env.TARGET_OS }}1_amd64.deb
+          path: ${{ github.workspace }}/BuildTools/ubuntu/geoda_${{ env.GEODA_VER }}-1${{ env.TARGET_OS }}1.deb
 
 
 

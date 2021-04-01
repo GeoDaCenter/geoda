@@ -7,6 +7,6 @@ WORKDIR /tmp/geoda
 
 COPY . .
 
-RUN mkdir /tmp/geoda/geoda/o
-RUN chmod +x /tmp/geoda/geoda/BuildTools/ubuntu/install.sh
+RUN mkdir -p /tmp/geoda/o
+RUN chmod +x /tmp/geoda/BuildTools/ubuntu/install.sh
 CMD OS="focal" VER="1.18.2" APT="sudo apt-get" WORK_DIR="/tmp/geoda/geoda/BuildTools/ubuntu" /tmp/geoda/geoda/BuildTools/ubuntu/install.sh
