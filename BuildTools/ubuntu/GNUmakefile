@@ -88,6 +88,7 @@ build-geoda:
 	cp -rf $(GeoDa_ROOT)/internationalization/lang build/
 	if [ -d "/usr/share/gdal/2.2" ]; then cp /usr/share/gdal/2.2/* build/gdaldata; fi
 	if [ -f "/usr/share/gdal/header.dxf" ]; then cp /usr/share/gdal/* build/gdaldata; fi
+	cp /usr/share/proj/* build/proj
 	#cp $(GEODA_HOME)/libraries/lib/libcares.so.2.1.0 build/plugins/libcares.so.2
 
 clean:
