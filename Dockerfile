@@ -7,6 +7,6 @@ WORKDIR /tmp/geoda
 
 COPY . .
 
-RUN cd BuildTools/ubuntu
-RUN chmod +x install.sh
-CMD ./install.sh bionic 1.18.2
+RUN mkdir /tmp/geoda/geoda/o
+RUN chmod +x /tmp/geoda/geoda/BuildTools/ubuntu/install.sh
+CMD OS="focal" VER="1.18.2" APT="sudo apt-get" WORK_DIR="/tmp/geoda/geoda/BuildTools/ubuntu" /tmp/geoda/geoda/BuildTools/ubuntu/install.sh
