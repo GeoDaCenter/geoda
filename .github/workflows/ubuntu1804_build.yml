@@ -49,13 +49,13 @@ jobs:
           chmod +x BuildTools/ubuntu/install.sh
           mkdir -p o
           chmod 644 o
-          if [[ $env:platform = 'ubuntu:18.04' ]] ; then
+          if [ $env:platform = 'ubuntu:18.04' ] ; then
             $env:TARGET_OS = "bionic"
           fi
-          if [[ $env:platform = 'ubuntu:19.04' ]] ; then
+          if [ $env:platform = 'ubuntu:19.04' ] ; then
             $env:TARGET_OS = "disco"
           fi
-          if [[ $env:platform = 'ubuntu:20.04' ]] ; then
+          if [ $env:platform = 'ubuntu:20.04' ] ; then
             $env:TARGET_OS = "xenial"
           fi
 
