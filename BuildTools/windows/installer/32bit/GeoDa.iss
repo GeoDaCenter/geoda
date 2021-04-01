@@ -44,7 +44,7 @@ Source: "..\..\..\CommonDistFiles\proj\*"; DestDir: "{app}\proj"; Flags: recurse
 
 
 Source: "VC_redist.x86.exe"; DestDir: "{app}"
-Source: "OpenCL.dll"; DestDir: "{app}"
+Source: "..\..\temp\OpenCL\sdk\bin\x86\OpenCL.dll"; DestDir: "{app}"
 Source: "..\..\temp\wxWidgets\lib\vc_dll\wxmsw314u_vc_custom.dll"; DestDir: "{app}"
 Source: "..\..\temp\wxWidgets\lib\vc_dll\wxmsw314u_gl_vc_custom.dll"; DestDir: "{app}"
 Source: "..\..\libraries\bin\expat.dll"; DestDir: "{app}"
@@ -66,6 +66,10 @@ Source: "..\..\libraries\bin\spatialite.dll"; DestDir: "{app}"
 Source: "..\..\libraries\bin\sqlite3.dll"; DestDir: "{app}"
 Source: "..\..\libraries\bin\xerces-c_3_2.dll"; DestDir: "{app}"
 Source: "..\..\libraries\bin\zlib1.dll"; DestDir: "{app}"
+Source: "..\..\libraries\bin\gdal\plugins-optional\ogr_OCI.dll"; DestDir: "{app}"
+Source: "..\..\libraries\bin\gdal\plugins-optional\ogr_PG.dll"; DestDir: "{app}"
+Source: "..\..\libraries\bin\gdal\plugins-optional\ogr_MSSQLSpatial.dll"; DestDir: "{app}"
+Source: "..\..\libraries\bin\gdal\plugins-external\ogr_FileGDB.dll"; DestDir: "{app}"
 Source: "..\..\..\..\Algorithms\lisa_kernel.cl"; DestDir: "{app}"
 Source: "..\..\..\..\internationalization\lang\*"; DestDir: "{app}\lang"; Flags: recursesubdirs
 Source: "..\..\libraries\bin\gdal-data\*"; DestDir: "{app}\data"; Flags: recursesubdirs
@@ -119,7 +123,7 @@ end;
 
 function VCRedistNeedsInstall: Boolean;
 begin
-  Result := not RegKeyExists(HKLM,'SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{F0C3E5D1-1ADE-321E-8167-68EF0DE699A5}');
+  Result := not RegKeyExists(HKLM,'SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{03d1453c-7d5c-479c-afea-8482f406e036}');
 end;
 
 function GetUninstallString: string;
@@ -227,4 +231,4 @@ end;
 Filename: "{app}\lang\config.ini"; Section: "Translation"; Key: "Language"; String: {code:getLangCode|{app}}
 
 [Run]
-Filename: {app}\VC_redist.x86.exe; StatusMsg: Installing Microsoft Visual C++ Redistributable for Visual Studio 2015, 2017 and 2019...; Check: VCRedistNeedsInstall
+Filename: {app}\VC_redist.x86.exe; StatusMsg: Installing Visual C++ Redistributable for Visual Studio 2019 (14.28.29913.0)...; Check: VCRedistNeedsInstall

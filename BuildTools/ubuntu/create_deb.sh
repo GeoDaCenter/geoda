@@ -41,4 +41,4 @@ rm product/DEBIAN/control
 mv product/DEBIAN/control_$1 product/DEBIAN/control
 
 rm -f *.deb
-dpkg -b product/ geoda_$2-1$11.deb
+dpkg -b product/ geoda_$2-1$11_amd64.deb
