@@ -26,11 +26,11 @@ jobs:
       matrix:
         distro:
           - 'ubuntu:18.04'
-          - 'ubuntu:19.04'
+          - 'ubuntu:16.04'
           - 'ubuntu:20.04'
         include:
           - distro: 'ubuntu:18.04'
-          - distro: 'ubuntu:19.04'
+          - distro: 'ubuntu:16.04'
           - distro: 'ubuntu:20.04'
 
     env:
@@ -52,10 +52,10 @@ jobs:
           if [ $env:platform = 'ubuntu:18.04' ] ; then
             $env:TARGET_OS = "bionic"
           fi
-          if [ $env:platform = 'ubuntu:19.04' ] ; then
-            $env:TARGET_OS = "disco"
-          fi
           if [ $env:platform = 'ubuntu:20.04' ] ; then
+            $env:TARGET_OS = "focal"
+          fi
+          if [ $env:platform = 'ubuntu:16.04' ] ; then
             $env:TARGET_OS = "xenial"
           fi
 
