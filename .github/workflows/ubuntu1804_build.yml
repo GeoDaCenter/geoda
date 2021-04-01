@@ -51,13 +51,12 @@ jobs:
           chmod 644 o
           if [ $env:platform = 'ubuntu:18.04' ] ; then
             $env:TARGET_OS = "bionic"
-          fi
-          if [ $env:platform = 'ubuntu:20.04' ] ; then
+          elif [ $env:platform = 'ubuntu:20.04' ] ; then
             $env:TARGET_OS = "focal"
-          fi
-          if [ $env:platform = 'ubuntu:16.04' ] ; then
+          elif [ $env:platform = 'ubuntu:16.04' ] ; then
             $env:TARGET_OS = "xenial"
           fi
+          echo $env:TARGET_OS
 
       # Build GeoDa
       - name: Build GeoDa
