@@ -41,11 +41,11 @@
 #include "../DataViewer/TableState.h"
 #include "../ShapeOperations/WeightsManState.h"
 #include "../ShapeOperations/WeightsManager.h"
-//#include "../GeoDa.h"
 #include "../TemplateCanvas.h"
 #include "../GenUtils.h"
 #include "../SpatialIndAlgs.h"
 #include "../PointSetAlgs.h"
+#include "WeightsManDlg.h"
 #include "AddIdVariable.h"
 #include "CreatingWeightDlg.h"
 
@@ -138,6 +138,7 @@ bool CreatingWeightDlg::Create(wxWindow* parent, wxWindowID id, const wxString& 
 	m_contiguity = 0;
 	m_spincont = 0;
 	m_radio_rook = 0;
+    m_radio_block = 0;
 	m_include_lower = 0;
 	m_txt_precision_threshold = 0;
 	m_cbx_precision_threshold = 0;
@@ -159,8 +160,6 @@ bool CreatingWeightDlg::Create(wxWindow* parent, wxWindowID id, const wxString& 
 	
 	SetParent(parent);
 	CreateControls();
-	//GetSizer()->Fit(this);
-	//GetSizer()->SetSizeHints(this);
 	Centre();
 	
 	return true;
@@ -170,12 +169,14 @@ void CreatingWeightDlg::CreateControls()
 {    
 	wxXmlResource::Get()->LoadDialog(this, GetParent(), "IDD_WEIGHTS_FILE_CREATION");
 	m_id_field = XRCCTRL(*this, "IDC_IDVARIABLE", wxChoice);
+
     // contiguity weight
     m_nb_weights_type = XRCCTRL(*this, "IDC_NB_WEIGHTS_CREATION", wxNotebook);
     m_radio_queen = XRCCTRL(*this, "IDC_RADIO_QUEEN", wxRadioButton);
     m_contiguity = XRCCTRL(*this, "IDC_EDIT_ORDEROFCONTIGUITY", wxTextCtrl);
     m_spincont = XRCCTRL(*this, "IDC_SPIN_ORDEROFCONTIGUITY", wxSpinButton);
     m_radio_rook = XRCCTRL(*this, "IDC_RADIO_ROOK", wxRadioButton);
+    m_radio_block = XRCCTRL(*this, "IDC_RADIO_BLOCKWEIGHTS", wxRadioButton);
 	m_include_lower = XRCCTRL(*this, "IDC_CHECK1", wxCheckBox);
 	m_cbx_precision_threshold= XRCCTRL(*this, "IDC_PRECISION_CBX", wxCheckBox);
     m_txt_precision_threshold = XRCCTRL(*this, "IDC_PRECISION_THRESHOLD_EDIT", wxTextCtrl);
@@ -188,6 +189,7 @@ void CreatingWeightDlg::CreateControls()
 	m_Y = XRCCTRL(*this, "IDC_YCOORDINATES", wxChoice);
 	m_Y_time = XRCCTRL(*this, "IDC_YCOORD_TIME", wxChoice);
     m_Vars = XRCCTRL(*this, "IDC_WEIGHTS_DIST_VARS_LIST", wxListBox);
+    m_block_Vars = XRCCTRL(*this, "IDC_WEIGHTS_BLOCK_VARS_LIST", wxListBox);
     m_nb_distance_variables = XRCCTRL(*this, "IDC_NB_DISTANCE_VARIABLES", wxNotebook);
     m_nb_distance_methods = XRCCTRL(*this, "IDC_NB_DISTANCE_WEIGHTS", wxNotebook);
 	m_threshold = XRCCTRL(*this, "IDC_THRESHOLD_EDIT", wxTextCtrl);
@@ -228,6 +230,7 @@ void CreatingWeightDlg::CreateControls()
     m_power->Enable(false);
     m_power_knn->Enable(false);
     m_include_lower->Enable(false);
+    m_block_Vars->Enable(false);
 
     m_nb_weights_type->Bind(wxEVT_NOTEBOOK_PAGE_CHANGED,
                             &CreatingWeightDlg::OnWeightTypeSelect, this);
@@ -236,6 +239,7 @@ void CreatingWeightDlg::CreateControls()
     m_nb_distance_variables->Bind(wxEVT_NOTEBOOK_PAGE_CHANGED,
                                   &CreatingWeightDlg::OnDistanceWeightsInputUpdate, this);
     m_Vars->Bind(wxEVT_LISTBOX, &CreatingWeightDlg::OnDistanceWeightsVarsSel, this);
+    m_block_Vars->Bind(wxEVT_LISTBOX, &CreatingWeightDlg::OnBlockVariableSelected, this);
     m_dist_choice_vars->Bind(wxEVT_CHOICE, &CreatingWeightDlg::OnDistanceMetricVarsSel, this);
     m_trans_choice_vars->Bind(wxEVT_CHOICE, &CreatingWeightDlg::OnDistanceMetricVarsSel, this);
 	InitDlg();
@@ -803,6 +807,7 @@ void CreatingWeightDlg::InitFields()
             table_int->GetColType(col) == GdaConst::string_type) {
 			if (!table_int->IsColTimeVariant(col)) {
 				m_id_field->Append(table_int->GetColName(col));
+                m_block_Vars->Append(name);
 			}
 		}
 	}
@@ -911,6 +916,7 @@ void CreatingWeightDlg::InitDlg()
 	dist_tm_2 = -1;
 	
 	m_id_field->Clear();
+    m_block_Vars->Clear();
 	m_contiguity->SetValue( "1");
 	ResetThresXandYCombo();
 	m_sliderdistance->SetRange(0, 100);
@@ -1126,7 +1132,7 @@ void CreatingWeightDlg::OnIdVariableSelected( wxCommandEvent& event )
         m_id_field->SetSelection(-1);
         return;
     }
-  
+    m_block_Vars->Enable(true);
     UpdateTmSelEnableState();
     int dist_var_type = m_nb_distance_variables->GetSelection();
     if (dist_var_type == 0) {
@@ -1135,6 +1141,15 @@ void CreatingWeightDlg::OnIdVariableSelected( wxCommandEvent& event )
         UpdateThresholdValuesMultiVars();
     }
 	UpdateCreateButtonState();
+}
+
+void CreatingWeightDlg::OnBlockVariableSelected( wxCommandEvent& event )
+{
+    wxLogMessage("Click CreatingWeightDlg::OnBlockVariableSelected");
+    m_radio_block->SetValue(true);
+    wxArrayInt selections;
+    m_block_Vars->GetSelections(selections);
+    //m_block_option->Enable(selections.GetCount() > 1);
 }
 
 double CreatingWeightDlg::GetBandwidth()
@@ -1196,11 +1211,76 @@ bool CreatingWeightDlg::CheckTableVariableInput()
                                    m_thres_min_multivars);
         }
         wxMessageDialog dlg(this, msg, _("Warning"),
-                            wxYES_NO | wxNO_DEFAULT | wxICON_QUESTION );
+                            wxYES_NO | wxNO_DEFAULT | wxICON_WARNING );
         if (dlg.ShowModal() != wxID_YES) return false;
     }
 
     return true;
+}
+
+GalWeight* CreatingWeightDlg::CreateBlockWeights()
+{
+    wxArrayInt selections;
+    m_block_Vars->GetSelections(selections);
+    int num_var = (int)selections.size();
+    if (num_var <= 0) {
+        return 0;
+    }
+
+    std::vector<GeoDaWeight*> ws;
+
+    for (int i=0; i<num_var; i++) {
+        int idx = selections[i];
+        wxString sel_str = m_block_Vars->GetString(idx);
+
+        // get categorical values
+        std::vector<wxInt64> cat_vals(m_num_obs);
+        int col = table_int->FindColId(sel_str);
+        table_int->GetColData(col, 0, cat_vals);
+
+        // check if categorical values
+        std::unordered_map<wxInt64, std::set<int> > cat_dict;
+        for (size_t j=0; j<cat_vals.size(); ++j) {
+            cat_dict[ cat_vals[j] ].insert(j);
+        }
+        if ((int)cat_dict.size() == m_num_obs) {
+            wxMessageDialog dlg(this,
+                                _("The selected variable is not categorical."),
+                                _("Warning"), wxOK_DEFAULT | wxICON_WARNING );
+            dlg.ShowModal();
+            return 0;
+        }
+
+        // create block weights for this variable
+        GalElement* gal = new GalElement[m_num_obs];
+        std::unordered_map<wxInt64, std::set<int> >::iterator it;
+        std::set<int>::iterator it1, it2;
+        for (it = cat_dict.begin(); it != cat_dict.end(); ++it) {
+            wxInt64 c = it->first;
+            std::set<int>& ids = it->second;
+            int nbr_sz = (int)ids.size() - 1;
+            // ids will be neighbors of each other
+            for (it1 = ids.begin(); it1 != ids.end(); ++it1) {
+                int cnt = 0;
+                gal[*it1].SetSizeNbrs(nbr_sz);
+                for (it2 = ids.begin(); it2 != ids.end(); ++it2) {
+                    if (*it1 != *it2) {
+                        gal[*it1].SetNbr(cnt++, *it2);
+                    }
+                }
+            }
+        }
+        GalWeight* w = new GalWeight();
+        w->num_obs = m_num_obs;
+        w->gal = gal;
+        ws.push_back(w);
+    }
+
+    GalWeight* new_w = WeightUtils::WeightsIntersection(ws);
+    for (int i=0; i< (int)ws.size(); ++i) {
+        delete ws[i];
+    }
+    return new_w;
 }
 
 void CreatingWeightDlg::CreateWeightsFromTable(wxString id, wxString outputfile,
@@ -1483,16 +1563,34 @@ void CreatingWeightDlg::CreateWeights()
     bool m_check1 = m_include_lower->GetValue();
 
     if (m_nb_weights_type->GetSelection()== 0) {
-        // queen/rook
-        GalWeight* Wp = new GalWeight;
+        // queen/rook/block
+        GalWeight* Wp = 0;
+        
+        bool is_queen = m_radio_queen->GetValue();
+        bool is_rook = m_radio_rook->GetValue();
+        bool is_block = m_radio_block->GetValue();
+
+        if (is_block) {
+            Wp = CreateBlockWeights();
+            if (Wp) {
+                wmi.id_var = id;
+                wmi.sym_type = WeightsMetaInfo::SYM_symmetric;
+                WriteWeightFile(Wp, 0, project->GetProjectTitle(), outputfile,
+                                id, wmi);
+                if (Wp) delete Wp;
+                done = true;
+            }
+            return;
+        }
+
+        Wp = new GalWeight;
         Wp->num_obs = project->GetNumRecords();
         Wp->is_symmetric = true;
         Wp->symmetry_checked = true;
-        
-        bool is_rook = m_radio_queen->GetValue() ? false : true;
+
         if (is_rook) {
             wmi.SetToRook(id, m_ooC, m_check1);
-        } else {
+        } else if (is_queen) {
             wmi.SetToQueen(id, m_ooC, m_check1);
         }
         if (user_xy) {

@@ -953,6 +953,10 @@ void WeightUtils::LoadGalInMan(WeightsManInterface* w_man_int,
 
 GalWeight* WeightUtils::WeightsIntersection(std::vector<GeoDaWeight*> ws)
 {
+    if (ws.empty()) {
+        return 0;
+    }
+
     // Get the intersection from an array of weights
     int num_obs = ws[0]->GetNumObs();
     wxString id_field = ws[0]->GetIDName();

@@ -84,7 +84,8 @@ public:
 	void OnHistogramIntervals(wxCommandEvent& event);
 	void OnSaveConnectivityToTable(wxCommandEvent& event);
 	void OnSelectIsolates(wxCommandEvent& event);
-	
+	void SaveGalWeightsFile(GalWeight* new_w);
+
 protected:
     int GetIdCount();
 	void InitWeightsList();
@@ -98,7 +99,6 @@ protected:
 	void UpdateButtons();
 
     bool GetSelectWeights(std::vector<GeoDaWeight*>& ws);
-    void SaveGalWeightsFile(GalWeight* new_w);
 
 	ConnectivityHistCanvas* conn_hist_canvas;
 	ConnectivityMapCanvas* conn_map_canvas;

@@ -3583,8 +3583,23 @@
                                       </object>
                                       <flag>wxALIGN_LEFT|wxALIGN_CENTRE_VERTICAL|wxEXPAND</flag>
                                   </object>
+                                  <object class="sizeritem">
+                                      <object class="wxRadioButton" name="IDC_RADIO_BLOCKWEIGHTS">
+                                          <label>Block weights</label>
+                                      </object>
+                                      <flag>wxALIGN_LEFT|wxALIGN_TOP|wxALIGN_CENTRE_VERTICAL</flag>
+                                  </object>
+                                  <object class="sizeritem">
+                                      <object class="wxListBox" name="IDC_WEIGHTS_BLOCK_VARS_LIST">
+                                          <content/>
+                                          <size>100,70d</size>
+                                          <style>wxLB_MULTIPLE</style>
+                                      </object>
+                                      <flag>wxALIGN_LEFT|wxALIGN_CENTRE_VERTICAL|wxEXPAND</flag>
+                                  </object>
+
                                   <cols>2</cols>
-                                  <rows>3</rows>
+                                  <rows>4</rows>
                                   <vgap>10</vgap>
                                   <hgap>40</hgap>
                                   <flag>wxALIGN_CENTRE_HORIZONTAL|wxALL|wxEXPAND</flag>

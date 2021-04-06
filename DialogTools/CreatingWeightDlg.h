@@ -73,6 +73,7 @@ public:
 	void SetDistChoiceArcMiles(bool update_sel);
 	void SetDistChoiceArcKms(bool update_sel);
 	void OnIdVariableSelected( wxCommandEvent& event );
+    void OnBlockVariableSelected( wxCommandEvent& event );
 	void OnXSelected(wxCommandEvent& event );
 	void OnYSelected(wxCommandEvent& event );
 	void OnXTmSelected(wxCommandEvent& event );
@@ -120,12 +121,14 @@ protected:
 
     // controls
 	wxChoice* m_id_field;
+    wxChoice* m_block_variable;
     // contiguity weight
     wxNotebook* m_nb_weights_type;
 	wxRadioButton* m_radio_queen; // IDC_RADIO_QUEEN
 	wxTextCtrl* m_contiguity;
 	wxSpinButton* m_spincont;
 	wxRadioButton* m_radio_rook; // IDC_RADIO_ROOK
+    wxRadioButton* m_radio_block; // IDC_RADIO_BLOCKWEIGHTS
 	wxCheckBox* m_include_lower;
     wxCheckBox* m_cbx_precision_threshold;
     wxTextCtrl* m_txt_precision_threshold;
@@ -138,6 +141,7 @@ protected:
 	wxChoice* m_Y;
 	wxChoice* m_Y_time;
     wxListBox* m_Vars;
+    wxListBox* m_block_Vars;
 	wxNotebook* m_nb_distance_variables;
     wxNotebook* m_nb_distance_methods;
 	wxTextCtrl* m_threshold;
@@ -209,7 +213,10 @@ protected:
 	long     dist_tm_1;
 	wxString dist_var_2;
 	long     dist_tm_2;
-	
+
+    wxString s_int;
+    bool suspend_table_state_updates;
+
 	// updates the enable/disable state of the Create button based
 	// on the values of various other controls.
     void UpdateThresholdValuesMultiVars();
@@ -231,9 +238,7 @@ protected:
                          const wxString& idd,
                          WeightsMetaInfo& wmi);
     void CreateWeights();
-	
-	wxString s_int;
-	bool suspend_table_state_updates;
+    GalWeight* CreateBlockWeights();
 	
 	DECLARE_EVENT_TABLE()
 };

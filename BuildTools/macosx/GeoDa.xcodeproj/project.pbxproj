@@ -24,14 +24,10 @@
 		A1311C6720FFDF7100008D7F /* localjc_kernel.cl in CopyFiles */ = {isa = PBXBuildFile; fileRef = A4E00F0F20FD8ECC0038BA80 /* localjc_kernel.cl */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		A13B6B9418760CF100F93ACF /* SaveAsDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A13B6B9318760CF100F93ACF /* SaveAsDlg.cpp */; };
 		A14129DF260EC2D1006B0D6D /* basemap_cache in CopyFiles */ = {isa = PBXBuildFile; fileRef = A14129DE260EC2D1006B0D6D /* basemap_cache */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
-		A14129E9260EC435006B0D6D /* libgdal.28.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = A14129E8260EC434006B0D6D /* libgdal.28.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
-		A14129EA260EC4AF006B0D6D /* libgdal.28.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = A14129E8260EC434006B0D6D /* libgdal.28.dylib */; };
 		A14129F7260EC6E9006B0D6D /* samples.sqlite in Resources */ = {isa = PBXBuildFile; fileRef = A14129F6260EC6E9006B0D6D /* samples.sqlite */; };
 		A14129FF260EC96B006B0D6D /* cache.sqlite in CopyFiles */ = {isa = PBXBuildFile; fileRef = A14129FE260EC96B006B0D6D /* cache.sqlite */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		A1412A02260EE6EC006B0D6D /* libwx_osx_cocoau_gl-3.1.4.0.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = A1412A00260EE6EC006B0D6D /* libwx_osx_cocoau_gl-3.1.4.0.0.dylib */; };
 		A1412A03260EE6EC006B0D6D /* libwx_osx_cocoau-3.1.4.0.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = A1412A01260EE6EC006B0D6D /* libwx_osx_cocoau-3.1.4.0.0.dylib */; };
-		A1412A06260EE6F5006B0D6D /* libwx_osx_cocoau_gl-3.1.4.0.0.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = A1412A04260EE6F5006B0D6D /* libwx_osx_cocoau_gl-3.1.4.0.0.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
-		A1412A07260EE6F5006B0D6D /* libwx_osx_cocoau-3.1.4.0.0.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = A1412A05260EE6F5006B0D6D /* libwx_osx_cocoau-3.1.4.0.0.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		A144201D23FF2EDB00BD6F93 /* nbrMatchDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A144201B23FF2EDB00BD6F93 /* nbrMatchDlg.cpp */; };
 		A14420202405DB7400BD6F93 /* GenColor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A144201E2405DB7300BD6F93 /* GenColor.cpp */; };
 		A14735AA21A5F72D00CA69B2 /* DistUtils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A14735A921A5F72D00CA69B2 /* DistUtils.cpp */; };
@@ -332,9 +328,6 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
-				A14129E9260EC435006B0D6D /* libgdal.28.dylib in CopyFiles */,
-				A1412A06260EE6F5006B0D6D /* libwx_osx_cocoau_gl-3.1.4.0.0.dylib in CopyFiles */,
-				A1412A07260EE6F5006B0D6D /* libwx_osx_cocoau-3.1.4.0.0.dylib in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -382,13 +375,10 @@
 		A13B6B9218760CF100F93ACF /* SaveAsDlg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SaveAsDlg.h; sourceTree = "<group>"; };
 		A13B6B9318760CF100F93ACF /* SaveAsDlg.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SaveAsDlg.cpp; sourceTree = "<group>"; };
 		A14129DE260EC2D1006B0D6D /* basemap_cache */ = {isa = PBXFileReference; lastKnownFileType = folder; name = basemap_cache; path = BuildTools/CommonDistFiles/basemap_cache; sourceTree = "<group>"; };
-		A14129E8260EC434006B0D6D /* libgdal.28.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libgdal.28.dylib; path = ../../../../usr/local/Cellar/gdal/3.2.2/lib/libgdal.28.dylib; sourceTree = "<group>"; };
 		A14129F6260EC6E9006B0D6D /* samples.sqlite */ = {isa = PBXFileReference; lastKnownFileType = file; name = samples.sqlite; path = BuildTools/CommonDistFiles/web_plugins/samples.sqlite; sourceTree = "<group>"; };
 		A14129FE260EC96B006B0D6D /* cache.sqlite */ = {isa = PBXFileReference; lastKnownFileType = file; name = cache.sqlite; path = BuildTools/CommonDistFiles/cache.sqlite; sourceTree = "<group>"; };
 		A1412A00260EE6EC006B0D6D /* libwx_osx_cocoau_gl-3.1.4.0.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libwx_osx_cocoau_gl-3.1.4.0.0.dylib"; path = "BuildTools/macosx/libraries/lib/libwx_osx_cocoau_gl-3.1.4.0.0.dylib"; sourceTree = "<group>"; };
 		A1412A01260EE6EC006B0D6D /* libwx_osx_cocoau-3.1.4.0.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libwx_osx_cocoau-3.1.4.0.0.dylib"; path = "BuildTools/macosx/libraries/lib/libwx_osx_cocoau-3.1.4.0.0.dylib"; sourceTree = "<group>"; };
-		A1412A04260EE6F5006B0D6D /* libwx_osx_cocoau_gl-3.1.4.0.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libwx_osx_cocoau_gl-3.1.4.0.0.dylib"; path = "../BuildTools/macosx/libraries/lib/libwx_osx_cocoau_gl-3.1.4.0.0.dylib"; sourceTree = "<group>"; };
-		A1412A05260EE6F5006B0D6D /* libwx_osx_cocoau-3.1.4.0.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libwx_osx_cocoau-3.1.4.0.0.dylib"; path = "../BuildTools/macosx/libraries/lib/libwx_osx_cocoau-3.1.4.0.0.dylib"; sourceTree = "<group>"; };
 		A144201B23FF2EDB00BD6F93 /* nbrMatchDlg.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = nbrMatchDlg.cpp; sourceTree = "<group>"; };
 		A144201C23FF2EDB00BD6F93 /* nbrMatchDlg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = nbrMatchDlg.h; sourceTree = "<group>"; };
 		A144201E2405DB7300BD6F93 /* GenColor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GenColor.cpp; sourceTree = "<group>"; };
@@ -985,7 +975,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				A14129EA260EC4AF006B0D6D /* libgdal.28.dylib in Frameworks */,
 				A1412A02260EE6EC006B0D6D /* libwx_osx_cocoau_gl-3.1.4.0.0.dylib in Frameworks */,
 				A1412A03260EE6EC006B0D6D /* libwx_osx_cocoau-3.1.4.0.0.dylib in Frameworks */,
 			);
@@ -1000,15 +989,6 @@
 				A14129F6260EC6E9006B0D6D /* samples.sqlite */,
 			);
 			name = Resources;
-			sourceTree = "<group>";
-		};
-		A1412A0C2612719B006B0D6D /* dylibs */ = {
-			isa = PBXGroup;
-			children = (
-				A1412A04260EE6F5006B0D6D /* libwx_osx_cocoau_gl-3.1.4.0.0.dylib */,
-				A1412A05260EE6F5006B0D6D /* libwx_osx_cocoau-3.1.4.0.0.dylib */,
-			);
-			path = dylibs;
 			sourceTree = "<group>";
 		};
 		A14735A721A5F6CE00CA69B2 /* Weights */ = {
@@ -1245,10 +1225,8 @@
 			isa = PBXGroup;
 			children = (
 				A1E6212F2614F9BA0017FEDC /* proj */,
-				A1412A0C2612719B006B0D6D /* dylibs */,
 				A14129FE260EC96B006B0D6D /* cache.sqlite */,
 				A14129F9260EC88E006B0D6D /* Resources */,
-				A14129E8260EC434006B0D6D /* libgdal.28.dylib */,
 				A45DBDF61EDDEDC400C2AA8A /* _SampleImages */,
 				A4D9A31E1E4D5F3800EF584C /* gdaldata */,
 				A14129DE260EC2D1006B0D6D /* basemap_cache */,
@@ -1812,6 +1790,7 @@
 				DD79747F0F1D1B6600496A84 /* Frameworks */,
 				DD2EB0FF19E6EF940073E36F /* CopyFiles */,
 				A158871D260EBD3F005AF322 /* CopyFiles */,
+				A1F23BAD261CC973002392FA /* ShellScript */,
 			);
 			buildRules = (
 			);
@@ -1891,6 +1870,26 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		A1F23BAD261CC973002392FA /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# Type a script or drag a script file from your workspace to insert its path.\n/usr/bin/codesign --force --sign - $TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/MacOS/cache.sqlite\n";
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		DD79747E0F1D1B6600496A84 /* Sources */ = {
@@ -2268,7 +2267,6 @@
 					"-liconv",
 					"-lcurl",
 					"-lz",
-					"-lpthread",
 					"/usr/local/opt/boost/lib/libboost_date_time-mt.a",
 					"/usr/local/opt/boost/lib/libboost_system-mt.a",
 					"/usr/local/opt/boost/lib/libboost_thread-mt.a",
@@ -2282,6 +2280,8 @@
 					Cocoa,
 					"-framework",
 					OpenGL,
+					"-L/usr/local/opt/gdal/lib",
+					"-lgdal",
 				);
 				PREBINDING = NO;
 				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = NO;
@@ -2299,7 +2299,7 @@
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_CXX_LANGUAGE_STANDARD = "c++14";
 				CLANG_CXX_LIBRARY = "libc++";
-				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = YES;
