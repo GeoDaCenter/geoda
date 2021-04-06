@@ -33,7 +33,7 @@ cd json_spirit_v4.08
 cp ../../dep/json_spirit/CMakeLists.txt .
 mkdir bld
 cd bld
-LDFLAGS="-arch x86_64" cmake -DBoost_NO_BOOST_CMAKE=TRUE -DBOOST_ROOT:PATHNAME=/usr/local/opt ..
+cmake -DBoost_NO_BOOST_CMAKE=TRUE -DBOOST_ROOT:PATHNAME=/usr/local/opt ..
 make -j $CPUS
 cp -R ../json_spirit ../../../libraries/include/.
 cp json_spirit/libjson_spirit.a ../../../libraries/lib/.

@@ -19,6 +19,8 @@ def ProcessDependency(dir_path, dylib_name):
             new_path = "@executable_path/../Frameworks/{}".format(file_name)
             cmd = "install_name_tool -change \"{}\" \"{}\" {}".format(item, new_path, dylib_path)
             os.system(cmd)
+            cmd = "codesign -f -s - {}".format(dylib_path)
+            os.system(cmd)
             # process item
             ProcessDependency(dir_path, file_name)
 

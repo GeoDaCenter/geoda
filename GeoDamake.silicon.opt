@@ -15,7 +15,7 @@ LIBS	=	$(WXLIBS) \
             $(GEODA_HOME)/temp/CLAPACK-3.2.1/F2CLIBS/libf2c.a \
             $(GEODA_HOME)/temp/CLAPACK-3.2.1/lapack.a \
             -L/usr/lib -liconv -lz -lcurl -framework opencl \
-            -L/opt/homebrew/lib -lgdal \
+            -L/usr/local/opt/gdal/lib -lgdal \
             $(GEODA_HOME)/temp/boost/stage/lib/libboost_date_time.a \
             $(GEODA_HOME)/temp/boost/stage/lib/libboost_thread.a \
             $(GEODA_HOME)/temp/boost/stage/lib/libboost_system.a \
@@ -23,11 +23,11 @@ LIBS	=	$(WXLIBS) \
 
 
 BOOST_HEADER = -I$(GEODA_HOME)/temp/boost 
-GDAL_HEADER = -I/opt/homebrew/include -D__PROJ6__
+GDAL_HEADER = -I/usr/local/opt/gdal/include -D__PROJ6__
 EIGEN_HEADER = -I$(GEODA_HOME)/libraries/include -I$(GEODA_HOME)/temp/eigen3 -I$(GEODA_HOME)/temp/spectra/include
 
 CPPFLAGS	=  -O3 -std=c++14 -I$(GeoDa_ROOT) $(USER_LOG) $(GDAL_HEADER) $(EIGEN_HEADER)
-CFLAGS		=  -O3 Wall -Wdeclaration-after-statement $(USER_DEFS) $(GDAL_HEADER) $(EIGEN_HEADER)
+CFLAGS		=  -O3 -Wall -Wdeclaration-after-statement $(USER_DEFS) $(GDAL_HEADER) $(EIGEN_HEADER)
 CXXFLAGS	=  -std=c++14 -O3 -Wall $(USER_DEFS) $(WX_HEADER) $(BOOST_HEADER) $(GDAL_HEADER) $(EIGEN_HEADER)
 LDFLAGS     = -arch arm64
 

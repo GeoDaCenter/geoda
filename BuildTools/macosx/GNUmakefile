@@ -79,7 +79,7 @@ build-geoda-mac:
 	cp -rf $(GeoDa_ROOT)/BuildTools/CommonDistFiles/osx/proj build/GeoDa.app/Contents/Resources
 	cp -rf $(GeoDa_ROOT)/internationalization/lang build/GeoDa.app/Contents/MacOS
 	$(LD) $(LDFLAGS) $(GeoDa_OBJ) $(LIBS) -o build/GeoDa.app/Contents/MacOS/GeoDa
-	cp run.sh build/GeoDa.app/Contents/MacOS/run.sh
+	#cp run.sh build/GeoDa.app/Contents/MacOS/run.sh
 	cp GeoDa-GDAL-Info.plist build/GeoDa.app/Contents/Info.plist
 	cp $(GeoDa_ROOT)/rc/data_viewer_dialogs.xrc build/GeoDa.app/Contents/Resources
 	cp $(GeoDa_ROOT)/rc/dialogs.xrc build/GeoDa.app/Contents/Resources
@@ -94,7 +94,9 @@ build-geoda-mac:
 	install_name_tool -change "$(GEODA_HOME)/libraries/lib/libwx_osx_cocoau_gl-3.1.dylib" "@executable_path/../Frameworks/libwx_osx_cocoau_gl-3.1.dylib" build/GeoDa.app/Contents/MacOS/GeoDa
 	install_name_tool -change "$(GEODA_HOME)/libraries/lib/libwx_osx_cocoau-3.1.dylib" "@executable_path/../Frameworks/libwx_osx_cocoau-3.1.dylib" build/GeoDa.app/Contents/MacOS/GeoDa
 	install_name_tool -change "/usr/local/opt/gdal/lib/libgdal.28.dylib" "@executable_path/../Frameworks/libgdal.28.dylib" build/GeoDa.app/Contents/MacOS/GeoDa
+	install_name_tool -change "/opt/homebrew/opt/gdal/lib/libgdal.28.dylib" "@executable_path/../Frameworks/libgdal.28.dylib" build/GeoDa.app/Contents/MacOS/GeoDa
 	python3 install_name.py $(GEODA_HOME)/build/GeoDa.app/Contents/Frameworks
+
 	
 clean:
 	rm -f ../../o/*

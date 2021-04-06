@@ -430,6 +430,7 @@
 		A1C9F3EC18B55EE000E14394 /* FieldNameCorrectionDlg.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FieldNameCorrectionDlg.cpp; sourceTree = "<group>"; };
 		A1CE3D311C1A427A0010F170 /* PublishDlg.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PublishDlg.cpp; sourceTree = "<group>"; };
 		A1CE3D321C1A427A0010F170 /* PublishDlg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PublishDlg.h; sourceTree = "<group>"; };
+		A1CE6938261B7BC3006027BA /* GeoDaDebug.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; name = GeoDaDebug.entitlements; path = BuildTools/macosx/GeoDaDebug.entitlements; sourceTree = "<group>"; };
 		A1D82DED174D3EB6003DE20A /* ConnectDatasourceDlg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ConnectDatasourceDlg.h; sourceTree = "<group>"; };
 		A1D82DEE174D3EB6003DE20A /* ConnectDatasourceDlg.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ConnectDatasourceDlg.cpp; sourceTree = "<group>"; };
 		A1DA623817BCBC070070CAAB /* AutoCompTextCtrl.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AutoCompTextCtrl.cpp; sourceTree = "<group>"; };
@@ -959,16 +960,6 @@
 		DDFFC7F11AC1C7CF00F7DD6D /* Observer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Observer.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
-/* Begin PBXFrameworksBuildPhase section */
-		A1FD1CD0261533E200A59EC3 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-/* End PBXFrameworksBuildPhase section */
-
 /* Begin PBXGroup section */
 		A14735A721A5F6CE00CA69B2 /* Weights */ = {
 			isa = PBXGroup;
@@ -1194,6 +1185,7 @@
 		DD7974650F1D1B0700496A84 /* ../../ */ = {
 			isa = PBXGroup;
 			children = (
+				A1CE6938261B7BC3006027BA /* GeoDaDebug.entitlements */,
 				A1FD1CC226151D9400A59EC3 /* proj */,
 				A14735A721A5F6CE00CA69B2 /* Weights */,
 				A19483772118BA8B009A87A2 /* ogl */,
@@ -1756,7 +1748,7 @@
 				DD79747D0F1D1B6600496A84 /* Resources */,
 				DD79747E0F1D1B6600496A84 /* Sources */,
 				A12007F623749AC200CBA5B1 /* Copy Files */,
-				A1FD1CD0261533E200A59EC3 /* Frameworks */,
+				A1D2B04F261C2FE600AB777C /* ShellScript */,
 			);
 			buildRules = (
 			);
@@ -1776,8 +1768,7 @@
 				LastUpgradeCheck = 1120;
 				TargetAttributes = {
 					DD7974800F1D1B6600496A84 = {
-						DevelopmentTeam = 3VRCAMAT4L;
-						ProvisioningStyle = Automatic;
+						ProvisioningStyle = Manual;
 					};
 				};
 			};
@@ -1840,6 +1831,26 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		A1D2B04F261C2FE600AB777C /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# Type a script or drag a script file from your workspace to insert its path.\ncodesign -f -s - /Users/xun/Library/Developer/Xcode/DerivedData/GeoDa.m1-bzlwzpadckllnretkivbujjhepho/Build/Products/Debug/GeoDa.app/Contents/MacOS/lisa_kernel.cl\ncodesign -f -s - /Users/xun/Library/Developer/Xcode/DerivedData/GeoDa.m1-bzlwzpadckllnretkivbujjhepho/Build/Products/Debug/GeoDa.app/Contents/MacOS/lang/ru/GeoDa.mo \ncodesign -f -s - /Users/xun/Library/Developer/Xcode/DerivedData/GeoDa.m1-bzlwzpadckllnretkivbujjhepho/Build/Products/Debug/GeoDa.app/Contents/MacOS/lang/es/GeoDa.mo\ncodesign -f -s - /Users/xun/Library/Developer/Xcode/DerivedData/GeoDa.m1-bzlwzpadckllnretkivbujjhepho/Build/Products/Debug/GeoDa.app/Contents/MacOS/lang/zh_CN/GeoDa.mo\ncodesign -f -s - /Users/xun/Library/Developer/Xcode/DerivedData/GeoDa.m1-bzlwzpadckllnretkivbujjhepho/Build/Products/Debug/GeoDa.app/Contents/MacOS/lang/config.ini \ncodesign -f -s - /Users/xun/Library/Developer/Xcode/DerivedData/GeoDa.m1-bzlwzpadckllnretkivbujjhepho/Build/Products/Debug/GeoDa.app/Contents/MacOS/localjc_kernel.cl\ncodesign -f -s - /Users/xun/Library/Developer/Xcode/DerivedData/GeoDa.m1-bzlwzpadckllnretkivbujjhepho/Build/Products/Debug/GeoDa.app/Contents/MacOS/cache.sqlite\n";
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		DD79747E0F1D1B6600496A84 /* Sources */ = {
@@ -2221,13 +2232,13 @@
 				CLANG_CXX_LANGUAGE_STANDARD = "c++17";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_OBJC_WEAK = YES;
-				CODE_SIGN_ENTITLEMENTS = GeoDa.entitlements;
+				CODE_SIGN_ENTITLEMENTS = GeoDaDebug.entitlements;
 				CODE_SIGN_IDENTITY = "-";
-				CODE_SIGN_STYLE = Automatic;
+				CODE_SIGN_STYLE = Manual;
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = NO;
 				DEVELOPMENT_ASSET_PATHS = "";
-				DEVELOPMENT_TEAM = 3VRCAMAT4L;
+				DEVELOPMENT_TEAM = "";
 				ENABLE_HARDENED_RUNTIME = YES;
 				GCC_C_LANGUAGE_STANDARD = "compiler-default";
 				GCC_DYNAMIC_NO_PIC = NO;
@@ -2250,7 +2261,7 @@
 					"$(OTHER_CFLAGS)",
 					"-I/opt/homebrew/include",
 					"-I/usr/include",
-					"-I./libraries/lib/wx/include/osx_cocoa-unicode-static-3.1",
+					"-I./libraries/lib/wx/include/osx_cocoa-unicode-3.1",
 					"-I./libraries/include/wx-3.1/",
 					"-I./temp/boost",
 					"-I./libraries/include",
@@ -2271,8 +2282,7 @@
 					"-lz",
 					"-lcurl",
 					"-liconv",
-					"-lexpat",
-					"-L/opt/homebrew/lib",
+					"-L/opt/homebrew/opt/gdal/lib",
 					"-lgdal",
 					./libraries/lib/libjson_spirit.a,
 					"./temp/CLAPACK-3.2.1/blas.a",
@@ -2295,28 +2305,9 @@
 					System,
 					"-framework",
 					OpenGL,
-					"-framework",
-					AGL,
-					"-framework",
-					WebKit,
-					"./libraries/lib/libwx_baseu-3.1.a",
-					"./libraries/lib/libwx_osx_cocoau_xrc-3.1.a",
-					"./libraries/lib/libwx_osx_cocoau_html-3.1.a",
-					"./libraries/lib/libwx_osx_cocoau_qa-3.1.a",
-					"./libraries/lib/libwx_osx_cocoau_adv-3.1.a",
-					"./libraries/lib/libwx_osx_cocoau_core-3.1.a",
-					"./libraries/lib/libwx_osx_cocoau_webview-3.1.a",
-					"./libraries/lib/libwx_baseu_xml-3.1.a",
-					"./libraries/lib/libwx_baseu_net-3.1.a",
-					"./libraries/lib/libwx_osx_cocoau_gl-3.1.a",
-					"./libraries/lib/libwx_osx_cocoau_richtext-3.1.a",
-					"./libraries/lib/libwx_osx_cocoau_aui-3.1.a",
-					"./libraries/lib/libwxtiff-3.1.a",
-					"./libraries/lib/libwxjpeg-3.1.a",
-					"./libraries/lib/libwxpng-3.1.a",
-					"./libraries/lib/libwxregexu-3.1.a",
-					"./libraries/lib/libwxzlib-3.1.a",
-					"./libraries/lib/libwxscintilla-3.1.a",
+					"-L./libraries/lib",
+					"-lwx_osx_cocoau-3.1",
+					"-lwx_osx_cocoau_gl-3.1",
 					"-arch",
 					arm64,
 				);
@@ -2337,8 +2328,8 @@
 				CLANG_CXX_LANGUAGE_STANDARD = "c++17";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_OBJC_WEAK = YES;
-				CODE_SIGN_ENTITLEMENTS = GeoDaRelease.entitlements;
-				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_ENTITLEMENTS = "";
+				CODE_SIGN_IDENTITY = "Apple Development: tomatofj@mac.com (7YW2YFK8B4)";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = YES;
@@ -2384,8 +2375,7 @@
 					"-lz",
 					"-lcurl",
 					"-liconv",
-					"-lexpat",
-					"-L/opt/homebrew/lib",
+					"-L/opt/homebrew/opt/gdal/lib",
 					"-lgdal",
 					./libraries/lib/libjson_spirit.a,
 					"./temp/CLAPACK-3.2.1/blas.a",
@@ -2408,28 +2398,9 @@
 					System,
 					"-framework",
 					OpenGL,
-					"-framework",
-					AGL,
-					"-framework",
-					WebKit,
-					"./libraries/lib/libwx_baseu-3.1.a",
-					"./libraries/lib/libwx_osx_cocoau_xrc-3.1.a",
-					"./libraries/lib/libwx_osx_cocoau_html-3.1.a",
-					"./libraries/lib/libwx_osx_cocoau_qa-3.1.a",
-					"./libraries/lib/libwx_osx_cocoau_adv-3.1.a",
-					"./libraries/lib/libwx_osx_cocoau_core-3.1.a",
-					"./libraries/lib/libwx_osx_cocoau_webview-3.1.a",
-					"./libraries/lib/libwx_baseu_xml-3.1.a",
-					"./libraries/lib/libwx_baseu_net-3.1.a",
-					"./libraries/lib/libwx_osx_cocoau_gl-3.1.a",
-					"./libraries/lib/libwx_osx_cocoau_richtext-3.1.a",
-					"./libraries/lib/libwx_osx_cocoau_aui-3.1.a",
-					"./libraries/lib/libwxtiff-3.1.a",
-					"./libraries/lib/libwxjpeg-3.1.a",
-					"./libraries/lib/libwxpng-3.1.a",
-					"./libraries/lib/libwxregexu-3.1.a",
-					"./libraries/lib/libwxzlib-3.1.a",
-					"./libraries/lib/libwxscintilla-3.1.a",
+					"-L./libraries/lib",
+					"-lwx_osx_cocoau-3.1",
+					"-lwx_osx_cocoau_gl-3.1",
 					"-arch",
 					arm64,
 				);
