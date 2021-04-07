@@ -1280,6 +1280,32 @@ GalWeight* CreatingWeightDlg::CreateBlockWeights()
     for (int i=0; i< (int)ws.size(); ++i) {
         delete ws[i];
     }
+
+    // create cluster map from new weights
+    GalElement* gal = new_w->gal;
+    int c = 1;
+    std::unordered_map<int, int> cluster;
+    std::vector<int> cluster_ids(m_num_obs, 0);
+
+    for (int i=0; i<m_num_obs; i++) {
+        int nn = gal[i].Size();
+        if (cluster.find(i) == cluster.end()) {
+            if (nn == 0) {
+                cluster[i] = 0;
+            } else {
+                // check contiguity, and separate island
+                cluster[i] = c;
+                cluster_ids[i] = c;
+                std::vector<long> nbrs = gal[i].GetNbrs();
+                for (int j=0; j<nn; ++j) {
+                    cluster[ nbrs[j] ] = c;
+                    cluster_ids[ nbrs[j] ] = c;
+                }
+            }
+            c += 1;
+        }
+    }
+
     return new_w;
 }
 

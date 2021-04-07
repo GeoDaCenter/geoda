@@ -5115,6 +5115,25 @@ void GdaFrame::OnOpenColocationMap(wxCommandEvent& event)
     dlg->Show(true);
 }
 
+void GdaFrame::OnOpenClusterMatchMap(wxCommandEvent& event)
+{
+    wxLogMessage("In GdaFrame::OnOpenClusterMatchMap()");
+    FramesManager* fm = project_p->GetFramesManager();
+    std::list<FramesManagerObserver*> observers(fm->getCopyObservers());
+    std::list<FramesManagerObserver*>::iterator it;
+    for (it=observers.begin(); it != observers.end(); ++it) {
+        if (ColocationSelectDlg* w = dynamic_cast<ColocationSelectDlg*>(*it)) {
+            w->Show(true);
+            w->Maximize(false);
+            w->Raise();
+            return;
+        }
+    }
+
+    ColocationSelectDlg* dlg = new ColocationSelectDlg(this, project_p);
+    dlg->Show(true);
+}
+
 void GdaFrame::OnUniqueValues(wxCommandEvent& event)
 {
     wxLogMessage("In GdaFrame::OnUniqueValues()");
@@ -7356,9 +7375,10 @@ BEGIN_EVENT_TABLE(GdaFrame, wxFrame)
     EVT_TOOL(XRCID("ID_OPEN_MAPANALYSIS_UNIQUE_VALUES"), GdaFrame::OnOpenUniqueValues)
     EVT_MENU(XRCID("ID_OPEN_MAPANALYSIS_UNIQUE_VALUES"), GdaFrame::OnOpenUniqueValues)
     EVT_MENU(XRCID("ID_MAPANALYSIS_UNIQUE_VALUES"), GdaFrame::OnUniqueValues)
-
     EVT_TOOL(XRCID("ID_OPEN_MAPANALYSIS_COLOCATION"), GdaFrame::OnOpenColocationMap)
     EVT_MENU(XRCID("ID_MAPANALYSIS_COLOCATION"), GdaFrame::OnOpenColocationMap)
+    EVT_TOOL(XRCID("ID_TOOLS_CLUSTER_MATCH_MAP"), GdaFrame::OnOpenClusterMatchMap)
+    EVT_MENU(XRCID("ID_TOOLS_CLUSTER_MATCH_MAP"), GdaFrame::OnOpenClusterMatchMap)
 
     EVT_MENU(XRCID("ID_COND_VERT_UNIQUE_VALUES"), GdaFrame::OnCondVertUniqueValues)
     EVT_MENU(XRCID("ID_COND_HORIZ_UNIQUE_VALUES"), GdaFrame::OnCondHorizUniqueValues)
