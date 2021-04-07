@@ -74,6 +74,9 @@ TableFrame::TableFrame(wxFrame *parent, Project* project,
 	grid->EnableDragColMove(true);
 	grid->EnableDragCell(false);
     
+    grid->SetLabelFont(wxFont(11, wxFONTFAMILY_SWISS,
+                                   wxFONTSTYLE_NORMAL, wxFONTWEIGHT_BOLD, false,
+                                   wxEmptyString, wxFONTENCODING_DEFAULT));
 	// This line causes the row to disappear on Windows and Linux, but not OSX
 	//grid->SetSelectionBackground(*wxWHITE);
 	for (int i=0, iend=table_base->GetNumberRows(); i<iend; i++) {

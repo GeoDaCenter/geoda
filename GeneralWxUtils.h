@@ -74,10 +74,10 @@ public:
     : wxTextCtrl(parent, id, value, pos, size, style, validator, name)
     {
         if (GeneralWxUtils::isWindows()) {
-            wxFont font(8,wxFONTFAMILY_TELETYPE,wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL);
+            wxFont font(8,wxFONTFAMILY_TELETYPE, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL);
             SetFont(font);
         } else {
-            wxFont font(12,wxFONTFAMILY_TELETYPE,wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL);
+            wxFont font(12,wxFONTFAMILY_TELETYPE, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL);
             SetFont(font);
         }
     }
