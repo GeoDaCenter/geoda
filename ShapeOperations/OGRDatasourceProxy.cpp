@@ -427,7 +427,7 @@ OGRDatasourceProxy::CreateLayer(wxString layer_name,
                     ogr_type = OFTString;
                 }
                 OGRFieldDefn oField(fname.utf8_str(), ogr_type);
-                oField.SetWidth(ogr_fwidth);
+                //oField.SetWidth(ogr_fwidth);
                 if ( ogr_fprecision>0 ) {
                     oField.SetPrecision(ogr_fprecision);
                 }
