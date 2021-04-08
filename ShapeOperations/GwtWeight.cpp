@@ -94,7 +94,7 @@ void GwtWeight::Update(const std::vector<bool>& undefs)
     
 }
 
-const std::vector<long> GwtWeight::GetNeighbors(int obs_idx)
+const std::vector<long> GwtWeight::GetNeighbors(int obs_idx) const
 {
     return gwt[obs_idx].GetNbrs();
 }

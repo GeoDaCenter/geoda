@@ -412,7 +412,7 @@ bool GalWeight::CheckNeighbor(int obs_idx, int nbr_idx)
     return gal[obs_idx].Check(nbr_idx);
 }
 
-const std::vector<long> GalWeight::GetNeighbors(int obs_idx)
+const std::vector<long> GalWeight::GetNeighbors(int obs_idx) const
 {
     return gal[obs_idx].GetNbrs();
 }

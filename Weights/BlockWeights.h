@@ -24,7 +24,7 @@ public:
 
     std::vector<wxInt64> GetClusters();
 
-    void CheckContiguity(int start, std::vector<long> nbrs, GalElement* gal);
+    std::vector<std::vector<int> > CheckContiguity(int start, std::vector<long> nbrs, const GeoDaWeight* w);
 
 protected:
     int num_obs;

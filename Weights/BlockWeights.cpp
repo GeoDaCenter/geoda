@@ -6,6 +6,7 @@
 //
 #include <unordered_map>
 #include <set>
+#include <stack>
 
 #include "../ShapeOperations/GeodaWeight.h"
 #include "../ShapeOperations/GalWeight.h"
@@ -74,36 +75,62 @@ BlockWeights::BlockWeights(const std::vector<std::vector<wxInt64> >& cat_values,
             if (nn == 0) {
                 cluster[i] = 0;
             } else {
-                // check contiguity, and separate island
-                cluster[i] = c;
-                cluster_ids[i] = c;
+                // check contiguity, and separate islands
                 std::vector<long> nbrs = gal[i].GetNbrs();
-                for (int j=0; j<nn; ++j) {
-                    cluster[ nbrs[j] ] = c;
-                    cluster_ids[ nbrs[j] ] = c;
+                std::vector<std::vector<int> > groups = CheckContiguity(i, nbrs, cont_weights);
+                for (int j=0; j<(int)groups.size(); ++j) {
+                    std::vector<int> group = groups[j];
+                    for (int k=0; k < (int)group.size(); ++k) {
+                        cluster[ group[k] ] = c;
+                        cluster_ids[ group[k] ] = c;
+                    }
+                    c += 1;
                 }
             }
-            c += 1;
         }
     }
 
     delete new_w;
 }
 
-void BlockWeights::CheckContiguity(int start, std::vector<long> nbrs, GalElement* gal)
+std::vector<std::vector<int> > BlockWeights::CheckContiguity(int start, std::vector<long> nbrs, const GeoDaWeight* w)
 {
-    std::vector<int> group;
+    // check contiguity, and separate islands into groups
+    std::vector<std::vector<int> > groups;
 
-    while (nbrs.empty() == false) {
-        int nn = (int)nbrs.size();
-        for (int j=0; j<nn; ++j) {
-            int nb = nbrs[j];
-            if (gal[start].Check(nb) ) {
+    std::unordered_map<int, bool> cluster_dict;
+    for (int i=0; i < (int)nbrs.size(); ++i) {
+        cluster_dict[nbrs[i]] = true;
+    }
+    cluster_dict[start] = true;
 
+    while (cluster_dict.empty() == false) {
+        int start = cluster_dict.begin()->first;
+        cluster_dict.erase(start);
+
+        std::stack<int> processed_ids;
+        processed_ids.push(start);
+
+        std::vector<int> group;
+
+        while (processed_ids.empty() == false) {
+            int fid = processed_ids.top();
+            processed_ids.pop();
+            group.push_back(fid);
+
+            std::vector<long> nn = w->GetNeighbors(fid);
+            for (int i=0; i<(int)nn.size(); ++i) {
+                int nid = nn[i];
+                if (cluster_dict.find(nid) != cluster_dict.end()) {
+                    processed_ids.push(nid);
+                    cluster_dict.erase(nid);
+                }
             }
         }
-    }
 
+        groups.push_back(group);
+    }
+    return groups;
 }
 
 BlockWeights::~BlockWeights() {
