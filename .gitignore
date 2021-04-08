@@ -28,6 +28,8 @@ BuildTools/windows/libraries/
 BuildTools/windows/Release/
 BuildTools/windows/ipch/
 BuildTools/windows/GeoDa.vcxproj.filters
+
+BuildTools/macosx/debug/
 BuildTools/macosx/libraries/
 BuildTools/macosx/libraries1/
 BuildTools/macosx/libraries108/
