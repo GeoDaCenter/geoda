@@ -3,7 +3,7 @@ GeoDa_ROOT	=	$(GEODA_HOME)/../..
 TARGET      = GeoDa
 
 CC	=	gcc 
-CXX     =	g++
+CXX =	g++
 LD	=	g++ 
 RM	=	/bin/rm -f
 
