@@ -100,6 +100,8 @@
 		A1EBC88F1CD2B2FD001DCFE9 /* AutoUpdateDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A1EBC88D1CD2B2FD001DCFE9 /* AutoUpdateDlg.cpp */; };
 		A1EF332F18E35D8300E19375 /* LocaleSetupDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A1EF332D18E35D8300E19375 /* LocaleSetupDlg.cpp */; };
 		A1F1BA5C178D3B46005A46E5 /* GdaCache.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A1F1BA5A178D3B46005A46E5 /* GdaCache.cpp */; };
+		A1F23BB0261E4671002392FA /* BlockWeights.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A1F23BAE261E4671002392FA /* BlockWeights.cpp */; };
+		A1F23BB3261E739D002392FA /* ClusterMatchMapView.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A1F23BB1261E739D002392FA /* ClusterMatchMapView.cpp */; };
 		A1F37C8124B4F85C007E98F0 /* SCHCDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A1F37C7F24B4F85B007E98F0 /* SCHCDlg.cpp */; };
 		A1FD8C19186908B800C35C41 /* CustomClassifPtree.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A1FD8C17186908B800C35C41 /* CustomClassifPtree.cpp */; };
 		A40A6A7E20226B3C003CDD79 /* PreferenceDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A40A6A7D20226B3B003CDD79 /* PreferenceDlg.cpp */; };
@@ -522,6 +524,10 @@
 		A1EF332E18E35D8300E19375 /* LocaleSetupDlg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LocaleSetupDlg.h; sourceTree = "<group>"; };
 		A1F1BA5A178D3B46005A46E5 /* GdaCache.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GdaCache.cpp; sourceTree = "<group>"; };
 		A1F1BA5B178D3B46005A46E5 /* GdaCache.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GdaCache.h; sourceTree = "<group>"; };
+		A1F23BAE261E4671002392FA /* BlockWeights.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = BlockWeights.cpp; sourceTree = "<group>"; };
+		A1F23BAF261E4671002392FA /* BlockWeights.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BlockWeights.h; sourceTree = "<group>"; };
+		A1F23BB1261E739D002392FA /* ClusterMatchMapView.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ClusterMatchMapView.cpp; sourceTree = "<group>"; };
+		A1F23BB2261E739D002392FA /* ClusterMatchMapView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ClusterMatchMapView.h; sourceTree = "<group>"; };
 		A1F37C7F24B4F85B007E98F0 /* SCHCDlg.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SCHCDlg.cpp; sourceTree = "<group>"; };
 		A1F37C8024B4F85B007E98F0 /* SCHCDlg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SCHCDlg.h; sourceTree = "<group>"; };
 		A1FD8C17186908B800C35C41 /* CustomClassifPtree.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CustomClassifPtree.cpp; path = DataViewer/CustomClassifPtree.cpp; sourceTree = "<group>"; };
@@ -996,6 +1002,8 @@
 			children = (
 				A14735A821A5F72D00CA69B2 /* DistUtils.h */,
 				A14735A921A5F72D00CA69B2 /* DistUtils.cpp */,
+				A1F23BAE261E4671002392FA /* BlockWeights.cpp */,
+				A1F23BAF261E4671002392FA /* BlockWeights.h */,
 			);
 			path = Weights;
 			sourceTree = "<group>";
@@ -1478,6 +1486,8 @@
 		DD7975B70F1D2A9000496A84 /* Explore */ = {
 			isa = PBXGroup;
 			children = (
+				A1F23BB1261E739D002392FA /* ClusterMatchMapView.cpp */,
+				A1F23BB2261E739D002392FA /* ClusterMatchMapView.h */,
 				A19D5A0E24CB97AB006425B3 /* MapViewHelper.cpp */,
 				A19D5A0F24CB97AB006425B3 /* MapViewHelper.h */,
 				A161939E244CDCE8004269A7 /* AnimatePlotCanvas.cpp */,
@@ -2071,6 +2081,7 @@
 				A1E77E1A177D6A2E00CC1037 /* ExportDataDlg.cpp in Sources */,
 				A14735B821A65F1800CA69B2 /* kd_fix_rad_search.cpp in Sources */,
 				A194839B2118BAAA009A87A2 /* basic2.cpp in Sources */,
+				A1F23BB0261E4671002392FA /* BlockWeights.cpp in Sources */,
 				A1717C1524F611FE003B898C /* azp.cpp in Sources */,
 				A1E77FDC17889BE200CC1037 /* OGRTable.cpp in Sources */,
 				A14735AA21A5F72D00CA69B2 /* DistUtils.cpp in Sources */,
@@ -2136,6 +2147,7 @@
 				DD3079E319EDAE6C001E5E89 /* LowessParamDlg.cpp in Sources */,
 				DD307DB919F0483B001E5E89 /* SmoothingUtils.cpp in Sources */,
 				A128C5862441368000EAEDFA /* wxGLString.cpp in Sources */,
+				A1F23BB3261E739D002392FA /* ClusterMatchMapView.cpp in Sources */,
 				DD3082B319F709BB001E5E89 /* WebViewHelpWin.cpp in Sources */,
 				DD409DFB19FF099E00C21A2B /* ScatterPlotMatView.cpp in Sources */,
 				DD409E4C19FFD43000C21A2B /* VarTools.cpp in Sources */,

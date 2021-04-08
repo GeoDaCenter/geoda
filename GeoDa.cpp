@@ -165,6 +165,7 @@
 #include "Explore/WebViewExampleWin.h"
 #include "Explore/Basemap.h"
 #include "Explore/ColocationMapView.h"
+#include "Explore/ClusterMatchMapView.h"
 #include "Explore/GroupingMapView.h"
 #include "Explore/DistancePlotView.h"
 #include "Regression/DiagnosticReport.h"
@@ -5130,7 +5131,7 @@ void GdaFrame::OnOpenClusterMatchMap(wxCommandEvent& event)
         }
     }
 
-    ColocationSelectDlg* dlg = new ColocationSelectDlg(this, project_p);
+    ClusterMatchSelectDlg* dlg = new ClusterMatchSelectDlg(this, project_p);
     dlg->Show(true);
 }
 
