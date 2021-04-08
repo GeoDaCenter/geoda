@@ -63,8 +63,10 @@ geoda-target:
 
 debug:
 	rm -rf debug/
+	mkdir -p debug
 	$(LD) $(LDFLAGS) $(GeoDa_OBJ) $(LIBS) -o debug/GeoDa
 	cp $(GeoDa_ROOT)/BuildTools/CommonDistFiles/cache.sqlite ./debug
+
 
 build-geoda-mac:
 	rm -rf build/GeoDa.app

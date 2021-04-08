@@ -5,7 +5,7 @@ set -e
 
 export GEODA_HOME=$PWD
 echo $GEODA_HOME
-CPUS=10
+CPUS=2
 
 mkdir -p temp
 mkdir -p libraries
@@ -21,7 +21,7 @@ cd temp
 curl -L -O https://github.com/wxWidgets/wxWidgets/releases/download/v3.1.4/wxWidgets-3.1.4.tar.bz2
 tar -xf wxWidgets-3.1.4.tar.bz2
 cd wxWidgets-3.1.4
-./configure --with-cocoa --with-opengl --enable-postscript --enable-textfile --without-liblzma --enable-webview --enable-cxx11 --enable-webview --disable-mediactrl --enable-webviewwebkit --enable-monolithic --prefix=$GEODA_HOME/libraries
+./configure --with-cocoa --with-opengl --enable-postscript --enable-textfile --without-liblzma --enable-webview --enable-cxx11 --enable-webview --disable-mediactrl --enable-webviewwebkit --enable-monolithic --with-libtiff=builtin --with-libpng=builtin --with-libjpeg=builtin --prefix=$GEODA_HOME/libraries
 make -j $CPUS
 make install
 cd ..

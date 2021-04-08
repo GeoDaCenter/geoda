@@ -1768,7 +1768,8 @@
 				LastUpgradeCheck = 1120;
 				TargetAttributes = {
 					DD7974800F1D1B6600496A84 = {
-						ProvisioningStyle = Manual;
+						DevelopmentTeam = 8U5A7AU965;
+						ProvisioningStyle = Automatic;
 					};
 				};
 			};
@@ -1848,7 +1849,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "# Type a script or drag a script file from your workspace to insert its path.\ncodesign -f -s - /Users/xun/Library/Developer/Xcode/DerivedData/GeoDa.m1-bzlwzpadckllnretkivbujjhepho/Build/Products/Debug/GeoDa.app/Contents/MacOS/lisa_kernel.cl\ncodesign -f -s - /Users/xun/Library/Developer/Xcode/DerivedData/GeoDa.m1-bzlwzpadckllnretkivbujjhepho/Build/Products/Debug/GeoDa.app/Contents/MacOS/lang/ru/GeoDa.mo \ncodesign -f -s - /Users/xun/Library/Developer/Xcode/DerivedData/GeoDa.m1-bzlwzpadckllnretkivbujjhepho/Build/Products/Debug/GeoDa.app/Contents/MacOS/lang/es/GeoDa.mo\ncodesign -f -s - /Users/xun/Library/Developer/Xcode/DerivedData/GeoDa.m1-bzlwzpadckllnretkivbujjhepho/Build/Products/Debug/GeoDa.app/Contents/MacOS/lang/zh_CN/GeoDa.mo\ncodesign -f -s - /Users/xun/Library/Developer/Xcode/DerivedData/GeoDa.m1-bzlwzpadckllnretkivbujjhepho/Build/Products/Debug/GeoDa.app/Contents/MacOS/lang/config.ini \ncodesign -f -s - /Users/xun/Library/Developer/Xcode/DerivedData/GeoDa.m1-bzlwzpadckllnretkivbujjhepho/Build/Products/Debug/GeoDa.app/Contents/MacOS/localjc_kernel.cl\ncodesign -f -s - /Users/xun/Library/Developer/Xcode/DerivedData/GeoDa.m1-bzlwzpadckllnretkivbujjhepho/Build/Products/Debug/GeoDa.app/Contents/MacOS/cache.sqlite\n";
+			shellScript = "# Type a script or drag a script file from your workspace to insert its path.\ncodesign -f -s - --deep $TARGET_BUILD_DIR/$PRODUCT_NAME.app\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -2233,12 +2234,12 @@
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_OBJC_WEAK = YES;
 				CODE_SIGN_ENTITLEMENTS = GeoDaDebug.entitlements;
-				CODE_SIGN_IDENTITY = "-";
-				CODE_SIGN_STYLE = Manual;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				COPY_PHASE_STRIP = NO;
+				COPY_PHASE_STRIP = YES;
 				DEVELOPMENT_ASSET_PATHS = "";
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = 8U5A7AU965;
 				ENABLE_HARDENED_RUNTIME = YES;
 				GCC_C_LANGUAGE_STANDARD = "compiler-default";
 				GCC_DYNAMIC_NO_PIC = NO;
@@ -2248,14 +2249,8 @@
 				GCC_PREFIX_HEADER = "";
 				INFOPLIST_FILE = "GeoDa-Xcode-Info.plist";
 				INSTALL_PATH = "$(HOME)/Applications";
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					"\"$(SRCROOT)/../..\"",
-					"\"$(SRCROOT)/../../ogr/ogrsf_frmts/oci\"",
-					"$(PROJECT_DIR)/Frameworks",
-					/opt/homebrew/Cellar/gdal/3.2.1/lib,
-				);
-				MACOSX_DEPLOYMENT_TARGET = 10.15;
+				LIBRARY_SEARCH_PATHS = "$(inherited)";
+				MACOSX_DEPLOYMENT_TARGET = 11.1;
 				MARKETING_VERSION = 1.18;
 				OTHER_CPLUSPLUSFLAGS = (
 					"$(OTHER_CFLAGS)",
@@ -2284,13 +2279,9 @@
 					"-liconv",
 					"-L/opt/homebrew/opt/gdal/lib",
 					"-lgdal",
-					./libraries/lib/libjson_spirit.a,
-					"./temp/CLAPACK-3.2.1/blas.a",
-					"./temp/CLAPACK-3.2.1/F2CLIBS/libf2c.a",
-					"./temp/CLAPACK-3.2.1/lapack.a",
-					./temp/boost/stage/lib/libboost_date_time.a,
-					./temp/boost/stage/lib/libboost_thread.a,
-					./temp/boost/stage/lib/libboost_system.a,
+					"-L$(SRCROOT)/libraries/lib",
+					"-lwx_osx_cocoau-3.1",
+					"-lwx_osx_cocoau_gl-3.1",
 					"-framework",
 					OpenCL,
 					"-framework",
@@ -2305,11 +2296,15 @@
 					System,
 					"-framework",
 					OpenGL,
-					"-L./libraries/lib",
-					"-lwx_osx_cocoau-3.1",
-					"-lwx_osx_cocoau_gl-3.1",
 					"-arch",
 					arm64,
+					./libraries/lib/libjson_spirit.a,
+					"./temp/CLAPACK-3.2.1/blas.a",
+					"./temp/CLAPACK-3.2.1/F2CLIBS/libf2c.a",
+					"./temp/CLAPACK-3.2.1/lapack.a",
+					./temp/boost/stage/lib/libboost_date_time.a,
+					./temp/boost/stage/lib/libboost_thread.a,
+					./temp/boost/stage/lib/libboost_system.a,
 				);
 				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = NO;
 				PRODUCT_BUNDLE_IDENTIFIER = edu.uchicago.edu;
@@ -2344,14 +2339,8 @@
 				GCC_PREFIX_HEADER = "";
 				INFOPLIST_FILE = "GeoDa-Xcode-Info.plist";
 				INSTALL_PATH = "$(HOME)/Applications";
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					"\"$(SRCROOT)/../..\"",
-					"\"$(SRCROOT)/../../ogr/ogrsf_frmts/oci\"",
-					"$(PROJECT_DIR)/Frameworks",
-					/opt/homebrew/Cellar/gdal/3.2.1/lib,
-				);
-				MACOSX_DEPLOYMENT_TARGET = 10.15;
+				LIBRARY_SEARCH_PATHS = "$(inherited)";
+				MACOSX_DEPLOYMENT_TARGET = 11.1;
 				MARKETING_VERSION = 1.18;
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_CPLUSPLUSFLAGS = (
@@ -2377,13 +2366,9 @@
 					"-liconv",
 					"-L/opt/homebrew/opt/gdal/lib",
 					"-lgdal",
-					./libraries/lib/libjson_spirit.a,
-					"./temp/CLAPACK-3.2.1/blas.a",
-					"./temp/CLAPACK-3.2.1/F2CLIBS/libf2c.a",
-					"./temp/CLAPACK-3.2.1/lapack.a",
-					./temp/boost/stage/lib/libboost_date_time.a,
-					./temp/boost/stage/lib/libboost_thread.a,
-					./temp/boost/stage/lib/libboost_system.a,
+					"-L$(SRCROOT)/libraries/lib",
+					"-lwx_osx_cocoau-3.1",
+					"-lwx_osx_cocoau_gl-3.1",
 					"-framework",
 					OpenCL,
 					"-framework",
@@ -2398,11 +2383,15 @@
 					System,
 					"-framework",
 					OpenGL,
-					"-L./libraries/lib",
-					"-lwx_osx_cocoau-3.1",
-					"-lwx_osx_cocoau_gl-3.1",
 					"-arch",
 					arm64,
+					./libraries/lib/libjson_spirit.a,
+					"./temp/CLAPACK-3.2.1/blas.a",
+					"./temp/CLAPACK-3.2.1/F2CLIBS/libf2c.a",
+					"./temp/CLAPACK-3.2.1/lapack.a",
+					./temp/boost/stage/lib/libboost_date_time.a,
+					./temp/boost/stage/lib/libboost_thread.a,
+					./temp/boost/stage/lib/libboost_system.a,
 				);
 				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = NO;
 				PRODUCT_BUNDLE_IDENTIFIER = edu.uchicago.edu;

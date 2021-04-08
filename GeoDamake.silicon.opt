@@ -14,11 +14,12 @@ LIBS	=	$(WXLIBS) \
             $(GEODA_HOME)/temp/CLAPACK-3.2.1/blas.a \
             $(GEODA_HOME)/temp/CLAPACK-3.2.1/F2CLIBS/libf2c.a \
             $(GEODA_HOME)/temp/CLAPACK-3.2.1/lapack.a \
-            -L/usr/lib -liconv -lz -lcurl -framework opencl \
+            -L/usr/lib -liconv -lcurl -lz -lpthread \
+			-framework OpenCL \
             -L/usr/local/opt/gdal/lib -lgdal \
-            $(GEODA_HOME)/temp/boost/stage/lib/libboost_date_time.a \
-            $(GEODA_HOME)/temp/boost/stage/lib/libboost_thread.a \
-            $(GEODA_HOME)/temp/boost/stage/lib/libboost_system.a \
+            /usr/local/opt/boost/lib/libboost_date_time-mt.a \
+            /usr/local/opt/boost/lib/libboost_thread-mt.a \
+            /usr/local/opt/boost/lib/libboost_system-mt.a \
 	    	$(GEODA_HOME)/libraries/lib/libjson_spirit.a
 
 

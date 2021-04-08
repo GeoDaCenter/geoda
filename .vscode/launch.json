@@ -28,6 +28,19 @@
                     "ignoreFailures": true
                 }
             ]
+        },
+        {
+            "name": "(macos llvm) Launch",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/BuildTools/macosx/debug/GeoDa",
+            "args": [],
+            "stopAtEntry": true,
+            "cwd": "${workspaceFolder}",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "lldb",
+            "preLaunchTask": "clang++ build active file"
         }
     ]
 }
