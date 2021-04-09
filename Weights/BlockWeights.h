@@ -10,7 +10,7 @@
 
 #include <vector>
 #include <wx/wx.h>
-
+#include <boot/unordered_map.hpp>
 class GeoDaWeight;
 
 class BlockWeights
@@ -33,7 +33,7 @@ protected:
 
     std::vector<wxInt64> cluster_ids;
 
-    std::unordered_map<int, int> cluster;
+    boost::unordered_map<int, int> cluster;
 };
 
 #endif /* BlockWeights_hpp */

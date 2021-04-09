@@ -4,7 +4,6 @@
 //
 //  Created by Xun Li on 4/7/21.
 //
-#include <unordered_map>
 #include <set>
 #include <stack>
 
@@ -25,12 +24,12 @@ BlockWeights::BlockWeights(const std::vector<std::vector<wxInt64> >& cat_values,
     num_obs = (int)cat_values[0].size();
 
     std::vector<GeoDaWeight*> ws;
-    std::unordered_map<wxInt64, std::set<int> >::iterator it;
+    boost::unordered_map<wxInt64, std::set<int> >::iterator it;
     std::set<int>::iterator it1, it2;
 
     for (int i=0; i<num_vars; i++) {
         // create a dict for groups
-        std::unordered_map<wxInt64, std::set<int> > cat_dict;
+        boost::unordered_map<wxInt64, std::set<int> > cat_dict;
         const std::vector<wxInt64>& vals = cat_values[i];
         for (int j=0; j< (int)vals.size(); ++j) {
             cat_dict[ vals[j] ].insert(j);
@@ -107,7 +106,7 @@ std::vector<std::vector<int> > BlockWeights::CheckContiguity(int start, std::vec
     // check contiguity, and separate islands into groups
     std::vector<std::vector<int> > groups;
 
-    std::unordered_map<int, bool> cluster_dict;
+    boost::unordered_map<int, bool> cluster_dict;
     for (int i=0; i < (int)nbrs.size(); ++i) {
         cluster_dict[(int)nbrs[i]] = true;
     }

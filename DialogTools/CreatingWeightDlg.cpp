@@ -21,6 +21,7 @@
 #include <vector>
 #include <set>
 #include <string>
+#include <boot/unordered_map.hpp>
 #include <wx/wx.h>
 #include <wx/filedlg.h>
 #include <wx/msgdlg.h>
@@ -1239,7 +1240,7 @@ GalWeight* CreatingWeightDlg::CreateBlockWeights()
         table_int->GetColData(col, 0, cat_vals);
 
         // check if categorical values
-        std::unordered_map<wxInt64, std::set<int> > cat_dict;
+        boost::unordered_map<wxInt64, std::set<int> > cat_dict;
         for (size_t j=0; j<cat_vals.size(); ++j) {
             cat_dict[ cat_vals[j] ].insert(j);
         }
@@ -1253,7 +1254,7 @@ GalWeight* CreatingWeightDlg::CreateBlockWeights()
 
         // create block weights for this variable
         GalElement* gal = new GalElement[m_num_obs];
-        std::unordered_map<wxInt64, std::set<int> >::iterator it;
+        boost::unordered_map<wxInt64, std::set<int> >::iterator it;
         std::set<int>::iterator it1, it2;
         for (it = cat_dict.begin(); it != cat_dict.end(); ++it) {
             wxInt64 c = it->first;
@@ -1284,7 +1285,7 @@ GalWeight* CreatingWeightDlg::CreateBlockWeights()
     // create cluster map from new weights
     GalElement* gal = new_w->gal;
     int c = 1;
-    std::unordered_map<int, int> cluster;
+    boost::unordered_map<int, int> cluster;
     std::vector<int> cluster_ids(m_num_obs, 0);
 
     for (int i=0; i<m_num_obs; i++) {

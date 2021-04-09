@@ -297,6 +297,7 @@
     <ClCompile Include="..\..\Explore\AbstractCoordinator.cpp" />
     <ClCompile Include="..\..\Explore\AnimatePlotCanvas.cpp" />
     <ClCompile Include="..\..\Explore\Basemap.cpp" />
+    <ClCompile Include="..\..\Explore\ClusterMatchMapView.cpp" />
     <ClCompile Include="..\..\Explore\ColocationMapView.cpp" />
     <ClCompile Include="..\..\Explore\ConditionalBoxPlotView.cpp" />
     <ClCompile Include="..\..\Explore\ConditionalClusterMapView.cpp" />
@@ -381,6 +382,7 @@
     <ClCompile Include="..\..\VarCalc\NumericTests.cpp" />
     <ClCompile Include="..\..\VarCalc\WeightsMetaInfo.cpp" />
     <ClCompile Include="..\..\VarTools.cpp" />
+    <ClCompile Include="..\..\Weights\BlockWeights.cpp" />
     <ClCompile Include="..\..\Weights\DistUtils.cpp" />
     <ClCompile Include="..\..\wxTranslationHelper.cpp" />
     <ClInclude Include="..\..\Algorithms\azp.h" />
@@ -472,6 +474,7 @@
     <ClInclude Include="..\..\Explore\AbstractCoordinator.h" />
     <ClInclude Include="..\..\Explore\AnimatePlotCanvas.h" />
     <ClInclude Include="..\..\Explore\Basemap.h" />
+    <ClInclude Include="..\..\Explore\ClusterMatchMapView.h" />
     <ClInclude Include="..\..\Explore\ColocationMapView.h" />
     <ClInclude Include="..\..\Explore\ConditionalBoxPlotView.h" />
     <ClInclude Include="..\..\Explore\ConditionalClusterMapView.h" />
@@ -698,6 +701,7 @@
     <ClInclude Include="..\..\VarCalc\WeightsMetaInfo.h" />
     <ClInclude Include="..\..\VarTools.h" />
     <ClInclude Include="..\..\version.h" />
+    <ClInclude Include="..\..\Weights\BlockWeights.h" />
     <ClInclude Include="..\..\Weights\DistUtils.h" />
     <ClInclude Include="..\..\wxTranslationHelper.h" />
   </ItemGroup>

@@ -26,6 +26,7 @@
 #include <wx/statbmp.h>
 #include <wx/checklst.h>
 #include <wx/settings.h>
+#include <boot/unordered_map.hpp>
 
 #include "../DataViewer/TableInterface.h"
 #include "../DataViewer/TimeState.h"
@@ -224,7 +225,7 @@ void ClusterMatchSelectDlg::OnOK( wxCommandEvent& event)
 
         // check if categorical values
         num_obs = (int)cat_vals.size();
-        std::unordered_map<wxInt64, std::set<int> > cat_dict;
+        boost::unordered_map<wxInt64, std::set<int> > cat_dict;
         for (int j=0; j<num_obs; ++j) {
             cat_dict[ cat_vals[j] ].insert(j);
         }
