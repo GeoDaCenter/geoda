@@ -16,6 +16,9 @@ mkdir -p ../../o
 # Install boost 1.75
 brew install boost@1.75
 
+# Install libgdal-dev
+brew install gdal
+
 # Build wxWidgets 3.1.4
 cd temp
 if ! [ -f "wxWidgets-3.1.4.tar.bz2" ]; then
@@ -78,8 +81,6 @@ if ! [ -f "v0.8.0.zip" ]; then
     mv spectra-0.8.0 spectra
 fi
 
-# Install libgdal-dev
-#brew install gdal
 
 # Build GeoDa
 cd ..
