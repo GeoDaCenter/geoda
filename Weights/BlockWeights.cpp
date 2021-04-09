@@ -70,13 +70,20 @@ BlockWeights::BlockWeights(const std::vector<std::vector<wxInt64> >& cat_values,
     cluster_ids.resize(num_obs, 0);
 
     for (int i=0; i<num_obs; i++) {
-        int nn = gal[i].Size();
+        int nn = (int)gal[i].Size();
         if (cluster.find(i) == cluster.end()) {
             if (nn == 0) {
                 cluster[i] = 0;
             } else {
                 // check contiguity, and separate islands
                 std::vector<long> nbrs = gal[i].GetNbrs();
+                cluster[i] = c;
+                cluster_ids[i] = c;
+                for (int j=0; j<nn; ++j) {
+                    cluster[ nbrs[j] ] = c;
+                    cluster_ids[ nbrs[j] ] = c;
+                }
+                /*
                 std::vector<std::vector<int> > groups = CheckContiguity(i, nbrs, cont_weights);
                 for (int j=0; j<(int)groups.size(); ++j) {
                     std::vector<int> group = groups[j];
@@ -86,6 +93,7 @@ BlockWeights::BlockWeights(const std::vector<std::vector<wxInt64> >& cat_values,
                     }
                     c += 1;
                 }
+                 */
             }
         }
     }
@@ -100,7 +108,7 @@ std::vector<std::vector<int> > BlockWeights::CheckContiguity(int start, std::vec
 
     std::unordered_map<int, bool> cluster_dict;
     for (int i=0; i < (int)nbrs.size(); ++i) {
-        cluster_dict[nbrs[i]] = true;
+        cluster_dict[(int)nbrs[i]] = true;
     }
     cluster_dict[start] = true;
 
@@ -120,7 +128,7 @@ std::vector<std::vector<int> > BlockWeights::CheckContiguity(int start, std::vec
 
             std::vector<long> nn = w->GetNeighbors(fid);
             for (int i=0; i<(int)nn.size(); ++i) {
-                int nid = nn[i];
+                int nid = (int)nn[i];
                 if (cluster_dict.find(nid) != cluster_dict.end()) {
                     processed_ids.push(nid);
                     cluster_dict.erase(nid);

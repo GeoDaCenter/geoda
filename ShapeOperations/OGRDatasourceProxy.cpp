@@ -76,7 +76,10 @@ OGRDatasourceProxy::OGRDatasourceProxy(wxString _ds_name, GdaConst::DataSourceTy
             opt << GdaConst::gda_ogr_csv_y_name;
             papszOpenOptions = CSLAddString(papszOpenOptions, opt.c_str());
         }
+    } else if (ds_type == GdaConst::ds_shapefile) {
+        papszOpenOptions = CSLAddString(papszOpenOptions, "ADJUST_TYPE=YES");
     }
+    
     ds = (GDALDataset*) GDALOpenEx(pszDsPath, GDAL_OF_VECTOR|GDAL_OF_UPDATE,
                                    NULL, papszOpenOptions, NULL);
     is_writable = true;

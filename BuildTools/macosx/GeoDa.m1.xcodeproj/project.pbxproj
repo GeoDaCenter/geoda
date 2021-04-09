@@ -40,6 +40,14 @@
 		A178F773227381CB00EB9CB7 /* DissolveDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A178F772227381CB00EB9CB7 /* DissolveDlg.cpp */; };
 		A178F776227772FD00EB9CB7 /* GdaListBox.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A178F774227772FC00EB9CB7 /* GdaListBox.cpp */; };
 		A178F779227773C500EB9CB7 /* GdaChoice.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A178F777227773C500EB9CB7 /* GdaChoice.cpp */; };
+		A185D12C261FFD6100A62EAC /* BlockWeights.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A185D12B261FFD6100A62EAC /* BlockWeights.cpp */; };
+		A185D130261FFD8000A62EAC /* ClusterMatchMapView.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A185D12E261FFD8000A62EAC /* ClusterMatchMapView.cpp */; };
+		A185D13B262004D600A62EAC /* libwx_osx_cocoau_gl-3.1.4.0.0.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = A185D139262004D600A62EAC /* libwx_osx_cocoau_gl-3.1.4.0.0.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		A185D13C262004D600A62EAC /* libwx_osx_cocoau-3.1.4.0.0.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = A185D13A262004D600A62EAC /* libwx_osx_cocoau-3.1.4.0.0.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		A185D13F262004F000A62EAC /* libgdal.28.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = A185D13E262004F000A62EAC /* libgdal.28.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		A185D1432620071F00A62EAC /* libgdal.28.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = A185D13E262004F000A62EAC /* libgdal.28.dylib */; };
+		A185D1442620072E00A62EAC /* libwx_osx_cocoau_gl-3.1.4.0.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = A185D139262004D600A62EAC /* libwx_osx_cocoau_gl-3.1.4.0.0.dylib */; };
+		A185D1452620072E00A62EAC /* libwx_osx_cocoau-3.1.4.0.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = A185D13A262004D600A62EAC /* libwx_osx_cocoau-3.1.4.0.0.dylib */; };
 		A186F0A11C16508A00AEBA13 /* GdaCartoDB.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A186F09F1C16508A00AEBA13 /* GdaCartoDB.cpp */; };
 		A1894C3F213F29DC00718FFC /* SpatialJoinDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A1894C3D213F29DC00718FFC /* SpatialJoinDlg.cpp */; };
 		A19483932118BAAA009A87A2 /* composit.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A194837A2118BAA7009A87A2 /* composit.cpp */; };
@@ -338,6 +346,18 @@
 			name = "Copy Files";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		A185D142262006FB00A62EAC /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				A185D13B262004D600A62EAC /* libwx_osx_cocoau_gl-3.1.4.0.0.dylib in CopyFiles */,
+				A185D13C262004D600A62EAC /* libwx_osx_cocoau-3.1.4.0.0.dylib in CopyFiles */,
+				A185D13F262004F000A62EAC /* libgdal.28.dylib in CopyFiles */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
@@ -383,6 +403,13 @@
 		A178F775227772FC00EB9CB7 /* GdaListBox.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GdaListBox.h; sourceTree = "<group>"; };
 		A178F777227773C500EB9CB7 /* GdaChoice.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GdaChoice.cpp; sourceTree = "<group>"; };
 		A178F778227773C500EB9CB7 /* GdaChoice.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GdaChoice.h; sourceTree = "<group>"; };
+		A185D12A261FFD6100A62EAC /* BlockWeights.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BlockWeights.h; sourceTree = "<group>"; };
+		A185D12B261FFD6100A62EAC /* BlockWeights.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = BlockWeights.cpp; sourceTree = "<group>"; };
+		A185D12E261FFD8000A62EAC /* ClusterMatchMapView.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ClusterMatchMapView.cpp; sourceTree = "<group>"; };
+		A185D12F261FFD8000A62EAC /* ClusterMatchMapView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ClusterMatchMapView.h; sourceTree = "<group>"; };
+		A185D139262004D600A62EAC /* libwx_osx_cocoau_gl-3.1.4.0.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libwx_osx_cocoau_gl-3.1.4.0.0.dylib"; path = "BuildTools/macosx/libraries/lib/libwx_osx_cocoau_gl-3.1.4.0.0.dylib"; sourceTree = "<group>"; };
+		A185D13A262004D600A62EAC /* libwx_osx_cocoau-3.1.4.0.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libwx_osx_cocoau-3.1.4.0.0.dylib"; path = "BuildTools/macosx/libraries/lib/libwx_osx_cocoau-3.1.4.0.0.dylib"; sourceTree = "<group>"; };
+		A185D13E262004F000A62EAC /* libgdal.28.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libgdal.28.dylib; path = ../../../../opt/homebrew/Cellar/gdal/3.2.2/lib/libgdal.28.dylib; sourceTree = "<group>"; };
 		A186F09F1C16508A00AEBA13 /* GdaCartoDB.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GdaCartoDB.cpp; sourceTree = "<group>"; };
 		A186F0A01C16508A00AEBA13 /* GdaCartoDB.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GdaCartoDB.h; sourceTree = "<group>"; };
 		A1894C3D213F29DC00718FFC /* SpatialJoinDlg.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SpatialJoinDlg.cpp; sourceTree = "<group>"; };
@@ -960,14 +987,39 @@
 		DDFFC7F11AC1C7CF00F7DD6D /* Observer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Observer.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
+/* Begin PBXFrameworksBuildPhase section */
+		A185D137262004B700A62EAC /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A185D1432620071F00A62EAC /* libgdal.28.dylib in Frameworks */,
+				A185D1442620072E00A62EAC /* libwx_osx_cocoau_gl-3.1.4.0.0.dylib in Frameworks */,
+				A185D1452620072E00A62EAC /* libwx_osx_cocoau-3.1.4.0.0.dylib in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
 /* Begin PBXGroup section */
 		A14735A721A5F6CE00CA69B2 /* Weights */ = {
 			isa = PBXGroup;
 			children = (
+				A185D12B261FFD6100A62EAC /* BlockWeights.cpp */,
+				A185D12A261FFD6100A62EAC /* BlockWeights.h */,
 				A14735A821A5F72D00CA69B2 /* DistUtils.h */,
 				A14735A921A5F72D00CA69B2 /* DistUtils.cpp */,
 			);
 			path = Weights;
+			sourceTree = "<group>";
+		};
+		A185D138262004D600A62EAC /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				A185D13E262004F000A62EAC /* libgdal.28.dylib */,
+				A185D139262004D600A62EAC /* libwx_osx_cocoau_gl-3.1.4.0.0.dylib */,
+				A185D13A262004D600A62EAC /* libwx_osx_cocoau-3.1.4.0.0.dylib */,
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 		A19483772118BA8B009A87A2 /* ogl */ = {
@@ -1266,6 +1318,7 @@
 				DD84139218B24BF2007C39CF /* version.h */,
 				A4404A00208E65DC0007753D /* wxTranslationHelper.cpp */,
 				A4404A01208E65DD0007753D /* wxTranslationHelper.h */,
+				A185D138262004D600A62EAC /* Frameworks */,
 			);
 			path = ../../;
 			sourceTree = "<group>";
@@ -1438,6 +1491,8 @@
 		DD7975B70F1D2A9000496A84 /* Explore */ = {
 			isa = PBXGroup;
 			children = (
+				A185D12E261FFD8000A62EAC /* ClusterMatchMapView.cpp */,
+				A185D12F261FFD8000A62EAC /* ClusterMatchMapView.h */,
 				A4502B3324E1F66F001D378F /* MapViewHelper.cpp */,
 				A4502B3424E1F66F001D378F /* MapViewHelper.h */,
 				A4A591F324A515D900BEA1FF /* ConditionalBoxPlotView.cpp */,
@@ -1746,8 +1801,10 @@
 			buildConfigurationList = DD7974870F1D1B6600496A84 /* Build configuration list for PBXNativeTarget "GeoDa" */;
 			buildPhases = (
 				DD79747D0F1D1B6600496A84 /* Resources */,
+				A185D137262004B700A62EAC /* Frameworks */,
 				DD79747E0F1D1B6600496A84 /* Sources */,
 				A12007F623749AC200CBA5B1 /* Copy Files */,
+				A185D142262006FB00A62EAC /* CopyFiles */,
 				A1D2B04F261C2FE600AB777C /* ShellScript */,
 			);
 			buildRules = (
@@ -1849,7 +1906,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "# Type a script or drag a script file from your workspace to insert its path.\ncodesign -f -s - --deep $TARGET_BUILD_DIR/$PRODUCT_NAME.app\n";
+			shellScript = "# Type a script or drag a script file from your workspace to insert its path.\n#python3 install_name.py $TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/Frameworks\ncodesign -f -s - --deep $TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/MacOS/lisa_kernel.cl\ncodesign -f -s - --deep $TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/MacOS/lang/ru/GeoDa.mo\ncodesign -f -s - --deep $TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/MacOS/lang/es/GeoDa.mo\ncodesign -f -s - --deep $TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/MacOS/lang/zh_CN/GeoDa.mo\ncodesign -f -s - --deep $TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/MacOS/lang/config.ini\ncodesign -f -s - --deep $TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/MacOS/localjc_kernel.cl\ncodesign -f -s - --deep $TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/MacOS/cache.sqlite\ncodesign -f -s - /opt/homebrew/opt/gdal/lib/libgdal.28.dylib\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -2033,6 +2090,7 @@
 				A14735AA21A5F72D00CA69B2 /* DistUtils.cpp in Sources */,
 				A4404A12209275550007753D /* hdbscan.cpp in Sources */,
 				A1E78139178A90A100CC1037 /* OGRDatasourceProxy.cpp in Sources */,
+				A185D12C261FFD6100A62EAC /* BlockWeights.cpp in Sources */,
 				A4ED7D552097F114008685D6 /* kd_pr_search.cpp in Sources */,
 				A1E7813A178A90A100CC1037 /* OGRFieldProxy.cpp in Sources */,
 				A1E7813B178A90A100CC1037 /* OGRLayerProxy.cpp in Sources */,
@@ -2098,6 +2156,7 @@
 				DD307DB919F0483B001E5E89 /* SmoothingUtils.cpp in Sources */,
 				DD3082B319F709BB001E5E89 /* WebViewHelpWin.cpp in Sources */,
 				DD409DFB19FF099E00C21A2B /* ScatterPlotMatView.cpp in Sources */,
+				A185D130261FFD8000A62EAC /* ClusterMatchMapView.cpp in Sources */,
 				DD409E4C19FFD43000C21A2B /* VarTools.cpp in Sources */,
 				DD6C9EB61A03FD0C00F124F1 /* VarsChooserDlg.cpp in Sources */,
 				A4CFBCBB250BE8E800246D81 /* MultiQuantileLisaDlg.cpp in Sources */,
@@ -2249,7 +2308,11 @@
 				GCC_PREFIX_HEADER = "";
 				INFOPLIST_FILE = "GeoDa-Xcode-Info.plist";
 				INSTALL_PATH = "$(HOME)/Applications";
-				LIBRARY_SEARCH_PATHS = "$(inherited)";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/libraries/lib",
+					/opt/homebrew/Cellar/gdal/3.2.2/lib,
+				);
 				MACOSX_DEPLOYMENT_TARGET = 11.1;
 				MARKETING_VERSION = 1.18;
 				OTHER_CPLUSPLUSFLAGS = (
@@ -2277,7 +2340,7 @@
 					"-lz",
 					"-lcurl",
 					"-liconv",
-					"-L/opt/homebrew/opt/gdal/lib",
+					"-L@executable_path/../Frameworks",
 					"-lgdal",
 					"-L$(SRCROOT)/libraries/lib",
 					"-lwx_osx_cocoau-3.1",
@@ -2302,9 +2365,9 @@
 					"./temp/CLAPACK-3.2.1/blas.a",
 					"./temp/CLAPACK-3.2.1/F2CLIBS/libf2c.a",
 					"./temp/CLAPACK-3.2.1/lapack.a",
-					./temp/boost/stage/lib/libboost_date_time.a,
-					./temp/boost/stage/lib/libboost_thread.a,
-					./temp/boost/stage/lib/libboost_system.a,
+					"/usr/local/opt/boost/lib/libboost_date_time-mt.a",
+					"/usr/local/opt/boost/lib/libboost_thread-mt.a",
+					"/usr/local/opt/boost/lib/libboost_system-mt.a",
 				);
 				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = NO;
 				PRODUCT_BUNDLE_IDENTIFIER = edu.uchicago.edu;
@@ -2339,7 +2402,11 @@
 				GCC_PREFIX_HEADER = "";
 				INFOPLIST_FILE = "GeoDa-Xcode-Info.plist";
 				INSTALL_PATH = "$(HOME)/Applications";
-				LIBRARY_SEARCH_PATHS = "$(inherited)";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/libraries/lib",
+					/opt/homebrew/Cellar/gdal/3.2.2/lib,
+				);
 				MACOSX_DEPLOYMENT_TARGET = 11.1;
 				MARKETING_VERSION = 1.18;
 				ONLY_ACTIVE_ARCH = YES;
@@ -2364,7 +2431,7 @@
 					"-lz",
 					"-lcurl",
 					"-liconv",
-					"-L/opt/homebrew/opt/gdal/lib",
+					"-L@executable_path/../Frameworks",
 					"-lgdal",
 					"-L$(SRCROOT)/libraries/lib",
 					"-lwx_osx_cocoau-3.1",
@@ -2389,9 +2456,9 @@
 					"./temp/CLAPACK-3.2.1/blas.a",
 					"./temp/CLAPACK-3.2.1/F2CLIBS/libf2c.a",
 					"./temp/CLAPACK-3.2.1/lapack.a",
-					./temp/boost/stage/lib/libboost_date_time.a,
-					./temp/boost/stage/lib/libboost_thread.a,
-					./temp/boost/stage/lib/libboost_system.a,
+					"/usr/local/opt/boost/lib/libboost_date_time-mt.a",
+					"/usr/local/opt/boost/lib/libboost_thread-mt.a",
+					"/usr/local/opt/boost/lib/libboost_system-mt.a",
 				);
 				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = NO;
 				PRODUCT_BUNDLE_IDENTIFIER = edu.uchicago.edu;

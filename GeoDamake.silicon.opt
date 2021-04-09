@@ -23,7 +23,7 @@ LIBS	=	$(WXLIBS) \
 	    	$(GEODA_HOME)/libraries/lib/libjson_spirit.a
 
 
-BOOST_HEADER = -I$(GEODA_HOME)/temp/boost 
+BOOST_HEADER = -I/usr/local/opt/boost/include
 GDAL_HEADER = -I/usr/local/opt/gdal/include -D__PROJ6__
 EIGEN_HEADER = -I$(GEODA_HOME)/libraries/include -I$(GEODA_HOME)/temp/eigen3 -I$(GEODA_HOME)/temp/spectra/include
 
