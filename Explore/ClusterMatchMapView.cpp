@@ -246,6 +246,11 @@ void ClusterMatchSelectDlg::OnOK( wxCommandEvent& event)
 
     std::vector<wxInt64> clusters = block_w.GetClusters();
     std::vector<bool> clusters_undef(num_obs, false);
+    for (int i=0; i<(int)clusters.size(); ++i) {
+        if (clusters[i] == 0) {
+            clusters_undef[i] = true;
+        }
+    }
 
     // field name
     wxString field_name = m_textbox->GetValue();

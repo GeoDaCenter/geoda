@@ -83,6 +83,7 @@ BlockWeights::BlockWeights(const std::vector<std::vector<wxInt64> >& cat_values,
                     cluster[ nbrs[j] ] = c;
                     cluster_ids[ nbrs[j] ] = c;
                 }
+                c += 1;
                 /*
                 std::vector<std::vector<int> > groups = CheckContiguity(i, nbrs, cont_weights);
                 for (int j=0; j<(int)groups.size(); ++j) {
