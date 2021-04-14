@@ -3120,6 +3120,10 @@
         <object class="wxMenuItem" name="ID_HEATMAP_TRANSPARENCY">
             <label>Change Transparency</label>
         </object>
+        <object class="wxMenuItem" name="ID_HEATMAP_ON_TOP">
+            <label>Heat Map on Top</label>
+            <checkable>1</checkable>
+        </object>
         <label>Heat Map</label>
     </object>
     <object class="separator"/>
@@ -3749,6 +3753,10 @@
           <object class="wxMenuItem" name="ID_HEATMAP_TRANSPARENCY">
               <label>Change Transparency</label>
           </object>
+          <object class="wxMenuItem" name="ID_HEATMAP_ON_TOP">
+              <label>Heat Map on Top</label>
+              <checkable>1</checkable>
+          </object>
           <label>Heat Map</label>
       </object>
       <object class="separator"/>
@@ -3952,6 +3960,10 @@
           <object class="wxMenuItem" name="ID_HEATMAP_TRANSPARENCY">
               <label>Change Transparency</label>
           </object>
+          <object class="wxMenuItem" name="ID_HEATMAP_ON_TOP">
+              <label>Heat Map on Top</label>
+              <checkable>1</checkable>
+          </object>
           <label>Heat Map</label>
       </object>
       <object class="separator"/>
@@ -4154,6 +4166,10 @@
           </object>
           <object class="wxMenuItem" name="ID_HEATMAP_TRANSPARENCY">
               <label>Change Transparency</label>
+          </object>
+          <object class="wxMenuItem" name="ID_HEATMAP_ON_TOP">
+              <label>Heat Map on Top</label>
+              <checkable>1</checkable>
           </object>
           <label>Heat Map</label>
       </object>
@@ -4844,6 +4860,10 @@
         </object>
         <object class="wxMenuItem" name="ID_HEATMAP_TRANSPARENCY">
             <label>Change Transparency</label>
+        </object>
+        <object class="wxMenuItem" name="ID_HEATMAP_ON_TOP">
+            <label>Heat Map on Top</label>
+            <checkable>1</checkable>
         </object>
         <label>Heat Map</label>
     </object>

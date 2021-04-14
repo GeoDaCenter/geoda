@@ -233,6 +233,7 @@ public:
 
     // heat map
     bool display_heat_map;
+    bool show_heat_map_on_top;
     HeatMapHelper heat_map;
 
     // mst map

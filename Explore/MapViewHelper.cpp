@@ -185,6 +185,10 @@ max_tick(1000)
 
 HeatMapBandwidthDlg::~HeatMapBandwidthDlg()
 {
+    if (heatmap) {
+        // reset bandwidth when closing
+        //heatmap->UpdateBandwidth(0);
+    }
 }
 
 void HeatMapBandwidthDlg::OnSliderChange( wxCommandEvent & event )
@@ -279,11 +283,11 @@ void HeatMapHelper::SetBandwidth(MapCanvas* canvas, Project* project)
     use_radius_variable = !use_bandwidth;
     // prompt user to select a bandwidth from a slider
     double min_band = project->GetMax1nnDistEuc();
-    double max_band = project->GetMaxDistEuc();
+    //double max_band = project->GetMaxDistEuc();
     if (bandwidth == 0) {
         bandwidth = min_band;
     }
-    HeatMapBandwidthDlg bandDlg(this, canvas, bandwidth, bandwidth*2);
+    HeatMapBandwidthDlg bandDlg(this, canvas, bandwidth, min_band*2);
     bandDlg.ShowModal();
 }
 
@@ -303,8 +307,8 @@ void HeatMapHelper::SetRadiusVariable(MapCanvas* canvas, Project* project)
     TableInterface *table_int = project->GetTableInt();
     table_int->GetColData(dlg.col_ids[0], data[0]);
 
-    int t = 0; // assume the radius is not a time-variable
-    int n = data[0][0].size();
+    //int t = 0; // assume the radius is not a time-variable
+    int n = (int)data[0][0].size();
     radius_arr.clear();
     radius_arr.resize(n);
     for (int i=0; i< n; ++i) {
@@ -403,7 +407,7 @@ void MSTMapHelper::CreateDistMatrix(const std::vector<GdaPoint*>& points)
 {
     if (dist_matrix.empty() == false) return;
 
-    int n = points.size();
+    int n = (int)points.size();
     dist_matrix.resize(n);
     for (int i=0; i<n; i++) {
         dist_matrix[i].resize(n-i-1);
@@ -432,7 +436,7 @@ bool MSTMapHelper::Create(Project* project)
 
     // if no MST, create a MST
     // use centroids to create MST
-    WeightsManInterface* w_man_int = project->GetWManInt();
+    //WeightsManInterface* w_man_int = project->GetWManInt();
     nodes = project->GetCentroids();
     CreateDistMatrix(nodes);
 
@@ -533,7 +537,7 @@ void MSTMapHelper::SaveToWeightsFile(Project* project)
 void MSTMapHelper::Draw(std::list<GdaShape*>& foreground_shps,
                         CatClassifData& cat_data)
 {
-    int n_edges = mst_edges.size();
+    int n_edges = (int)mst_edges.size();
     if (n_edges <= 0) return;
 
     GdaPolyLine* edge;
