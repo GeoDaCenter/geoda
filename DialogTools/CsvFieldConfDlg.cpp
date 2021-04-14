@@ -93,6 +93,7 @@ CsvFieldConfDlg::CsvFieldConfDlg(wxWindow* parent,
     
     // field grid selection control
     fieldGrid = new wxGrid(panel, wxID_ANY, wxDefaultPosition, wxSize(250,150));
+    fieldGrid->SetLabelFont(wxFont(11, wxFONTFAMILY_SWISS, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_BOLD, false, wxEmptyString, wxFONTENCODING_DEFAULT));
     fieldGrid->CreateGrid(n_prev_cols, 2, wxGrid::wxGridSelectRows);
     UpdateFieldGrid();
 	fieldGrid->EnableEditing(true);
@@ -117,6 +118,7 @@ CsvFieldConfDlg::CsvFieldConfDlg(wxWindow* parent,
    
     // Preview Grid controls
     previewGrid = new wxGrid(panel, wxID_ANY, wxDefaultPosition, wxSize(300, 150));
+    previewGrid->SetLabelFont(wxFont(11, wxFONTFAMILY_SWISS, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_BOLD, false, wxEmptyString, wxFONTENCODING_DEFAULT));
     previewGrid->CreateGrid(n_prev_rows, n_prev_cols, wxGrid::wxGridSelectRows);
     previewGrid->EnableEditing(false);
     previewGrid->SetDefaultCellAlignment( wxALIGN_RIGHT, wxALIGN_TOP );

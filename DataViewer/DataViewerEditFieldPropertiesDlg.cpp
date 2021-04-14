@@ -98,7 +98,8 @@ void DataViewerEditFieldPropertiesDlg::CreateControls()
 {
 	//wxBoxSizer *top_sizer = new wxBoxSizer(wxVERTICAL);
 	field_grid = new wxGrid(this, wxID_ANY, wxDefaultPosition, wxSize(200,400));
-	field_grid->CreateGrid(table_int->GetNumberCols(), NUM_COLS, wxGrid::wxGridSelectRows);
+    field_grid->SetLabelFont(wxFont(11, wxFONTFAMILY_SWISS, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_BOLD, false, wxEmptyString, wxFONTENCODING_DEFAULT));
+    field_grid->CreateGrid(table_int->GetNumberCols(), NUM_COLS, wxGrid::wxGridSelectRows);
 	if (COL_N!=-1) field_grid->SetColLabelValue(COL_N, _("variable name"));
 	if (COL_T!=-1) field_grid->SetColLabelValue(COL_T, _("type"));
 	if (COL_L!=-1) field_grid->SetColLabelValue(COL_L, _("length"));
