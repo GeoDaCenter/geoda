@@ -32,7 +32,9 @@ BlockWeights::BlockWeights(const std::vector<std::vector<wxInt64> >& cat_values,
         boost::unordered_map<wxInt64, std::set<int> > cat_dict;
         const std::vector<wxInt64>& vals = cat_values[i];
         for (int j=0; j< (int)vals.size(); ++j) {
-            cat_dict[ vals[j] ].insert(j);
+            if (vals[j] >= 0) { // avoid ignored observations value=-1
+                cat_dict[ vals[j] ].insert(j);
+            }
         }
 
         // create block weights for this variable

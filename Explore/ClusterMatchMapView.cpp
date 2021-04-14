@@ -27,6 +27,7 @@
 #include <wx/checklst.h>
 #include <wx/settings.h>
 #include <boost/unordered_map.hpp>
+#include <wx/treectrl.h>
 
 #include "../DataViewer/TableInterface.h"
 #include "../DataViewer/TimeState.h"
@@ -59,6 +60,8 @@ ClusterMatchSelectDlg::ClusterMatchSelectDlg(wxFrame* parent_s, Project* project
 {
     wxLogMessage("Open ClusterMatchSelectDlg.");
     
+    base_choice_id = XRCID("CLUSTER_CHOICE_BTN");
+    select_variable_lbl = _("Select Clusters to Compare");
     CreateControls();
 }
 
@@ -84,7 +87,7 @@ void ClusterMatchSelectDlg::update(TableState* o)
 
 void ClusterMatchSelectDlg::CreateControls()
 {
-    wxScrolledWindow* all_scrl = new wxScrolledWindow(this, wxID_ANY, wxDefaultPosition, wxSize(420,500), wxHSCROLL|wxVSCROLL );
+    wxScrolledWindow* all_scrl = new wxScrolledWindow(this, wxID_ANY, wxDefaultPosition, wxSize(450,680), wxHSCROLL|wxVSCROLL );
     all_scrl->SetScrollRate( 5, 5 );
     
     panel = new wxPanel(all_scrl);
@@ -92,12 +95,36 @@ void ClusterMatchSelectDlg::CreateControls()
     
     // Input
     AddSimpleInputCtrls(panel, vbox, true, false, false);
-
+    
+    // Parameter
+    wxBoxSizer *vvbox = new wxBoxSizer(wxVERTICAL);
+    scrl = new wxScrolledWindow(panel, wxID_ANY, wxDefaultPosition, wxSize(400,130), wxHSCROLL|wxVSCROLL );
+    if (!wxSystemSettings::GetAppearance().IsDark()) {
+        scrl->SetBackgroundColour(*wxWHITE);
+    }
+    scrl->SetScrollRate( 5, 5 );
+    vvbox->Add(scrl);
+    
+    gbox = new wxFlexGridSizer(0,1,5,5);
+    wxBoxSizer *scrl_box = new wxBoxSizer(wxVERTICAL);
+    scrl_box->Add(gbox, 1, wxEXPAND|wxLEFT|wxRIGHT, 20);
+    scrl->SetSizer(scrl_box);
+    
+    m_cluster_lbl = new wxStaticText(panel, wxID_ANY, select_variable_lbl);
+    vbox->Add(m_cluster_lbl, 0, wxALIGN_CENTER_HORIZONTAL);
+    vbox->Add(vvbox, 0, wxLEFT|wxRIGHT|wxBOTTOM, 20);
+    
+    // Minimum size of cluster
+    wxStaticText* st2 = new wxStaticText (panel, wxID_ANY, _("Minimum Size of Common Cluster:"));
+    m_min_size = new wxTextCtrl(panel, wxID_ANY, "", wxDefaultPosition, wxSize(108,-1));
+    wxStaticBoxSizer *hbox0 = new wxStaticBoxSizer(wxHORIZONTAL, panel, _("Parameters:"));
+    hbox0->Add(st2, 0, wxALIGN_CENTER_VERTICAL);
+    hbox0->Add(m_min_size, 1, wxALIGN_CENTER_VERTICAL | wxRIGHT, 10);
+    
     // Output
     wxStaticText* st3 = new wxStaticText (panel, wxID_ANY, _("Save Common Cluster in Field:"));
     m_textbox = new wxTextCtrl(panel, wxID_ANY, "CL_COM", wxDefaultPosition, wxSize(158,-1));
     wxStaticBoxSizer *hbox1 = new wxStaticBoxSizer(wxHORIZONTAL, panel, _("Output:"));
-    //wxBoxSizer *hbox1 = new wxBoxSizer(wxHORIZONTAL);
     hbox1->Add(st3, 0, wxALIGN_CENTER_VERTICAL);
     hbox1->Add(m_textbox, 1, wxALIGN_CENTER_VERTICAL | wxRIGHT, 10);
 
@@ -109,6 +136,7 @@ void ClusterMatchSelectDlg::CreateControls()
     hbox2->Add(closeButton, 1, wxALIGN_CENTER | wxALL, 5);
     
     // Container
+    vbox->Add(hbox0, 0, wxEXPAND | wxTOP | wxLEFT | wxRIGHT, 10);
     vbox->Add(hbox1, 0, wxEXPAND | wxTOP | wxLEFT | wxRIGHT, 10);
     vbox->Add(hbox2, 0, wxALIGN_CENTER | wxALL, 10);
     
@@ -139,6 +167,7 @@ void ClusterMatchSelectDlg::CreateControls()
 
 void ClusterMatchSelectDlg::OnVarSelect( wxCommandEvent& event)
 {
+    selected_variable = "";
     var_selections.Clear();
     select_vars.clear();
 
@@ -146,7 +175,7 @@ void ClusterMatchSelectDlg::OnVarSelect( wxCommandEvent& event)
     
     combo_var->GetSelections(var_selections);
     size_t num_var = var_selections.size();
-    if (num_var >= 2) {
+    if (num_var >= 1) {
         // check selected variables for any category values, and add them to choice box
         col_ids.resize(num_var);
         std::vector<wxString> col_names;
@@ -170,11 +199,88 @@ void ClusterMatchSelectDlg::OnVarSelect( wxCommandEvent& event)
                 return;
             }
             col_ids[i] = col;
+            
+            if (i==0) {
+                // show clusters of first selected variable
+                selected_variable = nm;
+                std::vector<wxInt64> cat_vals;
+                table_int->GetColData(col, tm, cat_vals);
+                ShowOptionsOfVariable(nm, cat_vals);
+            }
         }
     }
     
 }
 
+void ClusterMatchSelectDlg::ShowOptionsOfVariable(const wxString& var_name, std::vector<wxInt64> cat_vals)
+{
+    // check if categorical values
+    int num_obs = (int)cat_vals.size();
+    boost::unordered_map<wxInt64, std::set<int> > cat_dict;
+    for (int j=0; j<num_obs; ++j) {
+        cat_dict[ cat_vals[j] ].insert(j);
+    }
+    if ((int)cat_dict.size() == num_obs) {
+        wxMessageDialog dlg(this,
+                            _("The selected variable is not categorical."),
+                            _("Warning"), wxOK_DEFAULT | wxICON_WARNING );
+        dlg.ShowModal();
+        return;
+    }
+    
+    // clean controls
+    for (int i=0; i<(int)chk_list.size(); ++i) {
+        chk_list[i]->Destroy();
+        chk_list[i] = NULL;
+    }
+    chk_list.clear();
+    gbox->SetRows(0);
+    
+    // create controls for this variable
+    wxString update_lbl = select_variable_lbl + " (" + var_name + ")";
+    m_cluster_lbl->SetLabel(update_lbl);
+    
+    int n_rows = (int)cat_dict.size();
+    gbox->SetRows(n_rows);
+    int cnt = 0;
+    boost::unordered_map<wxInt64, std::set<int> >::iterator co_it;
+    for (co_it = cat_dict.begin(); co_it!=cat_dict.end(); co_it++) {
+        wxString tmp;
+        tmp << co_it->first;
+        wxCheckBox* chk = new wxCheckBox(scrl, base_choice_id+cnt, tmp);
+        chk->SetValue(true);
+        if (input_conf.find(var_name) != input_conf.end()) {
+            long v = 0;
+            tmp.ToLong(&v);
+            bool sel = input_conf[var_name].find(v) != input_conf[var_name].end();
+            chk->SetValue(sel);
+        }
+        chk_list.push_back(chk);
+        gbox->Add(chk, 1, wxEXPAND);
+        chk->Bind(wxEVT_CHECKBOX, &ClusterMatchSelectDlg::OnCheckBoxChange, this);
+        cnt ++;
+    }
+    wxCommandEvent ev;
+    OnCheckBoxChange(ev);
+    container->Layout();
+}
+
+void ClusterMatchSelectDlg::OnCheckBoxChange(wxCommandEvent& event)
+{
+    int n_all_values = (int)chk_list.size();
+    std::map<wxInt64, bool> select_values;
+    // Get checked values for selected variable
+    for (int i=0; i < n_all_values; ++i) {
+        if (chk_list[i]->IsChecked()) {
+            wxString lbl = chk_list[i]->GetLabel();
+            long val = 0;
+            if (lbl.ToLong(&val)) {
+                select_values[(wxInt64)val] = true;
+            }
+        }
+    }
+    input_conf[selected_variable] = select_values;
+}
 
 wxString ClusterMatchSelectDlg::_printConfiguration()
 {
@@ -211,7 +317,7 @@ GeoDaWeight* ClusterMatchSelectDlg::CreateQueenWeights()
 
 void ClusterMatchSelectDlg::OnOK( wxCommandEvent& event)
 {
-    int num_obs = 0;
+    int num_obs = project->GetNumRecords();;
     int num_vars = (int)select_vars.size();
     std::vector<std::vector<wxInt64> > cat_values;
 
@@ -220,16 +326,22 @@ void ClusterMatchSelectDlg::OnOK( wxCommandEvent& event)
         int col_id = col_ids[i];
         wxString col_name = select_vars[i];
         int col_t = name_to_tm_id[col_name];
-        std::vector<wxInt64> cat_vals;
+        std::vector<wxInt64> cat_vals, cat_vals_filtered(num_obs, 0);
         table_int->GetColData(col_id, col_t, cat_vals);
 
         // check if categorical values
         num_obs = (int)cat_vals.size();
         boost::unordered_map<wxInt64, std::set<int> > cat_dict;
         for (int j=0; j<num_obs; ++j) {
-            cat_dict[ cat_vals[j] ].insert(j);
+            wxInt64 v = cat_vals[j];
+            if (input_conf[col_name].find(v) != input_conf[col_name].end()) {
+                cat_dict[v].insert(j);
+                cat_vals_filtered[j] = v;
+            } else {
+                cat_vals_filtered[j] = -1; // user unselect this value
+            }
         }
-        if ((int)cat_dict.size() == num_obs) {
+        if (cat_dict.empty() || (int)cat_dict.size() == num_obs) {
             wxMessageDialog dlg(this,
                                 _("The selected variable is not categorical."),
                                 _("Warning"), wxOK_DEFAULT | wxICON_WARNING );
@@ -237,7 +349,8 @@ void ClusterMatchSelectDlg::OnOK( wxCommandEvent& event)
             return;
         }
 
-        cat_values.push_back(cat_vals);
+        // filter data
+        cat_values.push_back(cat_vals_filtered);
     }
 
     // create a queen contiguity weights

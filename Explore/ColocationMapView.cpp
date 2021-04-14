@@ -409,7 +409,7 @@ void ColocationSelectDlg::add_colo_control(bool is_new)
     clear_colo_control();
     
     // re-fill gbox
-    int n_rows = co_val_dict.size();
+    int n_rows = (int)co_val_dict.size();
     gbox->SetRows(n_rows);
     int cnt = 0;
     std::map<wxInt64, std::vector<int> >::iterator co_it;

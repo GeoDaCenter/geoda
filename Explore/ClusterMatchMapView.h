@@ -21,6 +21,9 @@
 #define __GEODA_CENTER_CLUSTERMATCH_MAP_VIEW_H__
 
 #include <vector>
+#include <map>
+#include <wx/wx.h>
+
 #include "MapNewView.h"
 #include "../GdaConst.h"
 
@@ -40,16 +43,28 @@ public:
     void OnOK( wxCommandEvent& event );
     void OnClickClose( wxCommandEvent& event );
     void OnClose(wxCloseEvent& ev);
-
+    void ShowOptionsOfVariable(const wxString& var_name, std::vector<wxInt64> cat_vals);
+    void OnCheckBoxChange(wxCommandEvent& event);
+    
     virtual wxString _printConfiguration();
 
     GeoDaWeight* CreateQueenWeights();
 
 protected:
+    int base_choice_id;
+    wxString select_variable_lbl;
+    wxString selected_variable;
+    std::map<wxString, std::map<wxInt64, bool> > input_conf;
     wxPanel *panel;
     wxBoxSizer *container;
     wxTextCtrl* m_textbox;
+    wxTextCtrl* m_min_size;
     wxArrayInt var_selections;
+    wxFlexGridSizer *gbox;
+    wxScrolledWindow* scrl;
+    wxStaticText* m_cluster_lbl;
+    
+    std::vector<wxCheckBox*> chk_list;
     
     DECLARE_EVENT_TABLE()
 };

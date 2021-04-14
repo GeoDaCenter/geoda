@@ -11,7 +11,8 @@ def ProcessDependency(dylib_path):
         processed_items[dylib_path] = True
 
     print("Process:", dylib_path)
-    cmd = "codesign -f -s - "
+    #cmd = "codesign -f -s - "
+    cmd = '/usr/bin/codesign --force --sign 2C86718CD200161736254D6451732A05183661DE -o runtime --entitlements /Users/xun/Library/Developer/Xcode/DerivedData/GeoDa.m1-bzlwzpadckllnretkivbujjhepho/Build/Intermediates.noindex/GeoDa.m1.build/Debug/GeoDa.build/GeoDa.app.xcent --timestamp\=none '
     os.system(cmd + dylib_path)
 
     dep_libs = subprocess.check_output(['otool', '-L', dylib_path]).decode('utf-8')
