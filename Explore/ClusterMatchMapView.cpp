@@ -170,7 +170,7 @@ void ClusterMatchSelectDlg::OnVarSelect( wxCommandEvent& event)
     selected_variable = "";
     var_selections.Clear();
     select_vars.clear();
-
+    
     std::vector<int> tms;
     
     combo_var->GetSelections(var_selections);
@@ -200,11 +200,20 @@ void ClusterMatchSelectDlg::OnVarSelect( wxCommandEvent& event)
             }
             col_ids[i] = col;
             
+            // get values
+            std::vector<wxInt64> cat_vals;
+            table_int->GetColData(col, tm, cat_vals);
+            
+            // add to configuration dictionary
+            if (input_conf.find(nm) == input_conf.end()) {
+                for (int j=0; j<(int)cat_vals.size(); ++j) {
+                    input_conf[nm][cat_vals[j]] = true;
+                }
+            }
+            
             if (i==0) {
                 // show clusters of first selected variable
                 selected_variable = nm;
-                std::vector<wxInt64> cat_vals;
-                table_int->GetColData(col, tm, cat_vals);
                 ShowOptionsOfVariable(nm, cat_vals);
             }
         }
@@ -260,13 +269,13 @@ void ClusterMatchSelectDlg::ShowOptionsOfVariable(const wxString& var_name, std:
         chk->Bind(wxEVT_CHECKBOX, &ClusterMatchSelectDlg::OnCheckBoxChange, this);
         cnt ++;
     }
-    wxCommandEvent ev;
-    OnCheckBoxChange(ev);
+
     container->Layout();
 }
 
 void ClusterMatchSelectDlg::OnCheckBoxChange(wxCommandEvent& event)
 {
+    // update configuration dict
     int n_all_values = (int)chk_list.size();
     std::map<wxInt64, bool> select_values;
     // Get checked values for selected variable
@@ -319,6 +328,15 @@ void ClusterMatchSelectDlg::OnOK( wxCommandEvent& event)
 {
     int num_obs = project->GetNumRecords();;
     int num_vars = (int)select_vars.size();
+    
+    if (num_vars <= 1) {
+        wxMessageDialog dlg(this,
+                            _("Please select at least two variables."),
+                            _("Warning"), wxOK_DEFAULT | wxICON_WARNING );
+        dlg.ShowModal();
+        return;
+    }
+    
     std::vector<std::vector<wxInt64> > cat_values;
 
     for (int i=0; i<num_vars; ++i) {
@@ -358,19 +376,33 @@ void ClusterMatchSelectDlg::OnOK( wxCommandEvent& event)
 
     BlockWeights block_w(cat_values, queen_w);
 
-    std::vector<wxInt64> clusters = block_w.GetClusters();
+    wxString str_min_size = m_min_size->GetValue();
+    long l_min_size = 0;
+    str_min_size.ToLong(&l_min_size);
+    
+    int valid_clusters = 0;
+    std::vector<wxInt64> clusters = block_w.GetClusters((int)l_min_size);
     std::vector<bool> clusters_undef(num_obs, false);
     for (int i=0; i<(int)clusters.size(); ++i) {
         if (clusters[i] == 0) {
             clusters_undef[i] = true;
+        } else {
+            valid_clusters += 1;
         }
+    }
+    
+    if (valid_clusters == 0) {
+        wxString err_msg = _("No common cluster can be found. Please choose other variables or clusters to compare.");
+        wxMessageDialog dlg(NULL, err_msg, _("Warning"), wxOK | wxICON_WARNING);
+        dlg.ShowModal();
+        return;
     }
 
     // field name
     wxString field_name = m_textbox->GetValue();
     if (field_name.IsEmpty()) {
         wxString err_msg = _("Please enter a field name for saving clustering results.");
-        wxMessageDialog dlg(NULL, err_msg, _("Error"), wxOK | wxICON_ERROR);
+        wxMessageDialog dlg(NULL, err_msg, _("Warning"), wxOK | wxICON_WARNING);
         dlg.ShowModal();
         return;
     }
@@ -418,7 +450,8 @@ void ClusterMatchSelectDlg::OnOK( wxCommandEvent& event)
     new_var_info[0].sync_with_global_time = new_var_info[0].is_time_variant;
     new_var_info[0].fixed_scale = true;
 
-
+    GdaConst::map_undefined_colour = wxColour(255,255,255);
+    
     MapFrame* nf = new MapFrame(parent, project,
                                 new_var_info, new_col_ids,
                                 CatClassification::unique_values,
@@ -426,7 +459,8 @@ void ClusterMatchSelectDlg::OnOK( wxCommandEvent& event)
                                 boost::uuids::nil_uuid(),
                                 wxDefaultPosition,
                                 GdaConst::map_default_size);
-
+    GdaConst::map_undefined_colour = wxColour(70, 70, 70);
+    
     wxString ttl = _("Cluster Match Map");
     ttl << ": ";
     for (int i=0; i<select_vars.size(); i++) {

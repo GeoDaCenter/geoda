@@ -736,7 +736,7 @@ void AZPDlg::OnOK(wxCommandEvent& event )
     for (int i = 1; i < rows; i++) free(ragged_distances[i]);
     free(ragged_distances);
 
-    int ncluster = cluster_ids.size();
+    int ncluster = (int)cluster_ids.size();
     vector<wxInt64> clusters(rows, 0);
     vector<bool> clusters_undef(rows, false);
 

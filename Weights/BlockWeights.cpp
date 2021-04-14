@@ -10,6 +10,7 @@
 #include "../ShapeOperations/GeodaWeight.h"
 #include "../ShapeOperations/GalWeight.h"
 #include "../ShapeOperations/WeightUtils.h"
+#include "../GenUtils.h"
 #include "BlockWeights.h"
 
 
@@ -40,7 +41,6 @@ BlockWeights::BlockWeights(const std::vector<std::vector<wxInt64> >& cat_values,
         // create block weights for this variable
         GalElement* gal = new GalElement[num_obs];
         for (it = cat_dict.begin(); it != cat_dict.end(); ++it) {
-            int c = it->first;
             std::set<int>& ids = it->second;
             int nbr_sz = (int)ids.size() - 1;
             // ids will be neighbors of each other
@@ -81,7 +81,7 @@ BlockWeights::BlockWeights(const std::vector<std::vector<wxInt64> >& cat_values,
                 cluster[i] = c;
                 cluster_ids[i] = c;
                 for (int j=0; j<nn; ++j) {
-                    cluster[ nbrs[j] ] = c;
+                    cluster[ (int)nbrs[j] ] = c;
                     cluster_ids[ nbrs[j] ] = c;
                 }
                 c += 1;
@@ -147,7 +147,30 @@ BlockWeights::~BlockWeights() {
 
 }
 
-std::vector<wxInt64> BlockWeights::GetClusters() {
+std::vector<wxInt64> BlockWeights::GetClusters(int min_cluster_size) {
+    // filter by min_cluster_size
+    std::vector<std::vector<int> > clusters;
+    std::map<wxInt64, std::vector<int> > solution;
+    for (int i=0; i<(int)cluster_ids.size(); ++i) {
+        solution[cluster_ids[i]].push_back(i);
+    }
+    std::map<wxInt64, std::vector<int> >::iterator it;
+    for (it = solution.begin(); it != solution.end(); ++it) {
+        clusters.push_back(it->second);
+    }
+    
+    // sort the clusters
+    std::sort(clusters.begin(), clusters.end(), GenUtils::less_vectors);
+    
+    int nclusters = (int)clusters.size();
+    for (int i=0; i < nclusters; i++) {
+        int cluster_sz = (int)clusters[i].size();
+        for (int j=0; j<cluster_sz; j++) {
+            int idx = clusters[i][j];
+            cluster_ids[idx] = cluster_sz >= min_cluster_size ? i : 0;
+        }
+    }
+    
     return cluster_ids;
 }
 

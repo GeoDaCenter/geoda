@@ -22,7 +22,7 @@ public:
                  const GeoDaWeight* cont_weights);
     ~BlockWeights();
 
-    std::vector<wxInt64> GetClusters();
+    std::vector<wxInt64> GetClusters(int min_cluster_size);
 
     std::vector<std::vector<int> > CheckContiguity(int start, std::vector<long> nbrs, const GeoDaWeight* w);
 

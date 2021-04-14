@@ -706,8 +706,8 @@ void C3DPlotCanvas::RenderScene()
                         if (!hs[i]) continue;
 
                         GalElement& e = gal_weights->gal[i];
-                        for (int j=0, jend=e.Size(); j<jend; j++) {
-                            int obs = e[j];
+                        for (int j=0, jend=(int)e.Size(); j<jend; j++) {
+                            int obs = (int)e[j];
                             if (i != obs) {
                                 glBegin(GL_LINES);
                                 glVertex3f(scaled_d[0][xt][i], scaled_d[1][yt][i],
@@ -731,8 +731,8 @@ void C3DPlotCanvas::RenderScene()
                     if (!hs[i]) continue;
 
                     GalElement& e = gal_weights->gal[i];
-                    for (int j=0, jend=e.Size(); j<jend; j++) {
-                        int obs = e[j];
+                    for (int j=0, jend=(int)e.Size(); j<jend; j++) {
+                        int obs = (int)e[j];
                         if (i != obs) {
                             draw_pts[obs] = true;
                             glPushMatrix();
