@@ -927,7 +927,11 @@ void PreferenceDlg::OnChooseLanguage(wxCommandEvent& ev)
     wxString exePath = wxStandardPaths::Get().GetExecutablePath();
     wxFileName exeFile(exePath);
     wxString exeDir = exeFile.GetPathWithSep();
+#ifdef __WXMAC__
+    wxString configPath = exeDir + "../Resources/lang/config.ini";
+#else
     wxString configPath = exeDir + "lang" + wxFileName::GetPathSeparator() + "config.ini";
+#endif
     wxConfigBase * config = new wxFileConfig("GeoDa", wxEmptyString, configPath);
     
     if (lan_sel > 0) {

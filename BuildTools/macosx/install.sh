@@ -81,11 +81,25 @@ if ! [ -f "v0.8.0.zip" ]; then
     mv spectra-0.8.0 spectra
 fi
 
+# code sign
+echo $MACOS_CERTIFICATE | base64 --decode > certificate.p12
+# create a new keychain
+security create-keychain -p password build.keychain
+security default-keychain -s build.keychain
+# unlock the keychain
+security unlock-keychain -p password build.keychain
+security import certificate.p12 -k build.keychain -P $MACOS_CERTIFICATE_PWD -T /usr/bin/codesign
+# add codesign to partition-list
+security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k password build.keychain
+# /usr/bin/codesign --force -s <identity-id> ./path/to/you/app -v
 
 # Build GeoDa
 cd ..
 make -j $CPUS
 make app
+
+codesign -o runtime --force -s "Apple Development: Xun Li (64G99ZDX93)" build/GeoDa.app/Contents/MacOS/lisa_kernel.cl -v
+codesign -o runtime --force -s "Apple Development: Xun Li (64G99ZDX93)" build/GeoDa.app/Contents/MacOS/GeoDa -v
 
 # Create dmg
 VER_MAJOR=$(grep version_major $GEODA_HOME/../../version.h | sed -e 's/^[[:space:]][[:alpha:]|[:space:]|_|=]*//g' | sed -e 's/;//g')

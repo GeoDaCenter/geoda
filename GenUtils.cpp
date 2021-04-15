@@ -2392,6 +2392,8 @@ wxString GenUtils::GetBasemapDir()
         wxFileName::Mkdir(basemapDir);
     }
     return basemapDir;
+#elif __WXMAC__
+    return GetExeDir() + "../Resources/basemap_cache";
 #else
     return GetExeDir() + "basemap_cache";
 #endif
@@ -2412,6 +2414,8 @@ wxString GenUtils::GetCachePath()
         wxCopyFile(origCachePath, cachePath);
     }
     return cachePath;
+#elif __WXMAC__
+    return GetExeDir() + "../Resources/cache.sqlite";
 #else
     return GetExeDir() + "cache.sqlite";
 #endif

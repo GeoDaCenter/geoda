@@ -30,13 +30,12 @@
 		A14735BA21A65F1800CA69B2 /* perf.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A14735B121A65F1700CA69B2 /* perf.cpp */; };
 		A14735BB21A65F1800CA69B2 /* bd_pr_search.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A14735B221A65F1700CA69B2 /* bd_pr_search.cpp */; };
 		A14735BC21A65F1800CA69B2 /* brute.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A14735B321A65F1700CA69B2 /* brute.cpp */; };
-		A14B3AD72376229A007EE3AB /* lang in Copy Files */ = {isa = PBXBuildFile; fileRef = A4404A03208E9E380007753D /* lang */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
-		A14B3AD8237622A6007EE3AB /* cache.sqlite in Copy Files */ = {isa = PBXBuildFile; fileRef = A1F1BA98178D46B8005A46E5 /* cache.sqlite */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
-		A14B3AD9237622AE007EE3AB /* basemap_cache in Copy Files */ = {isa = PBXBuildFile; fileRef = A1B04ADC1B1921710045AA6F /* basemap_cache */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		A14C496F1D76174000D9831C /* CsvFieldConfDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A14C496D1D76174000D9831C /* CsvFieldConfDlg.cpp */; };
 		A1563A06237DE6E100628FA0 /* localjc_kernel.cl in Copy Files */ = {isa = PBXBuildFile; fileRef = A4E00F0F20FD8ECC0038BA80 /* localjc_kernel.cl */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		A1563A08237DE6E100628FA0 /* lisa_kernel.cl in Copy Files */ = {isa = PBXBuildFile; fileRef = A47F792120AA082A000AFE57 /* lisa_kernel.cl */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		A16BA470183D626200D3B7DA /* DatasourceDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A16BA46E183D626200D3B7DA /* DatasourceDlg.cpp */; };
+		A173361C2628DC6B00EE9752 /* cache.sqlite in Resources */ = {isa = PBXBuildFile; fileRef = A1F1BA98178D46B8005A46E5 /* cache.sqlite */; };
+		A173361D2628DCC100EE9752 /* basemap_cache in Resources */ = {isa = PBXBuildFile; fileRef = A1B04ADC1B1921710045AA6F /* basemap_cache */; };
 		A178F773227381CB00EB9CB7 /* DissolveDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A178F772227381CB00EB9CB7 /* DissolveDlg.cpp */; };
 		A178F776227772FD00EB9CB7 /* GdaListBox.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A178F774227772FC00EB9CB7 /* GdaListBox.cpp */; };
 		A178F779227773C500EB9CB7 /* GdaChoice.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A178F777227773C500EB9CB7 /* GdaChoice.cpp */; };
@@ -339,9 +338,6 @@
 			files = (
 				A1563A06237DE6E100628FA0 /* localjc_kernel.cl in Copy Files */,
 				A1563A08237DE6E100628FA0 /* lisa_kernel.cl in Copy Files */,
-				A14B3AD9237622AE007EE3AB /* basemap_cache in Copy Files */,
-				A14B3AD8237622A6007EE3AB /* cache.sqlite in Copy Files */,
-				A14B3AD72376229A007EE3AB /* lang in Copy Files */,
 			);
 			name = "Copy Files";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1856,6 +1852,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A173361D2628DCC100EE9752 /* basemap_cache in Resources */,
+				A173361C2628DC6B00EE9752 /* cache.sqlite in Resources */,
 				A1FD1CC326151D9400A59EC3 /* proj in Resources */,
 				A12007EF237497E400CBA5B1 /* data_viewer_dialogs.xrc in Resources */,
 				A12007F0237497E400CBA5B1 /* dialogs.xrc in Resources */,
