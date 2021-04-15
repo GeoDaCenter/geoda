@@ -41,6 +41,8 @@ jobs:
           cd macosx
           export GEODA_HOME=$PWD
           export GEODA_ARCH=x86_64
+          export MACOS_CERTIFICATE=${{ evn.MACOS_CERTIFICATE }}
+          export MACOS_CERTIFICATE_PWD=${{ evn.MACOS_CERTIFICATE_PWD }}
           ./install.sh
       
       # Upload artifact

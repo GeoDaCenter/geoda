@@ -3,6 +3,8 @@
 # stops the execution of a script if a command or pipeline has an error
 set -e
 
+echo $MACOS_CERTIFICATE
+
 export GEODA_HOME=$PWD
 echo $GEODA_HOME
 CPUS=2
@@ -98,8 +100,8 @@ cd ..
 make -j $CPUS
 make app
 
-codesign -o runtime --force -s "Apple Development: Xun Li (64G99ZDX93)" build/GeoDa.app/Contents/MacOS/lisa_kernel.cl -v
-codesign -o runtime --force -s "Apple Development: Xun Li (64G99ZDX93)" build/GeoDa.app/Contents/MacOS/GeoDa -v
+codesign --force --timestamp -o runtime -s "Apple Development: Xun Li (64G99ZDX93)" build/GeoDa.app/Contents/MacOS/lisa_kernel.cl -v
+codesign --force --timestamp -o runtime -s "Apple Development: Xun Li (64G99ZDX93)" -i edu.uchicago.spatial build/GeoDa.app/Contents/MacOS/GeoDa -v
 
 # Create dmg
 VER_MAJOR=$(grep version_major $GEODA_HOME/../../version.h | sed -e 's/^[[:space:]][[:alpha:]|[:space:]|_|=]*//g' | sed -e 's/;//g')
