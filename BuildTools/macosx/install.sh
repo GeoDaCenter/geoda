@@ -13,19 +13,6 @@ mkdir -p libraries/lib
 mkdir -p libraries/include
 mkdir -p ../../o
 
-# setup code sign
-echo "setup codesign"
-echo $MACOS_CERTIFICATE | base64 --decode > certificate.p12
-# create a new keychain
-security create-keychain -p password build.keychain
-security default-keychain -s build.keychain
-# unlock the keychain
-security unlock-keychain -p password build.keychain
-security import certificate.p12 -k build.keychain -P $MACOS_CERTIFICATE_PWD -T /usr/bin/codesign
-# add codesign to partition-list
-security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k password build.keychain
-echo "find identity"
-security find-identity -v
 
 # Install boost 1.75
 brew install boost@1.75
