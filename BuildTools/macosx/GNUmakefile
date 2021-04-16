@@ -102,6 +102,9 @@ build-geoda-mac:
 	install_name_tool -change "/usr/local/opt/gdal/lib/libgdal.28.dylib" "@executable_path/../Frameworks/libgdal.28.dylib" build/GeoDa.app/Contents/MacOS/GeoDa
 	install_name_tool -change "/opt/homebrew/opt/gdal/lib/libgdal.28.dylib" "@executable_path/../Frameworks/libgdal.28.dylib" build/GeoDa.app/Contents/MacOS/GeoDa
 	python3 install_name.py $(GEODA_HOME)/build/GeoDa.app/Contents/Frameworks
+	codesign --timestamp -o runtime -s "Developer ID Application: Geodapress LLC (26M5NG43GP)" build/GeoDa.app/Contents/MacOS/lisa_kernel.cl
+	codesign -f --timestamp -o runtime -s "Developer ID Application: Geodapress LLC (26M5NG43GP)" build/GeoDa.app/Contents/MacOS/GeoDa
+	codesign -f --timestamp -o runtime -s "Developer ID Application: Geodapress LLC (26M5NG43GP)" build/GeoDa.app
 
 	
 clean:

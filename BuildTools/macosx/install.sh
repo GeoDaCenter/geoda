@@ -87,9 +87,6 @@ cd ..
 make -j $CPUS
 make app
 
-codesign --force --timestamp -o runtime -s "Developer ID Application: Geodapress LLC (26M5NG43GP)" build/GeoDa.app/Contents/MacOS/lisa_kernel.cl
-codesign --force --timestamp -o runtime -s "Developer ID Application: Geodapress LLC (26M5NG43GP)" -i edu.uchicago.spatial build/GeoDa.app/Contents/MacOS/GeoDa
-
 # Create dmg
 VER_MAJOR=$(grep version_major $GEODA_HOME/../../version.h | sed -e 's/^[[:space:]][[:alpha:]|[:space:]|_|=]*//g' | sed -e 's/;//g')
 VER_MINOR=$(grep version_minor $GEODA_HOME/../../version.h | sed -e 's/^[[:space:]][[:alpha:]|[:space:]|_|=]*//g' | sed -e 's/;//g')
@@ -99,4 +96,4 @@ echo $GEODA_VERSION
 
 cd create-dmg
 ./geoda.sh $GEODA_VERSION
-codesign --force --timestamp -o runtime -s "Developer ID Application: Geodapress LLC (26M5NG43GP)" -i edu.uchicago.spatial GeoDa$GEODA_VERSION-Installer.dmg
+codesign --timestamp -s "Developer ID Application: Geodapress LLC (26M5NG43GP)" -i edu.uchicago.spatial GeoDa$GEODA_VERSION-Installer.dmg
