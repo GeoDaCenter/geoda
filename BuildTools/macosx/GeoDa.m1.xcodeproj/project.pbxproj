@@ -1904,7 +1904,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "# Type a script or drag a script file from your workspace to insert its path.\n#python3 install_name.py $TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/Frameworks\ncodesign -f -s 2C86718CD200161736254D6451732A05183661DE $TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/MacOS/lisa_kernel.cl\ncodesign -f -s 2C86718CD200161736254D6451732A05183661DE $TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/MacOS/lang/ru/GeoDa.mo\ncodesign -f -s 2C86718CD200161736254D6451732A05183661DE $TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/MacOS/lang/es/GeoDa.mo\ncodesign -f -s 2C86718CD200161736254D6451732A05183661DE $TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/MacOS/lang/zh_CN/GeoDa.mo\ncodesign -f -s 2C86718CD200161736254D6451732A05183661DE $TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/MacOS/lang/config.ini\ncodesign -f -s 2C86718CD200161736254D6451732A05183661DE $TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/MacOS/localjc_kernel.cl\ncodesign -f -s 2C86718CD200161736254D6451732A05183661DE $TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/MacOS/cache.sqlite\ncodesign -f -s 2C86718CD200161736254D6451732A05183661DE /opt/homebrew/opt/gdal/lib/libgdal.28.dylib\ncodesign -f -s 2C86718CD200161736254D6451732A05183661DE /Users/xun/github/geoda/BuildTools/macosx/libraries/lib/libwx_osx_cocoau-3.1.4.0.0.dylib\ncodesign -f -s 2C86718CD200161736254D6451732A05183661DE /Users/xun/github/geoda/BuildTools/macosx/libraries/lib/libwx_osx_cocoau_gl-3.1.4.0.0.dylib\n";
+			shellScript = "# Type a script or drag a script file from your workspace to insert its path.\n#python3 install_name.py $TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/Frameworks\ncodesign -f -s BB86F13EB8F7A28C9B613925E3E890DA3C31D8E5 $TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/MacOS/lisa_kernel.cl\ncodesign -f -s BB86F13EB8F7A28C9B613925E3E890DA3C31D8E5 $TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/MacOS/lang/ru/GeoDa.mo\ncodesign -f -s BB86F13EB8F7A28C9B613925E3E890DA3C31D8E5 $TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/MacOS/lang/es/GeoDa.mo\ncodesign -f -s BB86F13EB8F7A28C9B613925E3E890DA3C31D8E5 $TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/MacOS/lang/zh_CN/GeoDa.mo\ncodesign -f -s BB86F13EB8F7A28C9B613925E3E890DA3C31D8E5 $TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/MacOS/lang/config.ini\ncodesign -f -s BB86F13EB8F7A28C9B613925E3E890DA3C31D8E5 $TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/MacOS/localjc_kernel.cl\ncodesign -f -s BB86F13EB8F7A28C9B613925E3E890DA3C31D8E5 $TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/MacOS/cache.sqlite\ncodesign -f -s BB86F13EB8F7A28C9B613925E3E890DA3C31D8E5 /opt/homebrew/opt/gdal/lib/libgdal.28.dylib\ncodesign -f -s BB86F13EB8F7A28C9B613925E3E890DA3C31D8E5 /Users/xun/github/geoda/BuildTools/macosx/libraries/lib/libwx_osx_cocoau-3.1.4.0.0.dylib\ncodesign -f -s BB86F13EB8F7A28C9B613925E3E890DA3C31D8E5 /Users/xun/github/geoda/BuildTools/macosx/libraries/lib/libwx_osx_cocoau_gl-3.1.4.0.0.dylib\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -2296,7 +2296,7 @@
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = YES;
 				DEVELOPMENT_ASSET_PATHS = "";
-				DEVELOPMENT_TEAM = 8U5A7AU965;
+				DEVELOPMENT_TEAM = "";
 				ENABLE_HARDENED_RUNTIME = YES;
 				GCC_C_LANGUAGE_STANDARD = "compiler-default";
 				GCC_DYNAMIC_NO_PIC = NO;

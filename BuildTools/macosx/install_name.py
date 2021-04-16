@@ -19,13 +19,13 @@ def ProcessDependency(dir_path, dylib_name):
             new_path = "@executable_path/../Frameworks/{}".format(file_name)
             cmd = "install_name_tool -change \"{}\" \"{}\" {}".format(item, new_path, dylib_path)
             os.system(cmd)
-            cmd = 'codesign --force --timestamp -o runtime -s "Apple Development: Xun Li (64G99ZDX93)" {} -v'.format(dylib_path)
+            cmd = 'codesign --force --timestamp -o runtime -s "Developer ID Application: Geodapress LLC (26M5NG43GP)" {}'.format(dylib_path)
             os.system(cmd)
             # process item
             ProcessDependency(dir_path, file_name)
 
 
-framework_path = sys.argv[1] #'/Users/xun/Github/geoda/BuildTools/macosx/build/GeoDa.app/Contents/Frameworks'
+framework_path = sys.argv[1] #e.g. '/Users/xun/Github/geoda/BuildTools/macosx/build/GeoDa.app/Contents/Frameworks'
 
 ProcessDependency(framework_path, "libwx_osx_cocoau_gl-3.1.dylib")
 ProcessDependency(framework_path, "libwx_osx_cocoau-3.1.dylib")
