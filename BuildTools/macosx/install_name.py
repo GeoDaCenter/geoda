@@ -2,6 +2,11 @@ import subprocess
 import os, sys
 from shutil import copyfile
 
+framework_path = sys.argv[1] #e.g. '/Users/xun/Github/geoda/BuildTools/macosx/build/GeoDa.app/Contents/Frameworks'
+id = sys.argv[2]
+
+print(id)
+
 def ProcessDependency(dir_path, dylib_name):
     dylib_path = dir_path + '/' + dylib_name
     dep_libs = subprocess.check_output(['otool', '-L', dylib_path]).decode('utf-8')
@@ -22,11 +27,9 @@ def ProcessDependency(dir_path, dylib_name):
             # process item
             ProcessDependency(dir_path, file_name)
     print("codesign {}", dylib_path)
-    cmd = 'codesign --force --timestamp -o runtime -s "Developer ID Application: Geodapress LLC (26M5NG43GP)" {}'.format(dylib_path)
+    cmd = 'codesign --force --timestamp -o runtime -s "{}" {}'.format(id, dylib_path)
     os.system(cmd)
 
-
-framework_path = sys.argv[1] #e.g. '/Users/xun/Github/geoda/BuildTools/macosx/build/GeoDa.app/Contents/Frameworks'
 
 ProcessDependency(framework_path, "libwx_osx_cocoau_gl-3.1.dylib")
 ProcessDependency(framework_path, "libwx_osx_cocoau-3.1.dylib")

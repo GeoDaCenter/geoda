@@ -40,6 +40,8 @@
 	<string>0400</string>
 	<key>DTXcodeBuild</key>
 	<string>10M2518</string>
+	<key>LSApplicationCategoryType</key>
+	<string>public.app-category.education</string>
 	<key>CFBundleDocumentTypes</key>
 	<array>
 	  <dict>

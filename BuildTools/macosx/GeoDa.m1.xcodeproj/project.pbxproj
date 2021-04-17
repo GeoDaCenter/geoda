@@ -31,8 +31,6 @@
 		A14735BB21A65F1800CA69B2 /* bd_pr_search.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A14735B221A65F1700CA69B2 /* bd_pr_search.cpp */; };
 		A14735BC21A65F1800CA69B2 /* brute.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A14735B321A65F1700CA69B2 /* brute.cpp */; };
 		A14C496F1D76174000D9831C /* CsvFieldConfDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A14C496D1D76174000D9831C /* CsvFieldConfDlg.cpp */; };
-		A1563A06237DE6E100628FA0 /* localjc_kernel.cl in Copy Files */ = {isa = PBXBuildFile; fileRef = A4E00F0F20FD8ECC0038BA80 /* localjc_kernel.cl */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
-		A1563A08237DE6E100628FA0 /* lisa_kernel.cl in Copy Files */ = {isa = PBXBuildFile; fileRef = A47F792120AA082A000AFE57 /* lisa_kernel.cl */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		A16BA470183D626200D3B7DA /* DatasourceDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A16BA46E183D626200D3B7DA /* DatasourceDlg.cpp */; };
 		A173361C2628DC6B00EE9752 /* cache.sqlite in Resources */ = {isa = PBXBuildFile; fileRef = A1F1BA98178D46B8005A46E5 /* cache.sqlite */; };
 		A173361D2628DCC100EE9752 /* basemap_cache in Resources */ = {isa = PBXBuildFile; fileRef = A1B04ADC1B1921710045AA6F /* basemap_cache */; };
@@ -41,12 +39,6 @@
 		A178F779227773C500EB9CB7 /* GdaChoice.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A178F777227773C500EB9CB7 /* GdaChoice.cpp */; };
 		A185D12C261FFD6100A62EAC /* BlockWeights.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A185D12B261FFD6100A62EAC /* BlockWeights.cpp */; };
 		A185D130261FFD8000A62EAC /* ClusterMatchMapView.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A185D12E261FFD8000A62EAC /* ClusterMatchMapView.cpp */; };
-		A185D13B262004D600A62EAC /* libwx_osx_cocoau_gl-3.1.4.0.0.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = A185D139262004D600A62EAC /* libwx_osx_cocoau_gl-3.1.4.0.0.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
-		A185D13C262004D600A62EAC /* libwx_osx_cocoau-3.1.4.0.0.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = A185D13A262004D600A62EAC /* libwx_osx_cocoau-3.1.4.0.0.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
-		A185D13F262004F000A62EAC /* libgdal.28.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = A185D13E262004F000A62EAC /* libgdal.28.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
-		A185D1432620071F00A62EAC /* libgdal.28.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = A185D13E262004F000A62EAC /* libgdal.28.dylib */; };
-		A185D1442620072E00A62EAC /* libwx_osx_cocoau_gl-3.1.4.0.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = A185D139262004D600A62EAC /* libwx_osx_cocoau_gl-3.1.4.0.0.dylib */; };
-		A185D1452620072E00A62EAC /* libwx_osx_cocoau-3.1.4.0.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = A185D13A262004D600A62EAC /* libwx_osx_cocoau-3.1.4.0.0.dylib */; };
 		A186F0A11C16508A00AEBA13 /* GdaCartoDB.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A186F09F1C16508A00AEBA13 /* GdaCartoDB.cpp */; };
 		A1894C3F213F29DC00718FFC /* SpatialJoinDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A1894C3D213F29DC00718FFC /* SpatialJoinDlg.cpp */; };
 		A19483932118BAAA009A87A2 /* composit.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A194837A2118BAA7009A87A2 /* composit.cpp */; };
@@ -62,7 +54,6 @@
 		A194839D2118BAAA009A87A2 /* drawn.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A194838C2118BAA9009A87A2 /* drawn.cpp */; };
 		A194839E2118BAAA009A87A2 /* ogldiag.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A19483912118BAAA009A87A2 /* ogldiag.cpp */; };
 		A19483A22118BE8F009A87A2 /* MapLayoutView.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A19483A02118BE8E009A87A2 /* MapLayoutView.cpp */; };
-		A19F51501756A11E006E31B4 /* plugins in Resources */ = {isa = PBXBuildFile; fileRef = A19F514D1756A11E006E31B4 /* plugins */; };
 		A1AC05BF1C8645F300B6FE5F /* AdjustYAxisDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A1AC05BD1C8645F300B6FE5F /* AdjustYAxisDlg.cpp */; };
 		A1B13EE31C3EDFF90064AD87 /* BasemapConfDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A1B13EE21C3EDFF90064AD87 /* BasemapConfDlg.cpp */; };
 		A1B93AC017D18735007F8195 /* ProjectConf.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A1B93ABF17D18735007F8195 /* ProjectConf.cpp */; };
@@ -71,6 +62,9 @@
 		A1CE3D331C1A427A0010F170 /* PublishDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A1CE3D311C1A427A0010F170 /* PublishDlg.cpp */; };
 		A1D82DEF174D3EB6003DE20A /* ConnectDatasourceDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A1D82DEE174D3EB6003DE20A /* ConnectDatasourceDlg.cpp */; };
 		A1DA623A17BCBC070070CAAB /* AutoCompTextCtrl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A1DA623817BCBC070070CAAB /* AutoCompTextCtrl.cpp */; };
+		A1DDBC41262A87E400116D5B /* localjc_kernel.cl in Resources */ = {isa = PBXBuildFile; fileRef = A4E00F0F20FD8ECC0038BA80 /* localjc_kernel.cl */; };
+		A1DDBC42262A87EB00116D5B /* lisa_kernel.cl in Resources */ = {isa = PBXBuildFile; fileRef = A47F792120AA082A000AFE57 /* lisa_kernel.cl */; };
+		A1DDBC45262A92A000116D5B /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A1DDBC44262A92A000116D5B /* Images.xcassets */; };
 		A1E5BC841DBFE661005739E9 /* ReportBugDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A1E5BC831DBFE661005739E9 /* ReportBugDlg.cpp */; };
 		A1E77E1A177D6A2E00CC1037 /* ExportDataDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A1E77E18177D6A2E00CC1037 /* ExportDataDlg.cpp */; };
 		A1E77FDC17889BE200CC1037 /* OGRTable.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A1E77FDA17889BE200CC1037 /* OGRTable.cpp */; };
@@ -126,8 +120,6 @@
 		A46099A82416E562000A53E2 /* misc.c in Sources */ = {isa = PBXBuildFile; fileRef = A46099A72416E562000A53E2 /* misc.c */; };
 		A47614AE20759EAD00D9F3BE /* arcgis_swm.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A47614AD20759EAD00D9F3BE /* arcgis_swm.cpp */; };
 		A47F792020A9F67A000AFE57 /* gpu_lisa.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A47F791E20A9F679000AFE57 /* gpu_lisa.cpp */; };
-		A47F792220AA082A000AFE57 /* lisa_kernel.cl in Sources */ = {isa = PBXBuildFile; fileRef = A47F792120AA082A000AFE57 /* lisa_kernel.cl */; };
-		A47F792420AA084B000AFE57 /* distmat_kernel.cl in Sources */ = {isa = PBXBuildFile; fileRef = A47F792320AA084B000AFE57 /* distmat_kernel.cl */; };
 		A47FC9DB1F74DE1600BEFBF2 /* MLJCCoordinator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A47FC9D91F74DE1600BEFBF2 /* MLJCCoordinator.cpp */; };
 		A48356BB1E456310002791C8 /* ConditionalClusterMapView.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A48356B91E456310002791C8 /* ConditionalClusterMapView.cpp */; };
 		A48814EB20A50B0F005490A7 /* fastcluster.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A48814EA20A50B0F005490A7 /* fastcluster.cpp */; };
@@ -167,7 +159,6 @@
 		A4D5423D1F45037B00572878 /* redcap.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A4D5423B1F45037B00572878 /* redcap.cpp */; };
 		A4D9A31F1E4D5F3800EF584C /* gdaldata in Resources */ = {isa = PBXBuildFile; fileRef = A4D9A31E1E4D5F3800EF584C /* gdaldata */; };
 		A4DB2CBC1EEA3A3E00BD4A54 /* Guerry.png in Resources */ = {isa = PBXBuildFile; fileRef = A4DB2CBB1EEA3A3E00BD4A54 /* Guerry.png */; };
-		A4E00F1020FD8ECD0038BA80 /* localjc_kernel.cl in Sources */ = {isa = PBXBuildFile; fileRef = A4E00F0F20FD8ECC0038BA80 /* localjc_kernel.cl */; };
 		A4E5FE191F624D5600D75662 /* AggregateDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A4E5FE171F624D5600D75662 /* AggregateDlg.cpp */; };
 		A4ED7D442097EC55008685D6 /* ANN.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A4ED7D412097EC54008685D6 /* ANN.cpp */; };
 		A4ED7D472097EDE9008685D6 /* kd_tree.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A4ED7D462097EDE9008685D6 /* kd_tree.cpp */; };
@@ -336,8 +327,6 @@
 			dstPath = "";
 			dstSubfolderSpec = 6;
 			files = (
-				A1563A06237DE6E100628FA0 /* localjc_kernel.cl in Copy Files */,
-				A1563A08237DE6E100628FA0 /* lisa_kernel.cl in Copy Files */,
 			);
 			name = "Copy Files";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -348,9 +337,6 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
-				A185D13B262004D600A62EAC /* libwx_osx_cocoau_gl-3.1.4.0.0.dylib in CopyFiles */,
-				A185D13C262004D600A62EAC /* libwx_osx_cocoau-3.1.4.0.0.dylib in CopyFiles */,
-				A185D13F262004F000A62EAC /* libgdal.28.dylib in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -458,6 +444,8 @@
 		A1D82DEE174D3EB6003DE20A /* ConnectDatasourceDlg.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ConnectDatasourceDlg.cpp; sourceTree = "<group>"; };
 		A1DA623817BCBC070070CAAB /* AutoCompTextCtrl.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AutoCompTextCtrl.cpp; sourceTree = "<group>"; };
 		A1DA623917BCBC070070CAAB /* AutoCompTextCtrl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AutoCompTextCtrl.h; sourceTree = "<group>"; };
+		A1DDBC43262A90FB00116D5B /* GeoDaRelease.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; name = GeoDaRelease.entitlements; path = BuildTools/macosx/GeoDaRelease.entitlements; sourceTree = "<group>"; };
+		A1DDBC44262A92A000116D5B /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = BuildTools/macosx/GeoDa/Images.xcassets; sourceTree = "<group>"; };
 		A1E5BC821DBFE661005739E9 /* ReportBugDlg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReportBugDlg.h; sourceTree = "<group>"; };
 		A1E5BC831DBFE661005739E9 /* ReportBugDlg.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ReportBugDlg.cpp; sourceTree = "<group>"; };
 		A1E77E18177D6A2E00CC1037 /* ExportDataDlg.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ExportDataDlg.cpp; sourceTree = "<group>"; };
@@ -983,19 +971,6 @@
 		DDFFC7F11AC1C7CF00F7DD6D /* Observer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Observer.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
-/* Begin PBXFrameworksBuildPhase section */
-		A185D137262004B700A62EAC /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				A185D1432620071F00A62EAC /* libgdal.28.dylib in Frameworks */,
-				A185D1442620072E00A62EAC /* libwx_osx_cocoau_gl-3.1.4.0.0.dylib in Frameworks */,
-				A185D1452620072E00A62EAC /* libwx_osx_cocoau-3.1.4.0.0.dylib in Frameworks */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-/* End PBXFrameworksBuildPhase section */
-
 /* Begin PBXGroup section */
 		A14735A721A5F6CE00CA69B2 /* Weights */ = {
 			isa = PBXGroup;
@@ -1233,6 +1208,8 @@
 		DD7974650F1D1B0700496A84 /* ../../ */ = {
 			isa = PBXGroup;
 			children = (
+				A1DDBC44262A92A000116D5B /* Images.xcassets */,
+				A1DDBC43262A90FB00116D5B /* GeoDaRelease.entitlements */,
 				A1CE6938261B7BC3006027BA /* GeoDaDebug.entitlements */,
 				A1FD1CC226151D9400A59EC3 /* proj */,
 				A14735A721A5F6CE00CA69B2 /* Weights */,
@@ -1797,7 +1774,6 @@
 			buildConfigurationList = DD7974870F1D1B6600496A84 /* Build configuration list for PBXNativeTarget "GeoDa" */;
 			buildPhases = (
 				DD79747D0F1D1B6600496A84 /* Resources */,
-				A185D137262004B700A62EAC /* Frameworks */,
 				DD79747E0F1D1B6600496A84 /* Sources */,
 				A12007F623749AC200CBA5B1 /* Copy Files */,
 				A185D142262006FB00A62EAC /* CopyFiles */,
@@ -1852,6 +1828,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A1DDBC42262A87EB00116D5B /* lisa_kernel.cl in Resources */,
+				A1DDBC41262A87E400116D5B /* localjc_kernel.cl in Resources */,
 				A173361D2628DCC100EE9752 /* basemap_cache in Resources */,
 				A173361C2628DC6B00EE9752 /* cache.sqlite in Resources */,
 				A1FD1CC326151D9400A59EC3 /* proj in Resources */,
@@ -1861,11 +1839,11 @@
 				A12007F2237497E400CBA5B1 /* menus.xrc in Resources */,
 				DD5A579716E53EC40047DBB1 /* GeoDa.icns in Resources */,
 				A4D9A31F1E4D5F3800EF584C /* gdaldata in Resources */,
-				A19F51501756A11E006E31B4 /* plugins in Resources */,
 				A4404A05208E9E390007753D /* lang in Resources */,
 				A496C99E1E6A184C008F87DD /* samples.sqlite in Resources */,
 				A496C9A81E6A43C0008F87DD /* BaltimoreHomeSales.png in Resources */,
 				A496C9AA1E6A43CC008F87DD /* BostonHomeSales.png in Resources */,
+				A1DDBC45262A92A000116D5B /* Images.xcassets in Resources */,
 				A496C9AC1E6A43D0008F87DD /* BuenosAiresElections.png in Resources */,
 				A496C9AE1E6A43D6008F87DD /* ColombiaMalaria.png in Resources */,
 				A496C9B01E6A43DA008F87DD /* ColumbusCrime.png in Resources */,
@@ -1904,7 +1882,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "# Type a script or drag a script file from your workspace to insert its path.\n#python3 install_name.py $TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/Frameworks\ncodesign -f -s BB86F13EB8F7A28C9B613925E3E890DA3C31D8E5 $TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/MacOS/lisa_kernel.cl\ncodesign -f -s BB86F13EB8F7A28C9B613925E3E890DA3C31D8E5 $TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/MacOS/lang/ru/GeoDa.mo\ncodesign -f -s BB86F13EB8F7A28C9B613925E3E890DA3C31D8E5 $TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/MacOS/lang/es/GeoDa.mo\ncodesign -f -s BB86F13EB8F7A28C9B613925E3E890DA3C31D8E5 $TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/MacOS/lang/zh_CN/GeoDa.mo\ncodesign -f -s BB86F13EB8F7A28C9B613925E3E890DA3C31D8E5 $TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/MacOS/lang/config.ini\ncodesign -f -s BB86F13EB8F7A28C9B613925E3E890DA3C31D8E5 $TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/MacOS/localjc_kernel.cl\ncodesign -f -s BB86F13EB8F7A28C9B613925E3E890DA3C31D8E5 $TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/MacOS/cache.sqlite\ncodesign -f -s BB86F13EB8F7A28C9B613925E3E890DA3C31D8E5 /opt/homebrew/opt/gdal/lib/libgdal.28.dylib\ncodesign -f -s BB86F13EB8F7A28C9B613925E3E890DA3C31D8E5 /Users/xun/github/geoda/BuildTools/macosx/libraries/lib/libwx_osx_cocoau-3.1.4.0.0.dylib\ncodesign -f -s BB86F13EB8F7A28C9B613925E3E890DA3C31D8E5 /Users/xun/github/geoda/BuildTools/macosx/libraries/lib/libwx_osx_cocoau_gl-3.1.4.0.0.dylib\n";
+			shellScript = "# Type a script or drag a script file from your workspace to insert its path.\n#python3 install_name.py $TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/Frameworks\nif [ \"${CONFIGURATION}\" = \"Debug\" ]; then\n    codesign -f -s BB86F13EB8F7A28C9B613925E3E890DA3C31D8E5 /opt/homebrew/opt/gdal/lib/libgdal.28.dylib\n    codesign -f -s BB86F13EB8F7A28C9B613925E3E890DA3C31D8E5 /Users/xun/github/geoda/BuildTools/macosx/libraries/lib/libwx_osx_cocoau-3.1.4.0.0.dylib\n    codesign -f -s BB86F13EB8F7A28C9B613925E3E890DA3C31D8E5 /Users/xun/github/geoda/BuildTools/macosx/libraries/lib/libwx_osx_cocoau_gl-3.1.4.0.0.dylib\nelse\n    mkdir $TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/Frameworks\n    cp /Users/xun/github/geoda/BuildTools/macosx/libraries/lib/libwx_osx_cocoau-3.1.4.0.0.dylib $TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/Frameworks/libwx_osx_cocoau-3.1.dylib\n    cp /Users/xun/github/geoda/BuildTools/macosx/libraries/lib/libwx_osx_cocoau_gl-3.1.4.0.0.dylib $TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/Frameworks/libwx_osx_cocoau_gl-3.1.dylib\n    cp /usr/local/opt/gdal/lib/libgdal.28.dylib $TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/Frameworks/libgdal.28.dylib\n    install_name_tool -id \"GeoDa\" $TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/MacOS/GeoDa\n    install_name_tool -change \"/Users/xun/github/geoda/BuildTools/macosx/libraries/lib/libwx_osx_cocoau_gl-3.1.dylib\" \"@executable_path/../Frameworks/libwx_osx_cocoau_gl-3.1.dylib\" $TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/MacOS/GeoDa\n    install_name_tool -change \"/Users/xun/github/geoda/BuildTools/macosx/libraries/lib/libwx_osx_cocoau-3.1.dylib\" \"@executable_path/../Frameworks/libwx_osx_cocoau-3.1.dylib\" $TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/MacOS/GeoDa\n    install_name_tool -change \"/usr/local/opt/gdal/lib/libgdal.28.dylib\" \"@executable_path/../Frameworks/libgdal.28.dylib\" $TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/MacOS/GeoDa\n    install_name_tool -change \"/opt/homebrew/opt/gdal/lib/libgdal.28.dylib\" \"@executable_path/../Frameworks/libgdal.28.dylib\" $TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/MacOS/GeoDa\n    python3 install_name.py $TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/Frameworks \"0046C0AE0D6933F7CD8A67875F820AF13CD63439\"\n    codesign -f --timestamp -o runtime -s \"0046C0AE0D6933F7CD8A67875F820AF13CD63439\" $TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/MacOS/GeoDa\n    codesign -f --timestamp -o runtime -s \"0046C0AE0D6933F7CD8A67875F820AF13CD63439\" $TARGET_BUILD_DIR/$PRODUCT_NAME.app\nfi\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -1952,7 +1930,6 @@
 				A4F5D6221F513EA1007ADF25 /* MDSDlg.cpp in Sources */,
 				DD7976BA0F1D2CA800496A84 /* DiagnosticReport.cpp in Sources */,
 				DD7976BC0F1D2CA800496A84 /* mix.cpp in Sources */,
-				A47F792420AA084B000AFE57 /* distmat_kernel.cl in Sources */,
 				A19483972118BAAA009A87A2 /* bmpshape.cpp in Sources */,
 				DD7976BD0F1D2CA800496A84 /* ML_im.cpp in Sources */,
 				DD7976BE0F1D2CA800496A84 /* PowerLag.cpp in Sources */,
@@ -1962,7 +1939,6 @@
 				DD7976C10F1D2CA800496A84 /* smile2.cpp in Sources */,
 				DD7976C20F1D2CA800496A84 /* SparseMatrix.cpp in Sources */,
 				DD7976C30F1D2CA800496A84 /* SparseRow.cpp in Sources */,
-				A47F792220AA082A000AFE57 /* lisa_kernel.cl in Sources */,
 				A4A591F424A515DA00BEA1FF /* ConditionalBoxPlotView.cpp in Sources */,
 				DD7976C40F1D2CA800496A84 /* SparseVector.cpp in Sources */,
 				DD7976C50F1D2CA800496A84 /* Weights.cpp in Sources */,
@@ -1998,7 +1974,6 @@
 				A4C76B0E225BC4BB00A0729A /* GroupingMapView.cpp in Sources */,
 				DDD593CA12E9F90C00F7A7C4 /* GwtWeight.cpp in Sources */,
 				DD694685130307C00072386B /* RateSmoothing.cpp in Sources */,
-				A4E00F1020FD8ECD0038BA80 /* localjc_kernel.cl in Sources */,
 				DDF14CDA139432B000363FA1 /* DataViewerDeleteColDlg.cpp in Sources */,
 				A1E5BC841DBFE661005739E9 /* ReportBugDlg.cpp in Sources */,
 				DDF14CDC139432C100363FA1 /* DataViewerResizeColDlg.cpp in Sources */,
@@ -2236,6 +2211,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				GENERATE_PKGINFO_FILE = YES;
+				INSTALL_PATH = /Applications;
 				MACOSX_DEPLOYMENT_TARGET = 11.1;
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_LDFLAGS = "";
@@ -2278,6 +2254,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				GENERATE_PKGINFO_FILE = YES;
+				INSTALL_PATH = /Applications;
 				MACOSX_DEPLOYMENT_TARGET = 11.1;
 				OTHER_LDFLAGS = "";
 			};
@@ -2287,6 +2264,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_CXX_LANGUAGE_STANDARD = "c++17";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_OBJC_WEAK = YES;
@@ -2296,7 +2274,7 @@
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = YES;
 				DEVELOPMENT_ASSET_PATHS = "";
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = 8U5A7AU965;
 				ENABLE_HARDENED_RUNTIME = YES;
 				GCC_C_LANGUAGE_STANDARD = "compiler-default";
 				GCC_DYNAMIC_NO_PIC = NO;
@@ -2381,17 +2359,18 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_CXX_LANGUAGE_STANDARD = "c++17";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_OBJC_WEAK = YES;
-				CODE_SIGN_ENTITLEMENTS = "";
+				CODE_SIGN_ENTITLEMENTS = GeoDaRelease.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_ASSET_PATHS = "";
-				DEVELOPMENT_TEAM = 3VRCAMAT4L;
+				DEVELOPMENT_TEAM = 26M5NG43GP;
 				ENABLE_HARDENED_RUNTIME = YES;
 				GCC_C_LANGUAGE_STANDARD = "compiler-default";
 				GCC_MODEL_TUNING = "";
@@ -2399,7 +2378,7 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = NO;
 				GCC_PREFIX_HEADER = "";
 				INFOPLIST_FILE = "GeoDa-Xcode-Info.plist";
-				INSTALL_PATH = "$(HOME)/Applications";
+				INSTALL_PATH = /Applications;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/libraries/lib",
@@ -2410,18 +2389,20 @@
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_CPLUSPLUSFLAGS = (
 					"$(OTHER_CFLAGS)",
-					"-I/Users/xun/Downloads/include",
-					"-I./libraries/lib/wx/include/osx_cocoa-unicode-static-3.1",
+					"-I/opt/homebrew/include",
+					"-I/usr/include",
+					"-I./libraries/lib/wx/include/osx_cocoa-unicode-3.1",
 					"-I./libraries/include/wx-3.1/",
-					"-I./libraries/include/boost",
+					"-I./temp/boost",
 					"-I./libraries/include",
-					"-I./libraries/include/eigen3",
+					"-I./temp/eigen3",
 					"-I./temp/spectra/include",
 					"-D_FILE_OFFSET_BITS=64",
 					"-D__WXMAC__",
 					"-D__WXOSX__",
 					"-D__WXOSX_COCOA__",
 					"-DEIGEN_NO_DEBUG",
+					"-D__PROJ6__",
 				);
 				OTHER_LDFLAGS = (
 					"-L/usr/lib",

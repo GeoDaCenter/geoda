@@ -25,8 +25,6 @@
 	</array>
 	<key>CFBundleExecutable</key>
 	<string>GeoDa</string>
-	<key>CFBundleIconFile</key>
-	<string>GeoDa.icns</string>
 	<key>CFBundleIdentifier</key>
 	<string>edu.uchicago.spatial</string>
 	<key>CFBundleInfoDictionaryVersion</key>
