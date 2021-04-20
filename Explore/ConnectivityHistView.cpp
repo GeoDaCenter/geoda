@@ -143,7 +143,7 @@ void ConnectivityHistCanvas::SetCheckMarks(wxMenu* menu)
 void ConnectivityHistCanvas::DetermineMouseHoverObjects(wxPoint pt)
 {
 	total_hover_obs = 0;
-	for (int i=0, iend=selectable_shps.size(); i<iend; i++) {
+	for (int i=0; i< (int)selectable_shps.size(); i++) {
 		if (selectable_shps[i]->pointWithin(pt)) {
 			hover_obs[total_hover_obs++] = i;
 			if (total_hover_obs == max_hover_obs) break;
@@ -159,7 +159,7 @@ void ConnectivityHistCanvas::UpdateSelection(bool shiftdown, bool pointsel)
 	
 	std::vector<bool>& hs = highlight_state->GetHighlight();
     bool selection_changed = false;
-	int total_sel_shps = selectable_shps.size();
+	int total_sel_shps = (int)selectable_shps.size();
 	
 	wxPoint lower_left;
 	wxPoint upper_right;
@@ -241,7 +241,7 @@ void ConnectivityHistCanvas::UpdateSelection(bool shiftdown, bool pointsel)
 
 void ConnectivityHistCanvas::DrawSelectableShapes(wxMemoryDC &dc)
 {
-	for (int i=0, iend=selectable_shps.size(); i<iend; i++) {
+	for (int i=0; i<(int)selectable_shps.size(); i++) {
 		if (ival_obs_cnt[i] == 0) continue;
 		selectable_shps[i]->paintSelf(dc);
 	}
@@ -249,7 +249,7 @@ void ConnectivityHistCanvas::DrawSelectableShapes(wxMemoryDC &dc)
 
 void ConnectivityHistCanvas::DrawHighlightedShapes(wxMemoryDC &dc)
 {
-	for (int i=0, iend=selectable_shps.size(); i<iend; i++) {
+	for (int i=0; i<(int)selectable_shps.size(); i++) {
 		if (ival_obs_sel_cnt[i] == 0) continue;
 		double s = (((double) ival_obs_sel_cnt[i]) /
 					((double) ival_obs_cnt[i]));
@@ -374,7 +374,7 @@ void ConnectivityHistCanvas::PopulateCanvas()
             double x0 = orig_x_pos_left[i];
             double x1 = orig_x_pos_right[i];
             double y0 = 0;
-            double y00 = -0.23;// -y_max / 100.0;
+            //double y00 = -0.23;// -y_max / 100.0;
 
             //GdaPolyLine* xline = new GdaPolyLine(x0, y0, x1, y0);
             //xline->setNudge(0, 10);
@@ -411,7 +411,7 @@ void ConnectivityHistCanvas::PopulateCanvas()
 		if (num_isolates > 1) {
             msg = wxString::Format(_("Warning: %d observations are neighborless."), num_isolates);
 		} else {
-            msg = wxString::Format(_("Warning: %d observations is neighborless."), num_isolates);
+            msg = wxString::Format(_("Warning: %d observation is neighborless."), num_isolates);
 		}
         s = new GdaShapeText(msg, *GdaConst::small_font,
                              wxRealPoint(((double) x_max)/2.0, y_max),
@@ -519,11 +519,11 @@ void ConnectivityHistCanvas::PopulateCanvas()
 	for (int i=0; i<cur_intervals; i++) {
 		double x0 = orig_x_pos[i] - interval_width_const/2.0;
 		double x1 = orig_x_pos[i] + interval_width_const/2.0;
-		double y0 = 0;
+		//double y0 = 0;
 		double y1 = ival_obs_cnt[i];
 		selectable_shps[i] = new GdaRectangle(wxRealPoint(x0, 0),
 											 wxRealPoint(x1, y1));
-		int sz = GdaConst::qualitative_colors.size();
+		int sz = (int)GdaConst::qualitative_colors.size();
 		selectable_shps[i]->setPen(GdaConst::qualitative_colors[i%sz]);
 		selectable_shps[i]->setBrush(GdaConst::qualitative_colors[i%sz]);
 	}
@@ -579,7 +579,7 @@ void ConnectivityHistCanvas::SaveConnectivityToTable()
 	data[0].type = GdaConst::long64_type;
 	
 	SaveToTableDlg dlg(project, this, data,
-					   "Save Connectivity to Table",
+					   _("Save Connectivity to Table"),
 					   wxDefaultPosition, wxSize(400,400));
 	dlg.ShowModal();
 }
@@ -626,7 +626,7 @@ void ConnectivityHistCanvas::InitData()
 	
 	obs_id_to_ival.resize(num_obs);
 	max_intervals = range+1;
-	cur_intervals = range+1;
+	cur_intervals = min_connectivity == max_connectivity ? 1 : range+1;
 }
 
 /** based on cur_intervals, calculate interval breaks and populate

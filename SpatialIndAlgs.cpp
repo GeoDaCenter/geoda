@@ -255,30 +255,29 @@ void SpatialIndAlgs::apply_kernel(const GwtWeight* Wp, const wxString& kernel, b
 GwtWeight* SpatialIndAlgs::knn_build(const rtree_pt_2d_t& rtree, int nn, bool is_inverse, double power, const wxString& kernel, double bandwidth_, bool adaptive_bandwidth_, bool use_kernel_diagnals)
 {
 	GwtWeight* Wp = new GwtWeight;
-	Wp->num_obs = rtree.size();
+	Wp->num_obs = (int)rtree.size();
 	Wp->is_symmetric = false;
 	Wp->symmetry_checked = true;
 	Wp->gwt = new GwtElement[Wp->num_obs];
 	
-	int cnt=0;
 	const int k=nn+1;
     double bandwidth = bandwidth_;
     bool adaptive_bandwidth = adaptive_bandwidth_;
 
-	for (rtree_pt_2d_t::const_query_iterator it =
-			 rtree.qbegin(bgi::intersects(rtree.bounds()));
+	for (rtree_pt_2d_t::const_query_iterator it = rtree.qbegin(bgi::intersects(rtree.bounds()));
 		 it != rtree.qend() ; ++it)
 	{
+        int cnt=0;
 		const pt_2d_val& v = *it;
 		size_t obs = v.second;
         // each point "v" with index "obs"
 		vector<pt_2d_val> q;
-		rtree.query(bgi::nearest(v.first, k), std::back_inserter(q));
+		rtree.query(bgi::nearest(v.first, k), std::back_inserter(q)); // self is included
 		GwtElement& e = Wp->gwt[obs];
-		e.alloc(q.size());
+		e.alloc( (int)q.size() == 1 ? 0 : nn); // the query size q.size() could be 0 or larger than k
         double local_bandwidth = 0;
 		BOOST_FOREACH(pt_2d_val const& w, q) {
-			if (kernel.IsEmpty() && w.second == v.second)
+			if (kernel.IsEmpty() && w.second == v.second) // don't consider the point itself
                 continue;
 			GwtNeighbor neigh;
 			neigh.nbx = w.second;
@@ -289,6 +288,9 @@ GwtWeight* SpatialIndAlgs::knn_build(const rtree_pt_2d_t& rtree, int nn, bool is
             neigh.weight =  d;
 			e.Push(neigh);
 			++cnt;
+            if (cnt >= nn) {
+                break;
+            }
 		}
         if (adaptive_bandwidth && local_bandwidth > 0 && !kernel.IsEmpty()) {
             GwtNeighbor* nbrs = e.dt();
@@ -319,16 +321,14 @@ GwtWeight* SpatialIndAlgs::knn_build(const rtree_pt_2d_t& rtree, int nn, bool is
 GwtWeight* SpatialIndAlgs::knn_build(const rtree_pt_3d_t& rtree, int nn,
 					 bool is_arc, bool is_mi,  bool is_inverse, double power, const wxString& kernel, double bandwidth_, bool adaptive_bandwidth_, bool use_kernel_diagnals)
 {
-	wxStopWatch sw;
 	using namespace GenGeomAlgs;
 
 	GwtWeight* Wp = new GwtWeight;
-	Wp->num_obs = rtree.size();
+	Wp->num_obs = (int)rtree.size();
 	Wp->is_symmetric = false;
 	Wp->symmetry_checked = true;
 	Wp->gwt = new GwtElement[Wp->num_obs];
 	
-	int cnt=0;
 	const int k=nn+1;
     double bandwidth = bandwidth_;
     bool adaptive_bandwidth = adaptive_bandwidth_;
@@ -338,12 +338,13 @@ GwtWeight* SpatialIndAlgs::knn_build(const rtree_pt_3d_t& rtree, int nn,
 			 rtree.qbegin(bgi::intersects(rtree.bounds()));
 		 it != rtree.qend() ; ++it)
 	{
+        int cnt=0;
 		const pt_3d_val& v = *it;
 		size_t obs = v.second;		
 		vector<pt_3d_val> q;
 		rtree.query(bgi::nearest(v.first, k), std::back_inserter(q));
 		GwtElement& e = Wp->gwt[obs];
-		e.alloc(q.size());
+        e.alloc( (int)q.size() == 1 ? 0 : nn); // the query size q.size() could be 0 or larger than nn
 		double lon_v, lat_v;
 		double x_v, y_v;
 		if (is_arc) {
@@ -383,6 +384,9 @@ GwtWeight* SpatialIndAlgs::knn_build(const rtree_pt_3d_t& rtree, int nn,
            
 			e.Push(neigh);
 			++cnt;
+            if (cnt >= nn) {
+                break;
+            }
 		}
         if (adaptive_bandwidth && local_bandwidth > 0 && !kernel.IsEmpty()) {
             GwtNeighbor* nbrs = e.dt();
@@ -406,10 +410,6 @@ GwtWeight* SpatialIndAlgs::knn_build(const rtree_pt_3d_t& rtree, int nn,
         apply_kernel(Wp, kernel, use_kernel_diagnals);
     }
     
-	stringstream ss;
-	ss << "Time to create 3D " << (is_arc ? " arc " : "")
-	   << nn << "-NN GwtWeight "
-	   << "with " << cnt << " total neighbors in ms : " << sw.Time();
 	return Wp;
 }
 
@@ -489,7 +489,7 @@ double SpatialIndAlgs::est_thresh_for_avg_num_neigh(const rtree_pt_2d_t& rtree,
 	   << "number neighbors " << avg_n << "." << endl;
 	ss << "Calculation time to peform " << iters << " iterations: "
 	   << sw.Time() << " ms.";
-	LOG_MSG("Exiting est_thresh_for_avg_num_neigh");
+	//LOG_MSG("Exiting est_thresh_for_avg_num_neigh");
 	return th;
 }
 
@@ -503,8 +503,8 @@ double SpatialIndAlgs::est_avg_num_neigh_thresh(const rtree_pt_2d_t& rtree,
 	rtree.query(bgi::intersects(rtree.bounds()), back_inserter(query_pts));
 	// Mersenne Twister random number generator, randomly seeded
 	// with current time in seconds since Jan 1 1970.
-	static boost::mt19937 rng(std::time(0));
-	static boost::random::uniform_int_distribution<> X(0, query_pts.size()-1);
+	static boost::mt19937 rng((unsigned int)std::time(0));
+	static boost::random::uniform_int_distribution<> X(0, (int)query_pts.size()-1);
 	size_t tot_neigh = 0;
 	for (size_t i=0; i<trials; ++i) {
 		const pt_2d_val& v = query_pts[X(rng)];
@@ -555,8 +555,8 @@ double SpatialIndAlgs::est_mean_distance(const std::vector<double>& x,
 	} else {
 		// Mersenne Twister random number generator, randomly seeded
 		// with current time in seconds since Jan 1 1970.
-		static boost::mt19937 rng(std::time(0));
-		static boost::random::uniform_int_distribution<> X(0, pts_sz-1);
+		static boost::mt19937 rng((unsigned int)std::time(0));
+		static boost::random::uniform_int_distribution<> X(0, (int)pts_sz-1);
 		for (size_t t=0; t<max_iters; ++t) {
 			size_t i=X(rng);
 			size_t j=X(rng);
@@ -595,8 +595,8 @@ double SpatialIndAlgs::est_median_distance(const std::vector<double>& x,
 		v.resize(max_iters);
 		// Mersenne Twister random number generator, randomly seeded
 		// with current time in seconds since Jan 1 1970.
-		static boost::mt19937 rng(std::time(0));
-		static boost::random::uniform_int_distribution<> X(0, pts_sz-1);
+		static boost::mt19937 rng((unsigned int)std::time(0));
+		static boost::random::uniform_int_distribution<> X(0, (int)pts_sz-1);
 		size_t cnt=0;
 		for (size_t t=0; t<max_iters; ++t) {
 			size_t i=X(rng);
@@ -660,7 +660,7 @@ GwtWeight* SpatialIndAlgs::thresh_build(const rtree_pt_2d_t& rtree, double th, d
 	wxStopWatch sw;
     
 	GwtWeight* Wp = new GwtWeight;
-	Wp->num_obs = rtree.size();
+	Wp->num_obs = (int)rtree.size();
 	Wp->is_symmetric = false;
 	Wp->symmetry_checked = true;
     
@@ -706,7 +706,7 @@ GwtWeight* SpatialIndAlgs::thresh_build(const rtree_pt_2d_t& rtree, double th, d
         }
 		GwtElement& e = Wp->gwt[obs];
         if (!kernel.IsEmpty()) lcnt += 1;
-		e.alloc(lcnt);
+		e.alloc((int)lcnt);
 		BOOST_FOREACH(pt_2d_val const& w, l) {
 			GwtNeighbor neigh;
 			neigh.nbx = w.second;
@@ -747,8 +747,8 @@ double SpatialIndAlgs::est_avg_num_neigh_thresh(const rtree_pt_3d_t& rtree,
 	rtree.query(bgi::intersects(rtree.bounds()), back_inserter(query_pts));
 	// Mersenne Twister random number generator, randomly seeded
 	// with current time in seconds since Jan 1 1970.
-	static boost::mt19937 rng(std::time(0));
-	static boost::random::uniform_int_distribution<> X(0, query_pts.size()-1);
+	static boost::mt19937 rng((unsigned int)std::time(0));
+	static boost::random::uniform_int_distribution<> X(0, (int)query_pts.size()-1);
 	size_t tot_neigh = 0;
 	for (size_t i=0; i<trials; ++i) {
 		const pt_3d_val& v = query_pts[X(rng)];
@@ -782,7 +782,7 @@ GwtWeight* SpatialIndAlgs::thresh_build(const rtree_pt_3d_t& rtree, double th, d
 	using namespace GenGeomAlgs;
 	
 	GwtWeight* Wp = new GwtWeight;
-	Wp->num_obs = rtree.size();
+	Wp->num_obs = (int)rtree.size();
 	Wp->is_symmetric = false;
 	Wp->symmetry_checked = true;
 	Wp->gwt = new GwtElement[Wp->num_obs];
@@ -824,7 +824,7 @@ GwtWeight* SpatialIndAlgs::thresh_build(const rtree_pt_3d_t& rtree, double th, d
 		}
 		GwtElement& e = Wp->gwt[obs];
         if (!kernel.IsEmpty()) lcnt += 1;
-		e.alloc(lcnt);
+		e.alloc((int)lcnt);
 		BOOST_FOREACH(pt_3d_val const& w, l) {
 			GwtNeighbor neigh;
 			neigh.nbx = w.second;
@@ -994,7 +994,7 @@ void SpatialIndAlgs::get_pt_rtree_stats(const rtree_pt_3d_t& rtree,
 GwtWeight* SpatialIndAlgs::knn_build(const rtree_pt_lonlat_t& rtree, int nn)
 {
 	GwtWeight* Wp = new GwtWeight;
-	Wp->num_obs = rtree.size();
+	Wp->num_obs = (int)rtree.size();
 	Wp->is_symmetric = false;
 	Wp->symmetry_checked = true;
 	Wp->gwt = new GwtElement[Wp->num_obs];
@@ -1010,7 +1010,7 @@ GwtWeight* SpatialIndAlgs::knn_build(const rtree_pt_lonlat_t& rtree, int nn)
 		vector<pt_lonlat_val> q;
 		rtree.query(bgi::nearest(v.first, k), std::back_inserter(q));
 		GwtElement& e = Wp->gwt[obs];
-		e.alloc(q.size());
+		e.alloc((int)q.size());
 		BOOST_FOREACH(const pt_lonlat_val& w, q) {
 			if (w.second == v.second) continue;
 			GwtNeighbor neigh;

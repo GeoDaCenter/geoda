@@ -21,7 +21,7 @@
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleSignature</key>
-	<string>io.gitub.geodacenter</string>
+	<string>lgeoda</string>
 	<key>CFBundleVersion</key>
 	<string>1.18</string>
 	<key>CFBundleShortVersionString</key>

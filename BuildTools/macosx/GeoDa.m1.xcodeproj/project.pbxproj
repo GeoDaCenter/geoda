@@ -1882,7 +1882,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "# Type a script or drag a script file from your workspace to insert its path.\n#python3 install_name.py $TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/Frameworks\nif [ \"${CONFIGURATION}\" = \"Debug\" ]; then\n    codesign -f -s BB86F13EB8F7A28C9B613925E3E890DA3C31D8E5 /opt/homebrew/opt/gdal/lib/libgdal.28.dylib\n    codesign -f -s BB86F13EB8F7A28C9B613925E3E890DA3C31D8E5 /Users/xun/github/geoda/BuildTools/macosx/libraries/lib/libwx_osx_cocoau-3.1.4.0.0.dylib\n    codesign -f -s BB86F13EB8F7A28C9B613925E3E890DA3C31D8E5 /Users/xun/github/geoda/BuildTools/macosx/libraries/lib/libwx_osx_cocoau_gl-3.1.4.0.0.dylib\nelse\n    mkdir $TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/Frameworks\n    cp /Users/xun/github/geoda/BuildTools/macosx/libraries/lib/libwx_osx_cocoau-3.1.4.0.0.dylib $TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/Frameworks/libwx_osx_cocoau-3.1.dylib\n    cp /Users/xun/github/geoda/BuildTools/macosx/libraries/lib/libwx_osx_cocoau_gl-3.1.4.0.0.dylib $TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/Frameworks/libwx_osx_cocoau_gl-3.1.dylib\n    cp /usr/local/opt/gdal/lib/libgdal.28.dylib $TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/Frameworks/libgdal.28.dylib\n    install_name_tool -id \"GeoDa\" $TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/MacOS/GeoDa\n    install_name_tool -change \"/Users/xun/github/geoda/BuildTools/macosx/libraries/lib/libwx_osx_cocoau_gl-3.1.dylib\" \"@executable_path/../Frameworks/libwx_osx_cocoau_gl-3.1.dylib\" $TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/MacOS/GeoDa\n    install_name_tool -change \"/Users/xun/github/geoda/BuildTools/macosx/libraries/lib/libwx_osx_cocoau-3.1.dylib\" \"@executable_path/../Frameworks/libwx_osx_cocoau-3.1.dylib\" $TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/MacOS/GeoDa\n    install_name_tool -change \"/usr/local/opt/gdal/lib/libgdal.28.dylib\" \"@executable_path/../Frameworks/libgdal.28.dylib\" $TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/MacOS/GeoDa\n    install_name_tool -change \"/opt/homebrew/opt/gdal/lib/libgdal.28.dylib\" \"@executable_path/../Frameworks/libgdal.28.dylib\" $TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/MacOS/GeoDa\n    python3 install_name.py $TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/Frameworks \"0046C0AE0D6933F7CD8A67875F820AF13CD63439\"\n    codesign -f --timestamp -o runtime -s \"0046C0AE0D6933F7CD8A67875F820AF13CD63439\" $TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/MacOS/GeoDa\n    codesign -f --timestamp -o runtime -s \"0046C0AE0D6933F7CD8A67875F820AF13CD63439\" $TARGET_BUILD_DIR/$PRODUCT_NAME.app\nfi\n";
+			shellScript = "# Type a script or drag a script file from your workspace to insert its path.\n#python3 install_name.py $TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/Frameworks\nif [ \"${CONFIGURATION}\" = \"Debug\" ]; then\n    codesign -f -s \"Apple Development: xunli@uchicago.edu (AN5USPSZF6)\" /opt/homebrew/opt/gdal/lib/libgdal.28.dylib\n    codesign -f -s \"Apple Development: xunli@uchicago.edu (AN5USPSZF6)\" /Users/xun/github/geoda/BuildTools/macosx/libraries/lib/libwx_osx_cocoau-3.1.4.0.0.dylib\n    codesign -f -s \"Apple Development: xunli@uchicago.edu (AN5USPSZF6)\" /Users/xun/github/geoda/BuildTools/macosx/libraries/lib/libwx_osx_cocoau_gl-3.1.4.0.0.dylib\nelse\n    mkdir $TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/Frameworks\n    cp /Users/xun/github/geoda/BuildTools/macosx/libraries/lib/libwx_osx_cocoau-3.1.4.0.0.dylib $TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/Frameworks/libwx_osx_cocoau-3.1.dylib\n    cp /Users/xun/github/geoda/BuildTools/macosx/libraries/lib/libwx_osx_cocoau_gl-3.1.4.0.0.dylib $TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/Frameworks/libwx_osx_cocoau_gl-3.1.dylib\n    cp /usr/local/opt/gdal/lib/libgdal.28.dylib $TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/Frameworks/libgdal.28.dylib\n    install_name_tool -id \"GeoDa\" $TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/MacOS/GeoDa\n    install_name_tool -change \"/Users/xun/github/geoda/BuildTools/macosx/libraries/lib/libwx_osx_cocoau_gl-3.1.dylib\" \"@executable_path/../Frameworks/libwx_osx_cocoau_gl-3.1.dylib\" $TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/MacOS/GeoDa\n    install_name_tool -change \"/Users/xun/github/geoda/BuildTools/macosx/libraries/lib/libwx_osx_cocoau-3.1.dylib\" \"@executable_path/../Frameworks/libwx_osx_cocoau-3.1.dylib\" $TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/MacOS/GeoDa\n    install_name_tool -change \"/usr/local/opt/gdal/lib/libgdal.28.dylib\" \"@executable_path/../Frameworks/libgdal.28.dylib\" $TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/MacOS/GeoDa\n    install_name_tool -change \"/opt/homebrew/opt/gdal/lib/libgdal.28.dylib\" \"@executable_path/../Frameworks/libgdal.28.dylib\" $TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/MacOS/GeoDa\n    python3 install_name.py $TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/Frameworks \"0046C0AE0D6933F7CD8A67875F820AF13CD63439\"\n    codesign -f --timestamp -o runtime -s \"0046C0AE0D6933F7CD8A67875F820AF13CD63439\" $TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/MacOS/GeoDa\n    codesign -f --timestamp -o runtime -s \"0046C0AE0D6933F7CD8A67875F820AF13CD63439\" $TARGET_BUILD_DIR/$PRODUCT_NAME.app\nfi\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -2264,7 +2264,6 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_CXX_LANGUAGE_STANDARD = "c++17";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_OBJC_WEAK = YES;
@@ -2346,7 +2345,7 @@
 					"/usr/local/opt/boost/lib/libboost_system-mt.a",
 				);
 				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = NO;
-				PRODUCT_BUNDLE_IDENTIFIER = edu.uchicago.edu;
+				PRODUCT_BUNDLE_IDENTIFIER = edu.uchicago.spatial;
 				PRODUCT_NAME = GeoDa;
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = macosx;
@@ -2359,7 +2358,6 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_CXX_LANGUAGE_STANDARD = "c++17";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_OBJC_WEAK = YES;
@@ -2370,7 +2368,7 @@
 				COPY_PHASE_STRIP = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_ASSET_PATHS = "";
-				DEVELOPMENT_TEAM = 26M5NG43GP;
+				DEVELOPMENT_TEAM = 8U5A7AU965;
 				ENABLE_HARDENED_RUNTIME = YES;
 				GCC_C_LANGUAGE_STANDARD = "compiler-default";
 				GCC_MODEL_TUNING = "";
@@ -2440,7 +2438,7 @@
 					"/usr/local/opt/boost/lib/libboost_system-mt.a",
 				);
 				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = NO;
-				PRODUCT_BUNDLE_IDENTIFIER = edu.uchicago.edu;
+				PRODUCT_BUNDLE_IDENTIFIER = edu.uchicago.spatial;
 				PRODUCT_NAME = GeoDa;
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = macosx;

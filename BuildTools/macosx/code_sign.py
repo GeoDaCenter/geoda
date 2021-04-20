@@ -4,7 +4,7 @@ from shutil import copyfile
 
 processed_items = {}
 
-def ProcessDependency(dylib_path):
+def ProcessDependency(dylib_path, cid):
     if dylib_path in processed_items:
         return
     else:
@@ -12,7 +12,7 @@ def ProcessDependency(dylib_path):
 
     print("Process:", dylib_path)
     #cmd = "codesign -f -s - "
-    cmd = '/usr/bin/codesign --force --sign 2C86718CD200161736254D6451732A05183661DE -o runtime --entitlements /Users/xun/Library/Developer/Xcode/DerivedData/GeoDa.m1-bzlwzpadckllnretkivbujjhepho/Build/Intermediates.noindex/GeoDa.m1.build/Debug/GeoDa.build/GeoDa.app.xcent --timestamp\=none '
+    cmd = '/usr/bin/codesign --force --sign "{}" '.format(cid)
     os.system(cmd + dylib_path)
 
     dep_libs = subprocess.check_output(['otool', '-L', dylib_path]).decode('utf-8')
@@ -21,7 +21,7 @@ def ProcessDependency(dylib_path):
         item = item.strip().split(" ")[0]
         if item.startswith('/usr/lib') == False and item.startswith('/System') == False:
             # process item
-            ProcessDependency(item)
+            ProcessDependency(item, cid)
 
 
-ProcessDependency(sys.argv[1])
+ProcessDependency(sys.argv[1], sys.argv[2])
