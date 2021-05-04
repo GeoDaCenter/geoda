@@ -63,7 +63,7 @@ protected:
     wxFlexGridSizer *gbox;
     wxScrolledWindow* scrl;
     wxStaticText* m_cluster_lbl;
-    
+    wxComboBox* list_var;
     std::vector<wxCheckBox*> chk_list;
     
     DECLARE_EVENT_TABLE()

@@ -87,14 +87,35 @@ void ClusterMatchSelectDlg::update(TableState* o)
 
 void ClusterMatchSelectDlg::CreateControls()
 {
-    wxScrolledWindow* all_scrl = new wxScrolledWindow(this, wxID_ANY, wxDefaultPosition, wxSize(450,680), wxHSCROLL|wxVSCROLL );
+    wxScrolledWindow* all_scrl = new wxScrolledWindow(this, wxID_ANY, wxDefaultPosition, wxSize(450,730), wxHSCROLL|wxVSCROLL );
     all_scrl->SetScrollRate( 5, 5 );
     
     panel = new wxPanel(all_scrl);
     wxBoxSizer *vbox = new wxBoxSizer(wxVERTICAL);
     
     // Input
-    AddSimpleInputCtrls(panel, vbox, true, false, false);
+    //AddSimpleInputCtrls(panel, vbox, true, false, false);
+    wxStaticText* st_orig = new wxStaticText (panel, wxID_ANY, _("Select Variables (origin)"));
+    list_var = new wxComboBox(panel, wxID_ANY, "", wxDefaultPosition, wxSize(250, -1), 0, NULL, wxCB_READONLY);
+    
+    bool integer_only = false, add_centroids = false;
+    wxStaticText* st = new wxStaticText (panel, wxID_ANY, _("Select Variables (target)"));
+    
+    combo_var = new wxListBox(panel, wxID_ANY, wxDefaultPosition,
+                              wxSize(250,250), 0, NULL,
+                              wxLB_MULTIPLE | wxLB_HSCROLL| wxLB_NEEDED_SB);
+    InitVariableCombobox(combo_var, integer_only, add_centroids);
+    if (!var_items.IsEmpty()) {
+        list_var->Append(var_items);
+    }
+    
+    wxStaticBoxSizer *hbox = new wxStaticBoxSizer(wxVERTICAL, panel, _("Input:"));
+    hbox->Add(st_orig, 0, wxALIGN_CENTER | wxLEFT | wxRIGHT | wxBOTTOM, 10);
+    hbox->Add(list_var, 0,  wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, 10);
+    hbox->Add(st, 0, wxALIGN_CENTER | wxLEFT | wxRIGHT, 10);
+    hbox->Add(combo_var, 1,  wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, 10);
+    vbox->Add(hbox, 1,  wxEXPAND | wxTOP | wxLEFT, 10);
+    
     
     // Parameter
     wxBoxSizer *vvbox = new wxBoxSizer(wxVERTICAL);
