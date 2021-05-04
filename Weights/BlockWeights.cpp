@@ -18,6 +18,12 @@ BlockWeights::BlockWeights() {
     
 }
 
+// cat_values are categorical values of multiple variables. Each variable represents
+// how observations are grouped into regions, e.g. 1,1,2,2,3,4,4 means the first two
+// observations belong to group 1, the 3rd and 4th observations belong to group 2 etc.
+//
+// Each variable can be used to create a contiguity weights.
+// The final block weights are intersection of the contiguity weights.
 BlockWeights::BlockWeights(const std::vector<std::vector<wxInt64> >& cat_values,
                            const GeoDaWeight *cont_weights)
 {

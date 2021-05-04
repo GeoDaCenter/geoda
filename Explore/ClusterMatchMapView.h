@@ -43,18 +43,22 @@ public:
     void OnOK( wxCommandEvent& event );
     void OnClickClose( wxCommandEvent& event );
     void OnClose(wxCloseEvent& ev);
-    void ShowOptionsOfVariable(const wxString& var_name, std::vector<wxInt64> cat_vals);
+    bool ShowOptionsOfVariable(const wxString& var_name,
+                               std::vector<wxInt64> cat_vals);
     void OnCheckBoxChange(wxCommandEvent& event);
-    
+    void OnTargetSelect( wxCommandEvent& event);
     virtual wxString _printConfiguration();
 
     GeoDaWeight* CreateQueenWeights();
-
+    bool CheckCategorical(const wxString& var_name, std::vector<wxInt64>& cat_vals);
+    
 protected:
     int base_choice_id;
+    wxString selected_target;
     wxString select_variable_lbl;
     wxString selected_variable;
     std::map<wxString, std::map<wxInt64, bool> > input_conf;
+    
     wxPanel *panel;
     wxBoxSizer *container;
     wxTextCtrl* m_textbox;
