@@ -36,7 +36,7 @@ fi
 
 # Install boost 1.75
 if ! [ -f "boost_1_75_0.tar.bz2" ] ; then
-    curl -L -O https://dl.bintray.com/boostorg/release/1.75.0/source/boost_1_75_0.tar.bz2
+    curl -L -O https://pilotfiber.dl.sourceforge.net/project/boost/boost/1.75.0/boost_1_75_0.tar.bz2
 fi
 if ! [ -d "boost" ] ; then 
     tar -xf boost_1_75_0.tar.bz2 
