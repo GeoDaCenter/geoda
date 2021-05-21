@@ -600,7 +600,7 @@ void AbstractClusterDlg::AddNumberOfClusterCtrl(wxPanel *panel,
     wxStaticText* st1 = new wxStaticText(panel, wxID_ANY, _("Number of Clusters:"));
     combo_n = new wxComboBox(panel, wxID_ANY, wxEmptyString, wxDefaultPosition,
                              wxSize(200,-1), 0, NULL);
-    max_n_clusters = rows < 100 ? rows : 100;
+    max_n_clusters = rows;
     if (allow_dropdown) {
         for (int i=2; i<max_n_clusters+1; i++) {
             combo_n->Append(wxString::Format("%d", i));
