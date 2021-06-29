@@ -15,7 +15,7 @@ mkdir -p ../../o
 
 
 # Install boost 1.75
-brew install boost@1.75
+brew install boost
 
 # Install libgdal-dev
 brew install gdal
