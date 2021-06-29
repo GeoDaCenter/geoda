@@ -3,7 +3,7 @@ GeoDa_ROOT	=	$(GEODA_HOME)/../..
 TARGET      = GeoDa
 
 CC	=	gcc 
-CXX     =	g++
+CXX =	g++
 LD	=	g++ 
 RM	=	/bin/rm -f
 
@@ -27,9 +27,9 @@ BOOST_HEADER = -I/usr/local/opt/boost/include
 GDAL_HEADER = -I/usr/local/opt/gdal/include -D__PROJ6__
 EIGEN_HEADER = -I$(GEODA_HOME)/libraries/include -I$(GEODA_HOME)/temp/eigen3 -I$(GEODA_HOME)/temp/spectra/include
 
-CPPFLAGS	=  -g -O0 -std=c++14 -I$(GeoDa_ROOT) $(USER_LOG) $(GDAL_HEADER) $(EIGEN_HEADER)
-CFLAGS		=  -g -O0 -Wall -Wdeclaration-after-statement $(USER_DEFS) $(GDAL_HEADER) $(EIGEN_HEADER)
-CXXFLAGS	=  -g -O0 -std=c++14 -Wall $(USER_DEFS) $(WX_HEADER) $(BOOST_HEADER) $(GDAL_HEADER) $(EIGEN_HEADER)
+CPPFLAGS	=  -O3 -std=c++14 -I$(GeoDa_ROOT) $(USER_LOG) $(GDAL_HEADER) $(EIGEN_HEADER)
+CFLAGS		=  -O3 -Wall -Wdeclaration-after-statement $(USER_DEFS) $(GDAL_HEADER) $(EIGEN_HEADER)
+CXXFLAGS	=  -std=c++14 -O3 -Wall $(USER_DEFS) $(WX_HEADER) $(BOOST_HEADER) $(GDAL_HEADER) $(EIGEN_HEADER)
 LDFLAGS     = -arch arm64
 
 OBJ_EXT     = o

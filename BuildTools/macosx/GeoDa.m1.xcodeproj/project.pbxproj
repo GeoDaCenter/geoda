@@ -2408,7 +2408,7 @@
 					"-lz",
 					"-lcurl",
 					"-liconv",
-					"-L@executable_path/../Frameworks",
+					"-L/opt/homebrew/opt/gdal/lib",
 					"-lgdal",
 					"-L$(SRCROOT)/libraries/lib",
 					"-lwx_osx_cocoau-3.1",
