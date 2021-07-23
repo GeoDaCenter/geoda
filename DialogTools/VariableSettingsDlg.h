@@ -31,14 +31,17 @@
 #include <wx/listbox.h>
 #include <wx/spinctrl.h>
 #include <wx/combobox.h>
+
+#include "../GeneralWxUtils.h"
 #include "../VarTools.h"
 #include "../Explore/CatClassification.h"
 #include "../VarCalc/WeightsMetaInfo.h"
 #include "../FramesManagerObserver.h"
+#include "../Algorithms/joincount_ratio.h"
 
 class Project;
 class TableInterface;
-
+class SimpleReportTextCtrl;
 
 ////////////////////////////////////////////////////////////////////////////
 //
@@ -56,8 +59,8 @@ public:
     std::vector<int> col_ids;
     
 protected:
-    void OnOK( wxCommandEvent& event );
-    void OnClose( wxCommandEvent& event );
+    void OnOK(wxCommandEvent& event);
+    void OnClose(wxCommandEvent& event);
 
     void CreateControls();
     bool Init();
@@ -78,6 +81,50 @@ private:
     wxComboBox* combo_weights;
 };
 
+////////////////////////////////////////////////////////////////////////////
+//
+// class UniqueValuesSettingDlg
+//
+////////////////////////////////////////////////////////////////////////////
+class UniqueValuesSettingDlg : public wxDialog
+{
+public:
+    UniqueValuesSettingDlg(Project* project);
+    virtual ~UniqueValuesSettingDlg();
+    
+    boost::uuids::uuid GetWeightsId();
+    std::vector<GdaVarTools::VarInfo> var_info;
+    std::vector<int> col_ids;
+    
+protected:
+    void OnOK(wxCommandEvent& event);
+    void OnClose(wxCommandEvent& event);
+    void OnCheckJCRatio(wxCommandEvent& event);
+
+    void CreateControls();
+    bool Init();
+    
+    void InitVariableListBox(wxListBox* var_box);
+    void InitWeightsCombobox(wxComboBox* weights_ch);
+    bool GetSelectVariable();
+    wxString PrintResult(const std::vector<JoinCountRatio>& jcr);
+    
+private:
+    bool folded;
+    Project* project;
+    TableInterface* table_int;
+    std::vector<boost::uuids::uuid> weights_ids;
+    
+    wxArrayString var_items;
+    std::map<wxString, wxString> name_to_nm;
+    std::map<wxString, int> name_to_tm_id;
+
+    wxListBox* listbox_var;
+    wxCheckBox* ckb_jc_ratio;
+    wxComboBox* combo_weights;
+    wxStaticText* txt_weights;
+    SimpleReportTextCtrl* m_reportbox;
+};
 
 ////////////////////////////////////////////////////////////////////////////
 //

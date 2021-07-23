@@ -5086,12 +5086,9 @@ void GdaFrame::ChangeToEqualIntervals(int num_cats)
 void GdaFrame::OnOpenUniqueValues(wxCommandEvent& event)
 {
     wxLogMessage("In GdaFrame::OnOpenUniqueValues()");
-    bool show_str_var = true;
-	VariableSettingsDlg dlg(project_p, VariableSettingsDlg::univariate,
-                            // default values
-                            false, false, _("Variable Settings"), "", "","","",false, false, false,
-                            show_str_var);
+    UniqueValuesSettingDlg dlg(project_p);
 	if (dlg.ShowModal() != wxID_OK) return;
+    
     MapFrame* nf = new MapFrame(GdaFrame::gda_frame, project_p,
                                 dlg.var_info, dlg.col_ids,
                                 CatClassification::unique_values,

@@ -137,7 +137,7 @@ public:
 	bool IsAnyTimeVariant();
 	bool IsAnySyncWithGlobalTm();
 	wxString GetStrForTmId(int time);
-	int GetVarsCount() { return vars.size(); }
+	int GetVarsCount() { return (int)vars.size(); }
 	
 	/** Get variable name string */
 	wxString GetName(int var);

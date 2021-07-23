@@ -150,7 +150,7 @@ private:
     
     unsigned columns() const
     {
-        return _rows[ 0 ].size();
+        return (unsigned)(_rows[ 0 ].size());
     }
     
     void determineWidths() const
@@ -159,7 +159,7 @@ private:
         for ( int r=0; r < _rows.size(); r++) {
             Row const & row = _rows[r];
             for ( unsigned i = 0; i < row.size(); ++i ) {
-                _width[ i ] = _width[ i ] > row[ i ].size() ? _width[ i ] : row[ i ].size();
+                _width[ i ] = _width[ i ] > (unsigned)row[ i ].size() ? _width[ i ] : (unsigned)row[ i ].size();
             }
         }
     }
@@ -174,7 +174,7 @@ private:
     }
 };
 
-std::ostream & operator<<( std::ostream & stream, TextTable const & table )
+inline std::ostream & operator<<( std::ostream & stream, TextTable const & table )
 {
     table.setup();
     if (table.mode == TextTable::ASCII) {

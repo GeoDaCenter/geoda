@@ -23,5 +23,6 @@ def ProcessDependency(dylib_path, cid):
             # process item
             ProcessDependency(item, cid)
 
-
+# e.g.
+# python3 code_sign.py /opt/homebrew/opt/gdal/lib/libgdal.29.dylib "Apple Development: xunli@uchicago.edu (AN5USPSZF6)"
 ProcessDependency(sys.argv[1], sys.argv[2])
