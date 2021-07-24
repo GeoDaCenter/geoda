@@ -96,6 +96,9 @@ public:
     std::vector<GdaVarTools::VarInfo> var_info;
     std::vector<int> col_ids;
     
+    wxString GetSummary();
+    bool IsJoinCountRatio();
+    
 protected:
     void OnOK(wxCommandEvent& event);
     void OnClose(wxCommandEvent& event);
@@ -111,6 +114,7 @@ protected:
     
 private:
     bool folded;
+    wxString summary;
     Project* project;
     TableInterface* table_int;
     std::vector<boost::uuids::uuid> weights_ids;
@@ -123,7 +127,6 @@ private:
     wxCheckBox* ckb_jc_ratio;
     wxComboBox* combo_weights;
     wxStaticText* txt_weights;
-    SimpleReportTextCtrl* m_reportbox;
 };
 
 ////////////////////////////////////////////////////////////////////////////

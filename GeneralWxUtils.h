@@ -26,6 +26,7 @@
 #include <wx/xrc/xmlres.h>
 #include <wx/colour.h>
 
+#include "FramesManagerObserver.h"
 #include "DialogTools/VariableSettingsDlg.h"
 
 class Project;
@@ -62,6 +63,34 @@ public:
     static wxColour PickColor(wxWindow* parent, wxColour& col);
     static void SaveWindowAsImage(wxWindow* win, wxString title);
     //static std::set<wxString> GetFieldNamesFromTable(TableInterface* table);
+};
+
+class SummaryDialog : public wxFrame, public FramesManagerObserver
+{
+    DECLARE_EVENT_TABLE()
+
+public:
+    SummaryDialog() {}
+    SummaryDialog(wxWindow* parent, Project* project, wxString showText,
+        wxWindowID id = wxID_ANY,
+        const wxString& caption = _("Summary"),
+        const wxPoint& pos = wxDefaultPosition,
+        const wxSize& size = wxSize(680, 480),
+        long style = wxCAPTION|wxRESIZE_BORDER|wxSYSTEM_MENU|wxCLOSE_BOX);
+    virtual ~SummaryDialog();
+    
+    /** Implementation of FramesManagerObserver interface */
+    virtual void update(FramesManager* o);
+    
+    void CreateControls();
+    void OnClose(wxCloseEvent& event);
+    void AddNewReport(const wxString report);
+    void SetReport(const wxString report);
+
+    wxTextCtrl* m_textbox;
+    wxString results;
+private:
+    FramesManager* frames_manager;
 };
 
 class SimpleReportTextCtrl : public wxTextCtrl

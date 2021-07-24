@@ -5089,6 +5089,13 @@ void GdaFrame::OnOpenUniqueValues(wxCommandEvent& event)
     UniqueValuesSettingDlg dlg(project_p);
 	if (dlg.ShowModal() != wxID_OK) return;
     
+    wxString joincountSummary = dlg.GetSummary();
+    if (!joincountSummary.IsEmpty()) {
+        SummaryDialog* summaryDlg = new SummaryDialog(this, project_p, joincountSummary, wxID_ANY, _("Join Count Ratio Summary"));
+        summaryDlg->Show(true);
+        summaryDlg->m_textbox->SetSelection(0, 0);
+    }
+    
     MapFrame* nf = new MapFrame(GdaFrame::gda_frame, project_p,
                                 dlg.var_info, dlg.col_ids,
                                 CatClassification::unique_values,

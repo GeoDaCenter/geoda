@@ -359,17 +359,7 @@ void UniqueValuesSettingDlg::CreateControls()
     vbox->Add(hbox, 1, wxEXPAND | wxALL, 10);
     vbox->Add(hbox1, 0, wxALIGN_LEFT | wxALL, 10);
     
-    wxBoxSizer *vbox1 = new wxBoxSizer(wxVERTICAL);
-    wxNotebook* notebook = new wxNotebook( panel, wxID_ANY, wxDefaultPosition, wxSize(400, 400));
-    m_reportbox = new SimpleReportTextCtrl(notebook, wxID_ANY, "");
-    notebook->AddPage(m_reportbox, _("Summary"));
-    vbox1->Add(notebook, 1, wxEXPAND|wxALL,20);
-    
-    wxBoxSizer *container = new wxBoxSizer(wxHORIZONTAL);
-    container->Add(vbox, 0, wxEXPAND);
-    container->Add(vbox1, 1, wxEXPAND);
-    
-    panel->SetSizer(container);
+    panel->SetSizer(vbox);
     
     wxButton *okButton = new wxButton(this, wxID_OK, _("OK"), wxDefaultPosition, wxSize(70, 30));
     wxButton *closeButton = new wxButton(this, wxID_EXIT, _("Close"), wxDefaultPosition, wxSize(70, 30));
@@ -552,6 +542,16 @@ wxString UniqueValuesSettingDlg::PrintResult(const std::vector<JoinCountRatio>& 
     return txt;
 }
 
+wxString UniqueValuesSettingDlg::GetSummary()
+{
+    return this->summary;
+}
+
+bool UniqueValuesSettingDlg::IsJoinCountRatio()
+{
+    return ckb_jc_ratio->IsChecked();
+}
+
 void UniqueValuesSettingDlg::OnOK(wxCommandEvent& event )
 {
     wxLogMessage("Click UniqueValuesSettingDlg::OnOK");
@@ -588,18 +588,7 @@ void UniqueValuesSettingDlg::OnOK(wxCommandEvent& event )
         
         if (gw) {
             std::vector<JoinCountRatio> jcr = joincount_ratio(data, gw);
-            wxString summary = PrintResult(jcr);
-            
-            wxString report = m_reportbox->GetValue();
-            report = summary + report;
-            
-            m_reportbox->SetValue(report);
-            
-            if (this->folded) {
-                Fit();
-                this->folded = false;
-            }
-            return;
+            summary = PrintResult(jcr);
         }
     }
     

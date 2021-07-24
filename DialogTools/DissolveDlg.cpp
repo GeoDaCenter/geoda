@@ -62,8 +62,8 @@ DissolveDlg::DissolveDlg(wxWindow* parent, Project* _project_s, const wxPoint& p
     wxLogMessage("Open DissolveDlg.");
 	SetParent(parent);
     
-    table_int = project_s->GetTableInt(),
-    frames_manager = project_s->GetFramesManager(),
+    table_int = project_s->GetTableInt();
+    frames_manager = project_s->GetFramesManager();
     
 	CreateControls();
 	Init();

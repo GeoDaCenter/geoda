@@ -50,7 +50,7 @@ std::vector<JoinCountRatio> joincount_ratio(const std::vector<wxString>& cluster
     // Compute local join counts for that variable (jc)
     // Compute number of neighbors for each observation (nn)
     // Take ratio of sum to total sum of neighbors
-    unordered_map<std::string, unordered_map<int, bool> > regimes;
+    std::map<std::string, unordered_map<int, bool> > regimes;
     
     int nClusters = (int)clusters.size();
     
@@ -59,7 +59,7 @@ std::vector<JoinCountRatio> joincount_ratio(const std::vector<wxString>& cluster
         regimes[c][i] = true;
     }
     
-    unordered_map<std::string, unordered_map<int, bool> >::iterator it;
+    std::map<std::string, unordered_map<int, bool> >::iterator it;
     for (it = regimes.begin(); it != regimes.end(); ++it) {
         std::string cluster = it->first;
         JoinCountRatio jcr = sub_joincount_ratio(cluster, it->second, w);
