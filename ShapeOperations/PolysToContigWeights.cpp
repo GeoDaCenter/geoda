@@ -492,9 +492,9 @@ GalElement* PolysToContigWeights(Shapefile::Main& main, bool is_queen,
                     //shp.seekg(gOffset[nbr]+12, ios::beg);
                     //nbrPoly.ReadShape(shp);
                     
-                    if (curr == 0 && nbr == 0) {
-                        
-                    }
+                    //if (curr == 0 && nbr == 0) {
+                    //
+                    //}
                     // run sweep with testPoly as a host and nbrPoly as a guest
                     int related = testPoly.sweep(nbrPoly, is_queen, precision_threshold);
                     if (related) Related.Push(nbr);
