@@ -89,7 +89,7 @@ class PartitionP : public BasePartition  {
     };
     int inTheRange(const double range) const
     {
-        if (range < 0 || range/step - cells > CMP_DBL_EPSILON) return -1;
+        if (range < 0 || range/step > cells + CMP_DBL_EPSILON) return -1;
         int where= (int) floor(range / step);
         if (where < 0) where= 0;
         else if (where >= cells) --where;
