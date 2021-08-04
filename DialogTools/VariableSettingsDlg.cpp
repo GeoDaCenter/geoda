@@ -33,6 +33,8 @@
 #include <wx/panel.h>
 #include <wx/tokenzr.h>
 #include <wx/choice.h>
+#include <wx/notebook.h>
+
 #include "../DataViewer/TableInterface.h"
 #include "../DataViewer/TimeState.h"
 #include "../VarCalc/WeightsManInterface.h"
@@ -42,6 +44,7 @@
 #include "../logger.h"
 #include "../FramesManager.h"
 #include "../FramesManagerObserver.h"
+#include "../Algorithms/texttable.h"
 #include "SaveToTableDlg.h"
 #include "VariableSettingsDlg.h"
 
@@ -97,7 +100,7 @@ void DiffMoranVarSettingDlg::CreateControls()
     wxBoxSizer *hbox2 = new wxBoxSizer(wxHORIZONTAL);
     
     wxSize var_size(100, -1);
-    wxSize  time_size(100,-1);
+    wxSize time_size(100,-1);
     
     wxStaticText  *st = new wxStaticText (panel, wxID_ANY, _("Select variable "),
                                           wxDefaultPosition, wxDefaultSize);
@@ -195,11 +198,11 @@ void DiffMoranVarSettingDlg::InitWeightsCombobox(wxComboBox* weights_ch)
     WeightsManInterface* w_man_int = project->GetWManInt();
     w_man_int->GetIds(weights_ids);
 
-    size_t sel_pos=0;
+    int sel_pos=0;
     for (size_t i=0; i<weights_ids.size(); ++i) {
         weights_ch->Append(w_man_int->GetShortDispName(weights_ids[i]));
         if (w_man_int->GetDefault() == weights_ids[i])
-            sel_pos = i;
+            sel_pos = (int)i;
     }
     if (weights_ids.size() > 0) weights_ch->SetSelection(sel_pos);
 }
@@ -284,16 +287,319 @@ boost::uuids::uuid DiffMoranVarSettingDlg::GetWeightsId()
    
     int sel = combo_weights->GetSelection();
     if (sel < 0) sel = 0;
-    if (sel >= weights_ids.size()) sel = weights_ids.size()-1;
+    if (sel >= weights_ids.size()) sel = (int)weights_ids.size()-1;
 
     return weights_ids[sel];
 }
 
-/**
- * Belows are codes for VariableSettingsDlg
- *
- */
+////////////////////////////////////////////////////////////////////////////
+//
+// Belows are codes for UniqueValuesSettingDlg
+//
+////////////////////////////////////////////////////////////////////////////
+UniqueValuesSettingDlg::UniqueValuesSettingDlg(Project* project_s)
+    : wxDialog(NULL, wxID_ANY, _("Unique Values Settings"), wxDefaultPosition, wxSize(300, 480), wxDEFAULT_DIALOG_STYLE | wxRESIZE_BORDER)
+{
+    wxLogMessage("Open UniqueValuesSettingDlg.");
+    
+    folded = true;
+    
+    project = project_s;
+    
+    bool init_success = Init();
+    
+    if (init_success == false) {
+        EndDialog(wxID_CANCEL);
+    } else {
+        CreateControls();
+    }
+}
 
+UniqueValuesSettingDlg::~UniqueValuesSettingDlg()
+{
+}
+
+bool UniqueValuesSettingDlg::Init()
+{
+    if (project == NULL) {
+        return false;
+    }
+    
+    table_int = project->GetTableInt();
+    if (table_int == NULL) {
+        return false;
+    }
+    
+    return true;
+}
+
+void UniqueValuesSettingDlg::CreateControls()
+{
+    wxPanel *panel = new wxPanel(this);
+    
+    wxStaticText *st = new wxStaticText(panel, wxID_ANY, _("Select Variable "));
+    listbox_var = new wxListBox(panel, wxID_ANY, wxDefaultPosition);
+    ckb_jc_ratio = new wxCheckBox(panel, wxID_ANY, _("Join Count Ratio"));
+    txt_weights = new wxStaticText (panel, wxID_ANY, _("Weights"), wxDefaultPosition, wxSize(70,-1));
+    combo_weights = new wxComboBox(panel, wxID_ANY, "", wxDefaultPosition, wxSize(160,24), 0, NULL, wxCB_READONLY);
+    
+    wxBoxSizer *hbox = new wxBoxSizer(wxVERTICAL);
+    hbox->Add(st, 0, wxEXPAND | wxALL , 10);
+    hbox->Add(listbox_var, 1, wxEXPAND | wxALL, 10);
+    
+    wxBoxSizer *hbox3 = new wxBoxSizer(wxHORIZONTAL);
+    hbox3->Add(txt_weights, 0, wxALIGN_LEFT, 20);
+    hbox3->Add(combo_weights, 0);
+
+    wxBoxSizer *hbox1 = new wxBoxSizer(wxVERTICAL);
+    hbox1->Add(ckb_jc_ratio, 0, wxALL, 10);
+    hbox1->Add(hbox3, 0, wxALL , 10);
+
+    wxBoxSizer *vbox = new wxBoxSizer(wxVERTICAL);
+    vbox->Add(hbox, 1, wxEXPAND | wxALL, 10);
+    vbox->Add(hbox1, 0, wxALIGN_LEFT | wxALL, 10);
+    
+    panel->SetSizer(vbox);
+    
+    wxButton *okButton = new wxButton(this, wxID_OK, _("OK"), wxDefaultPosition, wxSize(70, 30));
+    wxButton *closeButton = new wxButton(this, wxID_EXIT, _("Close"), wxDefaultPosition, wxSize(70, 30));
+    
+    wxBoxSizer *hbox2 = new wxBoxSizer(wxHORIZONTAL);
+    hbox2->Add(okButton, 1);
+    hbox2->Add(closeButton, 1, wxLEFT, 5);
+    
+    wxBoxSizer *vbox2 = new wxBoxSizer(wxVERTICAL);
+    vbox2->Add(panel, 1, wxEXPAND);
+    vbox2->Add(hbox2, 0, wxALIGN_CENTER | wxTOP | wxBOTTOM, 10);
+    
+    SetSizer(vbox2);
+    
+    Centre();
+    
+    
+    // Content
+    InitVariableListBox(listbox_var);
+    InitWeightsCombobox(combo_weights);
+    txt_weights->Disable();
+    combo_weights->Disable();
+    
+    // Events
+    okButton->Bind(wxEVT_BUTTON, &UniqueValuesSettingDlg::OnOK, this);
+    closeButton->Bind(wxEVT_BUTTON, &UniqueValuesSettingDlg::OnClose, this);
+    ckb_jc_ratio->Bind(wxEVT_CHECKBOX, &UniqueValuesSettingDlg::OnCheckJCRatio, this);
+}
+
+void UniqueValuesSettingDlg::InitVariableListBox(wxListBox* var_box)
+{
+    this->var_items.Clear();
+
+    std::vector<int> col_id_map;
+    table_int->FillStringAndIntegerColIdMap(col_id_map);
+
+    for (int i=0; i<col_id_map.size(); i++) {
+        int id = col_id_map[i];
+        wxString name = table_int->GetColName(id);
+        if (table_int->IsColTimeVariant(id)) {
+            for (int t=0; t<table_int->GetColTimeSteps(id); t++) {
+                wxString nm = name;
+                nm << " (" << table_int->GetTimeString(t) << ")";
+                this->name_to_nm[nm] = name;
+                this->name_to_tm_id[nm] = t;
+                this->var_items.Add(nm);
+            }
+        } else {
+            this->name_to_nm[name] = name;
+            this->name_to_tm_id[name] = 0;
+            this->var_items.Add(name);
+        }
+    }
+
+    if (!this->var_items.IsEmpty()) {
+        var_box->InsertItems(this->var_items,0);
+    }
+}
+
+void UniqueValuesSettingDlg::InitWeightsCombobox(wxComboBox* weights_ch)
+{
+    WeightsManInterface* w_man_int = project->GetWManInt();
+    w_man_int->GetIds(weights_ids);
+
+    int sel_pos = 0;
+    for (size_t i=0; i<weights_ids.size(); ++i) {
+        weights_ch->Append(w_man_int->GetShortDispName(weights_ids[i]));
+        if (w_man_int->GetDefault() == weights_ids[i])
+            sel_pos = (int)i;
+    }
+    if (weights_ids.size() > 0) weights_ch->SetSelection(sel_pos);
+}
+
+bool UniqueValuesSettingDlg::GetSelectVariable()
+{
+    wxArrayInt selections;
+    listbox_var->GetSelections(selections);
+    int num_var = (int)selections.size();
+    
+    col_ids.clear();
+    var_info.clear();
+    
+    if( num_var == 1) {
+        int idx = selections[0];
+        wxString sel_str = listbox_var->GetString(idx);
+        wxString nm = name_to_nm[sel_str];
+        int col = table_int->FindColId(nm);
+        if (col != wxNOT_FOUND) {
+            int tm = name_to_tm_id[listbox_var->GetString(idx)];
+            GdaVarTools::VarInfo v;
+            v.time = tm;
+            // Set Primary GdaVarTools::VarInfo attributes
+            v.name = nm;
+            v.is_time_variant = table_int->IsColTimeVariant(nm);
+            // v.time already set above
+            table_int->GetMinMaxVals(col, v.min, v.max);
+            v.sync_with_global_time = v.is_time_variant;
+            v.fixed_scale = true;
+            col_ids.push_back(col);
+            var_info.push_back(v);
+            return true;
+        }
+    }
+    return false;
+}
+
+void UniqueValuesSettingDlg::OnCheckJCRatio(wxCommandEvent& event )
+{
+    bool flag = ckb_jc_ratio->IsChecked();
+    combo_weights->Enable(flag);
+    txt_weights->Enable(flag);
+}
+
+void UniqueValuesSettingDlg::OnClose(wxCommandEvent& event )
+{
+    wxLogMessage("Close UniqueValuesSettingDlg.");
+    
+    event.Skip();
+    EndDialog(wxID_CANCEL);
+}
+
+wxString UniqueValuesSettingDlg::PrintResult(const std::vector<JoinCountRatio>& jcr)
+{
+    wxArrayInt selections;
+    listbox_var->GetSelections(selections);
+    int num_var = (int)selections.size();
+
+    if( num_var != 1) return wxEmptyString;
+    
+    int idx = selections[0];
+    wxString sel_str = listbox_var->GetString(idx);
+    
+    wxString txt;
+    txt << "-----\n";
+    txt << _("Join Count Ratio") << "\n";
+    txt << _("Variable: ") << sel_str << "\n\n";
+    
+    TextTable t( TextTable::MD );
+    
+    // first row
+    t.add("Cluster");
+    t.add("N");
+    t.add("Total Neighbors");
+    t.add("Total Join Count");
+    t.add("Ratio");
+    t.endOfRow();
+    
+    // second row
+    for (int i=0; i<jcr.size(); i++) {
+        t.add(jcr[i].cluster.c_str());
+        
+        t.add(std::to_string(jcr[i].n));
+        t.add(std::to_string(jcr[i].totalNeighbors));
+        t.add(std::to_string(jcr[i].totalJoinCount));
+        
+        stringstream ss;
+        ss.str("");
+        ss << jcr[i].ratio;
+        t.add(ss.str());
+        
+        t.endOfRow();
+    }
+    
+    JoinCountRatio all = all_joincount_ratio(jcr);
+    t.add("All");
+    t.add(std::to_string(all.n));
+    t.add(std::to_string(all.totalNeighbors));
+    t.add(std::to_string(all.totalJoinCount));
+    
+    stringstream ss;
+    ss.str("");
+    ss << all.ratio;
+    t.add(ss.str());
+    t.endOfRow();
+    
+    stringstream ss1;
+    ss1 << t;
+    txt << ss1.str();
+    txt << "\n";
+    return txt;
+}
+
+wxString UniqueValuesSettingDlg::GetSummary()
+{
+    return this->summary;
+}
+
+bool UniqueValuesSettingDlg::IsJoinCountRatio()
+{
+    return ckb_jc_ratio->IsChecked();
+}
+
+void UniqueValuesSettingDlg::OnOK(wxCommandEvent& event )
+{
+    wxLogMessage("Click UniqueValuesSettingDlg::OnOK");
+    
+    bool selectVariable = GetSelectVariable();
+    
+    if (selectVariable == false) {
+        wxMessageDialog dlg (this,
+                             _("Please select a variable first."),
+                             _("Warning"),
+                             wxOK | wxICON_WARNING);
+        dlg.ShowModal();
+        return;
+    }
+    
+    if (ckb_jc_ratio->IsChecked()) {
+        int sel = combo_weights->GetSelection();
+        if (sel < 0 || weights_ids.empty()) {
+            wxMessageDialog dlg (this,
+                                 _("Please select a spatial weights for Join Count Ratio."),
+                                 _("Warning"),
+                                 wxOK | wxICON_WARNING);
+            dlg.ShowModal();
+            return;
+        }
+        
+        boost::uuids::uuid wid = weights_ids[sel];
+        WeightsManInterface* w_man_int = project->GetWManInt();
+        GeoDaWeight* gw = (GeoDaWeight*)w_man_int->GetGal(wid);
+        
+        int col_id = col_ids[0], time_id = var_info[0].time;
+        std::vector<wxString> data;
+        table_int->GetColData(col_id, time_id, data);
+        
+        if (gw) {
+            std::vector<JoinCountRatio> jcr = joincount_ratio(data, gw);
+            summary = PrintResult(jcr);
+        }
+    }
+    
+    EndDialog(wxID_OK);
+}
+
+////////////////////////////////////////////////////////////////////////////
+//
+// Belows are codes for VariableSettingsDlg
+//
+////////////////////////////////////////////////////////////////////////////
 BEGIN_EVENT_TABLE(VariableSettingsDlg, wxDialog)
 	EVT_CHOICE(XRCID("ID_TIME1"), VariableSettingsDlg::OnTime1)
 	EVT_CHOICE(XRCID("ID_TIME2"), VariableSettingsDlg::OnTime2)

@@ -401,8 +401,8 @@ PopulateCatClassifData(const CatClassifDef& cat_def,
         return;
     
     // number of categories based on number of unique values in data
-    int num_time_vals = var.size();
-    int num_obs = var[0].size();
+    int num_time_vals = (int)var.size();
+    int num_obs = (int)var[0].size();
     cat_data.CreateEmptyCategories(num_time_vals, num_obs);
     
     // detect if undefined category
@@ -1727,7 +1727,7 @@ bool CatClassification::CorrectCatClassifFromTable(CatClassifDef& _cc,
         }
 		std::vector<UniqueValElem> uv_mapping;
 		create_unique_val_mapping(uv_mapping, v, v_undef);
-		int num_unique_vals = uv_mapping.size();
+		int num_unique_vals = (int)uv_mapping.size();
         if (num_unique_vals > 10) num_unique_vals = 10;
 		cc.num_cats = num_unique_vals;
 	}
@@ -1745,7 +1745,7 @@ bool CatClassification::CorrectCatClassifFromTable(CatClassifDef& _cc,
         }
 		cc.uniform_dist_min = col_min;
 		cc.uniform_dist_max = col_max;
-		for (int i=0, sz=cc.breaks.size(); i<sz; ++i) {
+		for (int i=0, sz= (int)cc.breaks.size(); i<sz; ++i) {
             if (cc.breaks[i] < col_min) {
                 if (i == 0) cc.breaks[i] = col_min;
                 else cc.breaks[i] = cc.breaks[i-1];
@@ -1793,9 +1793,10 @@ bool CatClassification::CorrectCatClassifFromTable(CatClassifDef& _cc,
 
     // re-Generate labels if auto is ON
     if (auto_label == false) {
-        int best_n = user_def_labels.size();
-        if (cc.names.size() < best_n) best_n = cc.names.size();
-        
+        int best_n = (int)user_def_labels.size();
+        if (cc.names.size() < best_n) {
+            best_n = (int)cc.names.size();
+        }
         for (size_t t=0; t< best_n; t++) {
             cc.names[t] = user_def_labels[t];
         }
@@ -1814,7 +1815,7 @@ void CatClassification::FindNaturalBreaks(int num_cats,
                                           const std::vector<bool>& var_undef,
                                           std::vector<double>& nat_breaks)
 {
-	int num_obs = var.size();
+	int num_obs = (int)var.size();
 	std::vector<double> v(num_obs);
 	std::vector<bool> v_undef(num_obs);
     
@@ -1829,7 +1830,7 @@ void CatClassification::FindNaturalBreaks(int num_cats,
 	
 	std::vector<UniqueValElem> uv_mapping;
 	create_unique_val_mapping(uv_mapping, v, v_undef);
-	int num_unique_vals = uv_mapping.size();
+	int num_unique_vals = (int)uv_mapping.size();
 	int t_cats = std::min(num_unique_vals, num_cats);
 	
 	double mean = 0;
@@ -1864,7 +1865,7 @@ void CatClassification::FindNaturalBreaks(int num_cats,
 	if (perms < 10) perms = 10;
 	if (perms > 10000) perms = 10000;
 
-    boost::mt19937 rng(GdaConst::gda_user_seed);
+    boost::mt19937 rng((unsigned int)GdaConst::gda_user_seed);
     boost::uniform_01<boost::mt19937> X(rng);
     
 	for (int i=0; i<perms; i++) {
@@ -1880,7 +1881,7 @@ void CatClassification::FindNaturalBreaks(int num_cats,
 	}
     
 	nat_breaks.resize(best_breaks.size());
-	for (int i=0, iend=best_breaks.size(); i<iend; i++) {
+	for (int i=0, iend=(int)best_breaks.size(); i<iend; i++) {
 		nat_breaks[i] = var[best_breaks[i]].first;
 	}
 }
@@ -1895,8 +1896,8 @@ SetNaturalBreaksCats(int num_cats,
                      bool useSciNotation,
                      int cat_disp_precision)
 {
-	int num_time_vals = var.size();
-	int num_obs = var[0].size();
+	int num_time_vals = (int)var.size();
+	int num_obs = (int)var[0].size();
     
 	// user supplied number of categories
 	cat_data.CreateEmptyCategories(num_time_vals, num_obs);
@@ -1919,7 +1920,7 @@ SetNaturalBreaksCats(int num_cats,
         
         for (int i=0; i<num_obs; i++) {
             double val = var[t][i].first;
-            int ind = var[t][i].second;
+            int ind = (int)var[t][i].second;
             v[i] = val;
         }
         
@@ -1929,7 +1930,7 @@ SetNaturalBreaksCats(int num_cats,
 		std::vector<UniqueValElem> uv_mapping;
 		create_unique_val_mapping(uv_mapping, v, var_undef[t]);
         
-		int num_unique_vals = uv_mapping.size();
+		int num_unique_vals = (int)uv_mapping.size();
 		int t_cats = std::min(num_unique_vals, num_cats);
 		
 		double mean = 0, max_val;
@@ -1966,7 +1967,7 @@ SetNaturalBreaksCats(int num_cats,
 		if (perms < 10) perms = 10;
 		if (perms > 10000) perms = 10000;
 	
-        boost::mt19937 rng(GdaConst::gda_user_seed);
+        boost::mt19937 rng((unsigned int)GdaConst::gda_user_seed);
         boost::uniform_01<boost::mt19937> X(rng);
         
 		for (int i=0; i<perms; i++) {
@@ -1982,7 +1983,7 @@ SetNaturalBreaksCats(int num_cats,
 		}
 
         // check largest break
-        int num_breaks = best_breaks.size();
+        int num_breaks = (int)best_breaks.size();
 
 		cat_data.SetCategoryBrushesAtCanvasTm(coltype, t_cats, false, t);
         
@@ -2669,7 +2670,7 @@ void CatClassifData::ExchangeLabels(int from, int to)
 
 void CatClassifData::AppendUndefCategory(int t, int count)
 {
-    wxColour brush_clr = wxColour(70, 70, 70);
+    wxColour brush_clr = GdaConst::map_undefined_colour;
     wxColour pen_clr = GdaColorUtils::ChangeBrightness(brush_clr);
     Category c_undef;
     c_undef.brush.SetColour(brush_clr);

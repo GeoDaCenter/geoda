@@ -602,7 +602,7 @@ size_t curlCallback(void *ptr, size_t size, size_t nmemb, void* userdata)
 {
     FILE* stream = (FILE*)userdata;
     if (!stream) {
-        printf("!!! No stream\n");
+        //printf("!!! No stream\n");
         return 0;
     }
     

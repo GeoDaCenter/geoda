@@ -439,6 +439,7 @@ const int GdaConst::map_default_legend_width = 150;
 const wxColour GdaConst::map_default_fill_colour(49, 163, 84);
 const wxColour GdaConst::map_default_outline_colour(0, 0, 0);
 const wxColour GdaConst::map_default_highlight_colour(255, 255, 0); // yellow
+wxColour GdaConst::map_undefined_colour(70, 70, 70); // dark gray
 
 // Connectivity Map
 const wxSize GdaConst::conn_map_default_size(480, 350);

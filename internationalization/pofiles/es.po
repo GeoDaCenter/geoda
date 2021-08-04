@@ -1,6284 +1,6460 @@
-#contributors:
+# contributors:
 msgid ""
-msgstr "Plural-Forms: nplurals=2; plural=(n != 1);\nProject-Id-Version: \nPOT-Creation-Date: \nPO-Revision-Date: \nLast-Translator: \nLanguage-Team: \nMIME-Version: 1.0\nContent-Type: text/plain; charset=UTF-8\nContent-Transfer-Encoding: 8bit\nLanguage: es\nX-Generator: Poedit 2.1.1\nX-Poedit-SourceCharset: UTF-8\n"
+msgstr ""
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Project-Id-Version: \n"
+"POT-Creation-Date: \n"
+"PO-Revision-Date: \n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: es\n"
+"X-Generator: Poedit 2.3.1\n"
+"X-Poedit-SourceCharset: UTF-8\n"
 
-#contributors:
+# contributors:
 msgid " (isolates in weights are removed)"
 msgstr ""
 
-#contributors:
+# contributors:
 msgid " = 0 at "
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid " BiLISA Cluster Map"
 msgstr "BiLISA Mapa de Clústers"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid " BiLISA Significance Map"
 msgstr "Mapa de Significación BiLISA"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid " Bivariate Local Geary Cluster Map"
 msgstr "Mapa de Clústers Geary Local Bivariante"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid " Bivariate LocalGeary Significance Map"
 msgstr "Mapa de Significación Local de Geary Bivariante"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid " Categories"
 msgstr "Categorías"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid " Differential LISA Cluster Map"
 msgstr "Mapa de Clústers LISA Diferencial"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid " Differential Local Geary Cluster Map"
 msgstr "Mapa de Clúster de Geary Local Diferencial"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid " Differential Significance Map"
 msgstr "Mapa de Significación Diferencial"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid " Distance metric: "
 msgstr "Distancia metrica"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid " LISA Cluster Map"
 msgstr "Mapa de Clusters LISA"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid " LISA Significance Map"
 msgstr "Mapa de Significación LISA"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid " Local Geary Cluster Map"
 msgstr "Mapa de Clúster Geary Local"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid " Local Geary Significance Map"
 msgstr "Mapa de Significación Geary Local"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid " already exists.  OK to overwrite?"
 msgstr "ya existe. ¿Aceptar sobrescribir?"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid " and "
 msgstr " y "
 
-#contributors:corochasco
+# contributors:corochasco
 msgid " and two time periods: "
 msgstr " y 2 períodos de tiempo: "
 
-#contributors:
+# contributors:
 msgid " for obs within distance band "
 msgstr ""
 
-#contributors:corochasco
-msgid " has duplicate values. Please choose a different ID Variable.\n\nDetails:"
-msgstr "tiene valores duplicados.Por favor seleccione una variable de ID. \n\nDetails:"
+# contributors:corochasco
+msgid ""
+" has duplicate values. Please choose a different ID Variable.\n"
+"\n"
+"Details:"
+msgstr ""
+"tiene valores duplicados.Por favor seleccione una variable de ID. \n"
+"\n"
+"Details:"
 
-#contributors:
+# contributors:
 msgid " in range:"
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid " is not supported by GeoDa.\n"
 msgstr "no está apoyado por GeoDa.\n"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid " km"
 msgstr "km"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid " mi"
 msgstr "i"
 
-#contributors:
+# contributors:
 msgid " pairs in distance band "
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid " should contains only numbers/letters as IDs.  Please choose a different ID Variable."
 msgstr " debería contener sólo IDs con números/letras. Seleccionar una Variable ID diferente."
 
-#contributors:
+# contributors:
 msgid " to "
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "# Iterations:"
 msgstr "Nº Iteraciones:"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "# Max Iteration:"
 msgstr "Nº Máx. Iteraciones:"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "# Neighors:"
 msgstr "Nº Vecinos"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "# Pairs"
 msgstr "Nº Pares"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "# iterations:\t"
 msgstr "# Iteraciones:\t"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "# observations"
 msgstr "# observaciones"
 
-#contributors:
+# contributors:
 msgid "#hover obs "
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "#obs"
 msgstr "nº obs."
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "#obs:"
 msgstr "nº obs."
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "#obs="
 msgstr "nº obs."
 
-#contributors:
+# contributors:
 msgid "#row="
 msgstr ""
 
-#contributors:
+# contributors:
 msgid "#selected="
 msgstr ""
 
-#contributors:
+# contributors:
 msgid "% non-zero"
 msgstr ""
 
-#contributors:
+# contributors:
 msgid "% of total"
 msgstr ""
 
-#contributors:
+# contributors:
 msgid "%d of %d variables to include"
 msgstr ""
 
-#contributors:
+# contributors:
 msgid "%d variables to include"
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "%s (Weights: %s)"
 msgstr "%s (Pesos: %s)"
 
-#contributors:
+# contributors:
 msgid "%s Cluster Map (%d clusters)"
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "&Add ID Variable..."
 msgstr "Añadir Variable ID"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "&Cancel"
 msgstr "Cancelar"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "&Close"
 msgstr "Cerrar"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "&Edit"
 msgstr "Editar"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "&File"
 msgstr "Archivo"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "&Help"
 msgstr "Ayuda"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "&Map"
 msgstr "Mapa"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "&Merge"
 msgstr "Combinar"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "&New"
 msgstr "Nuevo"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "&Open Project"
 msgstr "Abrir Proyecto"
 
-#contributors:
+# contributors:
 msgid "&Regression"
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "&Run"
 msgstr "&Ejecutar"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "&Save to Table"
 msgstr "Guardar en Tabla"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "&Space"
 msgstr "Espacio"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "&Tools"
 msgstr "Herramientas"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "(Dendrogram is too complex to draw. Please view clustering results in map.)"
 msgstr "(Dendograma muy complicado de representar. Ver resultados de clústers en un mapa.)"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "(Duplicate field name)"
 msgstr "(Nombre de campo duplicado)"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "(Field name is not valid)"
 msgstr "(Nombre de campo no válido)"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "(Gaussian) Sigma:"
 msgstr "Sigma (Gaussiano):"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "(Leave empty for undefined values)"
 msgstr "Dejar en blanco los valores no seleccionados"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "(Optional) First record has field names? "
 msgstr "(Opcional) ¿El primer dato tiene nombre de campo?"
 
-#contributors:
+# contributors:
 msgid "(Optional) Longitude/X:"
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "(Optional) You can change the data type for a field:"
 msgstr "(Opcional) Vd. puede cambiar el tipo de datos del campo:"
 
-#contributors:
+# contributors:
 msgid "(Use Sequences)"
 msgstr ""
 
-#contributors:
-msgid "---\n\nPCA method: "
+# contributors:
+msgid ""
+"---\n"
+"\n"
+"PCA method: "
 msgstr ""
 
-#contributors:
-msgid ".\nEnter a seed value to use between\n0 and "
+# contributors:
+msgid ""
+".\n"
+"Enter a seed value to use between\n"
+"0 and "
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "0x03 (dBASE III+)"
 msgstr "0x03 (dBASE III+)"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "1 Iteration"
 msgstr "Iteración 1"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "199 Permutations"
 msgstr "199 Permutaciones"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "1st Variable (X)"
 msgstr "1ª Variable (X)"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "2 Iteration"
 msgstr "Iteración 2"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "2nd Variable (Y)"
 msgstr "2ª Variable (Y)"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "3 Iteration"
 msgstr "Iteración 3"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "3D Plot"
 msgstr "Gráfico 3D"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "3D Scatter Plot"
 msgstr "Diagrama de Dispersión 3D"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "3D Scatter Plot Variables"
 msgstr "Variables Diagrama Dispersión 3D"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "3rd Variable (Z)"
 msgstr "3ª Variable (Z)"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "4 Iteration"
 msgstr "Iteración 4"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "499 Permutations"
 msgstr "499 Permutaciones"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "4th Variable"
 msgstr "4ª Variable"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "5 Iteration"
 msgstr "Iteración 5"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "5 of 5 variables needed"
 msgstr "5 de 5 variables necesitadas"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "6 Iteration"
 msgstr "Iteración 6"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "99 Permutations"
 msgstr "99 Permutaciones"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "999 Permutations"
 msgstr "999 Permutaciones"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "<"
 msgstr "<"
 
-#contributors:
+# contributors:
 msgid "<<"
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "<="
 msgstr "<="
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "="
 msgstr "="
 
-#contributors:corochasco
+# contributors:corochasco
 msgid ">"
 msgstr ">"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid ">>"
 msgstr ">>"
 
-#contributors:
+# contributors:
 msgid "A Table-only data source can't be stacked with current data source."
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "A newer version of GeoDa is found. Do you want to update to version "
 msgstr "Existe una nueva versión de GeoDa. ¿Desea actualizar a la versión ?"
 
-#contributors:
+# contributors:
 msgid "A project file contains extra information not directly stored in the data source such as variable order and grouping."
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "About DBF Viewer"
 msgstr "Sobre DBF Viewer"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "About GeoDa"
 msgstr "Acerca de GeoDa"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "About Precision Threshold"
 msgstr "Acerca del Umbral de Precisión"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Adaptive bandwidth"
 msgstr "Ancho de Banda Adaptativo"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Adaptive kernel"
 msgstr "Kernel adaptativo"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Add"
 msgstr "Añadir"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Add Centroids to Table"
 msgstr "Añadir Centroides a Tabla"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Add Map Layer"
 msgstr "Add Map Layer"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Add Mean Centers to Table"
 msgstr "Añadir Centros Medios a Tabla"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Add Neighbors To Selection"
 msgstr "Añadir Vecinos a Selección"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Add New ID Variable"
 msgstr "Añadir Nueva Variable ID"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Add OGR column error. Field type is unknown or not supported."
 msgstr "Añadir error de columna OGR. Tipo de campo desconocido o no admitido."
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Add OGR column error. Field type is unknown."
 msgstr "Añadir columna de error OGR. Tipo de campo desconocido"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Add Time"
 msgstr "Añadir Tiempo"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Add Variable"
 msgstr "Añadir Variable"
 
-#contributors:
-msgid "Add a name for your group of variables. \n\nYou can edit the time period labels for easier interpretation of results."
+# contributors:
+msgid ""
+"Add a name for your group of variables. \n"
+"\n"
+"You can edit the time period labels for easier interpretation of results."
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Add basemap automatically:"
 msgstr "Añadir mapa base automáticamente:"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Add new column to table"
 msgstr "Añadir nueva columna a la tabla"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Add/Remove Variables"
 msgstr "Añadir/Eliminar Variables"
 
-#contributors:
+# contributors:
 msgid "Adjust Bubble Size"
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Adjust Value Range of Y Axis"
 msgstr "Ajustar Rango de Valores al Eje Y"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Adjust Value Range of Y-Axis"
 msgstr "Ajustar Rango de Valores al Eje Y"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Adjust Values of Y Axis"
 msgstr "Ajustar Valores del Eje Y"
 
-#contributors:
+# contributors:
 msgid "Affinity with Guassian Kernel:\tSigma="
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Affinity with K-NN:"
 msgstr "Afinidad con K-NN:"
 
-#contributors:
+# contributors:
 msgid "Affinity with K-Nearest Neighbors:\tK="
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Affinity with Kernel:"
 msgstr "Afinidad con Kernel:"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Aggregate"
 msgstr "Agregar"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Aggregate - "
 msgstr "Agregar - "
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "All"
 msgstr "Todo"
 
-#contributors:
+# contributors:
 msgid "All Pairs"
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "All Rights Reserved"
 msgstr "Todos los Derechos Reservados"
 
-#contributors:
+# contributors:
 msgid "Allow a single cluster:"
 msgstr ""
 
-#contributors:
+# contributors:
 msgid "Alpha:"
 msgstr ""
 
-#contributors:
+# contributors:
 msgid "Always using fixed-point notation"
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Animation"
 msgstr "Animación"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "App Key"
 msgstr "Clave App"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Append To Current Selection"
 msgstr "Anexar a Selección Actual"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Append to current selection"
 msgstr "Agregar a selección actual"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Appl&y"
 msgstr "Aplicar"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Apply"
 msgstr "Aplicar"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Apply kernel to diagonal weights"
 msgstr "Aplicar kernel a pesos diagonal"
 
-#contributors:
+# contributors:
 msgid "April"
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Arabic (Windows-1256)"
 msgstr "Árabe (Windows-1256)"
 
-#contributors:
+# contributors:
 msgid "Arc Distance"
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Ascending order"
 msgstr "Orden ascendente"
 
-#contributors:
+# contributors:
 msgid "Assign To Target"
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Assign Values to Currently Selected / Unselected"
 msgstr "Asignar Valores a Actual Selección / No Selección"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Assoc. Var."
 msgstr "Var. Asoc."
 
-#contributors:
+# contributors:
 msgid "Attributes (Optional)"
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "August"
 msgstr "agosto"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Auto Weighting"
 msgstr "Auto-Ponderación"
 
-#contributors:
+# contributors:
 msgid "Autocorr."
 msgstr ""
 
-#contributors:
+# contributors:
 msgid "Autocorr. of "
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Automatic Labels"
 msgstr "Etiquetas Automáticas"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Average"
 msgstr "Promedio"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Average Comparison Chart"
 msgstr "Gráfico Comparación de Medias"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Averages Chart"
 msgstr "Gráfico de Medias"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Axes Through Origin"
 msgstr "Ejes Sobre el Origen"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Axis Option"
 msgstr "Opción de Eje"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Axis Selection"
 msgstr "Selección de Eje"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Background"
 msgstr "Fondo"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Background Color"
 msgstr "Color de Fondo"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Bandwidth:"
 msgstr "Ancho de banda:"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Base Map "
 msgstr "Mapa Base"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Base Variable"
 msgstr "Variable Base"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Basemap"
 msgstr "Mapa Base"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Basemap Configuration"
 msgstr "Configuración de Mapa Base"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Basemap Configuration Dialog"
 msgstr "Cuadro de Configuración de Mapa Base"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Basemap Parameters:"
 msgstr "Basemap Parameters:"
 
-#contributors:
+# contributors:
 msgid "Basemap Sources: (Format: group&name.basemap&name,basemap&url)"
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Before add/delete observations, please close the %d view(s) that depend on it."
 msgstr "Antes de añadir/borrar observaciones, cerrar la(s) vista(s) %d que depende(n) de ellas."
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Before proceed with operation (add/remove, move, or rename), please close %d views that depend on it."
 msgstr "Antes de proceder con la operación (añadir/eliminar, mover o renombrar), cerrar las %d vistas que dependen de ella."
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Before you can modify the variable %s, please close the %d view(s) that depend on it."
 msgstr "Antes de modificar la variable %s, cerrar la(s) %d vista(s) que dependen de ella"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Bivariate"
 msgstr "Bivariante"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Bivariate Local Join Count"
 msgstr "Join Count Local Bivariante"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Bivariate Local Moran's I"
 msgstr "I de Moran Local Bivariante"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Bivariate Moran Variable Settings"
 msgstr "Configuración Variable de Moran Bivariante"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Bivariate Moran's I"
 msgstr "I de Morán Bivariante"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Bivariate Moran's I (%s): %s and lagged %s"
 msgstr "I de Moran Bivariante (%s): %s y %s retardado"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Bonferroni bound:"
 msgstr "Límite de Bonferroni"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Both are significant, Spatial Lag Model has been selected."
 msgstr "Ambos son significativos, se selecciona el Modelo del Retardo Espacial"
 
-#contributors:
+# contributors:
 msgid "Bottom"
 msgstr ""
 
-#contributors:
+# contributors:
 msgid "Bounding Box"
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Box Map (Hinge=1.5)"
 msgstr "Mapa de Caja (Bisagra=1.5)"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Box Map (Hinge=3.0)"
 msgstr "Mapa de Caja (Bisagra=3.0)"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Box Plot"
 msgstr "Diagrama de Caja"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Boxplot Theme"
 msgstr "Tema del diagrama de Caja"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Breaks"
 msgstr "Cortes"
 
-#contributors:
+# contributors:
 msgid "Breaks with same values were created. Please choose a smaller categories, or manually edit the break values."
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Bubble Chart"
 msgstr "Gráfico de Burbujas"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Bubble Chart - x: %s, y: %s, size: %s, %s"
 msgstr "Gráfico de Burbujas - x: %s, y: %s, tamaño: %s, %s"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Bubble Chart Variables"
 msgstr "Variables de Gráfico de Burbujas"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Bubble Size"
 msgstr "Tamaño de Burbuja"
 
-#contributors:
+# contributors:
 msgid "Bubble Size Adjust Dialog"
 msgstr ""
 
-#contributors:
+# contributors:
 msgid "Buffer query area:"
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Bug Report"
 msgstr "Informe de Errores"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "C&reate"
 msgstr "Crear"
 
-#contributors:
+# contributors:
 msgid "CRS (proj4 format)"
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "CSV Configuration Warning"
 msgstr "Aviso de Configuración CSV"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "CSV Contains Variable Names?"
 msgstr "¿CSV Contiene Nombres de Variables?"
 
-#contributors:
+# contributors:
 msgid "CSV File Configuration"
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Calculator"
 msgstr "Calculadora"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Can't connect to datasource: "
 msgstr "No se puede conectar con fuente de datos:"
 
-#contributors:
+# contributors:
 msgid "Can't create layer %s with empty field (%s) name."
 msgstr ""
 
-#contributors:
-msgid "Can't create output OGR driver. \n\nDetails:"
+# contributors:
+msgid ""
+"Can't create output OGR driver. \n"
+"\n"
+"Details:"
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Can't get bounding box information from this datasource. Please try another datasource."
 msgstr "No se puede obtener información del cuadro delimitador de la fuente de datos. Intentarlo con otra fuente de datos."
 
-#contributors:
-msgid "Can't get datasource type from: %s\n\nPlease select datasource supported by GeoDa or add extension  to file datasource."
+# contributors:
+msgid ""
+"Can't get datasource type from: %s\n"
+"\n"
+"Please select datasource supported by GeoDa or add extension  to file datasource."
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Can't get layers from unknown datasource. Please complete the datasource fields."
 msgstr "Imposible obtener capas de fuente de datos desconocida. Completar los campos de la misma."
 
-#contributors:
+# contributors:
 msgid "Can't save Thiessen polygons"
 msgstr ""
 
-#contributors:
+# contributors:
 msgid "Can't write/create layer \""
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Cancel"
 msgstr "Cancelar"
 
-#contributors:
+# contributors:
 msgid "Canvas Layout Preview"
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Carto"
 msgstr "Carto"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Cartogram"
 msgstr "Cartograma"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Cartogram Variables"
 msgstr "Variables del Cartograma"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Categories"
 msgstr "Categorías"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Categories \"%s\" is currently in use by another view. Please close or change all views using this custom categories before deleting."
 msgstr "Categorías \"%s\" está actualmente en uso por otra vista. Cerrar/cambiar las vistas utilizando estas categorías personalizadas antes de borrar."
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Categories of "
 msgstr "Categoría de "
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Categories title \"%s\" already exists. Please choose a different title."
 msgstr "Título de categorías \"%s\" existente. Seleccionar un título diferente."
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Category"
 msgstr "Categoría"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Category Editor"
 msgstr "Editor de Categorías"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Central European (CP852)"
 msgstr "Centroeuropeo (CP852)"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Central European (Windows-1250)"
 msgstr "Centroeuropeo (Windows-1250)"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Central European Latin-2 (ISO-8859-2)"
 msgstr "Centroeuropeo Latín-2 (ISO-8859-2)"
 
-#contributors:
+# contributors:
 msgid "Centroid (X)"
 msgstr ""
 
-#contributors:
+# contributors:
 msgid "Centroid (Y)"
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Change"
 msgstr "Cambio"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Change Categories Title"
 msgstr "Cambiar Título de Categorías"
 
-#contributors:
+# contributors:
 msgid "Change Color of Root"
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Change Current Map Type"
 msgstr "Cambiar Tipo Actual de Mapa"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Change Edge Color"
 msgstr "Cambiar Color del Borde"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Change Edge Thickness"
 msgstr "Cambiar Grosor del Borde"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Change Fill Color"
 msgstr "Change Fill Color"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Change Fill Color of Neighbors"
 msgstr "Cambiar Color de Relleno de Vecinos"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Change Font"
 msgstr "Cambiar Fuente"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Change Map Transparency"
 msgstr "Cambiar Transparencia del Mapa"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Change Outline Color"
 msgstr "Change Outline Color"
 
-#contributors:
+# contributors:
 msgid "Change Outline Color of Selected"
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Change Parameters"
 msgstr "Cambiar Parámetros"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Change Point Radius"
 msgstr "Change Point Radius"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Change Seed"
 msgstr "Cambiar semilla"
 
-#contributors:
+# contributors:
 msgid "Change Size of Root"
 msgstr ""
 
-#contributors:
-msgid "Change field properties (%s) failed.\n\nDetails: %s"
+# contributors:
+msgid ""
+"Change field properties (%s) failed.\n"
+"\n"
+"Details: %s"
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Change title \"%s\" to"
 msgstr "Cambiar título\"%s\" a"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Change variable type for \"%s\" has failed. Please check all values are valid for conversion."
 msgstr "Error en el cambio de tipo de variable por \"%s\". Comprobar la validez de todos los valores en la conversión."
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Check Bug Report on Github"
 msgstr "Consulte el Informe de Errores en Github"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Check Updates"
 msgstr "Comprobar Actualizaciones"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Checking Symmetry..."
 msgstr "Comprobando Simetría..."
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Chinese Simplified (GB2312)"
 msgstr "Chino Simplificado (GB2312)"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Chinese Traditional (Big5)"
 msgstr "Chino Tradicional (Big5)"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Choose A Color"
 msgstr "Seleccionar un Color"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Choose Cateogry Color"
 msgstr "Seleccionar Color de Categoría"
 
-#contributors:
+# contributors:
 msgid "Choose Cateogry Fill Color"
 msgstr ""
 
-#contributors:
+# contributors:
 msgid "Choose Cateogry Outline Color"
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Choose Intervals"
 msgstr "Elegir Intervalos"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Choose Weights"
 msgstr "Seleccionar Pesos"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Choose Weights File"
 msgstr "Elegir Archivo de Pesos"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Choose an output weights file name."
 msgstr "Escribir nombre de fichero de resultado de pesos"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Chosen field is not a numeric type.  Please select a numeric type field."
 msgstr "El campo escogido no es numérico. Seleccionar un campo de tipo numérico."
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Chosen field is not a numeric type. Please select a numeric type field."
 msgstr "El campo elegido no es numérico. Seleccionar un campo numérico."
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Chosen key field '%s' s a time variant. Please choose a non-time variant field as key."
 msgstr "Campo clave seleccionado %s' varía en el tiempo. Seleccionar campo clave no variable en el tiempo."
 
-#contributors:
+# contributors:
 msgid "Chosen key field is not valid. Please select another key field"
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Chow test for sel/unsel regression subsets: "
 msgstr "Test de Chow para regresiones de subgrupos de sel/no sel."
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Circle"
 msgstr "Círculo"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Circle Color"
 msgstr "Color del Círculo"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Circle Size"
 msgstr "Tamaño del Círculo"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Classic "
 msgstr "Básico"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Classification Themes"
 msgstr "Temas de Clasificación"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Clean Basemap Cache"
 msgstr "Borrar Mapa Base de Caché"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Clear Highlight Association"
 msgstr "Clear Highlight Association"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Clear Selection"
 msgstr "Borrar Selección"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Click RegressionDlg::OnSaveToTxtFileClick"
 msgstr "Teclear RegressionDlg::OnSaveToTxtFileClick"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Click RegressionDlg::OnViewResultsClick"
 msgstr "Teclear RegressionDlg::OnViewResultsClick"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Close"
 msgstr "Cerrar"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Cluster Map "
 msgstr "Mapa de Clústers"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Cluster Maps"
 msgstr "Mapas de Clústers"
 
-#contributors:
+# contributors:
 msgid "Cluster centers:"
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Clusters"
 msgstr "Clúster"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Co-location Join Count"
 msgstr "Co-location Join Count"
 
-#contributors:
+# contributors:
 msgid "Co-location Join Count only applies to co-location case. The selected variables have no co-location. Please change your selection, or use Univariate/Bivariate Local Join Count."
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Co-location Map"
 msgstr "Mapa de Co-localización"
 
-#contributors:
+# contributors:
 msgid "Co-location Map: "
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Co-location Settings"
 msgstr "Configuración de Co-localización"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Coeff. Var. Mat."
 msgstr "Mat. Var. Coef."
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Colocation Cluster"
 msgstr "Clúster de Colocaciones"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Color"
 msgstr "Color"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Color Scheme"
 msgstr "Paleta de Colores"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Column Name"
 msgstr "Nombre de Columna"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Column Number (from 0)"
 msgstr "Número de Columna (desde 0)"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Comma Separated Value (*.csv)|*.csv"
 msgstr "Valor Separado por Comas (*.csv)|*.csv"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Components:"
 msgstr "Componentes:"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Conditional Co-location Map Variables"
 msgstr "Variables de Mapa de Co-localización Condicional"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Conditional G Cluster Map Variables"
 msgstr "Variables de Mapa de Clúster G Condicional"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Conditional GetisOrd Map"
 msgstr "Mapa Condicional de GetisOrd"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Conditional Histogram"
 msgstr "Histograma Condicional"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Conditional Histogram Variables"
 msgstr "Variables de Histograma Condicional"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Conditional LISA Map"
 msgstr "Mapa LISA Condicional"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Conditional LISA Map Variables"
 msgstr "Variables del Mapa LISA Condicional"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Conditional Local Geary Map"
 msgstr "Mapa Condicional Geary Local"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Conditional Local Geary Map Variables"
 msgstr "Variables del Mapa de Geary Local Condicional"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Conditional Local Join Count Map"
 msgstr "Mapa Joint Count Local Condicional"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Conditional Map"
 msgstr "Mapa Condicional"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Conditional Map Variables"
 msgstr "Variables Mapa Condicional"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Conditional Plot"
 msgstr "Gráfico Condicional"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Conditional Scatter Plot"
 msgstr "Diagrama de Dispersión Condicional"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Conditional Scatter Plot Variables"
 msgstr "Variables Gráfico de Dispersión Condicional"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Connect"
 msgstr "Conectar"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Connect to Data Source"
 msgstr "Conectarse a la fuente de datos"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Connectivity"
 msgstr "Conectividad"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Connectivity Graph"
 msgstr "Gráfico de Conectividad"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Connectivity Histogram"
 msgstr "Histograma de Conectividades"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Connectivity Map"
 msgstr "Mapa de conectividad"
 
-#contributors:
+# contributors:
 msgid "Connectivity Map - "
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Contiguity Weight"
 msgstr "Pesos de Contigüidad"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Continue"
 msgstr "Continuar"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Convert ASCII to SHP"
 msgstr "Convertir ASCII a SHP"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Convert Boundary to SHP"
 msgstr "Convertir Boundary a SHP"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Convert Boundary to Shape Datasource"
 msgstr "Convertir Boundary a Fuente de Datos Shape"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Cooling Rate:"
 msgstr "Tasa de Enfriamiento"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Cooling rate for Simulated Annealing algorithm has to be a float number between 0 and 1 (e.g. 0.85)."
 msgstr "La tasa de enfriamiento para algoritmo de Recocido Simulado ha de ser un nº flotante entre 0 y 1 (ej. 0.85)."
 
-#contributors:
+# contributors:
 msgid "Cooling rate:"
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Copy"
 msgstr "Copiar"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Copy Image To Clipboard"
 msgstr "Copiar Imagen al Portapapeles "
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Copy Legend To Clipboard"
 msgstr "Copiar Leyenda al Portapapeles"
 
-#contributors:corochasco
-msgid "Copyright (C) 1998-2011\nGeoDa Center for Geospatial Analysis and Computation\nand Arizona Board of Regents\nAll Rights Reserved"
-msgstr "Copyright (C) 1998-2011\nGeoDa Center for Geospatial Analysis and Computation\ny Arizona Board of Regents\nTodos los Derechos Reservados"
+# contributors:corochasco
+msgid ""
+"Copyright (C) 1998-2011\n"
+"GeoDa Center for Geospatial Analysis and Computation\n"
+"and Arizona Board of Regents\n"
+"All Rights Reserved"
+msgstr ""
+"Copyright (C) 1998-2011\n"
+"GeoDa Center for Geospatial Analysis and Computation\n"
+"y Arizona Board of Regents\n"
+"Todos los Derechos Reservados"
 
-#contributors:
+# contributors:
 msgid "Copyright (C) 2011-%d by Luc Anselin"
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Copyright (C) year-year by Luc Anselin"
 msgstr "Copyright (C) año-año por Luc Anselin"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Cores"
 msgstr "Centros"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Cores and Neighbors"
 msgstr "Centros y Vecinos"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Correlogram"
 msgstr "Correlograma"
 
-#contributors:
+# contributors:
 msgid "Correlogram Parameters"
 msgstr ""
 
-#contributors:
+# contributors:
 msgid "Correlogram Parameters Help"
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Could not create a new variable. Possibly a read-only data source."
 msgstr "Imposible crear una nueva variable. Posible fuente de datos de sólo lectura."
 
-#contributors:
+# contributors:
 msgid "Could not determine which Field Choice was selected. Please report this error."
 msgstr ""
 
-#contributors:
+# contributors:
 msgid "Could not determine which Time Choice was selected. Please report this error."
 msgstr ""
 
-#contributors:
+# contributors:
 msgid "Could not initialize new project."
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Count"
 msgstr "Cuenta"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Covariates"
 msgstr "Explicativas"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Create"
 msgstr "Crear"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Create Custom Breaks"
 msgstr "Crear Cortes Personalizados"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Create Grid"
 msgstr "Crear Rejilla"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Create New Custom"
 msgstr "Crear Nuevo Personalizado"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Create Project File Now?"
 msgstr "¿Crear Ahora Archivo de Proyecto?"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Create Weights"
 msgstr "Crear Pesos"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Create a project file?"
 msgstr "¿Crear un archivo de proyecto?"
 
-#contributors:
+# contributors:
 msgid "Create new custom categories classification."
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Creating Grid"
 msgstr "Crear Rejilla"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Cumulative"
 msgstr "Acumulado"
 
-#contributors:
+# contributors:
 msgid "Current OGR dirver "
 msgstr ""
 
-#contributors:
+# contributors:
 msgid "Current Opacity: %.2f"
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Current Transparency: %.2f"
 msgstr "Transparencia actual: %.2f"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Current field name:"
 msgstr "Nombre de campo actual"
 
-#contributors:
+# contributors:
 msgid "Current layer has already been associated with selected layer. Please select another layer to associate with."
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Current time:"
 msgstr "Tiempo Actual:"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Curve Color"
 msgstr "Color de la Curva"
 
-#contributors:
+# contributors:
 msgid "Custom"
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Custom Breaks"
 msgstr "Cortes Personalizados"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Custom Inference"
 msgstr "Inferencia Personalizada"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Cut"
 msgstr "Cortar"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Cyrillic (ISO-8859-5)"
 msgstr "Cirílico (ISO-8859-5)"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Cyrillic (KOI8-R)"
 msgstr "Cirílico (KOI8-R)"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Cyrillic (Windows-1251)"
 msgstr "Cirílico (Windows-1251)"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Cyrillic/Russian (CP866)"
 msgstr "Cirílico/Ruso (CP866)"
 
-#contributors:
+# contributors:
 msgid "D.F."
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "DBF File Information"
 msgstr "Información Archivo DBF"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "DBF Viewer 0.8 (July 29, 2011)"
 msgstr "DBF Viewer 0.8 (Julio 29, 2011)"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Data"
 msgstr "Datos"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Data Point"
 msgstr "Punto de Datos"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Data Preview - number of preview records:"
 msgstr "Vista Previa de Datos - nº de datos en vista previa:"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Data Source Overview/Help: "
 msgstr "Revisión Fuente de Datos/Ayuda"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Data Type"
 msgstr "Tipo de Datos"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Data source (%s) doesn't exist. Please check the project configuration file."
 msgstr "La fuente de datos (%s) no existe. Comprobar el fichero de configuración del proyecto."
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Database"
 msgstr "Base de Datos"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Database Host"
 msgstr "Base de Datos Anfitrión"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Database Name/Instance"
 msgstr "Nombre Base de Datos/Instancia"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Database Port"
 msgstr "Base de Datos Puerto"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Database Type"
 msgstr "Tipo Base de Datos"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Database port is empty. Please input one."
 msgstr "Puerto de base de datos vacío. Introducir uno."
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Database/Instance Name"
 msgstr "Base de datos/Nombre de instancia"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Datasource in project is not valid."
 msgstr "Fuente de daos del proyecto no válida."
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Datasource path is empty."
 msgstr "Ruta vacía de fuente de datos."
 
-#contributors:
+# contributors:
 msgid "Date/Time"
 msgstr ""
 
-#contributors:
+# contributors:
 msgid "Date/Time formats (using comma to separate formats):"
 msgstr ""
 
-#contributors:
+# contributors:
 msgid "December"
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Decimal:"
 msgstr "Decimal:"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Decimals (max 15)"
 msgstr "Decimales (máx. 15)"
 
-#contributors:
+# contributors:
 msgid "Default displayed decimal places in Table:"
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Delete"
 msgstr "Eliminar"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Delete Variable(s)"
 msgstr "Eliminar Variable(s)"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Delta Factor:"
 msgstr "Factor Delta:"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Dendrogram"
 msgstr "Dendograma"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Dependent Var (y-axis)"
 msgstr "Var. Dependiente (eje-y)"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Dependent Var Y"
 msgstr "Variable Dependiente Y"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Dependent Variable"
 msgstr "Variable dependiente"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Descending order"
 msgstr "Orden Descendente"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Description"
 msgstr "Descripción"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Diagonal weights = 1"
 msgstr "pesos Diagonal = 1"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Diff Values"
 msgstr "Valores en Difer."
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Difference-in-Means Test:"
 msgstr "Test de Diferencia de Medias:"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Differential Local Moran's I"
 msgstr "I Local de Moran Diferencial"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Differential Moran Variable Settings"
 msgstr "Configuración de Variable de Moran Diferencial"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Differential Moran's I"
 msgstr "I de Moran Diferencial"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Differential Moran's I (%s): %s - %s"
 msgstr "I de Moran Diferencial (%s): %s - %s"
 
-#contributors:
-msgid "Differential Moran's I tests whether the change in a variable over time is spatially correlated.\n\nPlease first group variables by time period: Select Time --> Time Editor."
+# contributors:
+msgid ""
+"Differential Moran's I tests whether the change in a variable over time is spatially correlated.\n"
+"\n"
+"Please first group variables by time period: Select Time --> Time Editor."
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Disable auto upgrade:"
 msgstr "Desactivar actualización automática"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Disable crash detection for bug report:"
 msgstr "Desactivar detección de fallos para informe de errores"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Display Axes Scale Values"
 msgstr "Mostrar Valores de Escala Ejes "
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Display Centroids"
 msgstr "Mostrar Centroides"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Display Mean Centers"
 msgstr "Mostrar Centros Medios"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Display Slope Values"
 msgstr "Mostrar Valores de Pendiente"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Display Statistics"
 msgstr "Mostrar Estadísticos"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Display Thiessen Polygons"
 msgstr "Mostrar Polígonos Thiessen"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Displayed decimal places"
 msgstr "Mostrar lugares decimales"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Displayed decimals"
 msgstr "Mostrar decimales"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Displayed decimals places"
 msgstr "Lugares decimales mostrados"
 
-#contributors:
+# contributors:
 msgid "Dissolve"
 msgstr ""
 
-#contributors:
+# contributors:
 msgid "Dissolve - "
 msgstr ""
 
-#contributors:
+# contributors:
 msgid "Dissolve does not work with Table only datasource."
 msgstr ""
 
-#contributors:
+# contributors:
 msgid "Dissolve only works on polygon dataset."
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Distance"
 msgstr "Distancia"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Distance Function:"
 msgstr "Función de Distancia:"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Distance Weight"
 msgstr "Pesos de Distancias"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Distance band"
 msgstr "Banda de Distancia"
 
-#contributors:
+# contributors:
 msgid "Distance function:\t"
 msgstr ""
 
-#contributors:
+# contributors:
 msgid "Distance metric: "
 msgstr ""
 
-#contributors:
+# contributors:
 msgid "Distance:"
 msgstr ""
 
-#contributors:
+# contributors:
 msgid "Do Means Differ? (ANOVA)"
 msgstr ""
 
-#contributors:
-msgid "Do you want to save the results of Diff-in-Diff test?\n\nNote: the results can only be saved into an external data file, due to the change of cross-sectional observations in a space-time context."
+# contributors:
+msgid ""
+"Do you want to save the results of Diff-in-Diff test?\n"
+"\n"
+"Note: the results can only be saved into an external data file, due to the change of cross-sectional observations in a space-time context."
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Do you want to save your data?"
 msgstr "¿Desea guardar sus datos?"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Don't show Recent/Sample Data panel again"
 msgstr "No mostrar Recientes/Datos de Ejemplo de nuevo"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Don't show this dialog again (You can always change this setting using menu: File->Preferences)"
 msgstr "No mostrar este cuadro de nuevo (Esta configuración siempre se puede cambiar en el menú: Archivo->Preferencias)"
 
-#contributors:
+# contributors:
 msgid "Donate"
 msgstr ""
 
-#contributors:
+# contributors:
 msgid "Down"
 msgstr ""
 
-#contributors:
+# contributors:
 msgid "Download OSM Roads"
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Downloading updates..."
 msgstr "Descargando actualizaciones..."
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Duplicate IDs"
 msgstr "IDs Duplicados"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Duplicate Thiessen Polygons Found"
 msgstr "Encontrados Polígonos Thiesen duplicados"
 
-#contributors:
+# contributors:
 msgid "Duplicate Thiessen polygons exist due to duplicate or near-duplicate map points. Please try to export current dataset without duplicates."
 msgstr ""
 
-#contributors:
+# contributors:
 msgid "Duplicate Thiessen polygons exist due to duplicate or near-duplicate map points. Press OK to save duplicate polygon ids to Table."
 msgstr ""
 
-#contributors:
+# contributors:
 msgid "Duplicate variable names specified."
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "E&xplore"
 msgstr "Explorar"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "ESRI File Geodatabase (*.gdb)|*.gdb"
 msgstr "Geodatabase archivos ESRI (*.gdb)|*.gdb"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "ESRI Personal Geodatabase (*.mdb)|*.mdb"
 msgstr "Geodatabase Personal ESRI (*.mdb)|*.mdb"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "ESRI Shapefile (*.shp)|*.shp"
 msgstr "Archivo ESRI (*.shp)|*.shp"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Edit"
 msgstr "Editar"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Edit Custom Breaks"
 msgstr "Editar Cortes Personalizados"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Edit LOWESS Parameters"
 msgstr "Editar Parámetros LOWESS"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Edit Title"
 msgstr "Editar Título"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Edit Variable Properties"
 msgstr "Editar Propiedades de Variables"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Emp Bayes Rate Std Moran's I (%s): %s / %s"
 msgstr "I de Moran Std. en Tasa de Bayes Empírico (%s): %s / %s"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Empirical Bayes"
 msgstr "Empírico Bayes"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Empirical Bayes Rate Standardization Variables"
 msgstr "Variables Estandarizadas de Tasas de Bayes Empírico"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Empirical Bayes Smoothed Variable Settings"
 msgstr "Configuración Variable Alisada de Bayes Empírico"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Empirical Spatial Rate Smoothed Variable Settings"
 msgstr "Configuración de Variable Alisada de Tasa Empírica Espacial"
 
-#contributors:
+# contributors:
 msgid "Enable High DPI/Retina support (Mac only):"
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Enable User Defined Value Range of Y-Axis"
 msgstr "Permitir Definicion de Rango de Valores del Eje Y"
 
-#contributors:
+# contributors:
 msgid "Enable transparency setup of category color in map (Windows only):"
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Encode"
 msgstr "Codificación"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Enter a seed value"
 msgstr "Introducir valor de semilla"
 
-#contributors:
+# contributors:
 msgid "Enter a seed value for random number generator:"
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Enter new ID variable name:"
 msgstr "Introduzca nombre nueva variable ID"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Equal Intervals"
 msgstr "Intervalos Iguales"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Equal Intervals Map"
 msgstr "Mapa de Intervalos Iguales"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Error"
 msgstr "Error"
 
-#contributors:
-msgid "Error while opening project:\n\n"
+# contributors:
+msgid ""
+"Error while opening project:\n"
+"\n"
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Error: "
 msgstr "Error: "
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Error: Base values contain non-positive numbers which will result in undefined values."
 msgstr "Error: Valores de la base con números negativos, que dan lugar a valores indefinidos."
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Error: Chosen theme requires more cateogries than observations."
 msgstr "Error: el tema seleccionado tiene más categorías que observaciones."
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Error: Due to restrictions on the DBF file format, the particular combination of length and decimals entered is not valid.  Based on your current choices, we recommend length = %d and decimals = %d"
 msgstr "Error: debido a restricciones en el formato del archivo DBF, la combinación concreta de longitud y decimales introducida no es válida. En base a su elección actual, recomendamos longitud = %d y decimales = %d"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Error: Maximum number of neighbors %d exceeded."
 msgstr "Error: Excedido el máximo número de vecinos %d"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Error: The table variable name is empty."
 msgstr "Error: El nombre de la variable de la tabla está vacío."
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Error: \"%s\" already exists in Table, please specify a different name."
 msgstr "Error: \"%s\" existente en la Tabla, especificar un nombre diferente."
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Error: \"%s\" is an invalid variable name. The first character must be alphabetic, and the remaining characters can be either alphanumeric or underscores. For DBF table, a valid variable name is between one and ten characters long."
 msgstr "Error: \"%s\" no es un nombre de variable válido. El 1º carácter debe ser alfabético y los restantes pueden ser alfanuméricos o guiones bajos. En una tabla DBF, un nombre válido debe tener entre uno y 10 caracteres de largo."
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Error: \"%s\" not found."
 msgstr "Error: \"%s\" no encontrado."
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Error: no records found in data source."
 msgstr "Error: no hay registros en la fuente de datos"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Error: the inverse matrix is ill-conditioned."
 msgstr "Error: la matriz inversa está mal-condicionada"
 
-#contributors:
+# contributors:
 msgid "Estimated Pairs:"
 msgstr ""
 
-#contributors:
+# contributors:
 msgid "Euclidean Distance"
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Event Variable"
 msgstr "Variable de Eventos"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Excess Risk"
 msgstr "Riesgo atribuible"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Excess Risk Map Variable Settings"
 msgstr "Configuración Variable de Mapa de Riesgo Excesivo"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Exclude"
 msgstr "Excluir"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Existing Variables"
 msgstr "Variables Existentes"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Exit"
 msgstr "Salir"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Exit with unsaved changes?"
 msgstr "¿Salir sin guardar cambios?"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Exit?"
 msgstr "¿Salir?"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Explore"
 msgstr "Explorar"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Export or save layer to"
 msgstr "Exportar o guardar capa para"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Exporting Shape to Boundary"
 msgstr "Exportar Shape to Boundary"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Expression"
 msgstr "Expresión"
 
-#contributors:
+# contributors:
 msgid "Extent"
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Fail in reading the Boundary file: at polygon-%d"
 msgstr "Error de lectura del fichero Boundary: en polígono-%d"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Failed to create the weights file."
 msgstr "Error al crear archivo de pesos."
 
-#contributors:
-msgid "Failed to open data source. Please check the data/datasource and check if the data type/format is supported by GeoDa.\n\nTip: you can set up the necessary GeoDa driver by following the instructions at:\n http://geodacenter.github.io/formats.html"
+# contributors:
+msgid ""
+"Failed to open data source. Please check the data/datasource and check if the data type/format is supported by GeoDa.\n"
+"\n"
+"Tip: you can set up the necessary GeoDa driver by following the instructions at:\n"
+" http://geodacenter.github.io/formats.html"
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "False Discovery Rate:"
 msgstr "Tasa de Falso Descubrimiento"
 
-#contributors:
+# contributors:
 msgid "February"
 msgstr ""
 
-#contributors:
+# contributors:
 msgid "Field (%s) already exited."
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "File"
 msgstr "Archivo"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "File Path"
 msgstr "Ruta del Archivo"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "File doesn't exist!"
 msgstr "¡Fichero no existente!"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "File merged into Table successfully."
 msgstr "Archivo unido con éxito a la Tabla."
 
-#contributors:
+# contributors:
 msgid "Fill Color"
 msgstr ""
 
-#contributors:
+# contributors:
 msgid "Fill Color for Category"
 msgstr ""
 
-#contributors:
+# contributors:
 msgid "Fill Opacity for Category"
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Finished"
 msgstr "Terminado"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "First Variable (X)"
 msgstr "Primera Variable (X)"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "First Variable (X/Longitude)"
 msgstr "Primera Variable (X/Longitud)"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "First line of CSV is variable names?"
 msgstr "¿Primera Línea de CSV esn nombre de variables?"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "First row of CSV file"
 msgstr "Primera fila de archivo CSV"
 
-#contributors:
+# contributors:
 msgid "Fit-To-Window Mode"
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Fixed Aspect Ratio Mode"
 msgstr "Modo Ratio de Aspecto Fijo"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Fixed scale over time"
 msgstr "Escala fija en el tiempo"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Fixed x-axis scale over time"
 msgstr "Escala de eje-x fija en el tiempo"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Fixed y-axis scale over time"
 msgstr "Escala fija del eje-y en el tiempo"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Fourth Variable"
 msgstr "Cuarta Variable"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Frequency"
 msgstr "Frecuencia"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Full Extent"
 msgstr "Ver Todo"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "GAL files (*.gal)|*.gal"
 msgstr "Archivos GAL (*.gal)|*.gal"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "GWT files (*.gwt)|*.gwt"
 msgstr "Ficheros GWT (*.gwt)|*.gwt"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "GeoDa Bug Report Dialog"
 msgstr "Cuadro de Informes de Errores de GeoDa"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "GeoDa CSV File Configuration"
 msgstr "Configuración del Fichero CSV de GeoDa"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "GeoDa Help"
 msgstr "Ayuda de GeoDa"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "GeoDa Preference Setup"
 msgstr "Preferencias de GeoDa"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "GeoDa Project (*.gda)|*.gda"
 msgstr "Proyecto de GeoDa (*.gda)|*.gda"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "GeoDa Project File (*.gda)|*.gda"
 msgstr "Archivo de Proyecto GeoDa (*.gda)|*.gda"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "GeoDa Project File to Open"
 msgstr "Abrir Archivo de Proyecto de GeoDa"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "GeoDa Project to Save As"
 msgstr "Guardar Como Proyecto de GeoDa"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "GeoDa Update Dialog"
 msgstr "Cuadro de Actualización de GeoDa"
 
-#contributors:
+# contributors:
 msgid "GeoDa can not get valid spatial reference from input data source. Please try another data source."
 msgstr ""
 
-#contributors:
+# contributors:
 msgid "GeoDa can not open the input data source. Please try another data source."
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "GeoDa can't change the variable type to DATE/TIME. Please select another type."
 msgstr "GeoDa no puede cambiar el tipo de variable a FECHA/HORA. Seleccionar otro tipo."
 
-#contributors:
+# contributors:
 msgid "GeoDa can't create a layer."
 msgstr ""
 
-#contributors:
+# contributors:
 msgid "GeoDa can't load dataset with duplicate field names."
 msgstr ""
 
-#contributors:
-msgid "GeoDa can't read data from datasource. \n\nDetails: Datasource is empty."
+# contributors:
+msgid ""
+"GeoDa can't read data from datasource. \n"
+"\n"
+"Details: Datasource is empty."
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "GeoDa can't save a Table-only data source as a Geometry enabled data source. Please try to add a geometry layer and then use File->Save As."
 msgstr "Imposible guardar una fuente de datos con una única Tabla como fuente de datos Geométricos. Intentar añadir capa geométrica y utilizar Fichero->Guardar Como."
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "GeoDa can't save changes to this datasource. Please try to use File->Export."
 msgstr "Imposible guardar cambios en esta fuente de datos. Intentar utilizar Archivo->Exportar."
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "GeoDa cannot find proper projection or geographic coordinate system information to add a basemap. Please update this information (e.g. in .prj file)."
 msgstr "GeoDa no puede encontrar la proyección adecuada o la información sobre coordenadas geográficas para añadir al mapa base. Actualizar esta información (p.e. con un archivo .prj)"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "GeoDa could not find the required weights file."
 msgstr "Geoda no puede encontrar el archivo de pesos"
 
-#contributors:
-msgid "GeoDa could not find the required weights file. \nPlease specify weights in Tools > Weights Manager."
+# contributors:
+msgid ""
+"GeoDa could not find the required weights file. \n"
+"Please specify weights in Tools > Weights Manager."
 msgstr ""
 
-#contributors:
+# contributors:
 msgid "GeoDa could not load this layer. Please check if the datasource is valid and not table only."
 msgstr ""
 
-#contributors:
+# contributors:
 msgid "GeoDa does not support creating data of %s. Please try to 'Export' to other supported data source format."
 msgstr ""
 
-#contributors:
+# contributors:
 msgid "GeoDa does not support datasource with line data at this time.  Please choose a datasource with either point or polygon data."
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "GeoDa has run into a problem and will close."
 msgstr "GeoDa ha encontrado un problema y se cerrará."
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "GeoDa maj.min.bld (type), day month year"
 msgstr "GeoDa maj.min.bld (tipo), día mes año"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "GeoDa was unable to save the file."
 msgstr "GeoDa no puede guardar el fichero."
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "GeoJSON (*.geojson;*.json)|*.geojson;*.json"
 msgstr "GeoJSON (*.geojson;*,json)|*.geojson;*,json"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "GeoJson URL"
 msgstr "URL de GeoJson"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "GeoPackage (*.gpkg)|*.gpkg"
 msgstr "GeoPackage (*.gpkg)|*.gpkg"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Geography Markup Language (*.gml)|*.gml"
 msgstr "Lenguaje de Marcado Geográfico (*.gml)|*.gml"
 
-#contributors:
+# contributors:
 msgid "Geometric centroids"
 msgstr ""
 
-#contributors:
+# contributors:
 msgid "Geometries have been added to existing Table-only data source. Do you want to save them as a new datasource?"
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Geometries not saved"
 msgstr "Geometrías no guardadas"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Get a free Carto account: "
 msgstr "Obtener una cuenta Carto gratis"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Get a free GeoDa-Web account: "
 msgstr "Obtener una cuenta de GeoDa-Web gratis"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Get a free Nokia/HERE account: "
 msgstr "Obtener una cuenta gratis de Nokia/HERE"
 
-#contributors:
+# contributors:
 msgid "Getis-Ord"
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Gi cluster map, pseudo p-val"
 msgstr "Mapa de clústers Gi; pseudo p-val"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Gi* cluster map, pseudo p-val"
 msgstr "Gi* mapa de clústers, pseudo p-val."
 
-#contributors:
+# contributors:
 msgid "Greedy"
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Greek (ISO-8859-7)"
 msgstr "Griego (ISO-8859-7)"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Grid Bounding Box"
 msgstr "Cuadro Delimitador de Rejilla"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Grid Size"
 msgstr "Tamaño de Rejilla"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Grid file was successfully created."
 msgstr "Archivo de rejilla creado con éxito."
 
-#contributors:
+# contributors:
 msgid "Group"
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Group 1:"
 msgstr "Grupo 1:"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Group 2:"
 msgstr "Grupo 2:"
 
-#contributors:
+# contributors:
 msgid "Group Variable:"
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Grouped Variables"
 msgstr "Variables Agrupadas"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Groups:"
 msgstr "Grupos:"
 
-#contributors:
+# contributors:
 msgid "HDBScan"
 msgstr ""
 
-#contributors:
+# contributors:
 msgid "HDBScan Cluster Map (%d clusters)"
 msgstr ""
 
-#contributors:
+# contributors:
 msgid "HDBScan Clustering Settings"
 msgstr ""
 
-#contributors:
+# contributors:
 msgid "HERE App ID"
 msgstr ""
 
-#contributors:
+# contributors:
 msgid "HERE App Key"
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Has Colocation"
 msgstr "Tiene colocación"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Hebrew (ISO-8859-8-1)"
 msgstr "Hebreo (ISO-8859-8-1)"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Hebrew (Windows-1255)"
 msgstr "Hebreo (Windows-1255)"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Height:"
 msgstr "Height:"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Help"
 msgstr "Ayuda"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Hide Map"
 msgstr "Ocultar Mapa"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Hide system table in Postgresql connection:"
 msgstr "Ocultar tabla de sistema en conexión de Postgresql:"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Hide system table in SQLITE connection:"
 msgstr "Ocultar tabla de sistema en conexión SQLITE:"
 
-#contributors:
+# contributors:
 msgid "Hierachical Map does not work with Table only datasource."
 msgstr ""
 
-#contributors:
+# contributors:
 msgid "Hierachical Map: "
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Hierarchical"
 msgstr "Jerárquico"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Hierarchical Clustering Settings"
 msgstr "Configuración Clúster Jerárquico"
 
-#contributors:
+# contributors:
 msgid "Hierarchical Map"
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "High"
 msgstr "Alto"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "High-High"
 msgstr "Alto-Alto"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "High-Low"
 msgstr "Alto-Bajo"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Highlight Color"
 msgstr "Destacar Color"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Hinge"
 msgstr "Bisagra"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Hinge=1.5"
 msgstr "Bisagra=1.5"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Hinge=3.0"
 msgstr "Bisagra=3.0"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Histogram"
 msgstr "Histograma"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Histogram Classification"
 msgstr "Clasificación Histograma"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Histogram Variable"
 msgstr "Variable de Histograma"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Histogram: "
 msgstr "Histograma: "
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Horizontal Bins Breaks"
 msgstr "Cortes Intervalos Horizontales"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Horizontal Cells"
 msgstr "Celdas Horizontales"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Http connection timeout (seconds) for e.g. WFS, Geojson etc.:"
 msgstr "Conexión http terminada (segundos) para p.e. WFS, Geojson, etc.:"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "ID is not specified!"
 msgstr "ID no especificado"
 
-#contributors:
+# contributors:
 msgid "Image Dimension Settings"
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Improve Cartogram"
 msgstr "Mejorar Cartograma"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Include"
 msgstr "Incluir"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Include Variable Names"
 msgstr "Incluir Nombres de Variables"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Include diagonal of weights matrix"
 msgstr "Incluir diagonal de matriz de pesos"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Include lower orders"
 msgstr "Incluir órdenes inferiores"
 
-#contributors:
+# contributors:
 msgid "Incomplete Group Variable"
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Independent Var (x-axis)"
 msgstr "Var. Independiente (eje-x)"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Independent Var X"
 msgstr "Var X Independiente"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Inference Settings"
 msgstr "Configuración de Inferencia"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Inference Settings (%d perm)"
 msgstr "Configuración Inferencia (%d perm)"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Info"
 msgstr "Info"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Information"
 msgstr "Información"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Initial Groups:"
 msgstr "Grupos Iniciales:"
 
-#contributors:
+# contributors:
 msgid "Initial groups:\t"
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Initialization Method:"
 msgstr "Método de inicialización:"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Initialization Re-runs:"
 msgstr "Iniciando repeticiones:"
 
-#contributors:
+# contributors:
 msgid "Initialization method:\t"
 msgstr ""
 
-#contributors:
+# contributors:
 msgid "Initialization re-runs:\t"
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Input"
 msgstr "Abrir"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Input ASCII file"
 msgstr "Introducir archivo ASCII"
 
-#contributors:
+# contributors:
 msgid "Input data source"
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Input datasource"
 msgstr "Fuente de Datos de Entrada"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Input file "
 msgstr "Abrir Archivo"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Input file (text file)"
 msgstr "Abrir archivo (texto)"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Input is duplicated."
 msgstr "Entrada duplicada."
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Input is not valid."
 msgstr "Entrada no válida"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Input is required"
 msgstr "Se necesita una Entrada"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Input significance:"
 msgstr "Introducir significación:"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Input:"
 msgstr "Entrada:"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Insert before"
 msgstr "Insertar antes"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Insufficient Random Sampling"
 msgstr "Muestreo Aleatorio insuficiente"
 
-#contributors:
-msgid "Internal Error: Add new field (%s) failed.\n\nDetails:%s"
+# contributors:
+msgid ""
+"Internal Error: Add new field (%s) failed.\n"
+"\n"
+"Details:%s"
 msgstr ""
 
-#contributors:
-msgid "Internal Error: Delete field failed.\n\nDetails:"
+# contributors:
+msgid ""
+"Internal Error: Delete field failed.\n"
+"\n"
+"Details:"
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Internal Error: can't update an in-memory cell."
 msgstr "Error Interno: no puede actualizar una celda en memoria"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Intervals"
 msgstr "Intervalos"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Intervals in the Histogram"
 msgstr "Intervalos en el Histograma"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Invalid Variable"
 msgstr "Variable no Válida"
 
-#contributors:
-msgid "Invalid Weights Information:\n\n The selected weights file is not valid.\n Please choose another weights file, or use Tools > Weights > Weights Manager to define a valid weights file."
+# contributors:
+msgid ""
+"Invalid Weights Information:\n"
+"\n"
+" The selected weights file is not valid.\n"
+" Please choose another weights file, or use Tools > Weights > Weights Manager to define a valid weights file."
 msgstr ""
 
-#contributors:
-msgid "Invalid Weights Information:\n\n The selected weights file is not valid.\n Please choose another weights file, or use Tools > Weights > Weights Manager\n to define a valid weights file."
+# contributors:
+msgid ""
+"Invalid Weights Information:\n"
+"\n"
+" The selected weights file is not valid.\n"
+" Please choose another weights file, or use Tools > Weights > Weights Manager\n"
+" to define a valid weights file."
 msgstr ""
 
-#contributors:
+# contributors:
 msgid "Invalid layer association has been detected, which will cause infinite highlighting loop. Please try to reset highlight association between layers."
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Invert Select"
 msgstr "Invertir Selección"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Invert Selection"
 msgstr "Invertir Selección"
 
-#contributors:
-msgid "It looks like GeoDa has been terminated abnormally. \nDo you want to send a crash report to GeoDa team? \n\n(Optional) Please leave your email address,\nso we can send a follow-up email once we have a fix."
+# contributors:
+msgid ""
+"It looks like GeoDa has been terminated abnormally. \n"
+"Do you want to send a crash report to GeoDa team? \n"
+"\n"
+"(Optional) Please leave your email address,\n"
+"so we can send a follow-up email once we have a fix."
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Iterations:"
 msgstr "Iteraciones:"
 
-#contributors:
+# contributors:
 msgid "January"
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Japanese (EUC-JP)"
 msgstr "Japonés (EUC-JP)"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Japanese (Shift&JIS)"
 msgstr "Japonés (Shift&JIS)"
 
-#contributors:
+# contributors:
 msgid "Japanese (Shift_JIS)"
 msgstr ""
 
-#contributors:
+# contributors:
 msgid "Join Operation:"
 msgstr ""
 
-#contributors:
+# contributors:
 msgid "Join Variable:"
 msgstr ""
 
-#contributors:
+# contributors:
 msgid "July"
 msgstr ""
 
-#contributors:
+# contributors:
 msgid "June"
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "K Means"
 msgstr "K Means"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "K Medians"
 msgstr "K Medians"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "K Medoids"
 msgstr "K Medoids"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "K-Nearest neighbors"
 msgstr "K-vecinos Más Cercanos"
 
-#contributors:
+# contributors:
 msgid "KMeans Clustering Settings"
 msgstr ""
 
-#contributors:
+# contributors:
 msgid "KMedians Clustering Settings"
 msgstr ""
 
-#contributors:
+# contributors:
 msgid "KMedoids Clustering Settings"
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "KWT files (*.kwt)|*.kwt"
 msgstr "Ficheros KWT (*.kwt)|*.kwt"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Kernel function"
 msgstr "Función Kernel"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Key"
 msgstr "Clave"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Keyhole Markup Language (*.kml)|*.kml"
 msgstr "Lenguaje de Marcado Keyhole (*.kml|*.kml"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Korean (EUC-KR)"
 msgstr "Coreano (EUC-KR)"
 
-#contributors:
+# contributors:
 msgid "LISA"
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "LOWESS Smoother"
 msgstr "Alisado LOWESS"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "LOWESS Smoother Help"
 msgstr "Ayuda de Alisado LOWESS"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "LOWESS Smoother Parameters"
 msgstr "Parámetros de Alisado LOWESS"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Language"
 msgstr "Idioma"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Language:"
 msgstr "Idioma:"
 
-#contributors:
+# contributors:
 msgid "Latitude/Y:"
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Layer names"
 msgstr "Nombres de capa"
 
-#contributors:
+# contributors:
 msgid "Left"
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Legend Background Color"
 msgstr "Color de Fondo de Leyenda"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Length (max 254)"
 msgstr "Tamaño (máx. 254)"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Light"
 msgstr "Fino"
 
-#contributors:
-msgid "Limited date/time type recognition can be done for Date (YYYY-MM-DD), Time (HH:MM:SS+nn) and DateTime (YYYY-MM-DD HH:MM:SS+nn) in configuration.\n\nPlease try to load customized date/time type as string and covert it using Table->Edit Variable Property"
+# contributors:
+msgid ""
+"Limited date/time type recognition can be done for Date (YYYY-MM-DD), Time (HH:MM:SS+nn) and DateTime (YYYY-MM-DD HH:MM:SS+nn) in configuration.\n"
+"\n"
+"Please try to load customized date/time type as string and covert it using Table->Edit Variable Property"
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Line"
 msgstr "Línea"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Linear Smoother"
 msgstr "Alisado Lineal"
 
-#contributors:
-msgid "List of existing ungrouped variables. To group variables by time, move them to the list on the right.\n\nFor example, to group Pop80 and Pop90, select them on the left and move them to the right."
+# contributors:
+msgid ""
+"List of existing ungrouped variables. To group variables by time, move them to the list on the right.\n"
+"\n"
+"For example, to group Pop80 and Pop90, select them on the left and move them to the right."
 msgstr ""
 
-#contributors:
+# contributors:
 msgid "Load"
 msgstr ""
 
-#contributors:
+# contributors:
 msgid "Load CRS from a data source"
 msgstr ""
 
-#contributors:
+# contributors:
 msgid "Load Layer Failed."
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Load time definition from project file."
 msgstr "Cargar definición temporal de archivo de proyecto"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Loading data..."
 msgstr "Cargando datos..."
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Local G"
 msgstr "G Local"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Local G Maps"
 msgstr "Mapas Locales G"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Local G Statistics Maps"
 msgstr "Mapas de Estadísticos G Locales"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Local G*"
 msgstr "G* Local"
 
-#contributors:
+# contributors:
 msgid "Local Geary"
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Local Geary Maps"
 msgstr "Mapas Geary Local"
 
-#contributors:
+# contributors:
 msgid "Local Join Count "
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Local Moran's I Maps"
 msgstr "Mapas del I de Moran Local"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Local Moran's I with EB Rate"
 msgstr "I de Moran Local con Tasas EB"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Local Search:"
 msgstr "Búsqueda Local"
 
-#contributors:
+# contributors:
 msgid "Local search:"
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Locale for numbers has been setup successfully. Please re-open current project to enable this locale."
 msgstr "Realizada con éxito la configuración local numérica. Reabrir el proyecto actual para activar esta configuración."
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Loop"
 msgstr "Bucle"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Low"
 msgstr "Bajo"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Low-High"
 msgstr "Bajo-Alto"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Low-Low"
 msgstr "Bajo-Bajo"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Lower outlier"
 msgstr "Atípico inferior"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Lower-left corner"
 msgstr "Esquina inferior izquierda"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "MDS"
 msgstr "MDS"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "MDS Plot"
 msgstr "Gráfico MDS"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "MDS Plot - "
 msgstr "Gráfico MDS - "
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "MDS Settings"
 msgstr "Configuración MDS"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "MS Excel (*.xls)|*.xls"
 msgstr "MS Excel (*.xls)|*.xls"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Make selection from expression "
 msgstr "Realizar selección de la expresión"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Manual Resize Column"
 msgstr "Cambio Ancho Manual de Columna"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Map"
 msgstr "Mapa"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Map Color Classification"
 msgstr "Clasificación Colores Mapa"
 
-#contributors:
+# contributors:
 msgid "Map Layer Settings"
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Map Layout Preview"
 msgstr "Map Layout Preview"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Map Movie"
 msgstr "Vídeo de Mapa"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Map Theme"
 msgstr "Tema de Mapa"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Map Themes"
 msgstr "Temas de Mapa"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "MapInfo (*.tab;*.mif;*.mid)|*.tab;*.mif;*.mid"
 msgstr "MapInfo (*.tab;*.mif;*.mid)|*.tab;*.mif;*.mid"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Maps To Open"
 msgstr "Mapas para Abrir"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Maps and Rates"
 msgstr "Mapas y Tasas"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Maps:"
 msgstr "Mapas:"
 
-#contributors:
+# contributors:
 msgid "March"
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Max"
 msgstr "Máx."
 
-#contributors:
+# contributors:
 msgid "Max Distance:"
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Max value of Y axis"
 msgstr "Valor Máx. del eje Y"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Max-p Settings"
 msgstr "Configuración MaxP"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Maximum # of regions:"
 msgstr "Máximo nº de regiones:"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Maximum Iterations:"
 msgstr "Iteraciones máximas:"
 
-#contributors:
+# contributors:
 msgid "Maximum iterations:\t"
 msgstr ""
 
-#contributors:
+# contributors:
 msgid "May"
 msgstr ""
 
-#contributors:
+# contributors:
 msgid "Mean"
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Merge"
 msgstr "Combinar"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Merge - "
 msgstr "Unir - "
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Merge by key values"
 msgstr "Combinar por valores clave"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Merge by record order"
 msgstr "Combinar por orden de registros"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Merge error: Geometric type of selected datasource has to be the same with current datasource."
 msgstr "Error de anexión: el tipo de geometría de la fuente de datos seleccionada y la activa debe ser la misma."
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Message area"
 msgstr "Área de Mensajes"
 
-#contributors:
+# contributors:
 msgid "Meta-data"
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Method"
 msgstr "Método"
 
-#contributors:
+# contributors:
 msgid "Method of selecting clusters:"
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Method:"
 msgstr "Método:"
 
-#contributors:
+# contributors:
 msgid "Method:\t"
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Min"
 msgstr "Mín."
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Min # per Region:"
 msgstr "Mín. nº por Región:"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Min Region Size:"
 msgstr "Mín. Tamaño Región"
 
-#contributors:
+# contributors:
 msgid "Min cluster size:"
 msgstr ""
 
-#contributors:
+# contributors:
 msgid "Min samples:"
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Min value of Y axis"
 msgstr "Valor mín. del eje Y"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Minimum Bound:"
 msgstr "Valor Cota Mín."
 
-#contributors:
+# contributors:
 msgid "Minimum bound:\t"
 msgstr ""
 
-#contributors:
+# contributors:
 msgid "Minimum cluster size should be greater than one."
 msgstr ""
 
-#contributors:
+# contributors:
 msgid "Minimum region size:\t"
 msgstr ""
 
-#contributors:
+# contributors:
 msgid "Minimum samples should be greater than zero."
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Models"
 msgstr "Modelos"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Moran Scatter Plot"
 msgstr "Diagrama de Dispersión de Moran"
 
-#contributors:
+# contributors:
 msgid "Moran scatter plot is not supported when isolates are present in weights. Do you want to continue by removing the isolates when compute Moran's I?"
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Moran's I (%s): %s"
 msgstr "I de Moran (%s): %s"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Moran's I with EB Rate"
 msgstr "I de Moran con Tasa EB"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Move Down"
 msgstr "Abajo"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Move Selected to Top"
 msgstr "Mover Seleccionados Arriba"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Move Up"
 msgstr "Arriba"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Multi-Variable Settings"
 msgstr "Configuración Multi-Variable"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Multivariate Local Geary"
 msgstr "Geary Local Multivariante"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Name"
 msgstr "Nombre"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Natural Breaks"
 msgstr "Cortes Naturales"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Natural Breaks Map"
 msgstr "Mapa de Cortes Naturales"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Negative"
 msgstr "Negativo"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Neighborless"
 msgstr "Sin vecinos"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Neighbors of Cores"
 msgstr "Vecinos y Centros"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "New"
 msgstr "Nuevo"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "New Categories Title"
 msgstr "Título de Nueva Categoría"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "New Custom Categories Title:"
 msgstr "Nuevo Título de Categorías Personalizado"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "New From Recent"
 msgstr "Nuevo desde Reciente"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "New Group Details"
 msgstr "Nombrar Nuevo Grupo"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "New Map Coordinates"
 msgstr "Nuevo Mapa de Coordenadas"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "New Project Filename"
 msgstr "Nuevo Nombre de Proyecto"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "New Selection"
 msgstr "Nueva Selección"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "New datasource:"
 msgstr "Nueva fuente de datos"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "New project file:"
 msgstr "Nuevo archivo de proyecto"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "New selection"
 msgstr "Nueva Selección"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "New space-time variable name"
 msgstr "Nuevo nombre de variable espacio-temporal"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "New variable name"
 msgstr "Nuevo nombre de variable"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "No Basemap"
 msgstr "Sin Mapa Base"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "No Colocation"
 msgstr "Sin colocación"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "No Weights Found"
 msgstr "No se encontraron Pesos"
 
-#contributors:
+# contributors:
 msgid "No clusters can be found using current parameters."
 msgstr ""
 
-#contributors:
+# contributors:
 msgid "No field chosen for first and second variable."
 msgstr ""
 
-#contributors:
+# contributors:
 msgid "No field chosen for first variable."
 msgstr ""
 
-#contributors:
+# contributors:
 msgid "No field chosen for fourth variable."
 msgstr ""
 
-#contributors:
+# contributors:
 msgid "No field chosen for second variable."
 msgstr ""
 
-#contributors:
+# contributors:
 msgid "No field chosen for third variable."
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "No layer has been selected. Please select a layer."
 msgstr "No se ha seleccionado ninguna capa. Seleccionar capa"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "No layer was found in the selected data source."
 msgstr "Capa no encontrada en la fuente de datos seleccionada"
 
-#contributors:
+# contributors:
 msgid "No layer was found in this datasource."
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "No numeric variables found in table."
 msgstr "No hay variables numéricas en la tabla."
 
-#contributors:
+# contributors:
 msgid "No numeric variables found."
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "No rates currently calculated to save."
 msgstr "No hay tasas calculadas para guardar."
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "No update required"
 msgstr "Ninguna actualización necesaria"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "No weights file was created due to all observations being isolates for the specified threshold value. Increase the threshold to create a non-empty weights file."
 msgstr "No se creó el archivo de pesos porque todas las observaciones están aisladas para el valor umbral especificado. Aumente el umbral para crear un archivo de pesos no vacío"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "None of your observations have neighbors. This could be related to digitizing problems, which can be fixed by adjusting the precision threshold."
 msgstr "Ninguna de las observaciones tiene vecinos. Esto podría deberse a problemas de digitalización, que podrían resolverse ajustando el umbral de precisión."
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Nordic Latin-6 (ISO-8859-10)"
 msgstr "Nórdico Latín-6 (ISO-8859-10)"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Normal"
 msgstr "Normal"
 
-#contributors:
+# contributors:
 msgid "Not Clustered"
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Not Significant"
 msgstr "No Significativo"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Not enough memory!"
 msgstr "¡Memoria insuficiente!"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Notice"
 msgstr "Advertencia"
 
-#contributors:
+# contributors:
 msgid "November"
 msgstr ""
 
-#contributors:
+# contributors:
 msgid "Null geometry was detected in dataset. GeoDa can't create weights with NULL geometry. Please try to save as records with valid geometries and try again."
 msgstr ""
 
-#contributors:
+# contributors:
 msgid "Number Bins:"
 msgstr ""
 
-#contributors:
+# contributors:
 msgid "Number of Box Plots"
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Number of Categories"
 msgstr "Número de Categorías"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Number of Clusters:"
 msgstr "Número de Clústers:"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Number of Columns"
 msgstr "Número de Columnas"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Number of Neighbors"
 msgstr "Número de Vecinos"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Number of Rows"
 msgstr "Número de Filas"
 
-#contributors:
+# contributors:
 msgid "Number of clusters:\t"
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Number of neighbors"
 msgstr "Número de vecinos"
 
-#contributors:
+# contributors:
 msgid "Number of not clustered observations: "
 msgstr ""
 
-#contributors:
-msgid "OGR failed to create field.\n\nDetails:"
+# contributors:
+msgid ""
+"OGR failed to create field.\n"
+"\n"
+"Details:"
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "OK"
 msgstr "Aceptar"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "OK to Exit?"
 msgstr "¿De acuerdo en Salir?"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "OLS Model has been selected."
 msgstr "El Modelo MCO ha sido seleccionado."
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "OLS Model with White test has been selected."
 msgstr "Se ha seleccionado un Modelo MCO con test de White."
 
-#contributors:
+# contributors:
 msgid "Obs."
 msgstr ""
 
-#contributors:
+# contributors:
 msgid "October"
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Ok"
 msgstr "Aceptar"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "On line %d of weights file, observation id %d encountered which does not exist in field \"%s\" of the Table."
 msgstr "%d en línea del fichero de pesos, encontrado id de obs. %d que no existe en el campo \"%s\" de la Tabla."
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "On line %d of weights file, observation id %d encountered which is out of allowed observation range of 1 through %d."
 msgstr "En la fila %d del fichero de pesos, encontrada observación con id %d fuera del rango de permitido entre 1 y %d."
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Once you have grouped variables, you can save a new space-time table and weights: To add a spatial ID to your space-time table and create space-time weights, you need to have an active weights file (Tools-Weights Manager)."
 msgstr "Una vez agrupadas las variables, debe guardar una nueva tabla y pesos espacio-temporales: Para añadir el ID espacial a su tabla y crear pesos espacio-temporales, debe tener un fichero activo de pesos (Herramientas-Gestor de Pesos)"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Only 'gal', 'gwt', 'kwt', 'mat' and 'swm' weights files supported."
 msgstr "Sólo se admiten ficheros de pesos 'gal', 'gwt', 'kwt', 'mat' y 'swm'"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Only Map Boundary"
 msgstr "Only Map Boundary"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Oops. GeoDa was unable to submit a bug report. Please try again or create it here instead: https://github.com/GeoDaCenter/geoda/issues Thanks!"
 msgstr "Oops. GeoDa no pudo enviar el informe de errores. Intentarlo de nuevo o desde aquí: https://github.com/GeoDaCenter/geoda/issues ¡Gracias!"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Open"
 msgstr "Abrir"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Open Datasource:"
 msgstr "Fuente de Datos Abierta:"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Open Document Spreadsheet (*.ods)|*.ods"
 msgstr "OpenDocument Hoja de Cálculo (*.ods)|*.ods"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Open Layer:"
 msgstr "Abrir Capa:"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Open data source progress dialog"
 msgstr "Abrir diálogo de progreso de fuente de datos"
 
-#contributors:
+# contributors:
 msgid "Open file"
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Open project file:"
 msgstr "Abrir archivo de proyecto"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Open weights file"
 msgstr "Abrir archivo de pesos"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Operation requires a valid field name or constant."
 msgstr "Operación que requiere de un nombre de campo válido o constante."
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Operator"
 msgstr "Operador"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Options"
 msgstr "Opciones"
 
-#contributors:
+# contributors:
 msgid "Options > Change Parameters"
 msgstr ""
 
-#contributors:
+# contributors:
 msgid "Options:"
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Order of contiguity"
 msgstr "Orden de contigüidad"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Other (up to 99999)"
 msgstr "Otro (superior a 99999)"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Other Pos"
 msgstr "Otra Pos."
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Other Positive"
 msgstr "Otro Positivo"
 
-#contributors:
+# contributors:
 msgid "Outline Color"
 msgstr ""
 
-#contributors:
+# contributors:
 msgid "Outline Color for Category"
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Outline Visible"
 msgstr "Outline Visible"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Outlines Visible"
 msgstr "Contornos Visibles"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Output file (*.shp)"
 msgstr "Arhivo de Resultados (*.shp)"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Output file (text file)"
 msgstr "Archivo de resultados (texto)"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Output:"
 msgstr "Resultados:"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Overwrite?"
 msgstr "¿Sobrescribir?"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "PCA"
 msgstr "ACP"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "PCA Settings"
 msgstr "Configuración de ACP"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "POLY&ID"
 msgstr "POLY&ID"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Pan"
 msgstr "Arrastrar"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Panning Mode"
 msgstr "Modo Arrastrado"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Parallel Coordinate Plot"
 msgstr "Gráfico de Coordenadas Paralelas"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Parallel Coordinate Plot: "
 msgstr "Gráfico de Coordenadas Paralelas: "
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Parameters"
 msgstr "Parámetros"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Parameters:"
 msgstr "Parámetros:"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Password"
 msgstr "Contraseña"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Paste"
 msgstr "Pegar"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Percentile"
 msgstr "Percentiles"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Percentile Map"
 msgstr "Mapa de Percentiles"
 
-#contributors:
+# contributors:
 msgid "Period 1"
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Period 1:"
 msgstr "Período 1:"
 
-#contributors:
+# contributors:
 msgid "Period 2"
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Period 2:"
 msgstr "Período 2:"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Please briefly describe what went wrong."
 msgstr "Describir brevemente lo que no ha funcionado."
 
-#contributors:
+# contributors:
 msgid "Please check input values are valid"
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Please check the selected variables are all valid."
 msgstr "Comprobar la validez de las variables seleccionadas."
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Please check your network connection, or contact GeoDa support team."
 msgstr "Revisar conexión a la red o contactar con el equipo de soporte de GeoDa"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Please choose Period 1 first."
 msgstr "Elegir primero el Periodo 1"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Please choose Period 1."
 msgstr "Seleccionar Período 1."
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Please choose Period 2 first."
 msgstr "Seleccionar antes el Período 2."
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Please choose Period 2."
 msgstr "Seleccionar Período 2."
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Please choose Periods first."
 msgstr "Seleccionar antes los Períodos."
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Please choose a Result field."
 msgstr "Seleccionar un campo de Resultados."
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Please click to choose a highlighting style in GeoDa:"
 msgstr "Haga click para elegir un estilo de resaltado en GeoDa"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Please describe steps you took before something went wrong."
 msgstr "Describir los pasos realizados antes de tener problemas."
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Please enter a field name for saving clustering results."
 msgstr "Introducir un nombre de campo para guardar resultados de clústers"
 
-#contributors:
+# contributors:
 msgid "Please enter a valid number of cluster."
 msgstr ""
 
-#contributors:
+# contributors:
 msgid "Please enter a valid number of clusters."
 msgstr ""
 
-#contributors:
+# contributors:
 msgid "Please enter a valid positive integer"
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Please enter iteration number"
 msgstr "Introducir nº de iteración"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Please enter maximum number of regions."
 msgstr "Introducir máximo nº de regiones."
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Please enter minimum bound value"
 msgstr "Introducir el valor de la cota mínima"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Please enter minimum number of observations per regions, or use minimum bound instead."
 msgstr "Introducir nº mínimo de observaciones por regiones o utilizar la cota mínima."
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Please enter number of regions"
 msgstr "Introducir nº de regiones"
 
-#contributors:
+# contributors:
 msgid "Please enter values of bounding box."
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Please first select observations in one of the other data or map views."
 msgstr "Seleccionar primero observaciones en una de las otras vistas de datos o mapa."
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Please fix the grid bounding box."
 msgstr "Por favor, ajustar cuadro delimitador de la rejilla"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Please input Carto App Key."
 msgstr "Introducir Clave de App de Carto."
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Please input Carto User Name."
 msgstr "Introducir Nombre de Usuario de Carto."
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Please input a valid url address."
 msgstr "Introducir dirección url válida."
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Please input a valid url."
 msgstr "Introducir una url válida."
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Please input database host."
 msgstr "Introducir base de datos anfitrión."
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Please input database name."
 msgstr "Introducir nombre de base de datos"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Please input database port."
 msgstr "Introducir puerto de base de datos."
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Please input minimum bound value."
 msgstr "Introducir un valor para cota mínima."
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Please input password."
 msgstr "Introducir contraseña."
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Please input table name."
 msgstr "Introducir el nombre de la tabla"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Please input user name."
 msgstr "Introducir nombre de usuario."
 
-#contributors:
+# contributors:
 msgid "Please load another layer using map window to apply Spatial Join."
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Please open a data file rather than a project file (*.gda)."
 msgstr "Reabrir un archivo de datos en lugar de un archivo de proyecto (*.gda)."
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Please provide paths for both Project file and  Datasource."
 msgstr "Proporcionar rutas para fichero de Proyecto y Fuente de Datos"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Please restart GeoDa to apply the language setup."
 msgstr "Reiniciar GeoDa para solicitar el asistente de idioma."
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Please restart GeoDa to finish installing updates."
 msgstr "Reiniciar GeoDa para terminar de instalar actualizaciones."
 
-#contributors:
+# contributors:
 msgid "Please right-click or use<br />"
 msgstr ""
 
-#contributors:
+# contributors:
 msgid "Please select Join Operation with Join Variable."
 msgstr ""
 
-#contributors:
+# contributors:
 msgid "Please select a binary variable for Local Join Count."
 msgstr ""
 
-#contributors:
+# contributors:
 msgid "Please select a map layer to apply spatial join to current map (%s):"
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Please select a results field."
 msgstr "Seleccionar un campo de resultados"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Please select a time variable first, and make sure more than one time steps have been defined."
 msgstr "Seleccionar antes una variable de tiempo y definir más de un período temporal."
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Please select a weights type."
 msgstr "Seleccionar tipo de matriz de pesos."
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Please select an Base field."
 msgstr "Seleccionar un campo Base"
 
-#contributors:
+# contributors:
 msgid "Please select an Event field."
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Please select an Variable field."
 msgstr "Seleccionar un campo de Variable."
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Please select another variable with values more suitable for computing a correlogram."
 msgstr "Seleccionar otra variable con valores más adecuados para el cálculo del correlograma."
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Please select at least %d variables."
 msgstr "Seleccionar, al menos, %d variables."
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Please select at least 2 variables."
 msgstr "Seleccionar al menos 2 variables"
 
-#contributors:
+# contributors:
 msgid "Please select at least one variable."
 msgstr ""
 
-#contributors:
+# contributors:
 msgid "Please select binary variables for Co-location Join Count."
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Please select features first."
 msgstr "Seleccionar 1º las características."
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Please select the layer name to connect:"
 msgstr "Seleccionar el nombre de capa a conectar:"
 
-#contributors:
+# contributors:
 msgid "Please select two binary variables for Bivariate Local Join Count."
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Please setup co-locations first."
 msgstr "Establecer antes las co-localizaciones."
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Please specify a Weights matrix."
 msgstr "Especificar una matriz de pesos."
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Please specify a valid data source name."
 msgstr "Especificar un nombre válido de fuente de datos."
 
-#contributors:
+# contributors:
 msgid "Please specify distance metric."
 msgstr ""
 
-#contributors:
-msgid "Please specify the p-value to be used in tests; \ndefault: p-value = 0.01"
+# contributors:
+msgid ""
+"Please specify the p-value to be used in tests; \n"
+"default: p-value = 0.01"
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Please specify weights in Tools > Weights Manager."
 msgstr "Especifique pesos en Herramientas > Gestor de Pesos"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Please use<br /><font color=\"blue\">Options > Change Variable<br /></font>to specify a variable."
 msgstr "Utilizar<br /><fuente color=\"azul\">Opciones > Cambiar Variable<br /></fuente>a especificar una variable."
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Plots:"
 msgstr "Gráficos:"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Point Color"
 msgstr "Color de Puntos"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Point Radius:"
 msgstr "Point Radius:"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Points from Table"
 msgstr "Puntos de una Tabla"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Positive"
 msgstr "Positivo"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Power"
 msgstr "Potencia"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Precision threshold"
 msgstr "Precisión umbral"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Pred. Val. and Res."
 msgstr "Val. Pred. y Res."
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Preferences..."
 msgstr "Preferencias..."
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Produce bounding-box file?"
 msgstr "¿Crear archivo de cuadro delimitador?"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Progress"
 msgstr "Progreso"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Project Information"
 msgstr "Información de Proyecto"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Project file path is empty."
 msgstr "Ruta vacía de archivo de proyecto."
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Project filename not specified."
 msgstr "Nombre archivo de proyecto no especificado."
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Project to X-Y"
 msgstr "Proyectar a X-Y"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Project to X-Z"
 msgstr "Proyectar a X-Z"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Project to Z-Y"
 msgstr "Proyectar a Z-Y"
 
-#contributors:
+# contributors:
 msgid "Property"
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Publish Maps and Plots to GeoDa-Web"
 msgstr "Publicar Mapas y Gráficos para GeoDa-Web"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Publish to GeoDa-Web"
 msgstr "Publicar a la Web de GeoDa"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Quantile"
 msgstr "Cuantiles"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Quantile Map"
 msgstr "Mapa de Cuantiles"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Queen contiguity"
 msgstr "Contigüidad Reina"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "REDCAP Settings"
 msgstr "Configuración de REDCAP"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Random Gaussian dist with mean=%s, sd=%s"
 msgstr "Dist. aleatoria gaussiana con media=%s, DT=%s"
 
-#contributors:
+# contributors:
 msgid "Random Sample"
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Random uniform dist on unit interval"
 msgstr "Distrib. uniforme aleatoria en intervalo unidad"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Randomization"
 msgstr "Aleatorización"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Rate calculation successful."
 msgstr "Tasa calculada con éxito."
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Rates"
 msgstr "Tasas"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Rates Variable Settings"
 msgstr "Configuración Variable de Tasas"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Rates-Calculated Map"
 msgstr "Mapa de Tasas Calculadas"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Rates-Calculated Maps"
 msgstr "Mapas de Ratios Calculados"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Raw Rate"
 msgstr "Tasa Cruda"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Raw Rate Smoothed Variable Settings"
 msgstr "Configuración Variable Alisada Tasa Cruda"
 
-#contributors:
+# contributors:
 msgid "Re&set"
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Read from an ASCII file"
 msgstr "Leer de un Archivo ASCII"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Recent"
 msgstr "Reciente"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Record order specified, but found minimum and maximum observation values of %d and %d which is incompatible with number of observations specified in first line of weights file:  %d ."
 msgstr "Orden de registro especificado, pero se encontraron valores de obs. mín. y máx. de %d y %d que son incompatibles con el nº de observaciones especificadas en la 1ª línea del archivo de pesos: %d ."
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Rectangle"
 msgstr "Rectángulo"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Redo"
 msgstr "Repetir"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Refresh"
 msgstr "Actualizar"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Regimes Regression"
 msgstr "Regresión"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Regression"
 msgstr "Regresión"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Regression Line Color"
 msgstr "Color Línea de Regresión"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Regression Output Text File"
 msgstr "Archivo de Texto Resultados de la Regresión"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Regression Report"
 msgstr "Informe de Regresión"
 
-#contributors:
+# contributors:
 msgid "Remove"
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Remove Time"
 msgstr "Elimine el Tiempo"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Rename Space-Time Variable"
 msgstr "Renombrar Variable Espacio-Temporal"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Rename Variable"
 msgstr "Renombrar Variable"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Reset"
 msgstr "Borrar"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Reset to default"
 msgstr "Restaurar predeterminado"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Reset to system locale information"
 msgstr "Información de restauración a configuración local del sistema"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Reset to system locale successfully. Please re-open current project with system locale."
 msgstr "Restaurado con éxito a configuración local del sistema. Reabrir el proyecto actual con la configuración local."
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Resize"
 msgstr "Redimensionar"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Resolution(dpi):"
 msgstr "Resolution(dpi):"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Result"
 msgstr "Resultado"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Reverse"
 msgstr "Marcha Atrás"
 
-#contributors:
+# contributors:
 msgid "Right"
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Rook contiguity"
 msgstr "Contigüidad Torre"
 
-#contributors:
+# contributors:
 msgid "Root Variable:"
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Run"
 msgstr "Ejecutar"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Run Diff-in-Diff Test"
 msgstr "Ejecutar Test de dif-en-dif"
 
-#contributors:
+# contributors:
 msgid "S.D"
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "SELECTED"
 msgstr "SELECCIONADO"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "SQLite/SpatiaLite (*.sqlite)|*.sqlite"
 msgstr "SQLite/SpatiaLite (*.sqlite)|*.sqlite"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "SVD will be automatically used for PCA since the number of rows is less than the number of columns."
 msgstr "SDV será utilizado automáticmente por APC porque el nº de filas es menor que el nº de columnas."
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Sample Autocorrelation"
 msgstr "Autocorrelación muestral"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Sample Data"
 msgstr "Datos de Ejemplo"
 
-#contributors:
+# contributors:
 msgid "Sample Size:"
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Save"
 msgstr "Guardar"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Save "
 msgstr "Guardar "
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Save As"
 msgstr "Guardar como"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Save As Datasource"
 msgstr "Guardar Como Fuente Datos"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Save As has been cancelled."
 msgstr "Guardar Como ha sido cancelado."
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Save Categories"
 msgstr "Guardar Categorías"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Save Categories to Table"
 msgstr "Guardar Categorías en Tabla"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Save Centroids"
 msgstr "Guardar Centroides"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Save Cluster in Field:"
 msgstr "Guardar Clúster en Campo:"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Save Connectivity To Table"
 msgstr "Guardar Conectividad a Tabla"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Save Details"
 msgstr "Guardar Detalles"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Save Diff-in-Diff Test Results"
 msgstr "Guardar Resultados del Test de Dif-en-Dif"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Save Dummy"
 msgstr "Guardar Ficticia"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Save Duplicate Thiessen Polygon Ids"
 msgstr "Guardar Ids de Polígonos Thiessen Duplicados"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Save Duplicate Thiessen Polygons to Table"
 msgstr "Guardar Duplicado de Polígonos Thiessen a Tabla"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Save Image As"
 msgstr "Guardar Imagen Como"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Save Image to File"
 msgstr "Guardar Imagen a Archivo"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Save Mean Centers"
 msgstr "Guardar Centros Medios"
 
-#contributors:
+# contributors:
 msgid "Save OSM roads file"
 msgstr ""
 
-#contributors:
+# contributors:
 msgid "Save OSM roads to file successfully."
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Save Project"
 msgstr "Guardar Proyecto"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Save Project File As..."
 msgstr "Guardar Fichero de Proyecto Como..."
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Save Projet File As"
 msgstr "Guardar Archivo de Proyecto Como"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Save Rates"
 msgstr "Guardar Tasas"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Save Rates - %s over %s"
 msgstr "Guardar Tasas - %s sobre %s"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Save Regression Results"
 msgstr "Guardar Resultados de Regresión"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Save Results"
 msgstr "Guardar Resultados"
 
-#contributors:
+# contributors:
 msgid "Save Results to Table: "
 msgstr ""
 
-#contributors:
+# contributors:
 msgid "Save Results: HDBScan (Core Distances/Probabilities/Outliers)"
 msgstr ""
 
-#contributors:
+# contributors:
 msgid "Save Results: Local Join Count stats, "
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Save Results: LocalGeary"
 msgstr "Guardar Resultados: GearyLocal"
 
-#contributors:
+# contributors:
 msgid "Save Results: MDS"
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Save Results: Moran's I"
 msgstr "Guardar Resultados: I de Moran"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Save Selected As"
 msgstr "Guardar Selección como"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Save Selection"
 msgstr "Guardar Selección"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Save Space-Time Table/Weights"
 msgstr "Guardar Tabla Espacio-Tiempo/pesos"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Save Spanning Tree"
 msgstr "Guardar Árbol de Expansión"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Save Spanning Tree to a Weights File"
 msgstr "Guardar Árbol de Expansión a un Fichero de Pesos"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Save Statistics file"
 msgstr "Guardar archivo de Estadísticas"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Save Table As CSV File"
 msgstr "Guardar Tabla como CSV"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Save Test Results"
 msgstr "Guardar Resultados del Test"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Save Thiessen Polygons"
 msgstr "Guardar Polígonos Thiessen"
 
-#contributors:
-msgid "Save as data source (%s) failed.\n\nDetails:"
+# contributors:
+msgid ""
+"Save as data source (%s) failed.\n"
+"\n"
+"Details:"
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Save data source progress dialog"
 msgstr "Diálogo de progreso de guardar fuente de datos"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Save is not supported on current data source type: %s. Please try to use \"File->Save As\" other data source. However, the project file can still be saved as other project file."
 msgstr "No es posible Guardar en el tipo de fuente de datos activo: %s. Intentar utilizar \"Archivo->Guardar Como\" otra fuente de datos. No obstante, el archivo de proyecto puede ser guardado con otro nombre."
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Save to File"
 msgstr "Guardar en Archivo"
 
-#contributors:
+# contributors:
 msgid "Save/Show Map"
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Saved successfully."
 msgstr "Guardado con éxito"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Saving data source cancelled."
 msgstr "Cancelado el guardado de fuente de datos."
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Saving data..."
 msgstr "Guardando datos..."
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Saving failed: GeoDa can't save as empty datasource."
 msgstr "Error en Guardando: GeoDa no puede guardar fuentes de datos vacías."
 
-#contributors:
-msgid "Saving to data source (%s) failed.\n\nDetails: %s"
+# contributors:
+msgid ""
+"Saving to data source (%s) failed.\n"
+"\n"
+"Details: %s"
 msgstr ""
 
-#contributors:
+# contributors:
 msgid "Scale Basemap"
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Scale Options"
 msgstr "Opciones de Escala"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Scatter Plot"
 msgstr "Diagrama de Dispersión"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Scatter Plot - x: %s, y: %s"
 msgstr "Diagrama de Dispersión - x: %s, y: %s"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Scatter Plot Matrix"
 msgstr "Matriz de Diagramas de Dispersión"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Scatter Plot Matrix Help"
 msgstr "Ayuda Matriz de Gráficos de Dispersión"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Scatter Plot Matrix Variables Add/Remove"
 msgstr "Añadir/Eliminar Variables Matriz Gráficos de Dispersión"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Scatter Plot Variables"
 msgstr "Variables Diagrama de Dispersión"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Scatter Plot- x: %s, y: %s"
 msgstr "Diagrama de Dispersión- x: %s, y: %s"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Second Variable (Y)"
 msgstr "Segunda Variable (y)"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Second Variable (Y/Latitude)"
 msgstr "Segunda Variable (Y/Latitud)"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Select"
 msgstr "Seleccionar"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Select All"
 msgstr "Seleccionar Todo"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Select All In Range"
 msgstr "Seleccionar Todo en Intervalo"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Select All Undefined"
 msgstr "Seleccionar Todo Celdas en Blanco"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Select All..."
 msgstr "Seleccionar Todo..."
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Select From Current Selection"
 msgstr "Seleccionar de Selección Actual"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Select ID Variable"
 msgstr "Seleccionar Variable ID"
 
-#contributors:
+# contributors:
 msgid "Select ID Variable (Optional)"
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Select Neighborless Observations"
 msgstr "Seleccionar Observaciones sin Vecinos"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Select Variables"
 msgstr "Selección de Variables"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Select Variables (Multi-Selection)"
 msgstr "Seleccionar Variables (Multi-Selección)"
 
-#contributors:
+# contributors:
 msgid "Select a file:"
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Select an existing *.gdb directory, or create an New Folder named *.gdb"
 msgstr "Seleccionar un directorio *.gdb existente o crear una Nueva Carpeta llamada *.gdb"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Select color scheme:"
 msgstr "Seleccionar paleta de colores"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Select datasource"
 msgstr "Seleccionar fuente de datos"
 
-#contributors:
+# contributors:
 msgid "Select encoding (optional): "
 msgstr ""
 
-#contributors:
+# contributors:
 msgid "Select field is not integer type. Default record order will be used instead."
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Select fields:"
 msgstr "Seleccionar campos"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Select from current selection"
 msgstr "Seleccionar de selección actual"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Select key:"
 msgstr "Seleccionar clave"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Select layer"
 msgstr "Select layer"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Select the language"
 msgstr "Seleccionar idioma"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Select variable "
 msgstr "Seleccionar variable "
 
-#contributors:
+# contributors:
 msgid "Select variable for dissolving:"
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Select variables to delete "
 msgstr "Seleccionar variables a eliminar"
 
-#contributors:
+# contributors:
 msgid "Select variables:"
 msgstr ""
 
-#contributors:
+# contributors:
 msgid "Select, hold CMD for brushing"
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Select, hold CTRL for brushing"
 msgstr "Seleccionar, mantener CTRL para brushing"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Selectable Fill Color"
 msgstr "Seleccionable Color de Relleno"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Selected"
 msgstr "Seleccionado"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Selected ="
 msgstr "Seleccionados"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Selected vs. Unselected"
 msgstr "Seleccionado vs. Desmarcado"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Selection"
 msgstr "Selección"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Selection Mode"
 msgstr "Modo de Selección"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Selection Shape"
 msgstr "Selección Forma"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Selection Tool"
 msgstr "Herramienta de Selección"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Selection Variable"
 msgstr "Variable de Selección"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Send Crash Report"
 msgstr "Enviar Informe de Errores"
 
-#contributors:
+# contributors:
 msgid "September"
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Set Association Dialog"
 msgstr "Set Association Dialog"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Set Display Precision"
 msgstr "Fijar Pantalla de Precisión"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Set Display Precision of Y-Axis"
 msgstr "Fijar Posiciones Decimales en Eje-Y"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Set Display Precision on Axes"
 msgstr "Mostrar Pantalla de Precisión de Ejes"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Set Display Precision:"
 msgstr "Mostrar Pantalla de Precisión"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Set Highlight Association"
 msgstr "Set Highlight Association"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Set Number Separators"
 msgstr "Fijar Separadores de Números"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Set Number Separators in Table"
 msgstr "Fijar Separadores de Números en Tabla"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Set Number of Permutation"
 msgstr "Fijar Número de Permutaciones"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Set number of CPU cores manually:"
 msgstr "Establecer manualmente el número de núcleos de CPU"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Set seed for randomization:"
 msgstr "Fijar semilla para aleatorización:"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Set the threshold to bridge the gap between disconnected polygons (often caused by digitizing errors). The value depends on your measurement unit (e.g. 1 foot or 0.0000001 degrees). Use the weights histogram to detect neighborless observations."
 msgstr "Fijar el umbral para acortar distancias entre polígonos desconectados (a veces por errores de digitalización). El valor depende de la unidad de medida (ej., 0,3 metros ó 0,0000001 grados. Utilizar histograma de pesos para detectar observaciones sin vecinos."
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Set transparency of highlighted objects in selection:"
 msgstr "Fijar transparencia de objetos resaltados en la selección:"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Set transparency of unhighlighted objects in selection:"
 msgstr "Fijar transparencia de objetos sin resaltar en la selección"
 
-#contributors:
+# contributors:
 msgid "Set value to cell failed."
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Setup Locale of GeoDa Table"
 msgstr "Configuración Local de Tablas de GeoDa"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Setup co-locations:"
 msgstr "Establecer colocalizaciones:"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Shape"
 msgstr "Formas"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Shape Centers"
 msgstr "Centros de Forma"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Show As Conditional Map"
 msgstr "Mostrar como Mapa Condicional"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Show Axes"
 msgstr "Mostrar Ejes"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Show Axes Through Origin"
 msgstr "Mostrar Ejes sobre el Origen"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Show CSV Configuration in Merge Data Dialog:"
 msgstr "Mostrar Formato CSV en Cuadro de Unión de Tablas"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Show Graph"
 msgstr "Mostrar Grafo"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Show LOWESS Smoother"
 msgstr "Mostrar Alisado LOWESS"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Show Legend"
 msgstr "Show Legend"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Show Linear Smoother"
 msgstr "Mostrar Alisado Lineal"
 
-#contributors:
+# contributors:
 msgid "Show Map Boundary"
 msgstr ""
 
-#contributors:
+# contributors:
 msgid "Show Recent/Sample Data panel in Connect Datasource Dialog:"
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Show Selection and Neighbors"
 msgstr "Mostrar Selección y Vecinos"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Show Status Bar"
 msgstr "Mostrar Barra de Estado"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Show Vertical Axis"
 msgstr "Mostrar Eje Vertical"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Show connect line"
 msgstr "Show connect line"
 
-#contributors:
+# contributors:
 msgid "Significance Filter"
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Significance Map"
 msgstr "Mapa de Significación"
 
-#contributors:
+# contributors:
 msgid "Simulated Annealing"
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Skater Settings"
 msgstr "Configuración Skater"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Smoother"
 msgstr "Alisado"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Some calculated values were undefined and this is most likely due to neighborless observations in the weight matrix. Rate calculation successful for observations with neighbors."
 msgstr "Algunos valores calculados están sin definir y esto se debe muy probablemente a observaciones sin vecinos en la matriz de pesos. Cálculo de tasas correcto para obs. con vecinos."
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Sort"
 msgstr "Ordenar"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "South European Latin-3 (ISO-8859-3)"
 msgstr "Sur de Europa Latín-3 (ISO-8859-3)"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Space-time variables with duplicate name \"%s\" found."
 msgstr "Encontradas variables Espacio-temporales con el nombre \"%s\" duplicado"
 
-#contributors:
+# contributors:
 msgid "Spatial Constraint:"
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Spatial Correlogram"
 msgstr "Correlograma Espacial"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Spatial Empirical Bayes"
 msgstr "Empírico Bayes Espacial"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Spatial Error"
 msgstr "Error Espacial"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Spatial Join"
 msgstr "Unión Espacial"
 
-#contributors:
+# contributors:
 msgid "Spatial Join can not be applied on two points layers. Please select another layer."
 msgstr ""
 
-#contributors:
+# contributors:
 msgid "Spatial Join can not be applied on unknonwn layers. Please select another layer."
 msgstr ""
 
-#contributors:
+# contributors:
 msgid "Spatial Join does not work with Table only datasource."
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Spatial Lag"
 msgstr "Retardo Espacial"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Spatial Rate"
 msgstr "Tasa Espacial"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Spatial Rate Smoothed Variable Settings"
 msgstr "Configuración Variable Alisada de Tasa Espacial"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Spatial lag and error regressions require symmetric weights (not KNN). You can still use KNN weights to obtain spatial diagnostics for classic regressions."
 msgstr "Los modelos del retardo y del error espacial necesitan pesos simétricos (no KNN). Los pesos KNN pueden utilizarse para calcular tests espaciales en el modelo básico."
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Special"
 msgstr "Especial"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Specified id field (%s) not found in currently loaded Table."
 msgstr "Campo id especificado (%s) no se encuentra en la Tabla activa"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Specified key (%d) not found in currently loaded Table."
 msgstr "No se encuentra la clave especificada (%d) en la Tabla activa"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Specified key (%s) not found in currently loaded Table."
 msgstr "La clave especificada (%s) no se encuentra en la Tabla activa"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Specified key value field \"%s\" in weights file contains duplicate values in the currently loaded Table."
 msgstr "El campo de valores clave especificado \"%s\" del fichero de pesos contiene valores duplicados en la Tabla activa."
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Specified key value field \"%s\" on first line of weights file is not an integer type in the currently loaded Table."
 msgstr "El campo especificado para el valor clave \"%s\" de la 1ª línea del archivo de pesos no es de tipo entero en la tabla activa."
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Specified key value field \"%s\" on first line of weights file not found in currently loaded Table."
 msgstr "Campo especificado de valor clave \"%s\" de la 1ª línea del archivo de pesos no está en la Tabla activa"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Specify Seed..."
 msgstr "Especificar Semilla..."
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Specify bandwidth"
 msgstr "Especificar ancho de banda"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Specify manually"
 msgstr "Especificar manualmente"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Spectral"
 msgstr "Espectral"
 
-#contributors:
+# contributors:
 msgid "Spectral Clustering Map (%d clusters)"
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Spectral Clustering Settings"
 msgstr "Configuración Clúster Espectral"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Speed"
 msgstr "Velocidad"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Stable Version and Bug Fixes Only"
 msgstr "Versión Estable y Sólo Corrección de Errores"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Stack"
 msgstr "Agregar"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Standard Deviation"
 msgstr "Desviación Estándar"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Standard Deviation Color"
 msgstr "Color Desviación Estándar"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Standard Deviation Map"
 msgstr "Mapa de Desviación Estándar"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Standardized Data"
 msgstr "Datos estandarizados"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Statistics"
 msgstr "Estadísticos"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Status Bar"
 msgstr "Barra de Estado"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Stopping criterion for power iteration:"
 msgstr "Criterio de parada para iteración de potencia"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Strong"
 msgstr "Grueso"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Submit Bug Error"
 msgstr "Enviar Informe de Errores"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Submit Bug Report"
 msgstr "Enviar Informe de Errores"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Success"
 msgstr "Éxito"
 
-#contributors:
+# contributors:
 msgid "Success / Warning"
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Successful aggregation."
 msgstr "Agregación realizada con éxito"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Suggested field name:"
 msgstr "Nombre de campo sugerido"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Sum"
 msgstr "Suma"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Summary"
 msgstr "Resumen"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Synchronize %s with Time Control"
-msgstr "Sincronizar %n with Control de Tiempo"
+msgstr "Sincronizar %s with Control de Tiempo"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "System"
 msgstr "Sistema"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "System:"
 msgstr "Sistema:"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "T&able"
 msgstr "Tabla"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Table"
 msgstr "Tabla"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Table Name"
 msgstr "Nombre de Tabla"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Tabu Length:"
 msgstr "Distancia Tabú"
 
-#contributors:
+# contributors:
 msgid "Tabu Search"
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Tabu length for Tabu Search algorithm has to be an integer number larger than 1 (e.g. 85)."
 msgstr "Distancia tabú para el algoritmo Búsqueda Tabú debe ser un número entero mayor que 1 (ej. 85)"
 
-#contributors:
+# contributors:
 msgid "Tabu length:"
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Target"
 msgstr "Objetivo"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Target Variable"
 msgstr "Variable Objetivo"
 
-#contributors:
-msgid "Thank you for helping us improve GeoDa with your bug report! \n\nYou can track our response and add screenshots or details here (or email us at spatial@uchicago.edu):"
+# contributors:
+msgid ""
+"Thank you for helping us improve GeoDa with your bug report! \n"
+"\n"
+"You can track our response and add screenshots or details here (or email us at spatial@uchicago.edu):"
 msgstr ""
 
-#contributors:
-msgid "The GeoDa project file cannot find one or more associated data sources.\n\nDetails: GeoDa is looking for: %s\n\nTip: You can open the .gda project file in a text editor to modify the path(s) of the data source associated with your project."
+# contributors:
+msgid ""
+"The GeoDa project file cannot find one or more associated data sources.\n"
+"\n"
+"Details: GeoDa is looking for: %s\n"
+"\n"
+"Tip: You can open the .gda project file in a text editor to modify the path(s) of the data source associated with your project."
 msgstr ""
 
-#contributors:
+# contributors:
 msgid "The Table should always be open, although somtimes it is hidden while the project is open.  This condition has been violated.  Please report this to the program developers."
 msgstr ""
 
-#contributors:
+# contributors:
 msgid "The between-cluster sum of squares:\t"
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "The categories of the selected variables do not overlap in space. Please select other variables."
 msgstr "Las categorías de las variables seleccionadas no se superponen en el espacio. Seleccionar otras variables."
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "The connectivity of selected spatial weights is incomplete, please adjust the spatial weights."
 msgstr "La conectividad de los pesos espaciales seleccionados está incompleta; arreglar matriz de pesos."
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "The currently entered threshold value is not a valid number.  Please move the slider, or enter a valid number."
 msgstr "The valor umbral introducido no es un nº válido. Mover el control deslizante o introducir un número válido."
 
-#contributors:
+# contributors:
 msgid "The currently entered threshold value is not a valid number. Please move the slider, or enter a valid number."
 msgstr ""
 
-#contributors:
-msgid "The currently entered threshold value of %f is less than %f which is the minimum value for which there will be no neighborless observations (isolates). \n\nPress Yes to proceed anyhow, press No to abort."
+# contributors:
+msgid ""
+"The currently entered threshold value of %f is less than %f which is the minimum value for which there will be no neighborless observations (isolates). \n"
+"\n"
+"Press Yes to proceed anyhow, press No to abort."
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "The data source is read only. Please try to save as other data source."
 msgstr "La fuente de datos sólo se ha leído. Guardar como otra fuente de datos"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "The first line should have comma separated number of rows and ID name!"
 msgstr "¡La 1ª línea debería tener un nº de filas separadas por comas y nombre de ID!"
 
-#contributors:
-msgid "The geometries will not be saved when exporting to a Table-only data source.\n\nDo you want to continue?"
+# contributors:
+msgid ""
+"The geometries will not be saved when exporting to a Table-only data source.\n"
+"\n"
+"Do you want to continue?"
 msgstr ""
 
-#contributors:
-msgid "The last seed used by the pseudo random\nnumber generator was "
+# contributors:
+msgid ""
+"The last seed used by the pseudo random\n"
+"number generator was "
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "The length of a string field must be at least %d and at most %d. Keeping original value."
 msgstr "El tamaño de un campo de carácter debe ser, al menos, %d y como mucho, %d. Mantener valor original."
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "The length of an integral numeric field must be at least %d and at most %d. Keeping original value."
 msgstr "El tamaño de un campo numérico entero debe ser, al menos, %d y como mucho, %d. Mantener valor original."
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "The length of an non-integral numeric field must be at least %d and at most %d. Keeping original value."
 msgstr "La longitud de un campo numérico no entero debe ser al menos %d y como mucho %d. Mantener valor original."
 
-#contributors:
-msgid "The length of field name should be between 1 and %d.\nCurrent field length (%d) is not valid"
+# contributors:
+msgid ""
+"The length of field name should be between 1 and %d.\n"
+"Current field length (%d) is not valid"
 msgstr ""
 
-#contributors:
+# contributors:
 msgid "The new theme chosen will no longer include rates smoothing. Please use the Rates submenu to choose a theme with rates again."
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "The number of covariates should be more than the number of observations."
 msgstr "El nº de covariables debería ser superior al nº de observaciones."
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "The number of decimal places for a non-integral numeric field must be at least %d and at most %d. Keeping original value."
 msgstr "El nº de lugares decimales de un campo numérico no entero debe ser, al menos, %d y como mucho, %d. Mantener valor original."
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "The number of displayed decimal places for a non-integral numeric field must be at least %d and at most %d. Keeping original value."
 msgstr "El nº de lugares decimales mostrados para un campo numérico no entero debe ser, al menos, %d y como mucho, %d. Mantener el valor original."
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "The number of identified clusters is less than "
 msgstr "El nº de clústers identificados es menor que "
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "The number of observations specified in chosen weights file is %d, but the number in the current Table is %d, which is incompatible."
 msgstr "El nº de observaciones especificadas in el fichero de pesos elegido es %d, pero el nº en la Tabla activa es %d, lo que es incompatible."
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "The number of observations specified in chosen weights file is incompatible with current Table."
 msgstr "El nº de observaciones especificado en el archivo de pesos es incompatible con la Tabla activa."
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "The number of records in current table is larger than the number of records in import table. Please choose import table >= %d records"
 msgstr "El nº de datos de la tabla activa es mayor que el nº de datos de la tabla importada. Seleccionar importar tabla >= % datos"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "The original datasource %s is not a valid file. GeoDa \"Save\" only works on file datasource."
 msgstr "Fichero de fuente de datos original %s no válido. GeoDa \"Guardar\" sólo funciona con fuentes de datos de ficheros."
 
-#contributors:
+# contributors:
 msgid "The ratio of between to total sum of squares:\t"
 msgstr ""
 
-#contributors:
-msgid "The sample size for random sampling is too small.\nPlease increase the number of iterations."
+# contributors:
+msgid ""
+"The sample size for random sampling is too small.\n"
+"Please increase the number of iterations."
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "The selected database driver is not supported on this platform. Please check GeoDa website for more information about database support and connection."
 msgstr "Controlador de base de datos seleccionado no admitido en esta plataforma. Consulte la web de GeoDa para más información sobre bases de datos y conexiones admitidas."
 
-#contributors:
+# contributors:
 msgid "The selected group variable should contains %d items. Please modify the group variable in Time Editor, or select another variable."
 msgstr ""
 
-#contributors:
+# contributors:
 msgid "The selected group variable should contains %d items. Please modify the group variable in Time->Time Editor, or select another variable."
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "The selected variable %s is not valid. If it's a grouped variable, please modify it in Time->Time Editor. Or please select another variable."
 msgstr "La variable seleccionada %s no es válida. Si es una variable agrupada, notificarlo en el Editor Tiempo->Time. O seleccionar otra variable."
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "The selected variable is not numeric. Please select another variable."
 msgstr "La variable seleccionada no es numérica. Seleccionar otra variable."
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "The set of values in the import key fields has no match in current table. Please choose keys with matching sets of values."
 msgstr "Grupo de valores de campos clave importados sin coincidencia en la tabla activa. Buscar claves con grupos de valores coincidentes."
 
-#contributors:
+# contributors:
 msgid "The total sum of squares:\t"
 msgstr ""
 
-#contributors:
+# contributors:
 msgid "The total within-cluster sum of squares:\t"
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Themeless"
 msgstr "Un Color"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Themeless Map"
 msgstr "Mapa de un Color"
 
-#contributors:
+# contributors:
 msgid "There are spatial objects being counted more than once. Please check the results."
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "There are unsaved data source or weights/time definition changes."
 msgstr "Sin guardar cambios en fuente de datos o definición de pesos/tiempo."
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "There is a view could not be closed. Please manually close and try again."
 msgstr "No se puede cerrar una vista. Cerrarla manualmente e intentarlo de nuevo."
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "There is an error during PCA calculation. Please check if the data is valid."
 msgstr "Error durante el cálculo del ACP. Comprobar que los datos son válidos."
 
-#contributors:
+# contributors:
 msgid "There is at least one neighborless observation. Check the islands in weights histogram and linked map."
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "There is at least one neighborless observation. Check the weights histogram and linked map to see if the islands are real or not. If not, adjust the distance threshold (points) or the precision threshold (polygons)."
 msgstr "Hay al menos una observación sin vecinos. Comprobar el histograma de pesos y el mapa adjunto para ver si las islas son reales o no. Si no lo son, ajuste la distancia umbral (puntos) o el umbral de precisión (polígonos)."
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "There is at least one view could not be closed. Please manually close and try again."
 msgstr "Al menos una vista no puede ser cerrada. Cerrarla manualmente e intentarlo de nuevo."
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "There is at least one view open that depends on this matrix. Ok to close these views and remove?"
 msgstr "Hay, al menos, una vista abierta que depende de esta matriz. ¿De acuerdo con cerrar y eliminar estas vistas?"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "There is one other view open that depends on this matrix. Ok to close this view and remove?"
 msgstr "Hay otra vista abierta que depende de esta matriz. ¿Está de acuerdo en cerrarla y eliminarla?"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "There was a problem associating the weights file."
 msgstr "Se ha producido un problema al asociar el archivo de pesos"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "There was a problem generating voronoi contiguity neighbors. Please report this."
 msgstr "Problema al generar vecinos de contigüidad voronoi. Enviar informe sobre esta cuestión."
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "There was a problem reading the layer"
 msgstr "Problema de lectura de la capa"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "There was a problem reading the table"
 msgstr "Problema de lectura de tabla"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "There was a problem requesting the weights file."
 msgstr "Se ha producido un problema al llamar al fichero de pesos"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "These are the row numbers of the records without location information."
 msgstr "Éstos son los nº de filas de los datos sin información de localización."
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Thiessen Polygons"
 msgstr "Polígonos Thiessen"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Third Variable (Z)"
 msgstr "Tercera Variable (Z)"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "This datasource is not supported. Please export to other datasource that GeoDa supports first."
 msgstr "Esta fuente de datos no está admitida. Exportar antes a una fuente de datos admitida por GeoDa."
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "This field name already exists (non-integer type). Please input a unique name."
 msgstr "El nombre del campo ya existe (tipo no entero). Introducir un campo único."
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "This format is not supported."
 msgstr "Formato no admitido"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "This is the list of existing grouped variables. As new groups are created, they will appear on this list. You can open an existing .gda file and edit it here."
 msgstr "Lista de variables agrupadas existentes. Al crear nuevos grupos, éstos aparecerán en esta lista. Puede abrir un fichero .gda existente y editarlo aquí."
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "This view currently supports data with at most 1000 observations. The Spatial Correlogram Scatterplot plots distances between all pairs of observations. The current data set has %d observations and %d unordered pairs of observations."
 msgstr "Esta vista suele admitir datos hasta 1000 observaciones. El Diagrama del Correlograma Espacial representa distancias entre todos los pares de observaciones. La base de datos activa tiene %d observaciones y %d pares desordenados de observaciones."
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Thousands:"
 msgstr "Miles"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Tim&e"
 msgstr "Tiempo"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Time"
 msgstr "Tiempo"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Time Editor"
 msgstr "Editor Tiempo"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Time Player"
 msgstr "Reproductor de Tiempo"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Time Setup"
 msgstr "Asistente de Tiempo"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Time Variable Options"
 msgstr "Opciones de Variable Temporal"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Time:"
 msgstr "Tiempo:"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Title of Visualization"
 msgstr "Título de Visualización"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Tools"
 msgstr "Herramientas"
 
-#contributors:
+# contributors:
 msgid "Top"
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Transformation:"
 msgstr "Transformación:"
 
-#contributors:
+# contributors:
 msgid "Transformation:  "
 msgstr ""
 
-#contributors:
+# contributors:
 msgid "Transformation:\t"
 msgstr ""
 
-#contributors:
+# contributors:
 msgid "Travel Distances Tool"
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Turkish (Windows-1254)"
 msgstr "Turco (Windows-1254)"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Turkish Latin-5 (ISO-8859-9)"
 msgstr "Turco Latín-5 (ISO-8859-9)"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Type"
 msgstr "Tipo"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Type 1"
 msgstr "Tipo 1"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Type 1a"
 msgstr "Tipo 1a"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Type 2"
 msgstr "Tipo 2"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Type 2a"
 msgstr "Tipo 2a"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Unable to overwrite "
 msgstr "No se puede sobrescribir"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Undefined"
 msgstr "Sin definir"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Undo"
 msgstr "Deshacer"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Ungrouped Variables"
 msgstr "Variables Sin Agrupar"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Unicode (UTF-16LE)"
 msgstr "Unicode (UTF-16LE)"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Unicode (UTF-8)"
 msgstr "Unicode (UTF-8)"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Unique Values"
 msgstr "Valores Individuales"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Unique Values Map"
 msgstr "Mapa de Valores Individuales"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Univariate"
 msgstr "Univariante"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Univariate Local Geary"
 msgstr "Geary Local Univariante"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Univariate Local Join Count"
 msgstr "Join Count Local Univariante"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Univariate Local Moran's I"
 msgstr "I de Moran Local Univariante"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Univariate Moran's I"
 msgstr "I de Morán Univariante"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Unknow exception. Please contact GeoDa support."
 msgstr "Excepción desconocida. Contactar con el soporte de GeoDa."
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Unselected"
 msgstr "Desmarcado"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Unselected ="
 msgstr "No Seleccionados"
 
-#contributors:
+# contributors:
 msgid "Up"
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Update GeoDa completed"
 msgstr "Actualización de GeoDa completada"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Update GeoDa failed"
 msgstr "Error de Actualización de GeoDa"
 
-#contributors:
-msgid "Update project information failed. \n\nDetails: The layer information defined in project file does no match opened datasource."
+# contributors:
+msgid ""
+"Update project information failed. \n"
+"\n"
+"Details: The layer information defined in project file does no match opened datasource."
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Upper outlier"
 msgstr "Atípico superior"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Upper-right corner"
 msgstr "Esquina superior derecha"
 
-#contributors:
+# contributors:
 msgid "Use GPU to Accelerate computation:"
 msgstr ""
 
-#contributors:
+# contributors:
 msgid "Use Power Iteration method:\tMax iterations="
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Use Power Iteration:"
 msgstr "Utilizar Interación de Potencia:"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Use Scientific Notation"
 msgstr "Usar Notación Científica"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Use Specified Seed"
 msgstr "Usar Semilla Específica"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Use Transparent Legend Background"
 msgstr "Use Transparent Legend Background"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Use Weights:"
 msgstr "Utilizar Pesos:"
 
-#contributors:
+# contributors:
 msgid "Use bounding box of input datasource"
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Use classic yellow cross-hatching to highlight selection in maps:"
 msgstr "Utilizar el típico entramado amarillo para destacar selecciones en mapas:"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Use existing field name"
 msgstr "Usar nombre existente de campo"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Use geometric centroids"
 msgstr "Utilizar centroides geométricos"
 
-#contributors:
+# contributors:
 msgid "Use geometric centroids (weighting): \n"
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Use inverse distance?"
 msgstr "¿Usar distancia inversa?"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Use max knn distance as bandwidth"
 msgstr "Usar distancia máx. k-vecinos como ancho banda"
 
-#contributors:
+# contributors:
 msgid "Use outline + motorway(~bbox) of input datasource"
 msgstr ""
 
-#contributors:
+# contributors:
 msgid "Use outline of input datasource"
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Use row-standardized weights"
 msgstr "Usar pesos estandarizados por filas"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Use selected as specified alpha level"
 msgstr "Utilizar seleccionados como nivel alfa especificado"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Use specified seed:"
 msgstr "Utilizar semilla especificada"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Use the bounding box of shape datasource"
 msgstr "Usar el cuadro delimitador de la fuente de datos shape"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "User Defined"
 msgstr "Definido por Usuario"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "User Name"
 msgstr "Nombre Usuario"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "User name"
 msgstr "Nombre usuario"
 
-#contributors:
+# contributors:
 msgid "Value"
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Values assigned to target field successfully."
 msgstr "Valores asignados con éxito al campo de destino."
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Var Calc Container"
 msgstr "Contenedor de Var Calc"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Variable"
 msgstr "Variable"
 
-#contributors:
+# contributors:
 msgid "Variable %s at time %d could not be standardized."
 msgstr ""
 
-#contributors:
+# contributors:
 msgid "Variable %s at time %d is a placeholer"
 msgstr ""
 
-#contributors:
+# contributors:
 msgid "Variable %s is a placeholer"
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Variable %s is a time-grouped variable.  Please ungroup this variable to delete."
 msgstr "La variable %s está temporalmente agrupada. Desagrupar esta variable para borrarla."
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Variable %s is no longer in the Table.  Please close and reopen the Regression Dialog to synchronize with Table data."
 msgstr "La variable % no está en la Tabla. Cerrar y reabrir el cuadro de diálogo Regresión para sincronizar con los datos de la Tabla."
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Variable %s is no longer in the Table.  Please close and reopen this dialog to synchronize with Table data."
 msgstr "Variable %s ya no está en la Tabla. Cerrar y reabrir este cuadro de diálogo para sincronizar con datos de la Tabla"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Variable %s is not valid. Please select another variable."
 msgstr "Variable %s no válida. Seleccionar otra variable."
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Variable / Constant"
 msgstr "Variable / Constante"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Variable <font color=\"blue\">%s</font> is specified. "
 msgstr "Se ha especificado variable <fuente color=\"azul\">%s</fuente>."
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Variable Choice"
 msgstr "Elección de Variable"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Variable Name"
 msgstr "Nombre de la Variable"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Variable Properties"
 msgstr "Propiedades de Variable"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Variable Properties - "
 msgstr "Propiedades de la Variable - "
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Variable Setting"
 msgstr "Configuración de Variable"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Variable Settings"
 msgstr "Configuración de Variable"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Variable Type Error"
 msgstr "Error Tipo de Variable"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Variable Value Error"
 msgstr "Error en Valor de Variable"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Variable name \"%s\" is either a duplicate or is invalid. Please enter an alternative, non-duplicate variable name."
 msgstr "El nombre de la variable \"%s\" no es válido o está duplicado. Introducir otro nombre de variable no duplicado."
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Variable name \"%s\" is either a duplicate or is invalid. Please enter an alternative, non-duplicate variable name. The first character must be a letter, and the remaining characters can be either letters, numbers or underscores. For DBF table, a valid variable name is between one and ten characters long."
 msgstr "El nombre de variable \"%s\" está dupliado o no es válido. Introducir nombre alternativo no duplicado. El primer carácter debe ser una letra y el resto pueden ser letras, números o guiones bajos. Un nombre válido para las tablas DFB debe tener entre uno y diez caracteres de largo."
 
-#contributors:
+# contributors:
 msgid "Variable name can't be empty."
 msgstr ""
 
-#contributors:
-msgid "Variable name is either a duplicate or is invalid. Please\nenter an alternative, non-duplicate variable name.\n\n"
+# contributors:
+msgid ""
+"Variable name is either a duplicate or is invalid. Please\n"
+"enter an alternative, non-duplicate variable name.\n"
+"\n"
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Variable:"
 msgstr "Variable"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Variables"
 msgstr "Variables"
 
-#contributors:
+# contributors:
 msgid "Variables:"
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Vertical Bins Breaks"
 msgstr "Cortes Intervalos Verticales"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Vertical Cells"
 msgstr "Celdas Verticales"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Vietnamese (Windows-1258)"
 msgstr "Vietnamita (Windows-1258)"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "View"
 msgstr "Vista"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "View Original Data"
 msgstr "Ver Datos Originales"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "View Standardized Data"
 msgstr "Ver Variables Estandarizadas"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Voronoi Contiguity Error"
 msgstr "Error de Contigüidad de Voronoi"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "WFS URL"
 msgstr "URL de WFS"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Warning"
 msgstr "Aviso"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Warning: %d observations are neighborless."
 msgstr "Aviso: %d observaciones no tienen vecinos."
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Warning: %d observations is neighborless."
 msgstr "Aviso: %d observaciones sin vecinos."
 
-#contributors:
+# contributors:
 msgid "Warning: NULL geometry"
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Warning: loss data"
 msgstr "Aviso: pérdida de datos"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Was not able to load weights matrix."
 msgstr "Imposible cargar matriz de pesos."
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Web"
 msgstr "Web"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Weight"
 msgstr "Pesos"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Weight matrix required for chosen spatial rate method."
 msgstr "El método de tasas espaciales necesita una matriz de pesos."
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Weighting:"
 msgstr "Ponderación:"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Weights"
 msgstr "pesos"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Weights File"
 msgstr "Fichero de pesos"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Weights File Creation"
 msgstr "Creación Archivo de Pesos"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Weights Intersection"
 msgstr "Weights Intersection"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Weights Manager"
 msgstr "Gestor de pesos"
 
-#contributors:
+# contributors:
 msgid "Weights Name"
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Weights Symmetry Check"
 msgstr "Comprobar Simetría de Pesos"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Weights Union"
 msgstr "Weights Intersection"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Weights file \"%s\" created successfully."
 msgstr "Archivo de pesos \"%s\" creado con éxito."
 
-#contributors:
+# contributors:
 msgid "Weights file/format is not valid."
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Weights:"
 msgstr "Pesos:"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Welcome to GeoDa"
 msgstr "Bienvenidos a GeoDa"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Welcome to GeoDa 1.8.16"
 msgstr "Bienvenidos a GeoDa 1.8.16"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "West European Latin-1 (ISO-8859-1)"
 msgstr "Europeo Occidental Latín-1 (ISO-8859-1)"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "West European Latin-9 (ISO-8859-15)"
 msgstr "Europeo Occidental Latín-9 (ISO-8859-15)"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "What windows to open?"
 msgstr "Qué ventana abrir"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "When \"all times\" selected for either variable, result field must also be \"all times.\""
 msgstr "Al seleccionar \"todos los períodos\", el campo de resultados debe ser también \"todos los períodos.\""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "When \"all times\" selected for variable, result field must also be \"all times.\""
 msgstr "Al seleccionar \"todos los períodos\", el campo de resultados debe ser también \"todos los períodos.\""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "White Test"
 msgstr "Test de White"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Width in pixels"
 msgstr "Ancho en píxeles"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Width:"
 msgstr "Width:"
 
-#contributors:
+# contributors:
 msgid "Within cluster S.S."
 msgstr ""
 
-#contributors:
+# contributors:
 msgid "Within-cluster sum of squares:\n"
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Wrong number of rows!"
 msgstr "¡Nº equivocado de columnas!"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Wrote GeoDa Project File: "
 msgstr "Escrito en Archivo Proyecto GeoDa:"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "X"
 msgstr "X"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "X Variable"
 msgstr "Variable X"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "X-Axis"
 msgstr "Eje-X"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "X-Coordinates"
 msgstr "Coordenadas-X"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "X-coord"
 msgstr "Coord-X"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "X-coordinate"
 msgstr "coordenada-X"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "X-coordinate variable"
 msgstr "Variable coordenada-X"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Y"
 msgstr "y"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Y Variable"
 msgstr "Variable Y"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Y-Axis"
 msgstr "Eje-Y"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Y-Coordinates"
 msgstr "Coordenadas-Y"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Y-coord"
 msgstr "Coord-Y"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Y-coordinate"
 msgstr "coordenada-Y"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Y-coordinate variable"
 msgstr "Variable coordenada-Y"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Yes"
 msgstr "Sí"
 
-#contributors:
+# contributors:
 msgid "You can try to proceed but the current threshold distance value might be too large to compute. If it fails, please input a smaller distance band (which might leave some observations neighborless) or use other weights (e.g. KNN)."
 msgstr ""
 
-#contributors:
+# contributors:
 msgid "You have requested to create a new file project %s  while another project is open. Please close project %s and try again."
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Your Email address (Optional):"
 msgstr "Dirección de correo electrónico (Opcional):"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Your GeoDa is already up-to-date."
 msgstr "Su GeoDa está ya actualizado."
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Your Github account (Optional):"
 msgstr "Tu cuenta de Gibhub (Opcional):"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Your table cannot be aggregated because the key field \"%s\" is unique. Please use another key."
 msgstr "Imposible agregar tabla porque el campo clave \"%s\" es único. Utilizar otro campo clave."
 
-#contributors:
-msgid "Your table cannot be merged because the key field \"%s\" is not unique. \nIt contains undefined or duplicate values.\n\nDetails:"
+# contributors:
+msgid ""
+"Your table cannot be merged because the key field \"%s\" is not unique. \n"
+"It contains undefined or duplicate values.\n"
+"\n"
+"Details:"
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Z"
 msgstr "Z"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Z Variable"
 msgstr "Variable Z"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Zoom : press right-mouse button"
 msgstr "Zoom: presionar botón derecho del ratón"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Zoom In"
 msgstr "Zoom +"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Zoom Out"
 msgstr "Zoom -"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "Zooming Mode"
 msgstr "Modo de Zoom"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "[Please briefly describe what went wrong]"
 msgstr "[Describir brevemente lo que no ha funcionado]"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "[Steps you took before something went wrong]"
 msgstr "[Pasos realizados antes de tener problemas]"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "\"%s\" is not a valid p-value. Default p-value (0.01) is used"
 msgstr "\"%s\" p-valor no válido. Utilizado el p-valor (0.01) por defecto"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "\"%s\" is not a valid seed. Seed unchanged."
 msgstr "\"%s\" semilla no válida. Semilla sin modificar."
 
-#contributors:
-msgid "\". \n\nDetails: Attemp to write a readonly database, or "
+# contributors:
+msgid ""
+"\". \n"
+"\n"
+"Details: Attemp to write a readonly database, or "
 msgstr ""
 
-#contributors:
-msgid "\nREGRESSION\n----------\n"
+# contributors:
+msgid ""
+"\n"
+"REGRESSION\n"
+"----------\n"
 msgstr ""
 
-#contributors:
-msgid "\nSelect whether to use periods or commas as\nseparators in numeric fields. \n\nE.g., by default, GeoDa uses commas to\nseparate thousands and periods\nfor decimals (1,000.00).\n                "
+# contributors:
+msgid ""
+"\n"
+"Select whether to use periods or commas as\n"
+"separators in numeric fields. \n"
+"\n"
+"E.g., by default, GeoDa uses commas to\n"
+"separate thousands and periods\n"
+"for decimals (1,000.00).\n"
+"                "
 msgstr ""
 
-#contributors:
-msgid "\n\n95% threshold criterion: "
+# contributors:
+msgid ""
+"\n"
+"\n"
+"95% threshold criterion: "
 msgstr ""
 
-#contributors:
-msgid "\n\nCumulative proportion:\n"
+# contributors:
+msgid ""
+"\n"
+"\n"
+"Cumulative proportion:\n"
 msgstr ""
 
-#contributors:
-msgid "\n\nDetails: "
+# contributors:
+msgid ""
+"\n"
+"\n"
+"Details: "
 msgstr ""
 
-#contributors:
-msgid "\n\nEigenvalues:\n"
+# contributors:
+msgid ""
+"\n"
+"\n"
+"Eigenvalues:\n"
 msgstr ""
 
-#contributors:
-msgid "\n\nKaiser criterion: "
+# contributors:
+msgid ""
+"\n"
+"\n"
+"Kaiser criterion: "
 msgstr ""
 
-#contributors:
-msgid "\n\nProportion of variance:\n"
+# contributors:
+msgid ""
+"\n"
+"\n"
+"Proportion of variance:\n"
 msgstr ""
 
-#contributors:
-msgid "\n\nSquared correlations:\n"
+# contributors:
+msgid ""
+"\n"
+"\n"
+"Squared correlations:\n"
 msgstr ""
 
-#contributors:
-msgid "\n\nStandard deviation:\n"
+# contributors:
+msgid ""
+"\n"
+"\n"
+"Standard deviation:\n"
 msgstr ""
 
-#contributors:
-msgid "\n\nVariable Loadings:\n"
+# contributors:
+msgid ""
+"\n"
+"\n"
+"Variable Loadings:\n"
 msgstr ""
 
-#contributors:
+# contributors:
 msgid "adaptive kernel"
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "and field"
 msgstr "and field"
 
-#contributors:
+# contributors:
 msgid "autocorrelation is "
 msgstr ""
 
-#contributors:
+# contributors:
 msgid "bandwidth"
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "binary"
 msgstr "binario"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "break 0"
 msgstr "Corte 0"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "calculating..."
 msgstr "calculando..."
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "can't compute"
 msgstr "imposible calcular"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "category 1"
 msgstr "Categoría 1"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "choice:"
 msgstr "elección:"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "choose a variable"
 msgstr "Elegir una variable"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "csv file:"
 msgstr "fichero csv:"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "current table key"
 msgstr "Clave de la tabla activa"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "custom"
 msgstr "Personalizado"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "dBase Database File (*.dbf)|*.dbf"
 msgstr "Archivo Datos dBase (*.dbf)|*.dbf"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "datasource.type %s unknown.."
 msgstr "fuentedatos.tipo %n desconocido.."
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "day:"
 msgstr "día:"
 
-#contributors:
-msgid "decimal\nplaces"
+# contributors:
+msgid ""
+"decimal\n"
+"places"
 msgstr ""
 
-#contributors:
-msgid "displayed\ndecimal places"
+# contributors:
+msgid ""
+"displayed\n"
+"decimal places"
 msgstr ""
 
-#contributors:
+# contributors:
 msgid "distance metric"
 msgstr ""
 
-#contributors:
+# contributors:
 msgid "distance unit"
 msgstr ""
 
-#contributors:
+# contributors:
 msgid "distance vars"
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "diverging"
 msgstr "divergente"
 
-#contributors:
+# contributors:
 msgid "done"
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "ds:"
 msgstr "ds"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "enumerate as 1, 2, 3, ..."
 msgstr "Numerar como 1, 2, 3, ..."
 
-#contributors:
+# contributors:
 msgid "false"
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "field name:"
 msgstr "nombre de campo:"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "fields:"
 msgstr "campos:"
 
-#contributors:
+# contributors:
 msgid "file"
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "file size:"
 msgstr "tamaño de archivo:"
 
-#contributors:
+# contributors:
 msgid "from"
 msgstr ""
 
-#contributors:
+# contributors:
 msgid "id variable"
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "import table key"
 msgstr "Clave de tabla importada"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "in current layer."
 msgstr "in current layer."
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "inches"
 msgstr "inches"
 
-#contributors:
+# contributors:
 msgid "include lower orders"
 msgstr ""
 
-#contributors:
+# contributors:
 msgid "inverse distance"
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "is associated to"
 msgstr "is associated to"
 
-#contributors:
+# contributors:
 msgid "kernel method"
 msgstr ""
 
-#contributors:
+# contributors:
 msgid "kernel to diagonal"
 msgstr ""
 
-#contributors:
+# contributors:
 msgid "large"
 msgstr ""
 
-#contributors:
+# contributors:
 msgid "length"
 msgstr ""
 
-#contributors:
+# contributors:
 msgid "max dist"
 msgstr ""
 
-#contributors:
+# contributors:
 msgid "max neighbors"
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "max-p"
 msgstr "MaxP"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "max:"
 msgstr "máx."
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "maximum"
 msgstr "máximo"
 
-#contributors:
-msgid "maximum\npossible"
+# contributors:
+msgid ""
+"maximum\n"
+"possible"
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "mean"
 msgstr "media"
 
-#contributors:
+# contributors:
 msgid "mean neighbors"
 msgstr ""
 
-#contributors:
+# contributors:
 msgid "mean:"
 msgstr ""
 
-#contributors:
+# contributors:
 msgid "median neighbors"
 msgstr ""
 
-#contributors:
+# contributors:
 msgid "median:"
 msgstr ""
 
-#contributors:
+# contributors:
 msgid "min dist"
 msgstr ""
 
-#contributors:
+# contributors:
 msgid "min neighbors"
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "min:"
 msgstr "mín."
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "minimum"
 msgstr "mínimo"
 
-#contributors:
-msgid "minimum\npossible"
+# contributors:
+msgid ""
+"minimum\n"
+"possible"
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "mm"
 msgstr "mm"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "month:"
 msgstr "mes:"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "name:"
 msgstr "nombre"
 
-#contributors:
+# contributors:
 msgid "need two valid regressions"
 msgstr ""
 
-#contributors:
+# contributors:
 msgid "neighbors"
 msgstr ""
 
-#contributors:
+# contributors:
 msgid "not saved"
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "numeric"
 msgstr "numérico"
 
-#contributors:
+# contributors:
 msgid "obs "
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "obs#"
 msgstr "nº obs."
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "observation:"
 msgstr "observación"
 
-#contributors:
+# contributors:
 msgid "order"
 msgstr ""
 
-#contributors:
+# contributors:
 msgid "parent group"
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "pixels"
 msgstr "pixels"
 
-#contributors:
+# contributors:
 msgid "power"
 msgstr ""
 
-#contributors:
+# contributors:
 msgid "range, est. distance"
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "records:"
 msgstr "registros"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "redcap"
 msgstr "REDCAP"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "row-standardized"
 msgstr "estandarizada por filas"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "row:\n"
 msgstr "fila:\n"
 
-#contributors:
+# contributors:
 msgid "s.d."
 msgstr ""
 
-#contributors:
+# contributors:
 msgid "s.d.:"
 msgstr ""
 
-#contributors:
+# contributors:
 msgid "sd from mean"
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "selected:"
 msgstr "seleccionado:"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "sequential"
 msgstr "secuencial"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "show normal distribution p-val map"
 msgstr "Mostrar mapa de p-val. de distribución normal"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "show normal distribution p-val maps"
 msgstr "Mostrar mapas de p-val. de distribución normal"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "show significance maps"
 msgstr "Mostrar mapas de significación"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "skater"
 msgstr "skater"
 
-#contributors:
+# contributors:
 msgid "small"
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "space-time variable found with no name"
 msgstr "Variable espacio-temporal encontrada sin nombre"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "standard deviation"
 msgstr "desviación estándar"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "suggested title:"
 msgstr "título sugerido:"
 
-#contributors:
+# contributors:
 msgid "symmetry"
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "thematic"
 msgstr "temática"
 
-#contributors:
+# contributors:
 msgid "threshold value"
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "time"
 msgstr "tiempo"
 
-#contributors:
+# contributors:
 msgid "to"
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "to define weights."
 msgstr "pendiente definición de pesos."
 
-#contributors:
+# contributors:
 msgid "to specify variable and distance parameters."
 msgstr ""
 
-#contributors:
+# contributors:
 msgid "total # pairs"
 msgstr ""
 
-#contributors:
+# contributors:
 msgid "true"
 msgstr ""
 
-#contributors:
+# contributors:
 msgid "type"
 msgstr ""
 
-#contributors:
+# contributors:
 msgid "undefined: "
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "uni. dist. Min"
 msgstr "Dist. min. uni."
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "uniform distribution"
 msgstr "distribución uniforme"
 
-#contributors:
+# contributors:
 msgid "unknown"
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "using row-standardized weights"
 msgstr "usando pesos estandarizados por filas"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "value"
 msgstr "Valor"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "value:"
 msgstr "valor:"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "var name:"
 msgstr "nombre var.:"
 
-#contributors:
+# contributors:
 msgid "variable name"
 msgstr ""
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "version:"
 msgstr "versión:"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "weights:"
 msgstr "pesos"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "wrong model number"
 msgstr "nº equivocado de modelo"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "y:"
 msgstr "y:"
 
-#contributors:corochasco
+# contributors:corochasco
 msgid "year:"
 msgstr "año"
-

@@ -21,7 +21,7 @@
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleSignature</key>
-	<string>io.gitub.geodacenter</string>
+	<string>lgeoda</string>
 	<key>CFBundleVersion</key>
 	<string>1.18</string>
 	<key>CFBundleShortVersionString</key>
@@ -40,6 +40,8 @@
 	<string>0400</string>
 	<key>DTXcodeBuild</key>
 	<string>10M2518</string>
+	<key>LSApplicationCategoryType</key>
+	<string>public.app-category.education</string>
 	<key>CFBundleDocumentTypes</key>
 	<array>
 	  <dict>

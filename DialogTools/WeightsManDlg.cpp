@@ -23,6 +23,7 @@
 #include <wx/filename.h>
 #include <wx/filedlg.h>
 #include <wx/textdlg.h>
+#include <wx/settings.h>
 #include <wx/valnum.h>
 #include <wx/valtext.h>
 #include <wx/xrc/xmlres.h>
@@ -65,8 +66,11 @@ create_btn(0), load_btn(0), remove_btn(0), w_list(0)
 	wxLogMessage("Entering WeightsManFrame::WeightsManFrame");
 	
 	panel = new wxPanel(this);
-	panel->SetBackgroundColour(*wxWHITE);
-	SetBackgroundColour(*wxWHITE);
+	
+    if (!wxSystemSettings::GetAppearance().IsDark()) {
+        panel->SetBackgroundColour(*wxWHITE);
+        SetBackgroundColour(*wxWHITE);
+    }
 	
     // next 2 lines for time editor - incorrect number of views open #1754
     bool is_any_time_variant = false;

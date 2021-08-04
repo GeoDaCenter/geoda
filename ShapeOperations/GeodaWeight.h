@@ -47,7 +47,7 @@ public:
 
     virtual bool CheckNeighbor(int obs_idx, int nbr_idx)=0;
 
-    virtual const std::vector<long> GetNeighbors(int obs_idx)=0;
+    virtual const std::vector<long> GetNeighbors(int obs_idx) const =0;
 
     virtual void   Update(const std::vector<bool>& undefs)=0;
     virtual bool   HasIsolates() = 0;

@@ -1076,11 +1076,31 @@ void HistogramCanvas::InitIntervals()
                 unique_dict[val] += 1;
             }
             
-            // add current [id] to ival_to_obs_ids
-            int cur_ival = 0;
+            std::vector<wxString> keys;
             std::map<wxString, int>::iterator it;
             for (it=unique_dict.begin(); it!=unique_dict.end();it++){
-                wxString lbl = it->first;
+                keys.push_back(it->first);
+            }
+            
+            std::sort(keys.begin(), keys.end(),
+                       [](const wxString &a, const wxString &b) {
+                         const bool a_is_negative = a[0] == '-';
+                         const bool b_is_negative = b[0] == '-';
+                         if (a_is_negative != b_is_negative) {
+                           return a_is_negative;
+                         } else if (a.length() != b.length()) {
+                           // If they have the same sign
+                           return (a.length() < b.length()) != a_is_negative;
+                         } else {
+                           return (a < b) != a_is_negative;
+                         }
+                       });
+            
+            // add current [id] to ival_to_obs_ids
+            int cur_ival = 0;
+            //for (it=unique_dict.begin(); it!=unique_dict.end();it++){
+            for (int j=0; j<keys.size(); ++j) {
+                wxString lbl = keys[j];
                 s_ival_breaks[t][cur_ival] = lbl;
                 for (int idx=0; idx<num_obs; idx++) {
                     if (s_data_sorted[t][idx].first == lbl) {

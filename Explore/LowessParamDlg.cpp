@@ -23,6 +23,8 @@
 #include <wx/valnum.h>
 #include <wx/valtext.h>
 #include <wx/xrc/xmlres.h>
+#include <wx/settings.h>
+
 #include "../GdaConst.h"
 #include "../logger.h"
 #include "../Project.h"
@@ -38,8 +40,11 @@ project(project_)
 	wxLogMessage("Entering LowessParamFrame::LowessParamFrame");
 	
 	wxPanel* panel = new wxPanel(this);
-	panel->SetBackgroundColour(*wxWHITE);
-	SetBackgroundColour(*wxWHITE);
+    if (!wxSystemSettings::GetAppearance().IsDark()) {
+        panel->SetBackgroundColour(*wxWHITE);
+        SetBackgroundColour(*wxWHITE);
+    }
+	
 
 	wxButton* help_btn = new wxButton(panel, XRCID("ID_HELP_BTN"),  _("Help"),
                                       wxDefaultPosition, wxDefaultSize,

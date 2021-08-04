@@ -23,6 +23,7 @@
 #include <wx/dir.h>
 #include <wx/filefn.h>
 #include <wx/msgdlg.h>
+#include <wx/settings.h>
 #include <wx/checkbox.h>
 #include <wx/gauge.h>
 #include <wx/stattext.h>
@@ -117,8 +118,11 @@ ReportResultDlg::ReportResultDlg(wxWindow* parent, wxString issue_url,
 	: wxDialog(parent, id, title, pos, size)
 {
 	wxPanel* panel = new wxPanel(this);
-	panel->SetBackgroundColour(*wxWHITE);
-
+    
+    if (!wxSystemSettings::GetAppearance().IsDark()) {
+        panel->SetBackgroundColour(*wxWHITE);
+    }
+    
 	wxBoxSizer* bSizer = new wxBoxSizer(wxVERTICAL);
 
 	wxString result_tip = _("Thank you for helping us improve GeoDa with your bug report! \n\nYou can track our response and add screenshots or details here (or email us at spatial@uchicago.edu):");
@@ -199,7 +203,10 @@ ReportBugDlg::ReportBugDlg(wxWindow* parent, wxWindowID id,
 	//
 	// Create controls UI
 	wxPanel* panel = new wxPanel(this);
-	panel->SetBackgroundColour(*wxWHITE);
+	
+    if (!wxSystemSettings::GetAppearance().IsDark()) {
+        panel->SetBackgroundColour(*wxWHITE);
+    }
 
 	desc_tip = _("[Please briefly describe what went wrong]");
 	steps_txt = _("[Steps you took before something went wrong]");

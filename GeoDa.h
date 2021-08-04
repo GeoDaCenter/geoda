@@ -362,7 +362,7 @@ public:
 	void OnOpenUniqueValues(wxCommandEvent& event);
 	void OnOpenColocationMap(wxCommandEvent& event);
 	void OnUniqueValues(wxCommandEvent& event);
-
+    void OnOpenClusterMatchMap(wxCommandEvent& event);
 	void OnSaveCategories(wxCommandEvent& event);
 	
 	void OnOpenRawrate(wxCommandEvent& event);

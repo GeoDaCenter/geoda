@@ -15,7 +15,7 @@
 class logger_t {
 public:
     static bool is_activated;
-    static std::auto_ptr < std::ostream > outstream_helper_ptr;
+    static std::unique_ptr < std::ostream > outstream_helper_ptr;
     static std::ostream * outstream;
     logger_t ();private:
     logger_t ( const logger_t & );
@@ -35,7 +35,6 @@ extern logger_t & logger();
 
 #define LOG_MSG(name)do {if (logger().is_activated ){\
 std::time_t now = std::time(0);\
-std::tm* ltm = std::localtime(&now);\
 *logger().outstream << "[line " << __LINE__ << "] : " << name << std::endl;} }while(false)
 
 //#define LOG_MSG(name)do {if (logger().is_activated ){\

@@ -558,7 +558,11 @@ void LisaCoordinator::CalcPseudoP()
         double* _sigLocal = sig_local_vecs[0];
         
         wxString exePath = GenUtils::GetExeDir();
+#ifdef __WXMAC__
+        wxString clPath = exePath + "../Resources/lisa_kernel.cl";
+#else
         wxString clPath = exePath + "lisa_kernel.cl";
+#endif
         bool flag = gpu_lisa(clPath.mb_str(), num_obs, permutations, last_seed_used, values, local_moran, w, _sigLocal);
         
 		if (flag) {

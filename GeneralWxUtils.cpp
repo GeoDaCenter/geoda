@@ -27,11 +27,15 @@
 #include <wx/colordlg.h>
 #include <wx/txtstrm.h>
 
+#include "FramesManagerObserver.h"
+#include "FramesManager.h"
 #include "DialogTools/AddIdVariable.h"
 #include "GeneralWxUtils.h"
 #include "Project.h"
+
 ////////////////////////////////////////////////////////////////////////
 //
+// SimpleReportTextCtrl
 //
 ////////////////////////////////////////////////////////////////////////
 BEGIN_EVENT_TABLE(SimpleReportTextCtrl, wxTextCtrl)
@@ -79,8 +83,10 @@ void SimpleReportTextCtrl::OnSaveClick( wxCommandEvent& event )
         output.Close();
     }
 }
+
 ////////////////////////////////////////////////////////////////////////
 //
+// ScrolledDetailMsgDialog
 //
 ////////////////////////////////////////////////////////////////////////
 
@@ -146,6 +152,7 @@ void ScrolledDetailMsgDialog::OnSaveClick( wxCommandEvent& event )
 
 ////////////////////////////////////////////////////////////////////////
 //
+// Other functions
 //
 ////////////////////////////////////////////////////////////////////////
 wxOperatingSystemId GeneralWxUtils::GetOsId()
@@ -343,7 +350,7 @@ bool GeneralWxUtils::EnableMenuAll(wxMenuBar* mb, const wxString& title,
 void GeneralWxUtils::EnableMenuRecursive(wxMenu* menu, bool enable)
 {
 	if (!menu) return;
-	int cnt = menu->GetMenuItemCount();
+	int cnt = (int)menu->GetMenuItemCount();
 	for (int i=0; i<cnt; i++) {
 		wxMenuItem* mItem = menu->FindItemByPosition(i);
 		//wxString msg("menu item '");
@@ -376,8 +383,8 @@ bool GeneralWxUtils::EnableMenuItem(wxMenuBar* mb, const wxString& menuTitle,
 	wxMenu* subMenu = NULL;
 	menu->FindItem(id, &subMenu);
 	if (menu == subMenu) return true;
-	int menuCnt = menu->GetMenuItemCount();
-	int subMenuCnt = subMenu->GetMenuItemCount();
+	int menuCnt = (int)menu->GetMenuItemCount();
+	int subMenuCnt = (int)subMenu->GetMenuItemCount();
 	int subMenuIndex = wxNOT_FOUND;
 	int i = 0;
 	while (subMenuIndex == wxNOT_FOUND && i < menuCnt) {
@@ -537,7 +544,7 @@ void GeneralWxUtils::SaveWindowAsImage(wxWindow *win, wxString title)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-//
+// TransparentSettingDialog
 ///////////////////////////////////////////////////////////////////////////////
 TransparentSettingDialog::TransparentSettingDialog(
 	wxWindow * parent,
@@ -605,7 +612,7 @@ double TransparentSettingDialog::GetTransparency()
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-//
+// CheckSpatialRefDialog
 ///////////////////////////////////////////////////////////////////////////////
 
 CheckSpatialRefDialog::CheckSpatialRefDialog(wxWindow * parent,
@@ -652,9 +659,9 @@ bool CheckSpatialRefDialog::IsCheckAgain()
 {
     return !cb->GetValue();
 }
+
 ////////////////////////////////////////////////////////////////////////
-//
-//
+// SelectWeightsIdDialog
 ////////////////////////////////////////////////////////////////////////
 
 SelectWeightsIdDialog::SelectWeightsIdDialog(wxWindow * parent, Project* project,
@@ -718,7 +725,7 @@ void SelectWeightsIdDialog::InitVariableChoice()
     table_int->FillColIdMap(col_id_map);
 
     m_id_field->Clear();
-    for (int i=0, iend=col_id_map.size(); i<iend; i++) {
+    for (int i=0, iend=(int)col_id_map.size(); i<iend; i++) {
         int col = col_id_map[i];
         if (table_int->GetColType(col) == GdaConst::long64_type ||
             table_int->GetColType(col) == GdaConst::string_type) {
@@ -739,4 +746,79 @@ void SelectWeightsIdDialog::OnIdVariableSelected(wxCommandEvent& evt)
     if (table_int->CheckID(sel_var) == false) {
         m_id_field->SetSelection(-1);
     }
+}
+
+
+BEGIN_EVENT_TABLE( SummaryDialog, wxFrame)
+    EVT_CLOSE( SummaryDialog::OnClose )
+    EVT_MOUSE_EVENTS(SummaryDialog::OnMouseEvent)
+END_EVENT_TABLE()
+
+SummaryDialog::~SummaryDialog( )
+{
+    frames_manager->removeObserver(this);
+}
+
+SummaryDialog::SummaryDialog( wxWindow* parent, Project* project,
+                                           wxString showText,
+                                           wxWindowID id,
+                                           const wxString& caption,
+                                           const wxPoint& pos,
+                                           const wxSize& size, long style )
+:wxFrame(parent, id, caption, pos, size, style)
+{
+    wxLogMessage("Open SummaryDialog.");
+    SetParent(parent);
+    frames_manager = project->GetFramesManager();
+    
+    results = showText;
+    SetExtraStyle(GetExtraStyle()|wxWS_EX_BLOCK_EVENTS);
+    CreateControls();
+    Centre();
+    m_textbox->AppendText(results);
+    
+    frames_manager->registerObserver(this);
+}
+
+void SummaryDialog::update(FramesManager* o)
+{
+}
+
+void SummaryDialog::CreateControls()
+{
+    wxPanel *panel = new wxPanel(this, -1);
+    wxBoxSizer *vbox = new wxBoxSizer(wxVERTICAL);
+    m_textbox = new SimpleReportTextCtrl(panel, XRCID("ID_TEXTCTRL"), "", wxDefaultPosition, wxSize(620,560));
+    
+    if (GeneralWxUtils::isWindows()) {
+        wxFont font(8,wxFONTFAMILY_TELETYPE,wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL);
+        m_textbox->SetFont(font);
+    } else {
+        wxFont font(12,wxFONTFAMILY_TELETYPE,wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL);
+        m_textbox->SetFont(font);
+        
+    }
+    vbox->Add(m_textbox, 1, wxEXPAND|wxALL);
+    panel->SetSizer(vbox);
+    
+    Center();
+}
+
+void SummaryDialog::AddNewReport(const wxString report)
+{
+    results = report + results;
+    m_textbox->SetValue(results);
+}
+
+void SummaryDialog::SetReport(const wxString report)
+{
+    results = report;
+    m_textbox->SetValue(results);
+}
+
+void SummaryDialog::OnClose( wxCloseEvent& event )
+{
+    wxLogMessage("In SummaryDialog::OnClose()");
+    Destroy();
+    event.Skip();
 }

@@ -89,7 +89,7 @@ public:
 
     virtual bool CheckNeighbor(int obs_idx, int nbr_idx);
 
-    virtual const std::vector<long> GetNeighbors(int obs_idx);
+    virtual const std::vector<long> GetNeighbors(int obs_idx) const;
     
     virtual void GetNbrStats();    
 };

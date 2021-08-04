@@ -15,7 +15,7 @@ UninstallDisplayIcon={app}\GeoDa.exe
 Compression=lzma2
 SolidCompression=yes
 OutputDir=..\..
-OutputBaseFilename=geoda_setup
+OutputBaseFilename=GeoDa_1.18_x86_Setup
 ;OutputDir=userdocs:Inno Setup Examples Output
 
 ChangesAssociations=yes
@@ -24,13 +24,12 @@ ShowLanguageDialog=yes
 
 [Languages]
 Name: "en"; MessagesFile: "compiler:Default.isl"
-Name: "zh"; MessagesFile: "compiler:Languages\ChineseSimplified.isl"
 
 [dirs]
 Name: "{app}";  Permissions: everyone-full; Check: InitializeSetup
-Name: "{app}\Examples";  Permissions: everyone-full
 Name: "{app}\basemap_cache";  Permissions: everyone-full
 Name: "{app}\lang";  Permissions: everyone-full
+Name: "{app}\proj";  Permissions: everyone-full
 
 [Files]
 Source: "..\..\Release\GeoDa.exe"; DestDir: "{app}"; DestName: "GeoDa.exe"
@@ -41,35 +40,39 @@ Source: "..\..\..\CommonDistFiles\cache.sqlite"; DestDir: "{app}"
 Source: "..\..\..\CommonDistFiles\geoda_prefs.sqlite"; DestDir: "{app}"
 Source: "..\..\..\CommonDistFiles\geoda_prefs.json"; DestDir: "{app}"
 Source: "..\..\..\CommonDistFiles\web_plugins\*"; DestDir: "{app}\web_plugins"; Flags: recursesubdirs
+Source: "..\..\..\CommonDistFiles\proj\*"; DestDir: "{app}\proj"; Flags: recursesubdirs
 
-Source: "vcredist_x86.exe"; DestDir: "{app}"
-Source: "OpenCL.dll"; DestDir: "{app}"
-Source: "ogr_FileGDB.dll"; DestDir: "{app}"
-Source: "ogr_OCI.dll"; DestDir: "{app}"
-Source: "ogr_SDE.dll"; DestDir: "{app}"
-Source: "..\..\run_geoda.bat"; DestDir: "{app}"
-Source: "..\..\Release\sqlite.dll"; DestDir: "{app}"
-Source: "..\..\temp\curl-7.46.0\builds\curlib\bin\libcurl.dll"; DestDir: "{app}"
-Source: "..\..\temp\expat-2.1.0\build\Release\expat.dll"; DestDir: "{app}"
-Source: "..\..\temp\gdal\gdal_geoda20.dll"; DestDir: "{app}"
-Source: "..\..\temp\libspatialite-4.0.0\spatialite.dll"; DestDir: "{app}"
-Source: "..\..\temp\geos-3.3.8\src\geos_c.dll"; DestDir: "{app}"
-Source: "..\..\temp\freexl-1.0.0e\freexl.dll"; DestDir: "{app}"
-Source: "..\..\temp\proj-4.8.0\src\proj.dll"; DestDir: "{app}"
-Source: "..\..\temp\pgsql\lib\libpq.dll"; DestDir: "{app}"
-Source: "..\..\temp\pgsql\bin\ssleay32.dll"; DestDir: "{app}"
-Source: "..\..\temp\pgsql\bin\libintl.dll"; DestDir: "{app}"
-Source: "..\..\temp\pgsql\bin\libeay32.dll"; DestDir: "{app}"
-Source: "..\..\temp\wxWidgets-3.1.0\lib\vc_dll\wxmsw310u_vc_custom.dll"; DestDir: "{app}"
-Source: "..\..\temp\wxWidgets-3.1.0\lib\vc_dll\wxmsw310u_gl_vc_custom.dll"; DestDir: "{app}"
-Source: "..\..\temp\boost_1_57_0\stage\lib\boost_chrono-vc100-mt-1_57.dll"; DestDir: "{app}"
-Source: "..\..\temp\boost_1_57_0\stage\lib\boost_thread-vc100-mt-1_57.dll"; DestDir: "{app}"
-Source: "..\..\temp\boost_1_57_0\stage\lib\boost_system-vc100-mt-1_57.dll"; DestDir: "{app}"
 
+Source: "VC_redist.x86.exe"; DestDir: "{app}"
+Source: "..\..\temp\OpenCL\sdk\bin\x86\OpenCL.dll"; DestDir: "{app}"
+Source: "..\..\temp\wxWidgets\lib\vc_dll\wxmsw314u_vc_custom.dll"; DestDir: "{app}"
+Source: "..\..\temp\wxWidgets\lib\vc_dll\wxmsw314u_gl_vc_custom.dll"; DestDir: "{app}"
+Source: "..\..\libraries\bin\expat.dll"; DestDir: "{app}"
+Source: "..\..\libraries\bin\freexl.dll"; DestDir: "{app}"
+Source: "..\..\libraries\bin\gdal302.dll"; DestDir: "{app}"
+Source: "..\..\libraries\bin\geos.dll"; DestDir: "{app}"
+Source: "..\..\libraries\bin\geos_c.dll"; DestDir: "{app}"
+Source: "..\..\libraries\bin\iconv.dll"; DestDir: "{app}"
+Source: "..\..\libraries\bin\libcrypto-1_1.dll"; DestDir: "{app}"
+Source: "..\..\libraries\bin\libcurl.dll"; DestDir: "{app}"
+Source: "..\..\libraries\bin\libmysql.dll"; DestDir: "{app}"
+Source: "..\..\libraries\bin\libpq.dll"; DestDir: "{app}"
+Source: "..\..\libraries\bin\libssl-1_1.dll"; DestDir: "{app}"
+Source: "..\..\libraries\bin\libxml2.dll"; DestDir: "{app}"
+Source: "..\..\libraries\bin\openjp2.dll"; DestDir: "{app}"
+Source: "..\..\libraries\bin\proj.dll"; DestDir: "{app}"
+Source: "..\..\libraries\bin\proj_6_1.dll"; DestDir: "{app}"
+Source: "..\..\libraries\bin\spatialite.dll"; DestDir: "{app}"
+Source: "..\..\libraries\bin\sqlite3.dll"; DestDir: "{app}"
+Source: "..\..\libraries\bin\xerces-c_3_2.dll"; DestDir: "{app}"
+Source: "..\..\libraries\bin\zlib1.dll"; DestDir: "{app}"
+Source: "..\..\libraries\bin\gdal\plugins\ogr_OCI.dll"; DestDir: "{app}"
+Source: "..\..\libraries\bin\gdal\plugins-optional\ogr_PG.dll"; DestDir: "{app}"
+Source: "..\..\libraries\bin\gdal\plugins-optional\ogr_MSSQLSpatial.dll"; DestDir: "{app}"
+Source: "..\..\libraries\bin\gdal\plugins-external\ogr_FileGDB.dll"; DestDir: "{app}"
 Source: "..\..\..\..\Algorithms\lisa_kernel.cl"; DestDir: "{app}"
 Source: "..\..\..\..\internationalization\lang\*"; DestDir: "{app}\lang"; Flags: recursesubdirs
-Source: "..\..\..\..\SampleData\Examples\*"; DestDir: "{app}\Examples"; Flags: recursesubdirs
-Source: "..\..\temp\gdal\data\*"; DestDir: "{app}\data"; Flags: recursesubdirs
+Source: "..\..\libraries\bin\gdal-data\*"; DestDir: "{app}\data"; Flags: recursesubdirs
 
 ;Source: "Readme.txt"; DestDir: "{app}"; Flags: isreadme
 
@@ -83,9 +86,10 @@ Name: "{commondesktop}\GeoDa"; Filename: "{app}\GeoDa.exe"
 [Registry]
 ; set PATH
 ; set GEODA_GDAL_DATA
-Root: HKCU; Subkey: "Environment"; ValueType:string; ValueName:"GEODA_GDAL_DATA"; ValueData:"{app}\data"; Flags: preservestringtype uninsdeletevalue
+Root: HKCU; Subkey: "Environment"; ValueType:string; ValueName:"GDAL_DATA"; ValueData:"{app}\data"; Flags: preservestringtype uninsdeletevalue
 ; set GEODA_OGR_DRIVER_PATH
-Root: HKCU; Subkey: "Environment"; ValueType:string; ValueName:"GEODA_OGR_DRIVER_PATH"; ValueData:"{app}"; Flags: preservestringtype uninsdeletevalue
+Root: HKCU; Subkey: "Environment"; ValueType:string; ValueName:"OGR_DRIVER_PATH"; ValueData:"{app}"; Flags: preservestringtype uninsdeletevalue
+Root: HKCU; Subkey: "Environment"; ValueType:string; ValueName:"PROJ_LIB"; ValueData:"{app}\proj"; Flags: preservestringtype uninsdeletevalue
 
 Root: HKCR; Subkey: ".gda"; ValueType: string; ValueName: ""; ValueData: "GeoDaProjectFile"; Flags: uninsdeletevalue
 Root: HKCR; Subkey: "GeoDaProjectFile"; ValueType: string; ValueName: ""; ValueData: "GeoDa Project File"; Flags: uninsdeletekey
@@ -119,7 +123,7 @@ end;
 
 function VCRedistNeedsInstall: Boolean;
 begin
-  Result := not RegKeyExists(HKLM,'SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{F0C3E5D1-1ADE-321E-8167-68EF0DE699A5}');
+  Result := not RegKeyExists(HKLM,'SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{03d1453c-7d5c-479c-afea-8482f406e036}');
 end;
 
 function GetUninstallString: string;
@@ -227,4 +231,4 @@ end;
 Filename: "{app}\lang\config.ini"; Section: "Translation"; Key: "Language"; String: {code:getLangCode|{app}}
 
 [Run]
-Filename: {app}\vcredist_x86.exe; StatusMsg: Installing Visual Studio 2010 SP1 C++ CRT Libraries...; Check: VCRedistNeedsInstall
+Filename: {app}\VC_redist.x86.exe; StatusMsg: Installing Visual C++ Redistributable for Visual Studio 2019 (14.28.29913.0)...; Check: VCRedistNeedsInstall

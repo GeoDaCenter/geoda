@@ -92,8 +92,8 @@ void CovSpHLStateProxy::notifyObservers()
 	//LOG(observers.size());
 	// See section 18.4.4.2 of Stroustrup
 	using namespace std;
-	for_each(observers.begin(), observers.end(),
-					 bind2nd(mem_fun(&HighlightStateObserver::update), this));
+	//for_each(observers.begin(), observers.end(),
+	//				 bind2nd(mem_fn(&HighlightStateObserver::update), this));
 	notifyHighlightState();
 }
 
@@ -152,8 +152,8 @@ void CovSpHLStateProxy::update(HLStateInt* o)
 	}
 	if (event_type != HLStateInt::empty) {
 		using namespace std;
-		for_each(observers.begin(), observers.end(),
-						 bind2nd(mem_fun(&HighlightStateObserver::update), this));
+		//for_each(observers.begin(), observers.end(),
+		//				 bind2nd(mem_fn(&HighlightStateObserver::update), this));
 	}
 }
 

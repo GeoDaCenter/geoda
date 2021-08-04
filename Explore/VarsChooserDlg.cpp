@@ -22,6 +22,7 @@
 #include <wx/valnum.h>
 #include <wx/valtext.h>
 #include <wx/xrc/xmlres.h>
+#include <wx/settings.h>
 #include "../GdaConst.h"
 #include "../logger.h"
 #include "../Project.h"
@@ -46,7 +47,9 @@ vars_list(0), include_list(0)
 {
 	LOG_MSG("Entering VarsChooserFrame::VarsChooserFrame");
 	SetIcon(wxIcon(GeoDaIcon_16x16_xpm));
-	SetBackgroundColour(*wxWHITE);
+    if (!wxSystemSettings::GetAppearance().IsDark()) {
+            SetBackgroundColour(*wxWHITE);
+    }
 	wxPanel* panel = new wxPanel(this);
 	
 	wxStaticText* vars_list_text = new wxStaticText(panel, wxID_ANY, _("Variables"));

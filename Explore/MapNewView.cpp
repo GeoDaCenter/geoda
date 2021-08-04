@@ -100,6 +100,7 @@ display_neighbors(false),
 display_map_with_graph(true),
 display_voronoi_diagram(false),
 display_heat_map(false),
+show_heat_map_on_top(true),
 draw_highlight_in_multilayers(false),
 graph_color(GdaConst::conn_graph_outline_colour),
 conn_selected_color(GdaConst::conn_select_outline_colour),
@@ -298,6 +299,9 @@ void MapCanvas::OnHeatMap(int menu_id)
             display_heat_map = !display_heat_map;
             RedrawMap();
         }
+    } else if (menu_id == XRCID("ID_HEATMAP_ON_TOP")) {
+        show_heat_map_on_top = !show_heat_map_on_top;
+        RedrawMap();
     } else if (display_heat_map) {
         // none of the following menu items will work if
         // heat map toggle is not checked
@@ -659,6 +663,10 @@ void MapCanvas::ExtentTo(double minx, double miny, double maxx, double maxy)
         if (project->sourceSR != NULL) {
             OGRSpatialReference destSR;
             destSR.importFromEPSG(4326);
+#ifdef __PROJ6__
+            destSR.SetAxisMappingStrategy(OAMS_TRADITIONAL_GIS_ORDER);
+            //project->sourceSR->SetAxisMappingStrategy(OAMS_TRADITIONAL_GIS_ORDER);
+#endif
             poCT = OGRCreateCoordinateTransformation(project->sourceSR,
                                                      &destSR);
         }
@@ -891,7 +899,12 @@ bool MapCanvas::InitBasemap()
         OGRCoordinateTransformation *poCT = NULL;
         if (project->sourceSR != NULL) {
             OGRSpatialReference destSR;
+            //destSR.SetWellKnownGeogCS("WGS84");
             destSR.importFromEPSG(4326);
+#ifdef __PROJ6__
+            destSR.SetAxisMappingStrategy(OAMS_TRADITIONAL_GIS_ORDER);
+            //project->sourceSR->SetAxisMappingStrategy(OAMS_TRADITIONAL_GIS_ORDER);
+#endif
             poCT = OGRCreateCoordinateTransformation(project->sourceSR,&destSR);
         }
         Gda::Screen* screen = new Gda::Screen(screenW, screenH);
@@ -1485,6 +1498,10 @@ void MapCanvas::RenderToDC(wxDC &dc, int w, int h)
         if (project->sourceSR != NULL) {
             OGRSpatialReference destSR;
             destSR.importFromEPSG(4326);
+#ifdef __PROJ6__
+            destSR.SetAxisMappingStrategy(OAMS_TRADITIONAL_GIS_ORDER);
+            //project->sourceSR->SetAxisMappingStrategy(OAMS_TRADITIONAL_GIS_ORDER);
+#endif
             poCT = OGRCreateCoordinateTransformation(project->sourceSR, &destSR);
         }
         double shps_orig_ymax = last_scale_trans.orig_data_y_max;
@@ -1743,6 +1760,7 @@ void MapCanvas::SetCheckMarks(wxMenu* menu)
                                    display_map_boundary);
     GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_MAP_MST_TOGGLE"), display_mst);
     GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_HEATMAP_TOGGLE"), display_heat_map);
+    GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_HEATMAP_ON_TOP"), show_heat_map_on_top);
     GeneralWxUtils::EnableMenuItem(menu, XRCID("ID_HEATMAP_TOGGLE"),true);
 
     GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_MAP_MST_THICKNESS_LIGHT"),
@@ -2538,7 +2556,7 @@ void MapCanvas::PopulateCanvas()
                     // draw thissen polygons in background
                     GdaPolygon* p;
                     const std::vector<GdaShape*>& polys = project->GetVoronoiPolygons();
-                    for (int i=0, num_polys=polys.size(); i<num_polys; i++) {
+                    for (int i=0, num_polys=(int)polys.size(); i<num_polys; i++) {
                         p = new GdaPolygon(*(GdaPolygon*)polys[i]);
                         background_shps.push_back(p);
                     }
@@ -2546,7 +2564,7 @@ void MapCanvas::PopulateCanvas()
                 // don't use "else if", since voronoi and heatmap can be overlayed
                 if (display_heat_map) {
                     // draw heat map in background
-                    heat_map.Draw(selectable_shps, foreground_shps, cat_data);
+                    heat_map.Draw(selectable_shps, show_heat_map_on_top ? foreground_shps : background_shps, cat_data);
                 }
 			}
             // use centroids to draw graph
@@ -3748,6 +3766,8 @@ void MapFrame::MapMenus()
     Connect(XRCID("ID_HEATMAP_OUTLINE_COLOR"), wxEVT_COMMAND_MENU_SELECTED,
             wxCommandEventHandler(MapFrame::OnHeatMap));
     Connect(XRCID("ID_HEATMAP_TRANSPARENCY"), wxEVT_COMMAND_MENU_SELECTED,
+            wxCommandEventHandler(MapFrame::OnHeatMap));
+    Connect(XRCID("ID_HEATMAP_ON_TOP"), wxEVT_COMMAND_MENU_SELECTED,
             wxCommandEventHandler(MapFrame::OnHeatMap));
 
     Connect(XRCID("ID_MAP_MST_TOGGLE"), wxEVT_COMMAND_MENU_SELECTED,

@@ -29,12 +29,10 @@
 #include <iomanip>
 #include <stdlib.h>
 
-
-#include <boost/thread.hpp>
-#include <boost/bind.hpp>
 #include <boost/foreach.hpp>
 
 #include "ogrsf_frmts.h"
+#include "ogr_core.h"
 #include "cpl_conv.h"
 
 #include <wx/utils.h>
@@ -100,7 +98,6 @@
 #include "DialogTools/RegressionReportDlg.h"
 #include "DialogTools/LisaWhat2OpenDlg.h"
 #include "DialogTools/RegressionDlg.h"
-#include "DialogTools/RegressionReportDlg.h"
 #include "DialogTools/ProgressDlg.h"
 #include "DialogTools/GetisOrdChoiceDlg.h"
 #include "DialogTools/ConnectDatasourceDlg.h"
@@ -167,6 +164,7 @@
 #include "Explore/WebViewExampleWin.h"
 #include "Explore/Basemap.h"
 #include "Explore/ColocationMapView.h"
+#include "Explore/ClusterMatchMapView.h"
 #include "Explore/GroupingMapView.h"
 #include "Explore/DistancePlotView.h"
 #include "Regression/DiagnosticReport.h"
@@ -226,6 +224,45 @@ bool GdaApp::OnInit(void)
 	if (!wxApp::OnInit())
         return false;
 
+    // setup gdaldata directory for libprj
+    wxString exePath = wxStandardPaths::Get().GetExecutablePath();
+    wxFileName exeFile(exePath);
+    wxString exeDir = exeFile.GetPathWithSep();
+    // Set GEODA_GDAL_DATA 
+#ifdef __WIN32__
+    wxString gal_data_dir = exeDir + "data";
+    wxSetEnv("GDAL_DATA", gal_data_dir);
+    CPLSetConfigOption("GDAL_DATA", GET_ENCODED_FILENAME(gal_data_dir));
+    CPLSetConfigOption("OGR_DRIVER_PATH", GET_ENCODED_FILENAME(exeDir));
+    wxString proj6_db_dir = exeDir + "proj";
+    CPLSetConfigOption("PROJ_LIB", GET_ENCODED_FILENAME(proj6_db_dir));
+    wxSetEnv("PROJ_LIB", proj6_db_dir);
+    const char* proj_path = proj6_db_dir.mb_str();
+    const char* const apsz_proj_paths[] = { proj_path, nullptr };
+    OSRSetPROJSearchPaths(apsz_proj_paths);
+#elif defined __linux__
+    wxString gal_data_dir = exeDir + "gdaldata";
+    wxString ogr_driver_dir = exeDir + "plugins";
+    wxSetEnv("GDAL_DATA", gal_data_dir);
+    CPLSetConfigOption("GDAL_DATA", GET_ENCODED_FILENAME(gal_data_dir));
+    CPLSetConfigOption("OGR_DRIVER_PATH", GET_ENCODED_FILENAME(ogr_driver_dir));
+    wxString proj6_db_dir = exeDir + "proj";
+    const char* proj_path = proj6_db_dir.mb_str();
+    const char* const apsz_proj_paths[] = { proj_path, nullptr };
+#ifdef __PROJ6__
+    OSRSetPROJSearchPaths(apsz_proj_paths);
+#endif
+#else
+    wxString gal_data_dir = exeDir + "../Resources/gdaldata";
+    wxString ogr_driver_dir = exeDir + "../Resources/plugins";
+    CPLSetConfigOption("GDAL_DATA", GET_ENCODED_FILENAME(gal_data_dir));
+    CPLSetConfigOption("OGR_DRIVER_PATH", GET_ENCODED_FILENAME(ogr_driver_dir));
+    wxString proj6_db_dir = exeDir + "../Resources/proj";
+    const char* proj_path = proj6_db_dir.mb_str();
+    const char* const apsz_proj_paths[] = { proj_path, nullptr };
+    OSRSetPROJSearchPaths(apsz_proj_paths);
+#endif
+
     // initialize OGR connection
 	OGRDataAdapter::GetInstance();
 #ifdef __WIN32__
@@ -239,7 +276,12 @@ bool GdaApp::OnInit(void)
     // config_path it the exe directory (every user will have a different config file?)
     wxFileName appFileName(argv[0]);
     appFileName.Normalize(wxPATH_NORM_DOTS|wxPATH_NORM_ABSOLUTE| wxPATH_NORM_TILDE);
+    
+#ifdef __WXMAC__
+    wxString search_path = appFileName.GetPath() + "/../Resources/lang";
+#else
     wxString search_path = appFileName.GetPath() + wxFileName::GetPathSeparator() +  "lang";
+#endif
     // load language from lang/config.ini if user specified any
     wxString config_path = search_path + wxFileName::GetPathSeparator()+ "config.ini";
     bool use_native_config = false;
@@ -247,7 +289,7 @@ bool GdaApp::OnInit(void)
     m_TranslationHelper->SetConfigPath(config_path);
     m_TranslationHelper->Load();
     // forcing numeric settings to en_US, which is used internally in GeoDa
-    setlocale(LC_NUMERIC, "en_US");
+    //setlocale(LC_NUMERIC, "en_US");
 
     // Other GDAL configurations
     if (GdaConst::hide_sys_table_postgres == false) {
@@ -316,7 +358,7 @@ bool GdaApp::OnInit(void)
 	int frameHeight = 80;
     
 	if (GeneralWxUtils::isMac()) {
-		frameWidth = 1092;
+		frameWidth = 1100;
 		frameHeight = 80;
 	} else if (GeneralWxUtils::isWindows()) {
 		frameWidth = 1200;
@@ -363,25 +405,6 @@ bool GdaApp::OnInit(void)
 
     wxPoint welcome_pos = appFramePos;
     welcome_pos.y += 150;
-    
-    // setup gdaldata directory for libprj
-    wxString exePath = wxStandardPaths::Get().GetExecutablePath();
-    wxFileName exeFile(exePath);
-    wxString exeDir = exeFile.GetPathWithSep();
-	// Set GEODA_GDAL_DATA 
-#ifdef __WIN32__
-	wxString gal_data_dir = exeDir + "data";
-	wxSetEnv("GEODA_GDAL_DATA", gal_data_dir);
-    //CPLSetConfigOption("GEODA_GDAL_DATA", GET_ENCODED_FILENAME(gal_data_dir));
-#elif defined __linux__
-	wxString gal_data_dir = exeDir + "gdaldata";
-	wxSetEnv("GEODA_GDAL_DATA", gal_data_dir);
-    CPLSetConfigOption("GEODA_GDAL_DATA", GET_ENCODED_FILENAME(gal_data_dir));
-#else
-	wxString gal_data_dir = exeDir + "../Resources/gdaldata";
-	wxSetEnv("GEODA_GDAL_DATA", gal_data_dir);
-    CPLSetConfigOption("GEODA_GDAL_DATA", GET_ENCODED_FILENAME(gal_data_dir));
-#endif
    
     // Setup new Logger after crash check
     wxString loggerFile = GenUtils::GetSamplesDir() +"logger.txt";
@@ -5062,12 +5085,29 @@ void GdaFrame::ChangeToEqualIntervals(int num_cats)
 void GdaFrame::OnOpenUniqueValues(wxCommandEvent& event)
 {
     wxLogMessage("In GdaFrame::OnOpenUniqueValues()");
-    bool show_str_var = true;
-	VariableSettingsDlg dlg(project_p, VariableSettingsDlg::univariate,
-                            // default values
-                            false, false, _("Variable Settings"), "", "","","",false, false, false,
-                            show_str_var);
+    UniqueValuesSettingDlg dlg(project_p);
 	if (dlg.ShowModal() != wxID_OK) return;
+    
+    wxString joincountSummary = dlg.GetSummary();
+    if (!joincountSummary.IsEmpty()) {
+        FramesManager* fm = project_p->GetFramesManager();
+        std::list<FramesManagerObserver*> observers(fm->getCopyObservers());
+        std::list<FramesManagerObserver*>::iterator it;
+        for (it=observers.begin(); it != observers.end(); ++it) {
+            if (SummaryDialog* w = dynamic_cast<SummaryDialog*>(*it)) {
+                w->AddNewReport(joincountSummary);
+                w->m_textbox->SetSelection(0, 0);
+                w->Show(true);
+                w->Raise();
+                return;
+            }
+        }
+        
+        SummaryDialog* summaryDlg = new SummaryDialog(this, project_p, joincountSummary, wxID_ANY, _("Join Count Ratio Summary"));
+        summaryDlg->Show(true);
+        summaryDlg->m_textbox->SetSelection(0, 0);
+    }
+    
     MapFrame* nf = new MapFrame(GdaFrame::gda_frame, project_p,
                                 dlg.var_info, dlg.col_ids,
                                 CatClassification::unique_values,
@@ -5094,6 +5134,25 @@ void GdaFrame::OnOpenColocationMap(wxCommandEvent& event)
     }
     
     ColocationSelectDlg* dlg = new ColocationSelectDlg(this, project_p);
+    dlg->Show(true);
+}
+
+void GdaFrame::OnOpenClusterMatchMap(wxCommandEvent& event)
+{
+    wxLogMessage("In GdaFrame::OnOpenClusterMatchMap()");
+    FramesManager* fm = project_p->GetFramesManager();
+    std::list<FramesManagerObserver*> observers(fm->getCopyObservers());
+    std::list<FramesManagerObserver*>::iterator it;
+    for (it=observers.begin(); it != observers.end(); ++it) {
+        if (ColocationSelectDlg* w = dynamic_cast<ColocationSelectDlg*>(*it)) {
+            w->Show(true);
+            w->Maximize(false);
+            w->Raise();
+            return;
+        }
+    }
+
+    ClusterMatchSelectDlg* dlg = new ClusterMatchSelectDlg(this, project_p);
     dlg->Show(true);
 }
 
@@ -7338,9 +7397,10 @@ BEGIN_EVENT_TABLE(GdaFrame, wxFrame)
     EVT_TOOL(XRCID("ID_OPEN_MAPANALYSIS_UNIQUE_VALUES"), GdaFrame::OnOpenUniqueValues)
     EVT_MENU(XRCID("ID_OPEN_MAPANALYSIS_UNIQUE_VALUES"), GdaFrame::OnOpenUniqueValues)
     EVT_MENU(XRCID("ID_MAPANALYSIS_UNIQUE_VALUES"), GdaFrame::OnUniqueValues)
-
     EVT_TOOL(XRCID("ID_OPEN_MAPANALYSIS_COLOCATION"), GdaFrame::OnOpenColocationMap)
     EVT_MENU(XRCID("ID_MAPANALYSIS_COLOCATION"), GdaFrame::OnOpenColocationMap)
+    EVT_TOOL(XRCID("ID_TOOLS_CLUSTER_MATCH_MAP"), GdaFrame::OnOpenClusterMatchMap)
+    EVT_MENU(XRCID("ID_TOOLS_CLUSTER_MATCH_MAP"), GdaFrame::OnOpenClusterMatchMap)
 
     EVT_MENU(XRCID("ID_COND_VERT_UNIQUE_VALUES"), GdaFrame::OnCondVertUniqueValues)
     EVT_MENU(XRCID("ID_COND_HORIZ_UNIQUE_VALUES"), GdaFrame::OnCondHorizUniqueValues)

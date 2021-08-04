@@ -1,0 +1,67 @@
+# This is a basic workflow to help you get started with Actions
+
+name: Ubuntu builds
+
+# Controls when the action will run. 
+on:
+  # Triggers the workflow on push or pull request events but only for the master branch
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # This workflow contains a single job called "build"
+  ubuntu_build:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+    if: "!contains(github.event.head_commit.message, '[ci skip]') && !contains(github.event.head_commit.message, '[skip ci]')"
+
+    strategy:
+      fail-fast: true
+      matrix:
+        distro:
+          - 'ubuntu:18.04'
+          - 'ubuntu:20.04'
+        include:
+          - distro: 'ubuntu:18.04'
+            pre: 'bionic'
+          - distro: 'ubuntu:20.04'
+            pre: 'focal'
+
+    env:
+      platform: ${{ matrix.distro }}
+      GEODA_VER: '1.18.2'
+      TARGET_OS: ${{ matrix.pre }}
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v2
+
+      # Prepare 
+      - name: Prepare on ${{ matrix.distro }}
+        run: |
+          chmod +x BuildTools/ubuntu/install.sh
+          mkdir -p o
+          chmod 644 o
+          echo ${{ env.TARGET_OS }}
+
+      # Build GeoDa
+      - name: Build GeoDa
+        run: docker run --privileged=true -e CI -e WORK_DIR="$PWD" -e OS=${{ env.TARGET_OS }} -e VER=${{ env.GEODA_VER }} -e APT="apt-get" -v $PWD:$PWD -v /var/run/docker.sock:/var/run/docker.sock ${{ matrix.distro }} $PWD/BuildTools/ubuntu/install.sh
+      
+      # Upload artifact
+      - uses: actions/upload-artifact@v2
+        with:
+          name: GeoDa-${{ env.GEODA_VER }}-${{ env.TARGET_OS }}
+          path: ${{ github.workspace }}/BuildTools/ubuntu/geoda_${{ env.GEODA_VER }}-1${{ env.TARGET_OS }}1_amd64.deb
+
+
+
+
+

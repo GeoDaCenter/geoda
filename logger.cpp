@@ -27,29 +27,29 @@ logger_t::logger_t()
 bool logger_t::is_activated = true;
 
 #if defined(TLOG)
-std::auto_ptr<std::ostream> logger_t::outstream_helper_ptr
-= std::auto_ptr<std::ostream>( new NullStream );
+std::unique_ptr<std::ostream> logger_t::outstream_helper_ptr
+= std::unique_ptr<std::ostream>( new NullStream );
 std::ostream * logger_t::outstream = &std::cout;
 
 #elif defined (ETLOG)
-std::auto_ptr<std::ostream> logger_t::outstream_helper_ptr
-= std::auto_ptr <std::ostream>( new NullStream );
+std::unique_ptr<std::ostream> logger_t::outstream_helper_ptr
+= std::unique_ptr <std::ostream>( new NullStream );
 std::ostream * logger_t::outstream = &std::cerr;
 
 #elif defined (FTLOG)
-//std::auto_ptr <std::ostream> logger_t::outstream_helper_ptr
-//= std::auto_ptr<std::ostream>( new std::ofstream ("oldlogger.txt"));
+//std::unique_ptr <std::ostream> logger_t::outstream_helper_ptr
+//= std::unique_ptr<std::ostream>( new std::ofstream ("oldlogger.txt"));
 //std::ostream * logger_t::outstream = outstream_helper_ptr.get();
-std::auto_ptr<std::ostream> logger_t::outstream_helper_ptr
-= std::auto_ptr <std::ostream>( new NullStream );
+std::unique_ptr<std::ostream> logger_t::outstream_helper_ptr
+= std::unique_ptr <std::ostream>( new NullStream );
 std::ostream * logger_t::outstream = &std::cout;
 
 // here is a place for user defined output stream
 // and compiler flag
 
 #else
-std::auto_ptr<std::ostream> logger_t::outstream_helper_ptr
-= std::auto_ptr<std::ostream>( new NullStream );
+std::unique_ptr<std::ostream> logger_t::outstream_helper_ptr
+= std::unique_ptr<std::ostream>( new NullStream );
 std::ostream* logger_t::outstream = outstream_helper_ptr.get();
 #endif
 

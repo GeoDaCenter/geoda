@@ -49,7 +49,7 @@ double GwtElement::SpatialLag(const std::vector<double>& x,
     // NOTE: not used, please see GalElement::SpatialLag
 	double lag= 0;
 	int cnt = 0;
-	for (cnt= Size() - 1; cnt >= 0; cnt--) {
+	for (cnt= (int)Size() - 1; cnt >= 0; cnt--) {
 		//lag += data[cnt].weight * x[ data[cnt].nbx ];
 		lag += x[ data[cnt].nbx ];
 	}
@@ -61,7 +61,7 @@ double GwtElement::SpatialLag(const double *x, const bool std) const  {
     // NOTE: not used, please see GalElement::SpatialLag
 	double    lag= 0;
 	int cnt = 0;
-	for (cnt= Size() - 1; cnt >= 0; cnt--) {
+	for (cnt= (int)Size() - 1; cnt >= 0; cnt--) {
 		//lag += data[cnt].weight * x[ data[cnt].nbx ];
 		lag += x[ data[cnt].nbx ];
 	}
@@ -94,7 +94,7 @@ void GwtWeight::Update(const std::vector<bool>& undefs)
     
 }
 
-const std::vector<long> GwtWeight::GetNeighbors(int obs_idx)
+const std::vector<long> GwtWeight::GetNeighbors(int obs_idx) const
 {
     return gwt[obs_idx].GetNbrs();
 }

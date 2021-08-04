@@ -26,6 +26,7 @@
 #include <wx/xrc/xmlres.h>
 #include <wx/colour.h>
 
+#include "FramesManagerObserver.h"
 #include "DialogTools/VariableSettingsDlg.h"
 
 class Project;
@@ -74,10 +75,10 @@ public:
     : wxTextCtrl(parent, id, value, pos, size, style, validator, name)
     {
         if (GeneralWxUtils::isWindows()) {
-            wxFont font(8,wxFONTFAMILY_TELETYPE,wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL);
+            wxFont font(8,wxFONTFAMILY_TELETYPE, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL);
             SetFont(font);
         } else {
-            wxFont font(12,wxFONTFAMILY_TELETYPE,wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL);
+            wxFont font(12,wxFONTFAMILY_TELETYPE, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL);
             SetFont(font);
         }
     }
@@ -85,6 +86,36 @@ protected:
     void OnContextMenu(wxContextMenuEvent& event);
     void OnSaveClick( wxCommandEvent& event );
     DECLARE_EVENT_TABLE()
+};
+
+class SummaryDialog : public wxFrame, public FramesManagerObserver
+{
+    DECLARE_EVENT_TABLE()
+
+public:
+    SummaryDialog() {}
+    SummaryDialog(wxWindow* parent, Project* project, wxString showText,
+        wxWindowID id = wxID_ANY,
+        const wxString& caption = _("Summary"),
+        const wxPoint& pos = wxDefaultPosition,
+        const wxSize& size = wxSize(680, 480),
+        long style = wxCAPTION|wxRESIZE_BORDER|wxSYSTEM_MENU|wxCLOSE_BOX);
+    virtual ~SummaryDialog();
+    
+    /** Implementation of FramesManagerObserver interface */
+    virtual void update(FramesManager* o);
+    
+    void CreateControls();
+    void OnClose(wxCloseEvent& event);
+    void AddNewReport(const wxString report);
+    void SetReport(const wxString report);
+    void OnSaveClick( wxCommandEvent& event );
+    
+    SimpleReportTextCtrl* m_textbox;
+    wxString results;
+    
+private:
+    FramesManager* frames_manager;
 };
 
 class ScrolledDetailMsgDialog : public wxDialog

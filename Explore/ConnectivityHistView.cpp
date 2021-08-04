@@ -143,7 +143,7 @@ void ConnectivityHistCanvas::SetCheckMarks(wxMenu* menu)
 void ConnectivityHistCanvas::DetermineMouseHoverObjects(wxPoint pt)
 {
 	total_hover_obs = 0;
-	for (int i=0, iend=selectable_shps.size(); i<iend; i++) {
+	for (int i=0; i< (int)selectable_shps.size(); i++) {
 		if (selectable_shps[i]->pointWithin(pt)) {
 			hover_obs[total_hover_obs++] = i;
 			if (total_hover_obs == max_hover_obs) break;
@@ -159,7 +159,7 @@ void ConnectivityHistCanvas::UpdateSelection(bool shiftdown, bool pointsel)
 	
 	std::vector<bool>& hs = highlight_state->GetHighlight();
     bool selection_changed = false;
-	int total_sel_shps = selectable_shps.size();
+	int total_sel_shps = (int)selectable_shps.size();
 	
 	wxPoint lower_left;
 	wxPoint upper_right;
@@ -241,7 +241,7 @@ void ConnectivityHistCanvas::UpdateSelection(bool shiftdown, bool pointsel)
 
 void ConnectivityHistCanvas::DrawSelectableShapes(wxMemoryDC &dc)
 {
-	for (int i=0, iend=selectable_shps.size(); i<iend; i++) {
+	for (int i=0; i<(int)selectable_shps.size(); i++) {
 		if (ival_obs_cnt[i] == 0) continue;
 		selectable_shps[i]->paintSelf(dc);
 	}
@@ -249,7 +249,7 @@ void ConnectivityHistCanvas::DrawSelectableShapes(wxMemoryDC &dc)
 
 void ConnectivityHistCanvas::DrawHighlightedShapes(wxMemoryDC &dc)
 {
-	for (int i=0, iend=selectable_shps.size(); i<iend; i++) {
+	for (int i=0; i<(int)selectable_shps.size(); i++) {
 		if (ival_obs_sel_cnt[i] == 0) continue;
 		double s = (((double) ival_obs_sel_cnt[i]) /
 					((double) ival_obs_cnt[i]));
@@ -339,6 +339,7 @@ void ConnectivityHistCanvas::PopulateCanvas()
 		axis_scale_x.tics.resize(axis_scale_x.ticks);
 		axis_scale_x.tics_str.resize(axis_scale_x.ticks);
 		axis_scale_x.tics_str_show.resize(axis_scale_x.tics_str.size());
+
 		for (int i=0; i<axis_scale_x.ticks; i++) {
 			axis_scale_x.tics[i] = axis_scale_x.data_min + range*((double) i)/((double) axis_scale_x.ticks-1);
 			std::ostringstream ss;
@@ -346,13 +347,60 @@ void ConnectivityHistCanvas::PopulateCanvas()
 			axis_scale_x.tics_str[i] = ss.str();
 			axis_scale_x.tics_str_show[i] = false;
 		}
-		int tick_freq = ceil(((double) cur_intervals)/10.0);
+		int tick_freq = ceil(((double) cur_intervals)/40.0);
 		for (int i=0; i<axis_scale_x.ticks; i++) {
 			if (i % tick_freq == 0) {
-				axis_scale_x.tics_str_show[i] = true;
+				axis_scale_x.tics_str_show[i] = false;
 			}
 		}
-		axis_scale_x.tic_inc = axis_scale_x.tics[1]-axis_scale_x.tics[0];
+		axis_scale_x.tic_inc = axis_scale_x.tics[1] - axis_scale_x.tics[0];
+
+        // draw axis-x
+        // orig_x_pos is the center of each histogram bar
+        std::vector<double> orig_x_pos(cur_intervals);
+        std::vector<double> orig_x_pos_left(cur_intervals);
+        std::vector<double> orig_x_pos_right(cur_intervals);
+
+        for (int i=0; i<cur_intervals; i++) {
+            double xc = left_pad_const + interval_width_const/2.0 + i * (interval_width_const + interval_gap_const);
+            double x0 = xc - interval_width_const/2.0;
+            double x1 = xc + interval_width_const/2.0;
+            orig_x_pos[i] = xc;
+            orig_x_pos_left[i] = x0;
+            orig_x_pos_right[i] = x1;
+        }
+
+        for (int i=0; i<cur_intervals; i++) {
+            double x0 = orig_x_pos_left[i];
+            double x1 = orig_x_pos_right[i];
+            double y0 = 0;
+            //double y00 = -0.23;// -y_max / 100.0;
+
+            //GdaPolyLine* xline = new GdaPolyLine(x0, y0, x1, y0);
+            //xline->setNudge(0, 10);
+            //foreground_shps.push_back(xline);
+
+            //double x2 = (x0 + x1) / 2.0;
+            //GdaPolyLine* xdline = new GdaPolyLine(x2, y0, x2, y00);
+            //xdline->setNudge(0, 10);
+            //foreground_shps.push_back(xdline);
+
+            if (i<cur_intervals && (i % tick_freq == 0)) {
+                double val = axis_scale_x.data_min + range*((double) i)/((double) axis_scale_x.ticks-1);
+
+                GdaShapeText* brk =
+                    new GdaShapeText(GenUtils::DblToStr(val,
+                                                        axis_display_precision,
+                                                        axis_display_fixed_point),
+                                     *GdaConst::small_font,
+                                     wxRealPoint(x0 /2.0 + x1 /2.0, y0), 0,
+                                     GdaShapeText::h_center,
+                                     GdaShapeText::v_center, 0, 25);
+
+                foreground_shps.push_back(brk);
+            }
+        }
+
 		x_axis = new GdaAxis(_("Number of Neighbors"), axis_scale_x, wxRealPoint(0,0), wxRealPoint(x_max, 0), 0, 9);
 		foreground_shps.push_back(x_axis);
 	}
@@ -363,7 +411,7 @@ void ConnectivityHistCanvas::PopulateCanvas()
 		if (num_isolates > 1) {
             msg = wxString::Format(_("Warning: %d observations are neighborless."), num_isolates);
 		} else {
-            msg = wxString::Format(_("Warning: %d observations is neighborless."), num_isolates);
+            msg = wxString::Format(_("Warning: %d observation is neighborless."), num_isolates);
 		}
         s = new GdaShapeText(msg, *GdaConst::small_font,
                              wxRealPoint(((double) x_max)/2.0, y_max),
@@ -471,11 +519,11 @@ void ConnectivityHistCanvas::PopulateCanvas()
 	for (int i=0; i<cur_intervals; i++) {
 		double x0 = orig_x_pos[i] - interval_width_const/2.0;
 		double x1 = orig_x_pos[i] + interval_width_const/2.0;
-		double y0 = 0;
+		//double y0 = 0;
 		double y1 = ival_obs_cnt[i];
 		selectable_shps[i] = new GdaRectangle(wxRealPoint(x0, 0),
 											 wxRealPoint(x1, y1));
-		int sz = GdaConst::qualitative_colors.size();
+		int sz = (int)GdaConst::qualitative_colors.size();
 		selectable_shps[i]->setPen(GdaConst::qualitative_colors[i%sz]);
 		selectable_shps[i]->setBrush(GdaConst::qualitative_colors[i%sz]);
 	}
@@ -531,14 +579,14 @@ void ConnectivityHistCanvas::SaveConnectivityToTable()
 	data[0].type = GdaConst::long64_type;
 	
 	SaveToTableDlg dlg(project, this, data,
-					   "Save Connectivity to Table",
+					   _("Save Connectivity to Table"),
 					   wxDefaultPosition, wxSize(400,400));
 	dlg.ShowModal();
 }
 
 void ConnectivityHistCanvas::HistogramIntervals()
 {
-	HistIntervalDlg dlg(1, cur_intervals, max_intervals, this);
+	HistIntervalDlg dlg(1, cur_intervals, cur_intervals, this);
 	if (dlg.ShowModal () != wxID_OK) return;
 	if (cur_intervals == dlg.num_intervals) return;
 	cur_intervals = dlg.num_intervals;
@@ -573,12 +621,12 @@ void ConnectivityHistCanvas::InitData()
 		range = 1;
 		default_intervals = 1;
 	} else {
-		default_intervals = std::min(MAX_INTERVALS, range+1);
+		default_intervals = range+1;
 	}
 	
 	obs_id_to_ival.resize(num_obs);
-	max_intervals = std::min(MAX_INTERVALS, num_obs);
-	cur_intervals = std::min(max_intervals, default_intervals);
+	max_intervals = range+1;
+	cur_intervals = min_connectivity == max_connectivity ? 1 : range+1;
 }
 
 /** based on cur_intervals, calculate interval breaks and populate
