@@ -751,7 +751,6 @@ void SelectWeightsIdDialog::OnIdVariableSelected(wxCommandEvent& evt)
 
 BEGIN_EVENT_TABLE( SummaryDialog, wxFrame)
     EVT_CLOSE( SummaryDialog::OnClose )
-    EVT_MOUSE_EVENTS(SummaryDialog::OnMouseEvent)
 END_EVENT_TABLE()
 
 SummaryDialog::~SummaryDialog( )

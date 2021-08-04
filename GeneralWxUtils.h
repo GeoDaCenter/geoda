@@ -109,7 +109,6 @@ public:
     void OnClose(wxCloseEvent& event);
     void AddNewReport(const wxString report);
     void SetReport(const wxString report);
-    void OnSaveClick( wxCommandEvent& event );
     
     SimpleReportTextCtrl* m_textbox;
     wxString results;
