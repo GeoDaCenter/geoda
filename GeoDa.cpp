@@ -98,7 +98,6 @@
 #include "DialogTools/RegressionReportDlg.h"
 #include "DialogTools/LisaWhat2OpenDlg.h"
 #include "DialogTools/RegressionDlg.h"
-#include "DialogTools/RegressionReportDlg.h"
 #include "DialogTools/ProgressDlg.h"
 #include "DialogTools/GetisOrdChoiceDlg.h"
 #include "DialogTools/ConnectDatasourceDlg.h"
@@ -5091,6 +5090,19 @@ void GdaFrame::OnOpenUniqueValues(wxCommandEvent& event)
     
     wxString joincountSummary = dlg.GetSummary();
     if (!joincountSummary.IsEmpty()) {
+        FramesManager* fm = project_p->GetFramesManager();
+        std::list<FramesManagerObserver*> observers(fm->getCopyObservers());
+        std::list<FramesManagerObserver*>::iterator it;
+        for (it=observers.begin(); it != observers.end(); ++it) {
+            if (SummaryDialog* w = dynamic_cast<SummaryDialog*>(*it)) {
+                w->AddNewReport(joincountSummary);
+                w->m_textbox->SetSelection(0, 0);
+                w->Show(true);
+                w->Raise();
+                return;
+            }
+        }
+        
         SummaryDialog* summaryDlg = new SummaryDialog(this, project_p, joincountSummary, wxID_ANY, _("Join Count Ratio Summary"));
         summaryDlg->Show(true);
         summaryDlg->m_textbox->SetSelection(0, 0);
