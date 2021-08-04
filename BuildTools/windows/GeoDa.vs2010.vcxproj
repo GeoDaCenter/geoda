@@ -321,6 +321,7 @@
     <ClCompile Include="..\..\Algorithms\gpu_lisa.cpp" />
     <ClCompile Include="..\..\Algorithms\hdbscan.cpp" />
     <ClCompile Include="..\..\Algorithms\jacobi.c" />
+    <ClCompile Include="..\..\Algorithms\joincount_ratio.cpp" />
     <ClCompile Include="..\..\Algorithms\lapacke.c" />
     <ClCompile Include="..\..\Algorithms\linpack_lite.c" />
     <ClCompile Include="..\..\Algorithms\loess.c" />
@@ -476,6 +477,7 @@
     <ClInclude Include="..\..\Algorithms\fastcluster.h" />
     <ClInclude Include="..\..\Algorithms\gpu_lisa.h" />
     <ClInclude Include="..\..\Algorithms\hdbscan.h" />
+    <ClInclude Include="..\..\Algorithms\joincount_ratio.h" />
     <ClInclude Include="..\..\Algorithms\loess.h" />
     <ClInclude Include="..\..\Algorithms\maxp.h" />
     <ClInclude Include="..\..\Algorithms\mds.h" />

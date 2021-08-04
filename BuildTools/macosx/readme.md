@@ -1,3 +1,47 @@
+**Build instructions**
+
+Please see .github/workflows/osx_build.yml
+
+files:
+
+- install.sh
+- notarize-app.sh
+- install_name.py
+- code_sign.py
+
+(NOTE: other files are not used anymore)
+
+***On x86_64 MacOS***
+
+See install.sh
+
+***On Arm64 MacOS***
+
+See install.sh
+
+NOTE: there is a bug to create a dmg installer on Apple M1 machine. However,
+ one can do it on a X86_64 machine by copying the build/GeoDa.app.
+
+***CodeSign***
+
+Please use `Developer ID Application: Geodapress LLC (26M5NG43GP)` to codesign this app (see developer.apple.com). 
+
+- `install_name.py` is used to call install_name_tool to use relative path  `@executable_path/.../Frameworks` of all dependent .so files for included dynamic libraries, and then codesign them.
+
+- `code_sign.py` is a helper file to automatically codesign the dynamic library (.so) file and its dependent libraries on your machine. You can use it when Xcode reports issues of unsigned dynamic libraries.
+
+***Notarization***
+
+See `notarize-app.sh`
+
+Please create a developer account with the permission to do notarization first.
+
+- `xcrun altool --notarize-app` to request notarization.
+- `xcrun altool --notarization-info` to check status.
+- `xcrun stapler staple` to staple notarization with the dmg file.
+
+**OLD INSTRUCTIONS**
+
 *****************************************************************
 Build Instructions for GeoDa.  Current as of GeoDa 1.8.x
 *****************************************************************

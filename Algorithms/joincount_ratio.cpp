@@ -1,3 +1,4 @@
+#include <map>
 #include <boost/unordered_map.hpp>
 
 #include "joincount_ratio.h"
