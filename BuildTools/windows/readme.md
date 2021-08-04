@@ -1,3 +1,18 @@
+**Build instructions**
+
+Please see .github/workflows/windows_build.yml
+
+files:
+
+- GeoDa.vs2019.sln
+- GeoDa.vs2019.vcxproj
+- build.bat (used to setup local dev env)
+
+(NOTE: other files are not used anymore)
+
+
+**OLD instructions**
+
 *****************************************************************
 Build Instructions for GeoDa.  Current as of GeoDa 1.8.x
 *****************************************************************

@@ -1,3 +1,20 @@
+**Build instructions**
+
+Please see .github/workflows/ubuntu1804_build.yml
+
+files:
+
+- build_bionic.sh
+- build_travis.sh
+- build_disco.sh
+- build_xenial.sh
+- create_deb.sh
+
+(NOTE: other files are not used anymore)
+
+
+**OLD instructions**
+
 *****************************************************************
 Build Instructions for GeoDa.  Current as of GeoDa 1.8.x 
 *****************************************************************
