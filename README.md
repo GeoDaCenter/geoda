@@ -1,6 +1,6 @@
-[![Mac OSX builds](https://github.com/lixun910/geoda/actions/workflows/osx_build.yml/badge.svg)](https://github.com/lixun910/geoda/actions/workflows/osx_build.yml)
-[![Ubuntu builds](https://github.com/lixun910/geoda/actions/workflows/ubuntu1804_build.yml/badge.svg)](https://github.com/lixun910/geoda/actions/workflows/ubuntu1804_build.yml)
-[![Windows builds](https://github.com/lixun910/geoda/actions/workflows/windows_build.yml/badge.svg)](https://github.com/lixun910/geoda/actions/workflows/windows_build.yml)
+[![Mac OSX builds](https://github.com/geodacenter/geoda/actions/workflows/osx_build.yml/badge.svg)](https://github.com/geodacenter/geoda/actions/workflows/osx_build.yml)
+[![Ubuntu builds](https://github.com/geodacenter/geoda/actions/workflows/ubuntu1804_build.yml/badge.svg)](https://github.com/geodacenter/geoda/actions/workflows/ubuntu1804_build.yml)
+[![Windows builds](https://github.com/geodacenter/geoda/actions/workflows/windows_build.yml/badge.svg)](https://github.com/geodacenter/geoda/actions/workflows/windows_build.yml)
 
 # Acknowledgements #
 
