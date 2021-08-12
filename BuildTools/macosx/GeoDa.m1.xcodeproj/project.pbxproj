@@ -58,6 +58,7 @@
 		A1AC05BF1C8645F300B6FE5F /* AdjustYAxisDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A1AC05BD1C8645F300B6FE5F /* AdjustYAxisDlg.cpp */; };
 		A1B13EE31C3EDFF90064AD87 /* BasemapConfDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A1B13EE21C3EDFF90064AD87 /* BasemapConfDlg.cpp */; };
 		A1B93AC017D18735007F8195 /* ProjectConf.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A1B93ABF17D18735007F8195 /* ProjectConf.cpp */; };
+		A1BA827326C342A7008E1E2A /* spatial_kmeans.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A1BA827126C342A7008E1E2A /* spatial_kmeans.cpp */; };
 		A1BE9E51174DD85F007B9C64 /* GdaAppResources.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A1BE9E4F174DD85F007B9C64 /* GdaAppResources.cpp */; };
 		A1C9F3ED18B55EE000E14394 /* FieldNameCorrectionDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A1C9F3EC18B55EE000E14394 /* FieldNameCorrectionDlg.cpp */; };
 		A1CE3D331C1A427A0010F170 /* PublishDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A1CE3D311C1A427A0010F170 /* PublishDlg.cpp */; };
@@ -437,6 +438,8 @@
 		A1B13EE21C3EDFF90064AD87 /* BasemapConfDlg.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = BasemapConfDlg.cpp; sourceTree = "<group>"; };
 		A1B93ABE17D18735007F8195 /* ProjectConf.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ProjectConf.h; sourceTree = "<group>"; };
 		A1B93ABF17D18735007F8195 /* ProjectConf.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ProjectConf.cpp; sourceTree = "<group>"; };
+		A1BA827126C342A7008E1E2A /* spatial_kmeans.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = spatial_kmeans.cpp; path = Algorithms/spatial_kmeans.cpp; sourceTree = "<group>"; };
+		A1BA827226C342A7008E1E2A /* spatial_kmeans.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = spatial_kmeans.h; path = Algorithms/spatial_kmeans.h; sourceTree = "<group>"; };
 		A1BE9E4F174DD85F007B9C64 /* GdaAppResources.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GdaAppResources.cpp; sourceTree = "<group>"; };
 		A1C9F3EB18B55EE000E14394 /* FieldNameCorrectionDlg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FieldNameCorrectionDlg.h; sourceTree = "<group>"; };
 		A1C9F3EC18B55EE000E14394 /* FieldNameCorrectionDlg.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FieldNameCorrectionDlg.cpp; sourceTree = "<group>"; };
@@ -1033,6 +1036,8 @@
 		A45DBDEF1EDDDD2600C2AA8A /* Algorithms */ = {
 			isa = PBXGroup;
 			children = (
+				A1BA827126C342A7008E1E2A /* spatial_kmeans.cpp */,
+				A1BA827226C342A7008E1E2A /* spatial_kmeans.h */,
 				A1648F2326AA000E00D0E191 /* joincount_ratio.cpp */,
 				A1648F2426AA000E00D0E191 /* joincount_ratio.h */,
 				A4B85A7024F6FF9C00748B92 /* azp.cpp */,
@@ -1951,6 +1956,7 @@
 				DD7976F30F1D2D3100496A84 /* Randik.cpp in Sources */,
 				A46099A62416E41B000A53E2 /* loessf.c in Sources */,
 				DD64A2880F20FE06006B1E6D /* GeneralWxUtils.cpp in Sources */,
+				A1BA827326C342A7008E1E2A /* spatial_kmeans.cpp in Sources */,
 				A438249A24775CB90001497D /* pam.cpp in Sources */,
 				DD64A5580F2910D2006B1E6D /* logger.cpp in Sources */,
 				DD27ECBC0F2E43B5009C5C42 /* GenUtils.cpp in Sources */,

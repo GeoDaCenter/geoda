@@ -39,11 +39,13 @@
 #include <wx/checkbox.h>
 #include <wx/choice.h>
 
+#include "../VarCalc/WeightsManInterface.h"
 #include "../ShapeOperations/OGRDataAdapter.h"
 #include "../Explore/MapNewView.h"
 #include "../Project.h"
 #include "../Algorithms/cluster.h"
 #include "../Algorithms/pam.h"
+#include "../Algorithms/spatial_kmeans.h"
 #include "../GeneralWxUtils.h"
 #include "../GenUtils.h"
 #include "SaveToTableDlg.h"
@@ -494,6 +496,19 @@ void KClusterDlg::OnOK(wxCommandEvent& event )
     }
     std::sort(cluster_ids.begin(), cluster_ids.end(), GenUtils::less_vectors);
 
+    // Test Spatial KMeans
+    std::vector<boost::uuids::uuid> weights_ids;
+    WeightsManInterface* w_man_int = project->GetWManInt();
+    w_man_int->GetIds(weights_ids);
+    boost::uuids::uuid w_id = weights_ids[0];
+    GalWeight* gal = w_man_int->GetGal(w_id);
+    GeoDaWeight* gdw = (GeoDaWeight*)gal;
+    
+    SpatialKMeans skm(rows, cluster_ids, gdw);
+    skm.Run();
+    cluster_ids = skm.GetClusters();
+    
+    
     for (int i=0; i < n_cluster; i++) {
         int c = i + 1;
         for (int j=0; j<cluster_ids[i].size(); j++) {
@@ -501,7 +516,7 @@ void KClusterDlg::OnOK(wxCommandEvent& event )
             clusters[idx] = c;
         }
     }
-
+    
     // summary
     CreateSummary(cluster_ids);
     
@@ -1284,7 +1299,6 @@ vector<vector<double> > KMedoidsDlg::_getMeanCenters(
         medoids_dict[medoid_ids[i]] = 0;
     }
     std::vector<int> ordered_medoids;
-    std::vector<int>::iterator it;
     for (int i=0; i<solutions.size(); ++i) {
         for (int j=0; j<solutions[i].size(); ++j) {
             int idx = solutions[i][j];
