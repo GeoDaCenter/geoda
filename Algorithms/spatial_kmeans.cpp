@@ -23,7 +23,7 @@ SpatialKMeansComponent::SpatialKMeansComponent(int cid, const std::vector<int>& 
         boost::unordered_map<long ,bool> nbr_dict;
         for (int i = 0; i < (int)nbrs.size(); ++i) {
             if (elements[0] != (int)nbrs[i]) {
-                nbr_dict[cluster_dict[nbrs[i]]] = true;
+                nbr_dict[cluster_dict[(int)nbrs[i]]] = true;
             }
         }
         isSurroundedSingleton = nbr_dict.size() == 1;

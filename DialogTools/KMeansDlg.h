@@ -102,6 +102,24 @@ protected:
 
 ////////////////////////////////////////////////////////////////////////
 //
+// SpatialKMeansDlg
+////////////////////////////////////////////////////////////////////////
+
+class SpatialKMeansDlg : public KClusterDlg
+{
+public:
+    SpatialKMeansDlg(wxFrame *parent, Project* project);
+    virtual ~SpatialKMeansDlg();
+    
+    virtual void CreateControls();
+    
+    virtual void doRun(int s1, int ncluster, int npass, int n_maxiter, int meth_sel, int dist_sel, double min_bound, double* bound_vals);
+    
+    void OnOK( wxCommandEvent& event );
+};
+
+////////////////////////////////////////////////////////////////////////
+//
 // KMeansDlg
 ////////////////////////////////////////////////////////////////////////
 

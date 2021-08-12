@@ -465,6 +465,9 @@
         <object class="wxMenuItem" name="ID_TOOLS_DATA_REDCAP">
             <label>redcap</label>
         </object>
+        <object class="wxMenuItem" name="ID_TOOLS_DATA_SCKMEANS">
+            <label>SC K Means</label>
+        </object>
         <object class="separator"/>
         <object class="wxMenuItem" name="ID_TOOLS_DATA_AZP">
             <label>AZP</label>
@@ -6145,6 +6148,9 @@
       </object>
       <object class="wxMenuItem" name="ID_TOOLS_DATA_REDCAP">
           <label>redcap</label>
+      </object>
+      <object class="wxMenuItem" name="ID_TOOLS_DATA_SCKMEANS">
+          <label>SC K Means</label>
       </object>
       <object class="separator"/>
       <object class="wxMenuItem" name="ID_TOOLS_DATA_AZP">

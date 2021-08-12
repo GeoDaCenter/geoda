@@ -170,6 +170,7 @@ public:
     void OnToolsDataSCHC(wxCommandEvent& event);
     void OnToolsDataSpectral(wxCommandEvent& event);
     void OnToolsDataRedcap(wxCommandEvent& event);
+    void OnToolsDataSCKMEANS(wxCommandEvent& event);
     void OnToolsDataMDS(wxCommandEvent& event);
     void OnToolsDataTSNE(wxCommandEvent& event);
     
