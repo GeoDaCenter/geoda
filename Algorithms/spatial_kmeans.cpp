@@ -45,8 +45,6 @@ bool SpatialKMeansComponent::Has(int eid)
 
 void SpatialKMeansComponent::Merge(SpatialKMeansComponent *comp)
 {
-    // only for the case of core:  a component from another cluster
-    // is merged into this core component
     std::vector<int> new_elements = comp->GetElements();
     for (int i = 0; i < (int)new_elements.size(); ++i) {
         this->elements.push_back(new_elements[i]);
@@ -223,10 +221,14 @@ void SpatialKMeansCluster::MergeComponent(SpatialKMeansComponent* from, SpatialK
 void SpatialKMeansCluster::RemoveComponent(SpatialKMeansComponent *comp)
 {
     // update lookup table first
-    std::vector<int> removed_elements = comp->GetElements();
-    for (int i = 0; i < (int)removed_elements.size(); ++i) {
-        int eid = removed_elements[i];
-        component_dict.erase(eid);
+    if (comp->GetClusterId() != this->cid) {
+        // There is no need to erase elements from lookup dict if the componenet is removed
+        // from the same cluster that it has been merged into
+        std::vector<int> removed_elements = comp->GetElements();
+        for (int i = 0; i < (int)removed_elements.size(); ++i) {
+            int eid = removed_elements[i];
+            component_dict.erase(eid);
+        }
     }
     
     // component has been merged to another component and will be removed from memory!
@@ -353,12 +355,14 @@ void SpatialKMeans::MoveComponent(SpatialKMeansComponent *comp)
         std::vector<long> nbrs = weights->GetNeighbors(eid);
         for (int j = 0; j < (int)nbrs.size(); ++j) {
             int nbr = (int)nbrs[j];
-            int target = this->cluster_dict[nbr];
-            // no need "to != from" since the component could be merged to the core
-            SpatialKMeansComponent* to = sk_clusters[target]->GetComponent(nbr);
-            if (to!=NULL && to->GetSize() > largest_size) {
-                best_to = to;
-                largest_size = to->GetSize();
+            if (!comp->Has(nbr)) {
+                int target = this->cluster_dict[nbr];
+                // no need "to != from" since the component could be merged to the core
+                SpatialKMeansComponent* to = sk_clusters[target]->GetComponent(nbr);
+                if (to!= NULL && to != comp && to->GetSize() > largest_size) {
+                    best_to = to;
+                    largest_size = to->GetSize();
+                }
             }
         }
     }
@@ -366,7 +370,8 @@ void SpatialKMeans::MoveComponent(SpatialKMeansComponent *comp)
     if (best_to != 0) {
         UpdateComponent(comp, best_to);
     } else {
-        std::cout << "Can't move component" << std::endl;
+        //std::cout << "Can't move component" << std::endl;
+        valid = false;
     }
 }
 
@@ -398,6 +403,7 @@ std::vector<std::vector<int> > SpatialKMeans::GetClusters()
     }
     
     if (total_core_obs != num_obs) {
+        valid = false;
         return this->clusters;
     }
     

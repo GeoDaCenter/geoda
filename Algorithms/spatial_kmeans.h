@@ -109,6 +109,8 @@ public:
     
     std::vector<std::vector<int> > GetClusters();
     
+    bool IsValid() { return valid; }
+    
 protected:
     void UpdateComponent(SpatialKMeansComponent* moved_comp,
                          SpatialKMeansComponent* target);
