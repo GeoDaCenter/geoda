@@ -1524,7 +1524,7 @@ SpatialKMeansDlg::SpatialKMeansDlg(wxFrame *parent, Project* project)
     show_initmethod = true;
     show_distance = true;
     show_iteration = true;
-    cluster_method = "KMeans";
+    cluster_method = "SC KMeans";
     
     CreateControls();
     m_distance->Disable();
@@ -1811,4 +1811,34 @@ void SpatialKMeansDlg::CreateControls()
     seedButton->Bind(wxEVT_BUTTON, &KClusterDlg::OnChangeSeed, this);
     combo_method->Bind(wxEVT_CHOICE, &KClusterDlg::OnInitMethodChoice, this);
     m_distance->Bind(wxEVT_CHOICE, &KClusterDlg::OnDistanceChoice, this);
+}
+
+wxString SpatialKMeansDlg::_printConfiguration()
+{
+    int ncluster = 0;
+    wxString str_ncluster = combo_n->GetValue();
+    long value_ncluster;
+    if (str_ncluster.ToLong(&value_ncluster)) {
+        ncluster = (int)value_ncluster;
+    }
+    
+    wxString txt;
+    txt << _("Method:\t") << cluster_method << "\n";
+    txt << _("Number of clusters:\t") << ncluster << "\n";
+    txt << _("Weights:") << "\t" << m_spatial_weights->GetString(m_spatial_weights->GetSelection()) << "\n";
+    txt << _("Initialization method:\t") << combo_method->GetString(combo_method->GetSelection()) << "\n";
+    txt << _("Initialization re-runs:\t") << m_pass->GetValue() << "\n";
+    txt << _("Maximum iterations:\t") << m_iterations->GetValue() << "\n";
+    
+    if (chk_floor && chk_floor->IsChecked()) {
+        int idx = combo_floor->GetSelection();
+        wxString nm = name_to_nm[combo_floor->GetString(idx)];
+        txt << _("Minimum bound:\t") << txt_floor->GetValue() << "(" << nm << ")" << "\n";
+    }
+    
+    txt << _("Transformation:\t") << combo_tranform->GetString(combo_tranform->GetSelection()) << "\n";
+   
+    txt << _("Distance function:\t") << m_distance->GetString(m_distance->GetSelection()) << "\n";
+    
+    return txt;
 }
