@@ -62,6 +62,7 @@
 		A1BE9E51174DD85F007B9C64 /* GdaAppResources.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A1BE9E4F174DD85F007B9C64 /* GdaAppResources.cpp */; };
 		A1C9F3ED18B55EE000E14394 /* FieldNameCorrectionDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A1C9F3EC18B55EE000E14394 /* FieldNameCorrectionDlg.cpp */; };
 		A1CE3D331C1A427A0010F170 /* PublishDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A1CE3D311C1A427A0010F170 /* PublishDlg.cpp */; };
+		A1D0081A26CF0ADB0058E3C7 /* spatial_validation.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A1D0081826CF0ADB0058E3C7 /* spatial_validation.cpp */; };
 		A1D82DEF174D3EB6003DE20A /* ConnectDatasourceDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A1D82DEE174D3EB6003DE20A /* ConnectDatasourceDlg.cpp */; };
 		A1DA623A17BCBC070070CAAB /* AutoCompTextCtrl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A1DA623817BCBC070070CAAB /* AutoCompTextCtrl.cpp */; };
 		A1DDBC41262A87E400116D5B /* localjc_kernel.cl in Resources */ = {isa = PBXBuildFile; fileRef = A4E00F0F20FD8ECC0038BA80 /* localjc_kernel.cl */; };
@@ -446,6 +447,8 @@
 		A1CE3D311C1A427A0010F170 /* PublishDlg.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PublishDlg.cpp; sourceTree = "<group>"; };
 		A1CE3D321C1A427A0010F170 /* PublishDlg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PublishDlg.h; sourceTree = "<group>"; };
 		A1CE6938261B7BC3006027BA /* GeoDaDebug.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; name = GeoDaDebug.entitlements; path = BuildTools/macosx/GeoDaDebug.entitlements; sourceTree = "<group>"; };
+		A1D0081826CF0ADB0058E3C7 /* spatial_validation.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = spatial_validation.cpp; path = Algorithms/spatial_validation.cpp; sourceTree = "<group>"; };
+		A1D0081926CF0ADB0058E3C7 /* spatial_validation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = spatial_validation.h; path = Algorithms/spatial_validation.h; sourceTree = "<group>"; };
 		A1D82DED174D3EB6003DE20A /* ConnectDatasourceDlg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ConnectDatasourceDlg.h; sourceTree = "<group>"; };
 		A1D82DEE174D3EB6003DE20A /* ConnectDatasourceDlg.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ConnectDatasourceDlg.cpp; sourceTree = "<group>"; };
 		A1DA623817BCBC070070CAAB /* AutoCompTextCtrl.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AutoCompTextCtrl.cpp; sourceTree = "<group>"; };
@@ -1036,6 +1039,8 @@
 		A45DBDEF1EDDDD2600C2AA8A /* Algorithms */ = {
 			isa = PBXGroup;
 			children = (
+				A1D0081826CF0ADB0058E3C7 /* spatial_validation.cpp */,
+				A1D0081926CF0ADB0058E3C7 /* spatial_validation.h */,
 				A1BA827126C342A7008E1E2A /* spatial_kmeans.cpp */,
 				A1BA827226C342A7008E1E2A /* spatial_kmeans.h */,
 				A1648F2326AA000E00D0E191 /* joincount_ratio.cpp */,
@@ -2010,6 +2015,7 @@
 				A416A1771F84122B001F2884 /* PCASettingsDlg.cpp in Sources */,
 				DD7D5C711427F89B00DCFE5C /* LisaCoordinator.cpp in Sources */,
 				A4A763F41F69FB3B00EE79DD /* ColocationMapView.cpp in Sources */,
+				A1D0081A26CF0ADB0058E3C7 /* spatial_validation.cpp in Sources */,
 				A16BA470183D626200D3B7DA /* DatasourceDlg.cpp in Sources */,
 				DDA8D55214479228008156FB /* ScatterNewPlotView.cpp in Sources */,
 				DD6456CA14881EA700AABF59 /* TimeChooserDlg.cpp in Sources */,

@@ -557,7 +557,7 @@ Shapefile::ShapeType OGRLayerProxy::GetOGRGeometries(vector<OGRGeometry*>& geoms
     }
     Shapefile::ShapeType shape_type = Shapefile::NULL_SHAPE;
     //read OGR geometry features
-    int feature_counter =0;
+    //int feature_counter =0;
     for ( int row_idx=0; row_idx < n_rows; row_idx++ ) {
         OGRFeature* feature = data[row_idx];
         OGRGeometry* geometry= feature->GetGeometryRef();

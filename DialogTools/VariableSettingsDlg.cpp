@@ -45,6 +45,7 @@
 #include "../FramesManager.h"
 #include "../FramesManagerObserver.h"
 #include "../Algorithms/texttable.h"
+#include "../Algorithms/spatial_validation.h"
 #include "SaveToTableDlg.h"
 #include "VariableSettingsDlg.h"
 
@@ -587,6 +588,26 @@ void UniqueValuesSettingDlg::OnOK(wxCommandEvent& event )
         table_int->GetColData(col_id, time_id, data);
         
         if (gw) {
+            int num_obs = project->GetNumRecords();
+            
+            std::vector<std::vector<int> > clusters;
+            std::map<wxString, std::vector<int> > cluster_dict;
+            for (int i = 0; i < num_obs; ++i) {
+                cluster_dict[data[i]].push_back(i);
+            }
+            std::map<wxString, std::vector<int> >::iterator it;
+            for (it = cluster_dict.begin(); it != cluster_dict.end(); ++it) {
+                clusters.push_back(it->second);
+            }
+            //std::sort(clusters.begin(), clusters.end(), GenUtils::less_vectors);
+            
+            std::vector<OGRGeometry*> geoms;
+            OGRLayerProxy* ogr = project->GetOGRLayerProxy();
+            ogr->GetOGRGeometries(geoms);
+            
+            SpatialValidation sv(num_obs, clusters, gw, geoms);
+            sv.Run();
+            
             std::vector<JoinCountRatio> jcr = joincount_ratio(data, gw);
             summary = PrintResult(jcr);
         }
