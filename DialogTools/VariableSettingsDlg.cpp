@@ -603,9 +603,9 @@ void UniqueValuesSettingDlg::OnOK(wxCommandEvent& event )
             
             std::vector<OGRGeometry*> geoms;
             OGRLayerProxy* ogr = project->GetOGRLayerProxy();
-            ogr->GetOGRGeometries(geoms);
+            Shapefile::ShapeType shape_type = ogr->GetOGRGeometries(geoms);
             
-            SpatialValidation sv(num_obs, clusters, gw, geoms);
+            SpatialValidation sv(num_obs, clusters, gw, geoms, shape_type);
             sv.Run();
             
             std::vector<JoinCountRatio> jcr = joincount_ratio(data, gw);

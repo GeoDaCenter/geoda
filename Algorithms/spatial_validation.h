@@ -47,11 +47,13 @@ struct Compactness {
     double isoperimeter_quotient;
     double area;
     double perimeter;
+    Compactness() : isoperimeter_quotient(0), area(0), perimeter(0) {}
 };
 
 struct Diameter {
     int steps;
     double ratio;
+    Diameter() : steps(0), ratio(0) {}
 };
 
 class SpatialValidationComponent
@@ -82,14 +84,30 @@ protected:
     std::vector<int> elements;
     int cid;
     std::map<int, bool> elements_dict;
-    std::map<int, std::vector<int> > edges;    
+    std::map<int, std::vector<int> > edges;
+    
+    struct Step {
+        int eid;
+        std::map<int, int>& steps;
+        Step(int eid, std::map<int, int>& steps) : eid(eid), steps(steps){}
+        bool operator < (const Step& item) const {
+            return steps[eid] > steps[item.eid];
+        }
+        Step& operator = (const Step& item) {
+            eid = item.eid;
+            steps = item.steps;
+            return *this;
+        }
+    };
 };
 
 class SpatialValidationCluster
 {
 public:
     SpatialValidationCluster(int cid, const std::vector<int>& elements, GeoDaWeight* weights,
-                         std::map<int, int>& cluster_dict);
+                             std::map<int, int>& cluster_dict,
+                             std::vector<OGRGeometry*>& geoms,
+                             Shapefile::ShapeType shape_type);
     virtual ~SpatialValidationCluster();
     
     std::vector<int> GetCoreElements();
@@ -116,7 +134,7 @@ protected:
     SpatialValidationComponent* core;
     std::vector<SpatialValidationComponent*> components;
     std::map<int, SpatialValidationComponent*> component_dict;
-    std::vector<OGRGeometry*> geoms;
+    std::vector<OGRGeometry*>& geoms;
     Shapefile::ShapeType shape_type;
 };
 
@@ -126,7 +144,8 @@ class SpatialValidation
 {
 public:
     SpatialValidation(int num_obs, const std::vector<std::vector<int> >& clusters,
-                  GeoDaWeight* weights, std::vector<OGRGeometry*>& geoms);
+                      GeoDaWeight* weights, std::vector<OGRGeometry*>& geoms,
+                      Shapefile::ShapeType shape_type);
 	virtual ~SpatialValidation();
     
     void Run();
