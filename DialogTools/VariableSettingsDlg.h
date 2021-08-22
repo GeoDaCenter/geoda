@@ -38,6 +38,7 @@
 #include "../VarCalc/WeightsMetaInfo.h"
 #include "../FramesManagerObserver.h"
 #include "../Algorithms/joincount_ratio.h"
+#include "../Algorithms/spatial_validation.h"
 
 class Project;
 class TableInterface;
@@ -125,6 +126,55 @@ private:
 
     wxListBox* listbox_var;
     wxCheckBox* ckb_jc_ratio;
+    wxComboBox* combo_weights;
+    wxStaticText* txt_weights;
+};
+
+////////////////////////////////////////////////////////////////////////////
+//
+// class ValidationSettingDlg
+//
+////////////////////////////////////////////////////////////////////////////
+class ValidationSettingDlg : public wxDialog
+{
+public:
+    ValidationSettingDlg(Project* project);
+    virtual ~ValidationSettingDlg();
+    
+    boost::uuids::uuid GetWeightsId();
+    std::vector<GdaVarTools::VarInfo> var_info;
+    std::vector<int> col_ids;
+    
+    wxString GetSummary();
+    
+protected:
+    void OnOK(wxCommandEvent& event);
+    void OnClose(wxCommandEvent& event);
+
+    void CreateControls();
+    bool Init();
+    
+    void InitVariableListBox(wxListBox* var_box);
+    void InitWeightsCombobox(wxComboBox* weights_ch);
+    bool GetSelectVariable();
+    wxString PrintResult(const std::vector<JoinCountRatio>& jcr,
+                         bool is_spatially_constrained,
+                         const Fragmentation& frag,
+                         const std::vector<Fragmentation>& frags,
+                         const std::vector<Diameter>& diams,
+                         const std::vector<Compactness>& comps);
+    
+private:
+    wxString summary;
+    Project* project;
+    TableInterface* table_int;
+    std::vector<boost::uuids::uuid> weights_ids;
+    
+    wxArrayString var_items;
+    std::map<wxString, wxString> name_to_nm;
+    std::map<wxString, int> name_to_tm_id;
+
+    wxListBox* listbox_var;
     wxComboBox* combo_weights;
     wxStaticText* txt_weights;
 };

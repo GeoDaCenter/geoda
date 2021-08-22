@@ -479,6 +479,9 @@
         <object class="wxMenuItem" name="ID_TOOLS_CLUSTER_MATCH_MAP">
             <label>Cluster Match Map</label>
         </object>
+        <object class="wxMenuItem" name="ID_TOOLS_CLUSTER_VALIDATION">
+            <label>Validation</label>
+        </object>
     </object>
     <object class="wxMenu" name="ID_MENU">
       <label>&amp;Space</label>
@@ -6162,6 +6165,9 @@
       <object class="separator"/>
       <object class="wxMenuItem" name="ID_TOOLS_CLUSTER_MATCH_MAP">
           <label>Cluster Match Map</label>
+      </object>
+      <object class="wxMenuItem" name="ID_TOOLS_CLUSTER_VALIDATION">
+          <label>Validation</label>
       </object>
   </object>
   <object class="wxMenu" name="ID_MORAN_MENU">

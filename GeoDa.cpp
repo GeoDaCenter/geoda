@@ -5179,6 +5179,44 @@ void GdaFrame::OnOpenClusterMatchMap(wxCommandEvent& event)
     dlg->Show(true);
 }
 
+void GdaFrame::OnOpenClusterValidation(wxCommandEvent& event)
+{
+    wxLogMessage("In GdaFrame::OnOpenClusterValidation()");
+    ValidationSettingDlg dlg(project_p);
+    if (dlg.ShowModal() != wxID_OK) return;
+    
+    wxString validationSummary = dlg.GetSummary();
+    if (!validationSummary.IsEmpty()) {
+        FramesManager* fm = project_p->GetFramesManager();
+        std::list<FramesManagerObserver*> observers(fm->getCopyObservers());
+        std::list<FramesManagerObserver*>::iterator it;
+        for (it=observers.begin(); it != observers.end(); ++it) {
+            if (SummaryDialog* w = dynamic_cast<SummaryDialog*>(*it)) {
+                w->AddNewReport(validationSummary);
+                w->m_textbox->SetSelection(0, 0);
+                w->Show(true);
+                w->Raise();
+                return;
+            }
+        }
+        
+        SummaryDialog* summaryDlg = new SummaryDialog(this, project_p,
+                                                      validationSummary, wxID_ANY,
+                                                      _("Validation Summary"));
+        summaryDlg->Show(true);
+        summaryDlg->m_textbox->SetSelection(0, 0);
+    }
+    
+    MapFrame* nf = new MapFrame(GdaFrame::gda_frame, project_p,
+                                dlg.var_info, dlg.col_ids,
+                                CatClassification::unique_values,
+                                MapCanvas::no_smoothing, 4,
+                                boost::uuids::nil_uuid(),
+                                wxDefaultPosition,
+                                GdaConst::map_default_size);
+    nf->UpdateTitle();
+}
+
 void GdaFrame::OnUniqueValues(wxCommandEvent& event)
 {
     wxLogMessage("In GdaFrame::OnUniqueValues()");
@@ -7425,6 +7463,8 @@ BEGIN_EVENT_TABLE(GdaFrame, wxFrame)
     EVT_MENU(XRCID("ID_MAPANALYSIS_COLOCATION"), GdaFrame::OnOpenColocationMap)
     EVT_TOOL(XRCID("ID_TOOLS_CLUSTER_MATCH_MAP"), GdaFrame::OnOpenClusterMatchMap)
     EVT_MENU(XRCID("ID_TOOLS_CLUSTER_MATCH_MAP"), GdaFrame::OnOpenClusterMatchMap)
+    EVT_TOOL(XRCID("ID_TOOLS_CLUSTER_VALIDATION"), GdaFrame::OnOpenClusterValidation)
+    EVT_MENU(XRCID("ID_TOOLS_CLUSTER_VALIDATION"), GdaFrame::OnOpenClusterValidation)
 
     EVT_MENU(XRCID("ID_COND_VERT_UNIQUE_VALUES"), GdaFrame::OnCondVertUniqueValues)
     EVT_MENU(XRCID("ID_COND_HORIZ_UNIQUE_VALUES"), GdaFrame::OnCondHorizUniqueValues)

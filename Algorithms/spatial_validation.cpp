@@ -267,6 +267,7 @@ Fragmentation SpatialValidationCluster::ComputeFragmentation()
     // ratio of S/(1/k), smaller is more diverse (balanced)
     simpson = simpson / min_s;
     
+    frag.n = k;
     frag.entropy = entropy;
     frag.simpson = simpson;
     frag.min_cluster_size = min_size;
@@ -383,6 +384,10 @@ shape_type(shape_type)
     for (int i=0; i < num_clusters; ++i) {
         sk_clusters.push_back(new SpatialValidationCluster(i, clusters[i], weights, cluster_dict, geoms, shape_type));
     }
+    
+    ComputeFragmentation();
+    ComputeCompactness();
+    ComputeDiameter();
 }
 
 SpatialValidation::~SpatialValidation()
@@ -392,48 +397,31 @@ SpatialValidation::~SpatialValidation()
     }
 }
 
-void SpatialValidation::Run()
-{
-    ComputeFragmentation();
-    ComputeCompactness();
-    ComputeDiameter();
-}
-
-std::vector<std::vector<int> > SpatialValidation::GetClusters()
-{
-    // verify clustering result
-    int total_core_obs = 0;
-    for (int i = 0; i < num_clusters; ++i) {
-        SpatialValidationCluster* skc = sk_clusters[i];
-        total_core_obs += skc->GetCoreSize();
-    }
-    
-    if (total_core_obs != num_obs) {
-        valid = false;
-        return this->clusters;
-    }
-    
-    std::vector<std::vector<int> > result;
-    for (int i = 0; i < num_clusters; ++i) {
-        SpatialValidationCluster* skc = sk_clusters[i];
-        result.push_back(skc->GetCoreElements());
-    }
-    return result;
-}
-
 void SpatialValidation::ComputeFragmentation()
 {
     // for the overall cluster result
     // provide list with cluster sizes for each cluster
     double entropy = 0;
     int k = (int) sk_clusters.size();
+    int min_size = 0, max_size  = 0, mean_size = 0;
     
     for (int i = 0; i < k; ++i) {
         // number of observations in cluster, fraction of total in cluster
         int n_i = sk_clusters[i]->GetSize();
         double p_i = n_i / (double) num_obs;
         entropy -= p_i * log(p_i);
+        
+        int n_subclusters = sk_clusters[i]->GetComponentSize();
+        
+        if (i == 0 || n_subclusters < min_size) {
+            min_size = n_subclusters;
+        }
+        if (i == 0 || n_subclusters > max_size) {
+            max_size = n_subclusters;
+        }
+        mean_size += n_subclusters;
     }
+    mean_size = k > 0 ? mean_size / (double) k : 0;
     
     // max for k clusters = ln(k)
     double max_entropy = log((double)k);
@@ -459,8 +447,12 @@ void SpatialValidation::ComputeFragmentation()
     // ratio of S/(1/k), smaller is more diverse (balanced)
     simpson = simpson / min_s;
     
+    fragmentation.n = k;
     fragmentation.entropy = entropy;
     fragmentation.simpson = simpson;
+    fragmentation.min_cluster_size = min_size;
+    fragmentation.max_cluster_size = max_size;
+    fragmentation.mean_cluster_size = mean_size;
     
     // compute Fragmentation for each cluster
     for (int i = 0; i < k; ++i) {

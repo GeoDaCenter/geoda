@@ -33,14 +33,27 @@ class SpatialValidationCluster;
 class SpatialValidation;
 
 struct Fragmentation {
+    int n;
     double entropy;
     double simpson;
     double min_cluster_size;
     double max_cluster_size;
     double mean_cluster_size;
     bool is_spatially_contiguous;
-    Fragmentation() : entropy(0), simpson(0), min_cluster_size(0),
+    
+    Fragmentation() : n(0), entropy(0), simpson(0), min_cluster_size(0),
     max_cluster_size(0), mean_cluster_size(0), is_spatially_contiguous(true) {}
+    
+    Fragmentation& operator = (const Fragmentation& item) {
+        n = item.n;
+        entropy = item.entropy;
+        simpson = item.simpson;
+        min_cluster_size = item.min_cluster_size;
+        max_cluster_size = item.max_cluster_size;
+        mean_cluster_size = item.mean_cluster_size;
+        is_spatially_contiguous = item.is_spatially_contiguous;
+        return *this;
+    }
 };
 
 struct Compactness {
@@ -48,12 +61,25 @@ struct Compactness {
     double area;
     double perimeter;
     Compactness() : isoperimeter_quotient(0), area(0), perimeter(0) {}
+    
+    Compactness& operator = (const Compactness& item) {
+        isoperimeter_quotient = item.isoperimeter_quotient;
+        area = item.area;
+        perimeter = item.perimeter;
+        return *this;
+    }
 };
 
 struct Diameter {
     int steps;
     double ratio;
     Diameter() : steps(0), ratio(0) {}
+    
+    Diameter& operator = (const Diameter& item) {
+        steps = item.steps;
+        ratio = item.ratio;
+        return *this;
+    }
 };
 
 class SpatialValidationComponent
@@ -147,11 +173,7 @@ public:
                       GeoDaWeight* weights, std::vector<OGRGeometry*>& geoms,
                       Shapefile::ShapeType shape_type);
 	virtual ~SpatialValidation();
-    
-    void Run();
-    
-    std::vector<std::vector<int> > GetClusters();
-    
+            
     bool IsValid() { return valid; }
     
     Fragmentation GetFragmentation() { return fragmentation; }
