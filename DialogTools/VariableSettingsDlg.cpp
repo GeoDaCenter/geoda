@@ -798,11 +798,13 @@ wxString ValidationSettingDlg::PrintResult(const std::vector<JoinCountRatio>& jc
         TextTable t( TextTable::MD );
         t.add("# Clusters");
         t.add("Entropy");
+        t.add("Max Entropy");
         t.add("Simpson Index");
         t.endOfRow();
         
         t.add(std::to_string(frag.n));
         t.add(std::to_string(frag.entropy));
+        t.add(std::to_string(frag.max_entropy));
         t.add(std::to_string(frag.simpson));
         t.endOfRow();
         stringstream ss1;
@@ -820,16 +822,18 @@ wxString ValidationSettingDlg::PrintResult(const std::vector<JoinCountRatio>& jc
         t.add("N");
         t.add("# Subclusters");
         t.add("Entropy");
+        t.add("Max Entropy");
         t.add("Simpson Index");
-        t.add("Min Size of Subcluster");
-        t.add("Max Size of Subcluster");
-        t.add("Mean Size of Subcluster");
+        t.add("Min Size");
+        t.add("Max Size");
+        t.add("Mean Size");
         t.endOfRow();
         for (int i = 0; i < (int)frags.size(); ++i) {
             t.add(jcr[i].cluster.c_str());
             t.add(std::to_string(jcr[i].n));
             t.add(std::to_string(frags[i].n));
             t.add(std::to_string(frags[i].entropy));
+            t.add(std::to_string(frags[i].max_entropy));
             t.add(std::to_string(frags[i].simpson));
             t.add(std::to_string(frags[i].min_cluster_size));
             t.add(std::to_string(frags[i].max_cluster_size));
@@ -888,7 +892,7 @@ wxString ValidationSettingDlg::PrintResult(const std::vector<JoinCountRatio>& jc
     } else {
         TextTable t( TextTable::MD );
         t.add("Cluster");
-        t.add("Isoperimeter quotient");
+        t.add("Isoperimeter Quotient");
         t.add("Area");
         t.add("Perimeter");
         t.endOfRow();

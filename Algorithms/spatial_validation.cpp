@@ -222,7 +222,7 @@ Fragmentation SpatialValidationCluster::ComputeFragmentation()
     }
     
     // max and min size of contiguous subcluster, mean size
-    int min_size = 0, max_size = 0, mean_size = k / (double)GetSize();
+    int min_size = 0, max_size = 0, mean_size = GetSize() / (double)k;
     
     for (int i = 0; i < k; ++i) {
         int sz = components[i]->GetSize();
@@ -269,6 +269,7 @@ Fragmentation SpatialValidationCluster::ComputeFragmentation()
     
     frag.n = k;
     frag.entropy = entropy;
+    frag.max_entropy = max_entropy;
     frag.simpson = simpson;
     frag.min_cluster_size = min_size;
     frag.max_cluster_size = max_size;
@@ -403,25 +404,21 @@ void SpatialValidation::ComputeFragmentation()
     // provide list with cluster sizes for each cluster
     double entropy = 0;
     int k = (int) sk_clusters.size();
-    int min_size = 0, max_size  = 0, mean_size = 0;
+    int min_size = 0, max_size  = 0, mean_size = num_obs / (double)k;
     
     for (int i = 0; i < k; ++i) {
         // number of observations in cluster, fraction of total in cluster
         int n_i = sk_clusters[i]->GetSize();
         double p_i = n_i / (double) num_obs;
         entropy -= p_i * log(p_i);
-        
-        int n_subclusters = sk_clusters[i]->GetComponentSize();
-        
-        if (i == 0 || n_subclusters < min_size) {
-            min_size = n_subclusters;
+                
+        if (i == 0 || n_i < min_size) {
+            min_size = n_i;
         }
-        if (i == 0 || n_subclusters > max_size) {
-            max_size = n_subclusters;
+        if (i == 0 || n_i > max_size) {
+            max_size = n_i;
         }
-        mean_size += n_subclusters;
     }
-    mean_size = k > 0 ? mean_size / (double) k : 0;
     
     // max for k clusters = ln(k)
     double max_entropy = log((double)k);
@@ -449,6 +446,7 @@ void SpatialValidation::ComputeFragmentation()
     
     fragmentation.n = k;
     fragmentation.entropy = entropy;
+    fragmentation.max_entropy = max_entropy;
     fragmentation.simpson = simpson;
     fragmentation.min_cluster_size = min_size;
     fragmentation.max_cluster_size = max_size;

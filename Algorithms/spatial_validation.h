@@ -35,18 +35,20 @@ class SpatialValidation;
 struct Fragmentation {
     int n;
     double entropy;
+    double max_entropy;
     double simpson;
-    double min_cluster_size;
-    double max_cluster_size;
+    int min_cluster_size;
+    int max_cluster_size;
     double mean_cluster_size;
     bool is_spatially_contiguous;
     
-    Fragmentation() : n(0), entropy(0), simpson(0), min_cluster_size(0),
+    Fragmentation() : n(0), entropy(0), max_entropy(0), simpson(0), min_cluster_size(0),
     max_cluster_size(0), mean_cluster_size(0), is_spatially_contiguous(true) {}
     
     Fragmentation& operator = (const Fragmentation& item) {
         n = item.n;
         entropy = item.entropy;
+        max_entropy = item.max_entropy;
         simpson = item.simpson;
         min_cluster_size = item.min_cluster_size;
         max_cluster_size = item.max_cluster_size;
