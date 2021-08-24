@@ -117,6 +117,37 @@ private:
     FramesManager* frames_manager;
 };
 
+class ValidationSummaryDialog : public wxFrame, public FramesManagerObserver
+{
+    DECLARE_EVENT_TABLE()
+
+public:
+    ValidationSummaryDialog() {}
+    ValidationSummaryDialog(wxWindow* parent, Project* project, wxString showText,
+        wxWindowID id = wxID_ANY,
+        const wxString& caption = _("Spatial Validation Summary"),
+        const wxPoint& pos = wxDefaultPosition,
+        const wxSize& size = wxSize(680, 480),
+        long style = wxCAPTION|wxRESIZE_BORDER|wxSYSTEM_MENU|wxCLOSE_BOX);
+    virtual ~ValidationSummaryDialog();
+    
+    /** Implementation of FramesManagerObserver interface */
+    virtual void update(FramesManager* o);
+    
+    void CreateControls();
+    void OnClose(wxCloseEvent& event);
+    void AddNewReport(const wxString report);
+    void SetReport(const wxString report);
+    
+    SimpleReportTextCtrl* m_textbox;
+    wxString results;
+    
+private:
+    FramesManager* frames_manager;
+};
+
+
+
 class ScrolledDetailMsgDialog : public wxDialog
 {
 public:

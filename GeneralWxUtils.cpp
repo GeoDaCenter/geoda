@@ -821,3 +821,77 @@ void SummaryDialog::OnClose( wxCloseEvent& event )
     Destroy();
     event.Skip();
 }
+
+
+BEGIN_EVENT_TABLE( ValidationSummaryDialog, wxFrame)
+    EVT_CLOSE( ValidationSummaryDialog::OnClose )
+END_EVENT_TABLE()
+
+ValidationSummaryDialog::~ValidationSummaryDialog( )
+{
+    frames_manager->removeObserver(this);
+}
+
+ValidationSummaryDialog::ValidationSummaryDialog( wxWindow* parent, Project* project,
+                                           wxString showText,
+                                           wxWindowID id,
+                                           const wxString& caption,
+                                           const wxPoint& pos,
+                                           const wxSize& size, long style )
+:wxFrame(parent, id, caption, pos, size, style)
+{
+    wxLogMessage("Open ValidationSummaryDialog.");
+    SetParent(parent);
+    frames_manager = project->GetFramesManager();
+    
+    results = showText;
+    SetExtraStyle(GetExtraStyle()|wxWS_EX_BLOCK_EVENTS);
+    CreateControls();
+    Centre();
+    m_textbox->AppendText(results);
+    
+    frames_manager->registerObserver(this);
+}
+
+void ValidationSummaryDialog::update(FramesManager* o)
+{
+}
+
+void ValidationSummaryDialog::CreateControls()
+{
+    wxPanel *panel = new wxPanel(this, -1);
+    wxBoxSizer *vbox = new wxBoxSizer(wxVERTICAL);
+    m_textbox = new SimpleReportTextCtrl(panel, XRCID("ID_TEXTCTRL"), "", wxDefaultPosition, wxSize(620,560));
+    
+    if (GeneralWxUtils::isWindows()) {
+        wxFont font(8,wxFONTFAMILY_TELETYPE,wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL);
+        m_textbox->SetFont(font);
+    } else {
+        wxFont font(12,wxFONTFAMILY_TELETYPE,wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL);
+        m_textbox->SetFont(font);
+        
+    }
+    vbox->Add(m_textbox, 1, wxEXPAND|wxALL);
+    panel->SetSizer(vbox);
+    
+    Center();
+}
+
+void ValidationSummaryDialog::AddNewReport(const wxString report)
+{
+    results = report + results;
+    m_textbox->SetValue(results);
+}
+
+void ValidationSummaryDialog::SetReport(const wxString report)
+{
+    results = report;
+    m_textbox->SetValue(results);
+}
+
+void ValidationSummaryDialog::OnClose( wxCloseEvent& event )
+{
+    wxLogMessage("In ValidationSummaryDialog::OnClose()");
+    Destroy();
+    event.Skip();
+}

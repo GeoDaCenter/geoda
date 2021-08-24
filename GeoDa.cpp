@@ -5108,12 +5108,29 @@ void GdaFrame::ChangeToEqualIntervals(int num_cats)
 void GdaFrame::OnOpenUniqueValues(wxCommandEvent& event)
 {
     wxLogMessage("In GdaFrame::OnOpenUniqueValues()");
-    bool show_str_var = true;
-	VariableSettingsDlg dlg(project_p, VariableSettingsDlg::univariate,
-                            // default values
-                            false, false, _("Variable Settings"), "", "","","",false, false, false,
-                            show_str_var);
+    UniqueValuesSettingDlg dlg(project_p);
 	if (dlg.ShowModal() != wxID_OK) return;
+    
+    wxString joincountSummary = dlg.GetSummary();
+    if (!joincountSummary.IsEmpty()) {
+        FramesManager* fm = project_p->GetFramesManager();
+        std::list<FramesManagerObserver*> observers(fm->getCopyObservers());
+        std::list<FramesManagerObserver*>::iterator it;
+        for (it=observers.begin(); it != observers.end(); ++it) {
+            if (SummaryDialog* w = dynamic_cast<SummaryDialog*>(*it)) {
+                w->AddNewReport(joincountSummary);
+                w->m_textbox->SetSelection(0, 0);
+                w->Show(true);
+                w->Raise();
+                return;
+            }
+        }
+        
+        SummaryDialog* summaryDlg = new SummaryDialog(this, project_p, joincountSummary, wxID_ANY, _("Join Count Ratio Summary"));
+        summaryDlg->Show(true);
+        summaryDlg->m_textbox->SetSelection(0, 0);
+    }
+    
     MapFrame* nf = new MapFrame(GdaFrame::gda_frame, project_p,
                                 dlg.var_info, dlg.col_ids,
                                 CatClassification::unique_values,
@@ -5174,7 +5191,7 @@ void GdaFrame::OnOpenClusterValidation(wxCommandEvent& event)
         std::list<FramesManagerObserver*> observers(fm->getCopyObservers());
         std::list<FramesManagerObserver*>::iterator it;
         for (it=observers.begin(); it != observers.end(); ++it) {
-            if (SummaryDialog* w = dynamic_cast<SummaryDialog*>(*it)) {
+            if (ValidationSummaryDialog* w = dynamic_cast<ValidationSummaryDialog*>(*it)) {
                 w->AddNewReport(validationSummary);
                 w->m_textbox->SetSelection(0, 0);
                 w->Show(true);
@@ -5183,9 +5200,9 @@ void GdaFrame::OnOpenClusterValidation(wxCommandEvent& event)
             }
         }
         
-        SummaryDialog* summaryDlg = new SummaryDialog(this, project_p,
+        ValidationSummaryDialog* summaryDlg = new ValidationSummaryDialog(this, project_p,
                                                       validationSummary, wxID_ANY,
-                                                      _("Validation Summary"));
+                                                      _("Spatial Validation Summary"));
         summaryDlg->Show(true);
         summaryDlg->m_textbox->SetSelection(0, 0);
     }
