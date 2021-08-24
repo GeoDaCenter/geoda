@@ -5,9 +5,14 @@
 #include <set>
 #include <iostream>
 #include <boost/unordered_map.hpp>
+#include <boost/geometry.hpp>
+#include <boost/geometry/geometries/point_xy.hpp>
+#include <boost/geometry/geometries/polygon.hpp>
 
 #include "../ShapeOperations/GeodaWeight.h"
 #include "spatial_validation.h"
+
+namespace bg = boost::geometry;
 
 SpatialValidationComponent::SpatialValidationComponent(int cid, const std::vector<int>& elements,
                                                        GeoDaWeight* weights,
@@ -112,9 +117,10 @@ SpatialValidationCluster::SpatialValidationCluster(int cid, const std::vector<in
                                                    GeoDaWeight* weights,
                                                    std::map<int, int>& cluster_dict,
                                                    std::vector<OGRGeometry*>& geoms,
+                                                   std::vector<Shapefile::RecordContents*>& geoms1,
                                                    Shapefile::ShapeType shape_type)
 : cid(cid), elements(elements), cluster_dict(cluster_dict), weights(weights),
-core(0), geoms(geoms), shape_type(shape_type)
+core(0), geoms(geoms), geoms1(geoms1), shape_type(shape_type)
 {
     int num_elements = (int)elements.size();
     
@@ -292,11 +298,12 @@ Compactness SpatialValidationCluster::ComputeCompactness()
     }
         
     double area = 0.0, perimeter = 0.0, ipc = 0.0;
-
+    double area1 = 0.0, perimeter1 = 0.0, ipc1 = 0.0;
     if (shape_type == Shapefile::POLYGON) {
         for (int i = 0; i < (int)elements.size(); ++i) {
             int idx = elements[i];
-            OGRwkbGeometryType eType = wkbFlatten(geoms[i]->getGeometryType());
+            // using OGRPolygon
+            OGRwkbGeometryType eType = wkbFlatten(geoms[idx]->getGeometryType());
             if (eType == wkbPolygon || eType == wkbCurvePolygon) {
                 OGRPolygon* p = (OGRPolygon *) geoms[idx];
                 area += p->get_Area();
@@ -307,14 +314,42 @@ Compactness SpatialValidationCluster::ComputeCompactness()
             } else if (eType == wkbMultiPolygon) {
                 OGRMultiPolygon* mpolygon = (OGRMultiPolygon *) geoms[idx];
                 int n_geom = mpolygon->getNumGeometries();
-                for (int j = 0; j < n_geom; j++ )
-                {
+                area += mpolygon->get_Area();
+                for (int j = 0; j < n_geom; j++ ) {
                     OGRGeometry* ogrGeom = mpolygon->getGeometryRef(j);
                     OGRPolygon* p = static_cast<OGRPolygon*>(ogrGeom);
-                    area += p->get_Area();
-                    
-                    OGRLinearRing* ring = p->getExteriorRing();
-                    perimeter += ring->get_Length();
+                    OGRLinearRing* ring = 0;
+                    int n_rings = p->getNumInteriorRings()+1;
+                    for (int k = 0; k < n_rings; ++k) {
+                        if (k == 0) {
+                            ring = p->getExteriorRing();
+                        } else {
+                            ring = p->getInteriorRing(k - 1);
+                        }
+                        if (ring->isClockwise()) {
+                            perimeter += ring->get_Length();
+                        }
+                    }
+                }
+            }
+            
+            // using PolygonContents
+            Shapefile::PolygonContents* pc = (Shapefile::PolygonContents*)geoms1[idx];
+            for (int j=0; j < pc->num_parts; j++) {
+                bg::model::polygon<bg::model::d2::point_xy<double> > poly;
+                int start = pc->parts[j];
+                int end = j < pc->num_parts - 1 ? pc->parts[j+1] : pc->num_points;
+                for (int k = start; k < end; ++k) {
+                    double x = pc->points[k].x;
+                    double y = pc->points[k].y;
+                    bg::append(poly, bg::model::d2::point_xy<double>(x, y));
+                }
+                if (pc->isClockwise[j]) {
+                    area1 += bg::area(poly);
+                    perimeter1 += bg::perimeter(poly);
+                } else {
+                    area1 -= bg::area(poly);
+                    //perimeter1 -= bg::perimeter(poly);
                 }
             }
         }
@@ -333,6 +368,18 @@ Compactness SpatialValidationCluster::ComputeCompactness()
         
         OGRLinearRing* ring = hull->getExteriorRing();
         perimeter = ring->get_Length();
+        
+        // using PointContents
+        bg::model::multi_point<bg::model::d2::point_xy<double> > bg_points;
+        for (int i = 0; i < (int)elements.size(); ++i) {
+            int idx = elements[i];
+            Shapefile::PointContents* p = (Shapefile::PointContents *) geoms1[idx];
+            bg::append(bg_points, bg::model::d2::point_xy<double>(p->x, p->y));
+        }
+        bg::model::polygon<bg::model::d2::point_xy<double> > bg_hull;
+        bg::convex_hull(bg_points, bg_hull);
+        area1 = bg::area(bg_hull);
+        perimeter1 = bg::perimeter(bg_hull);
     }
     
     if (perimeter > 0) {
@@ -361,8 +408,11 @@ Diameter SpatialValidationCluster::ComputeDiameter()
 }
 
 
-SpatialValidation::SpatialValidation(int num_obs, const std::vector<std::vector<int> >& clusters, GeoDaWeight* weights, std::vector<OGRGeometry*>& geoms, Shapefile::ShapeType shape_type)
-: num_obs(num_obs), clusters(clusters), weights(weights), valid(true), geoms(geoms),
+SpatialValidation::SpatialValidation(int num_obs, const std::vector<std::vector<int> >& clusters,
+                                     GeoDaWeight* weights, std::vector<OGRGeometry*>& geoms,
+                                     std::vector<Shapefile::RecordContents*>& geoms1,
+                                     Shapefile::ShapeType shape_type)
+: num_obs(num_obs), clusters(clusters), weights(weights), valid(true), geoms(geoms), geoms1(geoms1),
 shape_type(shape_type)
 {
     num_clusters = (int)clusters.size();
@@ -383,7 +433,8 @@ shape_type(shape_type)
     
     // create SpatialValidationCluster for each cluster
     for (int i=0; i < num_clusters; ++i) {
-        sk_clusters.push_back(new SpatialValidationCluster(i, clusters[i], weights, cluster_dict, geoms, shape_type));
+        sk_clusters.push_back(new SpatialValidationCluster(i, clusters[i], weights,
+                                                           cluster_dict, geoms, geoms1, shape_type));
     }
     
     ComputeFragmentation();
