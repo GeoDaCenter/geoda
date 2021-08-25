@@ -9,10 +9,35 @@
 #include <boost/geometry/geometries/point_xy.hpp>
 #include <boost/geometry/geometries/polygon.hpp>
 
+#include "../GdaConst.h"
 #include "../ShapeOperations/GeodaWeight.h"
 #include "spatial_validation.h"
 
 namespace bg = boost::geometry;
+
+#ifndef __NO_THREAD__
+    #ifndef __USE_PTHREAD__
+        #include <boost/system/config.hpp>
+        #include <boost/thread.hpp>
+        #include <boost/bind.hpp>
+    #else
+        #include <pthread.h>
+
+        struct diameter_thread_args {
+            SpatialValidationComponent *component;
+            int start;
+            int end;
+        };
+
+        void* diameter_thread_helper(void* voidArgs)
+        {
+            diameter_thread_args *args = (diameter_thread_args*)voidArgs;
+            args->ComputeDiameterThread(args->start, args->end);
+            return 0;
+        }
+    #endif
+#endif
+
 
 SpatialValidationComponent::SpatialValidationComponent(int cid, const std::vector<int>& elements,
                                                        GeoDaWeight* weights,
@@ -47,12 +72,86 @@ SpatialValidationComponent::~SpatialValidationComponent()
 
 Diameter SpatialValidationComponent::ComputeDiameter()
 {
-    int diameter = 0;
-    
     // simplified dijkstra
     int n = (int)elements.size();
+    
+#ifndef __NO_THREAD__
+    shortest_paths.resize(n, 0);
+    
+    int nCPUs = boost::thread::hardware_concurrency();
+    if (GdaConst::gda_set_cpu_cores) nCPUs = GdaConst::gda_cpu_cores;
+    int quotient = n / nCPUs;
+    int remainder = n % nCPUs;
+    int tot_threads = (quotient > 0) ? nCPUs : remainder;
+    
+#ifndef __USE_PTHREAD__
+    boost::thread_group threadPool;
+#else
+    pthread_t *threadPool = new pthread_t[nCPUs];
+    struct diameter_thread_args *args = new diameter_thread_args[nCPUs];
+#endif
+    
+    for (int i=0; i<tot_threads; i++) {
+        int a=0;
+        int b=0;
+        if (i < remainder) {
+            a = i*(quotient+1);
+            b = a+quotient;
+        } else {
+            a = remainder*(quotient+1) + (i-remainder)*quotient;
+            b = a+quotient-1;
+        }
+#ifndef __USE_PTHREAD__
+        boost::thread* worker = new boost::thread(boost::bind(&SpatialValidationComponent::ComputeDiameterThread,this,a,b));
+        threadPool.add_thread(worker);
+#else
+        args[i].component = this;
+        args[i].start = a;
+        args[i].end = b;
+        if (pthread_create(&threadPool[i], NULL, &diameter_thread_helper, &args[i])) {
+            perror("Thread create failed.");
+        }
+#endif
+    }
+    
+#ifndef __USE_PTHREAD__
+    threadPool.join_all();
+#else
+    for (int j = 0; j < nCPUs; j++) {
+        pthread_join(threadPool[j], NULL);
+    }
+    delete[] args;
+    delete[] threadPool;
+#endif
+    
+#else
+    // no threading
+    ComputeDiameterThread(0, n-1);
+#endif
+    
+    // collect result
+    int diameter = 0;
     for (int i = 0; i < n; ++i) {
+        if (shortest_paths[i] > diameter) {
+            diameter = shortest_paths[i];
+        }
+    }
+    
+    Diameter diam;
+    diam.steps = diameter;
+    diam.ratio = diameter / (double)n;
+    
+    return diam;
+}
+    
+void SpatialValidationComponent::ComputeDiameterThread(int start, int end)
+{
+    int n = (int)elements.size();
+    
+    
+    for (int i = start; i <= end; ++i) {
         int e = elements[i];
+        int longest_shortestpath = 0;
         
         // steps from e to others
         std::map<int, int> steps;
@@ -84,11 +183,9 @@ Diameter SpatialValidationComponent::ComputeDiameter()
                     int new_steps = steps[tmpid] + 1;
                     if (new_steps < steps[nb]) {
                         steps[nb] = new_steps;
-                        if (new_steps > diameter) {
-                            diameter = new_steps;
+                        if (new_steps > longest_shortestpath) {
+                            longest_shortestpath = new_steps;
                         }
-                        // update heap
-                        
                     }
                 
                 if (visited.find(nb) == visited.end()) {
@@ -96,15 +193,8 @@ Diameter SpatialValidationComponent::ComputeDiameter()
                 }
             }
         }
-        
-        // max steps
+        shortest_paths[i] = longest_shortestpath;
     }
-    
-    Diameter diam;
-    diam.steps = diameter;
-    diam.ratio = diameter / (double) elements.size();
-    
-    return diam;
 }
 
 bool SpatialValidationComponent::Has(int eid)
@@ -116,11 +206,10 @@ bool SpatialValidationComponent::Has(int eid)
 SpatialValidationCluster::SpatialValidationCluster(int cid, const std::vector<int>& elements,
                                                    GeoDaWeight* weights,
                                                    std::map<int, int>& cluster_dict,
-                                                   std::vector<OGRGeometry*>& geoms,
-                                                   std::vector<Shapefile::RecordContents*>& geoms1,
+                                                   std::vector<Shapefile::RecordContents*>& geoms,
                                                    Shapefile::ShapeType shape_type)
 : cid(cid), elements(elements), cluster_dict(cluster_dict), weights(weights),
-core(0), geoms(geoms), geoms1(geoms1), shape_type(shape_type)
+core(0), geoms(geoms), shape_type(shape_type)
 {
     int num_elements = (int)elements.size();
     
@@ -298,43 +387,11 @@ Compactness SpatialValidationCluster::ComputeCompactness()
     }
         
     double area = 0.0, perimeter = 0.0, ipc = 0.0;
-    double area1 = 0.0, perimeter1 = 0.0, ipc1 = 0.0;
     if (shape_type == Shapefile::POLYGON) {
         for (int i = 0; i < (int)elements.size(); ++i) {
             int idx = elements[i];
-            // using OGRPolygon
-            OGRwkbGeometryType eType = wkbFlatten(geoms[idx]->getGeometryType());
-            if (eType == wkbPolygon || eType == wkbCurvePolygon) {
-                OGRPolygon* p = (OGRPolygon *) geoms[idx];
-                area += p->get_Area();
-                
-                OGRLinearRing* ring = p->getExteriorRing();
-                perimeter += ring->get_Length();
-                
-            } else if (eType == wkbMultiPolygon) {
-                OGRMultiPolygon* mpolygon = (OGRMultiPolygon *) geoms[idx];
-                int n_geom = mpolygon->getNumGeometries();
-                area += mpolygon->get_Area();
-                for (int j = 0; j < n_geom; j++ ) {
-                    OGRGeometry* ogrGeom = mpolygon->getGeometryRef(j);
-                    OGRPolygon* p = static_cast<OGRPolygon*>(ogrGeom);
-                    OGRLinearRing* ring = 0;
-                    int n_rings = p->getNumInteriorRings()+1;
-                    for (int k = 0; k < n_rings; ++k) {
-                        if (k == 0) {
-                            ring = p->getExteriorRing();
-                        } else {
-                            ring = p->getInteriorRing(k - 1);
-                        }
-                        if (ring->isClockwise()) {
-                            perimeter += ring->get_Length();
-                        }
-                    }
-                }
-            }
-            
             // using PolygonContents
-            Shapefile::PolygonContents* pc = (Shapefile::PolygonContents*)geoms1[idx];
+            Shapefile::PolygonContents* pc = (Shapefile::PolygonContents*)geoms[idx];
             for (int j=0; j < pc->num_parts; j++) {
                 bg::model::polygon<bg::model::d2::point_xy<double> > poly;
                 int start = pc->parts[j];
@@ -345,41 +402,28 @@ Compactness SpatialValidationCluster::ComputeCompactness()
                     bg::append(poly, bg::model::d2::point_xy<double>(x, y));
                 }
                 if (pc->isClockwise[j]) {
-                    area1 += bg::area(poly);
-                    perimeter1 += bg::perimeter(poly);
+                    area += bg::area(poly);
+                    perimeter += bg::perimeter(poly);
                 } else {
-                    area1 -= bg::area(poly);
-                    //perimeter1 -= bg::perimeter(poly);
+                    area -= bg::area(poly);
+                    //perimeter -= bg::perimeter(poly);
                 }
             }
         }
     
     } else if (shape_type == Shapefile::POINT_TYP) {
         // For points: use area and perimeter of convex hull around points
-        
-        OGRGeometryCollection* points = (OGRGeometryCollection*)OGRGeometryFactory::createGeometry(wkbGeometryCollection);
-        for (int i = 0; i < (int)elements.size(); ++i) {
-            int idx = elements[i];
-            OGRPoint* p = (OGRPoint *) geoms[idx];
-            points->addGeometry(p);
-        }
-        OGRPolygon* hull = (OGRPolygon*)points->ConvexHull();
-        area = hull->get_Area();
-        
-        OGRLinearRing* ring = hull->getExteriorRing();
-        perimeter = ring->get_Length();
-        
         // using PointContents
         bg::model::multi_point<bg::model::d2::point_xy<double> > bg_points;
         for (int i = 0; i < (int)elements.size(); ++i) {
             int idx = elements[i];
-            Shapefile::PointContents* p = (Shapefile::PointContents *) geoms1[idx];
+            Shapefile::PointContents* p = (Shapefile::PointContents *) geoms[idx];
             bg::append(bg_points, bg::model::d2::point_xy<double>(p->x, p->y));
         }
         bg::model::polygon<bg::model::d2::point_xy<double> > bg_hull;
         bg::convex_hull(bg_points, bg_hull);
-        area1 = bg::area(bg_hull);
-        perimeter1 = bg::perimeter(bg_hull);
+        area = bg::area(bg_hull);
+        perimeter = bg::perimeter(bg_hull);
     }
     
     if (perimeter > 0) {
@@ -409,10 +453,10 @@ Diameter SpatialValidationCluster::ComputeDiameter()
 
 
 SpatialValidation::SpatialValidation(int num_obs, const std::vector<std::vector<int> >& clusters,
-                                     GeoDaWeight* weights, std::vector<OGRGeometry*>& geoms,
-                                     std::vector<Shapefile::RecordContents*>& geoms1,
+                                     GeoDaWeight* weights,
+                                     std::vector<Shapefile::RecordContents*>& geoms,
                                      Shapefile::ShapeType shape_type)
-: num_obs(num_obs), clusters(clusters), weights(weights), valid(true), geoms(geoms), geoms1(geoms1),
+: num_obs(num_obs), clusters(clusters), weights(weights), valid(true), geoms(geoms),
 shape_type(shape_type)
 {
     num_clusters = (int)clusters.size();
@@ -434,7 +478,7 @@ shape_type(shape_type)
     // create SpatialValidationCluster for each cluster
     for (int i=0; i < num_clusters; ++i) {
         sk_clusters.push_back(new SpatialValidationCluster(i, clusters[i], weights,
-                                                           cluster_dict, geoms, geoms1, shape_type));
+                                                           cluster_dict, geoms, shape_type));
     }
     
     ComputeFragmentation();

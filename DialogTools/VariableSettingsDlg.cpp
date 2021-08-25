@@ -984,18 +984,14 @@ void ValidationSettingDlg::OnOK(wxCommandEvent& event )
             clusters.push_back(it->second);
         }
         //std::sort(clusters.begin(), clusters.end(), GenUtils::less_vectors);
-        
-        std::vector<OGRGeometry*> geoms;
-        OGRLayerProxy* ogr = project->GetOGRLayerProxy();
-        Shapefile::ShapeType shape_type = ogr->GetOGRGeometries(geoms);
-        
+        Shapefile::ShapeType shape_type = project->GetShapefileType();
         std::vector<Shapefile::MainRecord>& records = project->main_data.records;
-        std::vector<Shapefile::RecordContents*> geoms1(num_obs);
+        std::vector<Shapefile::RecordContents*> geoms(num_obs);
         for (int i = 0; i < num_obs; ++i) {
-            geoms1[i] = records[i].contents_p;
+            geoms[i] = records[i].contents_p;
         }
         
-        SpatialValidation sv(num_obs, clusters, gw, geoms, geoms1, shape_type);
+        SpatialValidation sv(num_obs, clusters, gw, geoms, shape_type);
         
         bool is_spatially_constrained = sv.IsSpatiallyConstrained();
         Fragmentation frag = sv.GetFragmentation();

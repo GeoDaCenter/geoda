@@ -127,6 +127,9 @@ protected:
             return *this;
         }
     };
+    
+    std::vector<int> shortest_paths;
+    void ComputeDiameterThread(int start, int end);
 };
 
 class SpatialValidationCluster
@@ -134,8 +137,7 @@ class SpatialValidationCluster
 public:
     SpatialValidationCluster(int cid, const std::vector<int>& elements, GeoDaWeight* weights,
                              std::map<int, int>& cluster_dict,
-                             std::vector<OGRGeometry*>& geoms,
-                             std::vector<Shapefile::RecordContents*>& geoms1,
+                             std::vector<Shapefile::RecordContents*>& geoms,
                              Shapefile::ShapeType shape_type);
     virtual ~SpatialValidationCluster();
     
@@ -163,9 +165,9 @@ protected:
     SpatialValidationComponent* core;
     std::vector<SpatialValidationComponent*> components;
     std::map<int, SpatialValidationComponent*> component_dict;
-    std::vector<OGRGeometry*>& geoms;
-    std::vector<Shapefile::RecordContents*> geoms1;
+    std::vector<Shapefile::RecordContents*> geoms;
     Shapefile::ShapeType shape_type;
+    
 };
 
 
@@ -174,8 +176,8 @@ class SpatialValidation
 {
 public:
     SpatialValidation(int num_obs, const std::vector<std::vector<int> >& clusters,
-                      GeoDaWeight* weights, std::vector<OGRGeometry*>& geoms,
-                      std::vector<Shapefile::RecordContents*>& geoms1,
+                      GeoDaWeight* weights,
+                      std::vector<Shapefile::RecordContents*>& geoms,
                       Shapefile::ShapeType shape_type);
 	virtual ~SpatialValidation();
             
@@ -206,8 +208,7 @@ protected:
     std::map<int, int> cluster_dict;
     bool valid;
     std::vector<SpatialValidationCluster*> sk_clusters;
-    std::vector<OGRGeometry*> geoms;
-    std::vector<Shapefile::RecordContents*> geoms1;
+    std::vector<Shapefile::RecordContents*> geoms;
     Shapefile::ShapeType shape_type;
     
     Fragmentation fragmentation;
