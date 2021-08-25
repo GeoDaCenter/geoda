@@ -5187,6 +5187,7 @@ void GdaFrame::OnOpenClusterValidation(wxCommandEvent& event)
     
     wxString validationSummary = dlg.GetSummary();
     if (!validationSummary.IsEmpty()) {
+        bool flag = false;
         FramesManager* fm = project_p->GetFramesManager();
         std::list<FramesManagerObserver*> observers(fm->getCopyObservers());
         std::list<FramesManagerObserver*>::iterator it;
@@ -5196,15 +5197,17 @@ void GdaFrame::OnOpenClusterValidation(wxCommandEvent& event)
                 w->m_textbox->SetSelection(0, 0);
                 w->Show(true);
                 w->Raise();
-                return;
+                flag = true;
             }
         }
         
-        ValidationSummaryDialog* summaryDlg = new ValidationSummaryDialog(this, project_p,
-                                                      validationSummary, wxID_ANY,
-                                                      _("Spatial Validation Summary"));
-        summaryDlg->Show(true);
-        summaryDlg->m_textbox->SetSelection(0, 0);
+        if (!flag) {
+            ValidationSummaryDialog* summaryDlg = new ValidationSummaryDialog(this, project_p,
+                                                          validationSummary, wxID_ANY,
+                                                          _("Spatial Validation Summary"));
+            summaryDlg->Show(true);
+            summaryDlg->m_textbox->SetSelection(0, 0);
+        }
     }
     
     MapFrame* nf = new MapFrame(GdaFrame::gda_frame, project_p,
@@ -5214,7 +5217,11 @@ void GdaFrame::OnOpenClusterValidation(wxCommandEvent& event)
                                 boost::uuids::nil_uuid(),
                                 wxDefaultPosition,
                                 GdaConst::map_default_size);
-    nf->UpdateTitle();
+    if (dlg.var_info.size() > 0) {
+        wxString title = _("Cluster Map: ");
+        title << dlg.var_info[0].name;
+        nf->SetTitle(title);
+    }
 }
 
 void GdaFrame::OnUniqueValues(wxCommandEvent& event)

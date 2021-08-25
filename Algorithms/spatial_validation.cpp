@@ -74,10 +74,9 @@ Diameter SpatialValidationComponent::ComputeDiameter()
 {
     // simplified dijkstra
     int n = (int)elements.size();
-    
-#ifndef __NO_THREAD__
     shortest_paths.resize(n, 0);
     
+#ifndef __NO_THREAD__
     int nCPUs = boost::thread::hardware_concurrency();
     if (GdaConst::gda_set_cpu_cores) nCPUs = GdaConst::gda_cpu_cores;
     int quotient = n / nCPUs;
@@ -179,17 +178,18 @@ void SpatialValidationComponent::ComputeDiameterThread(int start, int end)
             for (int j = 0; j < (int)nbrs.size(); ++j) {
                 int nb = nbrs[j];
                 
-                    // steps from e -> nb
-                    int new_steps = steps[tmpid] + 1;
-                    if (new_steps < steps[nb]) {
-                        steps[nb] = new_steps;
-                        if (new_steps > longest_shortestpath) {
-                            longest_shortestpath = new_steps;
-                        }
+                // steps from e -> nb
+                int new_steps = steps[tmpid] + 1;
+                if (new_steps < steps[nb]) {
+                    steps[nb] = new_steps;
+                    if (new_steps > longest_shortestpath) {
+                        longest_shortestpath = new_steps;
                     }
+                }
                 
                 if (visited.find(nb) == visited.end()) {
                     cands.push_back(Step(nb, steps));
+                    visited[nb] = true;
                 }
             }
         }
@@ -214,33 +214,38 @@ core(0), geoms(geoms), shape_type(shape_type)
     int num_elements = (int)elements.size();
     
     // create components from elements
-    std::map<int, bool> visited;
+    std::map<int, bool> processed;
+    
     for (int i = 0; i < num_elements; ++i) {
         int eid = elements[i];
-        if (visited[eid]) {
+        if (processed[eid]) {
             continue;
         }
         std::vector<int> component;
-        visited[eid] = true;
+        
         
         // find contiguous neighbors
         std::stack<int> stack;
         stack.push(eid);
         
         std::map<int, std::vector<int> > edges;
+        std::map<int, bool> visited;
         
         while (!stack.empty()) {
             int tmp_id = stack.top();
             stack.pop();
+            visited[tmp_id] = true;
+            processed[tmp_id] = true;
             component.push_back(tmp_id);
             std::vector<long> nbrs = weights->GetNeighbors(tmp_id);
             for (int j = 0; j < (int)nbrs.size(); ++j) {
                 int neighbor = (int)nbrs[j];
-                if (cluster_dict[neighbor] == this->cid && !visited[neighbor]) {
-                    visited[neighbor] = true;
-                    stack.push(neighbor);
+                if (cluster_dict[neighbor] == this->cid) {
+                    if (visited.find(neighbor) == visited.end()) {
+                        stack.push(neighbor);
+                        visited[neighbor] = true;
+                    }
                     edges[tmp_id].push_back(neighbor);
-                    edges[neighbor].push_back(tmp_id);
                 }
             }
         }
@@ -344,7 +349,7 @@ Fragmentation SpatialValidationCluster::ComputeFragmentation()
     // max for k clusters = ln(k)
     double max_entropy = log((double)k);
     
-    entropy = entropy / max_entropy;
+    double std_entropy = entropy / max_entropy;
     // higher value suggests more balanced cluster
     // smaller value suggests more inequality
     
@@ -360,12 +365,14 @@ Fragmentation SpatialValidationCluster::ComputeFragmentation()
     double min_s = 1 / (double)k;
     
     // ratio of S/(1/k), smaller is more diverse (balanced)
-    simpson = simpson / min_s;
+    double std_simpson = simpson / min_s;
     
     frag.n = k;
+    frag.fraction = k / (double)weights->GetNumObs();
     frag.entropy = entropy;
-    frag.max_entropy = max_entropy;
+    frag.std_entropy = std_entropy;
     frag.simpson = simpson;
+    frag.std_simpson = std_simpson;
     frag.min_cluster_size = min_size;
     frag.max_cluster_size = max_size;
     frag.mean_cluster_size = mean_size;
@@ -520,8 +527,8 @@ void SpatialValidation::ComputeFragmentation()
     
     // compute fraction entropy/ln(k) [so positive number since entropy
     // and max are both negative]
+    double std_entropy = entropy / max_entropy;
     
-    entropy = entropy / max_entropy;
     // higher value suggests more balanced cluster
     // smaller value suggests more inequality
     
@@ -537,12 +544,13 @@ void SpatialValidation::ComputeFragmentation()
     double min_s = 1 / (double)k;
     
     // ratio of S/(1/k), smaller is more diverse (balanced)
-    simpson = simpson / min_s;
+    double std_simpson = simpson / min_s;
     
     fragmentation.n = k;
     fragmentation.entropy = entropy;
-    fragmentation.max_entropy = max_entropy;
+    fragmentation.std_entropy = std_entropy;
     fragmentation.simpson = simpson;
+    fragmentation.std_simpson = std_simpson;
     fragmentation.min_cluster_size = min_size;
     fragmentation.max_cluster_size = max_size;
     fragmentation.mean_cluster_size = mean_size;
