@@ -375,7 +375,7 @@ Fragmentation SpatialValidationCluster::ComputeFragmentation()
     double std_simpson = simpson / min_s;
     
     frag.n = k;
-    frag.fraction = k / (double)weights->GetNumObs();
+    frag.fraction = n / (double)weights->GetNumObs();
     frag.entropy = entropy;
     frag.std_entropy = std_entropy;
     frag.simpson = simpson;

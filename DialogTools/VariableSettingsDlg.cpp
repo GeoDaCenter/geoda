@@ -46,6 +46,7 @@
 #include "../FramesManagerObserver.h"
 #include "../Algorithms/texttable.h"
 #include "../Algorithms/spatial_validation.h"
+#include "../GenUtils.h"
 #include "SaveToTableDlg.h"
 #include "VariableSettingsDlg.h"
 
@@ -793,10 +794,11 @@ wxString ValidationSettingDlg::PrintResult(const std::vector<JoinCountRatio>& jc
     txt << _("Spatial Validation") << "\n";
     txt << _("Variable: ") << sel_str << "\n\n";
     
+    std::stringstream ss;
     txt << _("Fragmentation:") << "\n";
     {
         TextTable t( TextTable::MD );
-        t.add("# Clusters");
+        t.add("#Clusters");
         t.add("Entropy");
         t.add("Entropy*");
         t.add("Simpson");
@@ -804,10 +806,10 @@ wxString ValidationSettingDlg::PrintResult(const std::vector<JoinCountRatio>& jc
         t.endOfRow();
         
         t.add(std::to_string(frag.n));
-        t.add(std::to_string(frag.entropy));
-        t.add(std::to_string(frag.std_entropy));
-        t.add(std::to_string(frag.simpson));
-        t.add(std::to_string(frag.std_simpson));
+        t.add(GenUtils::DblToStr(frag.entropy, 4).ToStdString());
+        t.add(GenUtils::DblToStr(frag.std_entropy, 4).ToStdString());
+        t.add(GenUtils::DblToStr(frag.simpson, 4).ToStdString());
+        t.add(GenUtils::DblToStr(frag.std_simpson, 4).ToStdString());
         t.endOfRow();
         stringstream ss1;
         ss1 << t;
@@ -822,28 +824,28 @@ wxString ValidationSettingDlg::PrintResult(const std::vector<JoinCountRatio>& jc
         TextTable t( TextTable::MD );
         t.add("Cluster");
         t.add("N");
-        t.add("Fraction of Total");
-        t.add("# Subclusters");
+        t.add("Fraction");
+        t.add("#Sub");
         t.add("Entropy");
         t.add("Entropy*");
         t.add("Simpson");
         t.add("Simpson*");
-        t.add("Min Size");
-        t.add("Max Size");
-        t.add("Mean Size");
+        t.add("Min");
+        t.add("Max");
+        t.add("Mean");
         t.endOfRow();
         for (int i = 0; i < (int)frags.size(); ++i) {
             t.add(jcr[i].cluster.c_str());
             t.add(std::to_string(jcr[i].n));
-            t.add(std::to_string(frags[i].fraction));
+            t.add(GenUtils::DblToStr(frags[i].fraction, 4).ToStdString());
             t.add(std::to_string(frags[i].n));
-            t.add(std::to_string(frags[i].entropy));
-            t.add(std::to_string(frags[i].std_entropy));
-            t.add(std::to_string(frags[i].simpson));
-            t.add(std::to_string(frags[i].std_simpson));
+            t.add(GenUtils::DblToStr(frags[i].entropy, 4).ToStdString());
+            t.add(GenUtils::DblToStr(frags[i].std_entropy, 4).ToStdString());
+            t.add(GenUtils::DblToStr(frags[i].simpson, 4).ToStdString());
+            t.add(GenUtils::DblToStr(frags[i].std_simpson, 4).ToStdString());
             t.add(std::to_string(frags[i].min_cluster_size));
             t.add(std::to_string(frags[i].max_cluster_size));
-            t.add(std::to_string(frags[i].mean_cluster_size));
+            t.add(GenUtils::DblToStr(frags[i].mean_cluster_size, 4).ToStdString());
             t.endOfRow();
         }
         stringstream ss1;
@@ -857,8 +859,8 @@ wxString ValidationSettingDlg::PrintResult(const std::vector<JoinCountRatio>& jc
         TextTable t( TextTable::MD );
         t.add("Cluster");
         t.add("N");
-        t.add("Total Neighbors");
-        t.add("Total Join Count");
+        t.add("Neighbors");
+        t.add("Join Count");
         t.add("Ratio");
         t.endOfRow();
         
@@ -867,10 +869,7 @@ wxString ValidationSettingDlg::PrintResult(const std::vector<JoinCountRatio>& jc
             t.add(std::to_string(jcr[i].n));
             t.add(std::to_string(jcr[i].totalNeighbors));
             t.add(std::to_string(jcr[i].totalJoinCount));
-            stringstream ss;
-            ss.str("");
-            ss << jcr[i].ratio;
-            t.add(ss.str());
+            t.add(GenUtils::DblToStr(jcr[i].ratio, 4).ToStdString());
             t.endOfRow();
         }
         
@@ -879,11 +878,7 @@ wxString ValidationSettingDlg::PrintResult(const std::vector<JoinCountRatio>& jc
         t.add(std::to_string(all.n));
         t.add(std::to_string(all.totalNeighbors));
         t.add(std::to_string(all.totalJoinCount));
-    
-        stringstream ss;
-        ss.str("");
-        ss << all.ratio;
-        t.add(ss.str());
+        t.add(GenUtils::DblToStr(all.ratio, 4).ToStdString());
         t.endOfRow();
     
         stringstream ss1;
@@ -900,12 +895,12 @@ wxString ValidationSettingDlg::PrintResult(const std::vector<JoinCountRatio>& jc
         t.add("Cluster");
         t.add("Area");
         t.add("Perimeter");
-        t.add("Isoperimeter Quotient");
+        t.add("IPC");
         t.endOfRow();
         for (int i = 0; i < (int)comps.size(); ++i) {
             t.add(jcr[i].cluster.c_str());
-            t.add(std::to_string(comps[i].area));
-            t.add(std::to_string(comps[i].perimeter));
+            t.add(GenUtils::DblToStr(comps[i].area, 4).ToStdString());
+            t.add(GenUtils::DblToStr(comps[i].perimeter, 4).ToStdString());
             t.add(std::to_string(comps[i].isoperimeter_quotient));
             t.endOfRow();
         }
