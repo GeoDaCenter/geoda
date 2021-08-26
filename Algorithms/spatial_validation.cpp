@@ -3,6 +3,7 @@
 #include <queue>
 #include <stack>
 #include <set>
+#include <queue>
 #include <iostream>
 #include <boost/unordered_map.hpp>
 #include <boost/geometry.hpp>
@@ -163,15 +164,20 @@ void SpatialValidationComponent::ComputeDiameterThread(int start, int end)
         std::vector<Step> cands;
         cands.push_back(Step(e, steps));
         
-        while (visited.size() < n) {
+        std::queue<int> q;
+        q.push(e);
+        
+        while (!q.empty()) {
+            int tmpid = q.front();
+            q.pop();
             
-            std::make_heap(cands.begin(), cands.end());
-            std::pop_heap(cands.begin(), cands.end());
+            //std::make_heap(cands.begin(), cands.end());
+            //std::pop_heap(cands.begin(), cands.end());
             
-            Step item = cands.back();
-            cands.pop_back();
+            //Step item = cands.back();
+            //cands.pop_back();
             
-            int tmpid = item.eid;
+            //int tmpid = item.eid;
             visited[tmpid] = true;
             
             std::vector<int> nbrs = edges[tmpid];
@@ -188,7 +194,8 @@ void SpatialValidationComponent::ComputeDiameterThread(int start, int end)
                 }
                 
                 if (visited.find(nb) == visited.end()) {
-                    cands.push_back(Step(nb, steps));
+                    //cands.push_back(Step(nb, steps));
+                    q.push(nb);
                     visited[nb] = true;
                 }
             }
