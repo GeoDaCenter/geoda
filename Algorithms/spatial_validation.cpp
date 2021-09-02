@@ -415,12 +415,11 @@ Compactness SpatialValidationCluster::ComputeCompactness()
                     double y = pc->points[k].y;
                     bg::append(poly, bg::model::d2::point_xy<double>(x, y));
                 }
-                if (pc->isClockwise[j]) {
-                    area += bg::area(poly);
+                double element_area = bg::area(poly);
+                area += element_area;
+                if (element_area > 0) {
+                    // ignore the holes
                     perimeter += bg::perimeter(poly);
-                } else {
-                    area -= bg::area(poly);
-                    //perimeter -= bg::perimeter(poly);
                 }
             }
         }
