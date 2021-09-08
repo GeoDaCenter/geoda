@@ -18,7 +18,7 @@ mkdir -p ../../o
 brew install boost
 
 # Install libgdal-dev
-brew install gdal --with-postgresql
+brew install gdal
 
 # Build wxWidgets 3.1.4
 cd temp
