@@ -23,6 +23,8 @@ cd temp
 # Install libgdal
 export DEBIAN_FRONTEND=noninteractive
 $APT update -y
+$APT install -y libpq-dev
+$APT install -y gdal-bin
 $APT install -y libgdal-dev
 $APT install -y unzip cmake dh-autoreconf libgtk-3-dev libgl1-mesa-dev libglu1-mesa-dev 
 
