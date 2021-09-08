@@ -408,8 +408,8 @@
     <ClInclude Include="..\..\Algorithms\S.h" />
     <ClInclude Include="..\..\Algorithms\skater.h" />
     <ClInclude Include="..\..\Algorithms\smacof.h" />
-    <ClCompile Include="..\..\Algorithms\spatial_kmeans.h" />
-    <ClCompile Include="..\..\Algorithms\spatial_validation.h" />
+    <ClInclude Include="..\..\Algorithms\spatial_kmeans.h" />
+    <ClInclude Include="..\..\Algorithms\spatial_validation.h" />
     <ClInclude Include="..\..\Algorithms\spectral.h" />
     <ClInclude Include="..\..\Algorithms\splittree.h" />
     <ClInclude Include="..\..\Algorithms\texttable.h" />
