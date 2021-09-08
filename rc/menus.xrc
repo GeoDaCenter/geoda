@@ -456,6 +456,9 @@
             <label>HDBScan</label>
         </object>
         <object class="separator"/>
+        <object class="wxMenuItem" name="ID_TOOLS_DATA_SCKMEANS">
+            <label>SC K Means</label>
+        </object>
         <object class="wxMenuItem" name="ID_TOOLS_DATA_SCHC">
             <label>SCHC</label>
         </object>
@@ -475,6 +478,12 @@
         <object class="separator"/>
         <object class="wxMenuItem" name="ID_TOOLS_CLUSTER_MATCH_MAP">
             <label>Cluster Match Map</label>
+        </object>
+        <object class="wxMenuItem" name="ID_TOOLS_CLUSTER_MAKE_SPATIAL">
+            <label>Make Spatial</label>
+        </object>
+        <object class="wxMenuItem" name="ID_TOOLS_CLUSTER_VALIDATION">
+            <label>Validation</label>
         </object>
     </object>
     <object class="wxMenu" name="ID_MENU">
@@ -6137,6 +6146,9 @@
           <label>HDBScan</label>
       </object>
       <object class="separator"/>
+      <object class="wxMenuItem" name="ID_TOOLS_DATA_SCKMEANS">
+          <label>SC K Means</label>
+      </object>
       <object class="wxMenuItem" name="ID_TOOLS_DATA_SCHC">
           <label>SCHC</label>
       </object>
@@ -6156,6 +6168,12 @@
       <object class="separator"/>
       <object class="wxMenuItem" name="ID_TOOLS_CLUSTER_MATCH_MAP">
           <label>Cluster Match Map</label>
+      </object>
+      <object class="wxMenuItem" name="ID_TOOLS_CLUSTER_MAKE_SPATIAL">
+          <label>Make Spatial</label>
+      </object>
+      <object class="wxMenuItem" name="ID_TOOLS_CLUSTER_VALIDATION">
+          <label>Validation</label>
       </object>
   </object>
   <object class="wxMenu" name="ID_MORAN_MENU">

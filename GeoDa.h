@@ -170,6 +170,7 @@ public:
     void OnToolsDataSCHC(wxCommandEvent& event);
     void OnToolsDataSpectral(wxCommandEvent& event);
     void OnToolsDataRedcap(wxCommandEvent& event);
+    void OnToolsDataSCKMEANS(wxCommandEvent& event);
     void OnToolsDataMDS(wxCommandEvent& event);
     void OnToolsDataTSNE(wxCommandEvent& event);
     
@@ -363,7 +364,9 @@ public:
 	void OnOpenColocationMap(wxCommandEvent& event);
 	void OnUniqueValues(wxCommandEvent& event);
     void OnOpenClusterMatchMap(wxCommandEvent& event);
+    void OnOpenClusterValidation(wxCommandEvent& event);
 	void OnSaveCategories(wxCommandEvent& event);
+    void OnOpenClusterMakeSpatial(wxCommandEvent& event);
 	
 	void OnOpenRawrate(wxCommandEvent& event);
 	void OnRawrate(wxCommandEvent& event);

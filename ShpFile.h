@@ -159,6 +159,7 @@ namespace Shapefile {
 		// stores the first index in array for each part
 		std::vector<Point> points; // byte 44 + 4*num_parts, array of
 		// size num_parts, LE
+        std::vector<bool> isClockwise;
 		
 		bool intersect(PolygonContents* shp) { 
 			return !(shp->box[0] > box[2] || shp->box[1] > box[3] ||

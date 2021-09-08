@@ -622,6 +622,7 @@ void GdaFrame::UpdateToolbarAndMenus()
     GeneralWxUtils::EnableMenuItem(mb, XRCID("ID_TOOLS_DATA_AZP"), proj_open);
     GeneralWxUtils::EnableMenuItem(mb, XRCID("ID_TOOLS_DATA_SKATER"), proj_open);
     GeneralWxUtils::EnableMenuItem(mb, XRCID("ID_TOOLS_DATA_SCHC"), proj_open);
+    GeneralWxUtils::EnableMenuItem(mb, XRCID("ID_TOOLS_DATA_SCKMEANS"), proj_open);
     GeneralWxUtils::EnableMenuItem(mb, XRCID("ID_TOOLS_DATA_SPECTRAL"), proj_open);
     GeneralWxUtils::EnableMenuItem(mb, XRCID("ID_TOOLS_DATA_REDCAP"), proj_open);
     GeneralWxUtils::EnableMenuItem(mb, XRCID("ID_TOOLS_DATA_MDS"), proj_open);
@@ -1997,6 +1998,27 @@ void GdaFrame::OnToolsDataAZP(wxCommandEvent& WXUNUSED(event) )
     dlg->Show(true);
 }
 
+void GdaFrame::OnOpenClusterMakeSpatial(wxCommandEvent& WXUNUSED(event) )
+{
+    Project* p = GetProject();
+    if (!p) return;
+    
+    FramesManager* fm = p->GetFramesManager();
+    std::list<FramesManagerObserver*> observers(fm->getCopyObservers());
+    std::list<FramesManagerObserver*>::iterator it;
+    for (it=observers.begin(); it != observers.end(); ++it) {
+        if (MakeSpatialDlg* w = dynamic_cast<MakeSpatialDlg*>(*it)) {
+            w->Show(true);
+            w->Maximize(false);
+            w->Raise();
+            return;
+        }
+    }
+    
+    MakeSpatialDlg* dlg = new MakeSpatialDlg(this, p);
+    dlg->Show(true);
+}
+
 void GdaFrame::OnToolsDataSkater(wxCommandEvent& WXUNUSED(event) )
 {
     Project* p = GetProject();
@@ -2036,6 +2058,27 @@ void GdaFrame::OnToolsDataSCHC(wxCommandEvent& WXUNUSED(event) )
     }
 
     SCHCDlg* dlg = new SCHCDlg(this, p);
+    dlg->Show(true);
+}
+
+void GdaFrame::OnToolsDataSCKMEANS(wxCommandEvent& WXUNUSED(event) )
+{
+    Project* p = GetProject();
+    if (!p) return;
+
+    FramesManager* fm = p->GetFramesManager();
+    std::list<FramesManagerObserver*> observers(fm->getCopyObservers());
+    std::list<FramesManagerObserver*>::iterator it;
+    for (it=observers.begin(); it != observers.end(); ++it) {
+        if (SpatialKMeansDlg* w = dynamic_cast<SpatialKMeansDlg*>(*it)) {
+            w->Show(true);
+            w->Maximize(false);
+            w->Raise();
+            return;
+        }
+    }
+
+    SpatialKMeansDlg* dlg = new SpatialKMeansDlg(this, p);
     dlg->Show(true);
 }
 
@@ -3030,6 +3073,7 @@ void GdaFrame::OnClusteringChoices(wxCommandEvent& WXUNUSED(event))
         GeneralWxUtils::EnableMenuItem(popupMenu,XRCID("ID_TOOLS_DATA_AZP"),proj_open);
         GeneralWxUtils::EnableMenuItem(popupMenu,XRCID("ID_TOOLS_DATA_SKATER"),proj_open);
         GeneralWxUtils::EnableMenuItem(popupMenu,XRCID("ID_TOOLS_DATA_SCHC"),proj_open);
+        GeneralWxUtils::EnableMenuItem(popupMenu,XRCID("ID_TOOLS_DATA_SCKMEANS"),proj_open);
         GeneralWxUtils::EnableMenuItem(popupMenu,XRCID("ID_TOOLS_DATA_REDCAP"),proj_open);
         GeneralWxUtils::EnableMenuItem(popupMenu,XRCID("ID_TOOLS_DATA_MDS"),proj_open);
         GeneralWxUtils::EnableMenuItem(popupMenu,XRCID("ID_TOOLS_DATA_TSNE"),proj_open);
@@ -5156,6 +5200,51 @@ void GdaFrame::OnOpenClusterMatchMap(wxCommandEvent& event)
     dlg->Show(true);
 }
 
+void GdaFrame::OnOpenClusterValidation(wxCommandEvent& event)
+{
+    wxLogMessage("In GdaFrame::OnOpenClusterValidation()");
+    ValidationSettingDlg dlg(project_p);
+    if (dlg.ShowModal() != wxID_OK) return;
+    
+    wxString validationSummary = dlg.GetSummary();
+    if (!validationSummary.IsEmpty()) {
+        bool flag = false;
+        FramesManager* fm = project_p->GetFramesManager();
+        std::list<FramesManagerObserver*> observers(fm->getCopyObservers());
+        std::list<FramesManagerObserver*>::iterator it;
+        for (it=observers.begin(); it != observers.end(); ++it) {
+            if (ValidationSummaryDialog* w = dynamic_cast<ValidationSummaryDialog*>(*it)) {
+                w->AddNewReport(validationSummary);
+                w->m_textbox->SetSelection(0, 0);
+                w->Show(true);
+                w->Raise();
+                flag = true;
+            }
+        }
+        
+        if (!flag) {
+            ValidationSummaryDialog* summaryDlg = new ValidationSummaryDialog(this, project_p,
+                                                          validationSummary, wxID_ANY,
+                                                          _("Spatial Validation Summary"));
+            summaryDlg->Show(true);
+            summaryDlg->m_textbox->SetSelection(0, 0);
+        }
+    }
+    
+    MapFrame* nf = new MapFrame(GdaFrame::gda_frame, project_p,
+                                dlg.var_info, dlg.col_ids,
+                                CatClassification::unique_values,
+                                MapCanvas::no_smoothing, 4,
+                                boost::uuids::nil_uuid(),
+                                wxDefaultPosition,
+                                GdaConst::map_default_size);
+    if (dlg.var_info.size() > 0) {
+        wxString title = _("Cluster Map: ");
+        title << dlg.var_info[0].name;
+        nf->SetTitle(title);
+    }
+}
+
 void GdaFrame::OnUniqueValues(wxCommandEvent& event)
 {
     wxLogMessage("In GdaFrame::OnUniqueValues()");
@@ -7106,6 +7195,7 @@ BEGIN_EVENT_TABLE(GdaFrame, wxFrame)
     EVT_MENU(XRCID("ID_TOOLS_DATA_AZP"), GdaFrame::OnToolsDataAZP)
     EVT_MENU(XRCID("ID_TOOLS_DATA_SKATER"), GdaFrame::OnToolsDataSkater)
     EVT_MENU(XRCID("ID_TOOLS_DATA_SCHC"), GdaFrame::OnToolsDataSCHC)
+    EVT_MENU(XRCID("ID_TOOLS_DATA_SCKMEANS"), GdaFrame::OnToolsDataSCKMEANS)
     EVT_MENU(XRCID("ID_TOOLS_DATA_SPECTRAL"), GdaFrame::OnToolsDataSpectral)
     EVT_MENU(XRCID("ID_TOOLS_DATA_REDCAP"), GdaFrame::OnToolsDataRedcap)
     EVT_MENU(XRCID("ID_TOOLS_DATA_MDS"), GdaFrame::OnToolsDataMDS)
@@ -7401,6 +7491,10 @@ BEGIN_EVENT_TABLE(GdaFrame, wxFrame)
     EVT_MENU(XRCID("ID_MAPANALYSIS_COLOCATION"), GdaFrame::OnOpenColocationMap)
     EVT_TOOL(XRCID("ID_TOOLS_CLUSTER_MATCH_MAP"), GdaFrame::OnOpenClusterMatchMap)
     EVT_MENU(XRCID("ID_TOOLS_CLUSTER_MATCH_MAP"), GdaFrame::OnOpenClusterMatchMap)
+    EVT_TOOL(XRCID("ID_TOOLS_CLUSTER_MAKE_SPATIAL"), GdaFrame::OnOpenClusterMakeSpatial)
+    EVT_MENU(XRCID("ID_TOOLS_CLUSTER_MAKE_SPATIAL"), GdaFrame::OnOpenClusterMakeSpatial)
+    EVT_TOOL(XRCID("ID_TOOLS_CLUSTER_VALIDATION"), GdaFrame::OnOpenClusterValidation)
+    EVT_MENU(XRCID("ID_TOOLS_CLUSTER_VALIDATION"), GdaFrame::OnOpenClusterValidation)
 
     EVT_MENU(XRCID("ID_COND_VERT_UNIQUE_VALUES"), GdaFrame::OnCondVertUniqueValues)
     EVT_MENU(XRCID("ID_COND_HORIZ_UNIQUE_VALUES"), GdaFrame::OnCondHorizUniqueValues)

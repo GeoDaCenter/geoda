@@ -36,6 +36,30 @@ using namespace std;
 class Project;
 class TableInterface;
 
+class MakeSpatialDlg : public AbstractClusterDlg
+{
+public:
+    MakeSpatialDlg(wxFrame *parent, Project* project);
+    virtual ~MakeSpatialDlg();
+    
+    virtual void CreateControls();
+    void OnOK( wxCommandEvent& event );
+    void OnClickClose( wxCommandEvent& event );
+    void OnClose(wxCloseEvent& ev);
+    
+    virtual wxString _printConfiguration();
+    
+private:
+    wxTextCtrl* m_textbox;
+    wxTextCtrl* m_max_region;
+    
+
+    wxButton* seedButton;
+    wxButton* saveButton;
+        
+    DECLARE_EVENT_TABLE()
+};
+
 class KClusterDlg : public AbstractClusterDlg
 {
 public:
@@ -98,6 +122,26 @@ protected:
     map<double, vector<wxInt64> > sub_clusters;
     
     DECLARE_EVENT_TABLE()
+};
+
+////////////////////////////////////////////////////////////////////////
+//
+// SpatialKMeansDlg
+////////////////////////////////////////////////////////////////////////
+
+class SpatialKMeansDlg : public KClusterDlg
+{
+public:
+    SpatialKMeansDlg(wxFrame *parent, Project* project);
+    virtual ~SpatialKMeansDlg();
+    
+    virtual void CreateControls();
+    
+    virtual void doRun(int s1, int ncluster, int npass, int n_maxiter, int meth_sel, int dist_sel, double min_bound, double* bound_vals);
+    
+    virtual wxString _printConfiguration();
+    
+    void OnOK( wxCommandEvent& event );
 };
 
 ////////////////////////////////////////////////////////////////////////

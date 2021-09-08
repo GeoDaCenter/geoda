@@ -557,7 +557,7 @@ Shapefile::ShapeType OGRLayerProxy::GetOGRGeometries(vector<OGRGeometry*>& geoms
     }
     Shapefile::ShapeType shape_type = Shapefile::NULL_SHAPE;
     //read OGR geometry features
-    int feature_counter =0;
+    //int feature_counter =0;
     for ( int row_idx=0; row_idx < n_rows; row_idx++ ) {
         OGRFeature* feature = data[row_idx];
         OGRGeometry* geometry= feature->GetGeometryRef();
@@ -1514,10 +1514,12 @@ bool OGRLayerProxy::ReadGeometries(Shapefile::Main& p_main)
                 // resize parts memory, 1 is for exterior ring,
                 pc->num_parts = ni_rings + 1;
                 pc->parts.resize(pc->num_parts);
+                pc->isClockwise.resize(pc->num_parts);
                 for (size_t j=0; j < pc->num_parts; j++ ) {
                     pLinearRing = j==0 ? 
                         p->getExteriorRing() : p->getInteriorRing(j-1);
                     pc->parts[j] = numPoints;
+                    pc->isClockwise[j] = pLinearRing->isClockwise();
                     if (pLinearRing)
                         numPoints += pLinearRing->getNumPoints();
                 }
@@ -1572,9 +1574,11 @@ bool OGRLayerProxy::ReadGeometries(Shapefile::Main& p_main)
                     int ni_rings = p->getNumInteriorRings()+1;
                     pc->num_parts += ni_rings;
                     pc->parts.resize(pc->num_parts);
+                    pc->isClockwise.resize(pc->num_parts);
                     
                     for (size_t j=0; j < ni_rings; j++) {
                         pLinearRing = j==0 ? p->getExteriorRing() : p->getInteriorRing(j-1);
+                        pc->isClockwise[part_idx] = pLinearRing->isClockwise();
                         pc->parts[part_idx++] = numPoints;
                         numPoints += pLinearRing->getNumPoints();
                     }

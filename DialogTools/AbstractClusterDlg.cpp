@@ -209,13 +209,20 @@ bool AbstractClusterDlg::CheckConnectivity(GalElement* W)
 }
 
 void AbstractClusterDlg::AddSimpleInputCtrls(wxPanel *panel, wxBoxSizer* vbox,
-             bool integer_only, bool show_spatial_weights, bool add_centroids)
+             bool integer_only, bool show_spatial_weights, bool add_centroids,
+             bool multiple_selection, wxString header)
 {
-    wxStaticText* st = new wxStaticText (panel, wxID_ANY, _("Select Variables"));
+    wxStaticText* st = new wxStaticText (panel, wxID_ANY, header);
     
-    combo_var = new wxListBox(panel, wxID_ANY, wxDefaultPosition,
-                              wxSize(250,250), 0, NULL,
-                              wxLB_MULTIPLE | wxLB_HSCROLL| wxLB_NEEDED_SB);
+    if (multiple_selection) {
+        combo_var = new wxListBox(panel, wxID_ANY, wxDefaultPosition,
+                                  wxSize(250,250), 0, NULL,
+                                  wxLB_MULTIPLE | wxLB_HSCROLL| wxLB_NEEDED_SB);
+    } else {
+        combo_var = new wxListBox(panel, wxID_ANY, wxDefaultPosition,
+                                  wxSize(250,250), 0, NULL,
+                                  wxLB_SINGLE | wxLB_HSCROLL| wxLB_NEEDED_SB);
+    }
     InitVariableCombobox(combo_var, integer_only, add_centroids);
     
     wxStaticBoxSizer *hbox0 = new wxStaticBoxSizer(wxVERTICAL, panel,
