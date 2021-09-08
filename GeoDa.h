@@ -366,6 +366,7 @@ public:
     void OnOpenClusterMatchMap(wxCommandEvent& event);
     void OnOpenClusterValidation(wxCommandEvent& event);
 	void OnSaveCategories(wxCommandEvent& event);
+    void OnOpenClusterMakeSpatial(wxCommandEvent& event);
 	
 	void OnOpenRawrate(wxCommandEvent& event);
 	void OnRawrate(wxCommandEvent& event);

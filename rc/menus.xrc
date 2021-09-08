@@ -479,6 +479,9 @@
         <object class="wxMenuItem" name="ID_TOOLS_CLUSTER_MATCH_MAP">
             <label>Cluster Match Map</label>
         </object>
+        <object class="wxMenuItem" name="ID_TOOLS_CLUSTER_MAKE_SPATIAL">
+            <label>Make Spatial</label>
+        </object>
         <object class="wxMenuItem" name="ID_TOOLS_CLUSTER_VALIDATION">
             <label>Validation</label>
         </object>
@@ -6165,6 +6168,9 @@
       <object class="separator"/>
       <object class="wxMenuItem" name="ID_TOOLS_CLUSTER_MATCH_MAP">
           <label>Cluster Match Map</label>
+      </object>
+      <object class="wxMenuItem" name="ID_TOOLS_CLUSTER_MAKE_SPATIAL">
+          <label>Make Spatial</label>
       </object>
       <object class="wxMenuItem" name="ID_TOOLS_CLUSTER_VALIDATION">
           <label>Validation</label>

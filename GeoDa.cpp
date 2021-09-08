@@ -1998,6 +1998,27 @@ void GdaFrame::OnToolsDataAZP(wxCommandEvent& WXUNUSED(event) )
     dlg->Show(true);
 }
 
+void GdaFrame::OnOpenClusterMakeSpatial(wxCommandEvent& WXUNUSED(event) )
+{
+    Project* p = GetProject();
+    if (!p) return;
+    
+    FramesManager* fm = p->GetFramesManager();
+    std::list<FramesManagerObserver*> observers(fm->getCopyObservers());
+    std::list<FramesManagerObserver*>::iterator it;
+    for (it=observers.begin(); it != observers.end(); ++it) {
+        if (MakeSpatialDlg* w = dynamic_cast<MakeSpatialDlg*>(*it)) {
+            w->Show(true);
+            w->Maximize(false);
+            w->Raise();
+            return;
+        }
+    }
+    
+    MakeSpatialDlg* dlg = new MakeSpatialDlg(this, p);
+    dlg->Show(true);
+}
+
 void GdaFrame::OnToolsDataSkater(wxCommandEvent& WXUNUSED(event) )
 {
     Project* p = GetProject();
@@ -7470,6 +7491,8 @@ BEGIN_EVENT_TABLE(GdaFrame, wxFrame)
     EVT_MENU(XRCID("ID_MAPANALYSIS_COLOCATION"), GdaFrame::OnOpenColocationMap)
     EVT_TOOL(XRCID("ID_TOOLS_CLUSTER_MATCH_MAP"), GdaFrame::OnOpenClusterMatchMap)
     EVT_MENU(XRCID("ID_TOOLS_CLUSTER_MATCH_MAP"), GdaFrame::OnOpenClusterMatchMap)
+    EVT_TOOL(XRCID("ID_TOOLS_CLUSTER_MAKE_SPATIAL"), GdaFrame::OnOpenClusterMakeSpatial)
+    EVT_MENU(XRCID("ID_TOOLS_CLUSTER_MAKE_SPATIAL"), GdaFrame::OnOpenClusterMakeSpatial)
     EVT_TOOL(XRCID("ID_TOOLS_CLUSTER_VALIDATION"), GdaFrame::OnOpenClusterValidation)
     EVT_MENU(XRCID("ID_TOOLS_CLUSTER_VALIDATION"), GdaFrame::OnOpenClusterValidation)
 

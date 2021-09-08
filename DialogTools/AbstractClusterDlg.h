@@ -143,7 +143,9 @@ protected:
     virtual void AddSimpleInputCtrls(wxPanel *panel, wxBoxSizer* vbox,
                                      bool integer_only = false,
                                      bool show_spatial_weights = false,
-                                     bool add_centroids = true);
+                                     bool add_centroids = true,
+                                     bool multiple_selection = true,
+                                     wxString header = _("Select Variables"));
     virtual void OnUseCentroids(wxCommandEvent& event);
     virtual void OnSlideWeight(wxCommandEvent& event);
     virtual void InitVariableCombobox(wxListBox* var_box,

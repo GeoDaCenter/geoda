@@ -253,6 +253,8 @@
     <ClCompile Include="..\..\Algorithms\skater.cpp" />
     <ClCompile Include="..\..\Algorithms\smacof.c" />
     <ClCompile Include="..\..\Algorithms\smacof_utils.c" />
+    <ClCompile Include="..\..\Algorithms\spatial_kmeans.cpp" />
+    <ClCompile Include="..\..\Algorithms\spatial_validation.cpp" />
     <ClCompile Include="..\..\Algorithms\spectral.cpp" />
     <ClCompile Include="..\..\Algorithms\splittree.cpp" />
     <ClCompile Include="..\..\Algorithms\tsne.cpp" />
@@ -406,6 +408,8 @@
     <ClInclude Include="..\..\Algorithms\S.h" />
     <ClInclude Include="..\..\Algorithms\skater.h" />
     <ClInclude Include="..\..\Algorithms\smacof.h" />
+    <ClCompile Include="..\..\Algorithms\spatial_kmeans.h" />
+    <ClCompile Include="..\..\Algorithms\spatial_validation.h" />
     <ClInclude Include="..\..\Algorithms\spectral.h" />
     <ClInclude Include="..\..\Algorithms\splittree.h" />
     <ClInclude Include="..\..\Algorithms\texttable.h" />

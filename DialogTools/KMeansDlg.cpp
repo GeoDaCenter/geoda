@@ -51,6 +51,231 @@
 #include "SaveToTableDlg.h"
 #include "KMeansDlg.h"
 
+BEGIN_EVENT_TABLE( MakeSpatialDlg, wxDialog )
+EVT_CLOSE( MakeSpatialDlg::OnClose )
+END_EVENT_TABLE()
+
+MakeSpatialDlg::MakeSpatialDlg(wxFrame* parent_s, Project* project_s)
+: AbstractClusterDlg(parent_s, project_s, _("Make Spatial Settings"))
+{
+    wxLogMessage("Open MakeSpatial dialog.");
+    CreateControls();
+}
+
+MakeSpatialDlg::~MakeSpatialDlg()
+{
+    wxLogMessage("On MakeSpatialDlg::~MakeSpatialDlg");
+}
+
+
+void MakeSpatialDlg::CreateControls()
+{
+    wxLogMessage("On MakeSpatialDlg::CreateControls");
+    wxScrolledWindow* scrl = new wxScrolledWindow(this, wxID_ANY, wxDefaultPosition, wxSize(800,480), wxHSCROLL|wxVSCROLL );
+    scrl->SetScrollRate( 5, 5 );
+    
+    wxPanel *panel = new wxPanel(scrl);
+    
+    wxBoxSizer *vbox = new wxBoxSizer(wxVERTICAL);
+    
+    // Input
+    AddSimpleInputCtrls(panel, vbox, true/*integer*/, true/*show spatial weights*/,
+                        false/*centroids*/, false /*single*/, _("Select Cluster Variable"));
+    
+    // Output
+    wxFlexGridSizer* gbox_out = new wxFlexGridSizer(2,2,5,0);
+    wxStaticText* st3 = new wxStaticText(panel, wxID_ANY, _("Save Cluster in Field:"));
+    m_textbox = new wxTextCtrl(panel, wxID_ANY, "CL", wxDefaultPosition, wxSize(158,-1));
+    gbox_out->Add(st3, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
+    gbox_out->Add(m_textbox, 1, wxEXPAND);
+
+    wxStaticBoxSizer *hbox1 = new wxStaticBoxSizer(wxHORIZONTAL, panel, _("Output:"));
+    hbox1->Add(gbox_out, 1, wxEXPAND);
+
+    // Buttons
+    wxButton *okButton = new wxButton(panel, wxID_OK, _("Run"), wxDefaultPosition,
+                                      wxSize(70, 30));
+    wxButton *closeButton = new wxButton(panel, wxID_EXIT, _("Close"),
+                                         wxDefaultPosition, wxSize(70, 30));
+    wxBoxSizer *hbox2 = new wxBoxSizer(wxHORIZONTAL);
+    hbox2->Add(okButton, 0, wxALIGN_CENTER | wxALL, 5);
+    hbox2->Add(closeButton, 0, wxALIGN_CENTER | wxALL, 5);
+    
+    // Container
+    vbox->Add(hbox1, 0, wxEXPAND | wxTOP | wxLEFT | wxRIGHT, 10);
+    vbox->Add(hbox2, 0, wxALIGN_CENTER | wxALL, 10);
+
+    // Summary control
+    wxBoxSizer *vbox1 = new wxBoxSizer(wxVERTICAL);
+    wxNotebook* notebook = AddSimpleReportCtrls(panel);
+    vbox1->Add(notebook, 1, wxEXPAND|wxALL,20);
+
+    wxBoxSizer *container = new wxBoxSizer(wxHORIZONTAL);
+    container->Add(vbox);
+    container->Add(vbox1, 1, wxEXPAND | wxALL);
+    
+    panel->SetSizer(container);
+    
+    wxBoxSizer* panelSizer = new wxBoxSizer(wxVERTICAL);
+    panelSizer->Add(panel, 1, wxEXPAND|wxALL, 0);
+    
+    scrl->SetSizer(panelSizer);
+
+    wxBoxSizer* sizerAll = new wxBoxSizer(wxVERTICAL);
+    sizerAll->Add(scrl, 1, wxEXPAND|wxALL, 0);
+    SetSizer(sizerAll);
+    SetAutoLayout(true);
+    sizerAll->Fit(this);
+
+    Centre();
+    
+    // Events
+    okButton->Bind(wxEVT_BUTTON, &MakeSpatialDlg::OnOK, this);
+    closeButton->Bind(wxEVT_BUTTON, &MakeSpatialDlg::OnClickClose, this);
+}
+
+void MakeSpatialDlg::OnClickClose(wxCommandEvent& event )
+{
+    wxLogMessage("OnClickClose MakeSpatialDlg.");
+    
+    event.Skip();
+    EndDialog(wxID_CANCEL);
+}
+
+void MakeSpatialDlg::OnClose(wxCloseEvent& ev)
+{
+    wxLogMessage("Close MakeSpatialDlg");
+    // Note: it seems that if we don't explictly capture the close event
+    //       and call Destory, then the destructor is not called.
+    Destroy();
+}
+
+wxString MakeSpatialDlg::_printConfiguration()
+{
+    wxString txt;
+    return txt;
+}
+
+void MakeSpatialDlg::OnOK(wxCommandEvent& event )
+{
+    wxLogMessage("Click MakeSpatialDlg::OnOK");
+    
+    // Get input data
+    bool success = GetInputData(0, 1);
+    if (!success) return;
+    
+    wxString field_name = m_textbox->GetValue();
+    if (field_name.IsEmpty()) {
+        wxString err_msg = _("Please enter a field name for saving clustering results.");
+        wxMessageDialog dlg(NULL, err_msg, _("Error"), wxOK | wxICON_ERROR);
+        dlg.ShowModal();
+        return;
+    }
+    
+    // Weights selection
+    GalWeight* gw = CheckSpatialWeights();
+    if (gw == NULL) {
+        return;
+    }
+    
+    // Check connectivity
+    if (!CheckConnectivity(gw)) {
+        wxString msg = _("The connectivity of selected spatial weights is incomplete, please adjust the spatial weights.");
+        wxMessageDialog dlg(this, msg, _("Warning"), wxOK | wxICON_WARNING );
+        dlg.ShowModal();
+    }
+    
+    vector<wxInt64> clusters(rows, 0);
+    vector<bool> clusters_undef(rows, false);
+    
+    map<wxInt64, vector<int> > cluster_dict;
+    for (int i = 0; i < rows; ++i) {
+        clusters[i] = input_data[i][0];
+        cluster_dict[clusters[i]].push_back(i);
+    }
+
+    // sort result
+    std::vector<std::vector<int> > cluster_ids;
+    map<wxInt64, vector<int> >::iterator it;
+    for (it = cluster_dict.begin(); it != cluster_dict.end(); ++it) {
+        cluster_ids.push_back(it->second);
+    }
+    std::sort(cluster_ids.begin(), cluster_ids.end(), GenUtils::less_vectors);
+    
+    // run Spatial KMeans
+    GeoDaWeight* gdw = (GeoDaWeight*)gw;
+    
+    SpatialKMeans skm(rows, cluster_ids, gdw);
+    skm.Run();
+    cluster_ids = skm.GetClusters();
+    
+    int n_cluster = (int)cluster_ids.size();
+    for (int i=0; i < n_cluster; i++) {
+        int c = i + 1;
+        for (int j=0; j<cluster_ids[i].size(); j++) {
+            int idx = cluster_ids[i][j];
+            clusters[idx] = c;
+        }
+    }
+    
+    CreateSummary(clusters);
+    
+    // save to table
+    int time=0;
+    int col = table_int->FindColId(field_name);
+    if ( col == wxNOT_FOUND) {
+        int col_insert_pos = table_int->GetNumberCols();
+        int time_steps = 1;
+        int m_length_val = GdaConst::default_dbf_long_len;
+        int m_decimals_val = 0;
+        
+        col = table_int->InsertCol(GdaConst::long64_type, field_name, col_insert_pos, time_steps, m_length_val, m_decimals_val);
+    } else {
+        // detect if column is integer field, if not raise a warning
+        if (table_int->GetColType(col) != GdaConst::long64_type ) {
+            wxString msg = _("This field name already exists (non-integer type). Please input a unique name.");
+            wxMessageDialog dlg(this, msg, _("Warning"), wxOK | wxICON_WARNING );
+            dlg.ShowModal();
+            return;
+        }
+    }
+    
+    if (col > 0) {
+        table_int->SetColData(col, time, clusters);
+        table_int->SetColUndefined(col, time, clusters_undef);
+    }
+    
+    // show a cluster map
+    if (project->IsTableOnlyProject()) {
+        return;
+    }
+    std::vector<GdaVarTools::VarInfo> new_var_info;
+    std::vector<int> new_col_ids;
+    new_col_ids.resize(1);
+    new_var_info.resize(1);
+    new_col_ids[0] = col;
+    new_var_info[0].time = 0;
+    // Set Primary GdaVarTools::VarInfo attributes
+    new_var_info[0].name = field_name;
+    new_var_info[0].is_time_variant = table_int->IsColTimeVariant(col);
+    table_int->GetMinMaxVals(new_col_ids[0], new_var_info[0].min, new_var_info[0].max);
+    new_var_info[0].sync_with_global_time = new_var_info[0].is_time_variant;
+    new_var_info[0].fixed_scale = true;
+
+    
+    MapFrame* nf = new MapFrame(parent, project,
+                                new_var_info, new_col_ids,
+                                CatClassification::unique_values,
+                                MapCanvas::no_smoothing, 4,
+                                boost::uuids::nil_uuid(),
+                                wxDefaultPosition,
+                                GdaConst::map_default_size);
+    wxString ttl;
+    ttl << "Make Spatial " << _("Cluster Map ") << "(";
+    ttl << n_cluster;
+    ttl << " clusters)";
+    nf->SetTitle(ttl);    
+}
 
 BEGIN_EVENT_TABLE( KClusterDlg, wxDialog )
 EVT_CLOSE( KClusterDlg::OnClose )
