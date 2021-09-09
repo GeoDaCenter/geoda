@@ -111,6 +111,8 @@ public:
     
     bool IsValid() { return valid; }
     
+    bool IsSpatiallyConstrained();
+    
 protected:
     void UpdateComponent(SpatialKMeansComponent* moved_comp,
                          SpatialKMeansComponent* target);

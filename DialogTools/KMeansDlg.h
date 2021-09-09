@@ -47,16 +47,22 @@ public:
     void OnClickClose( wxCommandEvent& event );
     void OnClose(wxCloseEvent& ev);
     
+protected:
     virtual wxString _printConfiguration();
-    
+    virtual void InitVariableCombobox(wxListBox* var_box,
+                                      bool integer_only=false,
+                                      bool add_centroids=true);
 private:
+    int n_cluster;
+    wxString cluster_indicator;
     wxTextCtrl* m_textbox;
     wxTextCtrl* m_max_region;
-    
+    wxChoice* m_cluster_combo;
 
     wxButton* seedButton;
     wxButton* saveButton;
         
+    void OnSelClusterIndicator(wxCommandEvent& event);
     DECLARE_EVENT_TABLE()
 };
 

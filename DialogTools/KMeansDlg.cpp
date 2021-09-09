@@ -56,7 +56,7 @@ EVT_CLOSE( MakeSpatialDlg::OnClose )
 END_EVENT_TABLE()
 
 MakeSpatialDlg::MakeSpatialDlg(wxFrame* parent_s, Project* project_s)
-: AbstractClusterDlg(parent_s, project_s, _("Make Spatial Settings"))
+: AbstractClusterDlg(parent_s, project_s, _("Make Spatial Settings")), n_cluster(0), m_cluster_combo(0)
 {
     wxLogMessage("Open MakeSpatial dialog.");
     CreateControls();
@@ -71,7 +71,7 @@ MakeSpatialDlg::~MakeSpatialDlg()
 void MakeSpatialDlg::CreateControls()
 {
     wxLogMessage("On MakeSpatialDlg::CreateControls");
-    wxScrolledWindow* scrl = new wxScrolledWindow(this, wxID_ANY, wxDefaultPosition, wxSize(800,480), wxHSCROLL|wxVSCROLL );
+    wxScrolledWindow* scrl = new wxScrolledWindow(this, wxID_ANY, wxDefaultPosition, wxSize(800,600), wxHSCROLL|wxVSCROLL );
     scrl->SetScrollRate( 5, 5 );
     
     wxPanel *panel = new wxPanel(scrl);
@@ -79,13 +79,65 @@ void MakeSpatialDlg::CreateControls()
     wxBoxSizer *vbox = new wxBoxSizer(wxVERTICAL);
     
     // Input
-    AddSimpleInputCtrls(panel, vbox, true/*integer*/, true/*show spatial weights*/,
-                        false/*centroids*/, false /*single*/, _("Select Cluster Variable"));
+    //AddSimpleInputCtrls(panel, vbox, false/*integer*/, true/*show spatial weights*/,
+    //                    false/*centroids*/, true /*multiple*/, _("Select Cluster Variables"));
+    bool integer_only = false, add_centroids = false;
+    wxStaticText* st = new wxStaticText (panel, wxID_ANY, _("Select Cluster Variables"));
+    
+    combo_var = new wxListBox(panel, wxID_ANY, wxDefaultPosition,
+                              wxSize(250,250), 0, NULL,
+                              wxLB_SINGLE | wxLB_HSCROLL| wxLB_NEEDED_SB);
+    InitVariableCombobox(combo_var, integer_only, add_centroids);
+    
+    wxStaticBoxSizer *hbox0 = new wxStaticBoxSizer(wxVERTICAL, panel, _("Input:"));
+    
+    wxStaticText* st0 = new wxStaticText (panel, wxID_ANY, _("Select Cluster Indicator"));
+    m_cluster_combo = new wxChoice(panel, wxID_ANY, wxDefaultPosition, wxSize(150,-1), var_items);
+    
+    hbox0->Add(st0, 0, wxALIGN_CENTER | wxLEFT | wxRIGHT, 10);
+    hbox0->Add(m_cluster_combo, 0,  wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, 10);
+    m_cluster_combo->SetSelection(-1);
+    
+    hbox0->Add(st, 0, wxALIGN_CENTER | wxLEFT | wxRIGHT, 10);
+    hbox0->Add(combo_var, 1,  wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, 10);
+    
+    // add spatial weights selection control
+    wxBitmap w_bitmap(wxXmlResource::Get()->LoadBitmap("SpatialWeights_Bmp"));
+    weights_btn = new wxBitmapButton(panel, wxID_ANY, w_bitmap, wxDefaultPosition,
+                                     w_bitmap.GetSize(), wxTRANSPARENT_WINDOW | wxBORDER_NONE);
+    st_spatial_w = new wxStaticText(panel, wxID_ANY, _("Select Spatial Weights:"));
+    m_spatial_weights = new wxChoice(panel, wxID_ANY, wxDefaultPosition, wxSize(150,-1));
+    wxBoxSizer *hbox_spatial_w = new wxBoxSizer(wxHORIZONTAL);
+    hbox_spatial_w->Add(st_spatial_w, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT, 10);
+    hbox_spatial_w->Add(m_spatial_weights, 0, wxALIGN_CENTER_VERTICAL| wxRIGHT, 10);
+    hbox_spatial_w->Add(weights_btn,  0, wxALIGN_CENTER_VERTICAL);
+    // init the spatial weights control
+    InitSpatialWeights(m_spatial_weights);
+    hbox0->Add(hbox_spatial_w, 0, wxLEFT | wxRIGHT | wxTOP, 10);
+
+    weights_btn->Bind(wxEVT_BUTTON, &MakeSpatialDlg::OnSpatialWeights, this);
+
+    vbox->Add(hbox0, 1,  wxEXPAND | wxTOP | wxLEFT, 10);
+    
+    // Parameters
+    wxFlexGridSizer* gbox = new wxFlexGridSizer(2,2,5,0);
+    wxStaticBoxSizer *hbox = new wxStaticBoxSizer(wxHORIZONTAL, panel, _("Parameters:"));
+    //wxStaticText* st17 = new wxStaticText(panel, wxID_ANY, _("Cluster Indicator:"));
+    
+    //wxBoxSizer *hbox17 = new wxBoxSizer(wxHORIZONTAL);
+    //hbox17->Add(st17, 1, wxEXPAND | wxRIGHT, 40);
+    
+    //m_cluster_combo = new wxChoice(panel, wxID_ANY, wxDefaultPosition, wxSize(150,-1), var_items);
+    //gbox->Add(hbox17, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
+    //gbox->Add(m_cluster_combo, 1, wxEXPAND | wxALIGN_TOP);
+    hbox->Add(gbox, 1, wxEXPAND);
+
+    AddTransformation(panel, gbox);
     
     // Output
     wxFlexGridSizer* gbox_out = new wxFlexGridSizer(2,2,5,0);
     wxStaticText* st3 = new wxStaticText(panel, wxID_ANY, _("Save Cluster in Field:"));
-    m_textbox = new wxTextCtrl(panel, wxID_ANY, "CL", wxDefaultPosition, wxSize(158,-1));
+    m_textbox = new wxTextCtrl(panel, wxID_ANY, "SC", wxDefaultPosition, wxSize(158,-1));
     gbox_out->Add(st3, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
     gbox_out->Add(m_textbox, 1, wxEXPAND);
 
@@ -102,6 +154,7 @@ void MakeSpatialDlg::CreateControls()
     hbox2->Add(closeButton, 0, wxALIGN_CENTER | wxALL, 5);
     
     // Container
+    vbox->Add(hbox, 0, wxEXPAND | wxALL, 10);
     vbox->Add(hbox1, 0, wxEXPAND | wxTOP | wxLEFT | wxRIGHT, 10);
     vbox->Add(hbox2, 0, wxALIGN_CENTER | wxALL, 10);
 
@@ -132,6 +185,55 @@ void MakeSpatialDlg::CreateControls()
     // Events
     okButton->Bind(wxEVT_BUTTON, &MakeSpatialDlg::OnOK, this);
     closeButton->Bind(wxEVT_BUTTON, &MakeSpatialDlg::OnClickClose, this);
+    m_cluster_combo->Bind(wxEVT_CHOICE, &MakeSpatialDlg::OnSelClusterIndicator, this);
+}
+
+void MakeSpatialDlg::OnSelClusterIndicator(wxCommandEvent& event)
+{
+    GalWeight* gw = GetInputSpatialWeights();
+    if (gw == NULL) {
+        return;
+    }
+    
+    int idx = m_cluster_combo->GetSelection();
+    if (idx < 0) {
+        return;
+    }
+    cluster_indicator = m_cluster_combo->GetString(idx);
+    wxString nm = name_to_nm[cluster_indicator];
+    int col = table_int->FindColId(nm);
+    if (col == wxNOT_FOUND) {
+        wxString err_msg = wxString::Format(_("Variable %s is no longer in the Table.  Please close and reopen this dialog to synchronize with Table data."), nm);
+        wxMessageDialog dlg(NULL, err_msg, _("Error"), wxOK | wxICON_ERROR);
+        dlg.ShowModal();
+        return;
+    }
+    int tm = name_to_tm_id[m_cluster_combo->GetString(idx)];
+    std::vector<wxInt64> clusters(rows, 0);
+    table_int->GetColData(col, tm, clusters);
+    
+    map<wxInt64, vector<int> > cluster_dict;
+    for (int i = 0; i < rows; ++i) {
+        cluster_dict[clusters[i]].push_back(i);
+    }
+
+    // sort result
+    std::vector<std::vector<int> > cluster_ids;
+    map<wxInt64, vector<int> >::iterator it;
+    for (it = cluster_dict.begin(); it != cluster_dict.end(); ++it) {
+        cluster_ids.push_back(it->second);
+    }
+    std::sort(cluster_ids.begin(), cluster_ids.end(), GenUtils::less_vectors);
+    
+    // run Spatial KMeans
+    GeoDaWeight* gdw = (GeoDaWeight*)gw;
+    
+    SpatialKMeans skm(rows, cluster_ids, gdw);
+    if (skm.IsSpatiallyConstrained()) {
+        wxString msg = _("Cluster indicator is already spatially constrained.");
+        wxMessageDialog dlg(NULL, msg, _("Warning"), wxOK | wxICON_WARNING);
+        dlg.ShowModal();
+    }
 }
 
 void MakeSpatialDlg::OnClickClose(wxCommandEvent& event )
@@ -153,16 +255,58 @@ void MakeSpatialDlg::OnClose(wxCloseEvent& ev)
 wxString MakeSpatialDlg::_printConfiguration()
 {
     wxString txt;
+    
+    txt << "Cluster Indicator:\t" << m_textbox->GetValue() << "\n";
+    txt << "Number of clusters:\t" << n_cluster << "\n";
+    txt << "Weights:\t" << m_spatial_weights->GetString(m_spatial_weights->GetSelection()) << "\n";
+    txt << "Transformation:\t" << combo_tranform->GetString(combo_tranform->GetSelection()) << "\n";
+    
     return txt;
+}
+
+void MakeSpatialDlg::InitVariableCombobox(wxListBox* var_box,
+                                  bool integer_only,
+                                  bool add_centroids)
+{
+    AbstractClusterDlg::InitVariableCombobox(var_box, integer_only, add_centroids);
+    if (m_cluster_combo) {
+        m_cluster_combo->Clear();
+        m_cluster_combo->Set(var_items);
+        if (cluster_indicator.IsEmpty()) {
+            m_cluster_combo->SetSelection(-1);
+        } else {
+            m_cluster_combo->SetStringSelection(cluster_indicator);
+        }
+    }
 }
 
 void MakeSpatialDlg::OnOK(wxCommandEvent& event )
 {
     wxLogMessage("Click MakeSpatialDlg::OnOK");
     
+    // cluster indicator
+    int idx = m_cluster_combo->GetSelection();
+    if (idx < 0) {
+        wxString msg = _("Please select a cluster indicator.");
+        wxMessageDialog dlg(this, msg, _("Warning"), wxOK | wxICON_WARNING );
+        dlg.ShowModal();
+        return;
+    }
+    wxString nm = name_to_nm[m_cluster_combo->GetString(idx)];
+    int col = table_int->FindColId(nm);
+    if (col == wxNOT_FOUND) {
+        wxString err_msg = wxString::Format(_("Variable %s is no longer in the Table.  Please close and reopen this dialog to synchronize with Table data."), nm);
+        wxMessageDialog dlg(NULL, err_msg, _("Error"), wxOK | wxICON_ERROR);
+        dlg.ShowModal();
+        return;
+    }
+    
     // Get input data
-    bool success = GetInputData(0, 1);
-    if (!success) return;
+    int transform = combo_tranform->GetSelection();
+    bool success = GetInputData(transform, 1);
+    if (!success) {
+        return;
+    }
     
     wxString field_name = m_textbox->GetValue();
     if (field_name.IsEmpty()) {
@@ -183,14 +327,18 @@ void MakeSpatialDlg::OnOK(wxCommandEvent& event )
         wxString msg = _("The connectivity of selected spatial weights is incomplete, please adjust the spatial weights.");
         wxMessageDialog dlg(this, msg, _("Warning"), wxOK | wxICON_WARNING );
         dlg.ShowModal();
+        return;
     }
     
-    vector<wxInt64> clusters(rows, 0);
+    
+    int tm = name_to_tm_id[m_cluster_combo->GetString(idx)];
+    std::vector<wxInt64> clusters(rows, 0);
+    table_int->GetColData(col, tm, clusters);
+    
     vector<bool> clusters_undef(rows, false);
     
     map<wxInt64, vector<int> > cluster_dict;
     for (int i = 0; i < rows; ++i) {
-        clusters[i] = input_data[i][0];
         cluster_dict[clusters[i]].push_back(i);
     }
 
@@ -209,7 +357,7 @@ void MakeSpatialDlg::OnOK(wxCommandEvent& event )
     skm.Run();
     cluster_ids = skm.GetClusters();
     
-    int n_cluster = (int)cluster_ids.size();
+    n_cluster = (int)cluster_ids.size();
     for (int i=0; i < n_cluster; i++) {
         int c = i + 1;
         for (int j=0; j<cluster_ids[i].size(); j++) {
@@ -222,7 +370,7 @@ void MakeSpatialDlg::OnOK(wxCommandEvent& event )
     
     // save to table
     int time=0;
-    int col = table_int->FindColId(field_name);
+    col = table_int->FindColId(field_name);
     if ( col == wxNOT_FOUND) {
         int col_insert_pos = table_int->GetNumberCols();
         int time_steps = 1;
