@@ -641,7 +641,7 @@ void ValidationSettingDlg::CreateControls()
 {
     wxPanel *panel = new wxPanel(this);
     
-    wxStaticText *st = new wxStaticText(panel, wxID_ANY, _("Select Cluster Variable "));
+    wxStaticText *st = new wxStaticText(panel, wxID_ANY, _("Select Cluster Indicator "));
     listbox_var = new wxListBox(panel, wxID_ANY, wxDefaultPosition);
     txt_weights = new wxStaticText (panel, wxID_ANY, _("Weights"), wxDefaultPosition, wxSize(70,-1));
     combo_weights = new wxComboBox(panel, wxID_ANY, "", wxDefaultPosition, wxSize(160,24), 0, NULL, wxCB_READONLY);
