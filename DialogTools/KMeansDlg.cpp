@@ -86,7 +86,7 @@ void MakeSpatialDlg::CreateControls()
     
     combo_var = new wxListBox(panel, wxID_ANY, wxDefaultPosition,
                               wxSize(250,250), 0, NULL,
-                              wxLB_SINGLE | wxLB_HSCROLL| wxLB_NEEDED_SB);
+                              wxLB_MULTIPLE | wxLB_HSCROLL| wxLB_NEEDED_SB);
     InitVariableCombobox(combo_var, integer_only, add_centroids);
     
     wxStaticBoxSizer *hbox0 = new wxStaticBoxSizer(wxVERTICAL, panel, _("Input:"));
