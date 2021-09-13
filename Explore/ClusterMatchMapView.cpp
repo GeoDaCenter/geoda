@@ -95,11 +95,11 @@ void ClusterMatchSelectDlg::CreateControls()
     
     // Input
     //AddSimpleInputCtrls(panel, vbox, true, false, false);
-    wxStaticText* st_orig = new wxStaticText (panel, wxID_ANY, _("Select Variables (origin)"));
+    wxStaticText* st_orig = new wxStaticText (panel, wxID_ANY, _("Select Origin Cluster Indicator"));
     list_var = new wxComboBox(panel, wxID_ANY, "", wxDefaultPosition, wxSize(250, -1), 0, NULL, wxCB_READONLY);
     
     bool integer_only = true, add_centroids = false;
-    wxStaticText* st = new wxStaticText (panel, wxID_ANY, _("Select Variables (target)"));
+    wxStaticText* st = new wxStaticText (panel, wxID_ANY, _("Select Target Cluster Indicator"));
     
     combo_var = new wxListBox(panel, wxID_ANY, wxDefaultPosition,
                               wxSize(250,250), 0, NULL,

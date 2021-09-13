@@ -273,6 +273,17 @@ SpatialKMeans::~SpatialKMeans()
     }
 }
 
+bool SpatialKMeans::IsSpatiallyConstrained()
+{
+    int k = (int) sk_clusters.size();
+    int n = 0;
+    for (int i = 0; i < k; ++i) {
+        n = n + sk_clusters[i]->GetCoreSize();
+    }
+    
+    return n == num_obs;
+}
+
 struct ClusterSmall {
     bool operator()(SpatialKMeansCluster* left, SpatialKMeansCluster* right) const {
         return left->GetCoreSize() > right->GetCoreSize();
