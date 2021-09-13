@@ -5,7 +5,7 @@ AppPublisherURL=https://spatial.uchiago.edu/
 AppSupportURL=https://spatial.uchiago.edu/
 AppUpdatesURL=https://spatial.uchiago.edu/
 AppSupportPhone=(480)965-7533
-AppVersion=1.18
+AppVersion=1.20
 DefaultDirName={pf}\GeoDa Software
 DefaultGroupName=GeoDa Software
 ; Since no icons will be created in "{group}", we don't need the wizard
@@ -15,7 +15,7 @@ UninstallDisplayIcon={app}\GeoDa.exe
 Compression=lzma2
 SolidCompression=yes
 OutputDir=..\..
-OutputBaseFilename=GeoDa_1.18_x64_Setup
+OutputBaseFilename=GeoDa_1.20_x64_Setup
 ;OutputDir=userdocs:Inno Setup Examples Output
 
 ; "ArchitecturesAllowed=x64" specifies that Setup cannot run on

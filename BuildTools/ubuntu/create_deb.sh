@@ -19,7 +19,7 @@ if [[ $MACHINE_TYPE != 'x86_64' ]]; then
 fi
 
 if [[ $# -ne 2 ]]; then
-    echo "create_deb.sh bionic|disco|xenial 1.18"
+    echo "create_deb.sh bionic|disco|xenial 1.20"
     exit
 fi
 
