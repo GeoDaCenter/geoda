@@ -244,6 +244,7 @@ void CreatingWeightDlg::CreateControls()
     m_dist_choice_vars->Bind(wxEVT_CHOICE, &CreatingWeightDlg::OnDistanceMetricVarsSel, this);
     m_trans_choice_vars->Bind(wxEVT_CHOICE, &CreatingWeightDlg::OnDistanceMetricVarsSel, this);
 	InitDlg();
+    Fit();
 }
 
 void CreatingWeightDlg::OnWeightTypeSelect( wxCommandEvent& event )
