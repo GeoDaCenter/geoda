@@ -56,15 +56,15 @@ public:
                       wxWindowID id = wxID_ANY,
                       const wxString& caption = _("Weights File Creation"),
                       const wxPoint& pos = wxDefaultPosition,
-                      const wxSize& size = wxDefaultSize,
-                      long style = wxCAPTION|wxDEFAULT_DIALOG_STYLE );
+                      const wxSize& size = wxSize(600,800),
+                      long style = wxCAPTION|wxDEFAULT_DIALOG_STYLE|wxRESIZE_BORDER );
 	virtual ~CreatingWeightDlg();
 	void OnClose(wxCloseEvent& ev);
 	bool Create(wxWindow* parent, wxWindowID id = wxID_ANY,
                 const wxString& caption = _("Weights File Creation"),
                 const wxPoint& pos = wxDefaultPosition,
                 const wxSize& size = wxDefaultSize,
-                long style = wxCAPTION|wxDEFAULT_DIALOG_STYLE );
+                long style = wxCAPTION|wxDEFAULT_DIALOG_STYLE|wxRESIZE_BORDER );
 							
 	void CreateControls();
 	void OnCreateNewIdClick( wxCommandEvent& event );
