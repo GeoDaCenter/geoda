@@ -3468,7 +3468,7 @@
     <style>wxCAPTION|wxSYSTEM_MENU|wxRESIZE_BORDER|wxCLOSE_BOX</style>
   </object>
   <object class="wxDialog" name="IDD_WEIGHTS_FILE_CREATION" subclass="CreatingWeightDlg">
-    <style>wxCAPTION|wxSYSTEM_MENU|wxCLOSE_BOX</style>
+    <style>wxCAPTION|wxSYSTEM_MENU|wxCLOSE_BOX|wxRESIZE_BORDER</style>
     <title>Weights File Creation</title>
     <centered>1</centered>
     <object class="wxBoxSizer">
@@ -3476,7 +3476,7 @@
     <object class="sizeritem">
     <object class="wxScrolledWindow" name="ID_CREATE_WEIGHT_SCROLL_WIN">
     <style>wxHSCROLL|wxVSCROLL</style>
-
+    <size>630, 705</size>
     <object class="wxBoxSizer">
       <orient>wxVERTICAL</orient>
       <object class="sizeritem">
