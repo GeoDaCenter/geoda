@@ -6,12 +6,12 @@ AppSupportURL=https://spatial.uchiago.edu/
 AppUpdatesURL=https://spatial.uchiago.edu/
 AppSupportPhone=(480)965-7533
 AppVersion=1.20
-DefaultDirName={pf}\GeoDa Software
+DefaultDirName={localappdata}\GeoDa
 DefaultGroupName=GeoDa Software
 ; Since no icons will be created in "{group}", we don't need the wizard
 ; to ask for a Start Menu folder name:
 ;DisableProgramGroupPage=yes
-UninstallDisplayIcon={userappdata}\GeoDa.exe
+UninstallDisplayIcon={localappdata}\GeoDa\GeoDa.exe
 Compression=lzma2
 SolidCompression=yes
 OutputDir=..\..
@@ -40,74 +40,74 @@ Name: "spanish"; MessagesFile: "compiler:Languages\Spanish.isl"
 Name: "russian"; MessagesFile: "compiler:Languages\Russian.isl"
 
 [dirs]
-Name: "{userappdata}";  Permissions: users-full; Check: InitializeSetup
-Name: "{userappdata}\basemap_cache";  Permissions: users-full
-Name: "{userappdata}\lang";  Permissions: users-full
-Name: "{userappdata}\proj";  Permissions: users-full
+Name: "{localappdata}\GeoDa";  Permissions: users-full; Check: InitializeSetup
+Name: "{localappdata}\GeoDa\basemap_cache";  Permissions: users-full
+Name: "{localappdata}\GeoDa\lang";  Permissions: users-full
+Name: "{localappdata}\GeoDa\proj";  Permissions: users-full
 
 [Files]
-Source: "..\..\Release\GeoDa.exe"; DestDir: "{userappdata}"; DestName: "GeoDa.exe"; Check: IsX64
-Source: "..\..\..\CommonDistFiles\GeoDa.ico"; DestDir: "{userappdata}"
-Source: "..\..\..\CommonDistFiles\copyright.txt"; DestDir: "{userappdata}"
-Source: "..\..\..\CommonDistFiles\GPLv3.txt"; DestDir: "{userappdata}"
-Source: "..\..\..\CommonDistFiles\cache.sqlite"; DestDir: "{userappdata}"
-Source: "..\..\..\CommonDistFiles\geoda_prefs.sqlite"; DestDir: "{userappdata}"
-Source: "..\..\..\CommonDistFiles\geoda_prefs.json"; DestDir: "{userappdata}"
-Source: "..\..\..\CommonDistFiles\web_plugins\*"; DestDir: "{userappdata}\web_plugins"; Flags: recursesubdirs
-Source: "..\..\..\CommonDistFiles\proj\*"; DestDir: "{userappdata}\proj"; Flags: recursesubdirs
+Source: "..\..\Release\GeoDa.exe"; DestDir: "{localappdata}\GeoDa"; DestName: "GeoDa.exe"; Check: IsX64
+Source: "..\..\..\CommonDistFiles\GeoDa.ico"; DestDir: "{localappdata}\GeoDa"
+Source: "..\..\..\CommonDistFiles\copyright.txt"; DestDir: "{localappdata}\GeoDa"
+Source: "..\..\..\CommonDistFiles\GPLv3.txt"; DestDir: "{localappdata}\GeoDa"
+Source: "..\..\..\CommonDistFiles\cache.sqlite"; DestDir: "{localappdata}\GeoDa"
+Source: "..\..\..\CommonDistFiles\geoda_prefs.sqlite"; DestDir: "{localappdata}\GeoDa"
+Source: "..\..\..\CommonDistFiles\geoda_prefs.json"; DestDir: "{localappdata}\GeoDa"
+Source: "..\..\..\CommonDistFiles\web_plugins\*"; DestDir: "{localappdata}\GeoDa\web_plugins"; Flags: recursesubdirs
+Source: "..\..\..\CommonDistFiles\proj\*"; DestDir: "{localappdata}\GeoDa\proj"; Flags: recursesubdirs
 
-Source: "VC_redist.x64.exe"; DestDir: "{userappdata}"
-Source: "..\..\temp\OpenCL\sdk\bin\x64\OpenCL.dll"; DestDir: "{userappdata}"
-Source: "..\..\temp\wxWidgets\lib\vc_x64_dll\wxmsw314u_vc_custom.dll"; DestDir: "{userappdata}"
-Source: "..\..\temp\wxWidgets\lib\vc_x64_dll\wxmsw314u_gl_vc_custom.dll"; DestDir: "{userappdata}"
-Source: "..\..\libraries\bin\expat.dll"; DestDir: "{userappdata}"
-Source: "..\..\libraries\bin\freexl.dll"; DestDir: "{userappdata}"
-Source: "..\..\libraries\bin\gdal302.dll"; DestDir: "{userappdata}"
-Source: "..\..\libraries\bin\geos.dll"; DestDir: "{userappdata}"
-Source: "..\..\libraries\bin\geos_c.dll"; DestDir: "{userappdata}"
-Source: "..\..\libraries\bin\iconv.dll"; DestDir: "{userappdata}"
-Source: "..\..\libraries\bin\libcrypto-1_1-x64.dll"; DestDir: "{userappdata}"
-Source: "..\..\libraries\bin\libcurl.dll"; DestDir: "{userappdata}"
-Source: "..\..\libraries\bin\libmysql.dll"; DestDir: "{userappdata}"
-Source: "..\..\libraries\bin\libpq.dll"; DestDir: "{userappdata}"
-Source: "..\..\libraries\bin\libssl-1_1-x64.dll"; DestDir: "{userappdata}"
-Source: "..\..\libraries\bin\libxml2.dll"; DestDir: "{userappdata}"
-Source: "..\..\libraries\bin\openjp2.dll"; DestDir: "{userappdata}"
-Source: "..\..\libraries\bin\proj.dll"; DestDir: "{userappdata}"
-Source: "..\..\libraries\bin\proj_6_1.dll"; DestDir: "{userappdata}"
-Source: "..\..\libraries\bin\spatialite.dll"; DestDir: "{userappdata}"
-Source: "..\..\libraries\bin\sqlite3.dll"; DestDir: "{userappdata}"
-Source: "..\..\libraries\bin\xerces-c_3_2.dll"; DestDir: "{userappdata}"
-Source: "..\..\libraries\bin\zlib1.dll"; DestDir: "{userappdata}"
-Source: "..\..\libraries\bin\gdal\plugins\ogr_OCI.dll"; DestDir: "{userappdata}"
-Source: "..\..\libraries\bin\gdal\plugins-optional\ogr_PG.dll"; DestDir: "{userappdata}"
-Source: "..\..\libraries\bin\gdal\plugins-optional\ogr_MSSQLSpatial.dll"; DestDir: "{userappdata}"
-Source: "..\..\libraries\bin\gdal\plugins-external\ogr_FileGDB.dll"; DestDir: "{userappdata}"
-Source: "..\..\..\..\Algorithms\lisa_kernel.cl"; DestDir: "{userappdata}"
-Source: "..\..\..\..\internationalization\lang\*"; DestDir: "{userappdata}\lang"; Flags: recursesubdirs
-Source: "..\..\libraries\bin\gdal-data\*"; DestDir: "{userappdata}\data"; Flags: recursesubdirs
+Source: "VC_redist.x64.exe"; DestDir: "{localappdata}\GeoDa"
+Source: "..\..\temp\OpenCL\sdk\bin\x64\OpenCL.dll"; DestDir: "{localappdata}\GeoDa"
+Source: "..\..\temp\wxWidgets\lib\vc_x64_dll\wxmsw314u_vc_custom.dll"; DestDir: "{localappdata}\GeoDa"
+Source: "..\..\temp\wxWidgets\lib\vc_x64_dll\wxmsw314u_gl_vc_custom.dll"; DestDir: "{localappdata}\GeoDa"
+Source: "..\..\libraries\bin\expat.dll"; DestDir: "{localappdata}\GeoDa"
+Source: "..\..\libraries\bin\freexl.dll"; DestDir: "{localappdata}\GeoDa"
+Source: "..\..\libraries\bin\gdal302.dll"; DestDir: "{localappdata}\GeoDa"
+Source: "..\..\libraries\bin\geos.dll"; DestDir: "{localappdata}\GeoDa"
+Source: "..\..\libraries\bin\geos_c.dll"; DestDir: "{localappdata}\GeoDa"
+Source: "..\..\libraries\bin\iconv.dll"; DestDir: "{localappdata}\GeoDa"
+Source: "..\..\libraries\bin\libcrypto-1_1-x64.dll"; DestDir: "{localappdata}\GeoDa"
+Source: "..\..\libraries\bin\libcurl.dll"; DestDir: "{localappdata}\GeoDa"
+Source: "..\..\libraries\bin\libmysql.dll"; DestDir: "{localappdata}\GeoDa"
+Source: "..\..\libraries\bin\libpq.dll"; DestDir: "{localappdata}\GeoDa"
+Source: "..\..\libraries\bin\libssl-1_1-x64.dll"; DestDir: "{localappdata}\GeoDa"
+Source: "..\..\libraries\bin\libxml2.dll"; DestDir: "{localappdata}\GeoDa"
+Source: "..\..\libraries\bin\openjp2.dll"; DestDir: "{localappdata}\GeoDa"
+Source: "..\..\libraries\bin\proj.dll"; DestDir: "{localappdata}\GeoDa"
+Source: "..\..\libraries\bin\proj_6_1.dll"; DestDir: "{localappdata}\GeoDa"
+Source: "..\..\libraries\bin\spatialite.dll"; DestDir: "{localappdata}\GeoDa"
+Source: "..\..\libraries\bin\sqlite3.dll"; DestDir: "{localappdata}\GeoDa"
+Source: "..\..\libraries\bin\xerces-c_3_2.dll"; DestDir: "{localappdata}\GeoDa"
+Source: "..\..\libraries\bin\zlib1.dll"; DestDir: "{localappdata}\GeoDa"
+Source: "..\..\libraries\bin\gdal\plugins\ogr_OCI.dll"; DestDir: "{localappdata}\GeoDa"
+Source: "..\..\libraries\bin\gdal\plugins-optional\ogr_PG.dll"; DestDir: "{localappdata}\GeoDa"
+Source: "..\..\libraries\bin\gdal\plugins-optional\ogr_MSSQLSpatial.dll"; DestDir: "{localappdata}\GeoDa"
+Source: "..\..\libraries\bin\gdal\plugins-external\ogr_FileGDB.dll"; DestDir: "{localappdata}\GeoDa"
+Source: "..\..\..\..\Algorithms\lisa_kernel.cl"; DestDir: "{localappdata}\GeoDa"
+Source: "..\..\..\..\internationalization\lang\*"; DestDir: "{localappdata}\GeoDa\lang"; Flags: recursesubdirs
+Source: "..\..\libraries\bin\gdal-data\*"; DestDir: "{localappdata}\GeoDa\data"; Flags: recursesubdirs
 
-;Source: "Readme.txt"; DestDir: "{userappdata}"; Flags: isreadme
+;Source: "Readme.txt"; DestDir: "{localappdata}\GeoDa"; Flags: isreadme
 
 [Icons]
-Name: "{group}\GeoDa"; Filename: "{userappdata}\GeoDa.exe"
-;Name: "{group}\GeoDa"; Filename: "{userappdata}\run_geoda.bat"; IconFilename: "{userappdata}\GeoDa.ico"
+Name: "{group}\GeoDa"; Filename: "{localappdata}\GeoDa\GeoDa.exe"
+;Name: "{group}\GeoDa"; Filename: "{localappdata}\GeoDa\run_geoda.bat"; IconFilename: "{localappdata}\GeoDa\GeoDa.ico"
 Name: "{group}\Uninstall"; Filename: "{uninstallexe}"
-Name: "{commondesktop}\GeoDa"; Filename: "{userappdata}\GeoDa.exe"
-;Name: "{commondesktop}\GeoDa"; Filename: "{userappdata}\run_geoda.bat"; IconFilename: "{userappdata}\GeoDa.ico"
+Name: "{commondesktop}\GeoDa"; Filename: "{localappdata}\GeoDa\GeoDa.exe"
+;Name: "{commondesktop}\GeoDa"; Filename: "{localappdata}\GeoDa\run_geoda.bat"; IconFilename: "{localappdata}\GeoDa\GeoDa.ico"
 
 [Registry]
 ; set PATH
 ; set GEODA_GDAL_DATA
-Root: HKCU; Subkey: "Environment"; ValueType:string; ValueName:"GDAL_DATA"; ValueData:"{userappdata}\data"; Flags: preservestringtype uninsdeletevalue
+Root: HKCU; Subkey: "Environment"; ValueType:string; ValueName:"GDAL_DATA"; ValueData:"{localappdata}\GeoDa\data"; Flags: preservestringtype uninsdeletevalue
 ; set GEODA_OGR_DRIVER_PATH
-Root: HKCU; Subkey: "Environment"; ValueType:string; ValueName:"OGR_DRIVER_PATH"; ValueData:"{userappdata}"; Flags: preservestringtype uninsdeletevalue
-Root: HKCU; Subkey: "Environment"; ValueType:string; ValueName:"PROJ_LIB"; ValueData:"{userappdata}\proj"; Flags: preservestringtype uninsdeletevalue
+Root: HKCU; Subkey: "Environment"; ValueType:string; ValueName:"OGR_DRIVER_PATH"; ValueData:"{localappdata}\GeoDa"; Flags: preservestringtype uninsdeletevalue
+Root: HKCU; Subkey: "Environment"; ValueType:string; ValueName:"PROJ_LIB"; ValueData:"{localappdata}\GeoDa\proj"; Flags: preservestringtype uninsdeletevalue
 
 Root: HKCR; Subkey: ".gda"; ValueType: string; ValueName: ""; ValueData: "GeoDaProjectFile"; Flags: uninsdeletevalue
 Root: HKCR; Subkey: "GeoDaProjectFile"; ValueType: string; ValueName: ""; ValueData: "GeoDa Project File"; Flags: uninsdeletekey
-Root: HKCR; Subkey: "GeoDaProjectFile\DefaultIcon"; ValueType: string; ValueName: ""; ValueData: "{userappdata}\GeoDa.exe,0"
-Root: HKCR; Subkey: "GeoDaProjectFile\shell\open\command"; ValueType: string; ValueName: ""; ValueData: """{userappdata}\GeoDa.exe"" ""%1"""
+Root: HKCR; Subkey: "GeoDaProjectFile\DefaultIcon"; ValueType: string; ValueName: ""; ValueData: "{localappdata}\GeoDa\GeoDa.exe,0"
+Root: HKCR; Subkey: "GeoDaProjectFile\shell\open\command"; ValueType: string; ValueName: ""; ValueData: """{localappdata}\GeoDa\GeoDa.exe"" ""%1"""
 
 ; set Browser Emulation for wxWebView to IE 11.  IE 10 or earlier does not work with current D3
 Root: "HKCU"; Subkey: "Software\Microsoft\Internet Explorer\Main\FeatureControl\FEATURE_BROWSER_EMULATION"; ValueType: dword; ValueName:"GeoDa.exe"; ValueData:"$2AF9"
@@ -118,7 +118,7 @@ Root: "HKLM"; Subkey: "SOFTWARE\Microsoft\Internet Explorer\MAIN\FeatureControl\
 ;64 Bit Mode
 Root: "HKLM"; Subkey: "SOFTWARE\Wow6432Node\Microsoft\Internet Explorer\MAIN\FeatureControl\FEATURE_BROWSER_EMULATION"; ValueType: dword; ValueName: "GeoDa.exe"; ValueData: "$2AF9"; Check: IsWin64
 ;run as admin
-;Root: "HKLM"; Subkey: "SOFTWARE\Microsoft\Windows NT\CurrentVersion\AppCompatFlags\Layers\"; ValueType: String; ValueName: "{userappdata}\GeoDa.exe"; ValueData: "RUNASADMIN"; Flags: uninsdeletekeyifempty uninsdeletevalue; MinVersion: 0,6.1
+;Root: "HKLM"; Subkey: "SOFTWARE\Microsoft\Windows NT\CurrentVersion\AppCompatFlags\Layers\"; ValueType: String; ValueName: "{localappdata}\GeoDa\GeoDa.exe"; ValueData: "RUNASADMIN"; Flags: uninsdeletekeyifempty uninsdeletevalue; MinVersion: 0,6.1
 
 [Code]
 function IsX64: Boolean;
@@ -243,8 +243,8 @@ begin
 end;
 
 [INI]
-Filename: "{userappdata}\lang\config.ini"; Section: "Translation"; Key: "Language"; String: {code:getLangCode|{userappdata}}
+Filename: "{localappdata}\GeoDa\lang\config.ini"; Section: "Translation"; Key: "Language"; String: {code:getLangCode|{localappdata}\GeoDa}
 
 [Run]
-Filename: {userappdata}\VC_redist.x64.exe; StatusMsg: Installing Visual C++ Redistributable for Visual Studio 2019 (14.28.29913.0)...; Check: VCRedistNeedsInstall
+Filename: {localappdata}\GeoDa\VC_redist.x64.exe; StatusMsg: Installing Visual C++ Redistributable for Visual Studio 2019 (14.28.29913.0)...; Check: VCRedistNeedsInstall
 
