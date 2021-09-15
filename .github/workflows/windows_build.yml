@@ -227,6 +227,7 @@ jobs:
           if($env:platform -eq "x86")
           {
             ISCC.exe /q installer\32bit\GeoDa.iss
+            ISCC.exe /q installer\32bit\GeoDa-win7+.iss
           } 
           else
           {
