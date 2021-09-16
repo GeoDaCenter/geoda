@@ -274,14 +274,8 @@ bool GdaApp::OnInit(void)
     // load language here: GdaConst::gda_ui_language
     // search_path is the ./lang directory
     // config_path it the exe directory (every user will have a different config file?)
-    wxFileName appFileName(argv[0]);
-    appFileName.Normalize(wxPATH_NORM_DOTS|wxPATH_NORM_ABSOLUTE| wxPATH_NORM_TILDE);
+    wxString search_path = GenUtils::GetLangSearchPath();
     
-#ifdef __WXMAC__
-    wxString search_path = appFileName.GetPath() + "/../Resources/lang";
-#else
-    wxString search_path = appFileName.GetPath() + wxFileName::GetPathSeparator() +  "lang";
-#endif
     // load language from lang/config.ini if user specified any
     wxString config_path = search_path + wxFileName::GetPathSeparator()+ "config.ini";
     bool use_native_config = false;

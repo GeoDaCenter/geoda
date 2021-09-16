@@ -923,15 +923,8 @@ void PreferenceDlg::OnChooseLanguage(wxCommandEvent& ev)
     sel_str << GdaConst::gda_ui_language;
     OGRDataAdapter::GetInstance().AddEntry("gda_ui_language", sel_str);
     
-    // also update the lang/config.ini content
-    wxString exePath = wxStandardPaths::Get().GetExecutablePath();
-    wxFileName exeFile(exePath);
-    wxString exeDir = exeFile.GetPathWithSep();
-#ifdef __WXMAC__
-    wxString configPath = exeDir + "../Resources/lang/config.ini";
-#else
-    wxString configPath = exeDir + "lang" + wxFileName::GetPathSeparator() + "config.ini";
-#endif
+    // also update the lang/config.ini content    
+    wxString configPath = GenUtils::GetLangSearchPath() + wxFileName::GetPathSeparator() + "config.ini";
     wxConfigBase * config = new wxFileConfig("GeoDa", wxEmptyString, configPath);
     
     if (lan_sel > 0) {

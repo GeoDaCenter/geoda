@@ -50,6 +50,7 @@ Source: "..\..\..\CommonDistFiles\GeoDa.ico"; DestDir: "{app}"
 Source: "..\..\..\CommonDistFiles\copyright.txt"; DestDir: "{app}"
 Source: "..\..\..\CommonDistFiles\GPLv3.txt"; DestDir: "{app}"
 Source: "..\..\..\CommonDistFiles\cache.sqlite"; DestDir: "{userappdata}\GeoDa"
+Source: "..\..\..\CommonDistFiles\cache.sqlite"; DestDir: "{app}"
 Source: "..\..\..\CommonDistFiles\geoda_prefs.sqlite"; DestDir: "{app}"
 Source: "..\..\..\CommonDistFiles\geoda_prefs.json"; DestDir: "{app}"
 Source: "..\..\..\CommonDistFiles\web_plugins\*"; DestDir: "{app}\web_plugins"; Flags: recursesubdirs
@@ -84,6 +85,7 @@ Source: "..\..\libraries\bin\gdal\plugins-optional\ogr_MSSQLSpatial.dll"; DestDi
 Source: "..\..\libraries\bin\gdal\plugins-external\ogr_FileGDB.dll"; DestDir: "{app}"
 Source: "..\..\..\..\Algorithms\lisa_kernel.cl"; DestDir: "{app}"
 Source: "..\..\..\..\internationalization\lang\*"; DestDir: "{app}\lang"; Flags: recursesubdirs
+Source: "..\..\..\..\internationalization\lang\config.ini"; DestDir: "{userappdata}\GeoDa\lang"
 Source: "..\..\libraries\bin\gdal-data\*"; DestDir: "{app}\data"; Flags: recursesubdirs
 
 ;Source: "Readme.txt"; DestDir: "{app}"; Flags: isreadme
