@@ -2444,9 +2444,11 @@ wxString GenUtils::GetCachePath()
 
 wxString GenUtils::GetLangSearchPath()
 {
-#ifdef __WXMAC__
+#ifdef __linux__
+    wxString search_path = GetExeDir() + wxFileName::GetPathSeparator() +  "lang";
+#elif __WXMAC__
     wxString search_path = GetExeDir() + "/../Resources/lang";
-#elif __WIN32__
+#else
     wxString confDir = wxStandardPaths::Get().GetUserConfigDir();
     // Windows: AppData\Roaming\GeoDa
     wxString geodaUserDir = confDir + wxFileName::GetPathSeparator() + "GeoDa";
@@ -2462,8 +2464,6 @@ wxString GenUtils::GetLangSearchPath()
         wxString origLangPath = GetExeDir() + "lang" + wxFileName::GetPathSeparator() + "config.ini";
         wxCopyFile(origLangPath, langPath);
     }
-#else
-    wxString search_path = GetExeDir() + wxFileName::GetPathSeparator() +  "lang";
 #endif
     
     return search_path;
