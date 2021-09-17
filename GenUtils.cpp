@@ -2357,8 +2357,16 @@ wxString GenUtils::GetSamplesDir()
 {
 #ifdef __WXOSX__
     return GetResourceDir();
-#else
+#elif __linux__
     return GetWebPluginsDir();
+#else
+    wxString confDir = wxStandardPaths::Get().GetUserConfigDir();
+    // Windows: AppData\Roaming\GeoDa
+    wxString geodaUserDir = confDir + wxFileName::GetPathSeparator() + "GeoDa";
+    if (wxDirExists(geodaUserDir) == false) {
+        wxFileName::Mkdir(geodaUserDir);
+    }
+    return geodaUserDir;
 #endif
 }
 
