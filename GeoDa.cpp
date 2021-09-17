@@ -401,7 +401,7 @@ bool GdaApp::OnInit(void)
     welcome_pos.y += 150;
    
     // Setup new Logger after crash check
-    wxString loggerFile = GenUtils::GetSamplesDir() +"logger.txt";
+    wxString loggerFile = GenUtils::GetLoggerPath();
     
     if (m_pLogFile == NULL) {
 #ifdef __WIN32__

@@ -2357,8 +2357,17 @@ wxString GenUtils::GetSamplesDir()
 {
 #ifdef __WXOSX__
     return GetResourceDir();
-#elif __linux__
+#else
     return GetWebPluginsDir();
+#endif
+}
+
+wxString GenUtils::GetLoggerPath()
+{
+#ifdef __WXOSX__
+    return GetResourceDir() + "logger.txt";
+#elif __linux__
+    return GetWebPluginsDir() + "logger.txt";
 #else
     wxString confDir = wxStandardPaths::Get().GetUserConfigDir();
     // Windows: AppData\Roaming\GeoDa
@@ -2366,7 +2375,7 @@ wxString GenUtils::GetSamplesDir()
     if (wxDirExists(geodaUserDir) == false) {
         wxFileName::Mkdir(geodaUserDir);
     }
-    return geodaUserDir;
+    return geodaUserDir + wxFileName::GetPathSeparator() + "logger.txt";
 #endif
 }
 

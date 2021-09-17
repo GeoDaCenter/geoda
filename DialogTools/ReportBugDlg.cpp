@@ -337,8 +337,7 @@ bool ReportBugDlg::CreateIssue(wxString title, wxString body)
 {
 	body.Replace("\n", "\\n");
 	// get log file to body
-	wxString logger_path;
-	logger_path << GenUtils::GetSamplesDir() << "logger.txt";
+	wxString logger_path = GenUtils::GetLoggerPath();
     
 	body << "\\n";
     

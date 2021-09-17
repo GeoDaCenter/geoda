@@ -40,7 +40,7 @@ Name: "spanish"; MessagesFile: "compiler:Languages\Spanish.isl"
 Name: "russian"; MessagesFile: "compiler:Languages\Russian.isl"
 
 [dirs]
-Name: "{app}"; Permissions: users-modify; Check: InitializeSetup
+Name: "{app}"; Check: InitializeSetup
 Name: "{userappdata}\GeoDa\basemap_cache";  Permissions: users-modify
 Name: "{userappdata}\GeoDa\lang";  Permissions: users-modify
 
