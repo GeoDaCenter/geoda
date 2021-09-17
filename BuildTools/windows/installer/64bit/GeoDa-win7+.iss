@@ -6,7 +6,7 @@ AppSupportURL=https://spatial.uchiago.edu/
 AppUpdatesURL=https://spatial.uchiago.edu/
 AppSupportPhone=(480)965-7533
 AppVersion=1.20
-DefaultDirName={code:GetDefaultDirName}
+DefaultDirName={pf}\GeoDa Software
 DefaultGroupName=GeoDa Software
 ; Since no icons will be created in "{group}", we don't need the wizard
 ; to ask for a Start Menu folder name:
@@ -34,15 +34,14 @@ ChangesAssociations=yes
 
 ShowLanguageDialog=yes
 
-PrivilegesRequiredOverridesAllowed=commandline dialog
-
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"
 Name: "spanish"; MessagesFile: "compiler:Languages\Spanish.isl"
 Name: "russian"; MessagesFile: "compiler:Languages\Russian.isl"
 
 [dirs]
-Name: "{app}";  Check: InitializeSetup
+Name: "{app}"; Check: InitializeSetup
+Name: "{app}\web_plugins"; Permissions: users-modify; Check: InitializeSetup
 Name: "{userappdata}\GeoDa\basemap_cache";  Permissions: users-full
 Name: "{userappdata}\GeoDa\lang";  Permissions: users-full
 
@@ -124,18 +123,6 @@ Root: "HKLM"; Subkey: "SOFTWARE\Wow6432Node\Microsoft\Internet Explorer\MAIN\Fea
 ;Root: "HKLM"; Subkey: "SOFTWARE\Microsoft\Windows NT\CurrentVersion\AppCompatFlags\Layers\"; ValueType: String; ValueName: "{app}\GeoDa.exe"; ValueData: "RUNASADMIN"; Flags: uninsdeletekeyifempty uninsdeletevalue; MinVersion: 0,6.1
 
 [Code]
-function GetDefaultDirName(Param: string): string;
-begin
-  if IsAdminLoggedOn then
-  begin
-    Result := ExpandConstant('{pf}\GeoDa Software');
-  end
-    else
-  begin
-    Result := ExpandConstant('{localappdata}\GeoDa');
-  end;
-end;
-
 function IsX64: Boolean;
 begin
   Result := Is64BitInstallMode and (ProcessorArchitecture = paX64);
