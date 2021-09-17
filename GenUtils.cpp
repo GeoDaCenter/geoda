@@ -2362,6 +2362,23 @@ wxString GenUtils::GetSamplesDir()
 #endif
 }
 
+wxString GenUtils::GetLoggerPath()
+{
+#ifdef __WXOSX__
+    return GetResourceDir() + "logger.txt";
+#elif __linux__
+    return GetWebPluginsDir() + "logger.txt";
+#else
+    wxString confDir = wxStandardPaths::Get().GetUserConfigDir();
+    // Windows: AppData\Roaming\GeoDa
+    wxString geodaUserDir = confDir + wxFileName::GetPathSeparator() + "GeoDa";
+    if (wxDirExists(geodaUserDir) == false) {
+        wxFileName::Mkdir(geodaUserDir);
+    }
+    return geodaUserDir + wxFileName::GetPathSeparator() + "logger.txt";
+#endif
+}
+
 wxString GenUtils::GetUserSamplesDir()
 {
     // this function will be only called in linux env
@@ -2395,7 +2412,17 @@ wxString GenUtils::GetBasemapDir()
 #elif __WXMAC__
     return GetExeDir() + "../Resources/basemap_cache";
 #else
-    return GetExeDir() + "basemap_cache";
+    wxString confDir = wxStandardPaths::Get().GetUserConfigDir();
+    // Windows: AppData\Roaming\GeoDa
+    wxString geodaUserDir = confDir + wxFileName::GetPathSeparator() + "GeoDa";
+    if (wxDirExists(geodaUserDir) == false) {
+        wxFileName::Mkdir(geodaUserDir);
+    }
+    wxString basemapDir = geodaUserDir + wxFileName::GetPathSeparator() + "basemap_cache";
+    if (wxDirExists(basemapDir) == false) {
+        wxFileName::Mkdir(basemapDir);
+    }
+    return basemapDir;
 #endif
 }
 
@@ -2417,6 +2444,44 @@ wxString GenUtils::GetCachePath()
 #elif __WXMAC__
     return GetExeDir() + "../Resources/cache.sqlite";
 #else
-    return GetExeDir() + "cache.sqlite";
+    wxString confDir = wxStandardPaths::Get().GetUserConfigDir();
+    // Windows: AppData\Roaming\GeoDa
+    wxString geodaUserDir = confDir + wxFileName::GetPathSeparator() + "GeoDa";
+    if (wxDirExists(geodaUserDir) == false) {
+        wxFileName::Mkdir(geodaUserDir);
+    }
+    wxString cachePath = geodaUserDir + wxFileName::GetPathSeparator() + "cache.sqlite";
+    if (wxFileExists(cachePath) == false) {
+        wxString origCachePath = GetExeDir() + "cache.sqlite";
+        wxCopyFile(origCachePath, cachePath);
+    }
+    return cachePath;
 #endif
+}
+
+wxString GenUtils::GetLangSearchPath()
+{
+#ifdef __linux__
+    wxString search_path = GetExeDir() + wxFileName::GetPathSeparator() +  "lang";
+#elif __WXMAC__
+    wxString search_path = GetExeDir() + "/../Resources/lang";
+#else
+    wxString confDir = wxStandardPaths::Get().GetUserConfigDir();
+    // Windows: AppData\Roaming\GeoDa
+    wxString geodaUserDir = confDir + wxFileName::GetPathSeparator() + "GeoDa";
+    if (wxDirExists(geodaUserDir) == false) {
+        wxFileName::Mkdir(geodaUserDir);
+    }
+    wxString search_path = geodaUserDir + wxFileName::GetPathSeparator() + "lang";
+    if (wxDirExists(search_path) == false) {
+        wxFileName::Mkdir(search_path);
+    }
+    wxString langPath = search_path + wxFileName::GetPathSeparator() + "config.ini";
+    if (wxFileExists(langPath) == false) {
+        wxString origLangPath = GetExeDir() + "lang" + wxFileName::GetPathSeparator() + "config.ini";
+        wxCopyFile(origLangPath, langPath);
+    }
+#endif
+    
+    return search_path;
 }
