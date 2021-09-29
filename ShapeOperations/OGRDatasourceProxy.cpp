@@ -76,7 +76,7 @@ OGRDatasourceProxy::OGRDatasourceProxy(wxString _ds_name, GdaConst::DataSourceTy
             opt << GdaConst::gda_ogr_csv_y_name;
             papszOpenOptions = CSLAddString(papszOpenOptions, opt.c_str());
         }
-    } else if (ds_type == GdaConst::ds_shapefile) {
+    } else if (ds_type == GdaConst::ds_shapefile || GdaConst::ds_dbf) {
         papszOpenOptions = CSLAddString(papszOpenOptions, "ADJUST_TYPE=YES");
     }
     

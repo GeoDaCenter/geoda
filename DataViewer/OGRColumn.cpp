@@ -772,7 +772,7 @@ OGRColumnString::OGRColumnString(OGRLayerProxy* ogr_layer, int idx)
     is_new = false;
     undef_markers.resize(rows);
     for (int i=0; i<rows; ++i) {
-        if ( ogr_layer->data[i]->IsFieldSet(idx) )
+        if ( ogr_layer->data[i]->IsFieldSetAndNotNull(idx))
             undef_markers[i] = false;
         else
             undef_markers[i] = true;
@@ -1065,7 +1065,7 @@ void OGRColumnString::SetValueAt(int row_idx, const wxString &value,
         else
             ogr_layer->data[row_idx]->SetField(col_idx, value.mb_str());
     }
-    undef_markers[row_idx] = false;
+    undef_markers[row_idx] = value.IsEmpty();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
