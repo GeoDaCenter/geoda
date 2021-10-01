@@ -316,7 +316,7 @@ OGRColumnInteger::OGRColumnInteger(OGRLayerProxy* ogr_layer, int idx)
     undef_markers.resize(rows);
     for (int i=0; i<rows; ++i) {
         // for non-undefined value
-        if ( ogr_layer->data[i]->IsFieldSet(idx) )
+        if ( ogr_layer->data[i]->IsFieldSetAndNotNull(idx) )
             undef_markers[i] = false;
         else
             undef_markers[i] = true;
