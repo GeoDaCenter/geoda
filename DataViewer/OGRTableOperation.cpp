@@ -343,6 +343,7 @@ OGRTableOpUpdateCell::OGRTableOpUpdateCell(OGRColumn* col, int row_idx,
         undef_new_value = !new_val.ToDouble(&d_new_value);
     } else if (type == GdaConst::string_type) {
         s_new_value = new_val;
+        undef_new_value = new_val.IsEmpty();
     }
     
     GetOriginalCellValue();

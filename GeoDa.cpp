@@ -1476,6 +1476,8 @@ void GdaFrame::InitWithProject(wxString gda_file_path)
         tf->Raise();
     }
     
+    SetProjectOpen(true);
+    UpdateToolbarAndMenus();
     
     if (!project_p->IsTableOnlyProject()) {
         std::vector<int> col_ids;
@@ -1494,10 +1496,7 @@ void GdaFrame::InitWithProject(wxString gda_file_path)
                                     GdaConst::map_default_size);
         nf->UpdateTitle();
     }
-    
-    SetProjectOpen(true);
-    UpdateToolbarAndMenus();
-    
+
     // Associate Project with Calculator if open
     wxWindowList::compatibility_iterator node = wxTopLevelWindows.GetFirst();
     while (node) {
