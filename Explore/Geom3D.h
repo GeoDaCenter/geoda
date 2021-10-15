@@ -650,9 +650,9 @@ public:
 
     // Standard event interface provide by all Ball controllers
     virtual void update_animation() = 0;
-    virtual bool mouse_down(int *where, int which, int w=0, int h=0) = 0;
+    virtual bool mouse_down(int *where, int which) = 0;
     virtual bool mouse_up(int *where, int which) = 0;
-    virtual bool mouse_drag(int *where, int *last, int which, int w=0, int h=0) = 0;
+    virtual bool mouse_drag(int *where, int *last, int which) = 0;
 
     // Interface for use during drawing to apply appropriate transformation
     virtual void apply_transform();
@@ -681,9 +681,9 @@ public:
     Arcball();
 
     virtual void update_animation();
-    virtual bool mouse_down(int *where, int which, int w=0, int h=0);
+    virtual bool mouse_down(int *where, int which);
     virtual bool mouse_up(int *where, int which);
-    virtual bool mouse_drag(int *where, int *last, int which, int w=0, int h=0);
+    virtual bool mouse_drag(int *where, int *last, int which);
 
     virtual void apply_transform();
     virtual void get_transform(Vec3 & c, Vec3 &t, Quat & q);
@@ -707,7 +707,7 @@ public:
 };
 
 // Other utility methods
-int unproject_pixel(int *pixel, double *world, double z, int w=0, int h=0);
+int unproject_pixel(int *pixel, double *world, double z);
 
 #endif
 

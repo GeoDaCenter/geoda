@@ -242,10 +242,10 @@ void C3DPlotCanvas::OnPaint( wxPaintEvent& event )
 		pixel12[1] = large_y;
 		pixel22[1] = large_y;
 
-		unproject_pixel(pixel11, world11, 0.0, width, height);
-		unproject_pixel(pixel12, world12, 0.0, width, height);
-		unproject_pixel(pixel22, world22, 0.0, width, height);
-		unproject_pixel(pixel21, world21, 0.0, width, height);
+		unproject_pixel(pixel11, world11, 0.0);
+		unproject_pixel(pixel12, world12, 0.0);
+		unproject_pixel(pixel22, world22, 0.0);
+		unproject_pixel(pixel21, world21, 0.0);
 
 		glLineWidth(2.0);
 		glColor3f(0.75,0.75,0.75);
@@ -280,9 +280,7 @@ void C3DPlotCanvas::OnSize(wxSizeEvent& event)
     // set GL viewport (not called by wxGLCanvas::OnSize on all platforms...)
     int w, h;
     GetClientSize(&w, &h);
-    width = w;
-    height = h;
-    
+
     //if (GetContext()) {
         glViewport(0, 0, (GLint) w, (GLint) h);
     //}
@@ -308,7 +306,7 @@ void C3DPlotCanvas::OnMouse( wxMouseEvent& event )
 		where[1] = point.y;
 		last[0] = point.x;
 		last[1] = point.y;
-		ball->mouse_down(where,3, width, height);
+		ball->mouse_down(where,3);
 	}
 	
 	if (event.RightUp()) {
@@ -325,13 +323,16 @@ void C3DPlotCanvas::OnMouse( wxMouseEvent& event )
 			last[0] = point.x;
 			last[1] = point.y;
 		} else {
+#ifdef __WXMAC__
+            wxGLCanvas::SetCurrent(*m_context);
+#endif
 			m_bLButton = true;
 			int where[2];
 			where[0] = point.x;
 			where[1] = point.y;
 			last[0] = point.x;
 			last[1] = point.y;
-			ball->mouse_down(where,1, width, height);
+			ball->mouse_down(where,1);
 		}
 	}
 	
@@ -354,12 +355,13 @@ void C3DPlotCanvas::OnMouse( wxMouseEvent& event )
 		int where[2];
 		where[0] = point.x;
 		where[1] = point.y;
+#ifdef __WXMAC__
         wxGLCanvas::SetCurrent(*m_context);
+#endif
 		if (m_brush) {
 			float vp[4];
 			glGetFloatv(GL_VIEWPORT, vp);
-            float W=width, H=height;
-            
+			float W=vp[2], H=vp[3];
 			float diam = 2*(ball->radius);
 			
 			ball->apply_transform();
@@ -372,9 +374,9 @@ void C3DPlotCanvas::OnMouse( wxMouseEvent& event )
 			pix3[0] = (int)(W/2);
 			pix3[1] = (int)(H/2-1);
 			double world1[3], world2[3],world3[3];
-			unproject_pixel(pix1, world1, 0.0, width, height);
-			unproject_pixel(pix2, world2, 0.0, width, height);
-			unproject_pixel(pix3, world3, 0.0, width, height);
+			unproject_pixel(pix1, world1, 0.0);
+			unproject_pixel(pix2, world2, 0.0);
+			unproject_pixel(pix3, world3, 0.0);
 
 			ball->unapply_transform();
 
@@ -421,7 +423,7 @@ void C3DPlotCanvas::OnMouse( wxMouseEvent& event )
 				last[0] = where[0];
 				last[1] = where[1];
 			} else if (m_bLButton) {
-				ball->mouse_drag(where,last,1, width, height);
+				ball->mouse_drag(where,last,1);
 				last[0] = where[0];
 				last[1] = where[1];
 			} else if (m_bRButton) {
@@ -504,15 +506,15 @@ void C3DPlotCanvas::SelectByRect()
 	
 	ball->apply_transform();
 	
-	unproject_pixel(pixel11, world11, 0.0, width, height);
-	unproject_pixel(pixel12, world12, 0.0, width, height);
-	unproject_pixel(pixel22, world22, 0.0, width, height);
-    unproject_pixel(pixel21, world21, 0.0, width, height);
+	unproject_pixel(pixel11, world11, 0.0);
+	unproject_pixel(pixel12, world12, 0.0);
+	unproject_pixel(pixel22, world22, 0.0);
+    unproject_pixel(pixel21, world21, 0.0);
 	
-	unproject_pixel(pixel11, world113, 1.0, width, height);
-	unproject_pixel(pixel12, world123, 1.0, width, height);
-	unproject_pixel(pixel22, world223, 1.0, width, height);
-    unproject_pixel(pixel21, world213, 1.0, width, height);
+	unproject_pixel(pixel11, world113, 1.0);
+	unproject_pixel(pixel12, world123, 1.0);
+	unproject_pixel(pixel22, world223, 1.0);
+    unproject_pixel(pixel21, world213, 1.0);
 	
 	ball->unapply_transform();
 	

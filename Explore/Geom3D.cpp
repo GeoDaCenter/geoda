@@ -453,12 +453,12 @@ Arcball::Arcball()
     is_dragging = false;
 }
 
-bool Arcball::mouse_down(int *where, int which, int w, int h)
+bool Arcball::mouse_down(int *where, int which)
 {
-    //float vp[4];
-    //glGetFloatv(GL_VIEWPORT, vp);
-    //float W=vp[2], H=vp[3];
-    float W = w, H = h;
+    float vp[4];
+    glGetFloatv(GL_VIEWPORT, vp);
+    float W=vp[2], H=vp[3];
+
     if( which==1 )
     {
 	is_dragging = true;
@@ -479,13 +479,12 @@ bool Arcball::mouse_up(int *where, int which)
     return false;
 }
 
-bool Arcball::mouse_drag(int *where, int *last, int which, int width, int height)
+bool Arcball::mouse_drag(int *where, int *last, int which)
 {
-    //float vp[4];
-    //glGetFloatv(GL_VIEWPORT, vp);
-    //float W=vp[2], H=vp[3];
-    float W = width, H = height;
-    
+    float vp[4];
+    glGetFloatv(GL_VIEWPORT, vp);
+    float W=vp[2], H=vp[3];
+
     float diam = 2*radius;
 
     if( which==1 )
@@ -538,7 +537,7 @@ void Arcball::set_transform(const Vec3 & c, const Vec3 &t, const Quat & q)
   q_drag = q;
 }
 
-int unproject_pixel(int *pixel, double *world, double z, int w, int h)
+int unproject_pixel(int *pixel, double *world, double z)
 {
     GLdouble modelMatrix[16];
     GLdouble projMatrix[16];
@@ -548,11 +547,6 @@ int unproject_pixel(int *pixel, double *world, double z, int w, int h)
     glGetDoublev(GL_MODELVIEW_MATRIX, modelMatrix);
     glGetIntegerv(GL_VIEWPORT, viewport);
 
-    viewport[0] = 0;
-    viewport[1] = 0;
-    viewport[2] = w;
-    viewport[3] = h;
-    
     return gluUnProject(pixel[0], viewport[3]-pixel[1], z,
 			modelMatrix, projMatrix, viewport,
 			world, world+1, world+2);
