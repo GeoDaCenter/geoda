@@ -139,7 +139,7 @@ end;
 
 function VCRedistNeedsInstall: Boolean;
 begin
-  Result := not (Get-WmiObject -Class Win32_Product -Filter "Name LIKE '%Visual C++ 2019%'");
+  Result := not RegKeyExists(HKLM,'SOFTWARE\WOW6432Node\Microsoft\VisualStudio\14.0\VC\Runtimes\X64');
 end;
 
 function GetUninstallString: string;
