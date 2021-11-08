@@ -139,7 +139,7 @@ end;
 
 function VCRedistNeedsInstall: Boolean;
 begin
-  Result := not RegKeyExists(HKLM,'SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{620A7633-7A09-42A8-8580-076A4483C4B0}');
+  Result := not (Get-WmiObject -Class Win32_Product -Filter "Name LIKE '%Visual C++ 2019%'");
 end;
 
 function GetUninstallString: string;
