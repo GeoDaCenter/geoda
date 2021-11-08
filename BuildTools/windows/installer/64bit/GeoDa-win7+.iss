@@ -139,7 +139,7 @@ end;
 
 function VCRedistNeedsInstall: Boolean;
 begin
-  Result := not RegKeyExists(HKLM,'SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{855e31d2-9031-46e1-b06d-c9d7777deefb}');
+  Result := not RegKeyExists(HKLM,'SOFTWARE\WOW6432Node\Microsoft\VisualStudio\14.0\VC\Runtimes\X64');
 end;
 
 function GetUninstallString: string;
