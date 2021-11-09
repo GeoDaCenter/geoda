@@ -17,7 +17,7 @@ def ProcessDependency(dir_path, dylib_name):
         # workaround for gdal 3.3.3 that @rpath/libgeos.3.10.0.dylib was used instead of dir path
         copyitem = item
         if item == '@rpath/libgeos.3.10.0.dylib':
-            copyitem = '/usr/local/opt/geos/lib/libgeos-3.9.1.dylib'
+            copyitem = '/usr/local/opt/geos/lib/libgeos-3.10.0.dylib'
 
         if item.startswith('/usr/lib') == False and item.startswith('/System') == False and item.startswith('@executable_path/')==False:
             print("Process:", item)
