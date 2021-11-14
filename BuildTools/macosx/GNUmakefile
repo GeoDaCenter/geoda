@@ -96,6 +96,7 @@ build-geoda-mac:
 	cp libraries/lib/libwx_osx_cocoau-3.1.4.0.0.dylib build/GeoDa.app/Contents/Frameworks/libwx_osx_cocoau-3.1.dylib
 	cp libraries/lib/libwx_osx_cocoau_gl-3.1.4.0.0.dylib build/GeoDa.app/Contents/Frameworks/libwx_osx_cocoau_gl-3.1.dylib
 	cp /usr/local/opt/gdal/lib/libgdal.29.dylib build/GeoDa.app/Contents/Frameworks
+	install_name_tool -change "$(GEODA_HOME)/libraries/lib/libwx_osx_cocoau-3.1.4.0.0.dylib" "@executable_path/../Frameworks/libwx_osx_cocoau-3.1.dylib" build/GeoDa.app/Contents/Frameworks/libwx_osx_cocoau_gl-3.1.dylib
 	install_name_tool -id "GeoDa" build/GeoDa.app/Contents/MacOS/GeoDa
 	install_name_tool -change "$(GEODA_HOME)/libraries/lib/libwx_osx_cocoau_gl-3.1.dylib" "@executable_path/../Frameworks/libwx_osx_cocoau_gl-3.1.dylib" build/GeoDa.app/Contents/MacOS/GeoDa
 	install_name_tool -change "$(GEODA_HOME)/libraries/lib/libwx_osx_cocoau-3.1.dylib" "@executable_path/../Frameworks/libwx_osx_cocoau-3.1.dylib" build/GeoDa.app/Contents/MacOS/GeoDa
