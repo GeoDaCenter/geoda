@@ -88,6 +88,7 @@ fi
 
 # Build GeoDa
 cd ..
+cp ../../GeoDamake.macosx.opt ../../GeoDamake.opt
 make -j $CPUS
 make app
 
