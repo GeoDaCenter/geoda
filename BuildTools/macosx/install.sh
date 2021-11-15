@@ -7,13 +7,6 @@ export GEODA_HOME=$PWD
 echo $GEODA_HOME
 CPUS=2
 
-mkdir -p temp
-mkdir -p libraries
-mkdir -p libraries/lib
-mkdir -p libraries/include
-mkdir -p ../../o
-
-
 # Install boost 1.75
 brew install boost
 
@@ -21,9 +14,15 @@ brew install boost
 brew tap-new xun/gdal
 brew extract --version=3.3.2 gdal xun/gdal
 brew install gdal@3.3.2
-brew link gdal@3.3.2
 cd /usr/local/opt
 ln -s gdal@3.3.2 gdal
+
+cd $GEODA_HOME
+mkdir -p temp
+mkdir -p libraries
+mkdir -p libraries/lib
+mkdir -p libraries/include
+mkdir -p ../../o
 
 # Build wxWidgets 3.1.4
 cd temp
