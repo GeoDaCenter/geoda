@@ -21,6 +21,9 @@ brew install boost
 brew tap-new xun/gdal
 brew extract --version=3.3.2 gdal xun/gdal
 brew install gdal@3.3.2
+brew link gdal@3.3.2
+cd /usr/local/opt
+ln -s gdal@3.3.2 gdal
 
 # Build wxWidgets 3.1.4
 cd temp
