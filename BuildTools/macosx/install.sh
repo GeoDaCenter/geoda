@@ -10,12 +10,12 @@ CPUS=2
 # Install boost 1.75
 brew install boost
 
-# Install libgdal 3.3.0
+# Install libgdal 3.2.0
 brew tap-new xun/gdal
-brew extract --version=3.3.0 gdal xun/gdal
-brew install gdal@3.3.0
+brew extract --version=3.2.0 gdal xun/gdal
+brew install gdal@3.2.0
 cd /usr/local/opt
-ln -s gdal@3.3.0 gdal
+ln -s gdal@3.2.0 gdal
 
 cd $GEODA_HOME
 mkdir -p temp
