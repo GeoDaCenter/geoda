@@ -13,13 +13,19 @@ def ProcessDependency(dir_path, dylib_name):
     items = dep_libs.split('\n')[2:-1]
     for item in items:
         item = item.strip().split(" ")[0]
+
+        # workaround for gdal 3.3.3 that @rpath/libgeos.3.10.1.dylib was used instead of dir path
+        copyitem = item
+        if item == '@rpath/libgeos.3.10.1.dylib':
+            copyitem = '/usr/local/opt/geos/lib/libgeos.dylib'
+
         if item.startswith('/usr/lib') == False and item.startswith('/System') == False and item.startswith('@executable_path/')==False:
             print("Process:", item)
             file_name = os.path.basename(item)
             # Copy the dylib to Frameworks if needed
             dest = dir_path + '/' + file_name
             if os.path.exists(dest) == False:
-                copyfile(item, dest)
+                copyfile(copyitem, dest, follow_symlinks=True)
             # install_name_tool current item
             new_path = "@executable_path/../Frameworks/{}".format(file_name)
             cmd = "install_name_tool -change \"{}\" \"{}\" {}".format(item, new_path, dylib_path)

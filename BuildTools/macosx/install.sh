@@ -7,18 +7,29 @@ export GEODA_HOME=$PWD
 echo $GEODA_HOME
 CPUS=2
 
+# Install boost 1.75
+brew install boost
+
+# Install libgdal 3.3
+brew install gdal
+
+cd $GEODA_HOME
 mkdir -p temp
 mkdir -p libraries
 mkdir -p libraries/lib
 mkdir -p libraries/include
 mkdir -p ../../o
 
-
-# Install boost 1.75
-brew install boost
-
-# Install libgdal-dev
-brew install gdal
+# FIX for libgdal on Monterey using sqlite 3.30.1
+cd temp
+curl -L -O https://sqlite.org/2019/sqlite-autoconf-3300100.tar.gz
+tar -xvf sqlite-autoconf-3300100.tar.gz
+cd sqlite-autoconf-3300100
+./configure --enable-readline CPPFLAGS="-DSQLITE_ENABLE_COLUMN_METADATA=1" --prefix=/usr/local/opt/sqlite
+make
+make install
+cd ..
+cd ..
 
 # Build wxWidgets 3.1.4
 cd temp
@@ -84,6 +95,7 @@ fi
 
 # Build GeoDa
 cd ..
+cp ../../GeoDamake.macosx.opt ../../GeoDamake.opt
 make -j $CPUS
 make app
 
