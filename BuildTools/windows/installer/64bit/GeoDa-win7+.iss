@@ -84,7 +84,7 @@ Source: "..\..\libraries\bin\gdal\plugins-optional\ogr_PG.dll"; DestDir: "{app}"
 Source: "..\..\libraries\bin\gdal\plugins-optional\ogr_MSSQLSpatial.dll"; DestDir: "{app}"
 Source: "..\..\libraries\bin\gdal\plugins-external\ogr_FileGDB.dll"; DestDir: "{app}"
 Source: "..\..\..\..\Algorithms\lisa_kernel.cl"; DestDir: "{app}"
-Source: "..\..\..\..\internationalization\lang\*"; DestDir: "{app}\lang"; Flags: recursesubdirs
+Source: "..\..\..\..\internationalization\lang\*"; DestDir: "{userappdata}\GeoDa\lang"; Flags: recursesubdirs
 Source: "..\..\..\..\internationalization\lang\config.ini"; DestDir: "{userappdata}\GeoDa\lang"
 Source: "..\..\libraries\bin\gdal-data\*"; DestDir: "{app}\data"; Flags: recursesubdirs
 
