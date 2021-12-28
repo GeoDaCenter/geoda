@@ -11,11 +11,6 @@ CPUS=2
 brew install boost
 
 # Install libgdal 3.3
-#brew tap-new xun/gdal
-#brew extract --version=3.2.0 gdal xun/gdal
-#brew install gdal@3.2.0
-#cd /usr/local/opt
-#ln -s gdal@3.2.0 gdal
 brew install gdal
 
 cd $GEODA_HOME
@@ -24,6 +19,17 @@ mkdir -p libraries
 mkdir -p libraries/lib
 mkdir -p libraries/include
 mkdir -p ../../o
+
+# FIX for libgdal on Monterey using sqlite 3.30.1
+cd temp
+curl -L -O https://sqlite.org/2019/sqlite-autoconf-3300100.tar.gz
+tar -xvf sqlite-autoconf-3300100.tar.gz
+cd sqlite-autoconf-3300100
+./configure --enable-readline CPPFLAGS="-DSQLITE_ENABLE_COLUMN_METADATA=1" --prefix=/usr/local/opt/sqlite
+make
+make install
+cd ..
+cd ..
 
 # Build wxWidgets 3.1.4
 cd temp
