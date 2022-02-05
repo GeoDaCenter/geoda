@@ -41,4 +41,4 @@ def ProcessDependency(dir_path, dylib_name):
 
 ProcessDependency(framework_path, "libwx_osx_cocoau_gl-3.1.dylib")
 ProcessDependency(framework_path, "libwx_osx_cocoau-3.1.dylib")
-ProcessDependency(framework_path, "libgdal.29.dylib")
+ProcessDependency(framework_path, "libgdal.30.dylib")
