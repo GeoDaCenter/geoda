@@ -75,9 +75,7 @@ jobs:
       - name: Set compiler environment
         shell: cmd
         run: |
-          set vcvars_call="%VCINSTALLDIR%\Auxiliary\Build\vcvarsall.bat"
-          echo vcvars_call
-          if "%VS_VER%" == "2019" CALL "%vcvars_call% %ARCHITECTURE%"
+          if "%VS_VER%" == "2019" CALL "%VCINSTALLDIR%\Auxiliary\Build\vcvarsall.bat %ARCHITECTURE%"
           echo ::set-env name=PATH::%PATH%
           echo ::set-env name=INCLUDE::%INCLUDE%
           echo ::set-env name=LIB::%LIB%
