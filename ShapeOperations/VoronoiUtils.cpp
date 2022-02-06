@@ -631,12 +631,21 @@ bool Gda::VoronoiUtils::PointsToContiguity(const std::vector<double>& x,
 			}
 			
 			double x0, y0, x1, y1;
-			if (clipEdge(*edge, int_pts,
-						 bb_xmin, bb_ymin, bb_xmax, bb_ymax,
-						 x0, y0, x1, y1)) {
-				nbr_set.insert(nbr_list);
-			}
 			
+            bool intersects_e = false;
+            if (edge < edge->twin()) {
+                intersects_e = clipEdge(*edge, int_pts,
+                                        bb_xmin, bb_ymin, bb_xmax, bb_ymax,
+                                        x0, y0, x1, y1);
+            } else {
+                intersects_e = clipEdge(*edge->twin(), int_pts,
+                                        bb_xmin, bb_ymin, bb_xmax, bb_ymax,
+                                        x0, y0, x1, y1);
+            }
+            if (intersects_e) {
+                nbr_set.insert(nbr_list);
+            }
+            
 			if (queen) { // add all cells that share each edge vertex
 				if (edge->vertex0() &&
 					!isVertexOutsideBB(*edge->vertex0(), bb_xmin, bb_ymin,

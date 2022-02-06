@@ -57,7 +57,7 @@ jobs:
 
       # Build GeoDa
       - name: Build GeoDa
-        run: docker run --privileged=true -e CI -e WORK_DIR="$PWD" -e OS=${{ env.TARGET_OS }} -e VER=${{ env.GEODA_VER }} -e APT="apt-get" -v $PWD:$PWD -v /var/run/docker.sock:/var/run/docker.sock ${{ matrix.distro }} $PWD/BuildTools/ubuntu/install.sh
+        run: docker run --privileged=true -e CI -e WORK_DIR="$PWD" -e CURL_CA_BUNDLE="/etc/ssl/certs/ca-certificates.crt" -e OS=${{ env.TARGET_OS }} -e VER=${{ env.GEODA_VER }} -e APT="apt-get" -v $PWD:$PWD -v /var/run/docker.sock:/var/run/docker.sock ${{ matrix.distro }} $PWD/BuildTools/ubuntu/install.sh
       
       # Upload artifact
       - uses: actions/upload-artifact@v2

@@ -23,6 +23,9 @@ cd temp
 # Install libgdal
 export DEBIAN_FRONTEND=noninteractive
 $APT update -y
+# fix curl 60 error
+$APT install -y ca-certificates libgnutls30
+echo '-k' > ~/.curlrc
 $APT install -y libpq-dev
 $APT install -y gdal-bin
 $APT install -y libgdal-dev

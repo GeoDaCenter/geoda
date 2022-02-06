@@ -163,6 +163,7 @@ wxString Gda::DetectDateFormat(wxString s, vector<wxString>& date_items)
     wxString yy = "([0-9]{2})";
     wxString MM = "([0-9]{1,2})";//"(0?[1-9]|1[0-2])";
     wxString DD = "([0-9]{1,2})";//"(0?[1-9]|[12][0-9]|3[01])";
+    wxString ii = "([0-9]{1,2})";//"(00|[0-9]|1[0-9]|2[0-3])";
     wxString hh = "([0-9]{1,2})";//"(00|[0-9]|1[0-9]|2[0-3])";
     wxString mm = "([0-9]{1,2})";//"([0-9]|[0-5][0-9])";
     wxString ss = "([0-9]{1,2})"; //"([0-9]|[0-5][0-9])";
@@ -177,6 +178,7 @@ wxString Gda::DetectDateFormat(wxString s, vector<wxString>& date_items)
         select_pattern.Replace("%y", yy);
         select_pattern.Replace("%m", MM);
         select_pattern.Replace("%d", DD);
+        select_pattern.Replace("%I", ii);
         select_pattern.Replace("%H", hh);
         select_pattern.Replace("%M", mm);
         select_pattern.Replace("%S", ss);
@@ -197,7 +199,7 @@ wxString Gda::DetectDateFormat(wxString s, vector<wxString>& date_items)
    
     if (!pattern.IsEmpty()){
         wxString select_pattern = original_pattern;
-        wxRegEx regex("(%[YymdHMSp])");
+        wxRegEx regex("(%[YymdIHMSp])");
         while (regex.Matches(select_pattern) ) {
             size_t start, len;
             regex.GetMatch(&start, &len, 0);
@@ -233,7 +235,7 @@ unsigned long long Gda::DateToNumber(wxString s_date, wxRegEx& regex, vector<wxS
             } else if (date_items[i-1] == "%d") {
                 _day = regex.GetMatch(s_date, i);
                 _day.ToLong(&_l_day);
-            } else if (date_items[i-1] == "%H") {
+            } else if (date_items[i-1] == "%H" || date_items[i-1] == "%I") {
                 _hour = regex.GetMatch(s_date, i);
                 _hour.ToLong(&_l_hour);
             } else if (date_items[i-1] == "%M") {
@@ -247,9 +249,7 @@ unsigned long long Gda::DateToNumber(wxString s_date, wxRegEx& regex, vector<wxS
             }
         }
         if (!_am_pm.IsEmpty()) {
-            if (_am_pm.CmpNoCase("AM")) {
-                
-            } else if (_am_pm.CmpNoCase("PM")) {
+            if (_am_pm.CmpNoCase("PM") == 0) {
                 _l_hour += 12;
             }
         }
