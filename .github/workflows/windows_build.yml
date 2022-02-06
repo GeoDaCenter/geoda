@@ -75,7 +75,7 @@ jobs:
       - name: Set compiler environment
         shell: cmd
         run: |
-          if "%VS_VER%" == "2019" CALL "%VCINSTALLDIR%\Auxiliary\Build\vcvarsall.bat %ARCHITECTURE%"
+          if "%VS_VER%" == "2019" CALL "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\Common7\Tools\VsDevCmd.bat" -arch=%ARCHITECTURE%
           echo ::set-env name=PATH::%PATH%
           echo ::set-env name=INCLUDE::%INCLUDE%
           echo ::set-env name=LIB::%LIB%
