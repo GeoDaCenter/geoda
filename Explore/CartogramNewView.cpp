@@ -22,6 +22,7 @@
 #include <iostream>
 #include <set>
 #include <sstream>
+#include <limits>
 #include <boost/foreach.hpp>
 #include <wx/wx.h>
 #include <wx/msgdlg.h>
@@ -182,9 +183,9 @@ improve_table(6), realtime_updates(false), all_init(false)
 	// Enable realtime_updates for future calls to ImproveAll
 	realtime_updates = true;
 	
-    double max_rad = DBL_MIN;
-    double min_out_x = DBL_MAX, max_out_x = DBL_MIN;
-    double min_out_y = DBL_MAX, max_out_y = DBL_MIN;
+    double max_rad = -std::numeric_limits<double>::max();
+    double min_out_x = std::numeric_limits<double>::max(), max_out_x = -std::numeric_limits<double>::max();
+    double min_out_y = std::numeric_limits<double>::max(), max_out_y = -std::numeric_limits<double>::max();
     for (int t=0; t<num_time_vals; t++) {
         int thm_t = (var_info[THM_VAR].sync_with_global_time ?  t + var_info[THM_VAR].time_min : var_info[THM_VAR].time);
         int rad_t = (var_info[RAD_VAR].sync_with_global_time ?  t + var_info[RAD_VAR].time_min : var_info[RAD_VAR].time);
