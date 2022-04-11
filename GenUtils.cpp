@@ -2485,3 +2485,14 @@ wxString GenUtils::GetLangSearchPath()
     
     return search_path;
 }
+
+wxString GenUtils::GetLangConfigPath()
+{
+#ifdef __WXMAC__
+    wxString search_path = GetExeDir() + "/../Resources/lang";
+#else
+    wxString search_path = GetExeDir() + wxFileName::GetPathSeparator() +  "lang";
+#endif
+    
+    return search_path;
+}

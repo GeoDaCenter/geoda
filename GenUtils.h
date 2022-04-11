@@ -458,6 +458,7 @@ namespace GenUtils {
     wxString GetBasemapDir();
     wxString GetCachePath();
     wxString GetLangSearchPath();
+	wxString GetLangConfig();
     wxString GetLoggerPath();
 
     bool less_vectors(const vector<int>& a,const vector<int>& b);
