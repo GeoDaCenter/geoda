@@ -279,7 +279,7 @@ bool GdaApp::OnInit(void)
     // load language from lang/config.ini if user specified any
     bool use_native_config = false;
     m_TranslationHelper = new wxTranslationHelper(*this, search_path, use_native_config);
-    m_TranslationHelper->SetConfigPath(configGenUtils::GetLangConfigPath());
+    m_TranslationHelper->SetConfigPath(GenUtils::GetLangConfigPath());
     m_TranslationHelper->Load();
     // forcing numeric settings to en_US, which is used internally in GeoDa
     //setlocale(LC_NUMERIC, "en_US");
