@@ -2459,7 +2459,7 @@ wxString GenUtils::GetCachePath()
 #endif
 }
 
-wxString GenUtils::GetLangSearchPath()
+wxString GenUtils::GetLangConfigPath()
 {
 #ifdef __linux__
     wxString search_path = GetExeDir() + wxFileName::GetPathSeparator() +  "lang";
@@ -2481,6 +2481,17 @@ wxString GenUtils::GetLangSearchPath()
         wxString origLangPath = GetExeDir() + "lang" + wxFileName::GetPathSeparator() + "config.ini";
         wxCopyFile(origLangPath, langPath);
     }
+#endif
+    
+    return search_path;
+}
+
+wxString GenUtils::GetLangSearchPath()
+{
+#ifdef __WXMAC__
+    wxString search_path = GetExeDir() + "/../Resources/lang";
+#else
+    wxString search_path = GetExeDir() + wxFileName::GetPathSeparator() +  "lang";
 #endif
     
     return search_path;
