@@ -260,6 +260,7 @@ bool GdaApp::OnInit(void)
     wxString proj6_db_dir = exeDir + "../Resources/proj";
     const char* proj_path = proj6_db_dir.mb_str();
     const char* const apsz_proj_paths[] = { proj_path, nullptr };
+    CPLSetConfigOption("PROJ_LIB", GET_ENCODED_FILENAME(proj6_db_dir));
     OSRSetPROJSearchPaths(apsz_proj_paths);
 #endif
 

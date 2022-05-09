@@ -1,7 +1,7 @@
 {
-  "$id": "https://proj.org/schemas/v0.2/projjson.schema.json",
+  "$id": "https://proj.org/schemas/v0.4/projjson.schema.json",
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "description": "Schema for PROJJSON (v0.2.1)",
+  "description": "Schema for PROJJSON (v0.4)",
   "$comment": "This file exists both in data/ and in schemas/vXXX/. Keep both in sync. And if changing the value of $id, change PROJJSON_CURRENT_VERSION accordingly in io.cpp",
 
   "oneOf": [
@@ -111,12 +111,20 @@
 
     "bound_crs": {
       "type": "object",
+      "allOf": [{ "$ref": "#/definitions/object_usage" }],
       "properties": {
         "$schema" : { "type": "string" },
         "type": { "type": "string", "enum": ["BoundCRS"] },
+        "name": { "type": "string" },
         "source_crs": { "$ref": "#/definitions/crs" },
         "target_crs": { "$ref": "#/definitions/crs" },
-        "transformation": { "$ref": "#/definitions/abridged_transformation" }
+        "transformation": { "$ref": "#/definitions/abridged_transformation" },
+        "scope": {},
+        "area": {},
+        "bbox": {},
+        "usages": {},
+        "remarks": {},
+        "id": {}, "ids": {}
      },
      "required" : [ "source_crs", "target_crs", "transformation" ],
      "additionalProperties": false
@@ -604,7 +612,12 @@
         "authority": { "type": "string" },
         "code": {
           "oneOf": [ { "type": "string" }, { "type": "integer" } ]
-        }
+        },
+        "version": {
+          "oneOf": [ { "type": "string" }, { "type": "number" } ]
+        },
+        "authority_citation": { "type": "string" },
+        "uri": { "type": "string" }
       },
       "required" : [ "authority", "code" ],
       "additionalProperties": false
