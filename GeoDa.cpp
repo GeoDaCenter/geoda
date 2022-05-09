@@ -5122,8 +5122,9 @@ void GdaFrame::OnOpenUniqueValues(wxCommandEvent& event)
 {
     wxLogMessage("In GdaFrame::OnOpenUniqueValues()");
     UniqueValuesSettingDlg dlg(project_p);
-	if (dlg.ShowModal() != wxID_OK) return;
+    if (dlg.ShowModal() != wxID_OK) return;
     
+    bool isSummaryDlgExisted = false;
     wxString joincountSummary = dlg.GetSummary();
     if (!joincountSummary.IsEmpty()) {
         FramesManager* fm = project_p->GetFramesManager();
@@ -5135,13 +5136,15 @@ void GdaFrame::OnOpenUniqueValues(wxCommandEvent& event)
                 w->m_textbox->SetSelection(0, 0);
                 w->Show(true);
                 w->Raise();
-                return;
+                isSummaryDlgExisted = true;
+                break;
             }
         }
-        
-        SummaryDialog* summaryDlg = new SummaryDialog(this, project_p, joincountSummary, wxID_ANY, _("Join Count Ratio Summary"));
-        summaryDlg->Show(true);
-        summaryDlg->m_textbox->SetSelection(0, 0);
+        if (!isSummaryDlgExisted) {
+            SummaryDialog* summaryDlg = new SummaryDialog(this, project_p, joincountSummary, wxID_ANY, _("Join Count Ratio Summary"));
+            summaryDlg->Show(true);
+            summaryDlg->m_textbox->SetSelection(0, 0);
+        }
     }
     
     MapFrame* nf = new MapFrame(GdaFrame::gda_frame, project_p,
