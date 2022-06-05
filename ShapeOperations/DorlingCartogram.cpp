@@ -227,7 +227,9 @@ void DorlingCartogram::init_cartogram(const std::vector<double>& orig_x,
 	double min = orig_data_min;
 	double max = orig_data_max;
 	double range = max-min;
-	for (int i=0, its=orig_data.size(); i<its; i++) people[i+1] = orig_data[i];
+    for (size_t i = 0, its = orig_data.size(); i<its; i++) {
+        people[i+1] = orig_data[i];
+    }
 	if (min < 0) {
 		double d = -min;
 		for (int b=1; b<bodies; b++) people[b] += d;
@@ -274,9 +276,11 @@ void DorlingCartogram::init_cartogram(const std::vector<double>& orig_x,
 				if (nbour[body][nb] < body) {
 					xd = x[body] - x[nbour[body][nb]];
 					yd = y[body] - y[nbour[body][nb]];
-					t_dist += sqrt(xd*xd+yd*yd);
-					t_radius += sqrt(people[body]/pi) +
+					double dist = sqrt(xd*xd+yd*yd);
+					double radius = sqrt(people[body]/pi) +
 						sqrt(people[nbour[body][nb]]/pi);
+                    t_dist += dist;
+                    t_radius += radius;
 				}
 			}
 		}    
