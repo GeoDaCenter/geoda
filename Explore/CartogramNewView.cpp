@@ -680,6 +680,7 @@ void CartogramNewCanvas::CreateAndUpdateCategories()
 		cat_data.CreateCategoriesAllCanvasTms(1, num_time_vals, num_obs);
 		for (int t=0; t<num_time_vals; t++) {
 			cat_data.SetCategoryPenColor(t, 0,GdaConst::map_default_fill_colour);
+            cat_data.SetCategoryBrushColor(t, 0, *wxWHITE);
 			cat_data.SetCategoryLabel(t, 0, "");
 			cat_data.SetCategoryCount(t, 0, num_obs);
 			for (int i=0; i<num_obs; i++) cat_data.AppendIdToCategory(t, 0, i);
