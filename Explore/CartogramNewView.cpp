@@ -679,8 +679,8 @@ void CartogramNewCanvas::CreateAndUpdateCategories()
 		cat_classif_def.colors[0] = GdaConst::map_default_fill_colour;
 		cat_data.CreateCategoriesAllCanvasTms(1, num_time_vals, num_obs);
 		for (int t=0; t<num_time_vals; t++) {
-			cat_data.SetCategoryPenColor(t, 0,GdaConst::map_default_fill_colour);
-            cat_data.SetCategoryBrushColor(t, 0, *wxWHITE);
+			cat_data.SetCategoryPenColor(t, 0, GdaConst::map_default_fill_colour);
+            cat_data.SetCategoryBrushColor(t, 0, GdaConst::map_default_fill_colour);
 			cat_data.SetCategoryLabel(t, 0, "");
 			cat_data.SetCategoryCount(t, 0, num_obs);
 			for (int i=0; i<num_obs; i++) cat_data.AppendIdToCategory(t, 0, i);
@@ -748,14 +748,6 @@ void CartogramNewCanvas::CreateAndUpdateCategories()
 										- var_info[ref_var_index].time_min);
 	}
 	int cnc = cat_data.GetNumCategories(cat_data.GetCurrentCanvasTmStep());
-    // no fill color for cartogram
-    for (int t=0; t<num_time_vals; t++) {
-        for (int c=0; c<cat_data.categories[t].cat_vec.size(); ++c) {
-            wxColour color = cat_data.GetCategoryBrushColor(t, c);
-            cat_data.SetCategoryPenColor(t, c, color);
-            cat_data.SetCategoryBrushColor(t, c, *wxWHITE);
-        }
-    }
 	CatClassification::ChangeNumCats(cnc, cat_classif_def);
 }
 
