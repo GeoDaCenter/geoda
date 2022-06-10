@@ -162,8 +162,14 @@ void ExportDataDlg::Init(wxWindow* parent, const wxPoint& pos)
     is_create_project = project_file_name.empty() ? false : true;
     ds_file_path = wxFileName("");
     
-    if (is_table_only)
+    if (is_table_only) {
         ds_names.Remove("ESRI Shapefile (*.shp)|*.shp");
+        ds_names.Remove("GeoJSON (*.geojson;*.json)|*.geojson;*.json");
+        ds_names.Remove("GeoPackage (*.gpkg)|*.gpkg");
+        ds_names.Remove("Geography Markup Language (*.gml)|*.gml");
+        ds_names.Remove("Keyhole Markup Language (*.kml)|*.kml");
+        ds_names.Remove("MapInfo (*.tab;*.mif;*.mid)|*.tab;*.mif;*.mid");
+    }
     
     //ds_names.Remove("dBase database file (*.dbf)|*.dbf");
     ds_names.Remove("MS Excel (*.xls)|*.xls");
