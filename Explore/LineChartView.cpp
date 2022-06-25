@@ -1071,7 +1071,7 @@ void LineChartFrame::SaveDataAndResults(bool save_weights, bool save_did,
                 }
                 
                 for (int j=0; j<n_obs; j++) {
-                    if (undefs[j] || hs[j] != filter_flag )
+                    if (undefs[j])
                         continue;
                     var_stack_array[idx_var].push_back(Y[t][j]);
                     dummy_select_stack.push_back(hs[j] == true ? 1 : 0);
