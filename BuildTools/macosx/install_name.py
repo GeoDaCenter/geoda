@@ -19,6 +19,8 @@ def ProcessDependency(dir_path, dylib_name):
         copyitem = item
         if item == '@rpath/libgeos.3.10.3.dylib':
             copyitem = '/usr/local/opt/geos/lib/libgeos.dylib'
+        if item == '@loader_path/libicuuc.70.dylib':
+            copyitem = '/usr/local/opt/icu4c/lib/libicuuc.70.dylib'
 
         if item.startswith('/usr/lib') == False and item.startswith('/System') == False and (codesign_only or item.startswith('@executable_path/')==False):
             print("Process:", item)
