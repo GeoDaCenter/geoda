@@ -209,6 +209,10 @@ begin
     begin
       langCode := '159';  // russian
     end;
+    4:
+    begin
+      langCode := '153';  // Portuguese
+    end;
   end;
 end;
 

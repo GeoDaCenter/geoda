@@ -1,0 +1,6608 @@
+# contributors:
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2019-05-15 10:50-0700\n"
+"PO-Revision-Date: 2022-06-27 10:17-0700\n"
+"Language: pt\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"X-Generator: Poedit 3.0\n"
+
+# contributors:LetÃ­cia Laranja
+msgid " (isolates in weights are removed)"
+msgstr " (os isolados em pesos sÃ£o removidos)"
+
+# contributors:LetÃ­cia Laranja
+msgid " = 0 at "
+msgstr " = 0 em "
+
+# contributors:LetÃ­cia Laranja
+msgid " BiLISA Cluster Map"
+msgstr " Mapa de agrupamento BiLISA"
+
+# contributors:LetÃ­cia Laranja
+msgid " BiLISA Significance Map"
+msgstr " Mapa de significÃ¢ncia BiLISA"
+
+# contributors:LetÃ­cia Laranja
+msgid " Bivariate Local Geary Cluster Map"
+msgstr " Mapa de agrupamento bivariado Local de Geary"
+
+# contributors:LetÃ­cia Laranja
+msgid " Bivariate LocalGeary Significance Map"
+msgstr " Mapa bivariado de significÃ¢ncia Local de Geary"
+
+# contributors:hugonbgg
+msgid " Categories"
+msgstr " Categorias"
+
+# contributors:LetÃ­cia Laranja
+msgid " Differential LISA Cluster Map"
+msgstr " Mapa de Agrupamento Diferencial LISA"
+
+# contributors:LetÃ­cia Laranja
+msgid " Differential Local Geary Cluster Map"
+msgstr " Mapa diferencial do agrupamento Local de Geary"
+
+# contributors:LetÃ­cia Laranja
+msgid " Differential Significance Map"
+msgstr " Mapa de significÃ¢ncia diferencial"
+
+# contributors:LetÃ­cia Laranja
+msgid " Distance metric: "
+msgstr " DistÃ¢ncia mÃ©trica: "
+
+# contributors:LetÃ­cia Laranja
+msgid " LISA Cluster Map"
+msgstr " Mapa de agrupamento LISA"
+
+# contributors:LetÃ­cia Laranja
+msgid " LISA Significance Map"
+msgstr " Mapa de significÃ¢ncia LISA"
+
+# contributors:LetÃ­cia Laranja
+msgid " Local Geary Cluster Map"
+msgstr " Mapa de agrupamento local de Geary"
+
+# contributors:LetÃ­cia Laranja
+msgid " Local Geary Significance Map"
+msgstr " Mapa de significÃ¢ncia local de Geary"
+
+# contributors:LetÃ­cia Laranja
+msgid " already exists.  OK to overwrite?"
+msgstr " jÃ¡ existe. Ok para sobrescrever?"
+
+# contributors:LetÃ­cia Laranja
+msgid " and "
+msgstr " e "
+
+# contributors:LetÃ­cia Laranja
+msgid " and two time periods: "
+msgstr " e dois perÃ­odos de tempo: "
+
+# contributors:LetÃ­cia Laranja
+msgid " for obs within distance band "
+msgstr " para observaÃ§Ãµes dentro da banda de distÃ¢ncia "
+
+# contributors:LetÃ­cia Laranja
+msgid ""
+" has duplicate values. Please choose a different ID Variable.\n"
+"\n"
+"Details:"
+msgstr ""
+" possui valores duplicados. Por favor, escolha uma identificaÃ§Ã£o de variÃ¡vel diferente.\n"
+"\n"
+"Detalhes:"
+
+# contributors:LetÃ­cia Laranja
+msgid " in range:"
+msgstr " no intervalo:"
+
+# contributors:hugonbgg
+msgid " is not supported by GeoDa.\n"
+msgstr " nÃ£o Ã© suportado pelo GeoDa.\n"
+
+# contributors:hugonbgg
+msgid " km"
+msgstr " km"
+
+# contributors:hugonbgg
+msgid " mi"
+msgstr " mi"
+
+# contributors:LetÃ­cia Laranja
+msgid " pairs in distance band "
+msgstr " pares em banda de distÃ¢ncia "
+
+# contributors:hugonbgg
+msgid " should contains only numbers/letters as IDs.  Please choose a different ID Variable."
+msgstr " deve conter apenas nÃºmeros/letras como IDs.  Escolha uma variÃ¡vel de ID diferente."
+
+# contributors:LetÃ­cia Laranja
+msgid " to "
+msgstr " para "
+
+# contributors:hugonbgg
+msgid "# Iterations:"
+msgstr "# IteraÃ§Ãµes:"
+
+# contributors:LetÃ­cia Laranja
+msgid "# Max Iteration:"
+msgstr "# Max. de IteraÃ§Ãµes:"
+
+# contributors:hugonbgg
+msgid "# Neighors:"
+msgstr "# Vizinhos:"
+
+# contributors:hugonbgg
+msgid "# Pairs"
+msgstr "# Pares"
+
+# contributors:hugonbgg
+msgid "# iterations:\t"
+msgstr "# iteraÃ§Ãµes:\t"
+
+# contributors:hugonbgg
+msgid "# observations"
+msgstr "# observaÃ§Ãµes"
+
+# contributors:LetÃ­cia Laranja
+msgid "#hover obs "
+msgstr "#observaÃ§Ãµes flutuantes "
+
+# contributors:LetÃ­cia Laranja
+msgid "#obs"
+msgstr "#obs"
+
+# contributors:LetÃ­cia Laranja
+msgid "#obs:"
+msgstr "#obs:"
+
+# contributors:LetÃ­cia Laranja
+msgid "#obs="
+msgstr "#obs="
+
+# contributors:LetÃ­cia Laranja
+msgid "#row="
+msgstr "#linha="
+
+# contributors:LetÃ­cia Laranja
+msgid "#selected="
+msgstr "#selecionado="
+
+# contributors:hugonbgg
+msgid "% non-zero"
+msgstr "% diferente de zero"
+
+# contributors:hugonbgg
+msgid "% of total"
+msgstr "% do totall"
+
+# contributors:LetÃ­cia Laranja
+msgid "%d of %d variables to include"
+msgstr "%d de %d variÃ¡veis a incluir"
+
+# contributors:LetÃ­cia Laranja
+msgid "%d variables to include"
+msgstr "%d variÃ¡veis a incluir"
+
+# contributors:hugonbgg
+msgid "%s (Weights: %s)"
+msgstr "%s (Pesos: %s)"
+
+# contributors:LetÃ­cia Laranja
+msgid "%s Cluster Map (%d clusters)"
+msgstr "%s Mapa de agrupamento (%d agrupamentos)"
+
+# contributors:LetÃ­cia Laranja
+msgid "&Add ID Variable..."
+msgstr "&Adicionar variÃ¡vel de ID..."
+
+# contributors:hugonbgg
+msgid "&Cancel"
+msgstr "&Cancelar"
+
+# contributors:hugonbgg
+msgid "&Close"
+msgstr "&Fechar"
+
+# contributors:hugonbgg
+msgid "&Edit"
+msgstr "&Editar"
+
+# contributors:hugonbgg
+msgid "&File"
+msgstr "&Arquivo"
+
+# contributors:hugonbgg
+msgid "&Help"
+msgstr "&Ajuda"
+
+# contributors:LetÃ­cia Laranja
+msgid "&Map"
+msgstr "&Mapa"
+
+# contributors:LetÃ­cia Laranja
+msgid "&Merge"
+msgstr "&Mesclar"
+
+# contributors:hugonbgg
+msgid "&New"
+msgstr "&Novo"
+
+# contributors:hugonbgg
+msgid "&Open Project"
+msgstr "&Abrir Projeto"
+
+# contributors:hugonbgg
+msgid "&Regression"
+msgstr "&RegressÃ£o"
+
+# contributors:hugonbgg
+msgid "&Run"
+msgstr "&Executar"
+
+# contributors:LetÃ­cia Laranja
+msgid "&Save to Table"
+msgstr "&Salvar em Tabela"
+
+# contributors:LetÃ­cia Laranja
+msgid "&Space"
+msgstr "&EspaÃ§o"
+
+# contributors:hugonbgg
+msgid "&Tools"
+msgstr "&Ferramentas"
+
+# contributors:LetÃ­cia Laranja
+msgid "(Dendrogram is too complex to draw. Please view clustering results in map.)"
+msgstr "(O dendrograma Ã© muito complexo para desenhar. Por favor veja os resultados do agrupamento no mapa)"
+
+# contributors:LetÃ­cia Laranja
+msgid "(Duplicate field name)"
+msgstr "(Duplicar o nome do campo)"
+
+# contributors:LetÃ­cia Laranja
+msgid "(Field name is not valid)"
+msgstr "(O nome do campo nÃ£o Ã© vÃ¡lido)"
+
+# contributors:LetÃ­cia Laranja
+msgid "(Gaussian) Sigma:"
+msgstr "(Gaussiano) Sigma:"
+
+# contributors:LetÃ­cia Laranja
+msgid "(Leave empty for undefined values)"
+msgstr "(Deixar vazio para valores indefinidos)"
+
+# contributors:LetÃ­cia Laranja
+msgid "(Optional) First record has field names? "
+msgstr "(Opcional) O primeiro registro possui nomes de campo? "
+
+# contributors:LetÃ­cia Laranja
+msgid "(Optional) Longitude/X:"
+msgstr "(Opcional) Longitude/X:"
+
+# contributors:LetÃ­cia Laranja
+msgid "(Optional) You can change the data type for a field:"
+msgstr "(Opcional) VocÃª pode mudar o tipo de dado de um campo:"
+
+# contributors:LetÃ­cia Laranja
+msgid "(Use Sequences)"
+msgstr "(Usar sequÃªncias)"
+
+# contributors:LetÃ­cia Laranja
+msgid ""
+"---\n"
+"\n"
+"PCA method: "
+msgstr ""
+"---\n"
+"\n"
+" MÃ©todo PCA: "
+
+# contributors:LetÃ­cia Laranja
+msgid ""
+".\n"
+"Enter a seed value to use between\n"
+"0 and "
+msgstr ""
+".\n"
+"Insira um valor inicial entre\n"
+"0 e "
+
+# contributors:LetÃ­cia Laranja
+msgid "0x03 (dBASE III+)"
+msgstr "0x03 (dBASE III+)"
+
+# contributors:LetÃ­cia Laranja
+msgid "1 Iteration"
+msgstr "1 IteraÃ§Ã£o"
+
+# contributors:LetÃ­cia Laranja
+msgid "199 Permutations"
+msgstr "199 PermutaÃ§Ãµes"
+
+# contributors:LetÃ­cia Laranja
+msgid "1st Variable (X)"
+msgstr "1Âª VariÃ¡vel (X)"
+
+# contributors:LetÃ­cia Laranja
+msgid "2 Iteration"
+msgstr "2 IteraÃ§Ã£o"
+
+# contributors:LetÃ­cia Laranja
+msgid "2nd Variable (Y)"
+msgstr "2Âª VariÃ¡vel (Y)"
+
+# contributors:LetÃ­cia Laranja
+msgid "3 Iteration"
+msgstr "3 IteraÃ§Ã£o"
+
+# contributors:LetÃ­cia Laranja
+msgid "3D Plot"
+msgstr "GrÃ¡fico 3D"
+
+# contributors:LetÃ­cia Laranja
+msgid "3D Scatter Plot"
+msgstr "GrÃ¡fico de DispersÃ£o 3D"
+
+# contributors:LetÃ­cia Laranja
+msgid "3D Scatter Plot Variables"
+msgstr "VariÃ¡veis do GrÃ¡fico de DispersÃ£o 3D"
+
+# contributors:LetÃ­cia Laranja
+msgid "3rd Variable (Z)"
+msgstr "3Âª VariÃ¡vel (Z)"
+
+# contributors:hugonbgg
+msgid "4 Iteration"
+msgstr "4 IteraÃ§Ã£o"
+
+# contributors:LetÃ­cia Laranja
+msgid "499 Permutations"
+msgstr "499 PermutaÃ§Ãµes"
+
+# contributors:hugonbgg
+msgid "4th Variable"
+msgstr "4Âº VariÃ¡vel"
+
+# contributors:hugonbgg
+msgid "5 Iteration"
+msgstr "5 IteraÃ§Ã£o"
+
+# contributors:hugonbgg
+msgid "5 of 5 variables needed"
+msgstr "5 de 5 variÃ¡veis âânecessÃ¡rias"
+
+# contributors:hugonbgg
+msgid "6 Iteration"
+msgstr "6 IteraÃ§Ã£o"
+
+# contributors:hugonbgg
+msgid "99 Permutations"
+msgstr "99 PermutaÃ§Ãµes"
+
+# contributors:hugonbgg
+msgid "999 Permutations"
+msgstr "999 PermutaÃ§Ãµes"
+
+# contributors:LetÃ­cia Laranja
+msgid "<"
+msgstr "<"
+
+# contributors:LetÃ­cia Laranja
+msgid "<<"
+msgstr "<<"
+
+# contributors:LetÃ­cia Laranja
+msgid "<="
+msgstr "<="
+
+# contributors:LetÃ­cia Laranja
+msgid "="
+msgstr "="
+
+# contributors:LetÃ­cia Laranja
+msgid ">"
+msgstr ">"
+
+# contributors:LetÃ­cia Laranja
+msgid ">>"
+msgstr ">>"
+
+# contributors:LetÃ­cia Laranja
+msgid "A Table-only data source can't be stacked with current data source."
+msgstr "Uma fonte de dados somente de tabela nÃ£o pode ser unida com a fonte de dados atual."
+
+# contributors:hugonbgg
+msgid "A newer version of GeoDa is found. Do you want to update to version "
+msgstr "Uma versÃ£o mais recente do GeoDa foi encontrada. VocÃª quer atualizar para a versÃ£o "
+
+# contributors:LetÃ­cia Laranja
+msgid "A project file contains extra information not directly stored in the data source such as variable order and grouping."
+msgstr "Um arquivo de projeto contÃ©m informaÃ§Ãµes extras nÃ£o armazenadas diretamente na fonte de dados, tais como ordem e agrupamento de variÃ¡veis."
+
+# contributors:hugonbgg
+msgid "About DBF Viewer"
+msgstr "Sobre o Visualizador DBF"
+
+# contributors:hugonbgg
+msgid "About GeoDa"
+msgstr "Sobre o GeoDa"
+
+# contributors:LetÃ­cia Laranja
+msgid "About Precision Threshold"
+msgstr "Sobre o Limiar de PrecisÃ£o"
+
+# contributors:LetÃ­cia Laranja
+msgid "Adaptive bandwidth"
+msgstr "Largura de banda adaptÃ¡vel"
+
+# contributors:LetÃ­cia Laranja
+msgid "Adaptive kernel"
+msgstr "NÃºcleo (kernel) adaptÃ¡vel"
+
+# contributors:hugonbgg
+msgid "Add"
+msgstr "Adicionar"
+
+# contributors:LetÃ­cia Laranja
+msgid "Add Centroids to Table"
+msgstr "Adicionar centrÃ³ides Ã  tabela"
+
+# contributors:LetÃ­cia Laranja
+msgid "Add Map Layer"
+msgstr "Adicionar camada ao mapa"
+
+# contributors:LetÃ­cia Laranja
+msgid "Add Mean Centers to Table"
+msgstr "Adicionar Centros MÃ©dios Ã  Tabela"
+
+# contributors:LetÃ­cia Laranja
+msgid "Add Neighbors To Selection"
+msgstr "Adicionar vizinhos Ã  seleÃ§Ã£o"
+
+# contributors:LetÃ­cia Laranja
+msgid "Add New ID Variable"
+msgstr "Adicionar nova variÃ¡vel de ID"
+
+# contributors:LetÃ­cia Laranja
+msgid "Add OGR column error. Field type is unknown or not supported."
+msgstr "Adicionar erro da coluna OGR. O tipo de campo Ã© desconhecido ou nÃ£o suportado."
+
+# contributors:LetÃ­cia Laranja
+msgid "Add OGR column error. Field type is unknown."
+msgstr "Adicionar erro da coluna OGR. O tipo de campo Ã© desconhecido."
+
+# contributors:LetÃ­cia Laranja
+msgid "Add Time"
+msgstr "Adicionar tempo"
+
+# contributors:LetÃ­cia Laranja
+msgid "Add Variable"
+msgstr "Adicionar VariÃ¡vel"
+
+# contributors:LetÃ­cia Laranja
+msgid ""
+"Add a name for your group of variables. \n"
+"\n"
+"You can edit the time period labels for easier interpretation of results."
+msgstr ""
+"Adicionar um nome para o grupo de variÃ¡veis. \n"
+"\n"
+"VocÃª pode editar os rÃ³tulos de perÃ­odo de tempo para facilitar a interpretaÃ§Ã£o dos resultados."
+
+# contributors:LetÃ­cia Laranja
+msgid "Add basemap automatically:"
+msgstr "Adicionar mapa base automaticamente:"
+
+# contributors:LetÃ­cia Laranja
+msgid "Add new column to table"
+msgstr "Adicionar nova coluna Ã  tabela"
+
+# contributors:LetÃ­cia Laranja
+msgid "Add/Remove Variables"
+msgstr "Adicionar/Remover VariÃ¡veis"
+
+# contributors:LetÃ­cia Laranja
+msgid "Adjust Bubble Size"
+msgstr "Ajustar tamanho da bolha"
+
+# contributors:LetÃ­cia Laranja
+msgid "Adjust Value Range of Y Axis"
+msgstr "Ajustar valores de intervalo do eixo Y"
+
+# contributors:LetÃ­cia Laranja
+msgid "Adjust Value Range of Y-Axis"
+msgstr "Ajustar valores de intervalo do eixo-Y"
+
+# contributors:LetÃ­cia Laranja
+msgid "Adjust Values of Y Axis"
+msgstr "Ajustar valores do eixo Y"
+
+# contributors:LetÃ­cia Laranja
+msgid "Affinity with Guassian Kernel:\tSigma="
+msgstr "Afinidade com Kernel Gaussiano:\tSigma="
+
+# contributors:LetÃ­cia Laranja
+msgid "Affinity with K-NN:"
+msgstr "Afinidade com K-NN:"
+
+# contributors:LetÃ­cia Laranja
+msgid "Affinity with K-Nearest Neighbors:\tK="
+msgstr "Afinidade com K-Vizinhos Mais PrÃ³ximos:\tK="
+
+# contributors:LetÃ­cia Laranja
+msgid "Affinity with Kernel:"
+msgstr "Afinidade com Kernel:"
+
+# contributors:LetÃ­cia Laranja
+msgid "Aggregate"
+msgstr "Agregar"
+
+# contributors:LetÃ­cia Laranja
+msgid "Aggregate - "
+msgstr "Agregar - "
+
+# contributors:LetÃ­cia Laranja
+msgid "All"
+msgstr "Todos"
+
+# contributors:LetÃ­cia Laranja
+msgid "All Pairs"
+msgstr "Todos os pares"
+
+# contributors:LetÃ­cia Laranja
+msgid "All Rights Reserved"
+msgstr "Todos os Direitos Reservados"
+
+# contributors:LetÃ­cia Laranja
+msgid "Allow a single cluster:"
+msgstr "Permitir um Ãºnico agrupamento:"
+
+# contributors:LetÃ­cia Laranja
+msgid "Alpha:"
+msgstr "Alpha:"
+
+# contributors:LetÃ­cia Laranja
+msgid "Always using fixed-point notation"
+msgstr "Sempre usando notaÃ§Ã£o de ponto fixo"
+
+# contributors:LetÃ­cia Laranja
+msgid "Animation"
+msgstr "AnimaÃ§Ã£o"
+
+# contributors:LetÃ­cia Laranja
+msgid "App Key"
+msgstr "Chave de AplicaÃ§Ã£o"
+
+# contributors:LetÃ­cia Laranja
+msgid "Append To Current Selection"
+msgstr "Anexar Ã  seleÃ§Ã£o atual"
+
+# contributors:LetÃ­cia Laranja
+msgid "Append to current selection"
+msgstr "Anexar Ã  seleÃ§Ã£o atual"
+
+# contributors:LetÃ­cia Laranja
+msgid "Appl&y"
+msgstr "Apl&icar"
+
+# contributors:Patrick Martins
+msgid "Apply"
+msgstr "Aplicar"
+
+# contributors:LetÃ­cia Laranja
+msgid "Apply kernel to diagonal weights"
+msgstr "Aplicar Kernel aos pesos diagonais"
+
+# contributors:LetÃ­cia Laranja
+msgid "April"
+msgstr "Abril"
+
+# contributors:LetÃ­cia Laranja
+msgid "Arabic (Windows-1256)"
+msgstr "ArÃ¡bico (Windows-1256)"
+
+# contributors:LetÃ­cia Laranja
+msgid "Arc Distance"
+msgstr "DistÃ¢ncia do Arco"
+
+# contributors:LetÃ­cia Laranja
+msgid "Ascending order"
+msgstr "Ordem Crescente"
+
+# contributors:LetÃ­cia Laranja
+msgid "Assign To Target"
+msgstr "Atribuir ao alvo"
+
+# contributors:LetÃ­cia Laranja
+msgid "Assign Values to Currently Selected / Unselected"
+msgstr "Atribuir valores para a selaÃ§Ã£o atual / nÃ£o selecionados"
+
+# contributors:LetÃ­cia Laranja
+msgid "Assoc. Var."
+msgstr "Assoc. Var."
+
+# contributors:LetÃ­cia Laranja
+msgid "Attributes (Optional)"
+msgstr "Atributos (Opcional)"
+
+# contributors:LetÃ­cia Laranja
+msgid "August"
+msgstr "Agosto"
+
+# contributors:LetÃ­cia Laranja
+msgid "Auto Weighting"
+msgstr "PonderaÃ§Ã£o AutomÃ¡tica"
+
+# contributors:LetÃ­cia Laranja
+msgid "Autocorr."
+msgstr "Autocorr."
+
+# contributors:LetÃ­cia Laranja
+msgid "Autocorr. of "
+msgstr "Autocorr. de "
+
+# contributors:LetÃ­cia Laranja
+msgid "Automatic Labels"
+msgstr "RÃ³tulos AutomÃ¡ticos"
+
+# contributors:LetÃ­cia Laranja
+msgid "Average"
+msgstr "MÃ©dia"
+
+# contributors:LetÃ­cia Laranja
+msgid "Average Comparison Chart"
+msgstr "GrÃ¡fico de ComparaÃ§Ã£o de MÃ©dias"
+
+# contributors:LetÃ­cia Laranja
+msgid "Averages Chart"
+msgstr "GrÃ¡fico de MÃ©dias"
+
+# contributors:LetÃ­cia Laranja
+msgid "Axes Through Origin"
+msgstr "Eixos AtravÃ©s da Origem"
+
+# contributors:LetÃ­cia Laranja
+msgid "Axis Option"
+msgstr "OpÃ§Ã£o de Eixos"
+
+# contributors:LetÃ­cia Laranja
+msgid "Axis Selection"
+msgstr "SeleÃ§Ã£o de Eixos"
+
+# contributors:LetÃ­cia Laranja
+msgid "Background"
+msgstr "Plano de Fundo"
+
+# contributors:LetÃ­cia Laranja
+msgid "Background Color"
+msgstr "Cor do Plano de Fundo"
+
+# contributors:LetÃ­cia Laranja
+msgid "Bandwidth:"
+msgstr "Largura da Banda:"
+
+# contributors:Patrick Martins
+msgid "Base Map "
+msgstr "Mapa Base "
+
+# contributors:LetÃ­cia Laranja
+msgid "Base Variable"
+msgstr "Variavel Base"
+
+# contributors:LetÃ­cia Laranja
+msgid "Basemap"
+msgstr "Mapa Base"
+
+# contributors:LetÃ­cia Laranja
+msgid "Basemap Configuration"
+msgstr "ConfiguraÃ§Ã£o do Mapa Base"
+
+# contributors:LetÃ­cia Laranja
+msgid "Basemap Configuration Dialog"
+msgstr "ConfiguraÃ§Ã£o da caixa de diÃ¡logo do Mapa Base"
+
+# contributors:LetÃ­cia Laranja
+msgid "Basemap Parameters:"
+msgstr "ParÃ¢metros do Mapa Base:"
+
+# contributors:LetÃ­cia Laranja
+msgid "Basemap Sources: (Format: group&name.basemap&name,basemap&url)"
+msgstr "Fontes do Mapa Base: (Format: group&name.basemap&name,basemap&url)"
+
+# contributors:LetÃ­cia Laranja
+msgid "Before add/delete observations, please close the %d view(s) that depend on it."
+msgstr "Antes de adicionar/deletar observaÃ§Ãµes, favor fechar a(s) %d visualizaÃ§Ã£o(Ãµes) que dependem delas."
+
+# contributors:LetÃ­cia Laranja
+msgid "Before proceed with operation (add/remove, move, or rename), please close %d views that depend on it."
+msgstr "Antes de seguir com a operaÃ§Ã£o (adicionar/remover, mover, ou renomear), fechar a(s) %d visualizaÃ§Ã£o(Ãµes) que dependem dela."
+
+# contributors:LetÃ­cia Laranja
+msgid "Before you can modify the variable %s, please close the %d view(s) that depend on it."
+msgstr "Antes que vocÃª possa modificar a variÃ¡vel %s, favor fechar a(s) %d visualizaÃ§Ã£o(Ãµes) que dependem dela."
+
+# contributors:LetÃ­cia Laranja
+msgid "Bivariate"
+msgstr "Bivariada"
+
+# contributors:LetÃ­cia Laranja
+msgid "Bivariate Local Join Count"
+msgstr "Contagem de junÃ§Ã£o bivariada local"
+
+# contributors:LetÃ­cia Laranja
+msgid "Bivariate Local Moran's I"
+msgstr "Moran I bivariado local"
+
+# contributors:LetÃ­cia Laranja
+msgid "Bivariate Moran Variable Settings"
+msgstr "ConfiguraÃ§Ãµes de variÃ¡vel de Moran I Bivariado"
+
+# contributors:LetÃ­cia Laranja
+msgid "Bivariate Moran's I"
+msgstr "Moran I Bivariado"
+
+# contributors:LetÃ­cia Laranja
+msgid "Bivariate Moran's I (%s): %s and lagged %s"
+msgstr "Moran's I Bivariado (%s): %s e defasado %s"
+
+# contributors:LetÃ­cia Laranja
+msgid "Bonferroni bound:"
+msgstr "Limite de Bonferroni:"
+
+# contributors:LetÃ­cia Laranja
+msgid "Both are significant, Spatial Lag Model has been selected."
+msgstr "Ambos sÃ£o significates, o Modelo de Lag Espacial foi selecionado"
+
+# contributors:LetÃ­cia Laranja
+msgid "Bottom"
+msgstr "Inferior"
+
+# contributors:LetÃ­cia Laranja
+msgid "Bounding Box"
+msgstr "Caixa delimitadora"
+
+# contributors:LetÃ­cia Laranja
+msgid "Box Map (Hinge=1.5)"
+msgstr "Mapa de caixa (ArticulaÃ§Ã£o=1.5)"
+
+# contributors:LetÃ­cia Laranja
+msgid "Box Map (Hinge=3.0)"
+msgstr "Mapa de caixa (ArticulaÃ§Ã£o=3.0"
+
+# contributors:LetÃ­cia Laranja
+msgid "Box Plot"
+msgstr "Diagrama de caixa"
+
+# contributors:LetÃ­cia Laranja
+msgid "Boxplot Theme"
+msgstr "Tema de diagrama de caixa"
+
+# contributors:LetÃ­cia Laranja
+msgid "Breaks"
+msgstr "Intervalos"
+
+# contributors:LetÃ­cia Laranja
+msgid "Breaks with same values were created. Please choose a smaller categories, or manually edit the break values."
+msgstr "Intervalos com mesmos valores foram criados. Escolha uma menor categorizaÃ§Ã£o ou edite manualmente o valor dos intervalos."
+
+# contributors:LetÃ­cia Laranja
+msgid "Bubble Chart"
+msgstr "GrÃ¡fico de Bolhas"
+
+# contributors:LetÃ­cia Laranja
+msgid "Bubble Chart - x: %s, y: %s, size: %s, %s"
+msgstr "GrÃ¡fico de Bolhas - x: %s, y: %s, tamanho: %s, %s"
+
+# contributors:LetÃ­cia Laranja
+msgid "Bubble Chart Variables"
+msgstr "VariÃ¡veis do GrÃ¡fico de Bolhas"
+
+# contributors:LetÃ­cia Laranja
+msgid "Bubble Size"
+msgstr "Tamanho da Bolha"
+
+# contributors:LetÃ­cia Laranja
+msgid "Bubble Size Adjust Dialog"
+msgstr "Ajustar caixa de texto do grÃ¡fico de bolhas"
+
+# contributors:LetÃ­cia Laranja
+msgid "Buffer query area:"
+msgstr "Ãrea de consulta do buffer:"
+
+# contributors:hugonbgg
+msgid "Bug Report"
+msgstr "Reportar erro"
+
+# contributors:LetÃ­cia Laranja
+msgid "C&reate"
+msgstr "C&riar"
+
+# contributors:LetÃ­cia Laranja
+msgid "CRS (proj4 format)"
+msgstr "CRS (formato proj4)"
+
+# contributors:LetÃ­cia Laranja
+msgid "CSV Configuration Warning"
+msgstr "Aviso de ConfiguraÃ§Ã£o CSV"
+
+# contributors:LetÃ­cia Laranja
+msgid "CSV Contains Variable Names?"
+msgstr "CSV contÃ©m nomes de variÃ¡veis?"
+
+# contributors:LetÃ­cia Laranja
+msgid "CSV File Configuration"
+msgstr "ConfiguraÃ§Ã£o do arquivo CSV"
+
+# contributors:hugonbgg
+msgid "Calculator"
+msgstr "Calculadora"
+
+# contributors:hugonbgg
+msgid "Can't connect to datasource: "
+msgstr "NÃ£o Ã© possÃ­vel conectar Ã  fonte de dados: "
+
+# contributors:LetÃ­cia Laranja
+msgid "Can't create layer %s with empty field (%s) name."
+msgstr "NÃ£o Ã© possÃ­vel criar camada %s com campo de nome (%s) vazio."
+
+# contributors:LetÃ­cia Laranja
+msgid ""
+"Can't create output OGR driver. \n"
+"\n"
+"Details:"
+msgstr ""
+"NÃ£o foi possÃ­vel criar um driver OGR de saÃ­da. \n"
+"\n"
+"Detalhes:"
+
+# contributors:LetÃ­cia Laranja
+msgid "Can't get bounding box information from this datasource. Please try another datasource."
+msgstr "NÃ£o Ã© possÃ­vel obter informaÃ§Ãµes sobre a caixa de delimitaÃ§Ã£o a partir desta fonte de dados. Por favor, tente outra fonte de dados."
+
+# contributors:LetÃ­cia Laranja
+msgid ""
+"Can't get datasource type from: %s\n"
+"\n"
+"Please select datasource supported by GeoDa or add extension  to file datasource."
+msgstr ""
+"NÃ£o Ã© possÃ­vel obter fonte de dados de: %s\n"
+"\n"
+" Por favor, selecione fonte de dados suportada pelo GeoDa ou adicione uma extensÃ£o Ã  fonte de dados do arquivo."
+
+# contributors:LetÃ­cia Laranja
+msgid "Can't get layers from unknown datasource. Please complete the datasource fields."
+msgstr "NÃ£o Ã© possÃ­vel obter camadas de fonte de dados desconhecida. Favor preencher os campos da fonte de dados."
+
+# contributors:LetÃ­cia Laranja
+msgid "Can't save Thiessen polygons"
+msgstr "NÃ£o foi possÃ­vel salvar os polÃ­gonos de Thiessen"
+
+# contributors:LetÃ­cia Laranja
+msgid "Can't write/create layer \""
+msgstr "NÃ£o foi possÃ­vel escrever/criar uma camada \""
+
+# contributors:hugonbgg
+msgid "Cancel"
+msgstr "Cancelar"
+
+# contributors:LetÃ­cia Laranja
+msgid "Canvas Layout Preview"
+msgstr "PrÃ©-visualizaÃ§Ã£o do layout da tela"
+
+# contributors:LetÃ­cia Laranja
+msgid "Carto"
+msgstr "Carto"
+
+# contributors:hugonbgg
+msgid "Cartogram"
+msgstr "Cartograma"
+
+# contributors:LetÃ­cia Laranja
+msgid "Cartogram Variables"
+msgstr "VariÃ¡veis do cartograma"
+
+# contributors:hugonbgg
+msgid "Categories"
+msgstr "Categorias"
+
+# contributors:LetÃ­cia Laranja
+msgid "Categories \"%s\" is currently in use by another view. Please close or change all views using this custom categories before deleting."
+msgstr "Categorias \"%s\" estÃ¡ atualmente sendo utilizada em outra visualizaÃ§Ã£o. Por favor, feche ou altere todas as visualizaÃ§Ãµes utilizando estas categorias personalizadas antes de deletar]"
+
+# contributors:LetÃ­cia Laranja
+msgid "Categories of "
+msgstr "Categorias de "
+
+# contributors:LetÃ­cia Laranja
+msgid "Categories title \"%s\" already exists. Please choose a different title."
+msgstr "JÃ¡ existe um tÃ­tulo de categoria \"%s\". Por favor, selecione um tÃ­tulo diferente."
+
+# contributors:hugonbgg
+msgid "Category"
+msgstr "Categoria"
+
+# contributors:hugonbgg
+msgid "Category Editor"
+msgstr "Editor de Categoria"
+
+# contributors:hugonbgg
+msgid "Central European (CP852)"
+msgstr "Centro Europeu (CP852)"
+
+# contributors:hugonbgg
+msgid "Central European (Windows-1250)"
+msgstr "Centro Europeu (Windows-1250)"
+
+# contributors:hugonbgg
+msgid "Central European Latin-2 (ISO-8859-2)"
+msgstr "Centro Europeu Latino-2 (ISO-8859-2)"
+
+# contributors:hugonbgg
+msgid "Centroid (X)"
+msgstr "CentrÃ³ide (X)"
+
+# contributors:hugonbgg
+msgid "Centroid (Y)"
+msgstr "CentrÃ³ide (Y)"
+
+# contributors:hugonbgg
+msgid "Change"
+msgstr "Alterar"
+
+# contributors:LetÃ­cia Laranja
+msgid "Change Categories Title"
+msgstr "Mudar titulo de categoria"
+
+# contributors:LetÃ­cia Laranja
+msgid "Change Color of Root"
+msgstr "Mudar cor da raiz"
+
+# contributors:LetÃ­cia Laranja
+msgid "Change Current Map Type"
+msgstr "Alterar o tipo de mapa atual"
+
+# contributors:LetÃ­cia Laranja
+msgid "Change Edge Color"
+msgstr "Alterar Cor da Borda"
+
+# contributors:LetÃ­cia Laranja
+msgid "Change Edge Thickness"
+msgstr "Alterar Espessura da Borda"
+
+# contributors:LetÃ­cia Laranja
+msgid "Change Fill Color"
+msgstr "Alterar Cor de Preenchimento"
+
+# contributors:LetÃ­cia Laranja
+msgid "Change Fill Color of Neighbors"
+msgstr "Alterar Cor de Preenchimento dos Vizinhos"
+
+# contributors:hugonbgg
+msgid "Change Font"
+msgstr "Alterar Fonte"
+
+# contributors:hugonbgg
+msgid "Change Map Transparency"
+msgstr "Alterar a TransparÃªncia do Mapa"
+
+# contributors:hugonbgg
+msgid "Change Outline Color"
+msgstr "Alterar a Cor do Contorno"
+
+# contributors:hugonbgg
+msgid "Change Outline Color of Selected"
+msgstr "Alterar a Cor do Cortorno Selecionado"
+
+# contributors:hugonbgg
+msgid "Change Parameters"
+msgstr "Alterar ParÃ¢metros"
+
+# contributors:LetÃ­cia Laranja
+msgid "Change Point Radius"
+msgstr "Raio do Ponto de Troca"
+
+# contributors:LetÃ­cia Laranja
+msgid "Change Seed"
+msgstr "Mudar raiz"
+
+# contributors:LetÃ­cia Laranja
+msgid "Change Size of Root"
+msgstr "Mudar tamanho da raiz"
+
+# contributors:LetÃ­cia Laranja
+msgid ""
+"Change field properties (%s) failed.\n"
+"\n"
+"Details: %s"
+msgstr ""
+"Mudar propriedades de campo (%s) falhou. \n"
+"\n"
+"Detalhes: %s"
+
+# contributors:LetÃ­cia Laranja
+msgid "Change title \"%s\" to"
+msgstr "Mudar tÃ­tulo \"%s\" para"
+
+# contributors:LetÃ­cia Laranja
+msgid "Change variable type for \"%s\" has failed. Please check all values are valid for conversion."
+msgstr "Mudar o tipo de variÃ¡vel para \"%s\" falhou. Favor verificar se todos os valores sÃ£o vÃ¡lidos para conversÃ£o."
+
+# contributors:LetÃ­cia Laranja
+msgid "Check Bug Report on Github"
+msgstr "Checar relatorio de erros no Github"
+
+# contributors:LetÃ­cia Laranja
+msgid "Check Updates"
+msgstr "Checar AtualizaÃ§Ãµes"
+
+# contributors:LetÃ­cia Laranja
+msgid "Checking Symmetry..."
+msgstr "Checando simetria..."
+
+# contributors:LetÃ­cia Laranja
+msgid "Chinese Simplified (GB2312)"
+msgstr "ChinÃªs Simplificado (GB2312)"
+
+# contributors:LetÃ­cia Laranja
+msgid "Chinese Traditional (Big5)"
+msgstr "ChinÃªs Tradicional (Big5)"
+
+# contributors:Patrick Martins
+msgid "Choose A Color"
+msgstr "Escolha uma cor"
+
+# contributors:LetÃ­cia Laranja
+msgid "Choose Category Color"
+msgstr "Escolha a cor da categoria"
+
+# contributors:LetÃ­cia Laranja
+msgid "Choose Category Fill Color"
+msgstr "Escolha a cor de preenchimento da categoria"
+
+# contributors:LetÃ­cia Laranja
+msgid "Choose Category Outline Color"
+msgstr "Escolher cor de contorno da categoria"
+
+# contributors:Patrick Martins
+msgid "Choose Intervals"
+msgstr "Escolha Um Intervalo"
+
+# contributors:LetÃ­cia Laranja
+msgid "Choose Weights"
+msgstr "Escolher peso"
+
+# contributors:LetÃ­cia Laranja
+msgid "Choose Weights File"
+msgstr "Escolher arquivo de pesos"
+
+# contributors:LetÃ­cia Laranja
+msgid "Choose an output weights file name."
+msgstr "Escolha um nome de arquivo de pesos de saÃ­da."
+
+# contributors:LetÃ­cia Laranja
+msgid "Chosen field is not a numeric type.  Please select a numeric type field."
+msgstr "O campo escolhido nÃ£o Ã© do tipo numÃ©rico. Por favor, selecione um campo do tipo numÃ©rico."
+
+# contributors:LetÃ­cia Laranja
+msgid "Chosen field is not a numeric type. Please select a numeric type field."
+msgstr "O campo escolhido nÃ£o Ã© do tipo numÃ©rico. Por favor, selecione um campo do tipo numÃ©rico."
+
+# contributors:LetÃ­cia Laranja
+msgid "Chosen key field '%s' s a time variant. Please choose a non-time variant field as key."
+msgstr "O campo chave escolhido '%s' Ã© uma variante de tempo. Por favor, escolha um campo de variante nÃ£o temporal como chave."
+
+# contributors:LetÃ­cia Laranja
+msgid "Chosen key field is not valid. Please select another key field"
+msgstr "O campo chave escolhido nÃ£o Ã© vÃ¡lido. Por favor, selecione outro campo chave."
+
+# contributors:LetÃ­cia Laranja
+msgid "Circle"
+msgstr "CÃ­rculo"
+
+# contributors:LetÃ­cia Laranja
+msgid "Circle Color"
+msgstr "Cor do CÃ­rculo"
+
+# contributors:LetÃ­cia Laranja
+msgid "Circle Size"
+msgstr "DimensÃ£o do CÃ­rculo"
+
+# contributors:LetÃ­cia Laranja
+msgid "Classic "
+msgstr "ClÃ¡ssico "
+
+# contributors:LetÃ­cia Laranja
+msgid "Classification Themes"
+msgstr "Temas de ClassificaÃ§Ã£o"
+
+# contributors:LetÃ­cia Laranja
+msgid "Clean Basemap Cache"
+msgstr "Limpar cache do mapa base"
+
+# contributors:LetÃ­cia Laranja
+msgid "Clear Highlight Association"
+msgstr "Limpar associaÃ§Ã£o destacada"
+
+# contributors:LetÃ­cia Laranja
+msgid "Clear Selection"
+msgstr "Limpar SeleÃ§Ã£o"
+
+# contributors:LetÃ­cia Laranja
+msgid "Click RegressionDlg::OnSaveToTxtFileClick"
+msgstr "Clique em RegressÃ£oDlg::OnSaveToTxtFileClick"
+
+# contributors:LetÃ­cia Laranja
+msgid "Click RegressionDlg::OnViewResultsClick"
+msgstr "Clique em RegressÃ£oDlg::OnViewResultsClick"
+
+# contributors:LetÃ­cia Laranja
+msgid "Close"
+msgstr "Fechar"
+
+# contributors:LetÃ­cia Laranja
+msgid "Cluster Map "
+msgstr "Mapa de agrupamento "
+
+# contributors:LetÃ­cia Laranja
+msgid "Cluster Maps"
+msgstr "Mapa de agrupamento"
+
+# contributors:LetÃ­cia Laranja
+msgid "Cluster centers:"
+msgstr "Centros de agrupamento:"
+
+# contributors:LetÃ­cia Laranja
+msgid "Clusters"
+msgstr "Agrupamentos"
+
+# contributors:LetÃ­cia Laranja
+msgid "Co-location Join Count"
+msgstr "Contagem de colocalizaÃ§Ã£o de junÃ§Ã£o"
+
+# contributors:LetÃ­cia Laranja
+msgid "Co-location Join Count only applies to co-location case. The selected variables have no co-location. Please change your selection, or use Univariate/Bivariate Local Join Count."
+msgstr "Contagem de colocalizaÃ§Ã£o de junÃ§Ã£o sÃ³ se aplica ao caso de colocalizaÃ§Ã£o. As variÃ¡veis selecionadas nÃ£o possuem colocalizaÃ§Ã£o. Favor alterar sua seleÃ§Ã£o, ou usar contagem de junÃ§Ã£o local Univariada/Bivariada."
+
+# contributors:LetÃ­cia Laranja
+msgid "Co-location Map"
+msgstr "Mapa de Co-localizaÃ§Ã£o"
+
+# contributors:LetÃ­cia Laranja
+msgid "Co-location Map: "
+msgstr "Mapa de Co-localizaÃ§Ã£o: "
+
+# contributors:LetÃ­cia Laranja
+msgid "Co-location Settings"
+msgstr "ConfiguraÃ§Ãµes de co-localizaÃ§Ã£o"
+
+# contributors:LetÃ­cia Laranja
+msgid "Coeff. Var. Mat."
+msgstr "Coef. Var. Mat."
+
+# contributors:LetÃ­cia Laranja
+msgid "Colocation Cluster"
+msgstr "Agrupamento de ColocaÃ§Ã£o"
+
+# contributors:LetÃ­cia Laranja
+msgid "Color"
+msgstr "Cor"
+
+# contributors:LetÃ­cia Laranja
+msgid "Color Scheme"
+msgstr "Esquema de Cor"
+
+# contributors:LetÃ­cia Laranja
+msgid "Column Name"
+msgstr "Nome da coluna"
+
+# contributors:LetÃ­cia Laranja
+msgid "Column Number (from 0)"
+msgstr "NÃºmero de coluna (from 0)"
+
+# contributors:LetÃ­cia Laranja
+msgid "Comma Separated Value (*.csv)|*.csv"
+msgstr "Valor separado por vÃ­rgula (*.csv)|*.csv"
+
+# contributors:LetÃ­cia Laranja
+msgid "Components:"
+msgstr "Componentes:"
+
+# contributors:LetÃ­cia Laranja
+msgid "Conditional Co-location Map Variables"
+msgstr "VariÃ¡veis do mapa condicional de colocalizaÃ§Ã£o"
+
+# contributors:LetÃ­cia Laranja
+msgid "Conditional G Cluster Map Variables"
+msgstr "VariÃ¡veis Condicionais do Mapa de Agrupamento-G"
+
+# contributors:LetÃ­cia Laranja
+msgid "Conditional GetisOrd Map"
+msgstr "Mapa condicional Getis-Ord"
+
+# contributors:LetÃ­cia Laranja
+msgid "Conditional Histogram"
+msgstr "Histograma condicional"
+
+# contributors:LetÃ­cia Laranja
+msgid "Conditional Histogram Variables"
+msgstr "VariÃ¡veis do histograma condicional"
+
+# contributors:LetÃ­cia Laranja
+msgid "Conditional LISA Map"
+msgstr "Mapa condicional LISA"
+
+# contributors:LetÃ­cia Laranja
+msgid "Conditional LISA Map Variables"
+msgstr "VariÃ¡veis do mapa condicional LISA"
+
+# contributors:LetÃ­cia Laranja
+msgid "Conditional Local Geary Map"
+msgstr "Mapa Geary local condicional"
+
+# contributors:LetÃ­cia Laranja
+msgid "Conditional Local Geary Map Variables"
+msgstr "VariÃ¡veis do mapa Geary local condicional"
+
+# contributors:LetÃ­cia Laranja
+msgid "Conditional Local Join Count Map"
+msgstr "Mapa do cÃ¡lculo de junÃ§Ã£o local condicional"
+
+# contributors:LetÃ­cia Laranja
+msgid "Conditional Map"
+msgstr "Mapa condicional"
+
+# contributors:LetÃ­cia Laranja
+msgid "Conditional Map Variables"
+msgstr "VariÃ¡veis de mapa condicional"
+
+# contributors:LetÃ­cia Laranja
+msgid "Conditional Plot"
+msgstr "GrÃ¡fico condicional"
+
+# contributors:LetÃ­cia Laranja
+msgid "Conditional Scatter Plot"
+msgstr "DispersÃ£o condicional"
+
+# contributors:LetÃ­cia Laranja
+msgid "Conditional Scatter Plot Variables"
+msgstr "VaiÃ¡veis de dispersÃ£o condicional"
+
+# contributors:LetÃ­cia Laranja
+msgid "Connect"
+msgstr "Conectar"
+
+# contributors:LetÃ­cia Laranja
+msgid "Connect to Data Source"
+msgstr "Conectar a fonte de dados"
+
+# contributors:LetÃ­cia Laranja
+msgid "Connectivity"
+msgstr "Conectividade"
+
+# contributors:LetÃ­cia Laranja
+msgid "Connectivity Graph"
+msgstr "GrÃ¡fico de conectividade"
+
+# contributors:LetÃ­cia Laranja
+msgid "Connectivity Histogram"
+msgstr "Histograma de Conectividade"
+
+# contributors:LetÃ­cia Laranja
+msgid "Connectivity Map"
+msgstr "Mapa de Conectividade"
+
+# contributors:LetÃ­cia Laranja
+msgid "Connectivity Map - "
+msgstr "Mapa de Conectividade - "
+
+# contributors:LetÃ­cia Laranja
+msgid "Contiguity Weight"
+msgstr "Peso de contiguidade"
+
+# contributors:LetÃ­cia Laranja
+msgid "Continue"
+msgstr "Continuar"
+
+# contributors:LetÃ­cia Laranja
+msgid "Convert ASCII to SHP"
+msgstr "Converter ASCII para SHP"
+
+# contributors:LetÃ­cia Laranja
+msgid "Convert Boundary to SHP"
+msgstr "Converter borda para SHP"
+
+# contributors:LetÃ­cia Laranja
+msgid "Convert Boundary to Shape Datasource"
+msgstr "Converter limite para o formato de fonte de dados"
+
+# contributors:LetÃ­cia Laranja
+msgid "Cooling Rate:"
+msgstr "Taxa de resfriamento:"
+
+# contributors:LetÃ­cia Laranja
+msgid "Cooling rate for Simulated Annealing algorithm has to be a float number between 0 and 1 (e.g. 0.85)."
+msgstr "A taxa de resfriamento para o algoritmo de recozimento simulado tem que ser um nÃºmero de decimal entre 0 e 1 (por exemplo: 0,85)"
+
+# contributors:LetÃ­cia Laranja
+msgid "Cooling rate:"
+msgstr "Taxa de resfriamento:"
+
+# contributors:LetÃ­cia Laranja
+msgid "Copy"
+msgstr "Copiar"
+
+# contributors:LetÃ­cia Laranja
+msgid "Copy Image To Clipboard"
+msgstr "Copiar imagem para Ã¡rea de transferÃªncia"
+
+# contributors:LetÃ­cia Laranja
+msgid "Copy Legend To Clipboard"
+msgstr "Copiar legenda para Ã¡rea de transferÃªncia"
+
+# contributors:LetÃ­cia Laranja
+msgid ""
+"Copyright (C) 1998-2011\n"
+"GeoDa Center for Geospatial Analysis and Computation\n"
+"and Arizona Board of Regents\n"
+"All Rights Reserved"
+msgstr ""
+"Direitos autorais (C)1998-2011\n"
+"Centro GeoDa de AnÃ¡lise e ComputaÃ§Ã£o Geoespacial e Diretoria de Regentes do Arizona\n"
+"Todos os direitos reservados"
+
+# contributors:LetÃ­cia Laranja
+msgid "Copyright (C) 2011-%d by Luc Anselin"
+msgstr "Direitos autorais (C) 2011-%d por Luc Anselin"
+
+# contributors:LetÃ­cia Laranja
+msgid "Copyright (C) year-year by Luc Anselin"
+msgstr "Direitos autorais (C) ano-ano por Luc Anselin"
+
+# contributors:LetÃ­cia Laranja
+msgid "Cores"
+msgstr "NÃºcleos"
+
+# contributors:LetÃ­cia Laranja
+msgid "Cores and Neighbors"
+msgstr "NÃºcleos e Vizinhos"
+
+# contributors:LetÃ­cia Laranja
+msgid "Correlogram"
+msgstr "Correlograma"
+
+# contributors:LetÃ­cia Laranja
+msgid "Correlogram Parameters"
+msgstr "ParÃ¢metros de correlograma"
+
+# contributors:LetÃ­cia Laranja
+msgid "Correlogram Parameters Help"
+msgstr "Ajuda em parÃ¢metros de correlograma"
+
+# contributors:LetÃ­cia Laranja
+msgid "Could not create a new variable. Possibly a read-only data source."
+msgstr "NÃ£o foi possÃ­vel criar uma nova variÃ¡vel. A fonte de dados possivelmente Ã© apenas de leitura."
+
+# contributors:LetÃ­cia Laranja
+msgid "Could not determine which Field Choice was selected. Please report this error."
+msgstr "NÃ£o foi possÃ­vel determinar qual escolha de campo foi selecionada. Favor reportar este erro."
+
+# contributors:LetÃ­cia Laranja
+msgid "Could not determine which Time Choice was selected. Please report this error."
+msgstr "NÃ£o foi possÃ­vel determinar qual escolha temporal foi selecionada. Favor reportar este erro."
+
+# contributors:LetÃ­cia Laranja
+msgid "Could not initialize new project."
+msgstr "NÃ£o foi possÃ­vel inicializar um novo projeto."
+
+# contributors:LetÃ­cia Laranja
+msgid "Count"
+msgstr "Contar"
+
+# contributors:LetÃ­cia Laranja
+msgid "Covariates"
+msgstr "CovariÃ¡veis"
+
+# contributors:LetÃ­cia Laranja
+msgid "Create"
+msgstr "Criar"
+
+# contributors:LetÃ­cia Laranja
+msgid "Create Custom Breaks"
+msgstr "Criar Quebras Customizadas"
+
+# contributors:LetÃ­cia Laranja
+msgid "Create Grid"
+msgstr "Criar Malha (Grid)"
+
+# contributors:LetÃ­cia Laranja
+msgid "Create New Custom"
+msgstr "Criar nova customizaÃ§Ã£o"
+
+# contributors:LetÃ­cia Laranja
+msgid "Create Project File Now?"
+msgstr "Criar arquivo de projeto agora?"
+
+# contributors:LetÃ­cia Laranja
+msgid "Create Weights"
+msgstr "Criar pesos"
+
+# contributors:LetÃ­cia Laranja
+msgid "Create a project file?"
+msgstr "Criar arquivo de projeto?"
+
+# contributors:LetÃ­cia Laranja
+msgid "Create new custom categories classification."
+msgstr "Criar nova classificaÃ§Ã£o de categorias personalizadas."
+
+# contributors:LetÃ­cia Laranja
+msgid "Creating Grid"
+msgstr "Criando Malha (Grid)"
+
+# contributors:LetÃ­cia Laranja
+msgid "Cumulative"
+msgstr "Acumulado"
+
+# contributors:LetÃ­cia Laranja
+msgid "Current OGR driver "
+msgstr "Atual driver OGR"
+
+# contributors:LetÃ­cia Laranja
+msgid "Current Opacity: %.2f"
+msgstr "Opacidade atual: %.2f"
+
+# contributors:LetÃ­cia Laranja
+msgid "Current Transparency: %.2f"
+msgstr "TransparÃªncia atual: %.2f"
+
+# contributors:LetÃ­cia Laranja
+msgid "Current field name:"
+msgstr "Nome de campo atual"
+
+# contributors:LetÃ­cia Laranja
+msgid "Current layer has already been associated with selected layer. Please select another layer to associate with."
+msgstr "A camada atual jÃ¡ foi associada Ã  camada selecionada. Favor selecionar outra camada a ser associada."
+
+# contributors:LetÃ­cia Laranja
+msgid "Current time:"
+msgstr "Tempo atual:"
+
+# contributors:LetÃ­cia Laranja
+msgid "Curve Color"
+msgstr "Curva de cor"
+
+# contributors:LetÃ­cia Laranja
+msgid "Custom"
+msgstr "Customizar"
+
+# contributors:LetÃ­cia Laranja
+msgid "Custom Breaks"
+msgstr "Customizar Quebras"
+
+# contributors:LetÃ­cia Laranja
+msgid "Custom Inference"
+msgstr "InferÃªncia customizada"
+
+# contributors:LetÃ­cia Laranja
+msgid "Cut"
+msgstr "Cortar"
+
+# contributors:LetÃ­cia Laranja
+msgid "Cyrillic (ISO-8859-5)"
+msgstr "CirÃ­lico (ISO-8859-5)"
+
+# contributors:LetÃ­cia Laranja
+msgid "Cyrillic (KOI8-R)"
+msgstr "CirÃ­lico (KOI8-R)"
+
+# contributors:LetÃ­cia Laranja
+msgid "Cyrillic (Windows-1251)"
+msgstr "CirÃ­lico (Windows-1251)"
+
+# contributors:LetÃ­cia Laranja
+msgid "Cyrillic/Russian (CP866)"
+msgstr "CirÃ­lico/Russo (CP866)"
+
+# contributors:LetÃ­cia Laranja
+msgid "D.F."
+msgstr "D.F."
+
+# contributors:LetÃ­cia Laranja
+msgid "DBF File Information"
+msgstr "InformaÃ§Ã£o de arquivo DBF"
+
+# contributors:LetÃ­cia Laranja
+msgid "DBF Viewer 0.8 (July 29, 2011)"
+msgstr "Visualizador DBF 0.8 (29 de julho de 2011)"
+
+# contributors:LetÃ­cia Laranja
+msgid "Data"
+msgstr "Dado"
+
+# contributors:LetÃ­cia Laranja
+msgid "Data Point"
+msgstr "Ponto de dados"
+
+# contributors:LetÃ­cia Laranja
+msgid "Data Preview - number of preview records:"
+msgstr "PrÃ©-visualizaÃ§Ã£o de dados - nÃºmero de registros de prÃ©-visualizaÃ§Ã£o:"
+
+# contributors:LetÃ­cia Laranja
+msgid "Data Source Overview/Help: "
+msgstr "VisÃ£o Geral de Fonte de Dados/Ajuda:"
+
+# contributors:LetÃ­cia Laranja
+msgid "Data Type"
+msgstr "Tipo de dado"
+
+# contributors:LetÃ­cia Laranja
+msgid "Data source (%s) doesn't exist. Please check the project configuration file."
+msgstr "Fonte de dados (%s) nÃ£o existe. Por favor, verifique o arquivo de configuraÃ§Ã£o do projeto."
+
+# contributors:LetÃ­cia Laranja
+msgid "Database"
+msgstr "Base de dados"
+
+# contributors:LetÃ­cia Laranja
+msgid "Database Host"
+msgstr "Hospedagem de banco de dados"
+
+# contributors:LetÃ­cia Laranja
+msgid "Database Name/Instance"
+msgstr "Nome/InstÃ¢ncia da base de dados"
+
+# contributors:LetÃ­cia Laranja
+msgid "Database Port"
+msgstr "Entrada do banco de dados"
+
+# contributors:LetÃ­cia Laranja
+msgid "Database Type"
+msgstr "Tipo de base de dados"
+
+# contributors:LetÃ­cia Laranja
+msgid "Database port is empty. Please input one."
+msgstr "A entrada do banco de dados estÃ¡ vazia. Por favor, insira uma."
+
+# contributors:LetÃ­cia Laranja
+msgid "Database/Instance Name"
+msgstr "Nome/InstÃ¢ncia da base de dados"
+
+# contributors:LetÃ­cia Laranja
+msgid "Datasource in project is not valid."
+msgstr "A fonte de dados no projeto nÃ£o Ã© vÃ¡lida."
+
+# contributors:LetÃ­cia Laranja
+msgid "Datasource path is empty."
+msgstr "O caminho da fonte de dados estÃ¡ vazio."
+
+# contributors:LetÃ­cia Laranja
+msgid "Date/Time"
+msgstr "Data/HorÃ¡rio"
+
+# contributors:LetÃ­cia Laranja
+msgid "Date/Time formats (using comma to separate formats):"
+msgstr "Formatos de Data/HorÃ¡rio (usando vÃ­rgula para separar os formatos):"
+
+# contributors:LetÃ­cia Laranja
+msgid "December"
+msgstr "Dezembro"
+
+# contributors:LetÃ­cia Laranja
+msgid "Decimal:"
+msgstr "Decimal:"
+
+# contributors:LetÃ­cia Laranja
+msgid "Decimals (max 15)"
+msgstr "Decimais (mÃ¡x 15)"
+
+# contributors:LetÃ­cia Laranja
+msgid "Default displayed decimal places in Table:"
+msgstr "O display padrÃ£o coloca as casas decimais na tabela:"
+
+# contributors:LetÃ­cia Laranja
+msgid "Delete"
+msgstr "Apagar"
+
+# contributors:LetÃ­cia Laranja
+msgid "Delete Variable(s)"
+msgstr "VariÃ¡vel(is) apagada(s)"
+
+# contributors:LetÃ­cia Laranja
+msgid "Delta Factor:"
+msgstr "Fator Delta:"
+
+# contributors:LetÃ­cia Laranja
+msgid "Dendrogram"
+msgstr "Dendrograma"
+
+# contributors:LetÃ­cia Laranja
+msgid "Dependent Var (y-axis)"
+msgstr "VariÃ¡vel Dependente (eixo y)"
+
+# contributors:LetÃ­cia Laranja
+msgid "Dependent Var Y"
+msgstr "VariÃ¡vel Dependente Y"
+
+# contributors:LetÃ­cia Laranja
+msgid "Dependent Variable"
+msgstr "VariÃ¡vel dependente"
+
+# contributors:LetÃ­cia Laranja
+msgid "Descending order"
+msgstr "Ordem decrescente"
+
+# contributors:LetÃ­cia Laranja
+msgid "Description"
+msgstr "DescriÃ§Ã£o"
+
+# contributors:LetÃ­cia Laranja
+msgid "Diagonal weights = 1"
+msgstr "Pesos diagonais=1"
+
+# contributors:LetÃ­cia Laranja
+msgid "Diff Values"
+msgstr "Valores dif."
+
+# contributors:LetÃ­cia Laranja
+msgid "Difference-in-Means Test:"
+msgstr "Teste de diferenÃ§a de mÃ©dias:"
+
+# contributors:LetÃ­cia Laranja
+msgid "Differential Local Moran's I"
+msgstr "Moran's I Local Diferencial"
+
+# contributors:LetÃ­cia Laranja
+msgid "Differential Moran Variable Settings"
+msgstr "ConfiguraÃ§Ã£o de variÃ¡veis de Moran Diferencial"
+
+# contributors:LetÃ­cia Laranja
+msgid "Differential Moran's I"
+msgstr "Moran I Diferencial"
+
+# contributors:LetÃ­cia Laranja
+msgid "Differential Moran's I (%s): %s - %s"
+msgstr "Moran I Diferencial (%s): %s - %s"
+
+# contributors:LetÃ­cia Laranja
+msgid ""
+"Differential Moran's I tests whether the change in a variable over time is spatially correlated.\n"
+"\n"
+"Please first group variables by time period: Select Time --> Time Editor."
+msgstr ""
+"O Moran's I Diferencial testa se a mudanÃ§a em uma variÃ¡vel ao longo do tempo estÃ¡ correlacionada espacialmente.\n"
+"\n"
+"Por favor, primeiro grupo de variÃ¡veis por perÃ­odo de tempo: Selecione Tempo --> Editor de tempo"
+
+# contributors:LetÃ­cia Laranja
+msgid "Disable auto upgrade:"
+msgstr "Desabilitar auto atualizaÃ§Ã£o:"
+
+# contributors:LetÃ­cia Laranja
+msgid "Disable crash detection for bug report:"
+msgstr "Desabilitar a detecÃ§Ã£o de falhas para relatÃ³rio de erros:"
+
+# contributors:LetÃ­cia Laranja
+msgid "Display Axes Scale Values"
+msgstr "Exibir valores da escala de eixos"
+
+# contributors:LetÃ­cia Laranja
+msgid "Display Centroids"
+msgstr "Exibir centrÃ³ides"
+
+# contributors:LetÃ­cia Laranja
+msgid "Display Mean Centers"
+msgstr "Exibir centros mÃ©dios"
+
+# contributors:LetÃ­cia Laranja
+msgid "Display Slope Values"
+msgstr "Exibir valores de inclinaÃ§Ã£o"
+
+# contributors:LetÃ­cia Laranja
+msgid "Display Statistics"
+msgstr "Exibir estatÃ­stica"
+
+# contributors:LetÃ­cia Laranja
+msgid "Display Thiessen Polygons"
+msgstr "Exibir polÃ­gonos de Thiessen"
+
+# contributors:LetÃ­cia Laranja
+msgid "Displayed decimal places"
+msgstr "Casas decimais exibidas"
+
+# contributors:LetÃ­cia Laranja
+msgid "Displayed decimals"
+msgstr "Decimais exibidos"
+
+# contributors:LetÃ­cia Laranja
+msgid "Displayed decimals places"
+msgstr "Casas decimais exibidas"
+
+# contributors:LetÃ­cia Laranja
+msgid "Dissolve"
+msgstr "Dissolver"
+
+# contributors:LetÃ­cia Laranja
+msgid "Dissolve - "
+msgstr "Dissolver - "
+
+# contributors:LetÃ­cia Laranja
+msgid "Dissolve does not work with Table only datasource."
+msgstr "Dissolver nÃ£o funciona em fonte de dados que sÃ£o apenas Tabela."
+
+# contributors:LetÃ­cia Laranja
+msgid "Dissolve only works on polygon dataset."
+msgstr "Dissolver sÃ³ funciona em conjunto de dados poligonais."
+
+# contributors:LetÃ­cia Laranja
+msgid "Distance"
+msgstr "DistÃ¢ncia"
+
+# contributors:LetÃ­cia Laranja
+msgid "Distance Function:"
+msgstr "FunÃ§Ã£o de DistÃ¢ncia:"
+
+# contributors:LetÃ­cia Laranja
+msgid "Distance Weight"
+msgstr "Peso de distÃ¢ncia"
+
+# contributors:LetÃ­cia Laranja
+msgid "Distance band"
+msgstr "DistÃ¢ncia de banda"
+
+# contributors:LetÃ­cia Laranja
+msgid "Distance function:\t"
+msgstr "FunÃ§Ã£o de distÃ¢ncia:\t"
+
+# contributors:LetÃ­cia Laranja
+msgid "Distance metric: "
+msgstr "DistÃ¢ncia mÃ©trica:"
+
+# contributors:LetÃ­cia Laranja
+msgid "Distance:"
+msgstr "DistÃ¢ncia:"
+
+# contributors:LetÃ­cia Laranja
+msgid "Do Means Differ? (ANOVA)"
+msgstr "As mÃ©dias diferem? (ANOVA)"
+
+# contributors:LetÃ­cia Laranja
+msgid ""
+"Do you want to save the results of Diff-in-Diff test?\n"
+"\n"
+"Note: the results can only be saved into an external data file, due to the change of cross-sectional observations in a space-time context."
+msgstr ""
+"VocÃª quer salvar os resultados do teste diferenÃ§a em diferenÃ§as?\n"
+"\n"
+"Nota: os resultados sÃ³ podem ser salvos em um arquivo de dados externo, devido Ã  mudanÃ§a das observaÃ§Ãµes transversais em um contexto espaÃ§o-tempo."
+
+# contributors:LetÃ­cia Laranja
+msgid "Do you want to save your data?"
+msgstr "Quer salvar seus dados?"
+
+# contributors:LetÃ­cia Laranja
+msgid "Don't show Recent/Sample Data panel again"
+msgstr "NÃ£o mostrar painel de dados recentes/amostrais novamente"
+
+# contributors:LetÃ­cia Laranja
+msgid "Don't show this dialog again (You can always change this setting using menu: File->Preferences)"
+msgstr "NÃ£o mostrar esta caixa de diÃ¡logo novamente (VocÃª sempre pode mudar esta configuraÃ§Ã£o usando o menu: Arquivo->PreferÃªncias)"
+
+# contributors:LetÃ­cia Laranja
+msgid "Donate"
+msgstr "Doar"
+
+# contributors:LetÃ­cia Laranja
+msgid "Down"
+msgstr "Baixo"
+
+# contributors:LetÃ­cia Laranja
+msgid "Download OSM Roads"
+msgstr "Carregar rotas OSM"
+
+# contributors:LetÃ­cia Laranja
+msgid "Downloading updates..."
+msgstr "Carregando atualizaÃ§Ãµes..."
+
+# contributors:LetÃ­cia Laranja
+msgid "Duplicate IDs"
+msgstr "IDs duplicados"
+
+# contributors:LetÃ­cia Laranja
+msgid "Duplicate Thiessen Polygons Found"
+msgstr "Foram encontrados polÃ­gonos de Thiessen duplicados"
+
+# contributors:LetÃ­cia Laranja
+msgid "Duplicate Thiessen polygons exist due to duplicate or near-duplicate map points. Please try to export current dataset without duplicates."
+msgstr "Existem polÃ­gonos Thiessen duplicados ou quase duplicados devido a pontos duplicados ou quase duplicados no mapa. Por favor, tente exportar o conjunto de dados atual sem duplicatas"
+
+# contributors:LetÃ­cia Laranja
+msgid "Duplicate Thiessen polygons exist due to duplicate or near-duplicate map points. Press OK to save duplicate polygon ids to Table."
+msgstr "Existem polÃ­gonos Thiessen duplicados devido a pontos de mapa duplicados ou quase duplicados. Pressione OK para salvar os polÃ­gonos duplicados na tabela."
+
+# contributors:LetÃ­cia Laranja
+msgid "Duplicate variable names specified."
+msgstr "Duplicar nomes de variÃ¡veis especificadas."
+
+# contributors:LetÃ­cia Laranja
+msgid "E&xplore"
+msgstr "E&xplorar"
+
+# contributors:LetÃ­cia Laranja
+msgid "ESRI File Geodatabase (*.gdb)|*.gdb"
+msgstr "ESRI File Geodatabase (*.gdb)|*.gdb"
+
+# contributors:LetÃ­cia Laranja
+msgid "ESRI Personal Geodatabase (*.mdb)|*.mdb"
+msgstr "ESRI Personal Geodatabase (*.mdb)|*.mdb"
+
+# contributors:LetÃ­cia Laranja
+msgid "ESRI Shapefile (*.shp)|*.shp"
+msgstr "ESRI Shapefile (*.shp)|*.shp"
+
+# contributors:LetÃ­cia Laranja
+msgid "Edit"
+msgstr "Editar"
+
+# contributors:LetÃ­cia Laranja
+msgid "Edit Custom Breaks"
+msgstr "Editar intervalos personalizados"
+
+# contributors:LetÃ­cia Laranja
+msgid "Edit LOWESS Parameters"
+msgstr "Editar ParÃ¢metros LOWESS"
+
+# contributors:LetÃ­cia Laranja
+msgid "Edit Title"
+msgstr "Editar tÃ­tulo"
+
+# contributors:LetÃ­cia Laranja
+msgid "Edit Variable Properties"
+msgstr "Editar propriedades da variÃ¡vel"
+
+# contributors:LetÃ­cia Laranja
+msgid "Emp Bayes Rate Std Moran's I (%s): %s / %s"
+msgstr "Taxa Emp de Bayes Moran's I Pad. (%s): %s / %s"
+
+# contributors:LetÃ­cia Laranja
+msgid "Empirical Bayes"
+msgstr "MÃ©todo empÃ­rico de Bayes"
+
+# contributors:LetÃ­cia Laranja
+msgid "Empirical Bayes Rate Standardization Variables"
+msgstr "VariÃ¡veis EmpÃ­ricas de PadronizaÃ§Ã£o da Taxa de Bayes"
+
+# contributors:LetÃ­cia Laranja
+msgid "Empirical Bayes Smoothed Variable Settings"
+msgstr "ConfiguraÃ§Ãµes empÃ­ricas das variÃ¡veis suavizadas de Bayes"
+
+# contributors:LetÃ­cia Laranja
+msgid "Empirical Spatial Rate Smoothed Variable Settings"
+msgstr "ConfiguraÃ§Ãµes de variÃ¡veis suavizadas da taxa espacial empÃ­rica"
+
+# contributors:LetÃ­cia Laranja
+msgid "Enable High DPI/Retina support (Mac only):"
+msgstr "Habilitar suporte alto DPI/Retina (somente Mac):"
+
+# contributors:LetÃ­cia Laranja
+msgid "Enable User Defined Value Range of Y-Axis"
+msgstr "Habilitar faixa de valores definidos pelo usuÃ¡rio do eixo Y"
+
+# contributors:LetÃ­cia Laranja
+msgid "Enable transparency setup of category color in map (Windows only):"
+msgstr "Permitir a configuraÃ§Ã£o de transparÃªncia da cor da categoria no mapa (somente Windows):"
+
+# contributors:LetÃ­cia Laranja
+msgid "Encode"
+msgstr "Codificar"
+
+# contributors:LetÃ­cia Laranja
+msgid "Enter a seed value"
+msgstr "Insira um valor de semente"
+
+# contributors:LetÃ­cia Laranja
+msgid "Enter a seed value for random number generator:"
+msgstr "Insira um valor de semente para gerador de nÃºmeros aleatÃ³rios:"
+
+# contributors:LetÃ­cia Laranja
+msgid "Enter new ID variable name:"
+msgstr "Digite o novo nome da variÃ¡vel de identificaÃ§Ã£o:"
+
+# contributors:LetÃ­cia Laranja
+msgid "Equal Intervals"
+msgstr "Intervalos iguais"
+
+# contributors:LetÃ­cia Laranja
+msgid "Equal Intervals Map"
+msgstr "Mapa de intervalos iguais"
+
+# contributors:LetÃ­cia Laranja
+msgid "Error"
+msgstr "Erro"
+
+# contributors:LetÃ­cia Laranja
+msgid ""
+"Error while opening project:\n"
+"\n"
+msgstr ""
+"Erro ao abrir projeto:\n"
+"\n"
+
+# contributors:LetÃ­cia Laranja
+msgid "Error: "
+msgstr "Erro: "
+
+# contributors:LetÃ­cia Laranja
+msgid "Error: Base values contain non-positive numbers which will result in undefined values."
+msgstr "Erro: Os valores bÃ¡sicos contÃªm nÃºmeros nÃ£o-positivos que resultarÃ£o em valores indefinidos."
+
+# contributors:LetÃ­cia Laranja
+msgid "Error: Chosen theme requires more cateogries than observations."
+msgstr "Erro: O tema escolhido requer mais categorias do que observaÃ§Ãµes"
+
+# contributors:LetÃ­cia Laranja
+msgid "Error: Due to restrictions on the DBF file format, the particular combination of length and decimals entered is not valid.  Based on your current choices, we recommend length = %d and decimals = %d"
+msgstr "Erro: Devido a restriÃ§Ãµes no formato do arquivo DBF, a combinaÃ§Ã£o particular de comprimento e casas decimais inseridas nÃ£o Ã© vÃ¡lida.  Com base em suas escolhas atuais, recomendamos comprimento = %d e casas decimais = %d"
+
+# contributors:LetÃ­cia Laranja
+msgid "Error: Maximum number of neighbors %d exceeded."
+msgstr "Erro: NÃºmero mÃ¡ximo de vizinhos %d excedido."
+
+# contributors:LetÃ­cia Laranja
+msgid "Error: The table variable name is empty."
+msgstr "Erro: O nome da variÃ¡vel da tabela estÃ¡ vazio."
+
+# contributors:LetÃ­cia Laranja
+msgid "Error: \"%s\" already exists in Table, please specify a different name."
+msgstr "Erro: JÃ¡ existe \"%s\" na tabela, favor especificar um nome diferente."
+
+# contributors:LetÃ­cia Laranja
+msgid "Error: \"%s\" is an invalid variable name. The first character must be alphabetic, and the remaining characters can be either alphanumeric or underscores. For DBF table, a valid variable name is between one and ten characters long."
+msgstr "Erro: \\%s] Ã© um nome de variÃ¡vel invÃ¡lido. O primeiro caractere deve ser alfabÃ©tico, e os caracteres restantes podem ser alfanumÃ©ricos ou sublinhados. Para a tabela DBF, um nome de variÃ¡vel vÃ¡lido tem entre um e dez caracteres"
+
+# contributors:LetÃ­cia Laranja
+msgid "Error: \"%s\" not found."
+msgstr "Erro: \"%s\" nÃ£o encontrado."
+
+# contributors:LetÃ­cia Laranja
+msgid "Error: no records found in data source."
+msgstr "Erro: nenhum registro encontrado na fonte de dados."
+
+# contributors:LetÃ­cia Laranja
+msgid "Error: the inverse matrix is ill-conditioned."
+msgstr "Erro: a matriz inversa estÃ¡ mal condicionada."
+
+# contributors:LetÃ­cia Laranja
+msgid "Estimated Pairs:"
+msgstr "Pares estimados:"
+
+# contributors:LetÃ­cia Laranja
+msgid "Euclidean Distance"
+msgstr "DistÃ¢ncia euclidiana"
+
+# contributors:LetÃ­cia Laranja
+msgid "Event Variable"
+msgstr "VariÃ¡vel de evento"
+
+# contributors:LetÃ­cia Laranja
+msgid "Excess Risk"
+msgstr "Risco Excedente"
+
+# contributors:LetÃ­cia Laranja
+msgid "Excess Risk Map Variable Settings"
+msgstr "ConfiguraÃ§Ã£o de variÃ¡vel de mapa de risco excedente"
+
+# contributors:LetÃ­cia Laranja
+msgid "Exclude"
+msgstr "Excluir"
+
+# contributors:LetÃ­cia Laranja
+msgid "Existing Variables"
+msgstr "VariÃ¡veis Existentes"
+
+# contributors:LetÃ­cia Laranja
+msgid "Exit"
+msgstr "Sair"
+
+# contributors:LetÃ­cia Laranja
+msgid "Exit with unsaved changes?"
+msgstr "Sair com modificaÃ§Ãµes nÃ£o salvas?"
+
+# contributors:LetÃ­cia Laranja
+msgid "Exit?"
+msgstr "Sair?"
+
+# contributors:LetÃ­cia Laranja
+msgid "Explore"
+msgstr "Explorar"
+
+# contributors:LetÃ­cia Laranja
+msgid "Export or save layer to"
+msgstr "Exportar ou salvar camada para"
+
+# contributors:LetÃ­cia Laranja
+msgid "Exporting Shape to Boundary"
+msgstr "Exportando forma para limite"
+
+# contributors:LetÃ­cia Laranja
+msgid "Expression"
+msgstr "ExpressÃ£o"
+
+# contributors:LetÃ­cia Laranja
+msgid "Extent"
+msgstr "ExtensÃ£o"
+
+# contributors:LetÃ­cia Laranja
+msgid "Fail in reading the Boundary file: at polygon-%d"
+msgstr "Falha na leitura do arquivo de delimitaÃ§Ã£o: em polÃ­gono-%d"
+
+# contributors:LetÃ­cia Laranja
+msgid "Failed to create the weights file."
+msgstr "Falha na criaÃ§Ã£o do arquivo de pesos."
+
+# contributors:LetÃ­cia Laranja
+msgid ""
+"Failed to open data source. Please check the data/datasource and check if the data type/format is supported by GeoDa.\n"
+"\n"
+"Tip: you can set up the necessary GeoDa driver by following the instructions at:\n"
+" http://geodacenter.github.io/formats.html"
+msgstr ""
+"Falha em abrir a fonte de dados. Por favor, verifique a fonte de dados/dados e verifique se o tipo/formato de dados Ã© suportado pelo GeoDa.\n"
+"\n"
+"Dica: vocÃª pode configurar o driver necessÃ¡rio do Geoda, seguindo as instruÃ§Ãµes em:\n"
+" http://geodacenter.github.io/formats.html"
+
+# contributors:LetÃ­cia Laranja
+msgid "False Discovery Rate:"
+msgstr "Taxa de Descoberta Falsa:"
+
+# contributors:LetÃ­cia Laranja
+msgid "February"
+msgstr "Fevereiro"
+
+# contributors:LetÃ­cia Laranja
+msgid "Field (%s) already exited."
+msgstr "Campo (%s) jÃ¡ existe."
+
+# contributors:LetÃ­cia Laranja
+msgid "File"
+msgstr "Arquivo"
+
+# contributors:LetÃ­cia Laranja
+msgid "File Path"
+msgstr "Caminho do arquivo"
+
+# contributors:LetÃ­cia Laranja
+msgid "File doesn't exist!"
+msgstr "Aquivo nÃ£o existe!"
+
+# contributors:LetÃ­cia Laranja
+msgid "File merged into Table successfully."
+msgstr "Arquivo mesclado em tabela com sucesso."
+
+# contributors:LetÃ­cia Laranja
+msgid "Fill Color"
+msgstr "Cor de preenchimento"
+
+# contributors:LetÃ­cia Laranja
+msgid "Fill Color for Category"
+msgstr "Cor de preenchimento por categoria"
+
+# contributors:LetÃ­cia Laranja
+msgid "Fill Opacity for Category"
+msgstr "Opacidade de preenchimento por categoria"
+
+# contributors:LetÃ­cia Laranja
+msgid "Finished"
+msgstr "Finalizado"
+
+# contributors:LetÃ­cia Laranja
+msgid "First Variable (X)"
+msgstr "Primeira variÃ¡vel (X)"
+
+# contributors:LetÃ­cia Laranja
+msgid "First Variable (X/Longitude)"
+msgstr "Primeira variÃ¡vel (X/Longitude)"
+
+# contributors:LetÃ­cia Laranja
+msgid "First line of CSV is variable names?"
+msgstr "A primeira linha do CSV contÃ©m o nome das variÃ¡veis?"
+
+# contributors:LetÃ­cia Laranja
+msgid "First row of CSV file"
+msgstr "Primeira linha do arquivo CSV"
+
+# contributors:LetÃ­cia Laranja
+msgid "Fit-To-Window Mode"
+msgstr "Modo de ajuste Ã  janela"
+
+# contributors:LetÃ­cia Laranja
+msgid "Fixed Aspect Ratio Mode"
+msgstr "Modo de relaÃ§Ã£o fixa de aspecto"
+
+# contributors:LetÃ­cia Laranja
+msgid "Fixed scale over time"
+msgstr "Escala fixa ao longo do tempo"
+
+# contributors:LetÃ­cia Laranja
+msgid "Fixed x-axis scale over time"
+msgstr "Escala fixa do eixo x ao longo do tempo]"
+
+# contributors:LetÃ­cia Laranja
+msgid "Fixed y-axis scale over time"
+msgstr "Escala fixa do eixo y ao longo do tempo]"
+
+# contributors:LetÃ­cia Laranja
+msgid "Fourth Variable"
+msgstr "4Âª variÃ¡vel"
+
+# contributors:LetÃ­cia Laranja
+msgid "Frequency"
+msgstr "FrequÃªncia"
+
+# contributors:LetÃ­cia Laranja
+msgid "Full Extent"
+msgstr "ExtensÃ£o total"
+
+# contributors:LetÃ­cia Laranja
+msgid "GAL files (*.gal)|*.gal"
+msgstr "Arquivos GAL (*.gal)|*.gal"
+
+# contributors:LetÃ­cia Laranja
+msgid "GWT files (*.gwt)|*.gwt"
+msgstr "Arquivos GWT (*.gwt)|*.gwt"
+
+# contributors:LetÃ­cia Laranja
+msgid "GeoDa Bug Report Dialog"
+msgstr "Caixa de diÃ¡logo - RelatÃ³rio de erros do GeoDa"
+
+# contributors:LetÃ­cia Laranja
+msgid "GeoDa CSV File Configuration"
+msgstr "ConfiguraÃ§Ã£o de arquivo GeoDa CSV"
+
+# contributors:LetÃ­cia Laranja
+msgid "GeoDa Help"
+msgstr "Ajuda do GeoDa"
+
+# contributors:LetÃ­cia Laranja
+msgid "GeoDa Preference Setup"
+msgstr "ConfiguraÃ§Ã£o de preferÃªncias do GeoDa"
+
+# contributors:LetÃ­cia Laranja
+msgid "GeoDa Project (*.gda)|*.gda"
+msgstr "Projeto do GeoDa (*.gda)|*.gda"
+
+# contributors:LetÃ­cia Laranja
+msgid "GeoDa Project File (*.gda)|*.gda"
+msgstr "Arquivo de projeto do GeoDa (*.gda)|*.gda"
+
+# contributors:LetÃ­cia Laranja
+msgid "GeoDa Project File to Open"
+msgstr "Arquivo do Projeto GeoDa para abrir"
+
+# contributors:LetÃ­cia Laranja
+msgid "GeoDa Project to Save As"
+msgstr "Arquivo do Projeto do GeoDa para salvar como"
+
+# contributors:LetÃ­cia Laranja
+msgid "GeoDa Update Dialog"
+msgstr "Caixa de diÃ¡logo de atualizaÃ§Ã£o GeoDa"
+
+# contributors:LetÃ­cia Laranja
+msgid "GeoDa can not get valid spatial reference from input data source. Please try another data source."
+msgstr "O GeoDa nÃ£o pode obter referÃªncia espacial vÃ¡lida da fonte de dados de entrada. Por favor, tente outra fonte de dados."
+
+# contributors:LetÃ­cia Laranja
+msgid "GeoDa can not open the input data source. Please try another data source."
+msgstr "O GeoDa nÃ£o pode abrir a fonte de dados de entrada. Por favor, tente outra fonte de dados."
+
+# contributors:LetÃ­cia Laranja
+msgid "GeoDa can't change the variable type to DATE/TIME. Please select another type."
+msgstr "O GeoDa nÃ£o pode mudar o tipo de variÃ¡vel para DATA/HORA. Por favor, selecione outro tipo"
+
+# contributors:LetÃ­cia Laranja
+msgid "GeoDa can't create a layer."
+msgstr "O GeoDa nÃ£o pÃ´de criar a camada."
+
+# contributors:LetÃ­cia Laranja
+msgid "GeoDa can't load dataset with duplicate field names."
+msgstr "O GeoDa nÃ£o pode carregar conjunto de dados com nomes de campo duplicados"
+
+# contributors:LetÃ­cia Laranja
+msgid ""
+"GeoDa can't read data from datasource. \n"
+"\n"
+"Details: Datasource is empty."
+msgstr ""
+"O GeoDa nÃ£o consegue ler os dados da fonte de dados. \n"
+"\n"
+"Detalhes: A fonte de dados estÃ¡ vazia."
+
+# contributors:LetÃ­cia Laranja
+msgid "GeoDa can't save a Table-only data source as a Geometry enabled data source. Please try to add a geometry layer and then use File->Save As."
+msgstr "O GeoDa nÃ£o pode salvar uma fonte de dados somente tabela como uma fonte de dados habilitada para Geometria. Por favor, tente adicionar uma camada de geometria e depois use Arquivo->Salvar como."
+
+# contributors:LetÃ­cia Laranja
+msgid "GeoDa can't save changes to this datasource. Please try to use File->Export."
+msgstr "O GeoDa nÃ£o pode salvar as mudanÃ§as nesta fonte de dados. Por favor, tente usar Arquivo->Exportar"
+
+# contributors:LetÃ­cia Laranja
+msgid "GeoDa cannot find proper projection or geographic coordinate system information to add a basemap. Please update this information (e.g. in .prj file)."
+msgstr "O GeoDa nÃ£o consegue encontrar a projeÃ§Ã£o adequada ou informaÃ§Ãµes do sistema de coordenadas geogrÃ¡ficas para adicionar um mapa base. Favor atualizar estas informaÃ§Ãµes (por exemplo, no arquivo .prj)."
+
+# contributors:LetÃ­cia Laranja
+msgid "GeoDa could not find the required weights file."
+msgstr "O GeoDa nÃ£o conseguiu encontrar o arquivo de pesos requerido."
+
+# contributors:LetÃ­cia Laranja
+msgid ""
+"GeoDa could not find the required weights file. \n"
+"Please specify weights in Tools > Weights Manager."
+msgstr ""
+"O GeoDa nÃ£o conseguiu encontrar o arquivo de pesos requerido. \n"
+"Por favor, especifique os pesos em Ferramentas > Gerenciador de pesos."
+
+# contributors:LetÃ­cia Laranja
+msgid "GeoDa could not load this layer. Please check if the datasource is valid and not table only."
+msgstr "O GeoDa nÃ£o pÃ´de carregar esta camada. Favor verificar se a fonte de dados Ã© vÃ¡lida e nÃ£o apenas tabela."
+
+# contributors:LetÃ­cia Laranja
+msgid "GeoDa does not support creating data of %s. Please try to 'Export' to other supported data source format."
+msgstr "O GeoDa nÃ£o suporta a criaÃ§Ã£o de dados de %s. Por favor, tente 'Exportar' para outro formato de fonte de dados suportado."
+
+# contributors:LetÃ­cia Laranja
+msgid "GeoDa does not support datasource with line data at this time.  Please choose a datasource with either point or polygon data."
+msgstr "O GeoDa nÃ£o suporta fonte de dados com dados de linha neste momento.  Favor escolher uma fonte de dados com dados pontuais ou poligonais."
+
+# contributors:LetÃ­cia Laranja
+msgid "GeoDa has run into a problem and will close."
+msgstr "O GeoDa encontrou um problema e serÃ¡ fechado."
+
+# contributors:LetÃ­cia Laranja
+msgid "GeoDa maj.min.bld (type), day month year"
+msgstr "GeoDa maj.min.bld (tipo), dia mÃªs ano"
+
+# contributors:LetÃ­cia Laranja
+msgid "GeoDa was unable to save the file."
+msgstr "O GeoDa nÃ£o foi capaz de salvar o arquivo."
+
+# contributors:LetÃ­cia Laranja
+msgid "GeoJSON (*.geojson;*.json)|*.geojson;*.json"
+msgstr "GeoJSON (*.geojson;*.json)|*.geojson;*.json"
+
+# contributors:LetÃ­cia Laranja
+msgid "GeoJson URL"
+msgstr "GeoJson URL"
+
+# contributors:LetÃ­cia Laranja
+msgid "GeoPackage (*.gpkg)|*.gpkg"
+msgstr "GeoPackage (*.gpkg)|*.gpkg"
+
+# contributors:LetÃ­cia Laranja
+msgid "Geography Markup Language (*.gml)|*.gml"
+msgstr "Geography Markup Language (*.gml)|*.gml"
+
+# contributors:LetÃ­cia Laranja
+msgid "Geometric centroids"
+msgstr "CentrÃ³ides geomÃ©tricos"
+
+# contributors:LetÃ­cia Laranja
+msgid "Geometries have been added to existing Table-only data source. Do you want to save them as a new datasource?"
+msgstr "As geometrias foram adicionadas Ã s fontes de dados existentes de apenas tabela. VocÃª quer salvÃ¡-las como uma nova fonte de dados?"
+
+# contributors:LetÃ­cia Laranja
+msgid "Geometries not saved"
+msgstr "Geometrias nÃ£o salvas"
+
+# contributors:LetÃ­cia Laranja
+msgid "Get a free Carto account: "
+msgstr "Obtenha uma conta Carto grÃ¡tis: "
+
+# contributors:LetÃ­cia Laranja
+msgid "Get a free GeoDa-Web account: "
+msgstr "Obtenha uma conta GeoDa-Web grÃ¡tis: "
+
+# contributors:LetÃ­cia Laranja
+msgid "Get a free Nokia/HERE account: "
+msgstr "Obtenha uma conta Nokia/HEREgrÃ¡tis: "
+
+# contributors:LetÃ­cia Laranja
+msgid "Getis-Ord"
+msgstr "Getis-Ord"
+
+# contributors:LetÃ­cia Laranja
+msgid "Gi cluster map, pseudo p-val"
+msgstr "Mapa de agrupamento Gi, pseudo p-val"
+
+# contributors:LetÃ­cia Laranja
+msgid "Gi* cluster map, pseudo p-val"
+msgstr "Mapa de agrupamento Gi*, pseudo p-val"
+
+# contributors:LetÃ­cia Laranja
+msgid "Greedy"
+msgstr "Guloso"
+
+# contributors:LetÃ­cia Laranja
+msgid "Greek (ISO-8859-7)"
+msgstr "Grego (ISO-8859-7)"
+
+# contributors:LetÃ­cia Laranja
+msgid "Grid Bounding Box"
+msgstr "Caixa delimitadora da grade (grid)"
+
+# contributors:LetÃ­cia Laranja
+msgid "Grid Size"
+msgstr "Tamanho da malha (grid)"
+
+# contributors:LetÃ­cia Laranja
+msgid "Grid file was successfully created."
+msgstr "Arquivo da malha (grid) foi criado com sucesso."
+
+# contributors:LetÃ­cia Laranja
+msgid "Group"
+msgstr "Grupo"
+
+# contributors:LetÃ­cia Laranja
+msgid "Group 1:"
+msgstr "Grupo 1:"
+
+# contributors:LetÃ­cia Laranja
+msgid "Group 2:"
+msgstr "Grupo 1:"
+
+# contributors:LetÃ­cia Laranja
+msgid "Group Variable:"
+msgstr "Grupo de variÃ¡vel:"
+
+# contributors:LetÃ­cia Laranja
+msgid "Grouped Variables"
+msgstr "VariÃ¡veis agrupadas"
+
+# contributors:LetÃ­cia Laranja
+msgid "Groups:"
+msgstr "Grupos:"
+
+# contributors:LetÃ­cia Laranja
+msgid "HDBScan"
+msgstr "HDBScan"
+
+# contributors:LetÃ­cia Laranja
+msgid "HDBScan Cluster Map (%d clusters)"
+msgstr "Mapa de agrupamentos HDBScan (%d agrupamentos)"
+
+# contributors:LetÃ­cia Laranja
+msgid "HDBScan Clustering Settings"
+msgstr "ConfiguraÃ§Ãµes de agrupamentos HDBScan"
+
+# contributors:LetÃ­cia Laranja
+msgid "HERE App ID"
+msgstr "ID do aplicativo HERE"
+
+# contributors:LetÃ­cia Laranja
+msgid "HERE App Key"
+msgstr "Chave do aplicativo HERE"
+
+# contributors:LetÃ­cia Laranja
+msgid "Has Colocation"
+msgstr "Possui ColocaÃ§Ã£o"
+
+# contributors:LetÃ­cia Laranja
+msgid "Hebrew (ISO-8859-8-1)"
+msgstr "Hebreu (ISO-8859-8-1)"
+
+# contributors:LetÃ­cia Laranja
+msgid "Hebrew (Windows-1255)"
+msgstr "Hebreu (Windows-1255)"
+
+# contributors:LetÃ­cia Laranja
+msgid "Height:"
+msgstr "Altura:"
+
+# contributors:LetÃ­cia Laranja
+msgid "Help"
+msgstr "Ajuda"
+
+# contributors:LetÃ­cia Laranja
+msgid "Hide Map"
+msgstr "Ocultar mapa"
+
+# contributors:LetÃ­cia Laranja
+msgid "Hide system table in Postgresql connection:"
+msgstr "Ocultar tabela do sistema em conexÃ£o Postgresql:"
+
+# contributors:LetÃ­cia Laranja
+msgid "Hide system table in SQLITE connection:"
+msgstr "Ocultar tabela do sistema em conexÃ£o SQLITE:"
+
+# contributors:LetÃ­cia Laranja
+msgid "Hierachical Map does not work with Table only datasource."
+msgstr "Mapa hierÃ¡rquico nÃ£o funciona apenas com a fonte de dados Tabela."
+
+# contributors:LetÃ­cia Laranja
+msgid "Hierachical Map: "
+msgstr "Mapa hierÃ¡rquico: "
+
+# contributors:LetÃ­cia Laranja
+msgid "Hierarchical"
+msgstr "HierÃ¡rquico"
+
+# contributors:LetÃ­cia Laranja
+msgid "Hierarchical Clustering Settings"
+msgstr "ConfiguraÃ§Ãµes hierÃ¡rquicas de agrupamento"
+
+# contributors:LetÃ­cia Laranja
+msgid "Hierarchical Map"
+msgstr "Mapa hierÃ¡rquico"
+
+# contributors:LetÃ­cia Laranja
+msgid "High"
+msgstr "Alto"
+
+# contributors:LetÃ­cia Laranja
+msgid "High-High"
+msgstr "Alto-Alto"
+
+# contributors:LetÃ­cia Laranja
+msgid "High-Low"
+msgstr "Alto-Baixo"
+
+# contributors:LetÃ­cia Laranja
+msgid "Highlight Color"
+msgstr "Destacar cor"
+
+# contributors:LetÃ­cia Laranja
+msgid "Hinge"
+msgstr "ArticulaÃ§Ã£o"
+
+# contributors:LetÃ­cia Laranja
+msgid "Hinge=1.5"
+msgstr "ArticulaÃ§Ã£o = 1.5"
+
+# contributors:LetÃ­cia Laranja
+msgid "Hinge=3.0"
+msgstr "ArticulaÃ§Ã£o = 3.0"
+
+# contributors:LetÃ­cia Laranja
+msgid "Histogram"
+msgstr "Histograma"
+
+# contributors:LetÃ­cia Laranja
+msgid "Histogram Classification"
+msgstr "ClassificaÃ§Ã£o de histograma"
+
+# contributors:LetÃ­cia Laranja
+msgid "Histogram Variable"
+msgstr "VariÃ¡vel de histrograma"
+
+# contributors:LetÃ­cia Laranja
+msgid "Histogram: "
+msgstr "Histograma:"
+
+# contributors:LetÃ­cia Laranja
+msgid "Horizontal Bins Breaks"
+msgstr "Quebras de caixas horizontais"
+
+# contributors:LetÃ­cia Laranja
+msgid "Horizontal Cells"
+msgstr "CÃ©lulas horizontais"
+
+# contributors:LetÃ­cia Laranja
+msgid "Http connection timeout (seconds) for e.g. WFS, Geojson etc.:"
+msgstr "Tempo limite de conexÃ£o http (segundos) para, por exemplo, WFS, Geojson, etc.:"
+
+# contributors:LetÃ­cia Laranja
+msgid "ID is not specified!"
+msgstr "ID nÃ£o foi especificado!"
+
+# contributors:LetÃ­cia Laranja
+msgid "Image Dimension Settings"
+msgstr "ConfiguraÃ§Ãµes da dimensÃ£o da imagem"
+
+# contributors:LetÃ­cia Laranja
+msgid "Improve Cartogram"
+msgstr "Melhorar cartograma"
+
+# contributors:LetÃ­cia Laranja
+msgid "Include"
+msgstr "Incluir"
+
+# contributors:LetÃ­cia Laranja
+msgid "Include Variable Names"
+msgstr "Incluir nomes das variÃ¡veis"
+
+# contributors:LetÃ­cia Laranja
+msgid "Include diagonal of weights matrix"
+msgstr "Incluir a diagonal da matriz de pesos"
+
+# contributors:LetÃ­cia Laranja
+msgid "Include lower orders"
+msgstr "Incluir ordens inferiores"
+
+# contributors:LetÃ­cia Laranja
+msgid "Incomplete Group Variable"
+msgstr "VariÃ¡vel de Grupo Incompleta"
+
+# contributors:LetÃ­cia Laranja
+msgid "Independent Var (x-axis)"
+msgstr "VariÃ¡vel independente (eixo-X)"
+
+# contributors:LetÃ­cia Laranja
+msgid "Independent Var X"
+msgstr "VariÃ¡vel independente X"
+
+# contributors:LetÃ­cia Laranja
+msgid "Inference Settings"
+msgstr "ConfiguraÃ§Ãµes de inferÃªncia"
+
+# contributors:LetÃ­cia Laranja
+msgid "Inference Settings (%d perm)"
+msgstr "ConfiguraÃ§Ãµes de inferÃªncia (%d perm)"
+
+# contributors:LetÃ­cia Laranja
+msgid "Info"
+msgstr "InformaÃ§Ã£o"
+
+# contributors:LetÃ­cia Laranja
+msgid "Information"
+msgstr "InformaÃ§Ã£o"
+
+# contributors:LetÃ­cia Laranja
+msgid "Initial Groups:"
+msgstr "Grupos iniciais:"
+
+# contributors:LetÃ­cia Laranja
+msgid "Initial groups:\t"
+msgstr "Grupos iniciais:\t"
+
+# contributors:LetÃ­cia Laranja
+msgid "Initialization Method:"
+msgstr "MÃ©todo de inicializaÃ§Ã£o:"
+
+# contributors:LetÃ­cia Laranja
+msgid "Initialization Re-runs:"
+msgstr "RepetiÃ§Ãµes de inicializaÃ§Ã£o:"
+
+# contributors:LetÃ­cia Laranja
+msgid "Initialization method:\t"
+msgstr "MÃ©todo de inicializaÃ§Ã£o:\t"
+
+# contributors:LetÃ­cia Laranja
+msgid "Initialization re-runs:\t"
+msgstr "RepetiÃ§Ãµes de inicializaÃ§Ã£o:\t"
+
+# contributors:LetÃ­cia Laranja
+msgid "Input"
+msgstr "Entrada"
+
+# contributors:LetÃ­cia Laranja
+msgid "Input ASCII file"
+msgstr "InserÃ§Ã£o de arquivo ASCII"
+
+# contributors:LetÃ­cia Laranja
+msgid "Input data source"
+msgstr "InserÃ§Ã£o de fonte de dados"
+
+# contributors:LetÃ­cia Laranja
+msgid "Input datasource"
+msgstr "InserÃ§Ã£o de fonte de dados"
+
+# contributors:LetÃ­cia Laranja
+msgid "Input file "
+msgstr "InserÃ§Ã£o de arquivo "
+
+# contributors:LetÃ­cia Laranja
+msgid "Input file (text file)"
+msgstr "InserÃ§Ã£o de arquivo (arquivo de texto)"
+
+# contributors:LetÃ­cia Laranja
+msgid "Input is duplicated."
+msgstr "Entrada Ã© duplicada"
+
+# contributors:LetÃ­cia Laranja
+msgid "Input is not valid."
+msgstr "Entrada nÃ£o Ã© vÃ¡lida"
+
+# contributors:LetÃ­cia Laranja
+msgid "Input is required"
+msgstr "Ã necessÃ¡ria uma entrada"
+
+# contributors:LetÃ­cia Laranja
+msgid "Input significance:"
+msgstr "InserÃ§Ã£o de significÃ¢ncia:"
+
+# contributors:LetÃ­cia Laranja
+msgid "Input:"
+msgstr "Entrada:"
+
+# contributors:LetÃ­cia Laranja
+msgid "Insert before"
+msgstr "Inserir antes"
+
+# contributors:LetÃ­cia Laranja
+msgid "Insufficient Random Sampling"
+msgstr "Amostragem aleatÃ³ria insuficiente"
+
+# contributors:LetÃ­cia Laranja
+msgid ""
+"Internal Error: Add new field (%s) failed.\n"
+"\n"
+"Details:%s"
+msgstr ""
+"Erro Interno: Adicionar novo campo (%s) falhou.\n"
+"\n"
+"Detalhes:%s"
+
+# contributors:LetÃ­cia Laranja
+msgid ""
+"Internal Error: Delete field failed.\n"
+"\n"
+"Details:"
+msgstr ""
+"Erro Interno: Eliminar campo falhou.\n"
+"\n"
+"Detalhes:"
+
+# contributors:LetÃ­cia Laranja
+msgid "Internal Error: can't update an in-memory cell."
+msgstr "Erro Interno: NÃ£o foi possÃ­vel atualizar a cÃ©lula em memÃ³ria."
+
+# contributors:LetÃ­cia Laranja
+msgid "Intervals"
+msgstr "Intervalos"
+
+# contributors:LetÃ­cia Laranja
+msgid "Intervals in the Histogram"
+msgstr "Intervalos no histograma"
+
+# contributors:LetÃ­cia Laranja
+msgid "Invalid Variable"
+msgstr "VariÃ¡vel invÃ¡lida"
+
+# contributors:LetÃ­cia Laranja
+msgid ""
+"Invalid Weights Information:\n"
+"\n"
+" The selected weights file is not valid.\n"
+" Please choose another weights file, or use Tools > Weights > Weights Manager to define a valid weights file."
+msgstr ""
+"InformaÃ§Ã£o de pesos invÃ¡lidos:\n"
+"\n"
+" O arquivo de pesos selecionados nÃ£o Ã© vÃ¡lido.\n"
+" Por favor, escolha outro arquivo de pesos, ou use Ferramentas > Pesos > Gerenciador de Pesos para definir um arquivo de pesos vÃ¡lido."
+
+# contributors:LetÃ­cia Laranja
+msgid ""
+"Invalid Weights Information:\n"
+"\n"
+" The selected weights file is not valid.\n"
+" Please choose another weights file, or use Tools > Weights > Weights Manager\n"
+" to define a valid weights file."
+msgstr ""
+"InformaÃ§Ã£o de pesos invÃ¡lidos:\n"
+"\n"
+" O arquivo de pesos selecionados nÃ£o Ã© vÃ¡lido.\n"
+" Por favor, escolha outro arquivo de pesos, ou use Ferramentas > Pesos > Gerenciador de Pesos\n"
+" para definir um arquivo de pesos vÃ¡lido."
+
+# contributors:LetÃ­cia Laranja
+msgid "Invalid layer association has been detected, which will cause infinite highlighting loop. Please try to reset highlight association between layers."
+msgstr "Foi detectada associaÃ§Ã£o de camadas invÃ¡lidas, o que causarÃ¡ um loop de destaque infinito. Por favor, tente redefinir a associaÃ§Ã£o de destaque entre camadas."
+
+# contributors:LetÃ­cia Laranja
+msgid "Invert Select"
+msgstr "Inverter seleÃ§Ã£o"
+
+# contributors:LetÃ­cia Laranja
+msgid "Invert Selection"
+msgstr "Inverter seleÃ§Ã£o"
+
+# contributors:LetÃ­cia Laranja
+msgid ""
+"It looks like GeoDa has been terminated abnormally. \n"
+"Do you want to send a crash report to GeoDa team? \n"
+"\n"
+"(Optional) Please leave your email address,\n"
+"so we can send a follow-up email once we have a fix."
+msgstr ""
+"Parece que o GeoDa foi encerrado anormalmente. \n"
+"VocÃª quer enviar um relatÃ³rio de acidente Ã  equipe do GeoDa? \n"
+"\n"
+"(Optional) Por favor, deixe seu endereÃ§o de e-mail, para que possamos enviar um e-mail de acompanhamento assim que tivermos uma correÃ§Ã£o."
+
+# contributors:LetÃ­cia Laranja
+msgid "Iterations:"
+msgstr "IteraÃ§Ãµes:"
+
+# contributors:LetÃ­cia Laranja
+msgid "January"
+msgstr "Janeiro"
+
+# contributors:LetÃ­cia Laranja
+msgid "Japanese (EUC-JP)"
+msgstr "JaponÃªs (EUC-JP)"
+
+# contributors:LetÃ­cia Laranja
+msgid "Japanese (Shift&JIS)"
+msgstr "JaponÃªs (Shift&JIS)"
+
+# contributors:LetÃ­cia Laranja
+msgid "Japanese (Shift_JIS)"
+msgstr "JaponÃªs (Shift_JIS)"
+
+# contributors:LetÃ­cia Laranja
+msgid "Join Operation:"
+msgstr "OperaÃ§Ã£o de junÃ§Ã£o:"
+
+# contributors:LetÃ­cia Laranja
+msgid "Join Variable:"
+msgstr "VariÃ¡vel de junÃ§Ã£o:"
+
+# contributors:LetÃ­cia Laranja
+msgid "July"
+msgstr "Julho"
+
+# contributors:LetÃ­cia Laranja
+msgid "June"
+msgstr "Junho"
+
+# contributors:LetÃ­cia Laranja
+msgid "K Means"
+msgstr "K-mÃ©dia"
+
+# contributors:LetÃ­cia Laranja
+msgid "K Medians"
+msgstr "K-medianas"
+
+# contributors:LetÃ­cia Laranja
+msgid "K Medoids"
+msgstr "K-medÃ³ides"
+
+# contributors:LetÃ­cia Laranja
+msgid "K-Nearest neighbors"
+msgstr "Vizinhos K-prÃ³ximos"
+
+# contributors:LetÃ­cia Laranja
+msgid "KMeans Clustering Settings"
+msgstr "ConfiguraÃ§Ãµes de agrupamentos K-mÃ©dias"
+
+# contributors:LetÃ­cia Laranja
+msgid "KMedians Clustering Settings"
+msgstr "ConfiguraÃ§Ãµes de agrupamentos K-medianas"
+
+# contributors:LetÃ­cia Laranja
+msgid "KMedoids Clustering Settings"
+msgstr "ConfiguraÃ§Ãµes de agrupamentos K-medoides"
+
+# contributors:LetÃ­cia Laranja
+msgid "KWT files (*.kwt)|*.kwt"
+msgstr "Arquivos KWT (*.kwt)|*.kwt"
+
+# contributors:LetÃ­cia Laranja
+msgid "Kernel function"
+msgstr "FunÃ§Ã£o de Kernel"
+
+# contributors:LetÃ­cia Laranja
+msgid "Key"
+msgstr "Chave"
+
+# contributors:LetÃ­cia Laranja
+msgid "Keyhole Markup Language (*.kml)|*.kml"
+msgstr "Keyhole Markup Language (*.kml)|*.kml"
+
+# contributors:LetÃ­cia Laranja
+msgid "Korean (EUC-KR)"
+msgstr "Coreano (EUC-KR)"
+
+# contributors:LetÃ­cia Laranja
+msgid "LISA"
+msgstr "LISA"
+
+# contributors:LetÃ­cia Laranja
+msgid "LOWESS Smoother"
+msgstr "SuavizaÃ§Ã£o LOWESS"
+
+# contributors:LetÃ­cia Laranja
+msgid "LOWESS Smoother Help"
+msgstr "Ajuda de suavizaÃ§Ã£o LOWESS"
+
+# contributors:LetÃ­cia Laranja
+msgid "LOWESS Smoother Parameters"
+msgstr "ParÃ¢metros de suavizaÃ§Ã£o LOWESS"
+
+# contributors:LetÃ­cia Laranja
+msgid "Language"
+msgstr "Linguagem"
+
+# contributors:LetÃ­cia Laranja
+msgid "Language:"
+msgstr "Linguagem:"
+
+# contributors:LetÃ­cia Laranja
+msgid "Latitude/Y:"
+msgstr "Latitude/Y:"
+
+# contributors:LetÃ­cia Laranja
+msgid "Layer names"
+msgstr "Nomes das camadas"
+
+# contributors:LetÃ­cia Laranja
+msgid "Left"
+msgstr "Esquerda"
+
+# contributors:LetÃ­cia Laranja
+msgid "Legend Background Color"
+msgstr "Cor de plano de fundo da legenda"
+
+# contributors:LetÃ­cia Laranja
+msgid "Length (max 254)"
+msgstr "Tamanho (max 254)"
+
+# contributors:LetÃ­cia Laranja
+msgid "Light"
+msgstr "Leve"
+
+# contributors:LetÃ­cia Laranja
+msgid ""
+"Limited date/time type recognition can be done for Date (YYYY-MM-DD), Time (HH:MM:SS+nn) and DateTime (YYYY-MM-DD HH:MM:SS+nn) in configuration.\n"
+"\n"
+"Please try to load customized date/time type as string and covert it using Table->Edit Variable Property"
+msgstr ""
+"O reconhecimento limitado do tipo de data/hora pode ser feito para Data (AAAA-MM-DD), Hora (HH:MM:SS+nn) e Data e Hora (AAAA-MM-DD HH:MM:SS+nn) na configuraÃ§Ã£o..\n"
+"\n"
+"Por favor, tente carregar a data/hora personalizada como texto e oculte-a usando Tabela->Editar Propriedade de VariÃ¡vel"
+
+# contributors:LetÃ­cia Laranja
+msgid "Line"
+msgstr "Linha"
+
+# contributors:LetÃ­cia Laranja
+msgid "Linear Smoother"
+msgstr "SuavizaÃ§Ã£o linear"
+
+# contributors:LetÃ­cia Laranja
+msgid ""
+"List of existing ungrouped variables. To group variables by time, move them to the list on the right.\n"
+"\n"
+"For example, to group Pop80 and Pop90, select them on the left and move them to the right."
+msgstr ""
+"Lista de variÃ¡veis existentes nÃ£o agrupadas. Para agrupar variÃ¡veis por tempo, movÃª-las para a lista Ã  direita.\n"
+"\n"
+"Por exemplo, para agrupar Pop80 e Pop90, selecionÃ¡-las Ã  esquerda e movÃª-las para a direita."
+
+# contributors:LetÃ­cia Laranja
+msgid "Load"
+msgstr "Carregar"
+
+# contributors:LetÃ­cia Laranja
+msgid "Load CRS from a data source"
+msgstr "Carregar CRS a partir de uma fonte de dados"
+
+# contributors:LetÃ­cia Laranja
+msgid "Load Layer Failed."
+msgstr "Falha ao carregar camada"
+
+# contributors:LetÃ­cia Laranja
+msgid "Load time definition from project file."
+msgstr "DefiniÃ§Ã£o do tempo de carga do arquivo do projeto"
+
+# contributors:LetÃ­cia Laranja
+msgid "Loading data..."
+msgstr "Carregando dados..."
+
+# contributors:LetÃ­cia Laranja
+msgid "Local G"
+msgstr "G Local"
+
+# contributors:LetÃ­cia Laranja
+msgid "Local G Maps"
+msgstr "Mapa G Local"
+
+# contributors:LetÃ­cia Laranja
+msgid "Local G Statistics Maps"
+msgstr "Mapas de estatÃ­sticas G Local"
+
+# contributors:LetÃ­cia Laranja
+msgid "Local G*"
+msgstr "G* Local"
+
+# contributors:LetÃ­cia Laranja
+msgid "Local Geary"
+msgstr "Geary Local"
+
+# contributors:LetÃ­cia Laranja
+msgid "Local Geary Maps"
+msgstr "Mapa Geary Local"
+
+# contributors:LetÃ­cia Laranja
+msgid "Local Join Count "
+msgstr "Contagem de junÃ§Ã£o local"
+
+# contributors:LetÃ­cia Laranja
+msgid "Local Moran's I Maps"
+msgstr "Mapas Moran's I Local"
+
+# contributors:LetÃ­cia Laranja
+msgid "Local Moran's I with EB Rate"
+msgstr "Moran's I Local com taxa EB"
+
+# contributors:LetÃ­cia Laranja
+msgid "Local Search:"
+msgstr "Consulta local:"
+
+# contributors:LetÃ­cia Laranja
+msgid "Local search:"
+msgstr "Consulta local:"
+
+# contributors:LetÃ­cia Laranja
+msgid "Locale for numbers has been setup successfully. Please re-open current project to enable this locale."
+msgstr "O local para nÃºmeros foi configurado com sucesso. Favor reabrir o projeto atual para habilitar este local"
+
+# contributors:LetÃ­cia Laranja
+msgid "Loop"
+msgstr "LaÃ§o (loop)"
+
+# contributors:LetÃ­cia Laranja
+msgid "Low"
+msgstr "Baixo"
+
+# contributors:LetÃ­cia Laranja
+msgid "Low-High"
+msgstr "Baixo-Alto"
+
+# contributors:LetÃ­cia Laranja
+msgid "Low-Low"
+msgstr "Baixo-Baixo"
+
+# contributors:LetÃ­cia Laranja
+msgid "Lower outlier"
+msgstr "Valor atÃ­pico inferior"
+
+# contributors:LetÃ­cia Laranja
+msgid "Lower-left corner"
+msgstr "Canto inferior esquerdo"
+
+# contributors:LetÃ­cia Laranja
+msgid "MDS"
+msgstr "MDS"
+
+# contributors:LetÃ­cia Laranja
+msgid "MDS Plot"
+msgstr "Plotar MDS"
+
+# contributors:LetÃ­cia Laranja
+msgid "MDS Plot - "
+msgstr "Plotar MDS - "
+
+# contributors:LetÃ­cia Laranja
+msgid "MDS Settings"
+msgstr "ConfiguraÃ§Ã£o de MDS"
+
+# contributors:LetÃ­cia Laranja
+msgid "MS Excel (*.xls)|*.xls"
+msgstr "MS Excel (*.xls)|*.xls"
+
+# contributors:LetÃ­cia Laranja
+msgid "Make selection from expression "
+msgstr "FaÃ§a a seleÃ§Ã£o a partir da expressÃ£o"
+
+# contributors:LetÃ­cia Laranja
+msgid "Manual Resize Column"
+msgstr "Redimensionamento manual de coluna"
+
+# contributors:LetÃ­cia Laranja
+msgid "Map"
+msgstr "Mapa"
+
+# contributors:LetÃ­cia Laranja
+msgid "Map Color Classification"
+msgstr "ClassificaÃ§Ã£o de cor do mapa"
+
+# contributors:LetÃ­cia Laranja
+msgid "Map Layer Settings"
+msgstr "ConfiguraÃ§Ã£o de camada do mapa"
+
+# contributors:LetÃ­cia Laranja
+msgid "Map Layout Preview"
+msgstr "PrÃ©via de layout do mapa"
+
+# contributors:LetÃ­cia Laranja
+msgid "Map Movie"
+msgstr "AnimaÃ§Ã£o de mapa"
+
+# contributors:LetÃ­cia Laranja
+msgid "Map Theme"
+msgstr "Tema de mapa"
+
+# contributors:LetÃ­cia Laranja
+msgid "Map Themes"
+msgstr "Temas de mapa"
+
+# contributors:LetÃ­cia Laranja
+msgid "MapInfo (*.tab;*.mif;*.mid)|*.tab;*.mif;*.mid"
+msgstr "MapInfo (*.tab;*.mif;*.mid)|*.tab;*.mif;*.mid"
+
+# contributors:LetÃ­cia Laranja
+msgid "Maps To Open"
+msgstr "Mapas para abrir"
+
+# contributors:LetÃ­cia Laranja
+msgid "Maps and Rates"
+msgstr "Mapas e Taxas"
+
+# contributors:LetÃ­cia Laranja
+msgid "Maps:"
+msgstr "Mapas:"
+
+# contributors:LetÃ­cia Laranja
+msgid "March"
+msgstr "MarÃ§o"
+
+# contributors:LetÃ­cia Laranja
+msgid "Max"
+msgstr "Max"
+
+# contributors:LetÃ­cia Laranja
+msgid "Max Distance:"
+msgstr "DistÃ¢ncia mÃ¡xima:"
+
+# contributors:LetÃ­cia Laranja
+msgid "Max value of Y axis"
+msgstr "Valor mÃ¡ximo do eixo Y"
+
+# contributors:LetÃ­cia Laranja
+msgid "Max-p Settings"
+msgstr "ConfiguraÃ§Ãµes de Max-p"
+
+# contributors:LetÃ­cia Laranja
+msgid "Maximum # of regions:"
+msgstr "MÃ¡ximo # de regiÃµes:"
+
+# contributors:LetÃ­cia Laranja
+msgid "Maximum Iterations:"
+msgstr "IteraÃ§Ãµes mÃ¡ximas:"
+
+# contributors:LetÃ­cia Laranja
+msgid "Maximum iterations:\t"
+msgstr "IteraÃ§Ãµes mÃ¡ximas:\t"
+
+# contributors:LetÃ­cia Laranja
+msgid "May"
+msgstr "Maio"
+
+# contributors:LetÃ­cia Laranja
+msgid "Mean"
+msgstr "MÃ©dia"
+
+# contributors:LetÃ­cia Laranja
+msgid "Merge"
+msgstr "Mesclar"
+
+# contributors:LetÃ­cia Laranja
+msgid "Merge - "
+msgstr "Mesclar - "
+
+# contributors:LetÃ­cia Laranja
+msgid "Merge by key values"
+msgstr "Mesclar por valores chaves"
+
+# contributors:LetÃ­cia Laranja
+msgid "Merge by record order"
+msgstr "Mesclar por ordem de registro"
+
+# contributors:LetÃ­cia Laranja
+msgid "Merge error: Geometric type of selected datasource has to be the same with current datasource."
+msgstr "Erro ao mesclar: O tipo geomÃ©trico da fonte de dados selecionada tem que ser o mesmo da fonte de dados atual"
+
+# contributors:LetÃ­cia Laranja
+msgid "Message area"
+msgstr "Ãrea de mensagens"
+
+# contributors:LetÃ­cia Laranja
+msgid "Meta-data"
+msgstr "Metadado"
+
+# contributors:LetÃ­cia Laranja
+msgid "Method"
+msgstr "MÃ©todo"
+
+# contributors:LetÃ­cia Laranja
+msgid "Method of selecting clusters:"
+msgstr "MÃ©todo para selecionar agrupamentos:"
+
+# contributors:LetÃ­cia Laranja
+msgid "Method:"
+msgstr "MÃ©todo:"
+
+# contributors:LetÃ­cia Laranja
+msgid "Method:\t"
+msgstr "MÃ©todo:\t"
+
+# contributors:LetÃ­cia Laranja
+msgid "Min"
+msgstr "MinÃ­mo"
+
+# contributors:LetÃ­cia Laranja
+msgid "Min # per Region:"
+msgstr "MinÃ­mo # por regiÃ£o:"
+
+# contributors:LetÃ­cia Laranja
+msgid "Min Region Size:"
+msgstr "Tamanho mÃ­nimo da regiÃ£o:"
+
+# contributors:LetÃ­cia Laranja
+msgid "Min cluster size:"
+msgstr "Tamanho mÃ­nimo de agrupamentos:"
+
+# contributors:LetÃ­cia Laranja
+msgid "Min samples:"
+msgstr "MinÃ­mo de amostras:"
+
+# contributors:LetÃ­cia Laranja
+msgid "Min value of Y axis"
+msgstr "Valor minÃ­mo do eixo Y"
+
+# contributors:LetÃ­cia Laranja
+msgid "Minimum Bound:"
+msgstr "Limite mÃ­nimo:"
+
+# contributors:LetÃ­cia Laranja
+msgid "Minimum bound:\t"
+msgstr "Limite mÃ­nimo:\t"
+
+# contributors:LetÃ­cia Laranja
+msgid "Minimum cluster size should be greater than one."
+msgstr "O tamanho mÃ­nimo do agrupamento deve ser maior que um."
+
+# contributors:LetÃ­cia Laranja
+msgid "Minimum region size:\t"
+msgstr "Tamanho mÃ­nimo da regiÃ£o:\t"
+
+# contributors:LetÃ­cia Laranja
+msgid "Minimum samples should be greater than zero."
+msgstr "O valor mÃ­nimo de amostras deve ser maior que zero."
+
+# contributors:LetÃ­cia Laranja
+msgid "Models"
+msgstr "Modelos"
+
+# contributors:LetÃ­cia Laranja
+msgid "Moran Scatter Plot"
+msgstr "GrÃ¡fico de dispersÃ£o de Moran"
+
+# contributors:LetÃ­cia Laranja
+msgid "Moran scatter plot is not supported when isolates are present in weights. Do you want to continue by removing the isolates when compute Moran's I?"
+msgstr "O grÃ¡fico de dispersÃ£o de Moran nÃ£o Ã© suportado quando os valores isolados estÃ£o presentes em pesos. VocÃª quer continuar removendo os isolados quando Moran I for calculado?"
+
+# contributors:LetÃ­cia Laranja
+msgid "Moran's I (%s): %s"
+msgstr "Moran's I (%s): %s"
+
+# contributors:LetÃ­cia Laranja
+msgid "Moran's I with EB Rate"
+msgstr "Moran's I com taxa EB"
+
+# contributors:LetÃ­cia Laranja
+msgid "Move Down"
+msgstr "Mover para baixo"
+
+# contributors:LetÃ­cia Laranja
+msgid "Move Selected to Top"
+msgstr "Mover selecionado para o topo"
+
+# contributors:LetÃ­cia Laranja
+msgid "Move Up"
+msgstr "Mover para cimar"
+
+# contributors:LetÃ­cia Laranja
+msgid "Multi-Variable Settings"
+msgstr "ConfiguraÃ§Ã£o multivariÃ¡vel"
+
+# contributors:LetÃ­cia Laranja
+msgid "Multivariate Local Geary"
+msgstr "Geary Local Multivariado"
+
+# contributors:LetÃ­cia Laranja
+msgid "Name"
+msgstr "Nome"
+
+# contributors:LetÃ­cia Laranja
+msgid "Natural Breaks"
+msgstr "Quebras naturais"
+
+# contributors:LetÃ­cia Laranja
+msgid "Natural Breaks Map"
+msgstr "Mapa de quebras naturais"
+
+# contributors:LetÃ­cia Laranja
+msgid "Negative"
+msgstr "Negativo"
+
+# contributors:LetÃ­cia Laranja
+msgid "Neighborless"
+msgstr "Sem vizinhos"
+
+# contributors:LetÃ­cia Laranja
+msgid "Neighbors of Cores"
+msgstr "Vizinhos de nÃºcleos"
+
+# contributors:LetÃ­cia Laranja
+msgid "New"
+msgstr "Novo"
+
+# contributors:LetÃ­cia Laranja
+msgid "New Categories Title"
+msgstr "TÃ­tulo das novas categorias"
+
+# contributors:LetÃ­cia Laranja
+msgid "New Custom Categories Title:"
+msgstr "TÃ­tulo das novas categorias personalizadas:"
+
+# contributors:LetÃ­cia Laranja
+msgid "New From Recent"
+msgstr "Novo a partir de arquivos recentes"
+
+# contributors:LetÃ­cia Laranja
+msgid "New Group Details"
+msgstr "Detalhes do novo grupo"
+
+# contributors:LetÃ­cia Laranja
+msgid "New Map Coordinates"
+msgstr "Novas coordenadas do mapa"
+
+# contributors:LetÃ­cia Laranja
+msgid "New Project Filename"
+msgstr "Novo nome do arquivo do projeto"
+
+# contributors:LetÃ­cia Laranja
+msgid "New Selection"
+msgstr "Nova seleÃ§Ã£o"
+
+# contributors:LetÃ­cia Laranja
+msgid "New datasource:"
+msgstr "Nova fonte de dados:"
+
+# contributors:LetÃ­cia Laranja
+msgid "New project file:"
+msgstr "Novo arquivo de projeto:"
+
+# contributors:LetÃ­cia Laranja
+msgid "New selection"
+msgstr "Nova seleÃ§Ã£o"
+
+# contributors:LetÃ­cia Laranja
+msgid "New space-time variable name"
+msgstr "Nome de nova variÃ¡vel de espaÃ§o-tempo"
+
+# contributors:LetÃ­cia Laranja
+msgid "New variable name"
+msgstr "Novo nome de variÃ¡vel"
+
+# contributors:LetÃ­cia Laranja
+msgid "No Basemap"
+msgstr "Sem mapa base"
+
+# contributors:LetÃ­cia Laranja
+msgid "No Colocation"
+msgstr "Sem colocaÃ§Ã£o"
+
+# contributors:LetÃ­cia Laranja
+msgid "No Weights Found"
+msgstr "Nenhum peso foi encontrado"
+
+# contributors:LetÃ­cia Laranja
+msgid "No clusters can be found using current parameters."
+msgstr "Nenhum agrupamento foi encontrado usando os parÃ¢metros atuais."
+
+# contributors:LetÃ­cia Laranja
+msgid "No field chosen for first and second variable."
+msgstr "Nenhum campo escolhido para a primeira e segunda variÃ¡vel."
+
+# contributors:LetÃ­cia Laranja
+msgid "No field chosen for first variable."
+msgstr "Nenhum campo escolhido para a primeira variÃ¡vel."
+
+# contributors:LetÃ­cia Laranja
+msgid "No field chosen for fourth variable."
+msgstr "Nenhum campo escolhido para a quarta variÃ¡vel."
+
+# contributors:LetÃ­cia Laranja
+msgid "No field chosen for second variable."
+msgstr "Nenhum campo escolhido para a segunda variÃ¡vel."
+
+# contributors:LetÃ­cia Laranja
+msgid "No field chosen for third variable."
+msgstr "Nenhum campo escolhido para a terceira variÃ¡vel."
+
+# contributors:LetÃ­cia Laranja
+msgid "No layer has been selected. Please select a layer."
+msgstr "Nenhuma camada foi selecionada. Favor selecionar uma camada."
+
+# contributors:LetÃ­cia Laranja
+msgid "No layer was found in the selected data source."
+msgstr "Nenhuma camada foi encontrada na fonte de dados selecionada."
+
+# contributors:LetÃ­cia Laranja
+msgid "No layer was found in this datasource."
+msgstr "Nenhuma camada foi encontrada na fonte de dados."
+
+# contributors:LetÃ­cia Laranja
+msgid "No numeric variables found in table."
+msgstr "Nenhuma variÃ¡vel numÃ©rica foi encontrada na tabela."
+
+# contributors:LetÃ­cia Laranja
+msgid "No numeric variables found."
+msgstr "Nenhuma variÃ¡vel numÃ©rica encontrada."
+
+# contributors:LetÃ­cia Laranja
+msgid "No rates currently calculated to save."
+msgstr "Nenhuma taxa calculada atualmente para salvar."
+
+# contributors:LetÃ­cia Laranja
+msgid "No update required"
+msgstr "Nenhuma atualizaÃ§Ã£o Ã© necessÃ¡ria"
+
+# contributors:LetÃ­cia Laranja
+msgid "No weights file was created due to all observations being isolates for the specified threshold value. Increase the threshold to create a non-empty weights file."
+msgstr "Nenhum arquivo de pesos foi criado devido ao fato de todas as observaÃ§Ãµes serem isoladas para o valor limite especificado. Aumentar o limite para criar um arquivo de pesos nÃ£o vazios."
+
+# contributors:LetÃ­cia Laranja
+msgid "None of your observations have neighbors. This could be related to digitizing problems, which can be fixed by adjusting the precision threshold."
+msgstr "Nenhuma de suas observaÃ§Ãµes tem vizinhos. Isto poderia estar relacionado a problemas de digitalizaÃ§Ã£o, que podem ser corrigidos ajustando o limite de precisÃ£o."
+
+# contributors:LetÃ­cia Laranja
+msgid "Nordic Latin-6 (ISO-8859-10)"
+msgstr "NÃ³rdico Latim-6 (ISO-8859-10)"
+
+# contributors:LetÃ­cia Laranja
+msgid "Normal"
+msgstr "Normal"
+
+# contributors:LetÃ­cia Laranja
+msgid "Not Clustered"
+msgstr "NÃ£o agrupado"
+
+# contributors:LetÃ­cia Laranja
+msgid "Not Significant"
+msgstr "NÃ£o significante"
+
+# contributors:LetÃ­cia Laranja
+msgid "Not enough memory!"
+msgstr "Sem memÃ³ria suficiente!"
+
+# contributors:LetÃ­cia Laranja
+msgid "Notice"
+msgstr "NotificaÃ§Ã£o"
+
+# contributors:Patrick Martins
+msgid "November"
+msgstr "Novembro"
+
+# contributors:LetÃ­cia Laranja
+msgid "Null geometry was detected in dataset. GeoDa can't create weights with NULL geometry. Please try to save as records with valid geometries and try again."
+msgstr "Geometria nula foi detectada no conjunto de dados. O GeoDa nÃ£o pode criar pesos com a geometria NULL. Por favor, tente salvar registros com geometrias vÃ¡lidas e tente novamente."
+
+# contributors:LetÃ­cia Laranja
+msgid "Number Bins:"
+msgstr "Caixa numÃ©rica:"
+
+# contributors:LetÃ­cia Laranja
+msgid "Number of Box Plots"
+msgstr "NÃºmero de diagramas de caixa"
+
+# contributors:LetÃ­cia Laranja
+msgid "Number of Categories"
+msgstr "NÃºmero de Categorias"
+
+# contributors:LetÃ­cia Laranja
+msgid "Number of Clusters:"
+msgstr "NÃºmero de agrupamentos:"
+
+# contributors:Patrick Martins
+msgid "Number of Columns"
+msgstr "NÃºmero de Colunas"
+
+# contributors:LetÃ­cia Laranja
+msgid "Number of Neighbors"
+msgstr "NÃºmero de vizinhos"
+
+# contributors:LetÃ­cia Laranja
+msgid "Number of Rows"
+msgstr "NÃºmero de linhas"
+
+# contributors:LetÃ­cia Laranja
+msgid "Number of clusters:\t"
+msgstr "NÃºmero de agrupamentos:\t"
+
+# contributors:LetÃ­cia Laranja
+msgid "Number of neighbors"
+msgstr "NÃºmero de vizinhos"
+
+# contributors:LetÃ­cia Laranja
+msgid "Number of not clustered observations: "
+msgstr "NÃºmero de observaÃ§Ãµes nÃ£o agrupadas:"
+
+# contributors:LetÃ­cia Laranja
+msgid ""
+"OGR failed to create field.\n"
+"\n"
+"Details:"
+msgstr ""
+"OGR falhou na criaÃ§Ã£o de campo.\n"
+"\n"
+"Detalhes:"
+
+# contributors:Patrick Martins
+msgid "OK"
+msgstr "OK"
+
+# contributors:LetÃ­cia Laranja
+msgid "OK to Exit?"
+msgstr "Ok para sair?"
+
+# contributors:LetÃ­cia Laranja
+msgid "OLS Model has been selected."
+msgstr "Modelo OLS foi selecionado."
+
+# contributors:LetÃ­cia Laranja
+msgid "OLS Model with White test has been selected."
+msgstr "Modelo OLS com teste de White foi selecionado."
+
+# contributors:LetÃ­cia Laranja
+msgid "Obs."
+msgstr "Obs."
+
+# contributors:Patrick Martins
+msgid "October"
+msgstr "Outubro"
+
+# contributors:Patrick Martins
+msgid "Ok"
+msgstr "OK"
+
+# contributors:LetÃ­cia Laranja
+msgid "On line %d of weights file, observation id %d encountered which does not exist in field \"%s\" of the Table."
+msgstr "Na linha %d do arquivo de pesos, observaÃ§Ã£o id %d encontrada que nÃ£o existe no campo \"%s\" da tabela."
+
+# contributors:LetÃ­cia Laranja
+msgid "On line %d of weights file, observation id %d encountered which is out of allowed observation range of 1 through %d."
+msgstr "Na linha %d do arquivo de pesos, id %d de observaÃ§Ã£o encontrado que estÃ¡ fora da faixa de observaÃ§Ã£o permitida de 1 a %d."
+
+# contributors:LetÃ­cia Laranja
+msgid "Once you have grouped variables, you can save a new space-time table and weights: To add a spatial ID to your space-time table and create space-time weights, you need to have an active weights file (Tools-Weights Manager)."
+msgstr "Uma vez agrupadas as variÃ¡veis, vocÃª pode economizar uma nova tabela de espaÃ§o-tempo e pesos: Para adicionar uma identificaÃ§Ã£o espacial Ã  sua tabela de espaÃ§o-tempo e criar pesos de espaÃ§o-tempo, vocÃª precisa ter um arquivo de pesos ativo (Ferramentas-Gerenciamento de pesos)."
+
+# contributors:LetÃ­cia Laranja
+msgid "Only 'gal', 'gwt', 'kwt', 'mat' and 'swm' weights files supported."
+msgstr "SÃ³ sÃ£o suportados arquivos de pesos 'gal', 'gwt', 'kwt', 'mat' e 'swm'."
+
+# contributors:LetÃ­cia Laranja
+msgid "Only Map Boundary"
+msgstr "Somente o limite do mapa"
+
+# contributors:LetÃ­cia Laranja
+msgid "Oops. GeoDa was unable to submit a bug report. Please try again or create it here instead: https://github.com/GeoDaCenter/geoda/issues Thanks!"
+msgstr "Oops. O GeoDa nÃ£o foi capaz de enviar um relatÃ³rio de erros. Por favor, tente novamente ou crie-o aqui: https://github.com/GeoDaCenter/geoda/issues Obrigado!"
+
+# contributors:Patrick Martins
+msgid "Open"
+msgstr "Abrir"
+
+# contributors:LetÃ­cia Laranja
+msgid "Open Datasource:"
+msgstr "Abrir base de dados:"
+
+# contributors:LetÃ­cia Laranja
+msgid "Open Document Spreadsheet (*.ods)|*.ods"
+msgstr "Abrir tabela LibreOffice  (*.ods)|*.ods"
+
+# contributors:Patrick Martins
+msgid "Open Layer:"
+msgstr "Abrir Camada"
+
+# contributors:LetÃ­cia Laranja
+msgid "Open data source progress dialog"
+msgstr "Abrir caixa de diÃ¡logo de progresso da fonte de dados"
+
+# contributors:Patrick Martins
+msgid "Open file"
+msgstr "Abrir Arquivo"
+
+# contributors:LetÃ­cia Laranja
+msgid "Open project file:"
+msgstr "Abrir arquivo de projeto:"
+
+# contributors:LetÃ­cia Laranja
+msgid "Open weights file"
+msgstr "Abrir arquivo de pesos:"
+
+# contributors:LetÃ­cia Laranja
+msgid "Operation requires a valid field name or constant."
+msgstr "A operaÃ§Ã£o requer um nome de campo vÃ¡lido ou constante."
+
+# contributors:LetÃ­cia Laranja
+msgid "Operator"
+msgstr "Operador"
+
+# contributors:LetÃ­cia Laranja
+msgid "Options"
+msgstr "OpÃ§Ãµes"
+
+# contributors:LetÃ­cia Laranja
+msgid "Options > Change Parameters"
+msgstr "OpÃ§Ãµes > Mudar parÃ¢metros"
+
+# contributors:LetÃ­cia Laranja
+msgid "Options:"
+msgstr "OpÃ§Ãµes:"
+
+# contributors:LetÃ­cia Laranja
+msgid "Order of contiguity"
+msgstr "Ordem de contiguidade"
+
+# contributors:LetÃ­cia Laranja
+msgid "Other (up to 99999)"
+msgstr "Outro (atÃ© 99999)"
+
+# contributors:LetÃ­cia Laranja
+msgid "Other Pos"
+msgstr "Outro positivo"
+
+# contributors:LetÃ­cia Laranja
+msgid "Other Positive"
+msgstr "Outro positivo"
+
+# contributors:LetÃ­cia Laranja
+msgid "Outline Color"
+msgstr "Cor de contorno"
+
+# contributors:LetÃ­cia Laranja
+msgid "Outline Color for Category"
+msgstr "Cor de contorno para categorias"
+
+# contributors:LetÃ­cia Laranja
+msgid "Outline Visible"
+msgstr "Contorno visÃ­vel"
+
+# contributors:LetÃ­cia Laranja
+msgid "Outlines Visible"
+msgstr "Contornos visÃ­veis"
+
+# contributors:LetÃ­cia Laranja
+msgid "Output file (*.shp)"
+msgstr "Arquivo de saÃ­da (*.shp)"
+
+# contributors:LetÃ­cia Laranja
+msgid "Output file (text file)"
+msgstr "Arquivo de saÃ­da (arquivo de texto)"
+
+# contributors:LetÃ­cia Laranja
+msgid "Output:"
+msgstr "SaÃ­da:"
+
+# contributors:Patrick Martins
+msgid "Overwrite?"
+msgstr "Sobrescrever?"
+
+# contributors:Patrick Martins
+msgid "PCA"
+msgstr "ACP"
+
+# contributors:LetÃ­cia Laranja
+msgid "PCA Settings"
+msgstr "ConfiguraÃ§Ãµes ACP"
+
+# contributors:LetÃ­cia Laranja
+msgid "POLY&ID"
+msgstr "POLY&ID"
+
+# contributors:LetÃ­cia Laranja
+msgid "Pan"
+msgstr "Panorama"
+
+# contributors:LetÃ­cia Laranja
+msgid "Panning Mode"
+msgstr "Modo panorÃ¢mico"
+
+# contributors:LetÃ­cia Laranja
+msgid "Parallel Coordinate Plot"
+msgstr "Plotar coordenadas paralelas"
+
+# contributors:LetÃ­cia Laranja
+msgid "Parallel Coordinate Plot: "
+msgstr "Plotar coordenadas paralelas:"
+
+# contributors:Patrick Martins
+msgid "Parameters"
+msgstr "ParÃ¢metros"
+
+# contributors:Patrick Martins
+msgid "Parameters:"
+msgstr "ParÃ¢metros:"
+
+# contributors:Patrick Martins
+msgid "Password"
+msgstr "Senha"
+
+# contributors:LetÃ­cia Laranja
+msgid "Paste"
+msgstr "Colar"
+
+# contributors:LetÃ­cia Laranja
+msgid "Percentile"
+msgstr "Percentil"
+
+# contributors:LetÃ­cia Laranja
+msgid "Percentile Map"
+msgstr "Mapa de percentil"
+
+# contributors:LetÃ­cia Laranja
+msgid "Period 1"
+msgstr "PerÃ­odo 1"
+
+# contributors:LetÃ­cia Laranja
+msgid "Period 1:"
+msgstr "PerÃ­odo 1:"
+
+# contributors:LetÃ­cia Laranja
+msgid "Period 2"
+msgstr "PerÃ­odo 2"
+
+# contributors:LetÃ­cia Laranja
+msgid "Period 2:"
+msgstr "PerÃ­odo 2:"
+
+# contributors:LetÃ­cia Laranja
+msgid "Please briefly describe what went wrong."
+msgstr "Por favor, descreva brevemente o que deu errado."
+
+# contributors:LetÃ­cia Laranja
+msgid "Please check input values are valid"
+msgstr "Por favor, verifique se os valores de entrada sÃ£o vÃ¡lidos"
+
+# contributors:LetÃ­cia Laranja
+msgid "Please check the selected variables are all valid."
+msgstr "Favor verificar se as variÃ¡veis selecionadas sÃ£o todas vÃ¡lidas."
+
+# contributors:LetÃ­cia Laranja
+msgid "Please check your network connection, or contact GeoDa support team."
+msgstr "Por favor, verifique sua conexÃ£o de rede, ou contate a equipe de suporte da GeoDa."
+
+# contributors:LetÃ­cia Laranja
+msgid "Please choose Period 1 first."
+msgstr "Favor escolher primeiro o PerÃ­odo 1."
+
+# contributors:LetÃ­cia Laranja
+msgid "Please choose Period 1."
+msgstr "Favor escolher o PerÃ­odo 1."
+
+# contributors:LetÃ­cia Laranja
+msgid "Please choose Period 2 first."
+msgstr "Favor escolher primeiro o PerÃ­odo 2."
+
+# contributors:LetÃ­cia Laranja
+msgid "Please choose Period 2."
+msgstr "Favor escolher o PerÃ­odo 2."
+
+# contributors:LetÃ­cia Laranja
+msgid "Please choose Periods first."
+msgstr "Favor escolher \"PerÃ­odos\" primeiro."
+
+# contributors:LetÃ­cia Laranja
+msgid "Please choose a Result field."
+msgstr "Favor escolher um campo de resultado."
+
+# contributors:LetÃ­cia Laranja
+msgid "Please click to choose a highlighting style in GeoDa:"
+msgstr "Clique para escolher um estilo de destaque no GeoDa:"
+
+# contributors:LetÃ­cia Laranja
+msgid "Please describe steps you took before something went wrong."
+msgstr "or favor, descreva os passos que vocÃª tomou antes que algo desse errado."
+
+# contributors:LetÃ­cia Laranja
+msgid "Please enter a field name for saving clustering results."
+msgstr "Favor inserir um nome de campo para salvar os resultados do agrupamento."
+
+# contributors:LetÃ­cia Laranja
+msgid "Please enter a valid number of cluster."
+msgstr "Por favor, digite um nÃºmero de agrupamento vÃ¡lido."
+
+# contributors:LetÃ­cia Laranja
+msgid "Please enter a valid number of clusters."
+msgstr "Por favor, digite um nÃºmero de agrupamento vÃ¡lido."
+
+# contributors:LetÃ­cia Laranja
+msgid "Please enter a valid positive integer"
+msgstr "Por favor, insira um nÃºmero inteiro positivo vÃ¡lido"
+
+# contributors:LetÃ­cia Laranja
+msgid "Please enter iteration number"
+msgstr "Por favor, insira o nÃºmero de iteraÃ§Ã£o"
+
+# contributors:LetÃ­cia Laranja
+msgid "Please enter maximum number of regions."
+msgstr "Por favor, digite o nÃºmero mÃ¡ximo de regiÃµes."
+
+# contributors:LetÃ­cia Laranja
+msgid "Please enter minimum bound value"
+msgstr "Por favor, digite o valor limite mÃ­nimo"
+
+# contributors:LetÃ­cia Laranja
+msgid "Please enter minimum number of observations per regions, or use minimum bound instead."
+msgstr "Favor inserir o nÃºmero mÃ­nimo de observaÃ§Ãµes por regiÃ£o, ou usar um limite mÃ­nimo em seu lugar."
+
+# contributors:LetÃ­cia Laranja
+msgid "Please enter number of regions"
+msgstr "Por favor, informe o nÃºmero de regiÃµes"
+
+# contributors:LetÃ­cia Laranja
+msgid "Please enter values of bounding box."
+msgstr "Por favor, digite os valores da caixa de delimitaÃ§Ã£o."
+
+# contributors:LetÃ­cia Laranja
+msgid "Please first select observations in one of the other data or map views."
+msgstr "Favor selecionar primeiro as observaÃ§Ãµes em um dos outros dados ou vistas do mapa."
+
+# contributors:LetÃ­cia Laranja
+msgid "Please fix the grid bounding box."
+msgstr "Por favor, conserte a caixa de delimitaÃ§Ã£o da grade (grid)."
+
+# contributors:LetÃ­cia Laranja
+msgid "Please input Carto App Key."
+msgstr "Por favor, insira a chave de aplicaÃ§Ã£o do Carto."
+
+# contributors:LetÃ­cia Laranja
+msgid "Please input Carto User Name."
+msgstr "Favor inserir nome de usuÃ¡rio do Carto."
+
+# contributors:LetÃ­cia Laranja
+msgid "Please input a valid url address."
+msgstr "Favor inserir um endereÃ§o url vÃ¡lido."
+
+# contributors:LetÃ­cia Laranja
+msgid "Please input a valid url."
+msgstr "Favor inserir uma url vÃ¡lida."
+
+# contributors:LetÃ­cia Laranja
+msgid "Please input database host."
+msgstr "Por favor, insira o host do banco de dados."
+
+# contributors:LetÃ­cia Laranja
+msgid "Please input database name."
+msgstr "Por favor, insira o nome do banco de dados."
+
+# contributors:LetÃ­cia Laranja
+msgid "Please input database port."
+msgstr "Por favor, insira a entrada do banco de dados"
+
+# contributors:LetÃ­cia Laranja
+msgid "Please input minimum bound value."
+msgstr "Por favor, insira o valor mÃ­nimo vinculado."
+
+# contributors:LetÃ­cia Laranja
+msgid "Please input password."
+msgstr "Favor inserir senha."
+
+# contributors:LetÃ­cia Laranja
+msgid "Please input table name."
+msgstr "Favor inserir nome de tabela."
+
+# contributors:LetÃ­cia Laranja
+msgid "Please input user name."
+msgstr "Favor inserir nome de usuÃ¡rio."
+
+# contributors:LetÃ­cia Laranja
+msgid "Please load another layer using map window to apply Spatial Join."
+msgstr "Favor carregar outra camada usando a janela do mapa para aplicar a JunÃ§Ã£o Espacial."
+
+# contributors:LetÃ­cia Laranja
+msgid "Please open a data file rather than a project file (*.gda)."
+msgstr "Favor abrir um arquivo de dados em vez de um arquivo de projeto (*.gda)."
+
+# contributors:LetÃ­cia Laranja
+msgid "Please provide paths for both Project file and  Datasource."
+msgstr "Favor fornecer caminhos para o arquivo do projeto e para a fonte de dados."
+
+# contributors:LetÃ­cia Laranja
+msgid "Please restart GeoDa to apply the language setup."
+msgstr "Favor reiniciar o GeoDa para aplicar a configuraÃ§Ã£o do idioma."
+
+# contributors:LetÃ­cia Laranja
+msgid "Please restart GeoDa to finish installing updates."
+msgstr "Favor reiniciar o GeoDa para terminar a instalaÃ§Ã£o de atualizaÃ§Ãµes."
+
+# contributors:LetÃ­cia Laranja
+msgid "Please right-click or use<br />"
+msgstr "Por favor, clique no botÃ£o direito do mouse ou use<br />"
+
+# contributors:LetÃ­cia Laranja
+msgid "Please select Join Operation with Join Variable."
+msgstr "Por favor, selecione a operaÃ§Ã£o de junÃ§Ã£o com a variÃ¡vel de junÃ§Ã£o."
+
+# contributors:LetÃ­cia Laranja
+msgid "Please select a binary variable for Local Join Count."
+msgstr "Por favor, selecione uma variÃ¡vel binÃ¡ria para o cÃ¡lculo de junÃ§Ã£o local."
+
+# contributors:LetÃ­cia Laranja
+msgid "Please select a map layer to apply spatial join to current map (%s):"
+msgstr "Favor selecionar uma camada de mapa para aplicar junÃ§Ã£o espacial ao mapa atual (%s):"
+
+# contributors:LetÃ­cia Laranja
+msgid "Please select a results field."
+msgstr "Favor selecionar um campo de resultados."
+
+# contributors:LetÃ­cia Laranja
+msgid "Please select a time variable first, and make sure more than one time steps have been defined."
+msgstr "Favor selecionar primeiro uma variÃ¡vel de tempo e certificar-se de que mais de uma etapa de tempo foi definida."
+
+# contributors:LetÃ­cia Laranja
+msgid "Please select a weights type."
+msgstr "Favor selecionar um tipo de peso."
+
+# contributors:LetÃ­cia Laranja
+msgid "Please select an Base field."
+msgstr "Favor selecionar um campo base."
+
+# contributors:LetÃ­cia Laranja
+msgid "Please select an Event field."
+msgstr "Favor selecionar um campo de evento"
+
+# contributors:LetÃ­cia Laranja
+msgid "Please select an Variable field."
+msgstr "Selecione um campo de variÃ¡vel."
+
+# contributors:LetÃ­cia Laranja
+msgid "Please select another variable with values more suitable for computing a correlogram."
+msgstr "Favor selecionar outra variÃ¡vel com valores mais adequados para o cÃ¡lculo de um correlograma."
+
+# contributors:LetÃ­cia Laranja
+msgid "Please select at least %d variables."
+msgstr "Por favor, selecione ao menos %d variÃ¡veis."
+
+# contributors:LetÃ­cia Laranja
+msgid "Please select at least 2 variables."
+msgstr "Por favor, selecione ao menos 2 variÃ¡veis."
+
+# contributors:LetÃ­cia Laranja
+msgid "Please select at least one variable."
+msgstr "Por favor, selecione ao menos 1 variÃ¡vel."
+
+# contributors:LetÃ­cia Laranja
+msgid "Please select binary variables for Co-location Join Count."
+msgstr "Por favor, selecione uma variÃ¡vel binÃ¡ria para a colocalizaÃ§Ã£o de junÃ§Ã£o local."
+
+# contributors:LetÃ­cia Laranja
+msgid "Please select features first."
+msgstr "Favor selecionar as caracterÃ­sticas primeiro."
+
+# contributors:LetÃ­cia Laranja
+msgid "Please select the layer name to connect:"
+msgstr "Favor selecionar o nome da camada a ser conectada:"
+
+# contributors:LetÃ­cia Laranja
+msgid "Please select two binary variables for Bivariate Local Join Count."
+msgstr "Por favor, selecione duas variÃ¡veis binÃ¡rias para a bivariada de junÃ§Ã£o local."
+
+# contributors:LetÃ­cia Laranja
+msgid "Please setup co-locations first."
+msgstr "Por favor, configure primeiro as colocalizaÃ§Ãµes."
+
+# contributors:LetÃ­cia Laranja
+msgid "Please specify a Weights matrix."
+msgstr "Por favor, especifique uma matriz de pesos."
+
+# contributors:LetÃ­cia Laranja
+msgid "Please specify a valid data source name."
+msgstr "Por favor, especifique um nome de fonte de dados vÃ¡lido."
+
+# contributors:LetÃ­cia Laranja
+msgid "Please specify distance metric."
+msgstr "Favor especificar uma mÃ©trica de distÃ¢ncia."
+
+# contributors:LetÃ­cia Laranja
+msgid ""
+"Please specify the p-value to be used in tests; \n"
+"default: p-value = 0.01"
+msgstr ""
+"Favor especificar o valor-p a ser usado em testes; \n"
+"padrÃ£o: valor-p = 0.01"
+
+# contributors:LetÃ­cia Laranja
+msgid "Please specify weights in Tools > Weights Manager."
+msgstr "Favor especificar pesos em Ferramentas > Gerenciador de pesos."
+
+# contributors:LetÃ­cia Laranja
+msgid "Please use<br /><font color=\"blue\">Options > Change Variable<br /></font>to specify a variable."
+msgstr "Por favor, use<br /><font color=\"blue\">OpÃ§Ãµes > Mudar variÃ¡vel<br /></font>para especificar uma variÃ¡vel."
+
+# contributors:LetÃ­cia Laranja
+msgid "Plots:"
+msgstr "GrÃ¡ficos:"
+
+# contributors:LetÃ­cia Laranja
+msgid "Point Color"
+msgstr "Cor do ponto"
+
+# contributors:LetÃ­cia Laranja
+msgid "Point Radius:"
+msgstr "Ponto do raio:"
+
+# contributors:LetÃ­cia Laranja
+msgid "Points from Table"
+msgstr "Pontos para tabela"
+
+# contributors:LetÃ­cia Laranja
+msgid "Positive"
+msgstr "Positivo"
+
+# contributors:LetÃ­cia Laranja
+msgid "Power"
+msgstr "Acionar"
+
+# contributors:LetÃ­cia Laranja
+msgid "Precision threshold"
+msgstr "Limite de precisÃ£o"
+
+# contributors:LetÃ­cia Laranja
+msgid "Pred. Val. and Res."
+msgstr "Pred. Val. e Res."
+
+# contributors:Patrick Martins
+msgid "Preferences..."
+msgstr "PreferÃªncias"
+
+# contributors:LetÃ­cia Laranja
+msgid "Produce bounding-box file?"
+msgstr "Produzir arquivo de caixa de delimitaÃ§Ã£o?"
+
+# contributors:Patrick Martins
+msgid "Progress"
+msgstr "Progresso"
+
+# contributors:LetÃ­cia Laranja
+msgid "Project Information"
+msgstr "InformaÃ§Ãµes do projeto"
+
+# contributors:LetÃ­cia Laranja
+msgid "Project file path is empty."
+msgstr "O caminho do arquivo do projeto estÃ¡ vazio."
+
+# contributors:LetÃ­cia Laranja
+msgid "Project filename not specified."
+msgstr "Nome do arquivo do projeto nÃ£o especificado."
+
+# contributors:LetÃ­cia Laranja
+msgid "Project to X-Y"
+msgstr "Projetar para X-Y"
+
+# contributors:LetÃ­cia Laranja
+msgid "Project to X-Z"
+msgstr "Projetar para X-Z"
+
+# contributors:LetÃ­cia Laranja
+msgid "Project to Z-Y"
+msgstr "Projetar para Z-Y"
+
+# contributors:LetÃ­cia Laranja
+msgid "Property"
+msgstr "Propriedade"
+
+# contributors:LetÃ­cia Laranja
+msgid "Publish Maps and Plots to GeoDa-Web"
+msgstr "Publicar mapas and plotagens no GeoDa-Web"
+
+# contributors:LetÃ­cia Laranja
+msgid "Publish to GeoDa-Web"
+msgstr "Publicar no GeoDa-Web"
+
+# contributors:LetÃ­cia Laranja
+msgid "Quantile"
+msgstr "Quantil"
+
+# contributors:LetÃ­cia Laranja
+msgid "Quantile Map"
+msgstr "Mapa de quantil"
+
+# contributors:LetÃ­cia Laranja
+msgid "Queen contiguity"
+msgstr "Contiguidade do tipo rainha"
+
+# contributors:LetÃ­cia Laranja
+msgid "REDCAP Settings"
+msgstr "ConfiguraÃ§Ãµes de REDCAP"
+
+# contributors:LetÃ­cia Laranja
+msgid "Random Gaussian dist with mean=%s, sd=%s"
+msgstr "Gasseano aleatÃ³rio dist com mÃ©dia=%s, sd=%s"
+
+# contributors:LetÃ­cia Laranja
+msgid "Random Sample"
+msgstr "Amostra aleatÃ³ria"
+
+# contributors:LetÃ­cia Laranja
+msgid "Random uniform dist on unit interval"
+msgstr "DistÃ¢ncia uniforme aleatÃ³ria no intervalo de unidade"
+
+# contributors:LetÃ­cia Laranja
+msgid "Randomization"
+msgstr "RandomizaÃ§Ã£o"
+
+# contributors:LetÃ­cia Laranja
+msgid "Rate calculation successful."
+msgstr "O cÃ¡lculo da taxa teve sucesso."
+
+# contributors:LetÃ­cia Laranja
+msgid "Rates"
+msgstr "Taxas"
+
+# contributors:LetÃ­cia Laranja
+msgid "Rates Variable Settings"
+msgstr "ConfiguraÃ§Ã£o de variÃ¡veis de taxas"
+
+# contributors:LetÃ­cia Laranja
+msgid "Rates-Calculated Map"
+msgstr "Mapas de taxas calculadas"
+
+# contributors:LetÃ­cia Laranja
+msgid "Rates-Calculated Maps"
+msgstr "Mapas de taxas calculadas"
+
+# contributors:LetÃ­cia Laranja
+msgid "Raw Rate"
+msgstr "Taxa bruta"
+
+# contributors:LetÃ­cia Laranja
+msgid "Raw Rate Smoothed Variable Settings"
+msgstr "ConfiguraÃ§Ã£o da variÃ¡vel de taxa bruta suavizada"
+
+# contributors:LetÃ­cia Laranja
+msgid "Re&set"
+msgstr "Reinicializar"
+
+# contributors:LetÃ­cia Laranja
+msgid "Read from an ASCII file"
+msgstr "Ler a partir de um arquivo ASCII"
+
+# contributors:LetÃ­cia Laranja
+msgid "Recent"
+msgstr "Recente"
+
+# contributors:LetÃ­cia Laranja
+msgid "Record order specified, but found minimum and maximum observation values of %d and %d which is incompatible with number of observations specified in first line of weights file:  %d ."
+msgstr "Ordem de registro especificada, mas foram encontrados valores mÃ­nimos e mÃ¡ximos de observaÃ§Ã£o de %d e %d que sÃ£o incompatÃ­veis com o nÃºmero de observaÃ§Ãµes especificadas na primeira linha do arquivo de pesos:  %d ."
+
+# contributors:LetÃ­cia Laranja
+msgid "Rectangle"
+msgstr "RetÃ¢ngulo"
+
+# contributors:LetÃ­cia Laranja
+msgid "Redo"
+msgstr "Refazer"
+
+# contributors:LetÃ­cia Laranja
+msgid "Refresh"
+msgstr "Atualizar"
+
+# contributors:LetÃ­cia Laranja
+msgid "Regimes Regression"
+msgstr "RegressÃ£o por Regimes"
+
+# contributors:LetÃ­cia Laranja
+msgid "Regression"
+msgstr "RegressÃ£o"
+
+# contributors:LetÃ­cia Laranja
+msgid "Regression Line Color"
+msgstr "Cor da Linha de RegressÃ£o"
+
+# contributors:LetÃ­cia Laranja
+msgid "Regression Output Text File"
+msgstr "Arquivo de Texto de SaÃ­da de RegressÃ£o"
+
+# contributors:LetÃ­cia Laranja
+msgid "Regression Report"
+msgstr "RelatÃ³rio de regressÃ£o"
+
+# contributors:Patrick Martins
+msgid "Remove"
+msgstr "Remover"
+
+# contributors:LetÃ­cia Laranja
+msgid "Remove Time"
+msgstr "Remover Tempo"
+
+# contributors:LetÃ­cia Laranja
+msgid "Rename Space-Time Variable"
+msgstr "Renomear VariÃ¡vel de EspaÃ§o-Tempo"
+
+# contributors:LetÃ­cia Laranja
+msgid "Rename Variable"
+msgstr "Renomear VariÃ¡vel"
+
+# contributors:LetÃ­cia Laranja
+msgid "Reset"
+msgstr "Reinicializar"
+
+# contributors:LetÃ­cia Laranja
+msgid "Reset to default"
+msgstr "Redefinir para o padrÃ£o"
+
+# contributors:LetÃ­cia Laranja
+msgid "Reset to system locale information"
+msgstr "ReinicializaÃ§Ã£o para informaÃ§Ãµes do sistema local"
+
+# contributors:LetÃ­cia Laranja
+msgid "Reset to system locale successfully. Please re-open current project with system locale."
+msgstr "ReinicializaÃ§Ã£o com sucesso para o sistema local. Por favor, reabra o projeto atual com o sistema local"
+
+# contributors:LetÃ­cia Laranja
+msgid "Resize"
+msgstr "Redimensionar"
+
+# contributors:LetÃ­cia Laranja
+msgid "Resolution(dpi):"
+msgstr "ResoluÃ§ao (dpi):"
+
+# contributors:LetÃ­cia Laranja
+msgid "Result"
+msgstr "Resultado"
+
+# contributors:LetÃ­cia Laranja
+msgid "Reverse"
+msgstr "Reverso"
+
+# contributors:LetÃ­cia Laranja
+msgid "Right"
+msgstr "Direito"
+
+# contributors:LetÃ­cia Laranja
+msgid "Rook contiguity"
+msgstr "Contiguidade do tipo torre"
+
+# contributors:LetÃ­cia Laranja
+msgid "Root Variable:"
+msgstr "VariÃ¡vel raiz:"
+
+# contributors:LetÃ­cia Laranja
+msgid "Run"
+msgstr "Executar"
+
+# contributors:LetÃ­cia Laranja
+msgid "Run Diff-in-Diff Test"
+msgstr "Executar o Teste de DiferenÃ§as-em-DiferenÃ§as"
+
+# contributors:LetÃ­cia Laranja
+msgid "S.D"
+msgstr "S.D"
+
+# contributors:LetÃ­cia Laranja
+msgid "SELECTED"
+msgstr "SELECIONADO"
+
+# contributors:LetÃ­cia Laranja
+msgid "SQLite/SpatiaLite (*.sqlite)|*.sqlite"
+msgstr "SQLite/SpatiaLite (*.sqlite)|*.sqlite"
+
+# contributors:LetÃ­cia Laranja
+msgid "SVD will be automatically used for PCA since the number of rows is less than the number of columns."
+msgstr "SVD serÃ¡ automaticamente usado para PCA jÃ¡ que o nÃºmero de linhas Ã© menor que o nÃºmero de colunas."
+
+# contributors:LetÃ­cia Laranja
+msgid "Sample Autocorrelation"
+msgstr "AutocorrelaÃ§Ã£o de amostra"
+
+# contributors:LetÃ­cia Laranja
+msgid "Sample Data"
+msgstr "Dado da amostra"
+
+# contributors:LetÃ­cia Laranja
+msgid "Sample Size:"
+msgstr "Tamanho da amostra:"
+
+# contributors:LetÃ­cia Laranja
+msgid "Save"
+msgstr "Salvar"
+
+# contributors:LetÃ­cia Laranja
+msgid "Save "
+msgstr "Salvar "
+
+# contributors:Patrick Martins
+msgid "Save As"
+msgstr "Salvar Como"
+
+# contributors:LetÃ­cia Laranja
+msgid "Save As Datasource"
+msgstr "Salvar como fonte de dados"
+
+# contributors:LetÃ­cia Laranja
+msgid "Save As has been cancelled."
+msgstr "'Salvar como' foi cancelado."
+
+# contributors:Patrick Martins
+msgid "Save Categories"
+msgstr "Salvar Categorias"
+
+# contributors:LetÃ­cia Laranja
+msgid "Save Categories to Table"
+msgstr "Salvar categorias em tabela"
+
+# contributors:LetÃ­cia Laranja
+msgid "Save Centroids"
+msgstr "Salvar centrÃ³ides"
+
+# contributors:LetÃ­cia Laranja
+msgid "Save Cluster in Field:"
+msgstr "Salvar agrupamento em campo:"
+
+# contributors:LetÃ­cia Laranja
+msgid "Save Connectivity To Table"
+msgstr "Salvar conectividade para tabela"
+
+# contributors:Patrick Martins
+msgid "Save Details"
+msgstr "Salvar Detalhes"
+
+# contributors:LetÃ­cia Laranja
+msgid "Save Diff-in-Diff Test Results"
+msgstr "Salvar resultados de teste de diferenÃ§as-em-diferenÃ§as"
+
+# contributors:LetÃ­cia Laranja
+msgid "Save Dummy"
+msgstr "Salvar modelo"
+
+# contributors:LetÃ­cia Laranja
+msgid "Save Duplicate Thiessen Polygon Ids"
+msgstr "Salvar IDs de polÃ­gono de Thiessen duplicados"
+
+# contributors:LetÃ­cia Laranja
+msgid "Save Duplicate Thiessen Polygons to Table"
+msgstr "Salvar PolÃ­gonos de Thiessen Duplicados para tabela"
+
+# contributors:Patrick Martins
+msgid "Save Image As"
+msgstr "Salvar Imagem Como"
+
+# contributors:LetÃ­cia Laranja
+msgid "Save Image to File"
+msgstr "Salvar Imagem em Arquivo"
+
+# contributors:LetÃ­cia Laranja
+msgid "Save Mean Centers"
+msgstr "Salvar centros mÃ©dios"
+
+# contributors:LetÃ­cia Laranja
+msgid "Save OSM roads file"
+msgstr "Salvar arquivo de estradas OSM"
+
+# contributors:LetÃ­cia Laranja
+msgid "Save OSM roads to file successfully."
+msgstr "O salvamento das estradas do OSM para arquivo obteve sucesso."
+
+# contributors:Patrick Martins
+msgid "Save Project"
+msgstr "Salvar Projeto"
+
+# contributors:LetÃ­cia Laranja
+msgid "Save Project File As..."
+msgstr "Salvar arquivo de projeto como..."
+
+# contributors:LetÃ­cia Laranja
+msgid "Save Projet File As"
+msgstr "Salvar arquivo de projeto como"
+
+# contributors:LetÃ­cia Laranja
+msgid "Save Rates"
+msgstr "Salvar taxas"
+
+# contributors:LetÃ­cia Laranja
+msgid "Save Rates - %s over %s"
+msgstr "Savlvar taxas - %s sobre %s"
+
+# contributors:LetÃ­cia Laranja
+msgid "Save Regression Results"
+msgstr "Salvar resultados de regresÃ£o"
+
+# contributors:LetÃ­cia Laranja
+msgid "Save Results"
+msgstr "Salvar resultados"
+
+# contributors:LetÃ­cia Laranja
+msgid "Save Results to Table: "
+msgstr "Salvar resultados em tabela"
+
+# contributors:LetÃ­cia Laranja
+msgid "Save Results: HDBScan (Core Distances/Probabilities/Outliers)"
+msgstr "Salvar resultados: HDBScan (DistÃ¢ncias do nÃºcleo/Probabilidades/Valores atÃ­picos)"
+
+# contributors:LetÃ­cia Laranja
+msgid "Save Results: Local Join Count stats, "
+msgstr "Salvar resultados: EstatÃ­sticas de Contagem de JunÃ§Ã£o Local"
+
+# contributors:LetÃ­cia Laranja
+msgid "Save Results: LocalGeary"
+msgstr "Salvar resultados: Geary Local"
+
+# contributors:LetÃ­cia Laranja
+msgid "Save Results: MDS"
+msgstr "Salvar resultados: MDS"
+
+# contributors:LetÃ­cia Laranja
+msgid "Save Results: Moran's I"
+msgstr "Salvar resultados: Moran's I"
+
+# contributors:LetÃ­cia Laranja
+msgid "Save Selected As"
+msgstr "Salvar selecionados como"
+
+# contributors:LetÃ­cia Laranja
+msgid "Save Selection"
+msgstr "Salvar seleÃ§Ã£o"
+
+# contributors:LetÃ­cia Laranja
+msgid "Save Space-Time Table/Weights"
+msgstr "Salvar tabela de tempo-espaÃ§o/pesos"
+
+# contributors:LetÃ­cia Laranja
+msgid "Save Spanning Tree"
+msgstr "Salvar Ã¡rvore de extensÃ£o"
+
+# contributors:LetÃ­cia Laranja
+msgid "Save Spanning Tree to a Weights File"
+msgstr "Salvar Ã¡rvore de extensÃ£o em um arquivo de pesos"
+
+# contributors:LetÃ­cia Laranja
+msgid "Save Statistics file"
+msgstr "Salvar arquivos estatÃ­sticos"
+
+# contributors:LetÃ­cia Laranja
+msgid "Save Table As CSV File"
+msgstr "Salvar tabela como arquivo CSV"
+
+# contributors:LetÃ­cia Laranja
+msgid "Save Test Results"
+msgstr "Salvar resultados do teste"
+
+# contributors:LetÃ­cia Laranja
+msgid "Save Thiessen Polygons"
+msgstr "Salvar polÃ­gonos de Thiessen"
+
+# contributors:LetÃ­cia Laranja
+msgid ""
+"Save as data source (%s) failed.\n"
+"\n"
+"Details:"
+msgstr ""
+"O salvamento como fonte de dados (%s) falhou.\n"
+"\n"
+"Detalhes:"
+
+# contributors:LetÃ­cia Laranja
+msgid "Save data source progress dialog"
+msgstr "Salvar caixa de diÃ¡logo de progresso da fonte de dados"
+
+# contributors:LetÃ­cia Laranja
+msgid "Save is not supported on current data source type: %s. Please try to use \"File->Save As\" other data source. However, the project file can still be saved as other project file."
+msgstr "Salvar nÃ£o Ã© suportado no tipo de fonte de dados atual: %s. Por favor, tente usar \"Arquivo->Salvar como\" outra fonte de dados. Entretanto, o arquivo do projeto ainda pode ser salvo como outro arquivo de projeto."
+
+# contributors:LetÃ­cia Laranja
+msgid "Save to File"
+msgstr "Salvar para arquivo"
+
+# contributors:LetÃ­cia Laranja
+msgid "Save/Show Map"
+msgstr "Salvar/Mostrar mapa"
+
+# contributors:LetÃ­cia Laranja
+msgid "Saved successfully."
+msgstr "Salvo com sucesso."
+
+# contributors:LetÃ­cia Laranja
+msgid "Saving data source cancelled."
+msgstr "'Salvando fonte de dados' foi cancelado."
+
+# contributors:LetÃ­cia Laranja
+msgid "Saving data..."
+msgstr "Salvando dados..."
+
+# contributors:LetÃ­cia Laranja
+msgid "Saving failed: GeoDa can't save as empty datasource."
+msgstr "Salvar falhou: o GeoDa nÃ£o pode salvar como fonte de dados vazia."
+
+# contributors:LetÃ­cia Laranja
+msgid ""
+"Saving to data source (%s) failed.\n"
+"\n"
+"Details: %s"
+msgstr ""
+"Salvando na fonte de dados (%s) falhou.\n"
+"\n"
+"Detalhes: %s"
+
+# contributors:LetÃ­cia Laranja
+msgid "Scale Basemap"
+msgstr "Escala do mapa base"
+
+# contributors:LetÃ­cia Laranja
+msgid "Scale Options"
+msgstr "OpÃ§Ãµes de escala"
+
+# contributors:LetÃ­cia Laranja
+msgid "Scatter Plot"
+msgstr "GrÃ¡fico de dispersÃ£o"
+
+# contributors:LetÃ­cia Laranja
+msgid "Scatter Plot - x: %s, y: %s"
+msgstr "GrÃ¡fico de dispersÃ£o - x: %s, y: %s"
+
+# contributors:LetÃ­cia Laranja
+msgid "Scatter Plot Matrix"
+msgstr "Matrix do grÃ¡fico de dispersÃ£o"
+
+# contributors:LetÃ­cia Laranja
+msgid "Scatter Plot Matrix Help"
+msgstr "Ajuda do grÃ¡fico de dispersÃ£o"
+
+# contributors:LetÃ­cia Laranja
+msgid "Scatter Plot Matrix Variables Add/Remove"
+msgstr "Adicionar/Remover VariÃ¡veis de Matriz de DispersÃ£o"
+
+# contributors:LetÃ­cia Laranja
+msgid "Scatter Plot Variables"
+msgstr "VariÃ¡veis do grÃ¡fico de dispersÃ£o"
+
+# contributors:LetÃ­cia Laranja
+msgid "Scatter Plot- x: %s, y: %s"
+msgstr "GrÃ¡fico de dispersÃ£o - x: %s, y: %s"
+
+# contributors:LetÃ­cia Laranja
+msgid "Second Variable (Y)"
+msgstr "Segunda VariÃ¡vel (Y)"
+
+# contributors:LetÃ­cia Laranja
+msgid "Second Variable (Y/Latitude)"
+msgstr "Segunda VariÃ¡vel (Y/Latitude)"
+
+# contributors:LetÃ­cia Laranja
+msgid "Select"
+msgstr "Selecionar"
+
+# contributors:LetÃ­cia Laranja
+msgid "Select All"
+msgstr "Selecionar todos"
+
+# contributors:LetÃ­cia Laranja
+msgid "Select All In Range"
+msgstr "Selecionar todos no intervalo"
+
+# contributors:LetÃ­cia Laranja
+msgid "Select All Undefined"
+msgstr "Selecionar todos indefinidos"
+
+# contributors:LetÃ­cia Laranja
+msgid "Select All..."
+msgstr "Selecionar todos..."
+
+# contributors:LetÃ­cia Laranja
+msgid "Select From Current Selection"
+msgstr "Selecionar a partir da seleÃ§Ã£o atual"
+
+# contributors:LetÃ­cia Laranja
+msgid "Select ID Variable"
+msgstr "Selecionar ID da variÃ¡vel"
+
+# contributors:LetÃ­cia Laranja
+msgid "Select ID Variable (Optional)"
+msgstr "Selecionar ID da variÃ¡vel (Opcional)"
+
+# contributors:LetÃ­cia Laranja
+msgid "Select Neighborless Observations"
+msgstr "Selecionar observaÃ§Ã£oes sem vizinhanÃ§a"
+
+# contributors:LetÃ­cia Laranja
+msgid "Select Variables"
+msgstr "Selecionar variÃ¡veis"
+
+# contributors:LetÃ­cia Laranja
+msgid "Select Variables (Multi-Selection)"
+msgstr "Selecionar variÃ¡veis (Multi-seleÃ§Ã£o)"
+
+# contributors:LetÃ­cia Laranja
+msgid "Select a file:"
+msgstr "Selecionar um arquivo:"
+
+# contributors:LetÃ­cia Laranja
+msgid "Select an existing *.gdb directory, or create an New Folder named *.gdb"
+msgstr "Seleciono um diretÃ³rio *.gdb existente, ou crie uma nova pasta de nome *.gdb"
+
+# contributors:LetÃ­cia Laranja
+msgid "Select color scheme:"
+msgstr "Selecione esquema de cores:"
+
+# contributors:LetÃ­cia Laranja
+msgid "Select datasource"
+msgstr "Selecione a fonte de dados"
+
+# contributors:LetÃ­cia Laranja
+msgid "Select encoding (optional): "
+msgstr "Selecione a codificaÃ§Ã£o (opcional): "
+
+# contributors:LetÃ­cia Laranja
+msgid "Select field is not integer type. Default record order will be used instead."
+msgstr "Campo selecionado nÃ£o Ã© do tipo inteiro. SerÃ¡ usada a ordem de registro padrÃ£o em seu lugar."
+
+# contributors:LetÃ­cia Laranja
+msgid "Select fields:"
+msgstr "Selecionar campos:"
+
+# contributors:LetÃ­cia Laranja
+msgid "Select from current selection"
+msgstr "Selecionar a partir da seleÃ§Ã£o atual"
+
+# contributors:LetÃ­cia Laranja
+msgid "Select key:"
+msgstr "Selecionar chave:"
+
+# contributors:LetÃ­cia Laranja
+msgid "Select layer"
+msgstr "Selecionar camada"
+
+# contributors:LetÃ­cia Laranja
+msgid "Select the language"
+msgstr "Selecionar a linguagem"
+
+# contributors:LetÃ­cia Laranja
+msgid "Select variable "
+msgstr "Selecionar variÃ¡vel "
+
+# contributors:LetÃ­cia Laranja
+msgid "Select variable for dissolving:"
+msgstr "Selecionar variÃ¡vel para dissolver:"
+
+# contributors:LetÃ­cia Laranja
+msgid "Select variables to delete "
+msgstr "Selecionar variÃ¡veis para excluir "
+
+# contributors:LetÃ­cia Laranja
+msgid "Select variables:"
+msgstr "Selecionar variÃ¡veis:"
+
+# contributors:LetÃ­cia Laranja
+msgid "Select, hold CMD for brushing"
+msgstr "Selecione e segure CMD para escovaÃ§Ã£o"
+
+# contributors:LetÃ­cia Laranja
+msgid "Select, hold CTRL for brushing"
+msgstr "Selecione e segure CTRL para escovaÃ§Ã£o"
+
+# contributors:LetÃ­cia Laranja
+msgid "Selectable Fill Color"
+msgstr "Cor de preenchimento selecionÃ¡vel"
+
+# contributors:LetÃ­cia Laranja
+msgid "Selected"
+msgstr "Selecionado"
+
+# contributors:LetÃ­cia Laranja
+msgid "Selected ="
+msgstr "Selecionado ="
+
+# contributors:LetÃ­cia Laranja
+msgid "Selected vs. Unselected"
+msgstr "Selecionado vs. NÃ£o selecionado"
+
+# contributors:LetÃ­cia Laranja
+msgid "Selection"
+msgstr "SeleÃ§Ã£o"
+
+# contributors:LetÃ­cia Laranja
+msgid "Selection Mode"
+msgstr "Modo de seleÃ§Ã£o"
+
+# contributors:LetÃ­cia Laranja
+msgid "Selection Shape"
+msgstr "Forma de seleÃ§Ã£o"
+
+# contributors:LetÃ­cia Laranja
+msgid "Selection Tool"
+msgstr "Ferramenta de seleÃ§Ã£o"
+
+# contributors:LetÃ­cia Laranja
+msgid "Selection Variable"
+msgstr "VariÃ¡vel de seleÃ§Ã£o"
+
+# contributors:LetÃ­cia Laranja
+msgid "Send Crash Report"
+msgstr "Enviar relatÃ³rio de falha"
+
+# contributors:LetÃ­cia Laranja
+msgid "September"
+msgstr "Setembro"
+
+# contributors:LetÃ­cia Laranja
+msgid "Set Association Dialog"
+msgstr "Definir associaÃ§Ã£o da caixa de diÃ¡logo"
+
+# contributors:LetÃ­cia Laranja
+msgid "Set Display Precision"
+msgstr "Definir precisÃ£o de exibiÃ§Ã£o"
+
+# contributors:LetÃ­cia Laranja
+msgid "Set Display Precision of Y-Axis"
+msgstr "Definir precisÃ£o de exibiÃ§Ã£o do eixo-Y"
+
+# contributors:LetÃ­cia Laranja
+msgid "Set Display Precision on Axes"
+msgstr "Definir precisÃ£o de exibiÃ§Ã£o dos eixos"
+
+# contributors:LetÃ­cia Laranja
+msgid "Set Display Precision:"
+msgstr "Definir precisÃ£o de exibiÃ§Ã£o:"
+
+# contributors:LetÃ­cia Laranja
+msgid "Set Highlight Association"
+msgstr "Definir associaÃ§Ã£o de destaque"
+
+# contributors:LetÃ­cia Laranja
+msgid "Set Number Separators"
+msgstr "Definir separadores de nÃºmeros"
+
+# contributors:LetÃ­cia Laranja
+msgid "Set Number Separators in Table"
+msgstr "Definir separadores de nÃºmeros em tabela"
+
+# contributors:LetÃ­cia Laranja
+msgid "Set Number of Permutation"
+msgstr "Definir nÃºmeros de permutaÃ§Ãµes"
+
+# contributors:LetÃ­cia Laranja
+msgid "Set number of CPU cores manually:"
+msgstr "Definir manualmente o nÃºmero de nÃºcleos de CPU:"
+
+# contributors:LetÃ­cia Laranja
+msgid "Set seed for randomization:"
+msgstr "Definir semente para aleatorizaÃ§Ã£o:"
+
+# contributors:LetÃ­cia Laranja
+msgid "Set the threshold to bridge the gap between disconnected polygons (often caused by digitizing errors). The value depends on your measurement unit (e.g. 1 foot or 0.0000001 degrees). Use the weights histogram to detect neighborless observations."
+msgstr "Definir o limite para preencher a lacuna entre polÃ­gonos desconectados (muitas vezes causados por erros de digitalizaÃ§Ã£o). O valor depende de sua unidade de medida (por exemplo, 1 pÃ© ou 0,0000001 graus). Use o histograma de pesos para detectar observaÃ§Ãµes sem vizinhos."
+
+# contributors:LetÃ­cia Laranja
+msgid "Set transparency of highlighted objects in selection:"
+msgstr "Definir a transparÃªncia dos objetos destacados na seleÃ§Ã£o:"
+
+# contributors:LetÃ­cia Laranja
+msgid "Set transparency of unhighlighted objects in selection:"
+msgstr "Definir a transparÃªncia dos objetos nÃ£o destacados na seleÃ§Ã£o:"
+
+# contributors:LetÃ­cia Laranja
+msgid "Set value to cell failed."
+msgstr "DefiniÃ§Ã£o de valor para cÃ©lula falhou."
+
+# contributors:LetÃ­cia Laranja
+msgid "Setup Locale of GeoDa Table"
+msgstr "Configurar local da tabela do GeoDa"
+
+# contributors:LetÃ­cia Laranja
+msgid "Setup co-locations:"
+msgstr "Configurar colocalizaÃ§Ãµes:"
+
+# contributors:Patrick Martins
+msgid "Shape"
+msgstr "Forma"
+
+# contributors:LetÃ­cia Laranja
+msgid "Shape Centers"
+msgstr "Centros da Forma"
+
+# contributors:LetÃ­cia Laranja
+msgid "Show As Conditional Map"
+msgstr "Mostrar como mapa condicional"
+
+# contributors:LetÃ­cia Laranja
+msgid "Show Axes"
+msgstr "Mostrar eixos"
+
+# contributors:LetÃ­cia Laranja
+msgid "Show Axes Through Origin"
+msgstr "Mostrar os eixos atravÃ©s da origem"
+
+# contributors:LetÃ­cia Laranja
+msgid "Show CSV Configuration in Merge Data Dialog:"
+msgstr "Mostrar configuraÃ§Ã£o CSV na caixa de diÃ¡logo de mesclar dados"
+
+# contributors:LetÃ­cia Laranja
+msgid "Show Graph"
+msgstr "Mostrar grÃ¡fico"
+
+# contributors:LetÃ­cia Laranja
+msgid "Show LOWESS Smoother"
+msgstr "Mostrar suavizaÃ§Ã£o LOWESS"
+
+# contributors:LetÃ­cia Laranja
+msgid "Show Legend"
+msgstr "Mostrar legenda"
+
+# contributors:LetÃ­cia Laranja
+msgid "Show Linear Smoother"
+msgstr "Mostrar suavizaÃ§Ã£o linear"
+
+# contributors:LetÃ­cia Laranja
+msgid "Show Map Boundary"
+msgstr "Mostrar limite do mapa"
+
+# contributors:LetÃ­cia Laranja
+msgid "Show Recent/Sample Data panel in Connect Datasource Dialog:"
+msgstr "Mostrar painel de dados/amostras recentes na Ã¡rea de conectar fonte de dados:"
+
+# contributors:LetÃ­cia Laranja
+msgid "Show Selection and Neighbors"
+msgstr "Mostrar seleÃ§Ã£o e vizinhos"
+
+# contributors:LetÃ­cia Laranja
+msgid "Show Status Bar"
+msgstr "Mostrar barra de status"
+
+# contributors:LetÃ­cia Laranja
+msgid "Show Vertical Axis"
+msgstr "Mostrar eixos verticais"
+
+# contributors:LetÃ­cia Laranja
+msgid "Show connect line"
+msgstr "Mostrar linha conectora"
+
+# contributors:LetÃ­cia Laranja
+msgid "Show test for sel/unsel regression subsets: "
+msgstr "Mostrar teste para os subconjuntos de regressÃ£o selecionados/nÃ£o selecionados:"
+
+# contributors:LetÃ­cia Laranja
+msgid "Significance Filter"
+msgstr "Filtro de significÃ¢ncia"
+
+# contributors:LetÃ­cia Laranja
+msgid "Significance Map"
+msgstr "Mapa de significÃ¢ncia"
+
+# contributors:LetÃ­cia Laranja
+msgid "Simulated Annealing"
+msgstr "Recozimento Simulado (simulated annealing)"
+
+# contributors:LetÃ­cia Laranja
+msgid "Skater Settings"
+msgstr "ConfiguraÃ§Ã£o do mÃ©todo Skater"
+
+# contributors:LetÃ­cia Laranja
+msgid "Smoother"
+msgstr "Suavizar"
+
+# contributors:LetÃ­cia Laranja
+msgid "Some calculated values were undefined and this is most likely due to neighborless observations in the weight matrix. Rate calculation successful for observations with neighbors."
+msgstr "Alguns valores calculados nÃ£o foram definidos e isto se deve, provavelmente, a observaÃ§Ãµes sem vizinhos na matriz de peso. O cÃ¡lculo da taxa obteve sucesso para observaÃ§Ãµes com vizinhos."
+
+# contributors:LetÃ­cia Laranja
+msgid "Sort"
+msgstr "Classificar"
+
+# contributors:LetÃ­cia Laranja
+msgid "South European Latin-3 (ISO-8859-3)"
+msgstr "Sul Europeu Latim-3 (ISO-8859-3)"
+
+# contributors:LetÃ­cia Laranja
+msgid "Space-time variables with duplicate name \"%s\" found."
+msgstr "VariÃ¡veis de espaÃ§o-tempo com nome duplicado \"%s\"\\ encontradas."
+
+# contributors:LetÃ­cia Laranja
+msgid "Spatial Constraint:"
+msgstr "LimitaÃ§Ã£o espacial:"
+
+# contributors:LetÃ­cia Laranja
+msgid "Spatial Correlogram"
+msgstr "Correlograma espacial"
+
+# contributors:LetÃ­cia Laranja
+msgid "Spatial Empirical Bayes"
+msgstr "AnÃ¡lise espacial empirÃ­ca de 'Bayes'"
+
+# contributors:LetÃ­cia Laranja
+msgid "Spatial Error"
+msgstr "Erro espacial"
+
+# contributors:LetÃ­cia Laranja
+msgid "Spatial Join"
+msgstr "JunÃ§Ã£o espacial"
+
+# contributors:LetÃ­cia Laranja
+msgid "Spatial Join can not be applied on two points layers. Please select another layer."
+msgstr "A junÃ§Ã£o espacial nÃ£o pode ser aplicada em duas camadas de pontos. Por favor, selecione outra camada."
+
+# contributors:LetÃ­cia Laranja
+msgid "Spatial Join can not be applied on unknonwn layers. Please select another layer."
+msgstr "A junÃ§Ã£o espacial nÃ£o pode ser aplicada em duas camadas desconhecidas. Por favor, selecione outra camada."
+
+# contributors:LetÃ­cia Laranja
+msgid "Spatial Join does not work with Table only datasource."
+msgstr "A junÃ§Ã£o espacial nÃ£o funciona com fontes de dados que sÃ£o apenas tabelas."
+
+# contributors:LetÃ­cia Laranja
+msgid "Spatial Lag"
+msgstr "RegressÃ£o espacial (Spatial Lag)"
+
+# contributors:LetÃ­cia Laranja
+msgid "Spatial Rate"
+msgstr "Taxa espacial"
+
+# contributors:LetÃ­cia Laranja
+msgid "Spatial Rate Smoothed Variable Settings"
+msgstr "ConfiguraÃ§Ãµes de variÃ¡veis de taxa espacial suavizadas"
+
+# contributors:LetÃ­cia Laranja
+msgid "Spatial lag and error regressions require symmetric weights (not KNN). You can still use KNN weights to obtain spatial diagnostics for classic regressions."
+msgstr "As regressÃµes espaciais e as regressÃµes de erro requerem pesos simÃ©tricos (nÃ£o KNN). VocÃª ainda pode usar os pesos KNN para obter diagnÃ³sticos espaciais para regressÃµes clÃ¡ssicas"
+
+# contributors:LetÃ­cia Laranja
+msgid "Special"
+msgstr "Especial"
+
+# contributors:LetÃ­cia Laranja
+msgid "Specified id field (%s) not found in currently loaded Table."
+msgstr "Campo de identificaÃ§Ã£o especificado (%s) nÃ£o encontrado na tabela atualmente carregada."
+
+# contributors:LetÃ­cia Laranja
+msgid "Specified key (%d) not found in currently loaded Table."
+msgstr "Chave especificada (%d) nÃ£o foi encontrada na tabela carregada atualmente."
+
+# contributors:LetÃ­cia Laranja
+msgid "Specified key (%s) not found in currently loaded Table."
+msgstr "Chave especificada (%s) nÃ£o foi encontrada na tabela carregada atualmente."
+
+# contributors:LetÃ­cia Laranja
+msgid "Specified key value field \"%s\" in weights file contains duplicate values in the currently loaded Table."
+msgstr "O campo de valor chave especificado \"%s\"no arquivo de pesos contÃ©m valores duplicados na tabela atualmente carregada."
+
+# contributors:LetÃ­cia Laranja
+msgid "Specified key value field \"%s\" on first line of weights file is not an integer type in the currently loaded Table."
+msgstr "O campo de valor chave especificado \"%s\"na primeira linha do arquivo de pesos nÃ£o Ã© um tipo inteiro na tabela carregada atualmente."
+
+# contributors:LetÃ­cia Laranja
+msgid "Specified key value field \"%s\" on first line of weights file not found in currently loaded Table."
+msgstr "O campo de valor chave especificado \"%s\"na primeira linha do arquivo de pesos nÃ£o encontrado na tabela carregada atualmente."
+
+# contributors:LetÃ­cia Laranja
+msgid "Specify Seed..."
+msgstr "EspecÃ­fique a semente..."
+
+# contributors:LetÃ­cia Laranja
+msgid "Specify bandwidth"
+msgstr "Especificar largura de banda"
+
+# contributors:LetÃ­cia Laranja
+msgid "Specify manually"
+msgstr "Especificar manualmente"
+
+# contributors:Patrick Martins
+msgid "Spectral"
+msgstr "Espectral"
+
+# contributors:LetÃ­cia Laranja
+msgid "Spectral Clustering Map (%d clusters)"
+msgstr "Mapa de agrupamento espectral (%d agrupamentos)"
+
+# contributors:LetÃ­cia Laranja
+msgid "Spectral Clustering Settings"
+msgstr "ConfiguraÃ§Ã£o de agrupamento espectral"
+
+# contributors:LetÃ­cia Laranja
+msgid "Speed"
+msgstr "Velocidade"
+
+# contributors:LetÃ­cia Laranja
+msgid "Stable Version and Bug Fixes Only"
+msgstr "Somente VersÃ£o EstÃ¡vel e CorreÃ§Ã£o de Erros"
+
+# contributors:LetÃ­cia Laranja
+msgid "Stack"
+msgstr "Empilhar"
+
+# contributors:Patrick Martins
+msgid "Standard Deviation"
+msgstr "Desvio PadrÃ£o"
+
+# contributors:Patrick Martins
+msgid "Standard Deviation Color"
+msgstr "Cor do Desvio PadrÃ£o"
+
+# contributors:Patrick Martins
+msgid "Standard Deviation Map"
+msgstr "Mapa de Desvio PadrÃ£o"
+
+# contributors:LetÃ­cia Laranja
+msgid "Standardized Data"
+msgstr "Dados padronizados"
+
+# contributors:LetÃ­cia Laranja
+msgid "Statistics"
+msgstr "EstatÃ­stica"
+
+# contributors:LetÃ­cia Laranja
+msgid "Status Bar"
+msgstr "Barra de Status"
+
+# contributors:LetÃ­cia Laranja
+msgid "Stopping criterion for power iteration:"
+msgstr "CritÃ©rio de parada para o mÃ©todo de potÃªncias:"
+
+# contributors:LetÃ­cia Laranja
+msgid "Strong"
+msgstr "Forte"
+
+# contributors:LetÃ­cia Laranja
+msgid "Submit Bug Error"
+msgstr "Submeter relatÃ³rio de erro"
+
+# contributors:LetÃ­cia Laranja
+msgid "Submit Bug Report"
+msgstr "Submeter relatÃ³rio de erro"
+
+# contributors:Patrick Martins
+msgid "Success"
+msgstr "Sucesso"
+
+# contributors:LetÃ­cia Laranja
+msgid "Success / Warning"
+msgstr "Sucesso / Alerta"
+
+# contributors:LetÃ­cia Laranja
+msgid "Successful aggregation."
+msgstr "AgregaÃ§Ã£o realizada com sucesso."
+
+# contributors:LetÃ­cia Laranja
+msgid "Suggested field name:"
+msgstr "Nome de campo sugerido:"
+
+# contributors:Patrick Martins
+msgid "Sum"
+msgstr "Soma"
+
+# contributors:LetÃ­cia Laranja
+msgid "Summary"
+msgstr "SumÃ¡rio"
+
+# contributors:LetÃ­cia Laranja
+msgid "Synchronize %s with Time Control"
+msgstr "Sincronizar %s com controle de tempo"
+
+# contributors:LetÃ­cia Laranja
+msgid "System"
+msgstr "Sistema"
+
+# contributors:LetÃ­cia Laranja
+msgid "System:"
+msgstr "Systema:"
+
+# contributors:LetÃ­cia Laranja
+msgid "T&able"
+msgstr "T&abela"
+
+# contributors:Patrick Martins
+msgid "Table"
+msgstr "Tabela"
+
+# contributors:Patrick Martins
+msgid "Table Name"
+msgstr "Nome da Tabela"
+
+# contributors:LetÃ­cia Laranja
+msgid "Tabu Length:"
+msgstr "Tamanho da 'Busca Tabu':"
+
+# contributors:LetÃ­cia Laranja
+msgid "Tabu Search"
+msgstr "Busca Tabu:"
+
+# contributors:LetÃ­cia Laranja
+msgid "Tabu length for Tabu Search algorithm has to be an integer number larger than 1 (e.g. 85)."
+msgstr "O tamanho do algoritmo de busca Tabu tem que ser um nÃºmero inteiro maior que 1 (por exemplo, 85)."
+
+# contributors:LetÃ­cia Laranja
+msgid "Tabu length:"
+msgstr "Tamanho da 'Busca Tabu':"
+
+# contributors:LetÃ­cia Laranja
+msgid "Target"
+msgstr "Alvo"
+
+# contributors:LetÃ­cia Laranja
+msgid "Target Variable"
+msgstr "VariÃ¡vel do alvo"
+
+# contributors:LetÃ­cia Laranja
+msgid ""
+"Thank you for helping us improve GeoDa with your bug report! \n"
+"\n"
+"You can track our response and add screenshots or details here (or email us at spatial@uchicago.edu):"
+msgstr ""
+"Obrigado por nos ajudar a melhorar o GeoDa com seu relatÃ³rio de erros!\n"
+"\n"
+"VocÃª pode acompanhar nossa resposta e adicionar screenshots ou detalhes aqui (ou nos envie um e-mail para spatial@uchicago.edu):"
+
+# contributors:LetÃ­cia Laranja
+msgid ""
+"The GeoDa project file cannot find one or more associated data sources.\n"
+"\n"
+"Details: GeoDa is looking for: %s\n"
+"\n"
+"Tip: You can open the .gda project file in a text editor to modify the path(s) of the data source associated with your project."
+msgstr ""
+"O arquivo do projeto do GeoDa nÃ£o consegue encontrar uma ou mais fontes de dados associadas.\n"
+"\n"
+"Detalhes: O GeoDa estÃ¡ Ã  procura de: %s\n"
+"\n"
+"Dica: VocÃª pode abrir o arquivo de projeto .gda em um editor de texto para modificar o(s) caminho(s) da fonte de dados associada(s) ao seu projeto."
+
+# contributors:LetÃ­cia Laranja
+msgid "The Table should always be open, although somtimes it is hidden while the project is open.  This condition has been violated.  Please report this to the program developers."
+msgstr "A tabela deve estar sempre aberta, embora algumas vezes esteja escondida enquanto o projeto estiver aberto.  Esta condiÃ§Ã£o foi violada.  Por favor, informe isto aos desenvolvedores do programa."
+
+# contributors:LetÃ­cia Laranja
+msgid "The between-cluster sum of squares:\t"
+msgstr "A soma dos quadrados entre agrupamentos:\t"
+
+# contributors:LetÃ­cia Laranja
+msgid "The categories of the selected variables do not overlap in space. Please select other variables."
+msgstr "As categorias das variÃ¡veis selecionadas nÃ£o se sobrepÃµem no espaÃ§o. Por favor, selecione outras variÃ¡veis."
+
+# contributors:LetÃ­cia Laranja
+msgid "The connectivity of selected spatial weights is incomplete, please adjust the spatial weights."
+msgstr "A conectividade dos pesos espaciais selecionados estÃ¡ incompleta, favor ajustar os pesos espaciais."
+
+# contributors:LetÃ­cia Laranja
+msgid "The currently entered threshold value is not a valid number.  Please move the slider, or enter a valid number."
+msgstr "O valor limite atualmente inserido nÃ£o Ã© um nÃºmero vÃ¡lido.  Favor mover a barra de rolagem, ou digitar um nÃºmero vÃ¡lido."
+
+# contributors:LetÃ­cia Laranja
+msgid "The currently entered threshold value is not a valid number. Please move the slider, or enter a valid number."
+msgstr "O valor limite atualmente inserido nÃ£o Ã© um nÃºmero vÃ¡lido.  Favor mover a barra de rolagem, ou digitar um nÃºmero vÃ¡lido."
+
+# contributors:LetÃ­cia Laranja
+msgid ""
+"The currently entered threshold value of %f is less than %f which is the minimum value for which there will be no neighborless observations (isolates). \n"
+"\n"
+"Press Yes to proceed anyhow, press No to abort."
+msgstr ""
+"O valor limite atualmente inserido de %f Ã© inferior a %f, que Ã© o valor mÃ­nimo para o qual nÃ£o haverÃ¡ observaÃ§Ãµes sem vizinhos (isolados). \n"
+"\n"
+"Pressione 'Sim' para seguir, pressione 'NÃ£o' para abortar."
+
+# contributors:LetÃ­cia Laranja
+msgid "The data source is read only. Please try to save as other data source."
+msgstr "A fonte de dados Ã© apenas para leitura. Por favor, tente salvar como outra fonte de dados."
+
+# contributors:LetÃ­cia Laranja
+msgid "The first line should have comma separated number of rows and ID name!"
+msgstr "A primeira linha deve ter nÃºmero de linhas e nome de identificaÃ§Ã£o separados por vÃ­rgula!"
+
+# contributors:LetÃ­cia Laranja
+msgid ""
+"The geometries will not be saved when exporting to a Table-only data source.\n"
+"\n"
+"Do you want to continue?"
+msgstr ""
+"As geometrias nÃ£o serÃ£o salvas ao exportar para uma fonte de dados somente de tabela.\n"
+"\n"
+"VocÃª quer continuar?"
+
+# contributors:LetÃ­cia Laranja
+msgid ""
+"The last seed used by the pseudo random\n"
+"number generator was "
+msgstr "A Ãºltima semente utilizada pelo gerador de nÃºmeros pseudo-aleatÃ³ria foi "
+
+# contributors:LetÃ­cia Laranja
+msgid "The length of a string field must be at least %d and at most %d. Keeping original value."
+msgstr "O comprimento de um campo tipo texto deve ser pelo menos %d e no mÃ¡ximo %d. Manter o valor original."
+
+# contributors:LetÃ­cia Laranja
+msgid "The length of an integral numeric field must be at least %d and at most %d. Keeping original value."
+msgstr "O comprimento de um campo numÃ©rico inteiro deve ser pelo menos %d e no mÃ¡ximo %d. Manter o valor original."
+
+# contributors:LetÃ­cia Laranja
+msgid "The length of an non-integral numeric field must be at least %d and at most %d. Keeping original value."
+msgstr "O comprimento de um campo numÃ©rico nÃ£o-inteiro deve ser pelo menos %d e no mÃ¡ximo %d. Manter o valor original."
+
+# contributors:LetÃ­cia Laranja
+msgid ""
+"The length of field name should be between 1 and %d.\n"
+"Current field length (%d) is not valid"
+msgstr ""
+"O comprimento do nome do campo deve ser entre 1 e %d.\n"
+"O comprimento atual do campo (%d) nÃ£o Ã© vÃ¡lido."
+
+# contributors:LetÃ­cia Laranja
+msgid "The new theme chosen will no longer include rates smoothing. Please use the Rates submenu to choose a theme with rates again."
+msgstr "O novo tema escolhido nÃ£o incluirÃ¡ mais suavizaÃ§Ã£o de taxas. Favor usar o submenu 'Taxas' para escolher um novo tema com taxas."
+
+# contributors:LetÃ­cia Laranja
+msgid "The number of covariates should be more than the number of observations."
+msgstr "O nÃºmero de covariÃ¡veis deve ser maior do que o nÃºmero de observaÃ§Ãµes."
+
+# contributors:LetÃ­cia Laranja
+msgid "The number of decimal places for a non-integral numeric field must be at least %d and at most %d. Keeping original value."
+msgstr "O nÃºmero de casas decimais para um campo numÃ©rico nÃ£o integral deve ser pelo menos %d e no mÃ¡ximo %d. Manter o valor original."
+
+# contributors:LetÃ­cia Laranja
+msgid "The number of displayed decimal places for a non-integral numeric field must be at least %d and at most %d. Keeping original value."
+msgstr "[O nÃºmero de casas decimais exibidas para um campo numÃ©rico nÃ£o integral deve ser pelo menos %d e no mÃ¡ximo %d. Manter o valor original."
+
+# contributors:LetÃ­cia Laranja
+msgid "The number of identified clusters is less than "
+msgstr "O nÃºmero de agrupamentos identificados Ã© inferior a "
+
+# contributors:LetÃ­cia Laranja
+msgid "The number of observations specified in chosen weights file is %d, but the number in the current Table is %d, which is incompatible."
+msgstr "O nÃºmero de observaÃ§Ãµes especificadas no arquivo de pesos escolhidos Ã© %d, incompatÃ­vel com o nÃºmero da tabela atual, que Ã© %d."
+
+# contributors:LetÃ­cia Laranja
+msgid "The number of observations specified in chosen weights file is incompatible with current Table."
+msgstr "O nÃºmero de observaÃ§Ãµes especificadas no arquivo de pesos escolhidos Ã© incompatÃ­vel com a tabela atual."
+
+# contributors:LetÃ­cia Laranja
+msgid "The number of records in current table is larger than the number of records in import table. Please choose import table >= %d records"
+msgstr "O nÃºmero de registros na tabela atual Ã© maior do que o nÃºmero de registros na tabela de importaÃ§Ã£o. Favor escolher a tabela de importaÃ§Ã£o >= %d registros"
+
+# contributors:LetÃ­cia Laranja
+msgid "The original datasource %s is not a valid file. GeoDa \"Save\" only works on file datasource."
+msgstr "A fonte de dados original %s nÃ£o Ã© um arquivo vÃ¡lido. GeoDa \"Save\" sÃ³ funciona na fonte de dados do arquivo."
+
+# contributors:LetÃ­cia Laranja
+msgid "The ratio of between to total sum of squares:\t"
+msgstr "A relaÃ§Ã£o entre a soma total dos quadrados:\t"
+
+# contributors:LetÃ­cia Laranja
+msgid ""
+"The sample size for random sampling is too small.\n"
+"Please increase the number of iterations."
+msgstr ""
+"O tamanho da amostra para amostragem aleatÃ³ria Ã© muito pequena.\n"
+"Por favor, aumente o nÃºmero de iteraÃ§Ãµes."
+
+# contributors:LetÃ­cia Laranja
+msgid "The selected database driver is not supported on this platform. Please check GeoDa website for more information about database support and connection."
+msgstr "O driver do banco de dados selecionado nÃ£o Ã© suportado nesta plataforma. Por favor, verifique o website da GeoDa para mais informaÃ§Ãµes sobre suporte e conexÃ£o de banco de dados."
+
+# contributors:LetÃ­cia Laranja
+msgid "The selected group variable should contains %d items. Please modify the group variable in Time Editor, or select another variable."
+msgstr "A variÃ¡vel de grupo selecionada deve conter %d itens. Favor modificar a variÃ¡vel de grupo no editor de tempo, ou selecionar outra variÃ¡vel."
+
+# contributors:LetÃ­cia Laranja
+msgid "The selected group variable should contains %d items. Please modify the group variable in Time->Time Editor, or select another variable."
+msgstr "A variÃ¡vel de grupo selecionada deve conter %d itens. Favor modificar a variÃ¡vel de grupo em Tempo -> Editor de Tempo, ou selecionar outra variÃ¡vel."
+
+# contributors:LetÃ­cia Laranja
+msgid "The selected variable %s is not valid. If it's a grouped variable, please modify it in Time->Time Editor. Or please select another variable."
+msgstr "A variÃ¡vel selecionada %s nÃ£o Ã© vÃ¡lida. Se for uma variÃ¡vel agrupada, por favor modifique-a em Tempo -> Editor de tempo. Ou selecione outra variÃ¡vel."
+
+# contributors:LetÃ­cia Laranja
+msgid "The selected variable is not numeric. Please select another variable."
+msgstr "A variÃ¡vel selecionada nÃ£o Ã© numÃ©rica. Por favor, selecione outra variÃ¡vel."
+
+# contributors:LetÃ­cia Laranja
+msgid "The set of values in the import key fields has no match in current table. Please choose keys with matching sets of values."
+msgstr "O conjunto de valores nos campos-chave de importaÃ§Ã£o nÃ£o tem correspondÃªncia na tabela atual. Por favor, escolha chaves com conjuntos de valores correspondentes."
+
+# contributors:LetÃ­cia Laranja
+msgid "The total sum of squares:\t"
+msgstr "Soma total dos quadrados:\t"
+
+# contributors:LetÃ­cia Laranja
+msgid "The total within-cluster sum of squares:\t"
+msgstr "A soma total dos quadrados dentro de cada agrupamento:\t"
+
+# contributors:LetÃ­cia Laranja
+msgid "Themeless"
+msgstr "Sem tema"
+
+# contributors:LetÃ­cia Laranja
+msgid "Themeless Map"
+msgstr "Mapa sem tema"
+
+# contributors:LetÃ­cia Laranja
+msgid "There are spatial objects being counted more than once. Please check the results."
+msgstr "Existem objetos espaciais sendo contados mais de uma vez. Por favor, verifique os resultados."
+
+# contributors:LetÃ­cia Laranja
+msgid "There are unsaved data source or weights/time definition changes."
+msgstr "Existem fontes de dados nÃ£o salvas ou mudanÃ§as na definÃ§Ã£o de pesos/tempo."
+
+# contributors:LetÃ­cia Laranja
+msgid "There is a view could not be closed. Please manually close and try again."
+msgstr "Existe uma visualizaÃ§Ã£o que nÃ£o pÃ´de ser fechada. Por favor, feche manualmente e tente novamente."
+
+# contributors:LetÃ­cia Laranja
+msgid "There is an error during PCA calculation. Please check if the data is valid."
+msgstr "Houve um erro durante o cÃ¡lculo do PCA. Por favor, verifique se os dados sÃ£o vÃ¡lidos."
+
+# contributors:LetÃ­cia Laranja
+msgid "There is at least one neighborless observation. Check the islands in weights histogram and linked map."
+msgstr "HÃ¡ pelo menos uma observaÃ§Ã£o sem vizinhos. Verifique as ilhas no histograma de pesos e mapa de vÃ­nculos."
+
+# contributors:LetÃ­cia Laranja
+msgid "There is at least one neighborless observation. Check the weights histogram and linked map to see if the islands are real or not. If not, adjust the distance threshold (points) or the precision threshold (polygons)."
+msgstr "HÃ¡ pelo menos uma observaÃ§Ã£o sem vizinhos. Verifique o histograma de pesos e o mapa de vÃ­nculos para ver se as ilhas sÃ£o reais ou nÃ£o. Caso contrÃ¡rio, ajustar o limite de distÃ¢ncia (pontos) ou o limite de precisÃ£o (polÃ­gonos)."
+
+# contributors:LetÃ­cia Laranja
+msgid "There is at least one view could not be closed. Please manually close and try again."
+msgstr "Existe pelo menos uma visualizaÃ§Ã£o que nÃ£o pÃ´de ser fechada. Por favor, feche manualmente e tente novamente."
+
+# contributors:LetÃ­cia Laranja
+msgid "There is at least one view open that depends on this matrix. Ok to close these views and remove?"
+msgstr "Existe pelo menos uma visualizaÃ§Ã£o aberta que depende desta matriz. Ok para fechar estas visualizaÃ§Ãµes e remover?"
+
+# contributors:LetÃ­cia Laranja
+msgid "There is one other view open that depends on this matrix. Ok to close this view and remove?"
+msgstr "Existe outra visualizaÃ§Ã£o em aberto que depende desta matriz. Ok para fechar esta visualizaÃ§Ã£o e remover?"
+
+# contributors:LetÃ­cia Laranja
+msgid "There was a problem associating the weights file."
+msgstr "Houve um problema ao associar o arquivo de pesos."
+
+# contributors:LetÃ­cia Laranja
+msgid "There was a problem generating voronoi contiguity neighbors. Please report this."
+msgstr "Houve um problema ao gerar vizinhos de contiguidade de Voronoi. Por favor, reporte isto."
+
+# contributors:Patrick Martins
+msgid "There was a problem reading the layer"
+msgstr "Houve um problema ao ler a camada"
+
+# contributors:Patrick Martins
+msgid "There was a problem reading the table"
+msgstr "Houve um problema ao ler a tabela"
+
+# contributors:LetÃ­cia Laranja
+msgid "There was a problem requesting the weights file."
+msgstr "Houve um problema ao solicitar o arquivo de pesos."
+
+# contributors:LetÃ­cia Laranja
+msgid "These are the row numbers of the records without location information."
+msgstr "Estes sÃ£o os nÃºmeros das linhas dos registos sem informaÃ§Ã£o de localizaÃ§Ã£o."
+
+# contributors:LetÃ­cia Laranja
+msgid "Thiessen Polygons"
+msgstr "PolÃ­gonos de Thiessen"
+
+# contributors:LetÃ­cia Laranja
+msgid "Third Variable (Z)"
+msgstr "Terceira VariÃ¡vel (Z)"
+
+# contributors:LetÃ­cia Laranja
+msgid "This datasource is not supported. Please export to other datasource that GeoDa supports first."
+msgstr "Esta fonte de dados nÃ£o Ã© suportada. Por favor, exportar para outra fonte de dados que o GeoDa suporte."
+
+# contributors:LetÃ­cia Laranja
+msgid "This field name already exists (non-integer type). Please input a unique name."
+msgstr "Este nome de campo jÃ¡ existe (tipo nÃ£o-inteiro). Por favor, introduza um nome Ãºnico."
+
+# contributors:LetÃ­cia Laranja
+msgid "This format is not supported."
+msgstr "Esse formato nÃ£o Ã© suportado."
+
+# contributors:LetÃ­cia Laranja
+msgid "This is the list of existing grouped variables. As new groups are created, they will appear on this list. You can open an existing .gda file and edit it here."
+msgstr "Esta Ã© a lista de variÃ¡veis agrupadas existentes. Assim que novos grupos forem sendo criados, eles aparecerÃ£o nesta lista. VocÃª pode abrir um arquivo .gda existente e editÃ¡-lo aqui."
+
+# contributors:LetÃ­cia Laranja
+msgid "This view currently supports data with at most 1000 observations. The Spatial Correlogram Scatterplot plots distances between all pairs of observations. The current data set has %d observations and %d unordered pairs of observations."
+msgstr "Esta visualizaÃ§Ã£o suporta atualmente dados com, no mÃ¡ximo, 1000 observaÃ§Ãµes. O Correlograma Espacial de Espalhamento traÃ§a as distÃ¢ncias entre todos os pares de observaÃ§Ãµes. O conjunto de dados atual tem %d observaÃ§Ãµes e %d pares nÃ£o ordenados de observaÃ§Ãµes."
+
+# contributors:Patrick Martins
+msgid "Thousands:"
+msgstr "Centenas:"
+
+# contributors:LetÃ­cia Laranja
+msgid "Tim&e"
+msgstr "Tem&po"
+
+# contributors:LetÃ­cia Laranja
+msgid "Time"
+msgstr "Tempo"
+
+# contributors:LetÃ­cia Laranja
+msgid "Time Editor"
+msgstr "Editor de Tempo"
+
+# contributors:LetÃ­cia Laranja
+msgid "Time Player"
+msgstr "Player de tempo"
+
+# contributors:LetÃ­cia Laranja
+msgid "Time Setup"
+msgstr "ConfiguraÃ§Ã£o de Tempo"
+
+# contributors:LetÃ­cia Laranja
+msgid "Time Variable Options"
+msgstr "OpÃ§Ãµes de variÃ¡veis de tempo"
+
+# contributors:LetÃ­cia Laranja
+msgid "Time:"
+msgstr "Tempo:"
+
+# contributors:LetÃ­cia Laranja
+msgid "Title of Visualization"
+msgstr "TÃ­tulo da visualizaÃ§Ã£o"
+
+# contributors:LetÃ­cia Laranja
+msgid "Tools"
+msgstr "Ferramentas"
+
+# contributors:LetÃ­cia Laranja
+msgid "Top"
+msgstr "Topo"
+
+# contributors:LetÃ­cia Laranja
+msgid "Transformation:"
+msgstr "TransformaÃ§Ã£o:"
+
+# contributors:LetÃ­cia Laranja
+msgid "Transformation:  "
+msgstr "TransformaÃ§Ã£o:  "
+
+# contributors:LetÃ­cia Laranja
+msgid "Transformation:\t"
+msgstr "TransformaÃ§Ã£o:\t"
+
+# contributors:LetÃ­cia Laranja
+msgid "Travel Distances Tool"
+msgstr "Ferramenta de distÃ¢ncia de viagens"
+
+# contributors:LetÃ­cia Laranja
+msgid "Turkish (Windows-1254)"
+msgstr "Turco (Windows-1254)"
+
+# contributors:LetÃ­cia Laranja
+msgid "Turkish Latin-5 (ISO-8859-9)"
+msgstr "Turco Latim-5 (ISO-8859-9)"
+
+# contributors:LetÃ­cia Laranja
+msgid "Type"
+msgstr "Tipo"
+
+# contributors:LetÃ­cia Laranja
+msgid "Type 1"
+msgstr "Tipo 1"
+
+# contributors:LetÃ­cia Laranja
+msgid "Type 1a"
+msgstr "Tipo 1a"
+
+# contributors:LetÃ­cia Laranja
+msgid "Type 2"
+msgstr "Tipo 2"
+
+# contributors:LetÃ­cia Laranja
+msgid "Type 2a"
+msgstr "Tipo 2a"
+
+# contributors:LetÃ­cia Laranja
+msgid "Unable to overwrite "
+msgstr "NÃ£o foi possÃ­vel reescrever"
+
+# contributors:LetÃ­cia Laranja
+msgid "Undefined"
+msgstr "Indefinido"
+
+# contributors:LetÃ­cia Laranja
+msgid "Undo"
+msgstr "Desfazer"
+
+# contributors:LetÃ­cia Laranja
+msgid "Ungrouped Variables"
+msgstr "VariÃ¡veis desagrupadas"
+
+# contributors:LetÃ­cia Laranja
+msgid "Unicode (UTF-16LE)"
+msgstr "Unicode (UTF-8)"
+
+# contributors:LetÃ­cia Laranja
+msgid "Unicode (UTF-8)"
+msgstr "Unicode (UTF-8)"
+
+# contributors:LetÃ­cia Laranja
+msgid "Unique Values"
+msgstr "Valores Ãºnicos"
+
+# contributors:LetÃ­cia Laranja
+msgid "Unique Values Map"
+msgstr "Mapa de valores Ãºnicos"
+
+# contributors:LetÃ­cia Laranja
+msgid "Univariate"
+msgstr "Univariada"
+
+# contributors:LetÃ­cia Laranja
+msgid "Univariate Local Geary"
+msgstr "Geary Univariado Local"
+
+# contributors:LetÃ­cia Laranja
+msgid "Univariate Local Join Count"
+msgstr "Contagem de junÃ§Ã£o univariada local"
+
+# contributors:LetÃ­cia Laranja
+msgid "Univariate Local Moran's I"
+msgstr "MoranÂ´s I Univariado Local"
+
+# contributors:LetÃ­cia Laranja
+msgid "Univariate Moran's I"
+msgstr "Moran's I Univariado"
+
+# contributors:LetÃ­cia Laranja
+msgid "Unknow exception. Please contact GeoDa support."
+msgstr "Erro desconhecido. Favor contatar o suporte do GeoDa"
+
+# contributors:LetÃ­cia Laranja
+msgid "Unselected"
+msgstr "NÃ£o selecionado"
+
+# contributors:LetÃ­cia Laranja
+msgid "Unselected ="
+msgstr "NÃ£o selecionado ="
+
+# contributors:LetÃ­cia Laranja
+msgid "Up"
+msgstr "Acima"
+
+# contributors:LetÃ­cia Laranja
+msgid "Update GeoDa completed"
+msgstr "AtualizaÃ§Ã£o do GeoDa completa"
+
+# contributors:LetÃ­cia Laranja
+msgid "Update GeoDa failed"
+msgstr "A atualizaÃ§Ã£o do GeoDa falhou"
+
+# contributors:LetÃ­cia Laranja
+msgid ""
+"Update project information failed. \n"
+"\n"
+"Details: The layer information defined in project file does no match opened datasource."
+msgstr ""
+"Falha na atualizaÃ§Ã£o de informaÃ§Ãµes do projeto. \n"
+"\n"
+"Detalhes: As informaÃ§Ãµes da camada definida no arquivo do projeto nÃ£o correspondem Ã  fonte de dados aberta."
+
+# contributors:LetÃ­cia Laranja
+msgid "Upper outlier"
+msgstr "Valor atÃ­pico superior"
+
+# contributors:LetÃ­cia Laranja
+msgid "Upper-right corner"
+msgstr "Canto superior direito"
+
+# contributors:LetÃ­cia Laranja
+msgid "Use GPU to Accelerate computation:"
+msgstr "Usar GPU para acelerar o cÃ¡lculo:"
+
+# contributors:LetÃ­cia Laranja
+msgid "Use Power Iteration method:\tMax iterations="
+msgstr "Usar MÃ©todo das PotÃªncias:\tMax de iteraÃ§Ãµes="
+
+# contributors:LetÃ­cia Laranja
+msgid "Use Power Iteration:"
+msgstr "Usar MÃ©todo das PotÃªncias:"
+
+# contributors:LetÃ­cia Laranja
+msgid "Use Scientific Notation"
+msgstr "Usar notaÃ§Ã£o cientÃ­fica"
+
+# contributors:LetÃ­cia Laranja
+msgid "Use Specified Seed"
+msgstr "Usar Semente Especificada"
+
+# contributors:LetÃ­cia Laranja
+msgid "Use Transparent Legend Background"
+msgstr "Usar plano de fundo de legenda transparente"
+
+# contributors:LetÃ­cia Laranja
+msgid "Use Weights:"
+msgstr "Usar pesos:"
+
+# contributors:LetÃ­cia Laranja
+msgid "Use bounding box of input datasource"
+msgstr "Usar caixa delimitadora de fonte de dados de entrada"
+
+# contributors:LetÃ­cia Laranja
+msgid "Use classic yellow cross-hatching to highlight selection in maps:"
+msgstr "Usar hachura clÃ¡ssica amarela para destacar a seleÃ§Ã£o nos mapas:"
+
+# contributors:LetÃ­cia Laranja
+msgid "Use existing field name"
+msgstr "Usar campo de nome existente"
+
+# contributors:LetÃ­cia Laranja
+msgid "Use geometric centroids"
+msgstr "Usar centrÃ³ides geomÃ©tricos"
+
+# contributors:LetÃ­cia Laranja
+msgid "Use geometric centroids (weighting): \n"
+msgstr "Usar centrÃ³ides geomÃ©tricos (ponderando): \n"
+
+# contributors:LetÃ­cia Laranja
+msgid "Use inverse distance?"
+msgstr "Usar distÃ¢ncia reversa?"
+
+# contributors:LetÃ­cia Laranja
+msgid "Use max knn distance as bandwidth"
+msgstr "Usar a distÃ¢ncia mÃ¡xima de knn como largura de banda"
+
+# contributors:LetÃ­cia Laranja
+msgid "Use outline + motorway(~bbox) of input datasource"
+msgstr "Usar esboÃ§o + estrada(~bbox) de fonte de dados de entrada"
+
+# contributors:LetÃ­cia Laranja
+msgid "Use outline of input datasource"
+msgstr "Utilize o esquema de fonte de dados de entrada"
+
+# contributors:LetÃ­cia Laranja
+msgid "Use row-standardized weights"
+msgstr "Usar pesos padronizados por linha"
+
+# contributors:LetÃ­cia Laranja
+msgid "Use selected as specified alpha level"
+msgstr "Usar o selecionado como nÃ­vel alfa especificado"
+
+# contributors:LetÃ­cia Laranja
+msgid "Use specified seed:"
+msgstr "Usar semente especificada:"
+
+# contributors:LetÃ­cia Laranja
+msgid "Use the bounding box of shape datasource"
+msgstr "Usar a caixa de delimitaÃ§Ã£o da fonte de dados de forma"
+
+# contributors:LetÃ­cia Laranja
+msgid "User Defined"
+msgstr "UsuÃ¡rio Definido"
+
+# contributors:Patrick Martins
+msgid "User Name"
+msgstr "Nome do UsuÃ¡rio"
+
+# contributors:Patrick Martins
+msgid "User name"
+msgstr "Nome do usuÃ¡rio"
+
+# contributors:LetÃ­cia Laranja
+msgid "Value"
+msgstr "Valor"
+
+# contributors:LetÃ­cia Laranja
+msgid "Values assigned to target field successfully."
+msgstr "Valores foram atribuÃ­dos ao campo alvo com sucesso."
+
+# contributors:LetÃ­cia Laranja
+msgid "Var Calc Container"
+msgstr "Var Calc Container"
+
+# contributors:Patrick Martins
+msgid "Variable"
+msgstr "VariÃ¡vel"
+
+# contributors:LetÃ­cia Laranja
+msgid "Variable %s at time %d could not be standardized."
+msgstr "VariÃ¡vel %s no momento %d nÃ£o pÃ´de ser padronizada."
+
+# contributors:LetÃ­cia Laranja
+msgid "Variable %s at time %d is a placeholer"
+msgstr "VariÃ¡vel %s no momento %d Ã© um espaÃ§o reservado."
+
+# contributors:LetÃ­cia Laranja
+msgid "Variable %s is a placeholer"
+msgstr "VariÃ¡vel %s Ã© um espaÃ§o reservado"
+
+# contributors:LetÃ­cia Laranja
+msgid "Variable %s is a time-grouped variable.  Please ungroup this variable to delete."
+msgstr "Variable %s Ã© uma variÃ¡vel agrupada ao longo do tempo.  Favor desagrupar esta variÃ¡vel para excluir."
+
+# contributors:LetÃ­cia Laranja
+msgid "Variable %s is no longer in the Table.  Please close and reopen the Regression Dialog to synchronize with Table data."
+msgstr "A variÃ¡vel %s nÃ£o estÃ¡ mais na tabela. Por favor, feche e reabra a aba de regressÃ£o para sincronizar com os dados da tabela."
+
+# contributors:LetÃ­cia Laranja
+msgid "Variable %s is no longer in the Table.  Please close and reopen this dialog to synchronize with Table data."
+msgstr "A variÃ¡vel %s nÃ£o estÃ¡ mais na tabela.  Por favor, feche e reabra a aba para sincronizar com os dados da tabela."
+
+# contributors:LetÃ­cia Laranja
+msgid "Variable %s is not valid. Please select another variable."
+msgstr "A variÃ¡vel %s nÃ£o Ã© vÃ¡lida. Favor selecionar outra variÃ¡vel."
+
+# contributors:LetÃ­cia Laranja
+msgid "Variable / Constant"
+msgstr "VariÃ¡vel / Constante"
+
+# contributors:LetÃ­cia Laranja
+msgid "Variable <font color=\"blue\">%s</font> is specified. "
+msgstr "VariÃ¡vel <font color=\"blue\">%s</font> Ã© especificada."
+
+# contributors:LetÃ­cia Laranja
+msgid "Variable Choice"
+msgstr "Escolha da variÃ¡vel"
+
+# contributors:Patrick Martins
+msgid "Variable Name"
+msgstr "Nome da VariÃ¡vel"
+
+# contributors:Patrick Martins
+msgid "Variable Properties"
+msgstr "Propriedade da VariÃ¡vel"
+
+# contributors:Patrick Martins
+msgid "Variable Properties - "
+msgstr "Propriedade da VariÃ¡vel - "
+
+# contributors:Patrick Martins
+msgid "Variable Setting"
+msgstr "ConfiguraÃ§Ã£o da VariÃ¡vel"
+
+# contributors:Patrick Martins
+msgid "Variable Settings"
+msgstr "ConfiguraÃ§Ãµes da VariÃ¡vel"
+
+# contributors:LetÃ­cia Laranja
+msgid "Variable Type Error"
+msgstr "Erro de Tipo de VariÃ¡vel"
+
+# contributors:LetÃ­cia Laranja
+msgid "Variable Value Error"
+msgstr "Erro no Valor VariÃ¡vel"
+
+# contributors:LetÃ­cia Laranja
+msgid "Variable name \"%s\" is either a duplicate or is invalid. Please enter an alternative, non-duplicate variable name."
+msgstr ""
+"O nome da variÃ¡vel  \"%s\" Ã© invÃ¡lido ou duplicado. Por favor\n"
+"entre um nome alternativo, nÃ£o duplicado."
+
+# contributors:LetÃ­cia Laranja
+msgid "Variable name \"%s\" is either a duplicate or is invalid. Please enter an alternative, non-duplicate variable name. The first character must be a letter, and the remaining characters can be either letters, numbers or underscores. For DBF table, a valid variable name is between one and ten characters long."
+msgstr "O nome da variÃ¡vel \"%s\" ou Ã© duplicado ou Ã© invÃ¡lido. Favor inserir um nome alternativo, nÃ£o duplicado.O primeiro caracter deve ser uma letra, e os caracteres restantes podem ser letras, nÃºmeros ou sublinhados. Para uma tabela DBF, um nome de variÃ¡vel vÃ¡lido possui entre um e dez caracteres."
+
+# contributors:LetÃ­cia Laranja
+msgid "Variable name can't be empty."
+msgstr "O nome de variÃ¡vel nÃ£o pode estar vazio."
+
+# contributors:LetÃ­cia Laranja
+msgid ""
+"Variable name is either a duplicate or is invalid. Please\n"
+"enter an alternative, non-duplicate variable name.\n"
+"\n"
+msgstr ""
+"O nome da variÃ¡vel Ã© invÃ¡lido ou duplicado. Por favor\n"
+"entre um nome alternativo, nÃ£o duplicado.\n"
+"\n"
+
+# contributors:LetÃ­cia Laranja
+msgid "Variable:"
+msgstr "VariÃ¡vel"
+
+# contributors:Patrick Martins
+msgid "Variables"
+msgstr "VariÃ¡veis"
+
+# contributors:LetÃ­cia Laranja
+msgid "Variables:"
+msgstr "VariÃ¡veis:"
+
+# contributors:LetÃ­cia Laranja
+msgid "Vertical Bins Breaks"
+msgstr "Quebras de caixas verticais"
+
+# contributors:LetÃ­cia Laranja
+msgid "Vertical Cells"
+msgstr "CÃ©lulas verticais"
+
+# contributors:LetÃ­cia Laranja
+msgid "Vietnamese (Windows-1258)"
+msgstr "Vietnamita (Windows-1258)"
+
+# contributors:LetÃ­cia Laranja
+msgid "View"
+msgstr "VisualizaÃ§Ã£o"
+
+# contributors:LetÃ­cia Laranja
+msgid "View Original Data"
+msgstr "VisualizaÃ§Ã£o de dados originais"
+
+# contributors:LetÃ­cia Laranja
+msgid "View Standardized Data"
+msgstr "VisualizaÃ§Ã£o de dados padronizados"
+
+# contributors:LetÃ­cia Laranja
+msgid "Voronoi Contiguity Error"
+msgstr "Erro de Contiguidade de Voronoi"
+
+# contributors:LetÃ­cia Laranja
+msgid "WFS URL"
+msgstr "WFS URL"
+
+# contributors:LetÃ­cia Laranja
+msgid "Warning"
+msgstr "Alerta"
+
+# contributors:LetÃ­cia Laranja
+msgid "Warning: %d observations are neighborless."
+msgstr "Alerta: %d observaÃ§Ãµes nÃ£o possuem vizinhanÃ§a."
+
+# contributors:LetÃ­cia Laranja
+msgid "Warning: %d observations is neighborless."
+msgstr "Alerta: %d observaÃ§Ãµes nÃ£o possuem vizinhanÃ§a."
+
+# contributors:LetÃ­cia Laranja
+msgid "Warning: NULL geometry"
+msgstr "Alerta: Geometria nula"
+
+# contributors:LetÃ­cia Laranja
+msgid "Warning: loss data"
+msgstr "Alerta: dado perdido"
+
+# contributors:LetÃ­cia Laranja
+msgid "Was not able to load weights matrix."
+msgstr "NÃ£o foi possÃ­vel de carregar a matriz de pesos."
+
+# contributors:LetÃ­cia Laranja
+msgid "Web"
+msgstr "Web"
+
+# contributors:LetÃ­cia Laranja
+msgid "Weight"
+msgstr "Peso"
+
+# contributors:LetÃ­cia Laranja
+msgid "Weight matrix required for chosen spatial rate method."
+msgstr "Matriz de peso necessÃ¡ria para o mÃ©todo de taxa espacial escolhida."
+
+# contributors:LetÃ­cia Laranja
+msgid "Weighting:"
+msgstr "PonderaÃ§Ã£o:"
+
+# contributors:LetÃ­cia Laranja
+msgid "Weights"
+msgstr "Pesos"
+
+# contributors:LetÃ­cia Laranja
+msgid "Weights File"
+msgstr "Arquivo de pesos"
+
+# contributors:LetÃ­cia Laranja
+msgid "Weights File Creation"
+msgstr "CriaÃ§Ã£o de arquivos de pesos"
+
+# contributors:LetÃ­cia Laranja
+msgid "Weights Intersection"
+msgstr "IntersercÃ§Ã£o de pesos"
+
+# contributors:LetÃ­cia Laranja
+msgid "Weights Manager"
+msgstr "Gerenciamento de pesos"
+
+# contributors:LetÃ­cia Laranja
+msgid "Weights Name"
+msgstr "Nome dos pesos"
+
+# contributors:LetÃ­cia Laranja
+msgid "Weights Symmetry Check"
+msgstr "VerificaÃ§Ã£o de simetria de pesos"
+
+# contributors:LetÃ­cia Laranja
+msgid "Weights Union"
+msgstr "UniÃ£o de pesos"
+
+# contributors:LetÃ­cia Laranja
+msgid "Weights file \"%s\" created successfully."
+msgstr "Arquivo de pesos \"%s\" criado com Ãªxito."
+
+# contributors:LetÃ­cia Laranja
+msgid "Weights file/format is not valid."
+msgstr "Arquivo/formato de pesos nÃ£o Ã© vÃ¡lido."
+
+# contributors:LetÃ­cia Laranja
+msgid "Weights:"
+msgstr "Pesos:"
+
+# contributors:LetÃ­cia Laranja
+msgid "Welcome to GeoDa"
+msgstr "Bem-Vindo ao GeoDa"
+
+# contributors:LetÃ­cia Laranja
+msgid "Welcome to GeoDa 1.8.16"
+msgstr "Bem-Vindo ao GeoDa 1.8.16"
+
+# contributors:LetÃ­cia Laranja
+msgid "West European Latin-1 (ISO-8859-1)"
+msgstr "Europa Ocidental Latim-1 (ISO-8859-1)"
+
+# contributors:LetÃ­cia Laranja
+msgid "West European Latin-9 (ISO-8859-15)"
+msgstr "Europa Ocidental Latim-9 (ISO-8859-15)"
+
+# contributors:LetÃ­cia Laranja
+msgid "What windows to open?"
+msgstr "Quais janelas abrir?"
+
+# contributors:LetÃ­cia Laranja
+msgid "When \"all times\" selected for either variable, result field must also be \"all times.\""
+msgstr "Quando \"all times\" selecionado para qualquer uma das variÃ¡veis, o campo de resultado tambÃ©m deve ser \"all times.\""
+
+# contributors:LetÃ­cia Laranja
+msgid "When \"all times\" selected for variable, result field must also be \"all times.\""
+msgstr "Quando \"all times\" Ã© selecionado para variÃ¡vel, o campo de resultados tambÃ©m deve ser \"all times.\""
+
+# contributors:LetÃ­cia Laranja
+msgid "White Test"
+msgstr "Teste de White"
+
+# contributors:LetÃ­cia Laranja
+msgid "Width in pixels"
+msgstr "Largura em pixels"
+
+# contributors:LetÃ­cia Laranja
+msgid "Width:"
+msgstr "Largura:"
+
+# contributors:LetÃ­cia Laranja
+msgid "Within cluster S.S."
+msgstr "Soma dos Quadrados dentro dos agrupamento"
+
+# contributors:LetÃ­cia Laranja
+msgid "Within-cluster sum of squares:\n"
+msgstr "Soma dos quadrados dentro dos agrupamento:\n"
+
+# contributors:LetÃ­cia Laranja
+msgid "Wrong number of rows!"
+msgstr "NÃºmero de linhas incorreto!"
+
+# contributors:LetÃ­cia Laranja
+msgid "Wrote GeoDa Project File: "
+msgstr "Arquivo do Projeto GeoDa escrito: "
+
+# contributors:Patrick Martins
+msgid "X"
+msgstr "X"
+
+# contributors:LetÃ­cia Laranja
+msgid "X Variable"
+msgstr "VariÃ¡vel X"
+
+# contributors:LetÃ­cia Laranja
+msgid "X-Axis"
+msgstr "Eixo X"
+
+# contributors:LetÃ­cia Laranja
+msgid "X-Coordinates"
+msgstr "Coordenadas X"
+
+# contributors:LetÃ­cia Laranja
+msgid "X-coord"
+msgstr "X-coord"
+
+# contributors:LetÃ­cia Laranja
+msgid "X-coordinate"
+msgstr "Coordenadas X"
+
+# contributors:LetÃ­cia Laranja
+msgid "X-coordinate variable"
+msgstr "VariÃ¡vel de coordenada X"
+
+# contributors:Patrick Martins
+msgid "Y"
+msgstr "Y"
+
+# contributors:LetÃ­cia Laranja
+msgid "Y Variable"
+msgstr "VariÃ¡vel Y"
+
+# contributors:LetÃ­cia Laranja
+msgid "Y-Axis"
+msgstr "Eixo Y"
+
+# contributors:LetÃ­cia Laranja
+msgid "Y-Coordinates"
+msgstr "Coordenadas Y"
+
+# contributors:LetÃ­cia Laranja
+msgid "Y-coord"
+msgstr "Y-coord"
+
+# contributors:LetÃ­cia Laranja
+msgid "Y-coordinate"
+msgstr "Coordenada Y"
+
+# contributors:LetÃ­cia Laranja
+msgid "Y-coordinate variable"
+msgstr "VariÃ¡vel de coordenada Y"
+
+# contributors:Patrick Martins
+msgid "Yes"
+msgstr "Sim"
+
+# contributors:LetÃ­cia Laranja
+msgid "You can try to proceed but the current threshold distance value might be too large to compute. If it fails, please input a smaller distance band (which might leave some observations neighborless) or use other weights (e.g. KNN)."
+msgstr "VocÃª pode tentar prosseguir, mas o valor atual da distÃ¢ncia limite pode ser muito grande para calcular. Se falhar, insira uma faixa de distÃ¢ncia menor (que pode deixar algumas observaÃ§Ãµes sem vizinhos) ou use outros pesos (por exemplo, KNN)"
+
+# contributors:LetÃ­cia Laranja
+msgid "You have requested to create a new file project %s  while another project is open. Please close project %s and try again."
+msgstr "VocÃª solicitou a criaÃ§Ã£o de um novo projeto de arquivo %s enquanto outro projeto estÃ¡ aberto. Feche o projeto %s e tente novamente."
+
+# contributors:Patrick Martins
+msgid "Your Email address (Optional):"
+msgstr "Seu endereÃ§o de e-mail (Opcional):"
+
+# contributors:LetÃ­cia Laranja
+msgid "Your GeoDa is already up-to-date."
+msgstr "Seu GeoDa jÃ¡ estÃ¡ atualizado."
+
+# contributors:Patrick Martins
+msgid "Your Github account (Optional):"
+msgstr "Sua conta no Github (Opcional):"
+
+# contributors:LetÃ­cia Laranja
+msgid "Your table cannot be aggregated because the key field \"%s\" is unique. Please use another key."
+msgstr "Sua tabela nÃ£o pode ser agregada porque o campo-chave \"%s\" Ã© Ãºnico. Favor usar outra chave."
+
+# contributors:LetÃ­cia Laranja
+msgid ""
+"Your table cannot be merged because the key field \"%s\" is not unique. \n"
+"It contains undefined or duplicate values.\n"
+"\n"
+"Details:"
+msgstr ""
+"Sua tabela nÃ£o pode ser mesclada porque o campo-chave \"%s\" nÃ£o Ã© Ãºnico. \n"
+"ContÃ©m valores indefinidos ou duplicados.\n"
+"\n"
+"Detalhes:"
+
+# contributors:LetÃ­cia Laranja
+msgid "Z"
+msgstr "Z"
+
+# contributors:LetÃ­cia Laranja
+msgid "Z Variable"
+msgstr "VariÃ¡vel Z"
+
+# contributors:LetÃ­cia Laranja
+msgid "Zoom : press right-mouse button"
+msgstr "Zoom : pressione o botÃ£o direito do mouse"
+
+# contributors:LetÃ­cia Laranja
+msgid "Zoom In"
+msgstr "Aumentar zoom"
+
+# contributors:LetÃ­cia Laranja
+msgid "Zoom Out"
+msgstr "Diminuir zoom"
+
+# contributors:LetÃ­cia Laranja
+msgid "Zooming Mode"
+msgstr "Modo do zoom"
+
+# contributors:LetÃ­cia Laranja
+msgid "[Please briefly describe what went wrong]"
+msgstr "[Por favor, descreva brevemente o que deu errado]"
+
+# contributors:LetÃ­cia Laranja
+msgid "[Steps you took before something went wrong]"
+msgstr "[Passos que vocÃª deu antes que algo desse errado]"
+
+# contributors:LetÃ­cia Laranja
+msgid "\"%s\" is not a valid p-value. Default p-value (0.01) is used"
+msgstr "\"%s\" nÃ£o Ã© um valor-p aceitÃ¡vel. Por padrÃ£o, valor-p (0.01) Ã© usado"
+
+# contributors:LetÃ­cia Laranja
+msgid "\"%s\" is not a valid seed. Seed unchanged."
+msgstr "\"%s\" nÃ£o Ã© uma semente vÃ¡lida. Semente nÃ£o modificada."
+
+# contributors:LetÃ­cia Laranja
+msgid ""
+"\". \n"
+"\n"
+"Details: Attemp to write a readonly database, or "
+msgstr ""
+"\". \n"
+"\n"
+"Detalhes: tentativa de escrever um banco de dados somente para leitura, ou "
+
+# contributors:LetÃ­cia Laranja
+msgid ""
+"\n"
+"REGRESSION\n"
+"----------\n"
+msgstr ""
+"\n"
+"REGRESSÃO\n"
+"----------\n"
+
+# contributors:LetÃ­cia Laranja
+msgid ""
+"\n"
+"Select whether to use periods or commas as\n"
+"separators in numeric fields. \n"
+"\n"
+"E.g., by default, GeoDa uses commas to\n"
+"separate thousands and periods\n"
+"for decimals (1,000.00).\n"
+"                "
+msgstr ""
+"\n"
+"Selecione se usarÃ¡ pontos ou vÃ­rgulas como\n"
+"separadores em campos numÃ©ricos.. \n"
+"\n"
+"Por padrÃ£o, por exemplo, o GeoDa usa vÃ­rgulas para\n"
+"separar milhares e pontos\n"
+"para decimais (1,000.00).\n"
+"                "
+
+# contributors:LetÃ­cia Laranja
+msgid ""
+"\n"
+"\n"
+"95% threshold criterion: "
+msgstr ""
+"\n"
+"\n"
+"CritÃ©rio do limite de 95%: "
+
+# contributors:LetÃ­cia Laranja
+msgid ""
+"\n"
+"\n"
+"Cumulative proportion:\n"
+msgstr ""
+"\n"
+"\n"
+"ProporÃ§Ã£o cumulativa:\n"
+
+# contributors:LetÃ­cia Laranja
+msgid ""
+"\n"
+"\n"
+"Details: "
+msgstr ""
+"\n"
+"\n"
+"Detalhes: "
+
+# contributors:LetÃ­cia Laranja
+msgid ""
+"\n"
+"\n"
+"Eigenvalues:\n"
+msgstr ""
+"\n"
+"\n"
+"Autovalores:\n"
+
+# contributors:LetÃ­cia Laranja
+msgid ""
+"\n"
+"\n"
+"Kaiser criterion: "
+msgstr ""
+"\n"
+"\n"
+"CritÃ©rio de Kaiser: "
+
+# contributors:LetÃ­cia Laranja
+msgid ""
+"\n"
+"\n"
+"Proportion of variance:\n"
+msgstr ""
+"\n"
+"\n"
+"ProporÃ§Ã£o de variÃ¡vel:\n"
+
+# contributors:LetÃ­cia Laranja
+msgid ""
+"\n"
+"\n"
+"Squared correlations:\n"
+msgstr ""
+"\n"
+"\n"
+"CorrelaÃ§Ãµes quadradas:\n"
+
+# contributors:LetÃ­cia Laranja
+msgid ""
+"\n"
+"\n"
+"Standard deviation:\n"
+msgstr ""
+"\n"
+"\n"
+"Desvio padrÃ£o:\n"
+
+# contributors:LetÃ­cia Laranja
+msgid ""
+"\n"
+"\n"
+"Variable Loadings:\n"
+msgstr ""
+"\n"
+"\n"
+"Cargas das variÃ¡veis:\n"
+
+# contributors:LetÃ­cia Laranja
+msgid "adaptive kernel"
+msgstr "Kernel adaptÃ¡vel"
+
+# contributors:LetÃ­cia Laranja
+msgid "and field"
+msgstr "e campo"
+
+# contributors:LetÃ­cia Laranja
+msgid "autocorrelation is "
+msgstr "autocorrelaÃ§Ã£o Ã©"
+
+# contributors:LetÃ­cia Laranja
+msgid "bandwidth"
+msgstr "Largura de banda"
+
+# contributors:LetÃ­cia Laranja
+msgid "binary"
+msgstr "binÃ¡rio"
+
+# contributors:LetÃ­cia Laranja
+msgid "break 0"
+msgstr "Quebrar 0"
+
+# contributors:Patrick Martins
+msgid "calculating..."
+msgstr "calculando..."
+
+# contributors:LetÃ­cia Laranja
+msgid "can't compute"
+msgstr "nÃ£o foi possÃ­vel computar"
+
+# contributors:Patrick Martins
+msgid "category 1"
+msgstr "categoria 1"
+
+# contributors:LetÃ­cia Laranja
+msgid "choice:"
+msgstr "escolha:"
+
+# contributors:LetÃ­cia Laranja
+msgid "choose a variable"
+msgstr "selecione uma variÃ¡vel"
+
+# contributors:Patrick Martins
+msgid "csv file:"
+msgstr "arquivo csv:"
+
+# contributors:LetÃ­cia Laranja
+msgid "current table key"
+msgstr "chave da tabela atual"
+
+# contributors:LetÃ­cia Laranja
+msgid "custom"
+msgstr "personalizar"
+
+# contributors:LetÃ­cia Laranja
+msgid "dBase Database File (*.dbf)|*.dbf"
+msgstr "Arquivo de base de dados dBase (*.dbf)|*.dbf"
+
+# contributors:LetÃ­cia Laranja
+msgid "datasource.type %s unknown.."
+msgstr "datasource.type %s desconhecida.."
+
+# contributors:Patrick Martins
+msgid "day:"
+msgstr "dia:"
+
+# contributors:LetÃ­cia Laranja
+msgid ""
+"decimal\n"
+"places"
+msgstr ""
+"casas\n"
+"decimais"
+
+# contributors:LetÃ­cia Laranja
+msgid ""
+"displayed\n"
+"decimal places"
+msgstr ""
+"exibido em\n"
+"casas decimais"
+
+# contributors:Patrick Martins
+msgid "distance metric"
+msgstr "mÃ©trica de distÃ¢ncia"
+
+# contributors:Patrick Martins
+msgid "distance unit"
+msgstr "unidade de distÃ¢ncia"
+
+# contributors:LetÃ­cia Laranja
+msgid "distance vars"
+msgstr "variÃ¡veis de distÃ¢ncia"
+
+# contributors:LetÃ­cia Laranja
+msgid "diverging"
+msgstr "divergente"
+
+# contributors:LetÃ­cia Laranja
+msgid "done"
+msgstr "concluÃ­do"
+
+# contributors:LetÃ­cia Laranja
+msgid "ds:"
+msgstr "ds:"
+
+# contributors:LetÃ­cia Laranja
+msgid "enumerate as 1, 2, 3, ..."
+msgstr "enumerar como 1,2,3, ..."
+
+# contributors:LetÃ­cia Laranja
+msgid "false"
+msgstr "falso"
+
+# contributors:LetÃ­cia Laranja
+msgid "field name:"
+msgstr "nome do campo:"
+
+# contributors:LetÃ­cia Laranja
+msgid "fields:"
+msgstr "campos:"
+
+# contributors:Patrick Martins
+msgid "file"
+msgstr "arquivo"
+
+# contributors:LetÃ­cia Laranja
+msgid "file size:"
+msgstr "tamanho do arquivo:"
+
+# contributors:LetÃ­cia Laranja
+msgid "from"
+msgstr "de"
+
+# contributors:LetÃ­cia Laranja
+msgid "id variable"
+msgstr "variÃ¡vel de id"
+
+# contributors:LetÃ­cia Laranja
+msgid "import table key"
+msgstr "chave da tabela de importaÃ§Ã£o"
+
+# contributors:LetÃ­cia Laranja
+msgid "in current layer."
+msgstr "na camada atual."
+
+# contributors:Patrick Martins
+msgid "inches"
+msgstr "polegadas"
+
+# contributors:LetÃ­cia Laranja
+msgid "include lower orders"
+msgstr "incluir ordens menores"
+
+# contributors:LetÃ­cia Laranja
+msgid "inverse distance"
+msgstr "distÃ¢ncia inversa"
+
+# contributors:LetÃ­cia Laranja
+msgid "is associated to"
+msgstr "Ã© associado a"
+
+# contributors:LetÃ­cia Laranja
+msgid "kernel method"
+msgstr "MÃ©todo de Kernel"
+
+# contributors:LetÃ­cia Laranja
+msgid "kernel to diagonal"
+msgstr "Kernel para a diagonal"
+
+# contributors:LetÃ­cia Laranja
+msgid "large"
+msgstr "grande"
+
+# contributors:LetÃ­cia Laranja
+msgid "length"
+msgstr "comprimento"
+
+# contributors:LetÃ­cia Laranja
+msgid "max dist"
+msgstr "max dist"
+
+# contributors:LetÃ­cia Laranja
+msgid "max neighbors"
+msgstr "max vizinhos"
+
+# contributors:LetÃ­cia Laranja
+msgid "max-p"
+msgstr "max-p"
+
+# contributors:LetÃ­cia Laranja
+msgid "max:"
+msgstr "max:"
+
+# contributors:LetÃ­cia Laranja
+msgid "maximum"
+msgstr "mÃ¡ximo"
+
+# contributors:LetÃ­cia Laranja
+msgid ""
+"maximum\n"
+"possible"
+msgstr ""
+"mÃ¡ximo\n"
+"possÃ­vel"
+
+# contributors:LetÃ­cia Laranja
+msgid "mean"
+msgstr "mÃ©dia"
+
+# contributors:LetÃ­cia Laranja
+msgid "mean neighbors"
+msgstr "mÃ©dia dos vizinhos"
+
+# contributors:LetÃ­cia Laranja
+msgid "mean:"
+msgstr "mÃ©dia:"
+
+# contributors:LetÃ­cia Laranja
+msgid "median neighbors"
+msgstr "mediana dos vizinhos"
+
+# contributors:LetÃ­cia Laranja
+msgid "median:"
+msgstr "mediana:"
+
+# contributors:LetÃ­cia Laranja
+msgid "min dist"
+msgstr "min dist"
+
+# contributors:LetÃ­cia Laranja
+msgid "min neighbors"
+msgstr "min vizinhos"
+
+# contributors:LetÃ­cia Laranja
+msgid "min:"
+msgstr "min:"
+
+# contributors:LetÃ­cia Laranja
+msgid "minimum"
+msgstr "mÃ­nimo"
+
+# contributors:LetÃ­cia Laranja
+msgid ""
+"minimum\n"
+"possible"
+msgstr ""
+"mÃ­nimo\n"
+"possÃ­vel"
+
+# contributors:LetÃ­cia Laranja
+msgid "mm"
+msgstr "mm"
+
+# contributors:Patrick Martins
+msgid "month:"
+msgstr "mÃªs:"
+
+# contributors:Patrick Martins
+msgid "name:"
+msgstr "nome:"
+
+# contributors:LetÃ­cia Laranja
+msgid "need two valid regressions"
+msgstr "necessÃ¡rio duas regressÃµes vÃ¡lidas"
+
+# contributors:LetÃ­cia Laranja
+msgid "neighbors"
+msgstr "vizinhos"
+
+# contributors:LetÃ­cia Laranja
+msgid "not saved"
+msgstr "nÃ£o salvo"
+
+# contributors:Patrick Martins
+msgid "numeric"
+msgstr "numÃ©rico"
+
+# contributors:Patrick Martins
+msgid "obs "
+msgstr "obs "
+
+# contributors:LetÃ­cia Laranja
+msgid "obs#"
+msgstr "obs#"
+
+# contributors:Patrick Martins
+msgid "observation:"
+msgstr "observaÃ§Ã£o:"
+
+# contributors:LetÃ­cia Laranja
+msgid "order"
+msgstr "ordenar"
+
+# contributors:LetÃ­cia Laranja
+msgid "parent group"
+msgstr "grupo de origem"
+
+# contributors:LetÃ­cia Laranja
+msgid "pixels"
+msgstr "pixels"
+
+# contributors:LetÃ­cia Laranja
+msgid "power"
+msgstr "potÃªncia"
+
+# contributors:LetÃ­cia Laranja
+msgid "range, est. distance"
+msgstr "alcance, distÃ¢ncia est."
+
+# contributors:LetÃ­cia Laranja
+msgid "records:"
+msgstr "registros:"
+
+# contributors:LetÃ­cia Laranja
+msgid "redcap"
+msgstr "redcap"
+
+# contributors:LetÃ­cia Laranja
+msgid "row-standardized"
+msgstr "linhas padronizadas"
+
+# contributors:LetÃ­cia Laranja
+msgid "row:\n"
+msgstr "linha:\n"
+
+# contributors:LetÃ­cia Laranja
+msgid "s.d."
+msgstr "s.d."
+
+# contributors:LetÃ­cia Laranja
+msgid "s.d.:"
+msgstr "s.d.:"
+
+# contributors:LetÃ­cia Laranja
+msgid "sd from mean"
+msgstr "desvio padrÃ£o da mÃ©dia"
+
+# contributors:LetÃ­cia Laranja
+msgid "selected:"
+msgstr "selecionado:"
+
+# contributors:LetÃ­cia Laranja
+msgid "sequential"
+msgstr "sequencial"
+
+# contributors:LetÃ­cia Laranja
+msgid "show normal distribution p-val map"
+msgstr "mostrar mapa de distribuiÃ§Ã£o normal do valor-p"
+
+# contributors:LetÃ­cia Laranja
+msgid "show normal distribution p-val maps"
+msgstr "mostrar mapas de distribuiÃ§Ã£o normal do valor-p"
+
+# contributors:LetÃ­cia Laranja
+msgid "show significance maps"
+msgstr "Mostrar mapa de significÃ¢ncia"
+
+# contributors:LetÃ­cia Laranja
+msgid "skater"
+msgstr "MÃ©todo Skater"
+
+# contributors:LetÃ­cia Laranja
+msgid "small"
+msgstr "pequeno"
+
+# contributors:LetÃ­cia Laranja
+msgid "space-time variable found with no name"
+msgstr "variÃ¡vel espaÃ§o-tempo encontrada sem nome"
+
+# contributors:LetÃ­cia Laranja
+msgid "standard deviation"
+msgstr "desvio padrÃ£o"
+
+# contributors:LetÃ­cia Laranja
+msgid "suggested title:"
+msgstr "tÃ­tulo suegerido:"
+
+# contributors:LetÃ­cia Laranja
+msgid "symmetry"
+msgstr "simetria"
+
+# contributors:LetÃ­cia Laranja
+msgid "thematic"
+msgstr "temÃ¡tico"
+
+# contributors:LetÃ­cia Laranja
+msgid "threshold value"
+msgstr "valor limite"
+
+# contributors:LetÃ­cia Laranja
+msgid "time"
+msgstr "tempo"
+
+# contributors:LetÃ­cia Laranja
+msgid "to"
+msgstr "para"
+
+# contributors:LetÃ­cia Laranja
+msgid "to define weights."
+msgstr "para definir pesos."
+
+# contributors:LetÃ­cia Laranja
+msgid "to specify variable and distance parameters."
+msgstr "para especificar variÃ¡veis e parÃ¢metros de distÃ¢ncia."
+
+# contributors:LetÃ­cia Laranja
+msgid "total # pairs"
+msgstr "total # pares"
+
+# contributors:hugonbgg
+msgid "true"
+msgstr "verdadeiro"
+
+# contributors:hugonbgg
+msgid "type"
+msgstr "tipo"
+
+# contributors:hugonbgg
+msgid "undefined: "
+msgstr "indefinido: "
+
+# contributors:LetÃ­cia Laranja
+msgid "uni. dist. Min"
+msgstr "uni. dist. Min"
+
+# contributors:hugonbgg
+msgid "uniform distribution"
+msgstr "distribuiÃ§Ã£o uniforme"
+
+# contributors:hugonbgg
+msgid "unknown"
+msgstr "desconhecido"
+
+# contributors:LetÃ­cia Laranja
+msgid "using row-standardized weights"
+msgstr "usando pesos padronizados para linha"
+
+# contributors:hugonbgg
+msgid "value"
+msgstr "valor"
+
+# contributors:hugonbgg
+msgid "value:"
+msgstr "valor:"
+
+# contributors:LetÃ­cia Laranja
+msgid "var name:"
+msgstr "nome de variÃ¡vel:"
+
+# contributors:LetÃ­cia Laranja
+msgid "variable name"
+msgstr "nome da variÃ¡vel"
+
+# contributors:hugonbgg
+msgid "version:"
+msgstr "versÃ£o:"
+
+# contributors:hugonbgg
+msgid "weights:"
+msgstr "pesos:"
+
+# contributors:LetÃ­cia Laranja
+msgid "wrong model number"
+msgstr "modelo numÃ©rico incorreto"
+
+# contributors:LetÃ­cia Laranja
+msgid "y:"
+msgstr "ano:"
+
+# contributors:hugonbgg
+msgid "year:"
+msgstr "ano:"

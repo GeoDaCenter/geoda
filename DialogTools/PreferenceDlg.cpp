@@ -263,7 +263,7 @@ void PreferenceDlg::Init()
     cmb113->Append("Chinese (Simplified)");
     cmb113->Append("Spanish");
     cmb113->Append("Russian");
-    //cmb113->Append("German");
+    cmb113->Append("Portuguese");
     cmb113->Bind(wxEVT_COMBOBOX, &PreferenceDlg::OnChooseLanguage, this);
     //cmb113->Disable();
     
@@ -937,6 +937,8 @@ void PreferenceDlg::OnChooseLanguage(wxCommandEvent& ev)
             language = 179;//wxLANGUAGE_SPANISH;
         } else if (lan_sel == 4) {
             language = wxLANGUAGE_RUSSIAN;
+        } else if (lan_sel == 5) {
+            language = wxLANGUAGE_PORTUGUESE;
         }
         config->DeleteEntry("Translation");
         config->SetPath("Translation");
