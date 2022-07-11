@@ -354,7 +354,7 @@ void VarGroupingEditorDlg::OnSaveSpaceTimeTableClick( wxCommandEvent& event )
                 
                 std::vector<wxString> id_vec;
                 int c_id = table_int->FindColId(gw->id_field);
-                if (c_id > 0) {
+                if (c_id >= 0) {
                     table_int->GetColData(c_id, 1, id_vec);
                     
                     std::vector<wxString> new_id_vec;
@@ -366,6 +366,11 @@ void VarGroupingEditorDlg::OnSaveSpaceTimeTableClick( wxCommandEvent& event )
                     mem_table_int->AddOGRColumn(id_col);
                     using_default_id = false;
                 }
+            } else {
+                // save (sequential index as) id, if no default weights been selected
+                OGRColumn* id_col = new OGRColumnString("ID", 50, 0, n);
+                id_col->UpdateData(id_stack, undefs);
+                mem_table_int->AddOGRColumn(id_col);
             }
         }
     }
