@@ -1,12 +1,12 @@
 #!/usr/bin/python
 
 from __future__ import print_function
-import re
+import codecs
 import sys
 #import xlsxwriter
 
 def dict2PO(po_items, file_path):
-    f = open(file_path, 'w')
+    f = open(file_path, 'w', encoding='utf-8')
     msgid_list = sorted(po_items)
     for msgid in msgid_list:
         msgstr, contrib = po_items[msgid]
@@ -21,7 +21,7 @@ def dict2PO(po_items, file_path):
 
 
 def dict2csv(po_items, file_path):
-    f = open(file_path, 'w')
+    f = open(file_path, 'w', encoding='utf-8')
     line = 'msgid`msgstr`contributors\n'
     f.write(line)
     msgid_list = sorted(po_items)
