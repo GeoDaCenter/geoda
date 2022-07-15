@@ -10,8 +10,8 @@ def ProcessDependency(dylib_path, cid):
     else:
         processed_items[dylib_path] = True
 
-    if dylib_path == '@rpath/libgeos.3.10.2.dylib':
-        dylib_path = '/opt/homebrew/opt/geos/lib/libgeos.3.10.2.dylib'
+    if dylib_path == '@rpath/libgeos.3.11.0.dylib':
+        dylib_path = '/opt/homebrew/opt/geos/lib/libgeos.3.11.0.dylib'
 
     print("Process:", dylib_path)
     #cmd = "codesign -f -s - "
