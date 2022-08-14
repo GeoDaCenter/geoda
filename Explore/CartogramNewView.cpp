@@ -23,6 +23,7 @@
 #include <set>
 #include <sstream>
 #include <limits>
+#include <math.h>
 #include <boost/foreach.hpp>
 #include <wx/wx.h>
 #include <wx/msgdlg.h>
@@ -36,6 +37,7 @@
 #include "../FramesManager.h"
 #include "../GeoDa.h"
 #include "../Project.h"
+#include "../GenUtils.h"
 #include "../ShapeOperations/GalWeight.h"
 #include "../ShapeOperations/VoronoiUtils.h"
 #include "CartogramNewView.h"
@@ -137,7 +139,6 @@ improve_table(6), realtime_updates(false), all_init(false)
 		
 	vector<double> orig_x(num_obs);
 	vector<double> orig_y(num_obs);
-	vector<double> orig_data(num_obs);
 	project->GetCentroids(orig_x, orig_y);
 	
 	cart_nbr_info = new CartNbrInfo(project->GetVoronoiRookNeighborGal(),
@@ -147,12 +148,35 @@ improve_table(6), realtime_updates(false), all_init(false)
 	carts.resize(num_cart_times);
 	num_improvement_iters.resize(num_cart_times);
     
+    vector<vector<double>> orig_data(num_cart_times);
+    for (int t=0; t<num_cart_times; t++) {
+        orig_data[t].resize(num_obs);
+    }
+    
+    double min_over_time = DBL_MAX;
+    double max_over_time = -DBL_MAX;
+    for (int t=0; t<num_cart_times; t++) {
+        table_int->GetColData(col_ids[RAD_VAR], t, orig_data[t]);
+        GenUtils::StandardizeData(orig_data[t]);
+        // use exponential instead of linear to exaggerate the differences
+        for (size_t j = 0; j < orig_data[t].size(); ++j) {
+            orig_data[t][j] = exp(orig_data[t][j]);
+        }
+        for (size_t j = 0; j < orig_data[t].size(); ++j) {
+            if (orig_data[t][j] < min_over_time) {
+                min_over_time = orig_data[t][j];
+            }
+            if (orig_data[t][j] > max_over_time) {
+                max_over_time = orig_data[t][j];
+            }
+        }
+    }
+    
 	for (int t=0; t<num_cart_times; t++) {
-		table_int->GetColData(col_ids[RAD_VAR], t, orig_data);
 		carts[t] = new DorlingCartogram(cart_nbr_info, orig_x,
-										orig_y, orig_data,
-										var_info[RAD_VAR].min_over_time,
-										var_info[RAD_VAR].max_over_time);
+										orig_y, orig_data[t],
+                                        min_over_time,
+                                        max_over_time);
 		num_improvement_iters[t] = 0;
 	}
     
@@ -215,7 +239,7 @@ improve_table(6), realtime_updates(false), all_init(false)
 	max_out_x += max_rad;
 	max_out_y += max_rad;
 	
-	selectable_fill_color = GdaConst::map_default_fill_colour;
+    selectable_fill_color = wxColour(255, 255, 255); // GdaConst::map_default_fill_colour;
 
 	// Note: the shps_orig min/max will depend on the bubble sizes
     last_scale_trans.SetView(size.GetWidth(), size.GetHeight());
@@ -436,7 +460,7 @@ void CartogramNewCanvas::NewCustomCatClassif()
 										  cat_classif_def.num_cats);
 		int time = cat_data.GetCurrentCanvasTmStep();
 		for (int i=0; i<cat_classif_def.num_cats; i++) {
-			cat_classif_def.colors[i] = cat_data.GetCategoryColor(time, i);
+			cat_classif_def.colors[i] = cat_data.GetCategoryPenColor(time, i);
 			cat_classif_def.names[i] = cat_data.GetCategoryLabel(time, i);
 		}
 		int col = table_int->FindColId(var_info[THM_VAR].name);
@@ -655,7 +679,8 @@ void CartogramNewCanvas::CreateAndUpdateCategories()
 		cat_classif_def.colors[0] = GdaConst::map_default_fill_colour;
 		cat_data.CreateCategoriesAllCanvasTms(1, num_time_vals, num_obs);
 		for (int t=0; t<num_time_vals; t++) {
-			cat_data.SetCategoryColor(t, 0,GdaConst::map_default_fill_colour);
+			cat_data.SetCategoryPenColor(t, 0, GdaConst::map_default_fill_colour);
+            cat_data.SetCategoryBrushColor(t, 0, GdaConst::map_default_fill_colour);
 			cat_data.SetCategoryLabel(t, 0, "");
 			cat_data.SetCategoryCount(t, 0, num_obs);
 			for (int i=0; i<num_obs; i++) cat_data.AppendIdToCategory(t, 0, i);

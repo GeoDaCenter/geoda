@@ -24,6 +24,9 @@ ShowLanguageDialog=yes
 
 [Languages]
 Name: "en"; MessagesFile: "compiler:Default.isl"
+Name: "spanish"; MessagesFile: "compiler:Languages\Spanish.isl"
+Name: "russian"; MessagesFile: "compiler:Languages\Russian.isl"
+Name: "portuguese"; MessagesFile: "compiler:Languages\Portuguese.isl"
 
 [dirs]
 Name: "{app}";  Permissions: everyone-full; Check: InitializeSetup
@@ -194,6 +197,10 @@ begin
     begin
       langCode := '159';  // russian
     end;
+    4:
+    begin
+      langCode := '153';  // Portuguese
+    end;
   end;
 end;
 
@@ -219,6 +226,7 @@ begin
   ComboBox.Items.Add('Chinese (Simplified)');
   ComboBox.Items.Add('Spanish');
   ComboBox.Items.Add('Russian');
+  ComboBox.Items.Add('Portuguese');
   ComboBox.ItemIndex := 0;
   ComboBox.OnChange := @ComboBoxChange;
   langCode := '58';
