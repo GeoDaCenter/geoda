@@ -92,6 +92,8 @@ private:
 	int COL_MAX; // max value possible
 	int NUM_COLS;
 	
+	const wxString FIELD_TYPE_CHOICES[6] = { "real", "integer", "string", "date", "time", "datetime" };
+
 	DECLARE_EVENT_TABLE()
 };
 
