@@ -196,8 +196,7 @@ void DataViewerEditFieldPropertiesDlg::InitTable()
 			field_grid->SetCellTextColour(r, COL_T, GdaConst::table_no_edit_color);
             
 			//field_grid->SetReadOnly(r, COL_T, true);
-            wxString strChoices[6] = {"real", "integer", "string", "date", "time", "datetime"};
-            field_grid->SetCellEditor(r, COL_T, new wxGridCellChoiceEditor(6, strChoices, false));
+            field_grid->SetCellEditor(r, COL_T, new wxGridCellChoiceEditor(6, FIELD_TYPE_CHOICES, false));
             
 			if (type == GdaConst::double_type) {
 				field_grid->SetCellValue(r, COL_T, "real");
@@ -411,10 +410,8 @@ void DataViewerEditFieldPropertiesDlg::OnCellChanging( wxGridEvent& ev )
 	int max_v;
     if (col == COL_T) {
         if (combo_selection >=0) {
-            wxString strChoices[6] = {"real", "integer", "string", "date",
-                "time", "datetime"};
             // change field type
-            wxString new_type_str = strChoices[combo_selection];
+            wxString new_type_str = FIELD_TYPE_CHOICES[combo_selection];
             if (new_type_str != type_str) {
                 GdaConst::FieldType new_type = GdaConst::unknown_type;
                 if (new_type_str == "real") {
@@ -735,8 +732,7 @@ void DataViewerEditFieldPropertiesDlg::OnCellEditorHidden( wxGridEvent& ev )
     
     if (col == 1) {
         if (combo_selection >=0) {
-            wxString strChoices[4] = {"real", "integer", "date","string"};
-            field_grid->SetCellValue(row, col, strChoices[combo_selection]);
+            field_grid->SetCellValue(row, col, FIELD_TYPE_CHOICES[combo_selection]);
         }
         combo_selection = -1;
     }
