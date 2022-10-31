@@ -337,8 +337,8 @@ void AbstractMapCanvas::CreateAndUpdateCategories()
                 } else if (cluster[i] == 6) {
                     cat_data.AppendIdToCategory(t, undefined_cat, i);
                 } else {
-                    //cat_data.AppendIdToCategory(t, (sigCat[i]-s_f)+1, i);
-                    for ( int c = def_cats.size()-1; c >= 0; c-- ) {
+                    // if use custom inference, use num_cats instead of def_cats.size()
+                    for ( int c = num_cats - 1; c >= 0; c-- ) {
                         if ( p[i] <= def_cutoffs[c] ) {
                             cat_data.AppendIdToCategory(t, level_cat_dict[c], i);
                             break;
