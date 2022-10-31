@@ -1127,9 +1127,13 @@ void LocalGearyMapFrame::OnSelectCoresAndNeighbors(wxCommandEvent& event)
 void LocalGearyMapFrame::OnShowAsConditionalMap(wxCommandEvent& event)
 {
 	wxLogMessage("In LocalGearyMapFrame::OnShowAsConditionalMap");
+    int style = VariableSettingsDlg::ALLOW_STRING_IN_FIRST | VariableSettingsDlg::ALLOW_STRING_IN_SECOND |
+        VariableSettingsDlg::ALLOW_EMPTY_IN_FIRST |
+        VariableSettingsDlg::ALLOW_EMPTY_IN_SECOND;
     
-    VariableSettingsDlg dlg(project, VariableSettingsDlg::bivariate,
-                            false, false,
+    VariableSettingsDlg dlg(project,
+                            VariableSettingsDlg::bivariate,
+                            style,
                             _("Conditional Local Geary Map Variables"),
                             _("Horizontal Cells"),
                             _("Vertical Cells"));
