@@ -377,6 +377,7 @@ namespace GenUtils {
 
 	double Sum(vector<double>& data);
     double Median(std::vector<double>& data);
+    double Median(double* data, int n, const std::vector<bool>& undefs);
 
 	double SumOfSquares(vector<double>& data);
     double SumOfSquaresMedian(vector<double>& data);
