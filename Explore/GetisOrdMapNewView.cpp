@@ -1059,8 +1059,14 @@ void GetisOrdMapFrame::OnSelectCoresAndNeighbors(wxCommandEvent& event)
 
 void GetisOrdMapFrame::OnShowAsConditionalMap(wxCommandEvent& event)
 {
-    VariableSettingsDlg dlg(project, VariableSettingsDlg::bivariate,
-                            false, false,
+    int style = VariableSettingsDlg::ALLOW_STRING_IN_FIRST | VariableSettingsDlg::ALLOW_STRING_IN_SECOND |
+        VariableSettingsDlg::ALLOW_EMPTY_IN_FIRST |
+        VariableSettingsDlg::ALLOW_EMPTY_IN_SECOND;
+    
+
+    VariableSettingsDlg dlg(project,
+                            VariableSettingsDlg::bivariate,
+                            style,
                             _("Conditional G Cluster Map Variables"),
                             _("Horizontal Cells"),
                             _("Vertical Cells"));

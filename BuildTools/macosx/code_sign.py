@@ -12,6 +12,10 @@ def ProcessDependency(dylib_path, cid):
 
     if dylib_path == '@rpath/libgeos.3.11.0.dylib':
         dylib_path = '/opt/homebrew/opt/geos/lib/libgeos.3.11.0.dylib'
+    if dylib_path == '@loader_path/libicuuc.71.dylib':
+        dylib_path = '/opt/homebrew/opt/icu4c/lib/libicuuc.71.dylib'
+    if dylib_path == '@loader_path/libicudata.71.dylib':
+        dylib_path = '/opt/homebrew/opt/icu4c/lib/libicudata.71.dylib'
 
     print("Process:", dylib_path)
     #cmd = "codesign -f -s - "

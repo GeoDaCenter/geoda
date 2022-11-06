@@ -338,12 +338,16 @@ void LisaMapFrame::OnSaveResult(wxCommandEvent& event)
 
 void LisaMapFrame::OnShowAsConditionalMap(wxCommandEvent& event)
 {
-    VariableSettingsDlg dlg(project, VariableSettingsDlg::bivariate,
-                            false, false,
+    int style = VariableSettingsDlg::ALLOW_STRING_IN_FIRST | VariableSettingsDlg::ALLOW_STRING_IN_SECOND |
+        VariableSettingsDlg::ALLOW_EMPTY_IN_FIRST |
+        VariableSettingsDlg::ALLOW_EMPTY_IN_SECOND;
+    
+    VariableSettingsDlg dlg(project,
+                            VariableSettingsDlg::bivariate,
+                            style,
                             _("Conditional LISA Map Variables"),
-                            _("Horizontal Cells"), _("Vertical Cells"),
-                            "", "", false, false, false, // default
-                            true, true, false, false);
+                            _("Horizontal Cells"),
+                            _("Vertical Cells"));
     
     if (dlg.ShowModal() != wxID_OK) {
         return;

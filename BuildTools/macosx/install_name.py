@@ -17,12 +17,18 @@ def ProcessDependency(dir_path, dylib_name):
 
         # workaround for gdal 3.3.3 that @rpath/libgeos.3.10.2.dylib was used instead of dir path
         copyitem = item
+        if item == '@rpath/libgeos.3.10.2.dylib':
+            copyitem = '/usr/local/opt/geos/lib/libgeos.dylib'
         if item == '@rpath/libgeos.3.11.0.dylib':
             copyitem = '/usr/local/opt/geos/lib/libgeos.dylib'
         if item == '@loader_path/libicuuc.70.dylib':
             copyitem = '/usr/local/opt/icu4c/lib/libicuuc.70.dylib'
+        if item == '@loader_path/libicuuc.71.dylib':
+            copyitem = '/usr/local/opt/icu4c/lib/libicuuc.71.dylib'
         if item == '@loader_path/libicudata.70.dylib':
             copyitem = '/usr/local/opt/icu4c/lib/libicudata.70.dylib'
+        if item == '@loader_path/libicudata.71.dylib':
+            copyitem = '/usr/local/opt/icu4c/lib/libicudata.71.dylib'
 
         if item.startswith('/usr/lib') == False and item.startswith('/System') == False and (codesign_only or item.startswith('@executable_path/')==False):
             print("Process:", item)

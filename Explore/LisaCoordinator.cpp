@@ -486,6 +486,9 @@ void LisaCoordinator::Calc()
         Gal_vecs[t] = gw;
         Gal_vecs_orig[t] = weights;
 	
+        double reference_val = using_median
+            ? GenUtils::Median(data1, num_obs, undefs) : 0;
+        
 		for (int i=0; i<num_obs; i++) {
             lags[i] = 0;
             localMoran[i] = 0;
@@ -528,14 +531,19 @@ void LisaCoordinator::Calc()
             if (data1) {
                 localMoran[i] = data1[i] * Wdata;
             }
-				
+
 			// assign the cluster
 			//if (W[i].Size() > 0) {
             if (data1) {
-                if (data1[i] > 0 && Wdata < 0) cluster[i] = 4;
-                else if (data1[i] < 0 && Wdata > 0) cluster[i] = 3;
-                else if (data1[i] < 0 && Wdata < 0) cluster[i] = 2;
-                else cluster[i] = 1; //data1[i] > 0 && Wdata > 0
+                if (data1[i] > reference_val && Wdata < reference_val) {
+                    cluster[i] = 4;
+                } else if (data1[i] < reference_val && Wdata > reference_val) {
+                    cluster[i] = 3;
+                } else if (data1[i] < reference_val && Wdata < reference_val) {
+                    cluster[i] = 2;
+                } else {
+                    cluster[i] = 1; //data1[i] > 0 && Wdata > 0
+                }
             }
 		}
 	}

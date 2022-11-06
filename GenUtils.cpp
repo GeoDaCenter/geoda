@@ -1331,6 +1331,17 @@ double GenUtils::Median(std::vector<double>& data)
     return 0.5 * (data[n/2 -1] + data[n/2]);
 }
 
+double GenUtils::Median(double* data, int n, const std::vector<bool>& undefs)
+{
+    std::vector<double> valid_data;
+    for (int i = 0; i < n; ++i) {
+        if (!undefs[i]) {
+            valid_data.push_back(data[i]);
+        }
+    }
+    return Median(valid_data);
+}
+
 void GenUtils::DeviationFromMean(int nObs, double* data)
 {
 	if (nObs == 0) return;
