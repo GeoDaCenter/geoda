@@ -18,6 +18,7 @@
  */
 
 #include <limits>
+#include <sstream>
 #include <vector>
 #include <wx/msgdlg.h>
 #include <wx/textdlg.h>
@@ -80,6 +81,7 @@ is_diff(local_geary_coordinator->local_geary_type == LocalGearyCoordinator::diff
     str_p001 = "p = 0.01";
     str_p0001 = "p = 0.001";
     str_p00001 = "p = 0.0001";
+    str_p000001 = "p = 0.00001";
     
     SetPredefinedColor(str_not_sig, wxColour(240, 240, 240));
     SetPredefinedColor(str_highhigh, wxColour(178,24,43));
@@ -93,6 +95,7 @@ is_diff(local_geary_coordinator->local_geary_type == LocalGearyCoordinator::diff
     SetPredefinedColor(str_p001, wxColour(6, 196, 11));
     SetPredefinedColor(str_p0001, wxColour(3, 116, 6));
     SetPredefinedColor(str_p00001, wxColour(1, 70, 3));
+    SetPredefinedColor(str_p000001, wxColour(0, 50, 2));
     
 	cat_classif_def.cat_classif_type = theme_type_s;
 	// must set var_info times from LocalGearyCoordinator initially
@@ -281,12 +284,12 @@ void LocalGearyMapCanvas::CreateAndUpdateCategories()
     int s_f = local_geary_coord->GetSignificanceFilter();
     int set_perm = local_geary_coord->permutations;
     double stop_sig = 1.0 / (1.0 + set_perm);
-    
-    wxString def_cats[4] = {str_p005, str_p001, str_p0001, str_p00001};
-    double def_cutoffs[4] = {0.05, 0.01, 0.001, 0.0001};
+        
+    wxString def_cats[NUM_SIG_CATS] = {str_p005, str_p001, str_p0001, str_p00001, str_p000001};
+    double def_cutoffs[NUM_SIG_CATS] = {0.05, 0.01, 0.001, 0.0001, 0.00001};
 	
     bool is_cust_cutoff = true;
-    for (int i=0; i<4; i++) {
+    for (int i=0; i<NUM_SIG_CATS; i++) {
         if (sig_cutoff == def_cutoffs[i]) {
             is_cust_cutoff = false;
             break;
@@ -295,22 +298,25 @@ void LocalGearyMapCanvas::CreateAndUpdateCategories()
     
     if ( is_cust_cutoff ) {
         // if set customized cutoff value
-        wxString lbl = wxString::Format("p = %g", sig_cutoff);
+        std::ostringstream ss_sig_cutoff;
+        ss_sig_cutoff << std::fixed << sig_cutoff;
+        wxString lbl =  wxString::Format("p = %s", ss_sig_cutoff.str());
         if ( sig_cutoff > 0.05 ) {
             def_cutoffs[0] = sig_cutoff;
             lbl_color_dict[lbl] = lbl_color_dict[def_cats[0]];
             def_cats[0] = lbl;
         } else {
-            for (int i = 1; i < 4; i++) {
-                if (def_cutoffs[i-1] + def_cutoffs[i] < 2 * sig_cutoff){
-                    lbl_color_dict[lbl] = lbl_color_dict[def_cats[i-1]];
-                    def_cutoffs[i-1] = sig_cutoff;
-                    def_cats[i-1] = lbl;
-                    break;
-                } else {
-                    lbl_color_dict[lbl] = lbl_color_dict[def_cats[i]];
-                    def_cutoffs[i] = sig_cutoff;
-                    def_cats[i] = lbl;
+            for (int i = 1; i < NUM_SIG_CATS; i++) {
+                if (sig_cutoff < def_cutoffs[i-1] && sig_cutoff > def_cutoffs[i]) {
+                    if (def_cutoffs[i-1] - sig_cutoff < sig_cutoff - def_cutoffs[i]){
+                        lbl_color_dict[lbl] = lbl_color_dict[def_cats[i-1]];
+                        def_cutoffs[i-1] = sig_cutoff;
+                        def_cats[i-1] = lbl;
+                    } else {
+                        lbl_color_dict[lbl] = lbl_color_dict[def_cats[i]];
+                        def_cutoffs[i] = sig_cutoff;
+                        def_cats[i] = lbl;
+                    }
                     break;
                 }
             }
@@ -437,15 +443,18 @@ void LocalGearyMapCanvas::CreateAndUpdateCategories()
             
 		} else {
             // significance map
-            // 0: >0.05 1: 0.05, 2: 0.01, 3: 0.001, 4: 0.0001
+            // 0: >0.05 1: 0.05, 2: 0.01, 3: 0.001, 4: 0.0001, 5: 0.00001
             
-            num_cats = 5;
-            for (int j=0; j < 4; j++) {
+            num_cats = NUM_SIG_CATS + 1;
+            for (int j=0; j < NUM_SIG_CATS; j++) {
                 if (sig_cutoff < def_cutoffs[j])
                     num_cats -= 1;
             }
             
             // issue #474 only show significance levels that can be mapped for the given number of permutations, e.g., for 99 it would stop at 0.01, for 999 at 0.001, etc.
+            if ( sig_cutoff >= def_cutoffs[4] && stop_sig > def_cutoffs[4] ){ //0.0001
+                num_cats -= 1;
+            }
             if ( sig_cutoff >= def_cutoffs[3] && stop_sig > def_cutoffs[3] ){ //0.0001
                 num_cats -= 1;
             }
@@ -457,7 +466,7 @@ void LocalGearyMapCanvas::CreateAndUpdateCategories()
             }
             cat_data.CreateCategoriesAtCanvasTm(num_cats, t);
             
-            // 0: >0.05 1: 0.05, 2: 0.01, 3: 0.001, 4: 0.0001
+            // 0: >0.05 1: 0.05, 2: 0.01, 3: 0.001, 4: 0.0001, 5: 0.00001
             cat_data.SetCategoryLabel(t, 0, str_not_sig);
             
             if (hdr.shape_type == Shapefile::POINT_TYP) {
@@ -468,7 +477,7 @@ void LocalGearyMapCanvas::CreateAndUpdateCategories()
             
             int cat_idx = 1;
             std::map<int, int> level_cat_dict;
-            for (int j=0; j < 4; j++) {
+            for (int j=0; j < NUM_SIG_CATS; j++) {
                 if (sig_cutoff >= def_cutoffs[j] && def_cutoffs[j] >= stop_sig) {
                     cat_data.SetCategoryColor(t, cat_idx, lbl_color_dict[def_cats[j]]);
                     cat_data.SetCategoryLabel(t, cat_idx, def_cats[j]);
@@ -526,7 +535,7 @@ void LocalGearyMapCanvas::CreateAndUpdateCategories()
                         cat_data.AppendIdToCategory(t, undefined_cat, i);
                     } else {
                         //cat_data.AppendIdToCategory(t, (sigCat[i]-s_f)+1, i);
-                        for ( int c = 4-1; c >= 0; c-- ) {
+                        for ( int c = NUM_SIG_CATS-1; c >= 0; c-- ) {
                             if ( p[i] <= def_cutoffs[c] ) {
                                 cat_data.AppendIdToCategory(t, level_cat_dict[c], i);
                                 break;
