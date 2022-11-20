@@ -71,6 +71,9 @@ protected:
     wxString str_p001;
     wxString str_p0001;
     wxString str_p00001;
+    wxString str_p000001;
+        
+    const static int NUM_SIG_CATS = 5;
     
 	DECLARE_EVENT_TABLE()
 };

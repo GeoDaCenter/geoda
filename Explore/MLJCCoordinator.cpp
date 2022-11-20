@@ -292,10 +292,10 @@ void JCCoordinator::FillClusterCats(int canvas_time, std::vector<wxInt64>& c_val
     
 	for (int i=0; i<num_obs; i++) {
         if (undef_tms[t][i]) {
-            c_val[i] = 5; // undefined
+            c_val[i] = UNDEFINED_CLUSTER; // undefined
             
         } else if (W[i].Size() == 0) {
-			c_val[i] = 4; // isolate
+			c_val[i] = NEIGHBORLESS_CLUSTER; // isolate
             
 		} else if (p_val[i] <= significance_cutoff) {
             //c_val[i] = c_vecs[t][i]; // 1,2,3
@@ -668,13 +668,14 @@ void JCCoordinator::SetSignificanceFilter(int filter_id)
         significance_filter = filter_id;
         return;
     }
-	// 0: >0.05 1: 0.05, 2: 0.01, 3: 0.001, 4: 0.0001
-	if (filter_id < 1 || filter_id > 4) return;
+	// 0: >0.05 1: 0.05, 2: 0.01, 3: 0.001, 4: 0.0001, 5: 0.00001
+	if (filter_id < 1 || filter_id > 5) return;
 	significance_filter = filter_id;
 	if (filter_id == 1) significance_cutoff = 0.05;
 	if (filter_id == 2) significance_cutoff = 0.01;
 	if (filter_id == 3) significance_cutoff = 0.001;
 	if (filter_id == 4) significance_cutoff = 0.0001;
+    if (filter_id == 5) significance_cutoff = 0.00001;
 }
 
 void JCCoordinator::update(WeightsManState* o)

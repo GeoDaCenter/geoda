@@ -631,7 +631,7 @@ void LocalGearyCoordinator::CalcMultiLocalGeary()
             lags[i] = 0;
             
             if (undefs[i] == true) {
-                cluster[i] = 3; // undefined value
+                cluster[i] = MULTIVAR_UNDEFINED_CLUSTER; // undefined value
                 continue;
             }
             bool is_binary = true;
@@ -656,7 +656,7 @@ void LocalGearyCoordinator::CalcMultiLocalGeary()
                 cluster[i] = 0; // don't assign cluster in multi-var settings
             } else {
                 has_isolates[t] = true;
-                cluster[i] = 2; // neighborless
+                cluster[i] = MULTIVAR_NEIGHBORLESS_CLUSTER; // neighborless
             }
         }
     }
@@ -714,7 +714,7 @@ void LocalGearyCoordinator::CalcLocalGeary()
             if (undefs[i] == true) {
                 lags[i] = 0;
                 localGeary[i] = 0;
-                cluster[i] = 6; // undefined value
+                cluster[i] = UNDEFINED_CLUSTER; // undefined value
                 continue;
             }
             
@@ -737,13 +737,13 @@ void LocalGearyCoordinator::CalcLocalGeary()
                 nn -= 1; // self-neighbor
             }
 			if (nn > 0) {
-				if (data1[i] > 0 && Wdata > 0) cluster[i] = 1;
-				else if (data1[i] < 0 && Wdata > 0) cluster[i] = 3;
-				else if (data1[i] < 0 && Wdata < 0) cluster[i] = 2;
-				else cluster[i] = 4; //data1[i] > 0 && Wdata < 0
+				if (data1[i] > 0 && Wdata > 0) cluster[i] = HH_CLUSTER;
+				else if (data1[i] < 0 && Wdata > 0) cluster[i] = OTHER_POSITIVE_CLUSTER;
+				else if (data1[i] < 0 && Wdata < 0) cluster[i] = LL_CLUSTER;
+				else cluster[i] = NEGATIVE_CLUSTER; //data1[i] > 0 && Wdata < 0
 			} else {
 				has_isolates[t] = true;
-				cluster[i] = 5; // neighborless
+				cluster[i] = NEIGHBORLESS_CLUSTER; // neighborless
 			}
 		}
 	}
@@ -1003,7 +1003,7 @@ void LocalGearyCoordinator::CalcPseudoP_range(int obs_start, int obs_end, uint64
                 }
                 if (local_geary_type == multivariate) {
                     if (_cluster[cnt] < 2 ) { // ignore neighborless & undefined
-                        _cluster[cnt] = 1;
+                        _cluster[cnt] = MULTIVAR_POSITIVE;
                     }
                 } else {
                     // positive && high-high if (cluster[cnt] == 1) cluster[cnt] = 1;
@@ -1011,7 +1011,7 @@ void LocalGearyCoordinator::CalcPseudoP_range(int obs_start, int obs_end, uint64
                     // positive && but in outlier qudrant: other pos
                     if (_cluster[cnt] > 2 && _cluster[cnt] < 5) {
                         // ignore neighborless & undefined
-                        _cluster[cnt] = 3;
+                        _cluster[cnt] = OTHER_POSITIVE_CLUSTER;
                     }
                 }
             } else {
@@ -1023,18 +1023,19 @@ void LocalGearyCoordinator::CalcPseudoP_range(int obs_start, int obs_end, uint64
                 }
                 if (local_geary_type == multivariate) {
                     if (_cluster[cnt] < 2) // ignore neighborless & undefined
-                        _cluster[cnt] = 2; // for multivar, only show significant positive (similar)
+                        _cluster[cnt] = MULTIVAR_NEGATIVE; // for multivar, only show significant positive (similar)
                 } else {
                     // negative
                     if (_cluster[cnt] < 5) // ignore neighborless & undefined
-                        _cluster[cnt] = 4;
+                        _cluster[cnt] = NEGATIVE_CLUSTER;
                 }
             }
             int kp = local_geary_type == multivariate ? num_vars : 1;
             _siglocalGeary[cnt] = (countLarger[t]+1.0)/(permutations+1);
             
             // 'significance' of local Moran
-            if (_siglocalGeary[cnt] <= 0.0001) _sigCat[cnt] = 4;
+            if (_siglocalGeary[cnt] <= 0.00001) _sigCat[cnt] = 5;
+            else if (_siglocalGeary[cnt] <= 0.0001) _sigCat[cnt] = 4;
             else if (_siglocalGeary[cnt] <= 0.001) _sigCat[cnt] = 3;
             else if (_siglocalGeary[cnt] <= 0.01) _sigCat[cnt] = 2;
             else if (_siglocalGeary[cnt] <= 0.05) _sigCat[cnt]= 1;
@@ -1043,7 +1044,7 @@ void LocalGearyCoordinator::CalcPseudoP_range(int obs_start, int obs_end, uint64
             // observations with no neighbors get marked as isolates
             // NOTE: undefined should be marked as well, however, since undefined_cat has covered undefined category, we don't need to handle here
             if (numNeighbors == 0) {
-                _sigCat[cnt] = 5;
+                _sigCat[cnt] = 6;
             }
 
         }
@@ -1059,8 +1060,8 @@ void LocalGearyCoordinator::SetSignificanceFilter(int filter_id)
         significance_filter = filter_id;
         return;
     }
-	// 0: >0.05 1: 0.05, 2: 0.01, 3: 0.001, 4: 0.0001
-	if (filter_id < 1 || filter_id > 4) return;
+	// 0: >0.05 1: 0.05, 2: 0.01, 3: 0.001, 4: 0.0001 5: 0.00001
+	if (filter_id < 1 || filter_id > 5) return;
 	significance_filter = filter_id;
     
     //int kp = local_geary_type == multivariate ? num_vars : 1;
@@ -1069,6 +1070,7 @@ void LocalGearyCoordinator::SetSignificanceFilter(int filter_id)
 	if (filter_id == 2) significance_cutoff = 0.01;
 	if (filter_id == 3) significance_cutoff = 0.001;
 	if (filter_id == 4) significance_cutoff = 0.0001;
+    if (filter_id == 5) significance_cutoff = 0.00001;
 }
 
 void LocalGearyCoordinator::update(WeightsManState* o)

@@ -215,6 +215,13 @@ public:
 	bool is_any_sync_with_global_time;
 	std::vector<bool> map_valid;
 	std::vector<wxString> map_error_message;
+    
+    const static int HH_CLUSTER = 1;
+    const static int LL_CLUSTER = 2;
+    const static int LH_CLUSTER = 3;
+    const static int HL_CLUSTER = 4;
+    const static int NEIGHBORLESS_CLUSTER = 5;
+    const static int UNDEFINED_CLUSTER = 6;
 	
 	/** The list of registered observer objects. */
 	std::list<AbstractCoordinatorObserver*> observers;

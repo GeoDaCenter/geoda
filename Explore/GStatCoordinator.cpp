@@ -419,18 +419,18 @@ void GStatCoordinator::FillClusterCats(int canvas_time, bool is_gi, bool is_perm
 	c_val.resize(num_obs);
 	for (int i=0; i<num_obs; i++) {
         if (!G_defined_vecs[t][i]) {
-            c_val[i] = 4; // undefined
+            c_val[i] = UNDEFINED_CLUSTER; // undefined
             
         } else if (W[i].Size() == 0) {
-			c_val[i] = 3; // isolate
+			c_val[i] = NEIGHBORLESS_CLUSTER; // isolate
             
 		} else if (p_val[i] <= significance_cutoff) {
             if (is_local_join_count == false) {
-                c_val[i] = z_val[i] > 0 ? 1 : 2; // high = 1, low = 2
+                c_val[i] = z_val[i] > 0 ? HH_CLUSTER : LL_CLUSTER; // high = 1, low = 2
                 
             } else {
                 if (x_vecs[t][i] == 1 && z_val[i] > 0)
-                    c_val[i] = 1;
+                    c_val[i] = HH_CLUSTER;
                 else
                     c_val[i] = 0;
             }
@@ -779,12 +779,13 @@ void GStatCoordinator::SetSignificanceFilter(int filter_id)
         return;
     }
 	// 0: >0.05 1: 0.05, 2: 0.01, 3: 0.001, 4: 0.0001
-	if (filter_id < 1 || filter_id > 4) return;
+	if (filter_id < 1 || filter_id > 5) return;
 	significance_filter = filter_id;
 	if (filter_id == 1) significance_cutoff = 0.05;
 	if (filter_id == 2) significance_cutoff = 0.01;
 	if (filter_id == 3) significance_cutoff = 0.001;
 	if (filter_id == 4) significance_cutoff = 0.0001;
+    if (filter_id == 5) significance_cutoff = 0.00001;
 	wxLogMessage("Exiting GStatCoordinator::SetSignificanceFilter");
 }
 

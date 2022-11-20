@@ -204,6 +204,17 @@ public:
 	void VarInfoAttributeChange();
     
     void GetRawData(int time, double* data1, double* data2);
+    
+    const static int HH_CLUSTER = 1;
+    const static int LL_CLUSTER = 2;
+    const static int OTHER_POSITIVE_CLUSTER = 3;
+    const static int NEGATIVE_CLUSTER = 4;
+    const static int NEIGHBORLESS_CLUSTER = 5;
+    const static int UNDEFINED_CLUSTER = 6;
+    const static int MULTIVAR_POSITIVE = 1;
+    const static int MULTIVAR_NEGATIVE = 2;
+    const static int MULTIVAR_NEIGHBORLESS_CLUSTER = 3;
+    const static int MULTIVAR_UNDEFINED_CLUSTER = 4;
 
 protected:
 	void DeallocateVectors();

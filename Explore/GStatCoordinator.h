@@ -151,6 +151,11 @@ public:
     // number of neighbors with 1
     std::vector<wxInt64* > num_neighbors_1;
 
+    const static int HH_CLUSTER = 1;
+    const static int LL_CLUSTER = 2;
+    const static int NEIGHBORLESS_CLUSTER = 3;
+    const static int UNDEFINED_CLUSTER = 4;
+    
 protected:
 	// The following ten are just temporary pointers into the corresponding
 	// space-time data arrays below

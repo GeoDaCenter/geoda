@@ -494,11 +494,11 @@ void LisaCoordinator::Calc()
             localMoran[i] = 0;
 
             if (undefs[i] == true) {
-                cluster[i] = 6; // undefined value
+                cluster[i] = UNDEFINED_CLUSTER; // undefined value
                 continue;
             } else if (W[i].Size() == 0) {
                 has_isolates[t] = true;
-                cluster[i] = 5; // neighborless
+                cluster[i] = NEIGHBORLESS_CLUSTER; // neighborless
                 continue;
             }
             
@@ -536,13 +536,13 @@ void LisaCoordinator::Calc()
 			//if (W[i].Size() > 0) {
             if (data1) {
                 if (data1[i] > reference_val && Wdata < reference_val) {
-                    cluster[i] = 4;
+                    cluster[i] = HL_CLUSTER;
                 } else if (data1[i] < reference_val && Wdata > reference_val) {
-                    cluster[i] = 3;
+                    cluster[i] = LH_CLUSTER;
                 } else if (data1[i] < reference_val && Wdata < reference_val) {
-                    cluster[i] = 2;
+                    cluster[i] = LL_CLUSTER;
                 } else {
-                    cluster[i] = 1; //data1[i] > 0 && Wdata > 0
+                    cluster[i] = HH_CLUSTER; //data1[i] > 0 && Wdata > 0
                 }
             }
 		}
@@ -575,18 +575,19 @@ void LisaCoordinator::CalcPseudoP()
         
 		if (flag) {
 		   for (int cnt=0; cnt<num_obs; cnt++) {
-		       int numNeighbors = w[cnt].Size();
-		      int* _sigCat = sig_cat_vecs[0];
-			    if (_sigLocal[cnt] <= 0.0001) _sigCat[cnt] = 4;
-			  else if (_sigLocal[cnt] <= 0.001) _sigCat[cnt] = 3;
-			 else if (_sigLocal[cnt] <= 0.01) _sigCat[cnt] = 2;
-			 else if (_sigLocal[cnt] <= 0.05) _sigCat[cnt]= 1;
-            else _sigCat[cnt]= 0;
+               int numNeighbors = w[cnt].Size();
+               int* _sigCat = sig_cat_vecs[0];
+               if (_sigLocal[cnt] <= 0.00001) _sigCat[cnt] = 5;
+               else if (_sigLocal[cnt] <= 0.0001) _sigCat[cnt] = 4;
+               else if (_sigLocal[cnt] <= 0.001) _sigCat[cnt] = 3;
+               else if (_sigLocal[cnt] <= 0.01) _sigCat[cnt] = 2;
+               else if (_sigLocal[cnt] <= 0.05) _sigCat[cnt]= 1;
+               else _sigCat[cnt]= 0;
             
-            if (numNeighbors == 0) {
-                _sigCat[cnt] = 5;
-            }
-		 }
+               if (numNeighbors == 0) {
+                   _sigCat[cnt] = 6;
+               }
+           }
 		} else {
 			wxMessageDialog dlg(NULL, "GeoDa can't configure GPU device. Default CPU solution will be used instead.", _("Error"), wxOK | wxICON_ERROR);
 			dlg.ShowModal();

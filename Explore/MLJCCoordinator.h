@@ -86,8 +86,8 @@ public:
 	bool IsOk() { return true; }
 	wxString GetErrorMessage() { return "Error Message"; }
 		
-	int significance_filter; // 0: >0.05 1: 0.05, 2: 0.01, 3: 0.001, 4: 0.0001
-	double significance_cutoff; // either 0.05, 0.01, 0.001 or 0.0001
+	int significance_filter; // 0: >0.05 1: 0.05, 2: 0.01, 3: 0.001, 4: 0.0001 5: 0.00001
+	double significance_cutoff; // either 0.05, 0.01, 0.001 or 0.0001 or 0.00001
 	void SetSignificanceFilter(int filter_id);
 	int GetSignificanceFilter() { return significance_filter; }
 	int permutations; // any number from 9 to 99999, 99 will be default
@@ -181,6 +181,9 @@ public:
 	void VarInfoAttributeChange();
 	
 	void FillClusterCats(int canvas_time,std::vector<wxInt64>& c_val);
+    
+    const static int NEIGHBORLESS_CLUSTER = 5;
+    const static int UNDEFINED_CLUSTER = 6;
     
 protected:
 	// The following ten are just temporary pointers into the corresponding
