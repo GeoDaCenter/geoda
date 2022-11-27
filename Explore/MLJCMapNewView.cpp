@@ -247,7 +247,8 @@ void MLJCMapCanvas::CreateAndUpdateCategories()
         wxString def_cats[NUM_SIG_CATS] = {str_p005, str_p001, str_p0001, str_p00001, str_p000001};
         double def_cutoffs[NUM_SIG_CATS] = {0.05, 0.01, 0.001, 0.0001, 0.00001};
         int cat_idx = 0;
-
+        std::map<int, int> level_cat_dict;
+        
         if (has_isolates) {
             num_cats++;
         }
@@ -274,7 +275,7 @@ void MLJCMapCanvas::CreateAndUpdateCategories()
                 num_cats += 1;
             } else {
                 for (int j=0; j < NUM_SIG_CATS; j++) {
-                    if (stop_sig <= def_cutoffs[j]) {
+                    if (sig_cutoff >= def_cutoffs[j] && stop_sig <= def_cutoffs[j]) {
                         num_cats += 1;
                     }
                 }
@@ -294,7 +295,8 @@ void MLJCMapCanvas::CreateAndUpdateCategories()
                 cat_data.SetCategoryColor(t, cat_idx++, wxColour(3, 116, 6));
             } else {
                 for (int j=0; j < NUM_SIG_CATS; j++) {
-                    if (stop_sig <= def_cutoffs[j]) {
+                    if (sig_cutoff >= def_cutoffs[j] && stop_sig <= def_cutoffs[j]) {
+                        level_cat_dict[j] = cat_idx;
                         cat_data.SetCategoryColor(t, cat_idx, lbl_color_dict[def_cats[j]]);
                         cat_data.SetCategoryLabel(t, cat_idx++, def_cats[j]);
                     }
@@ -345,8 +347,7 @@ void MLJCMapCanvas::CreateAndUpdateCategories()
                     } else {
                         for (int c = NUM_SIG_CATS - 1; c >= 0; c--) {
                             if (p[i] <= def_cutoffs[c]) {
-                                // c + 1 is because of "not sig" category
-                                cat_data.AppendIdToCategory(t, c + 1, i);
+                                cat_data.AppendIdToCategory(t, level_cat_dict[c], i);
                                 break;
                             }
                         }

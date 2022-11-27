@@ -319,7 +319,7 @@ void GetisOrdMapCanvas::CreateAndUpdateCategories()
                 num_cats += 1;
             } else {
                 for (int j=0; j < NUM_SIG_CATS; j++) {
-                    if (stop_sig <= def_cutoffs[j]) {
+                    if (sig_cutoff >= def_cutoffs[j] && stop_sig <= def_cutoffs[j]) {
                         num_cats += 1;
                     }
                 }
@@ -330,6 +330,8 @@ void GetisOrdMapCanvas::CreateAndUpdateCategories()
             cat_data.SetCategoryLabel(t, cat_idx, str_not_sig);
             cat_data.SetCategoryColor(t, cat_idx++, hdr.shape_type == Shapefile::POINT_TYP ? wxColour(190, 190, 190) : wxColour(240, 240, 240));
 
+            std::map<int, int> level_cat_dict;
+            
             if (is_cust_cutoff) {
                 std::ostringstream ss_sig_cutoff;
                 ss_sig_cutoff << std::fixed << sig_cutoff;
@@ -339,6 +341,7 @@ void GetisOrdMapCanvas::CreateAndUpdateCategories()
             } else {
                 for (int j=0; j < NUM_SIG_CATS; j++) {
                     if (stop_sig <= def_cutoffs[j]) {
+                        level_cat_dict[j] = cat_idx;
                         cat_data.SetCategoryColor(t, cat_idx, lbl_color_dict[def_cats[j]]);
                         cat_data.SetCategoryLabel(t, cat_idx++, def_cats[j]);
                     }
@@ -383,8 +386,7 @@ void GetisOrdMapCanvas::CreateAndUpdateCategories()
                     } else {
                         for (int c = NUM_SIG_CATS - 1; c >= 0; c--) {
                             if (p[i] <= def_cutoffs[c]) {
-                                // c + 1 is because of "not sig" category
-                                cat_data.AppendIdToCategory(t, c + 1, i);
+                                cat_data.AppendIdToCategory(t, level_cat_dict[c], i);
                                 break;
                             }
                         }
