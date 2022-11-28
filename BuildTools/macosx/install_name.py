@@ -21,6 +21,8 @@ def ProcessDependency(dir_path, dylib_name):
             copyitem = '/usr/local/opt/geos/lib/libgeos.dylib'
         if item == '@rpath/libgeos.3.11.0.dylib':
             copyitem = '/usr/local/opt/geos/lib/libgeos.dylib'
+        if item == '@rpath/libgeos.3.11.1.dylib':
+            copyitem = '/usr/local/opt/geos/lib/libgeos.dylib'
         if item == '@loader_path/libicuuc.70.dylib':
             copyitem = '/usr/local/opt/icu4c/lib/libicuuc.70.dylib'
         if item == '@loader_path/libicuuc.71.dylib':
