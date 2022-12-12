@@ -116,8 +116,8 @@ protected:
 	//std::vector< std::vector<HingeStats> > hinge_stats;
 	std::vector< std::vector<SampleStatistics> > data_stats;
 	// overall absolute value maximum of standardized data
-	double overall_abs_max_std;
-	double overall_abs_max_std_exists;
+	std::vector<double> overall_abs_max_std;
+	std::vector<double> overall_abs_max_std_exists;
 	bool is_any_time_variant;
 	bool is_any_sync_with_global_time;
 	std::vector<bool> cats_valid; // cats
