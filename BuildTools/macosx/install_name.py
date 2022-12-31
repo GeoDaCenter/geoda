@@ -1,5 +1,5 @@
 import subprocess
-import os, sys
+import os, sys, re
 from shutil import copyfile
 
 framework_path = sys.argv[1] #e.g. '/Users/xun/Github/geoda/BuildTools/macosx/build/GeoDa.app/Contents/Frameworks'
@@ -42,6 +42,10 @@ def ProcessDependency(dir_path, dylib_name):
         if item == '@rpath/libOpenEXRCore-3_1.30.dylib':
             copyitem = '/usr/local/opt/openexr/lib/libOpenEXRCore-3_1.30.dylib'
 
+        m = re.search('@rpath/(libaws.*)', item)
+        if m:
+            copyitem = '/usr/local/opt/aws-sdk-cpp/lib/' + m.group(1)
+
         if item.startswith('/usr/lib') == False and item.startswith('/System') == False and (codesign_only or item.startswith('@executable_path/')==False):
             print("Process:", item)
             file_name = os.path.basename(item)
@@ -63,4 +67,4 @@ def ProcessDependency(dir_path, dylib_name):
 
 ProcessDependency(framework_path, "libwx_osx_cocoau_gl-3.1.dylib")
 ProcessDependency(framework_path, "libwx_osx_cocoau-3.1.dylib")
-ProcessDependency(framework_path, "libgdal.31.dylib")
+ProcessDependency(framework_path, "libgdal.32.dylib")
