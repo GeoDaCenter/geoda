@@ -31,6 +31,16 @@ def ProcessDependency(dir_path, dylib_name):
             copyitem = '/usr/local/opt/icu4c/lib/libicudata.70.dylib'
         if item == '@loader_path/libicudata.71.dylib':
             copyitem = '/usr/local/opt/icu4c/lib/libicudata.71.dylib'
+        if item == '@loader_path/libbrotlicommon.1.dylib':
+            copyitem = '/usr/local/opt/brotli/lib/libbrotlicommon.1.dylib'
+        if item == '@rpath/libIlmThread-3_1.30.dylib':
+            copyitem = '/usr/local/opt/openexr/lib/libIlmThread-3_1.30.dylib'
+        if item == '@rpath/libIex-3_1.30.dylib':
+            copyitem = '/usr/local/opt/openexr/lib/libIex-3_1.30.dylib'
+        if item == '@rpath/libOpenEXRCore-3_1.30.dylib':
+            copyitem = '/usr/local/opt/openexr/lib/libOpenEXRCore-3_1.30.dylib'
+        if item == '@rpath/libOpenEXRCore-3_1.30.dylib':
+            copyitem = '/usr/local/opt/openexr/lib/libOpenEXRCore-3_1.30.dylib'
 
         if item.startswith('/usr/lib') == False and item.startswith('/System') == False and (codesign_only or item.startswith('@executable_path/')==False):
             print("Process:", item)
@@ -53,4 +63,4 @@ def ProcessDependency(dir_path, dylib_name):
 
 ProcessDependency(framework_path, "libwx_osx_cocoau_gl-3.1.dylib")
 ProcessDependency(framework_path, "libwx_osx_cocoau-3.1.dylib")
-ProcessDependency(framework_path, "libgdal.32.dylib")
+ProcessDependency(framework_path, "libgdal.31.dylib")
