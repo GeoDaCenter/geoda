@@ -10,8 +10,8 @@ CPUS=2
 # Install boost 1.75
 brew install boost
 
-# Install libgdal 3.3
-brew install gdal@3.5.3
+# Install libgdal 3.6
+brew install gdal
 
 cd $GEODA_HOME
 mkdir -p temp
