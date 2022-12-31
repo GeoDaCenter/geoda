@@ -695,7 +695,7 @@ void TSNEDlg::OnOK(wxCommandEvent& event )
     }
     tsne = new TSNE(data, rows, columns, Y, new_col, perplexity, theta, num_threads,
                     max_iteration, (int)mom_switch_iter,
-                    (int)GdaConst::gda_user_seed, !GdaConst::use_gda_user_seed,
+                    (unsigned int)GdaConst::gda_user_seed, !GdaConst::use_gda_user_seed,
                     verbose, early_exaggeration, learningrate, &final_cost);
     int idx = 100 - m_speed_slider->GetValue();
     tsne->set_speed(idx);
