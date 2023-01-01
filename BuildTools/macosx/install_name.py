@@ -37,8 +37,8 @@ def ProcessDependency(dir_path, dylib_name):
             copyitem = '/usr/local/opt/openexr/lib/libIlmThread-3_1.30.dylib'
         if item == '@rpath/libIex-3_1.30.dylib':
             copyitem = '/usr/local/opt/openexr/lib/libIex-3_1.30.dylib'
-        if item == '@rpath/libOpenEXRCore-3_1.30.dylib':
-            copyitem = '/usr/local/opt/openexr/lib/libOpenEXRCore-3_1.30.dylib'
+        if item == '@rpath/libOpenEXR-3_1.30.dylib':
+            copyitem = '/usr/local/opt/openexr/lib/libOpenEXR-3_1.30.dylib'
         if item == '@rpath/libOpenEXRCore-3_1.30.dylib':
             copyitem = '/usr/local/opt/openexr/lib/libOpenEXRCore-3_1.30.dylib'
 

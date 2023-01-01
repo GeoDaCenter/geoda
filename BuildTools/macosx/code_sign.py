@@ -1,5 +1,5 @@
 import subprocess
-import os, sys
+import os, sys, re
 from shutil import copyfile
 
 processed_items = {}
@@ -18,6 +18,22 @@ def ProcessDependency(dylib_path, cid):
         dylib_path = '/opt/homebrew/opt/icu4c/lib/libicuuc.71.dylib'
     if dylib_path == '@loader_path/libicudata.71.dylib':
         dylib_path = '/opt/homebrew/opt/icu4c/lib/libicudata.71.dylib'
+    if dylib_path == '@loader_path/libbrotlicommon.1.dylib':
+        dylib_path = '/opt/homebrew/opt/brotli/lib/libbrotlicommon.1.dylib'
+
+    if dylib_path == '@rpath/libIlmThread-3_1.30.dylib':
+        dylib_path = '/usr/local/opt/openexr/lib/libIlmThread-3_1.30.dylib'
+    if dylib_path == '@rpath/libIex-3_1.30.dylib':
+        dylib_path = '/usr/local/opt/openexr/lib/libIex-3_1.30.dylib'
+    if dylib_path == '@rpath/libOpenEXR-3_1.30.dylib':
+        dylib_path = '/usr/local/opt/openexr/lib/libOpenEXR-3_1.30.dylib'
+    if dylib_path == '@rpath/libOpenEXRCore-3_1.30.dylib':
+        dylib_path = '/usr/local/opt/openexr/lib/libOpenEXRCore-3_1.30.dylib'
+
+    m = re.search('@rpath/(libaws.*)', dylib_path)
+    if m:
+        dylib_path = '/usr/local/opt/aws-sdk-cpp/lib/' + m.group(1)
+
 
     print("Process:", dylib_path)
     #cmd = "codesign -f -s - "
@@ -34,4 +50,5 @@ def ProcessDependency(dylib_path, cid):
 
 # e.g.
 # python3 code_sign.py /opt/homebrew/opt/gdal/lib/libgdal.29.dylib "Apple Development: xunli@uchicago.edu (AN5USPSZF6)"
+# python3 code_sign.py /opt/homebrew/opt/gdal/lib/libgdal.32.dylib "Apple Development: xunli@uchicago.edu (AN5USPSZF6)"
 ProcessDependency(sys.argv[1], sys.argv[2])
