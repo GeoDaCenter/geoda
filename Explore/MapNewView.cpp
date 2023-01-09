@@ -324,6 +324,10 @@ void MapCanvas::OnMSTMap(int menu_id)
         display_mst = !display_mst;
         if (display_mst) {
             if (mst_map.Create(project) == false) {
+                wxString msg = _("Failed to create the Minimum Spanning Tree.");
+                wxMessageDialog dlg (this, msg, _("Information"),
+                                     wxOK | wxICON_INFORMATION);
+                dlg.ShowModal();
                 display_mst = false;
             }
         }
