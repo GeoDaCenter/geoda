@@ -145,6 +145,7 @@ std::vector<wxString> AbstractCoordinator::GetDefaultCategories()
     cats.push_back("p = 0.01");
     cats.push_back("p = 0.001");
     cats.push_back("p = 0.0001");
+    cats.push_back("p = 0.00001");
     return cats;
 }
 
@@ -155,6 +156,7 @@ std::vector<double> AbstractCoordinator::GetDefaultCutoffs()
     cutoffs.push_back(0.01);
     cutoffs.push_back(0.001);
     cutoffs.push_back(0.0001);
+    cutoffs.push_back(0.00001);
     return cutoffs;
 }
 
@@ -524,7 +526,7 @@ void AbstractCoordinator::CalcPseudoP_range(int obs_start, int obs_end,
             }
             int* _sigCat = sig_cat_vecs[t];
             if (numNeighbors == 0) {
-                _sigCat[cnt] = 5;
+                _sigCat[cnt] = 6;
             }
         }
 	
@@ -568,7 +570,8 @@ void AbstractCoordinator::CalcPseudoP_range(int obs_start, int obs_end,
     		
     		_sigLocal[cnt] = (countLarger[t]+1.0)/(permutations+1);
     		// 'significance' of local Moran
-    		if (_sigLocal[cnt] <= 0.0001) _sigCat[cnt] = 4;
+    		if (_sigLocal[cnt] <= 0.00001) _sigCat[cnt] = 5;
+            else if (_sigLocal[cnt] <= 0.0001) _sigCat[cnt] = 4;
     		else if (_sigLocal[cnt] <= 0.001) _sigCat[cnt] = 3;
     		else if (_sigLocal[cnt] <= 0.01) _sigCat[cnt] = 2;
     		else if (_sigLocal[cnt] <= 0.05) _sigCat[cnt]= 1;
@@ -588,13 +591,14 @@ void AbstractCoordinator::SetSignificanceFilter(int filter_id)
         significance_filter = filter_id;
         return;
     }
-	// 0: >0.05 1: 0.05, 2: 0.01, 3: 0.001, 4: 0.0001
-	if (filter_id < 1 || filter_id > 4) return;
+	// 0: >0.05 1: 0.05, 2: 0.01, 3: 0.001, 4: 0.0001, 5: 0.00001
+	if (filter_id < 1 || filter_id > 5) return;
 	significance_filter = filter_id;
 	if (filter_id == 1) significance_cutoff = 0.05;
 	if (filter_id == 2) significance_cutoff = 0.01;
 	if (filter_id == 3) significance_cutoff = 0.001;
 	if (filter_id == 4) significance_cutoff = 0.0001;
+    if (filter_id == 5) significance_cutoff = 0.00001;
 	wxLogMessage("Exiting AbstractCoordinator::SetSignificanceFilter()");
 }
 

@@ -311,8 +311,10 @@ void QuantileLisaDlg::OnOK(wxCommandEvent& event )
     var_info[0].sync_with_global_time = false;
     var_info[0].fixed_scale = true;
 
+    bool is_quantile_lisa = true;
+    
     JCCoordinator* lc = new JCCoordinator(w_id, project, var_info, col_ids);
-    MLJCMapFrame *sf = new MLJCMapFrame(parent, project, lc, false);
+    MLJCMapFrame *sf = new MLJCMapFrame(parent, project, lc, false, is_quantile_lisa);
 
     wxString ttl = _("Quantile LISA Map (%s, # of quantiles=%d, select quantile=%d)");
     ttl = wxString::Format(ttl, var_name, n_quantiles, sel_quantile);

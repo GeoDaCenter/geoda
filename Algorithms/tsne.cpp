@@ -38,7 +38,7 @@
 TSNE::TSNE(double* X, int N, int D, double* Y,
            int no_dims, double perplexity, double theta ,
            int num_threads, int max_iter, int n_iter_early_exag,
-           int random_state, bool skip_random_init, int verbose,
+           unsigned int random_state, bool skip_random_init, int verbose,
            double early_exaggeration, double learning_rate,
            double *final_error)
 : X(X), N(N), D(D), Y(Y), no_dims(no_dims), perplexity(perplexity) , theta(theta),
@@ -95,6 +95,14 @@ void TSNE::run(boost::lockfree::queue<int>& tsne_queue,
 #endif
 #endif
 
+    if (skip_random_init != true) {
+        if(random_state >= 0) {
+            srand((unsigned int) random_state);
+        } else {
+            srand((unsigned int) time(NULL));
+        }
+    }
+    
     /* 
         ======================
             Step 1
@@ -178,13 +186,6 @@ void TSNE::run(boost::lockfree::queue<int>& tsne_queue,
         stop_lying_iter = 0;  // Immediately stop lying. Passed Y is close to the true solution.
     }
     else {
-        if (skip_random_init != true) {
-            if(random_state >= 0) {
-                srand((unsigned int) random_state);
-            } else {
-                srand(time(NULL));
-            }
-        }
         for (int i = 0; i < N * no_dims; i++) {
             Y[i] = randn();
         }

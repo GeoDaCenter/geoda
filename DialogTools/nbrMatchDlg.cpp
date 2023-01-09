@@ -1034,7 +1034,8 @@ void LocalMatchCoordinator::job(size_t nbr_sz, size_t idx, uint64_t seed_start)
     // compute pseudo-p-value
     sigVal[idx] = (countLarger + 1.0)/(permutations+1);
     
-    if (sigVal[idx] <= 0.0001) sigCat[idx] = 4;
+    if (sigVal[idx] <= 0.00001) sigCat[idx] = 5;
+    else if (sigVal[idx] <= 0.0001) sigCat[idx] = 4;
     else if (sigVal[idx] <= 0.001) sigCat[idx] = 3;
     else if (sigVal[idx] <= 0.01) sigCat[idx] = 2;
     else if (sigVal[idx] <= 0.05) sigCat[idx]= 1;
@@ -1061,12 +1062,13 @@ void LocalMatchCoordinator::SetSignificanceFilter(int filter_id)
         return;
     }
     // 0: >0.05 1: 0.05, 2: 0.01, 3: 0.001, 4: 0.0001
-    if (filter_id < 1 || filter_id > 4) return;
+    if (filter_id < 1 || filter_id > 5) return;
     significance_filter = filter_id;
     if (filter_id == 1) significance_cutoff = 0.05;
     if (filter_id == 2) significance_cutoff = 0.01;
     if (filter_id == 3) significance_cutoff = 0.001;
     if (filter_id == 4) significance_cutoff = 0.0001;
+    if (filter_id == 5) significance_cutoff = 0.00001;
     wxLogMessage("Exiting AbstractCoordinator::SetSignificanceFilter()");
 }
 
@@ -1077,6 +1079,7 @@ std::vector<wxString> LocalMatchCoordinator::GetDefaultCategories()
     cats.push_back("p = 0.01");
     cats.push_back("p = 0.001");
     cats.push_back("p = 0.0001");
+    cats.push_back("p = 0.00001");
     return cats;
 }
 
@@ -1087,6 +1090,7 @@ std::vector<double> LocalMatchCoordinator::GetDefaultCutoffs()
     cutoffs.push_back(0.01);
     cutoffs.push_back(0.001);
     cutoffs.push_back(0.0001);
+    cutoffs.push_back(0.00001);
     return cutoffs;
 }
 
@@ -1287,8 +1291,8 @@ void LocalMatchSignificanceCanvas::CreateAndUpdateCategories()
         int set_perm = gs_coord->permutations;
         stop_sig = 1.0 / (1.0 + set_perm);
 
-        wxString def_cats[4] = {str_p005, str_p001, str_p0001, str_p00001};
-        double def_cutoffs[4] = {0.05, 0.01, 0.001, 0.0001};
+        wxString def_cats[5] = {str_p005, str_p001, str_p0001, str_p00001, str_p000001};
+        double def_cutoffs[5] = {0.05, 0.01, 0.001, 0.0001, 0.00001};
 
         int cat_idx = 1;
         for (int j=s_f-1; j < 4; j++) {
@@ -1314,7 +1318,9 @@ void LocalMatchSignificanceCanvas::CreateAndUpdateCategories()
     } else {
         int s_f = gs_coord->GetSignificanceFilter();
         for (int i=0, iend=gs_coord->num_obs; i<iend; i++) {
-            if (p_val[i] <= 0.0001) {
+            if (p_val[i] <= 0.00001) {
+                cat_data.AppendIdToCategory(t, 6-s_f, i);
+            } else if (p_val[i] <= 0.0001) {
                 cat_data.AppendIdToCategory(t, 5-s_f, i);
             } else if (p_val[i] <= 0.001) {
                 cat_data.AppendIdToCategory(t, 4-s_f, i);

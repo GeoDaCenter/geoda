@@ -69,6 +69,7 @@ str_p005("p = 0.05"),
 str_p001("p = 0.01"),
 str_p0001("p = 0.001"),
 str_p00001("p = 0.0001"),
+str_p000001("p = 0.00001"),
 clr_not_sig_point(wxColour(190, 190, 190)),
 clr_not_sig_polygon(wxColour(240, 240, 240))
 {
@@ -81,6 +82,7 @@ clr_not_sig_polygon(wxColour(240, 240, 240))
     SetPredefinedColor(str_p001, wxColour(6, 196, 11));
     SetPredefinedColor(str_p0001, wxColour(3, 116, 6));
     SetPredefinedColor(str_p00001, wxColour(1, 70, 3));
+    SetPredefinedColor(str_p000001, wxColour(0, 50, 2));
     
 	cat_classif_def.cat_classif_type = theme_type_s;
 	// must set var_info times from AbstractCoordinator initially
@@ -210,34 +212,10 @@ void AbstractMapCanvas::CreateAndUpdateCategories()
     std::vector<double> def_cutoffs = a_coord->GetDefaultCutoffs();
    
     bool is_cust_cutoff = true;
-    for (int i=0; i<4; i++) {
+    for (int i=0; i<NUM_SIG_CATS; i++) {
         if (sig_cutoff == def_cutoffs[i]) {
             is_cust_cutoff = false;
             break;
-        }
-    }
-    
-    if ( is_cust_cutoff ) {
-        // if set customized cutoff value
-        wxString lbl = wxString::Format("p = %g", sig_cutoff);
-        if ( sig_cutoff > 0.05 ) {
-            def_cutoffs[0] = sig_cutoff;
-            lbl_color_dict[lbl] = lbl_color_dict[def_cats[0]];
-            def_cats[0] = lbl;
-        } else {
-            for (int i = 1; i < 4; i++) {
-                if (def_cutoffs[i-1] + def_cutoffs[i] < 2 * sig_cutoff){
-                    lbl_color_dict[lbl] = lbl_color_dict[def_cats[i-1]];
-                    def_cutoffs[i-1] = sig_cutoff;
-                    def_cats[i-1] = lbl;
-                    break;
-                } else {
-                    lbl_color_dict[lbl] = lbl_color_dict[def_cats[i]];
-                    def_cutoffs[i] = sig_cutoff;
-                    def_cats[i] = lbl;
-                    break;
-                }
-            }
         }
     }
     
@@ -265,83 +243,83 @@ void AbstractMapCanvas::CreateAndUpdateCategories()
 
 		} else {
             // significance map
-            // 0: >0.05 (Not sig) 1: 0.05, 2: 0.01, 3: 0.001, 4: 0.0001
-            num_cats = 5;
-            if ( has_isolates ) {
-                num_cats++;
-            }
-            if ( has_undefined ) {
-                num_cats++;
-            }
-            for (int j=0; j < def_cats.size(); j++) {
-                if (sig_cutoff < def_cutoffs[j])
-                    num_cats -= 1;
-            }
-            // issue #474 only show significance levels that can
-            // be mapped for the given number of permutations,
-            // e.g., for 99 it would stop at 0.01, for 999 at 0.001, etc.
-            if ( sig_cutoff >= def_cutoffs[3] && stop_sig > def_cutoffs[3] ) {
-                //0.0001
-                num_cats -= 1;
-            }
-            if ( sig_cutoff >= def_cutoffs[2] && stop_sig > def_cutoffs[2] ) {
-                //0.001
-                num_cats -= 1;
-            }
-            if ( sig_cutoff >= def_cutoffs[1] && stop_sig > def_cutoffs[1] ) {
-                //0.01
-                num_cats -= 1;
+            // 0: >0.05 (Not sig) 1: 0.05, 2: 0.01, 3: 0.001, 4: 0.0001, 5: 0.00001
+            num_cats += 1; // not sig category
+            
+            if (is_cust_cutoff) {
+                num_cats += 1;
+            } else {
+                for (int j=0; j < NUM_SIG_CATS; j++) {
+                    if (sig_cutoff >= def_cutoffs[j] && stop_sig <= def_cutoffs[j]) {
+                        num_cats += 1;
+                    }
+                }
             }
             cat_data.CreateCategoriesAtCanvasTm(num_cats, t);
             
+            int cat_idx = 0;
+            // set not sigificant category
             wxColour not_sig_clr = clr_not_sig_polygon;
             if (project->IsPointTypeData()) not_sig_clr = clr_not_sig_point;
-            cat_data.SetCategoryColor(t, 0, not_sig_clr);
-            cat_data.SetCategoryLabel(t, 0, str_not_sig);
-
-            int cat_idx = 1;
+            cat_data.SetCategoryColor(t, cat_idx, not_sig_clr);
+            cat_data.SetCategoryLabel(t, cat_idx, str_not_sig);
+            cat_idx += 1;
+            
             std::map<int, int> level_cat_dict;
-            for (int j=0; j < def_cats.size(); j++) {
-                if (sig_cutoff >= def_cutoffs[j] && def_cutoffs[j] >= stop_sig) {
-                    cat_data.SetCategoryColor(t, cat_idx, lbl_color_dict[def_cats[j]]);
-                    cat_data.SetCategoryLabel(t, cat_idx, def_cats[j]);
-                    level_cat_dict[j] = cat_idx;
-                    cat_idx += 1;
+            
+            if (is_cust_cutoff) {
+                std::ostringstream ss_sig_cutoff;
+                ss_sig_cutoff << std::fixed << sig_cutoff;
+                wxString lbl =  wxString::Format("p = %s", ss_sig_cutoff.str());
+
+                cat_data.SetCategoryColor(t, cat_idx, lbl_color_dict[def_cats[0]]);
+                cat_data.SetCategoryLabel(t, cat_idx, lbl);
+                cat_idx += 1;
+            } else {
+                for (int j=0; j < NUM_SIG_CATS; j++) {
+                    if (sig_cutoff >= def_cutoffs[j] && stop_sig <= def_cutoffs[j]) {
+                        level_cat_dict[j] = cat_idx;
+                        cat_data.SetCategoryColor(t, cat_idx, lbl_color_dict[def_cats[j]]);
+                        cat_data.SetCategoryLabel(t, cat_idx, def_cats[j]);
+                        cat_idx += 1;
+                    }
                 }
             }
             
-            if (has_isolates && has_undefined) {
+            if (has_isolates) {
                 isolates_cat = cat_idx++;
-                undefined_cat = cat_idx++;
-                
-            } else if (has_undefined) {
-                undefined_cat = cat_idx++;
-                
-            } else if (has_isolates) {
-                isolates_cat = cat_idx++;
-            }
-            
-            if (undefined_cat != -1) {
-                cat_data.SetCategoryLabel(t, undefined_cat, str_undefined);
-                cat_data.SetCategoryColor(t, undefined_cat, lbl_color_dict[str_undefined]);
-            }
-            if (isolates_cat != -1) {
                 cat_data.SetCategoryLabel(t, isolates_cat, str_neighborless);
                 cat_data.SetCategoryColor(t, isolates_cat, lbl_color_dict[str_neighborless]);
             }
+            if (has_undefined) {
+                undefined_cat = cat_idx++;
+                cat_data.SetCategoryLabel(t, undefined_cat, str_undefined);
+                cat_data.SetCategoryColor(t, undefined_cat, lbl_color_dict[str_undefined]);
+            }
+            
+            int not_sig_cat = 0;
+            
             for (int i=0; i<num_obs; i++) {
-                if (p[i] > sig_cutoff && cluster[i] != 5 && cluster[i] != 6) {
-                    cat_data.AppendIdToCategory(t, 0, i); // not significant
-                } else if (cluster[i] == 5) {
+                if (p[i] > sig_cutoff
+                    && cluster[i] != AbstractCoordinator::NEIGHBORLESS_CLUSTER
+                    && cluster[i] != AbstractCoordinator::UNDEFINED_CLUSTER
+                ) {
+                    cat_data.AppendIdToCategory(t, not_sig_cat, i); // not significant
+                } else if (cluster[i] == AbstractCoordinator::NEIGHBORLESS_CLUSTER) {
                     cat_data.AppendIdToCategory(t, isolates_cat, i);
-                } else if (cluster[i] == 6) {
+                } else if (cluster[i] == AbstractCoordinator::UNDEFINED_CLUSTER) {
                     cat_data.AppendIdToCategory(t, undefined_cat, i);
                 } else {
-                    // if use custom inference, use num_cats instead of def_cats.size()
-                    for ( int c = num_cats - 1; c >= 0; c-- ) {
-                        if ( p[i] <= def_cutoffs[c] ) {
-                            cat_data.AppendIdToCategory(t, level_cat_dict[c], i);
-                            break;
+                    if (is_cust_cutoff) {
+                        if (p[i] <= sig_cutoff) {
+                            cat_data.AppendIdToCategory(t, not_sig_cat + 1, i);
+                        }
+                    } else {
+                        for (int c = NUM_SIG_CATS - 1; c >= 0; c--) {
+                            if (p[i] <= def_cutoffs[c]) {
+                                cat_data.AppendIdToCategory(t, level_cat_dict[c], i);
+                                break;
+                            }
                         }
                     }
                 }

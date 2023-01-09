@@ -414,8 +414,10 @@ void ConditionalClusterMapCanvas::ResizeSelectableShps(int virtual_scrn_w,
 	for (int i=0; i<num_obs; i++) {
         int v_time = var_info[VERT_VAR].time;
         int h_time = var_info[HOR_VAR].time;
-		row_c = vert_cat_data.categories[v_time].id_to_cat[i];
-		col_c = horiz_cat_data.categories[h_time].id_to_cat[i];
+		row_c = vert_cat_data.categories.empty()
+            ? 0: vert_cat_data.categories[v_time].id_to_cat[i];
+		col_c = horiz_cat_data.categories.empty()
+            ? 0 : horiz_cat_data.categories[h_time].id_to_cat[i];
 		selectable_shps[i]->applyScaleTrans(st[row_c][col_c]);
 	}
 	
@@ -1063,6 +1065,7 @@ ConditionalLISAClusterMapCanvas::~ConditionalLISAClusterMapCanvas()
 
 void ConditionalLISAClusterMapCanvas::CreateAndUpdateCategories()
 {
+    num_time_vals = lisa_coord->num_time_vals;
     cat_var_sorted.clear();
     map_valid.resize(num_time_vals);
     for (int t=0; t<num_time_vals; t++)
@@ -1079,19 +1082,16 @@ void ConditionalLISAClusterMapCanvas::CreateAndUpdateCategories()
     // we do not allow smoothing with multiple time variables.
     cat_var_sorted.resize(num_time_vals);
     cat_var_undef.resize(num_time_vals);
-    int lisa_time = lisa_coord->num_time_vals;
-    int lisa_t = project->GetTimeState()->GetCurrTime();
+    
     for (int t=0; t<num_time_vals; t++) {
         cat_var_sorted[t].resize(num_obs);
         cat_var_undef[t].resize(num_obs);
-        if (t < lisa_time-1)
-            lisa_t = t;
-        int* clst = lisa_coord->GetClusterIndicators(lisa_t);
+        int* clst = lisa_coord->GetClusterIndicators(t);
         for (int i=0; i<num_obs; i++) {
             cat_var_sorted[t][i].first = clst[i];
             cat_var_sorted[t][i].second = i;
             
-            cat_var_undef[t][i] = lisa_coord->undef_data[0][lisa_t][i];
+            cat_var_undef[t][i] = lisa_coord->undef_data[0][t][i];
         }
     }
     
@@ -1122,11 +1122,9 @@ void ConditionalLISAClusterMapCanvas::CreateAndUpdateCategories()
         int isolates_cat = -1;
         int num_cats = 0;
         double stop_sig = 0;
-        if (lisa_t < num_time -1)
-            lisa_t = t;
-        if (lisa_coord->GetHasIsolates(lisa_t))
+        if (lisa_coord->GetHasIsolates(t))
             num_cats++;
-        if (lisa_coord->GetHasUndefined(lisa_t))
+        if (lisa_coord->GetHasUndefined(t))
             num_cats++;
         
         num_cats += 5;
@@ -1150,13 +1148,13 @@ void ConditionalLISAClusterMapCanvas::CreateAndUpdateCategories()
         cat_data.SetCategoryColor(t, 3, wxColour(150, 150, 255));
         cat_data.SetCategoryLabel(t, 4, "High-Low");
         cat_data.SetCategoryColor(t, 4, wxColour(255, 150, 150));
-        if (lisa_coord->GetHasIsolates(lisa_t) &&
-            lisa_coord->GetHasUndefined(lisa_t)) {
+        if (lisa_coord->GetHasIsolates(t) &&
+            lisa_coord->GetHasUndefined(t)) {
             isolates_cat = 5;
             undefined_cat = 6;
-        } else if (lisa_coord->GetHasUndefined(lisa_t)) {
+        } else if (lisa_coord->GetHasUndefined(t)) {
             undefined_cat = 5;
-        } else if (lisa_coord->GetHasIsolates(lisa_t)) {
+        } else if (lisa_coord->GetHasIsolates(t)) {
             isolates_cat = 5;
         }
         
@@ -1170,8 +1168,8 @@ void ConditionalLISAClusterMapCanvas::CreateAndUpdateCategories()
         }
         
         double cuttoff = lisa_coord->GetSignificanceCutoff();
-        double* p = lisa_coord->GetLocalSignificanceValues(lisa_t);
-        int* cluster = lisa_coord->GetClusterIndicators(lisa_t);
+        double* p = lisa_coord->GetLocalSignificanceValues(t);
+        int* cluster = lisa_coord->GetClusterIndicators(t);
         //int* sigCat = lisa_coord->sig_cat_vecs[t];
         
         for (int i=0, iend=lisa_coord->num_obs; i<iend; i++) {
@@ -1191,7 +1189,8 @@ void ConditionalLISAClusterMapCanvas::CreateAndUpdateCategories()
         }
     }
     
-    cat_data.SetCurrentCanvasTmStep(0);
+    int lisa_t = lisa_coord->var_info[0].time;
+    cat_data.SetCurrentCanvasTmStep(lisa_t);
     int mt = cat_data.GetCurrentCanvasTmStep();
     num_categories = cat_data.categories[mt].cat_vec.size();
     CatClassification::ChangeNumCats(GetNumCats(), cat_classif_def_map);
@@ -1283,6 +1282,7 @@ ConditionalGClusterMapCanvas::~ConditionalGClusterMapCanvas()
 
 void ConditionalGClusterMapCanvas::CreateAndUpdateCategories()
 {
+    num_time_vals = g_coord->num_time_vals;
     cat_var_sorted.clear();
     map_valid.resize(num_time_vals);
     for (int t=0; t<num_time_vals; t++)
@@ -1299,23 +1299,19 @@ void ConditionalGClusterMapCanvas::CreateAndUpdateCategories()
     // we do not allow smoothing with multiple time variables.
     cat_var_sorted.resize(num_time_vals);
     cat_var_undef.resize(num_time_vals);
-    int lisa_time = g_coord->num_time_vals;
-    int lisa_t = project->GetTimeState()->GetCurrTime();
     
     for (int t=0; t<num_time_vals; t++) {
         cat_var_sorted[t].resize(num_obs);
         cat_var_undef[t].resize(num_obs);
-        
-        if (t < lisa_time-1) lisa_t = t;
-        
+                
         vector<wxInt64> cluster;
-        g_coord->FillClusterCats(lisa_t, is_gi, is_perm, cluster);
+        g_coord->FillClusterCats(t, is_gi, is_perm, cluster);
         
         for (int i=0; i<num_obs; i++) {
             cat_var_sorted[t][i].first = cluster[i];
             cat_var_sorted[t][i].second = i;
             
-            cat_var_undef[t][i] = g_coord->data_undef[0][lisa_t][i];
+            cat_var_undef[t][i] = g_coord->data_undef[0][t][i];
         }
     }
     
@@ -1347,11 +1343,9 @@ void ConditionalGClusterMapCanvas::CreateAndUpdateCategories()
         int isolates_cat = -1;
         int num_cats = 0;
         double stop_sig = 0;
-        if (lisa_t < num_time -1)
-            lisa_t = t;
-        if (g_coord->GetHasIsolates(lisa_t))
+        if (g_coord->GetHasIsolates(t))
             num_cats++;
-        if (g_coord->GetHasUndefined(lisa_t))
+        if (g_coord->GetHasUndefined(t))
             num_cats++;
         
         num_cats += 3;
@@ -1369,14 +1363,14 @@ void ConditionalGClusterMapCanvas::CreateAndUpdateCategories()
         cat_data.SetCategoryLabel(t, 2, _("Low"));
         cat_data.SetCategoryColor(t, 2, wxColour(0, 0, 255));
         
-        if (g_coord->GetHasIsolates(lisa_t) &&
-            g_coord->GetHasUndefined(lisa_t))
+        if (g_coord->GetHasIsolates(t) &&
+            g_coord->GetHasUndefined(t))
         {
             isolates_cat = 3;
             undefined_cat = 4;
-        } else if (g_coord->GetHasUndefined(lisa_t)) {
+        } else if (g_coord->GetHasUndefined(t)) {
             undefined_cat = 3;
-        } else if (g_coord->GetHasIsolates(lisa_t)) {
+        } else if (g_coord->GetHasIsolates(t)) {
             isolates_cat = 3;
         }
         
@@ -1390,7 +1384,7 @@ void ConditionalGClusterMapCanvas::CreateAndUpdateCategories()
         }
         
         vector<wxInt64> cluster;
-        g_coord->FillClusterCats(lisa_t, is_gi, is_perm, cluster);
+        g_coord->FillClusterCats(t, is_gi, is_perm, cluster);
         
         for (int i=0, iend=g_coord->num_obs; i<iend; i++) {
             if (cluster[i] == 0) {
@@ -1410,7 +1404,8 @@ void ConditionalGClusterMapCanvas::CreateAndUpdateCategories()
         }
     }
     
-    cat_data.SetCurrentCanvasTmStep(0);
+    int lisa_t = g_coord->var_info[0].time;
+    cat_data.SetCurrentCanvasTmStep(lisa_t);
     int mt = cat_data.GetCurrentCanvasTmStep();
     num_categories = cat_data.categories[mt].cat_vec.size();
     CatClassification::ChangeNumCats(GetNumCats(), cat_classif_def_map);
@@ -1501,6 +1496,7 @@ ConditionalLocalGearyClusterMapCanvas::~ConditionalLocalGearyClusterMapCanvas()
 
 void ConditionalLocalGearyClusterMapCanvas::CreateAndUpdateCategories()
 {
+    num_time_vals = local_geary_coord->num_time_vals;
     cat_var_sorted.clear();
     map_valid.resize(num_time_vals);
     for (int t=0; t<num_time_vals; t++)
@@ -1518,20 +1514,15 @@ void ConditionalLocalGearyClusterMapCanvas::CreateAndUpdateCategories()
     cat_var_sorted.resize(num_time_vals);
     cat_var_undef.resize(num_time_vals);
     
-    int lisa_time = local_geary_coord->num_time_vals;
-    int lisa_t = project->GetTimeState()->GetCurrTime();
-    
     for (int t=0; t<num_time_vals; t++) {
         cat_var_sorted[t].resize(num_obs);
         cat_var_undef[t].resize(num_obs);
-        
-        if (t < lisa_time-1) lisa_t = t;
-        
+                
         for (int i=0; i<num_obs; i++) {
-            cat_var_sorted[t][i].first = local_geary_coord->cluster_vecs[lisa_t][i];
+            cat_var_sorted[t][i].first = local_geary_coord->cluster_vecs[t][i];
             cat_var_sorted[t][i].second = i;
             
-            cat_var_undef[t][i] = local_geary_coord->undef_data[0][lisa_t][i];
+            cat_var_undef[t][i] = local_geary_coord->undef_data[0][t][i];
         }
     }
     
@@ -1563,11 +1554,10 @@ void ConditionalLocalGearyClusterMapCanvas::CreateAndUpdateCategories()
         int isolates_cat = -1;
         int num_cats = 0;
         double stop_sig = 0;
-        if (lisa_t < num_time -1) lisa_t = t;
         
-        if (local_geary_coord->GetHasIsolates(lisa_t))
+        if (local_geary_coord->GetHasIsolates(t))
             num_cats++;
-        if (local_geary_coord->GetHasUndefined(lisa_t))
+        if (local_geary_coord->GetHasUndefined(t))
             num_cats++;
         
         num_cats += 5;
@@ -1591,13 +1581,13 @@ void ConditionalLocalGearyClusterMapCanvas::CreateAndUpdateCategories()
         cat_data.SetCategoryColor(t, 3, wxColour(253,219,199));
         cat_data.SetCategoryLabel(t, 4, _("Negative"));
         cat_data.SetCategoryColor(t, 4, wxColour(103,173,199));
-        if (local_geary_coord->GetHasIsolates(lisa_t) &&
-            local_geary_coord->GetHasUndefined(lisa_t)) {
+        if (local_geary_coord->GetHasIsolates(t) &&
+            local_geary_coord->GetHasUndefined(t)) {
             isolates_cat = 5;
             undefined_cat = 6;
-        } else if (local_geary_coord->GetHasUndefined(lisa_t)) {
+        } else if (local_geary_coord->GetHasUndefined(t)) {
             undefined_cat = 5;
-        } else if (local_geary_coord->GetHasIsolates(lisa_t)) {
+        } else if (local_geary_coord->GetHasIsolates(t)) {
             isolates_cat = 5;
         }
         
@@ -1611,9 +1601,9 @@ void ConditionalLocalGearyClusterMapCanvas::CreateAndUpdateCategories()
         }
         
         double cuttoff = local_geary_coord->significance_cutoff;
-        double* p = local_geary_coord->sig_local_geary_vecs[lisa_t];
-        int* cluster = local_geary_coord->cluster_vecs[lisa_t];
-        int* sigCat = local_geary_coord->sig_cat_vecs[lisa_t];
+        double* p = local_geary_coord->sig_local_geary_vecs[t];
+        int* cluster = local_geary_coord->cluster_vecs[t];
+        int* sigCat = local_geary_coord->sig_cat_vecs[t];
         
         for (int i=0, iend=local_geary_coord->num_obs; i<iend; i++) {
             if (p[i] > cuttoff && cluster[i] != 5 && cluster[i] != 6) {
@@ -1632,7 +1622,8 @@ void ConditionalLocalGearyClusterMapCanvas::CreateAndUpdateCategories()
         }
     }
     
-    cat_data.SetCurrentCanvasTmStep(0);
+    int lisa_t = local_geary_coord->var_info[0].time;
+    cat_data.SetCurrentCanvasTmStep(lisa_t);
     int mt = cat_data.GetCurrentCanvasTmStep();
     num_categories = cat_data.categories[mt].cat_vec.size();
     CatClassification::ChangeNumCats(GetNumCats(), cat_classif_def_map);
@@ -1721,6 +1712,7 @@ ConditionalLocalJoinCountClusterMapCanvas::~ConditionalLocalJoinCountClusterMapC
 
 void ConditionalLocalJoinCountClusterMapCanvas::CreateAndUpdateCategories()
 {
+    num_time_vals = local_jc_coord->num_time_vals;
     cat_var_sorted.clear();
     map_valid.resize(num_time_vals);
     for (int t=0; t<num_time_vals; t++)
@@ -1738,20 +1730,15 @@ void ConditionalLocalJoinCountClusterMapCanvas::CreateAndUpdateCategories()
     cat_var_sorted.resize(num_time_vals);
     cat_var_undef.resize(num_time_vals);
     
-    int lisa_time = local_jc_coord->num_time_vals;
-    int lisa_t = project->GetTimeState()->GetCurrTime();
-    
     for (int t=0; t<num_time_vals; t++) {
         cat_var_sorted[t].resize(num_obs);
         cat_var_undef[t].resize(num_obs);
-        
-        if (t < lisa_time-1) lisa_t = t;
-        
+                
         for (int i=0; i<num_obs; i++) {
-            cat_var_sorted[t][i].first = local_jc_coord->local_jc_vecs[lisa_t][i];
+            cat_var_sorted[t][i].first = local_jc_coord->local_jc_vecs[t][i];
             cat_var_sorted[t][i].second = i;
             
-            cat_var_undef[t][i] = local_jc_coord->undef_tms[lisa_t][i];
+            cat_var_undef[t][i] = local_jc_coord->undef_tms[t][i];
         }
     }
     
@@ -1783,11 +1770,9 @@ void ConditionalLocalJoinCountClusterMapCanvas::CreateAndUpdateCategories()
         int isolates_cat = -1;
         int num_cats = 0;
         double stop_sig = 0;
-        if (lisa_t < num_time -1)
-            lisa_t = t;
-        if (local_jc_coord->GetHasIsolates(lisa_t))
+        if (local_jc_coord->GetHasIsolates(t))
             num_cats++;
-        if (local_jc_coord->GetHasUndefined(lisa_t))
+        if (local_jc_coord->GetHasUndefined(t))
             num_cats++;
         
         num_cats += 5;
@@ -1809,13 +1794,13 @@ void ConditionalLocalJoinCountClusterMapCanvas::CreateAndUpdateCategories()
         cat_data.SetCategoryColor(t, 2, wxColour(0, 255, 0));
         cat_data.SetCategoryLabel(t, 3, _("Colocation Cluster"));
         cat_data.SetCategoryColor(t, 3, wxColour(255,0,0));
-        if (local_jc_coord->GetHasIsolates(lisa_t) &&
-            local_jc_coord->GetHasUndefined(lisa_t)) {
+        if (local_jc_coord->GetHasIsolates(t) &&
+            local_jc_coord->GetHasUndefined(t)) {
             isolates_cat = 4;
             undefined_cat = 5;
-        } else if (local_jc_coord->GetHasUndefined(lisa_t)) {
+        } else if (local_jc_coord->GetHasUndefined(t)) {
             undefined_cat = 4;
-        } else if (local_jc_coord->GetHasIsolates(lisa_t)) {
+        } else if (local_jc_coord->GetHasIsolates(t)) {
             isolates_cat = 4;
         }
         
@@ -1829,9 +1814,9 @@ void ConditionalLocalJoinCountClusterMapCanvas::CreateAndUpdateCategories()
         }
         
         double cuttoff = local_jc_coord->significance_cutoff;
-        double* p = local_jc_coord->sig_local_jc_vecs[lisa_t];
+        double* p = local_jc_coord->sig_local_jc_vecs[t];
         std::vector<wxInt64> cluster;
-        local_jc_coord->FillClusterCats(lisa_t, cluster);
+        local_jc_coord->FillClusterCats(t, cluster);
         
         for (int i=0, iend=local_jc_coord->num_obs; i<iend; i++) {
             if (p[i] > cuttoff && cluster[i] != 4 && cluster[i] != 5) {
@@ -1850,7 +1835,8 @@ void ConditionalLocalJoinCountClusterMapCanvas::CreateAndUpdateCategories()
         }
     }
     
-    cat_data.SetCurrentCanvasTmStep(0);
+    int lisa_t = local_jc_coord->var_info[0].time;
+    cat_data.SetCurrentCanvasTmStep(lisa_t);
     int mt = cat_data.GetCurrentCanvasTmStep();
     num_categories = cat_data.categories[mt].cat_vec.size();
     CatClassification::ChangeNumCats(GetNumCats(), cat_classif_def_map);

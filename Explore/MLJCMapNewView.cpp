@@ -49,9 +49,9 @@ BEGIN_EVENT_TABLE(MLJCMapCanvas, MapCanvas)
 END_EVENT_TABLE()
 
 
-MLJCMapCanvas::MLJCMapCanvas(wxWindow *parent, TemplateFrame* t_frame, bool is_clust_p, Project* project, JCCoordinator* gs_coordinator, const wxPoint& pos, const wxSize& size)
+MLJCMapCanvas::MLJCMapCanvas(wxWindow *parent, TemplateFrame* t_frame, bool is_clust_p, Project* project, JCCoordinator* gs_coordinator, bool is_quantile_lisa, const wxPoint& pos, const wxSize& size)
 : MapCanvas(parent, t_frame, project, std::vector<GdaVarTools::VarInfo>(0), std::vector<int>(0), CatClassification::no_theme, no_smoothing, 1, boost::uuids::nil_uuid(), pos, size),
-gs_coord(gs_coordinator), is_clust(is_clust_p)
+gs_coord(gs_coordinator), is_clust(is_clust_p), is_quantile_lisa(is_quantile_lisa)
 {
 	LOG_MSG("Entering MLJCMapCanvas::MLJCMapCanvas");
     
@@ -65,6 +65,7 @@ gs_coord(gs_coordinator), is_clust(is_clust_p)
     str_p001 = "p = 0.01";
     str_p0001 = "p = 0.001";
     str_p00001 ="p = 0.0001";
+    str_p000001 = "p = 0.00001";
     
     SetPredefinedColor(str_sig, wxColour(240, 240, 240));
     SetPredefinedColor(str_high, wxColour(255, 0, 0));
@@ -76,6 +77,7 @@ gs_coord(gs_coordinator), is_clust(is_clust_p)
     SetPredefinedColor(str_p001, wxColour(6, 196, 11));
     SetPredefinedColor(str_p0001, wxColour(3, 116, 6));
     SetPredefinedColor(str_p00001, wxColour(1, 70, 3));
+    SetPredefinedColor(str_p000001, wxColour(0, 50, 2));
 
 	if (is_clust) {
 		cat_classif_def.cat_classif_type = CatClassification::local_join_count_categories;
@@ -121,14 +123,17 @@ wxString MLJCMapCanvas::GetCanvasTitle()
 {
     wxString new_title;
     
-    new_title << _("Local Join Count ");
-    
-	new_title << (is_clust ? "Cluster" : "Significance") << " Map ";
-	new_title << "(" << gs_coord->weight_name << "): ";
-    for (int i=0; i<gs_coord->num_vars; i++) {
-        new_title << GetNameWithTime(i);
-        if (i < gs_coord->num_vars-1) {
-            new_title << ",";
+    if (is_quantile_lisa) {
+        new_title << template_frame->GetTitle();
+    } else {
+        new_title << _("Local Join Count ");
+        new_title << (is_clust ? "Cluster" : "Significance") << " Map ";
+        new_title << "(" << gs_coord->weight_name << "): ";
+        for (int i=0; i<gs_coord->num_vars; i++) {
+            new_title << GetNameWithTime(i);
+            if (i < gs_coord->num_vars-1) {
+                new_title << ",";
+            }
         }
     }
 	new_title << wxString::Format(", pseudo p (%d perm)", gs_coord->permutations);
@@ -233,174 +238,119 @@ void MLJCMapCanvas::CreateAndUpdateCategories()
 		int undefined_cat = -1;
 		int isolates_cat = -1;
 		int num_cats = 0;
-        double stop_sig = 0;
+        int set_perm = gs_coord->permutations;
+        double stop_sig = 1.0 / (1.0 + set_perm);
+        double sig_cutoff = gs_coord->significance_cutoff;
+        bool is_cust_cutoff = gs_coord->GetSignificanceFilter() < 0;
+        bool has_isolates = gs_coord->GetHasIsolates(t);
+        bool has_undefined = gs_coord->GetHasUndefined(t);
+        wxString def_cats[NUM_SIG_CATS] = {str_p005, str_p001, str_p0001, str_p00001, str_p000001};
+        double def_cutoffs[NUM_SIG_CATS] = {0.05, 0.01, 0.001, 0.0001, 0.00001};
+        int cat_idx = 0;
+        std::map<int, int> level_cat_dict;
         
-        if (gs_coord->GetHasIsolates(t)) {
+        if (has_isolates) {
             num_cats++;
         }
-        if (gs_coord->GetHasUndefined(t)) {
+        if (has_undefined) {
             num_cats++;
         }
         
 		if (is_clust) {
 			num_cats += 4; // 0 not sig 1 no loc 2 has loc 3 loc cluster
+            cat_data.CreateCategoriesAtCanvasTm(num_cats, t);
+            cat_data.SetCategoryLabel(t, cat_idx, str_sig);
+            cat_data.SetCategoryColor(t, cat_idx++, lbl_color_dict[str_sig]);
+            cat_data.SetCategoryLabel(t, cat_idx, str_low);
+            cat_data.SetCategoryColor(t, cat_idx++, lbl_color_dict[str_low]);
+            cat_data.SetCategoryLabel(t, cat_idx, str_med);
+            cat_data.SetCategoryColor(t, cat_idx++, lbl_color_dict[str_med]);
+            cat_data.SetCategoryLabel(t, cat_idx, str_high);
+            cat_data.SetCategoryColor(t, cat_idx++, lbl_color_dict[str_high]);
             
 		} else {
-            int set_perm = gs_coord->permutations;
-            stop_sig = 1.0 / (1.0 + set_perm);
-            double sig_cutoff = gs_coord->significance_cutoff;
-            
-            if (gs_coord->GetSignificanceFilter() < 0) {
-                // user specified cutoff
-                num_cats += 2;
+            num_cats += 1; // not sig category
+            if (is_cust_cutoff) {
+                // user specified cutoff: Custom cutoff
+                num_cats += 1;
             } else {
-                num_cats += 6 - gs_coord->GetSignificanceFilter();
-                
-                if ( sig_cutoff >= 0.0001 && stop_sig > 0.0001) {
-                    num_cats -= 1;
-                }
-                if ( sig_cutoff >= 0.001 && stop_sig > 0.001 ) {
-                    num_cats -= 1;
-                }
-                if ( sig_cutoff >= 0.01 && stop_sig > 0.01 ) {
-                    num_cats -= 1;
-                }
-            }
-		}
-		cat_data.CreateCategoriesAtCanvasTm(num_cats, t);
-	
-		if (is_clust) {
-			cat_data.SetCategoryLabel(t, 0, str_sig);
-			cat_data.SetCategoryColor(t, 0, lbl_color_dict[str_sig]);
-			cat_data.SetCategoryLabel(t, 1, str_low);
-			cat_data.SetCategoryColor(t, 1, lbl_color_dict[str_low]);
-			cat_data.SetCategoryLabel(t, 2, str_med);
-			cat_data.SetCategoryColor(t, 2, lbl_color_dict[str_med]);
-			cat_data.SetCategoryLabel(t, 3, str_high);
-			cat_data.SetCategoryColor(t, 3, lbl_color_dict[str_high]);
-            
-			if (gs_coord->GetHasIsolates(t) && gs_coord->GetHasUndefined(t)) {
-                isolates_cat = 4;
-                undefined_cat = 5;
-			} else if (gs_coord->GetHasUndefined(t)) {
-                undefined_cat = 4;
-			} else if (gs_coord->GetHasIsolates(t)) {
-                isolates_cat = 4;
-			}
-            
-		} else {
-			cat_data.SetCategoryLabel(t, 0, str_sig);
-			cat_data.SetCategoryColor(t, 0, lbl_color_dict[str_sig]);
-	
-            if (gs_coord->GetSignificanceFilter() < 0) {
-                // user specified cutoff
-                wxString lbl = wxString::Format("p = %g", gs_coord->significance_cutoff);
-                cat_data.SetCategoryLabel(t, 1, lbl);
-                cat_data.SetCategoryColor(t, 1, wxColour(3, 116, 6));
-                
-                if (gs_coord->GetHasIsolates(t) &&
-                    gs_coord->GetHasUndefined(t))
-                {
-                    isolates_cat = 2;
-                    undefined_cat = 3;
-                } else if (gs_coord->GetHasUndefined(t)) {
-                    undefined_cat = 2;
-                } else if (gs_coord->GetHasIsolates(t)) {
-                    isolates_cat = 2;
-                }
-                
-            } else {
-                int s_f = gs_coord->GetSignificanceFilter();
-                int set_perm = gs_coord->permutations;
-                stop_sig = 1.0 / (1.0 + set_perm);
-                
-                wxString def_cats[4] = {str_p005, str_p001, str_p0001, str_p00001};
-                double def_cutoffs[4] = {0.05, 0.01, 0.001, 0.0001};
-                
-                int cat_idx = 1;
-                for (int j=s_f-1; j < 4; j++) {
-                    if (def_cutoffs[j] >= stop_sig) {
-                        cat_data.SetCategoryLabel(t, cat_idx, def_cats[j]);
-                        cat_data.SetCategoryColor(t, cat_idx++, lbl_color_dict[def_cats[j]]);
+                for (int j=0; j < NUM_SIG_CATS; j++) {
+                    if (sig_cutoff >= def_cutoffs[j] && stop_sig <= def_cutoffs[j]) {
+                        num_cats += 1;
                     }
                 }
-                if (gs_coord->GetHasIsolates(t) &&
-                    gs_coord->GetHasUndefined(t)) {
-                    isolates_cat = cat_idx++;
-                    undefined_cat = cat_idx++;
-                    
-                } else if (gs_coord->GetHasUndefined(t)) {
-                    undefined_cat = cat_idx++;
-                    
-                } else if (gs_coord->GetHasIsolates(t)) {
-                    isolates_cat = cat_idx++;
+            }
+            cat_data.CreateCategoriesAtCanvasTm(num_cats, t);
+            
+            // set not sigificant category
+            cat_data.SetCategoryLabel(t, cat_idx, str_sig);
+            cat_data.SetCategoryColor(t, cat_idx++, lbl_color_dict[str_sig]);
+            
+            if (is_cust_cutoff) {
+                std::ostringstream ss_sig_cutoff;
+                ss_sig_cutoff << std::fixed << sig_cutoff;
+                wxString lbl =  wxString::Format("p = %s", ss_sig_cutoff.str());
+                
+                cat_data.SetCategoryLabel(t, cat_idx, lbl);
+                cat_data.SetCategoryColor(t, cat_idx++, wxColour(3, 116, 6));
+            } else {
+                for (int j=0; j < NUM_SIG_CATS; j++) {
+                    if (sig_cutoff >= def_cutoffs[j] && stop_sig <= def_cutoffs[j]) {
+                        level_cat_dict[j] = cat_idx;
+                        cat_data.SetCategoryColor(t, cat_idx, lbl_color_dict[def_cats[j]]);
+                        cat_data.SetCategoryLabel(t, cat_idx++, def_cats[j]);
+                    }
                 }
             }
 		}
         
-		if (undefined_cat != -1) {
-			cat_data.SetCategoryLabel(t, undefined_cat, str_undefined);
-            cat_data.SetCategoryColor(t, undefined_cat, lbl_color_dict[str_undefined]);
-		}
-		if (isolates_cat != -1) {
-			cat_data.SetCategoryLabel(t, isolates_cat, str_neighborless);
-			cat_data.SetCategoryColor(t, isolates_cat, lbl_color_dict[str_neighborless]);
+        if (has_isolates) {
+            isolates_cat = cat_idx;
+            cat_data.SetCategoryLabel(t, cat_idx, str_neighborless);
+            cat_data.SetCategoryColor(t, cat_idx++, lbl_color_dict[str_neighborless]);
+        }
+		if (has_undefined) {
+            undefined_cat = cat_idx;
+			cat_data.SetCategoryLabel(t, cat_idx, str_undefined);
+            cat_data.SetCategoryColor(t, cat_idx++, lbl_color_dict[str_undefined]);
 		}
 		
 		gs_coord->FillClusterCats(t, cluster);
 		
 		if (is_clust) {
-			for (int i=0, iend=gs_coord->num_obs; i<iend; i++) {
+			for (int i=0; i<gs_coord->num_obs; i++) {
 				if (cluster[i] == 0) {
 					cat_data.AppendIdToCategory(t, 0, i); // not significant
-				} else if (cluster[i] == 4) {
+				} else if (cluster[i] == JCCoordinator::NEIGHBORLESS_CLUSTER) {
 					cat_data.AppendIdToCategory(t, isolates_cat, i);
-				} else if (cluster[i] == 5) {
+				} else if (cluster[i] == JCCoordinator::UNDEFINED_CLUSTER) {
 					cat_data.AppendIdToCategory(t, undefined_cat, i);
 				} else {
 					cat_data.AppendIdToCategory(t, cluster[i], i);
 				}
 			}
 		} else {
-            double* p_val = gs_coord->sig_local_jc_vecs[t];
+            double* p = gs_coord->sig_local_jc_vecs[t];
             
-            if (gs_coord->GetSignificanceFilter() < 0) {
-                // user specified cutoff
-                int s_f = 1;
-                double sig_cutoff = gs_coord->significance_cutoff;
-                for (int i=0, iend=gs_coord->num_obs; i<iend; i++) {
-                    if (cluster[i] == 4) {
-                        cat_data.AppendIdToCategory(t, isolates_cat, i);
-                    } else if (cluster[i] == 5) {
-                        cat_data.AppendIdToCategory(t, undefined_cat, i);
-                    } else if (cluster[i] == 0) {
-                        cat_data.AppendIdToCategory(t, 0, i); // not significant
-                    } else {
-                        if (p_val[i] <= sig_cutoff) {
+            for (int i=0; i<gs_coord->num_obs; i++) {
+                if (cluster[i] == JCCoordinator::NEIGHBORLESS_CLUSTER) {
+                    cat_data.AppendIdToCategory(t, isolates_cat, i);
+                } else if (cluster[i] == JCCoordinator::UNDEFINED_CLUSTER) {
+                    cat_data.AppendIdToCategory(t, undefined_cat, i);
+                } else if (cluster[i] == 0) {
+                    cat_data.AppendIdToCategory(t, 0, i); // not significant
+                } else {
+                    if (is_cust_cutoff) {
+                        if (p[i] <= sig_cutoff) {
                             cat_data.AppendIdToCategory(t, 1, i);
-                        } else {
-                            cat_data.AppendIdToCategory(t, 0, i); // not significant
                         }
-                    }
-
-                }
-            } else {
-                int s_f = gs_coord->GetSignificanceFilter();
-                for (int i=0, iend=gs_coord->num_obs; i<iend; i++) {
-                    if (cluster[i] == 0) {
-                        cat_data.AppendIdToCategory(t, 0, i); // not significant
-                    } else if (cluster[i] == 4) {
-                        cat_data.AppendIdToCategory(t, isolates_cat, i);
-                    } else if (cluster[i] == 5) {
-                        cat_data.AppendIdToCategory(t, undefined_cat, i);
-                    } else if (p_val[i] <= 0.0001) {
-                        cat_data.AppendIdToCategory(t, 5-s_f, i);
-                    } else if (p_val[i] <= 0.001) {
-                        cat_data.AppendIdToCategory(t, 4-s_f, i);
-                    } else if (p_val[i] <= 0.01) {
-                        cat_data.AppendIdToCategory(t, 3-s_f, i);
-                    } else if (p_val[i] <= 0.05) {
-                        cat_data.AppendIdToCategory(t, 2-s_f, i);
+                    } else {
+                        for (int c = NUM_SIG_CATS - 1; c >= 0; c--) {
+                            if (p[i] <= def_cutoffs[c]) {
+                                cat_data.AppendIdToCategory(t, level_cat_dict[c], i);
+                                break;
+                            }
+                        }
                     }
                 }
             }
@@ -495,10 +445,11 @@ IMPLEMENT_CLASS(MLJCMapFrame, MapFrame)
 	EVT_ACTIVATE(MLJCMapFrame::OnActivate)
 END_EVENT_TABLE()
 
-MLJCMapFrame::MLJCMapFrame(wxFrame *parent, Project* project, JCCoordinator* gs_coordinator, bool isClusterMap, const wxPoint& pos, const wxSize& size, const long style)
+MLJCMapFrame::MLJCMapFrame(wxFrame *parent, Project* project, JCCoordinator* gs_coordinator, bool is_cluster_map, bool is_quantile_lisa, const wxPoint& pos, const wxSize& size, const long style)
 : MapFrame(parent, project, pos, size, style),
 gs_coord(gs_coordinator),
-is_clust(isClusterMap)
+is_clust(is_cluster_map),
+is_quantile_lisa(is_quantile_lisa)
 {
 	wxLogMessage("Entering MLJCMapFrame::MLJCMapFrame");
 	
@@ -514,7 +465,7 @@ is_clust(isClusterMap)
 	splitter_win->SetMinimumPaneSize(10);
 	
     wxPanel* rpanel = new wxPanel(splitter_win);
-    template_canvas = new MLJCMapCanvas(rpanel, this, is_clust, project, gs_coordinator);
+    template_canvas = new MLJCMapCanvas(rpanel, this, is_clust, project, gs_coordinator, is_quantile_lisa);
 	template_canvas->SetScrollRate(1,1);
     wxBoxSizer* rbox = new wxBoxSizer(wxVERTICAL);
     rbox->Add(template_canvas, 1, wxEXPAND);

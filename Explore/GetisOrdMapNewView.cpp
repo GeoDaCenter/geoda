@@ -19,6 +19,8 @@
 
 #include "GetisOrdMapNewView.h"
 
+#include <sstream>
+#include <vector>
 #include <limits>
 #include <vector>
 #include <wx/splitter.h>
@@ -77,6 +79,7 @@ row_standardize(row_standardize_s)
     str_p001 = "p = 0.01";
     str_p0001 = "p = 0.001";
     str_p00001 = "p = 0.0001";
+    str_p000001 = "p = 0.00001";
     
     SetPredefinedColor(str_not_sig, wxColour(240, 240, 240));
     SetPredefinedColor(str_high, wxColour(255, 0, 0));
@@ -87,6 +90,7 @@ row_standardize(row_standardize_s)
     SetPredefinedColor(str_p001, wxColour(6, 196, 11));
     SetPredefinedColor(str_p0001, wxColour(3, 116, 6));
     SetPredefinedColor(str_p00001, wxColour(1, 70, 3));
+    SetPredefinedColor(str_p000001, wxColour(0, 50, 2));
 
 	if (is_clust) {
 		cat_classif_def.cat_classif_type
@@ -242,49 +246,54 @@ void GetisOrdMapCanvas::CreateAndUpdateCategories()
 		int undefined_cat = -1;
 		int isolates_cat = -1;
 		int num_cats = 0;
-        double stop_sig = 0;
         Shapefile::Header& hdr = project->main_data.header;
         
-        if (gs_coord->GetHasIsolates(t)) {
+        int set_perm = gs_coord->permutations;
+        double stop_sig = 1.0 / (1.0 + set_perm);
+        double sig_cutoff = gs_coord->significance_cutoff;
+        wxString def_cats[NUM_SIG_CATS] = {str_p005, str_p001, str_p0001, str_p00001, str_p000001};
+        double def_cutoffs[NUM_SIG_CATS] = {0.05, 0.01, 0.001, 0.0001, 0.00001};
+        bool is_cust_cutoff = gs_coord->GetSignificanceFilter() < 0;
+        bool has_isolates = gs_coord->GetHasIsolates(t);
+        bool has_undefined = gs_coord->GetHasUndefined(t);
+        int cat_idx = 0;
+        
+        if (has_isolates) {
             num_cats++;
         }
-        if (gs_coord->GetHasUndefined(t)) {
+        if (has_undefined) {
             num_cats++;
         }
         
 		if (is_clust) {
+            // Not Sig, HH, LL
 			num_cats += 3;
             // in Local Join Count, don't display Low category
-            if (gs_coord->is_local_join_count)
+            if (gs_coord->is_local_join_count) {
                 num_cats -= 1;
+            }
             
             cat_data.CreateCategoriesAtCanvasTm(num_cats, t);
             
-            cat_data.SetCategoryLabel(t, 0, str_not_sig);
-            cat_data.SetCategoryColor(t, 0, lbl_color_dict[str_not_sig]);
-            cat_data.SetCategoryLabel(t, 1, str_high);
-            cat_data.SetCategoryColor(t, 1, lbl_color_dict[str_high]);
+            cat_data.SetCategoryLabel(t, cat_idx, str_not_sig);
+            cat_data.SetCategoryColor(t, cat_idx++, lbl_color_dict[str_not_sig]);
+            cat_data.SetCategoryLabel(t, cat_idx, str_high);
+            cat_data.SetCategoryColor(t, cat_idx++, lbl_color_dict[str_high]);
             
             if (!gs_coord->is_local_join_count) {
-                cat_data.SetCategoryLabel(t, 2, str_low);
-                cat_data.SetCategoryColor(t, 2, lbl_color_dict[str_low]);
+                cat_data.SetCategoryLabel(t, cat_idx, str_low);
+                cat_data.SetCategoryColor(t, cat_idx++, lbl_color_dict[str_low]);
             }
             
-            if (gs_coord->GetHasIsolates(t) && gs_coord->GetHasUndefined(t)) {
-                isolates_cat = 3 - gs_coord->is_local_join_count;
-                undefined_cat = 4 - gs_coord->is_local_join_count;
-            } else if (gs_coord->GetHasUndefined(t)) {
-                undefined_cat = 3 - gs_coord->is_local_join_count;
-            } else if (gs_coord->GetHasIsolates(t)) {
-                isolates_cat = 3 - gs_coord->is_local_join_count;
+            if (has_undefined) {
+                undefined_cat = cat_idx;
+                cat_data.SetCategoryLabel(t, cat_idx, str_undefined);
+                cat_data.SetCategoryColor(t, cat_idx++, lbl_color_dict[str_undefined]);
             }
-            if (undefined_cat != -1) {
-                cat_data.SetCategoryLabel(t, undefined_cat, str_undefined);
-                cat_data.SetCategoryColor(t, undefined_cat, lbl_color_dict[str_undefined]);
-            }
-            if (isolates_cat != -1) {
-                cat_data.SetCategoryLabel(t, isolates_cat, str_neighborless);
-                cat_data.SetCategoryColor(t, isolates_cat, lbl_color_dict[str_neighborless]);
+            if (has_isolates) {
+                isolates_cat = cat_idx;
+                cat_data.SetCategoryLabel(t, cat_idx, str_neighborless);
+                cat_data.SetCategoryColor(t, cat_idx++, lbl_color_dict[str_neighborless]);
             }
             
             gs_coord->FillClusterCats(t, is_gi, is_perm, cluster);
@@ -292,9 +301,9 @@ void GetisOrdMapCanvas::CreateAndUpdateCategories()
             for (int i=0, iend=gs_coord->num_obs; i<iend; i++) {
                 if (cluster[i] == 0) {
                     cat_data.AppendIdToCategory(t, 0, i); // not significant
-                } else if (cluster[i] == 3) {
+                } else if (cluster[i] == GStatCoordinator::NEIGHBORLESS_CLUSTER) {
                     cat_data.AppendIdToCategory(t, isolates_cat, i);
-                } else if (cluster[i] == 4) {
+                } else if (cluster[i] == GStatCoordinator::UNDEFINED_CLUSTER) {
                     cat_data.AppendIdToCategory(t, undefined_cat, i);
                 } else {
                     cat_data.AppendIdToCategory(t, cluster[i], i);
@@ -302,104 +311,56 @@ void GetisOrdMapCanvas::CreateAndUpdateCategories()
             }
             
 		} else {
-            int set_perm = gs_coord->permutations;
-            stop_sig = 1.0 / (1.0 + set_perm);
-            double sig_cutoff = gs_coord->significance_cutoff;
-            wxString def_cats[4] = {str_p005, str_p001, str_p0001, str_p00001};
-            double def_cutoffs[4] = {0.05, 0.01, 0.001, 0.0001};
-           
-            bool is_cust_cutoff = true;
-            for (int i=0; i<4; i++) {
-                if (sig_cutoff == def_cutoffs[i]) {
-                    is_cust_cutoff = false;
-                    break;
+            // significance map
+            // 0: >0.05 (Not sig) 1: 0.05, 2: 0.01, 3: 0.001, 4: 0.0001, 5: 0.00001
+            num_cats += 1; // not sig category
+            
+            if (is_cust_cutoff) {
+                num_cats += 1;
+            } else {
+                for (int j=0; j < NUM_SIG_CATS; j++) {
+                    if (sig_cutoff >= def_cutoffs[j] && stop_sig <= def_cutoffs[j]) {
+                        num_cats += 1;
+                    }
                 }
             }
+            cat_data.CreateCategoriesAtCanvasTm(num_cats, t);
             
-            if ( is_cust_cutoff ) {
-                // if set customized cutoff value
-                wxString lbl = wxString::Format("p = %g", sig_cutoff);
-                if ( sig_cutoff > 0.05 ) {
-                    def_cutoffs[0] = sig_cutoff;
-                    lbl_color_dict[lbl] = lbl_color_dict[def_cats[0]];
-                    def_cats[0] = lbl;
-                } else {
-                    for (int i = 1; i < 4; i++) {
-                        if (def_cutoffs[i-1] + def_cutoffs[i] < 2 * sig_cutoff){
-                            lbl_color_dict[lbl] = lbl_color_dict[def_cats[i-1]];
-                            def_cutoffs[i-1] = sig_cutoff;
-                            def_cats[i-1] = lbl;
-                            break;
-                        } else {
-                            lbl_color_dict[lbl] = lbl_color_dict[def_cats[i]];
-                            def_cutoffs[i] = sig_cutoff;
-                            def_cats[i] = lbl;
-                            break;
-                        }
+            int cat_idx = 0;
+            cat_data.SetCategoryLabel(t, cat_idx, str_not_sig);
+            cat_data.SetCategoryColor(t, cat_idx++, hdr.shape_type == Shapefile::POINT_TYP ? wxColour(190, 190, 190) : wxColour(240, 240, 240));
+
+            std::map<int, int> level_cat_dict;
+            
+            if (is_cust_cutoff) {
+                std::ostringstream ss_sig_cutoff;
+                ss_sig_cutoff << std::fixed << sig_cutoff;
+                wxString lbl =  wxString::Format("p = %s", ss_sig_cutoff.str());
+                cat_data.SetCategoryColor(t, cat_idx, lbl_color_dict[def_cats[0]]);
+                cat_data.SetCategoryLabel(t, cat_idx++, lbl);
+            } else {
+                for (int j=0; j < NUM_SIG_CATS; j++) {
+                    if (stop_sig <= def_cutoffs[j]) {
+                        level_cat_dict[j] = cat_idx;
+                        cat_data.SetCategoryColor(t, cat_idx, lbl_color_dict[def_cats[j]]);
+                        cat_data.SetCategoryLabel(t, cat_idx++, def_cats[j]);
                     }
                 }
             }
             
-            num_cats = 5;
-            for (int j=0; j < 4; j++) {
-                if (sig_cutoff < def_cutoffs[j])
-                    num_cats -= 1;
+            if (has_isolates) {
+                isolates_cat = cat_idx;
+                cat_data.SetCategoryLabel(t, cat_idx, str_neighborless);
+                cat_data.SetCategoryColor(t, cat_idx++, lbl_color_dict[str_neighborless]);
             }
-            
-            // issue #474 only show significance levels that can be mapped for the given number of permutations, e.g., for 99 it would stop at 0.01, for 999 at 0.001, etc.
-            if ( sig_cutoff >= def_cutoffs[3] && stop_sig > def_cutoffs[3] ){ //0.0001
-                num_cats -= 1;
-            }
-            if ( sig_cutoff >= def_cutoffs[2] && stop_sig > def_cutoffs[2] ){ //0.001
-                num_cats -= 1;
-            }
-            if ( sig_cutoff >= def_cutoffs[1] && stop_sig > def_cutoffs[1] ){ //0.01
-                num_cats -= 1;
-            }
-            cat_data.CreateCategoriesAtCanvasTm(num_cats, t);
-            
-            // 0: >0.05 1: 0.05, 2: 0.01, 3: 0.001, 4: 0.0001
-            cat_data.SetCategoryLabel(t, 0, str_not_sig);
-            
-            if (hdr.shape_type == Shapefile::POINT_TYP) {
-                cat_data.SetCategoryColor(t, 0, wxColour(190, 190, 190));
-            } else {
-                cat_data.SetCategoryColor(t, 0, wxColour(240, 240, 240));
-            }
-            
-            int cat_idx = 1;
-            std::map<int, int> level_cat_dict;
-            for (int j=0; j < 4; j++) {
-                if (sig_cutoff >= def_cutoffs[j] && def_cutoffs[j] >= stop_sig) {
-                    cat_data.SetCategoryColor(t, cat_idx, lbl_color_dict[def_cats[j]]);
-                    cat_data.SetCategoryLabel(t, cat_idx, def_cats[j]);
-                    level_cat_dict[j] = cat_idx;
-                    cat_idx += 1;
-                }
-            }
-            
-            if (gs_coord->GetHasIsolates(t) &&
-                gs_coord->GetHasUndefined(t)) {
-                isolates_cat = cat_idx++;
-                undefined_cat = cat_idx++;
-                
-            } else if (gs_coord->GetHasUndefined(t)) {
-                undefined_cat = cat_idx++;
-                
-            } else if (gs_coord->GetHasIsolates(t)) {
-                isolates_cat = cat_idx++;
-            }
-            
-            if (undefined_cat != -1) {
-                cat_data.SetCategoryLabel(t, undefined_cat, str_undefined);
-                cat_data.SetCategoryColor(t, undefined_cat, lbl_color_dict[str_undefined]);
-            }
-            if (isolates_cat != -1) {
-                cat_data.SetCategoryLabel(t, isolates_cat, str_neighborless);
-                cat_data.SetCategoryColor(t, isolates_cat, lbl_color_dict[str_neighborless]);
+            if (has_undefined) {
+                undefined_cat = cat_idx;
+                cat_data.SetCategoryLabel(t, cat_idx, str_undefined);
+                cat_data.SetCategoryColor(t, cat_idx++, lbl_color_dict[str_undefined]);
             }
             
             gs_coord->FillClusterCats(t, is_gi, is_perm, cluster);
+            
             double* p = 0;
             if (is_gi && is_perm)
                 p = gs_coord->pseudo_p_vecs[t];
@@ -410,20 +371,24 @@ void GetisOrdMapCanvas::CreateAndUpdateCategories()
             if (!is_gi && !is_perm)
                 p = gs_coord->p_star_vecs[t];
             
-            int s_f = gs_coord->GetSignificanceFilter();
-            for (int i=0, iend=gs_coord->num_obs; i<iend; i++) {
+            for (int i=0; i<gs_coord->num_obs; i++) {
                 if (cluster[i] == 0) {
                     cat_data.AppendIdToCategory(t, 0, i); // not significant
-                } else if (cluster[i] == 3) {
+                } else if (cluster[i] == GStatCoordinator::NEIGHBORLESS_CLUSTER) {
                     cat_data.AppendIdToCategory(t, isolates_cat, i);
-                } else if (cluster[i] == 4) {
+                } else if (cluster[i] == GStatCoordinator::UNDEFINED_CLUSTER) {
                     cat_data.AppendIdToCategory(t, undefined_cat, i);
                 } else {
-                    //cat_data.AppendIdToCategory(t, (sigCat[i]-s_f)+1, i);
-                    for ( int c = 4-1; c >= 0; c-- ) {
-                        if ( p[i] <= def_cutoffs[c] ) {
-                            cat_data.AppendIdToCategory(t, level_cat_dict[c], i);
-                            break;
+                    if (is_cust_cutoff) {
+                        if (p[i] <= sig_cutoff) {
+                            cat_data.AppendIdToCategory(t, 1, i);
+                        }
+                    } else {
+                        for (int c = NUM_SIG_CATS - 1; c >= 0; c--) {
+                            if (p[i] <= def_cutoffs[c]) {
+                                cat_data.AppendIdToCategory(t, level_cat_dict[c], i);
+                                break;
+                            }
                         }
                     }
                 }
@@ -431,8 +396,7 @@ void GetisOrdMapCanvas::CreateAndUpdateCategories()
 		}
 		
 		for (int cat=0; cat<num_cats; cat++) {
-			cat_data.SetCategoryCount(t, cat,
-									  cat_data.GetNumObsInCategory(t, cat));
+			cat_data.SetCategoryCount(t, cat, cat_data.GetNumObsInCategory(t, cat));
 		}
 	}
 	

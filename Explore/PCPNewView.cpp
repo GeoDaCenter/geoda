@@ -64,8 +64,7 @@ num_time_vals(1), num_vars(v_info.size()),
 data(v_info.size()), data_undef(v_info.size()),
 custom_classif_state(0),
 display_stats(false), show_axes(true), standardized(false),
-pcp_selectstate(pcp_start), show_pcp_control(false),
-overall_abs_max_std_exists(false), theme_var(0),
+pcp_selectstate(pcp_start), show_pcp_control(false), theme_var(0),
 num_categories(6), all_init(false)
 {
     LOG_MSG("Entering PCPCanvas::PCPCanvas");
@@ -84,6 +83,9 @@ num_categories(6), all_init(false)
             max_ts = ts;
     }
     undef_markers.resize(max_ts);
+    overall_abs_max_std_exists.resize(max_ts, false);
+    overall_abs_max_std.resize(max_ts);
+    overall_abs_min_std.resize(max_ts);
     
     for (int t=0; t<max_ts; t++) {
         undef_markers[t].resize(num_obs, false);
@@ -104,14 +106,17 @@ num_categories(6), all_init(false)
         table_int->GetColUndefined(col_ids[v], data_undef[v]);
 		int data_times = data[v].shape()[0];
 		data_stats[v].resize(data_times);
-        
-        std::vector<double> temp_vec;
-        
-		for (int t=0; t<data_times; t++) {
+    }
+    
+    for (int t=0; t<max_ts; t++) {
+        for (int v=0; v<num_vars; v++) {
+            int data_time_idx = var_info[v].is_time_variant ? t : 0;
+            std::vector<double> temp_vec;
 			for (int i=0; i<num_obs; i++) {
                 // only use valid data for stats
-                if (undef_markers[t][i] == false)
-                    temp_vec.push_back(data[v][t][i]);
+                if (undef_markers[t][i] == false) {
+                    temp_vec.push_back(data[v][data_time_idx][i]);
+                }
 			}
             if (temp_vec.empty()) {
                 wxString m = wxString::Format(_("Variable %s is not valid. Please select another variable."), var_info[v].name);
@@ -119,22 +124,23 @@ num_categories(6), all_init(false)
                 dlg.ShowModal();
                 return;
             }
-			data_stats[v][t].CalculateFromSample(temp_vec);
-			double min = data_stats[v][t].min;
-			double max = data_stats[v][t].max;
+			data_stats[v][data_time_idx].CalculateFromSample(temp_vec);
+			double min = data_stats[v][data_time_idx].min;
+			double max = data_stats[v][data_time_idx].max;
 			if (min != max) {
-				double mean = data_stats[v][t].mean;
-				double sd = data_stats[v][t].sd_with_bessel;
+				double mean = data_stats[v][data_time_idx].mean;
+				double sd = data_stats[v][data_time_idx].sd_with_bessel;
 				double s_min = (min - mean)/sd;
 				double s_max = (max - mean)/sd;
-				double abs_max =
-					std::max(std::abs(s_min), std::abs(s_max));
-				if (!overall_abs_max_std_exists) {
-					overall_abs_max_std_exists = true;
-					overall_abs_max_std = abs_max;
-				} else if (abs_max > overall_abs_max_std) {
-					overall_abs_max_std = abs_max;
-				}
+				if (!overall_abs_max_std_exists[t]) {
+					overall_abs_max_std_exists[t] = true;
+					overall_abs_max_std[t] = s_max;
+                    overall_abs_min_std[t] = s_min;
+				} else if (s_max > overall_abs_max_std[t]) {
+					overall_abs_max_std[t] = s_max;
+                } else if (s_min < overall_abs_min_std[t]) {
+                    overall_abs_min_std[t] = s_min;
+                }
 			}
 		}
 	}
@@ -485,32 +491,43 @@ void PCPCanvas::PopulateCanvas()
 	
 	GdaShape* s = 0;
 	wxRealPoint* pts = new wxRealPoint[num_vars];
+    
+    int t = project->GetTimeState()->GetCurrTime();
+    
 	double std_fact = 1;
-	if (overall_abs_max_std_exists) std_fact = 100.0/(2.0*overall_abs_max_std);
+    if (overall_abs_max_std_exists[t]) {
+        std_fact = 100.0/(overall_abs_max_std[t] - overall_abs_min_std[t]);
+    }
 	double nvf = 100.0/((double) (num_vars-1));
     
 	for (int i=0; i<num_obs; i++) {
         bool valid_line = true;
 		for (int v=0; v<num_vars; v++) {
 			int vv = var_order[v];
-			int t = var_info[vv].time;
             
             if (undef_markers[t][i])
                 valid_line = false;
             
-			double min = data_stats[vv][t].min;
-			double max = data_stats[vv][t].max;
+            int data_time_idx = var_info[vv].is_time_variant ? t : 0;
+            
+			double min = data_stats[vv][data_time_idx].min;
+			double max = data_stats[vv][data_time_idx].max;
+            
+            // TODO: save for fixed scale option
+            // double rng = (var_info[vv].fixed_scale ?
+            //              (var_info[vv].max_over_time -
+            //               var_info[vv].min_over_time) : max-min);
+            double rng = max - min;
+            
 			if (min == max) {
 				pts[v].x = (x_max-x_min)/2.0;
 			} else if (!standardized) {
-				double rng = (var_info[vv].fixed_scale ? 
-							  (var_info[vv].max_over_time - 
-							   var_info[vv].min_over_time) : max-min);
-				pts[v].x = 100.0*((data[vv][t][i]-min) / rng);
+				pts[v].x = 100.0*((data[vv][data_time_idx][i]-min) / rng);
 			} else  {
-				double mean = data_stats[vv][t].mean;
-				double sd = data_stats[vv][t].sd_with_bessel;
-				pts[v].x = ((data[vv][t][i]-mean)/sd)+overall_abs_max_std;
+				double mean = data_stats[vv][data_time_idx].mean;
+				double sd = data_stats[vv][data_time_idx].sd_with_bessel;
+                
+				pts[v].x = ((data[vv][data_time_idx][i]-mean)/sd) - overall_abs_min_std[t];
 				pts[v].x *= std_fact;
 			}
 			pts[v].y = 100.0-(nvf*((double) v));
@@ -609,28 +626,15 @@ void PCPCanvas::PopulateCanvas()
         ((GdaShapeText*)s)->GetSize(dc, s_w, s_h);
         if (s_w > max_label_width) max_label_width = s_w;
 		foreground_shps.push_back(s);
-		int sd_abs = overall_abs_max_std;
-		for (int i=1; i<=sd_abs && overall_abs_max_std_exists; i++) {
-			double sd_p = (double) i;
-			sd_p += overall_abs_max_std;
-			sd_p *= std_fact;
-			double sd_m = (double) -i;
-			sd_m += overall_abs_max_std;
-			sd_m *= std_fact;
+		int sd_left = (int)overall_abs_min_std[t];
+        int sd_right = (int)overall_abs_max_std[t];
+		for (int i = sd_left; i <= sd_right && overall_abs_max_std_exists[t]; i++) {
+			double sd_p = (i - overall_abs_min_std[t]) * std_fact;
 			s = new GdaPolyLine(sd_p, 0, sd_p, 100);
 			s->setPen(*GdaConst::scatterplot_origin_axes_pen);
 			foreground_shps.push_back(s);
 			s = new GdaShapeText(wxString::Format("%d", i),
 						   *GdaConst::small_font, wxRealPoint(sd_p, 0), 0,
-						   GdaShapeText::h_center, GdaShapeText::v_center, 0, 12);
-            ((GdaShapeText*)s)->GetSize(dc, s_w, s_h);
-            if (s_w > max_label_width) max_label_width = s_w;
-			foreground_shps.push_back(s);
-			s = new GdaPolyLine(sd_m, 0, sd_m, 100);
-			s->setPen(*GdaConst::scatterplot_origin_axes_pen);
-			foreground_shps.push_back(s);
-			s = new GdaShapeText(wxString::Format("%d", -i),
-						   *GdaConst::small_font, wxRealPoint(sd_m, 0), 0,
 						   GdaShapeText::h_center, GdaShapeText::v_center, 0, 12);
             ((GdaShapeText*)s)->GetSize(dc, s_w, s_h);
             if (s_w > max_label_width) max_label_width = s_w;
@@ -796,7 +800,7 @@ void PCPCanvas::TimeSyncVariableToggle(int var_index)
 
 void PCPCanvas::FixedScaleVariableToggle(int var_index)
 {
-	var_info[var_index].fixed_scale = !var_info[var_index].fixed_scale;
+    var_info[var_index].fixed_scale = false; // !var_info[var_index].fixed_scale;
 	VarInfoAttributeChange();
 	invalidateBms();
 	PopulateCanvas();

@@ -27,7 +27,7 @@ public:
          int no_dims = 2, double perplexity = 30, double theta = .5,
          int num_threads = 1, int max_iter = 1000, 
          int n_iter_early_exag = 250,
-         int random_state = 0, bool init_from_Y = false, int verbose = 0,
+         unsigned int random_state = 0, bool init_from_Y = false, int verbose = 0,
          double early_exaggeration = 12, double learning_rate = 200,
          double *final_error = NULL);
 
@@ -57,7 +57,7 @@ private:
     int num_threads;
     int max_iter;
     int n_iter_early_exag;
-    int random_state;
+    unsigned int random_state;
     bool skip_random_init;
     int verbose;
     double early_exaggeration;

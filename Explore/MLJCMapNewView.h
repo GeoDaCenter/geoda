@@ -40,6 +40,7 @@ public:
                   bool is_clust,
                   Project* project,
                   JCCoordinator* gs_coordinator,
+                  bool is_quantile_lisa = false,
                   const wxPoint& pos = wxDefaultPosition,
                   const wxSize& size = wxDefaultSize);
 	virtual ~MLJCMapCanvas();
@@ -62,7 +63,8 @@ public:
 protected:
 	JCCoordinator* gs_coord;
 	bool is_clust; // true = cluster map, false = significance map
-	
+    bool is_quantile_lisa;
+    
     wxString str_sig;
     wxString str_high;
     wxString str_med;
@@ -73,6 +75,9 @@ protected:
     wxString str_p001;
     wxString str_p0001;
     wxString str_p00001;
+    wxString str_p000001;
+    
+    const static int NUM_SIG_CATS = 5;
     
 	DECLARE_EVENT_TABLE()
 };
@@ -84,7 +89,8 @@ public:
 	
     MLJCMapFrame(wxFrame *parent, Project* project,
                  JCCoordinator* gs_coordinator,
-                 bool isClusterMap,
+                 bool is_cluster_map,
+                 bool is_quantile_lisa = false,
                  const wxPoint& pos = wxDefaultPosition,
                  const wxSize& size = GdaConst::map_default_size,
                  const long style = wxDEFAULT_FRAME_STYLE);
@@ -132,7 +138,8 @@ protected:
 	void CoreSelectHelper(const std::vector<bool>& elem);
 	JCCoordinator* gs_coord;
 	bool is_clust; // true = cluster map, false = significance map
-	
+    bool is_quantile_lisa;
+    
 	DECLARE_EVENT_TABLE()
 };
 

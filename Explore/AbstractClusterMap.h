@@ -64,9 +64,12 @@ protected:
     wxString str_p001;
     wxString str_p0001;
     wxString str_p00001;
+    wxString str_p000001;
     
     wxColour clr_not_sig_point;
     wxColour clr_not_sig_polygon;
+    
+    const static int NUM_SIG_CATS = 5;
     
 	DECLARE_EVENT_TABLE()
 };
