@@ -838,7 +838,7 @@ void MapTree::OnRightClick(wxMouseEvent& event)
 
     // check menu items
     wxMenuItem* outline = popupMenu->FindItem(XRCID("MAPTREE_OUTLINE_VISIBLE"));
-    if (outline) {
+    if (outline && outline->IsCheckable()) {
         outline->SetCheckable(true);
         if (ml->GetPenSize() > 0) outline->Check();
     }
@@ -861,7 +861,7 @@ void MapTree::OnRightClick(wxMouseEvent& event)
         Connect(XRCID("MAPTREE_BOUNDARY_ONLY"), wxEVT_COMMAND_MENU_SELECTED,
                 wxCommandEventHandler(MapTree::OnShowMapBoundary));
         wxMenuItem* boundary = popupMenu->FindItem(XRCID("MAPTREE_BOUNDARY_ONLY"));
-        if (boundary) {
+        if (boundary && boundary->IsCheckable()) {
             boundary->SetCheckable(true);
             if (ml->IsShowBoundary()) boundary->Check();
         }
