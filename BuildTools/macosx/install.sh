@@ -8,7 +8,7 @@ echo $GEODA_HOME
 CPUS=2
 
 # Install boost 1.75
-brew install boost
+brew install boost@1.76
 
 # Install libgdal 3.6
 brew install gdal
