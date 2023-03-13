@@ -178,7 +178,7 @@ void BoxPlotCanvas::AddTimeVariantOptionsToMenu(wxMenu* menu)
 		wxString s = wxString::Format(_("Synchronize %s with Time Control"), var_info[0].name);
 		wxMenuItem* mi =
 		menu1->AppendCheckItem(GdaConst::ID_TIME_SYNC_VAR1+0, s, s);
-		mi->Check(var_info[0].sync_with_global_time);
+        if (mi && mi->IsCheckable()) mi->Check(var_info[0].sync_with_global_time);
 	}
 	
 	wxMenu* menu2 = new wxMenu(wxEmptyString);
@@ -186,7 +186,7 @@ void BoxPlotCanvas::AddTimeVariantOptionsToMenu(wxMenu* menu)
 		wxString s= _("Fixed scale over time");
 		wxMenuItem* mi =
 		menu2->AppendCheckItem(GdaConst::ID_FIX_SCALE_OVER_TIME_VAR1, s, s);
-		mi->Check(var_info[0].fixed_scale);
+        if (mi && mi->IsCheckable()) mi->Check(var_info[0].fixed_scale);
 	}
 	
 	wxMenu* menu3 = new wxMenu(wxEmptyString);
@@ -198,7 +198,7 @@ void BoxPlotCanvas::AddTimeVariantOptionsToMenu(wxMenu* menu)
 			s << i+1;
 			wxMenuItem* mi =
 			menu3->AppendCheckItem(GdaConst::ID_PLOTS_PER_VIEW_1+i, s, s);
-			mi->Check(i+1 == cur_num_plots);
+            if (mi && mi->IsCheckable()) mi->Check(i+1 == cur_num_plots);
 		}
 		if (max_plots > 10) {
 			wxString s;
@@ -214,7 +214,7 @@ void BoxPlotCanvas::AddTimeVariantOptionsToMenu(wxMenu* menu)
 		}
 		wxMenuItem* mi =
 		menu3->AppendCheckItem(GdaConst::ID_PLOTS_PER_VIEW_ALL, s, s);
-		mi->Check(cur_num_plots == max_plots);
+        if (mi && mi->IsCheckable()) mi->Check(cur_num_plots == max_plots);
 	}
 	
 	menu->Prepend(wxID_ANY, _("Number of Box Plots"), menu3, _("Number of Box Plots"));

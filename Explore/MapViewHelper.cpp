@@ -425,12 +425,6 @@ void MSTMapHelper::CreateDistMatrix(const std::vector<GdaPoint*>& points)
 
 bool MSTMapHelper::Create(Project* project)
 {
-    if (check_spatial_ref) {
-        bool cont = project->CheckSpatialProjection(check_spatial_ref);
-        if (cont == false) {
-            return false;
-        }
-    }
     if (project == 0) return false;
     if (mst_edges.empty() == false) return true; // already has a MST
 

@@ -324,6 +324,10 @@ void MapCanvas::OnMSTMap(int menu_id)
         display_mst = !display_mst;
         if (display_mst) {
             if (mst_map.Create(project) == false) {
+                wxString msg = _("Failed to create the Minimum Spanning Tree.");
+                wxMessageDialog dlg (this, msg, _("Information"),
+                                     wxOK | wxICON_INFORMATION);
+                dlg.ShowModal();
                 display_mst = false;
             }
         }
@@ -1453,7 +1457,7 @@ void MapCanvas::AddTimeVariantOptionsToMenu(wxMenu* menu)
                                           var_info[i].name);
             wxMenuItem* mi;
             mi = menu1->AppendCheckItem(GdaConst::ID_TIME_SYNC_VAR1+i, s, s);
-			mi->Check(var_info[i].sync_with_global_time);
+            if (mi && mi->IsCheckable()) mi->Check(var_info[i].sync_with_global_time);
 		}
 	}
     menu->AppendSeparator();
@@ -3718,15 +3722,16 @@ void MapFrame::OnMapBasemap(wxCommandEvent& e)
                                                 items[j].name);
                 wxMenuItem* menu = popupMenu->FindItem(XRCID(xid));
                 if (current_item == items[j]) {
-                    menu->Check(true);
+                    if (menu && menu->IsCheckable()) menu->Check(true);
                     no_basemap = false;
                 } else {
-                    menu->Check(false);
+                    if (menu && menu->IsCheckable()) menu->Check(false);
                 }
             }
         }
         if (no_basemap) {
-            popupMenu->FindItem(XRCID("ID_NO_BASEMAP"))->Check();
+            wxMenuItem* menu = popupMenu->FindItem(XRCID("ID_NO_BASEMAP"));
+            if (menu && menu->IsCheckable()) menu->Check();
         }
         PopupMenu(popupMenu, wxDefaultPosition);
     }

@@ -355,7 +355,7 @@ void ScatterNewPlotCanvas::AddTimeVariantOptionsToMenu(wxMenu* menu)
 			wxString s = _("Synchronize %s with Time Control");
             s = wxString::Format(s, var_info[i].name);
 			wxMenuItem* mi = menu1->AppendCheckItem(GdaConst::ID_TIME_SYNC_VAR1+i, s, s);
-			mi->Check(var_info[i].sync_with_global_time);
+            if (mi && mi->IsCheckable()) mi->Check(var_info[i].sync_with_global_time);
 		}
 	}
 	
@@ -364,13 +364,13 @@ void ScatterNewPlotCanvas::AddTimeVariantOptionsToMenu(wxMenu* menu)
 		wxString s = _("Fixed x-axis scale over time");
 		wxMenuItem* mi =
 		menu2->AppendCheckItem(GdaConst::ID_FIX_SCALE_OVER_TIME_VAR1, s, s);
-		mi->Check(var_info[0].fixed_scale);
+        if (mi && mi->IsCheckable()) mi->Check(var_info[0].fixed_scale);
 	}
 	if (var_info[1].is_time_variant) {
 		wxString s = _("Fixed y-axis scale over time");
 		wxMenuItem* mi =
 		menu2->AppendCheckItem(GdaConst::ID_FIX_SCALE_OVER_TIME_VAR2, s, s);
-		mi->Check(var_info[1].fixed_scale);
+        if (mi && mi->IsCheckable()) mi->Check(var_info[1].fixed_scale);
 	}
 	
 	menu->Prepend(wxID_ANY, _("Scale Options"), menu2, _("Scale Options"));

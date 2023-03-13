@@ -528,8 +528,6 @@ bool HClusterDlg::Run(vector<wxInt64>& clusters)
             node2 = node2 < rows ? node2 : rows-node2-1;
             node1 = node1 < rows ? node1 : rows-node1-1;
             
-            cout << i<< ":" << NN->node1 <<", " <<  NN->node2 << ", " << NN->dist <<endl;
-            //cout << i<< ":" << htree[i].left << ", " << htree[i].right << ", " << htree[i].distance <<endl;
             htree[i].left = node1;
             htree[i].right = node2;
             htree[i].distance = Z2[i]->dist;
@@ -558,6 +556,8 @@ void HClusterDlg::OnOKClick(wxCommandEvent& event )
     
     // draw dendrogram
     m_panel->Setup(htree, rows, n_cluster, clusters, cutoffDistance);
+    
+    OnClusterChoice(event);
 
     saveButton->Enable();
 }
@@ -685,7 +685,6 @@ void DendrogramPanel::OnEvent( wxMouseEvent& event )
                 
                 split_line->move(pt, startPos);
                 int x = split_line->getX();
-                //std::cout << x << "," << pt.x << std::endl;
                 Refresh();
                 OnSplitLineChange(x);
                 startPos = pt;
@@ -702,7 +701,6 @@ void DendrogramPanel::OnEvent( wxMouseEvent& event )
                         select_box->Offset(event.GetPosition() - startPos);
                     } else {
                         select_box->SetBottomRight(event.GetPosition());
-                        //std::cout <<select_box->width << select_box->height <<std::endl;
                     }
                     for (int i=0;i<end_nodes.size();i++) {
                         if (end_nodes[i]->intersects(*select_box)) {
@@ -867,9 +865,6 @@ void DendrogramPanel::OnSplitLineChange(int x)
     
     if (all_nodes) nclusters = nelements;
     if (cutoffDistance < minDistance) cutoffDistance = minDistance;
-
-    //std::cout << "x:" << x << ", cutoff:" << cutoffDistance << "nclusters:" << nclusters << std::endl;
-    
     if (nclusters > max_n_clusters) nclusters = max_n_clusters;
     
     int* clusterid = new int[nelements];
