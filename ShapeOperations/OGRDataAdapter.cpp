@@ -18,6 +18,8 @@
  */
 
 #include <cmath>
+
+#define BOOST_PHOENIX_STL_TUPLE_H_
 #include <boost/bind/bind.hpp>
 #include <ogrsf_frmts.h>
 #include <ogr_api.h>

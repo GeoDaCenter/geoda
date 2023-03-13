@@ -27,10 +27,14 @@ def ProcessDependency(dir_path, dylib_name):
             copyitem = '/usr/local/opt/icu4c/lib/libicuuc.70.dylib'
         if item == '@loader_path/libicuuc.71.dylib':
             copyitem = '/usr/local/opt/icu4c/lib/libicuuc.71.dylib'
+        if item == '@loader_path/libicuuc.72.dylib':
+            copyitem = '/usr/local/opt/icu4c/lib/libicuuc.72.dylib'
         if item == '@loader_path/libicudata.70.dylib':
             copyitem = '/usr/local/opt/icu4c/lib/libicudata.70.dylib'
         if item == '@loader_path/libicudata.71.dylib':
             copyitem = '/usr/local/opt/icu4c/lib/libicudata.71.dylib'
+        if item == '@loader_path/libicudata.72.dylib':
+            copyitem = '/usr/local/opt/icu4c/lib/libicudata.72.dylib'
         if item == '@loader_path/libbrotlicommon.1.dylib':
             copyitem = '/usr/local/opt/brotli/lib/libbrotlicommon.1.dylib'
         if item == '@rpath/libIlmThread-3_1.30.dylib':
