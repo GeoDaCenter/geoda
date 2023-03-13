@@ -23,7 +23,7 @@
 #include <ogrsf_frmts.h>
 #include <cpl_port.h>
 #include <boost/thread.hpp>
-#include <boost/bind.hpp>
+#include <boost/bind/bind.hpp>
 
 #include "OGRDatasourceProxy.h"
 #include "OGRLayerProxy.h"

@@ -18,7 +18,7 @@
  */
 
 #include <cmath>
-#include <boost/bind.hpp>
+#include <boost/bind/bind.hpp>
 #include <ogrsf_frmts.h>
 #include <ogr_api.h>
 
