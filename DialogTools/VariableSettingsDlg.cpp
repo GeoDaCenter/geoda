@@ -895,7 +895,7 @@ wxString ValidationSettingDlg::PrintResult(const std::vector<JoinCountRatio>& jc
         t.add("Cluster");
         t.add("Area");
         t.add("Perimeter");
-        t.add("IPC");
+        t.add("IPQ");
         t.endOfRow();
         for (int i = 0; i < (int)comps.size(); ++i) {
             t.add(jcr[i].cluster.c_str());
