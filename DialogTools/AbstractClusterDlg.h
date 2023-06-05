@@ -20,6 +20,7 @@
 #ifndef __GEODA_CENTER_ABSTRACTCLUSTER_DLG_H___
 #define __GEODA_CENTER_ABSTRACTCLUSTER_DLG_H___
 
+#define BOOST_BIND_GLOBAL_PLACEHOLDERS
 #include <vector>
 #include <map>
 #include <wx/wx.h>

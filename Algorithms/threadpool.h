@@ -6,8 +6,9 @@
 #include <stdlib.h>
 
 #ifndef __JSGEODA__
+#define BOOST_PHOENIX_STL_TUPLE_H_
 #include <boost/thread/thread.hpp>
-#include <boost/bind.hpp>
+#include <boost/bind/bind.hpp>
 #include <boost/make_shared.hpp>
 #include <boost/thread.hpp>
 #include <boost/atomic/atomic.hpp>

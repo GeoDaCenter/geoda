@@ -19,6 +19,7 @@
 
 #include <vector>
 #include <map>
+#include <algorithm>
 
 #include <wx/wx.h>
 #include <boost/unordered_map.hpp>
