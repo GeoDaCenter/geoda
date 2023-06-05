@@ -389,7 +389,7 @@ Fragmentation SpatialValidationCluster::ComputeFragmentation()
 
 Compactness SpatialValidationCluster::ComputeCompactness()
 {
-    // isoperimeter quotient (IPC)
+    // isoperimetric quotient (IPQ)
     // only implement for spatially constrained result
     Compactness comp;
     

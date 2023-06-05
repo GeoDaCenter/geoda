@@ -621,6 +621,10 @@ void GdaFrame::UpdateToolbarAndMenus()
     GeneralWxUtils::EnableMenuItem(mb, XRCID("ID_TOOLS_DATA_REDCAP"), proj_open);
     GeneralWxUtils::EnableMenuItem(mb, XRCID("ID_TOOLS_DATA_MDS"), proj_open);
     GeneralWxUtils::EnableMenuItem(mb, XRCID("ID_TOOLS_DATA_TSNE"), proj_open);
+    GeneralWxUtils::EnableMenuItem(mb, XRCID("ID_TOOLS_CLUSTER_MATCH_MAP"), proj_open);
+    GeneralWxUtils::EnableMenuItem(mb, XRCID("ID_TOOLS_CLUSTER_MAKE_SPATIAL"), proj_open);
+    GeneralWxUtils::EnableMenuItem(mb, XRCID("ID_TOOLS_CLUSTER_VALIDATION"), proj_open);
+
 	
 	EnableTool(XRCID("IDM_3DP"), proj_open);
 	GeneralWxUtils::EnableMenuItem(mb, XRCID("IDM_3DP"), proj_open);
@@ -3070,6 +3074,9 @@ void GdaFrame::OnClusteringChoices(wxCommandEvent& WXUNUSED(event))
         GeneralWxUtils::EnableMenuItem(popupMenu,XRCID("ID_TOOLS_DATA_REDCAP"),proj_open);
         GeneralWxUtils::EnableMenuItem(popupMenu,XRCID("ID_TOOLS_DATA_MDS"),proj_open);
         GeneralWxUtils::EnableMenuItem(popupMenu,XRCID("ID_TOOLS_DATA_TSNE"),proj_open);
+        GeneralWxUtils::EnableMenuItem(popupMenu, XRCID("ID_TOOLS_CLUSTER_MATCH_MAP"), proj_open);
+        GeneralWxUtils::EnableMenuItem(popupMenu, XRCID("ID_TOOLS_CLUSTER_MAKE_SPATIAL"), proj_open);
+        GeneralWxUtils::EnableMenuItem(popupMenu, XRCID("ID_TOOLS_CLUSTER_VALIDATION"), proj_open);
         
         PopupMenu(popupMenu, wxDefaultPosition);
     }
