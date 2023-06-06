@@ -64,6 +64,18 @@
 using namespace std;
 using namespace GdaJson;
 
+const wxString DEFAULT_DATETIME_FORMATS = "%Y-%m-%d %H:%M:%S,"
+    "%Y/%m/%d %H:%M:%S,"
+    "%d.%m.%Y %H:%M:%S,"
+    "%m/%d/%Y %H:%M:%S,"
+    "%Y-%m-%d,"
+    "%m/%d/%Y,"
+    "%Y/%m/%d,"
+    "%H:%M:%S,"
+    "%H:%M,"
+    "%Y/%m/%d %H:%M %p,"
+    "%m/%d/%Y %I:%M:%S %p";
+
 ////////////////////////////////////////////////////////////////////////////////
 //
 // PreferenceDlg
@@ -509,7 +521,7 @@ void PreferenceDlg::OnReset(wxCommandEvent& ev)
     GdaConst::gda_user_seed = 123456789;
     GdaConst::default_display_decimals = 6;
     GdaConst::gda_autoweight_stop = 0.0001;
-    GdaConst::gda_datetime_formats_str = "%Y-%m-%d %H:%M:%S,%Y/%m/%d %H:%M:%S,%d.%m.%Y %H:%M:%S,%m/%d/%Y %H:%M:%S,%Y-%m-%d,%m/%d/%Y,%Y/%m/%d,%H:%M:%S,%H:%M,%Y/%m/%d %H:%M %p";
+    GdaConst::gda_datetime_formats_str = DEFAULT_DATETIME_FORMATS;
     GdaConst::gda_enable_set_transparency_windows = false;
     if (!GdaConst::gda_datetime_formats_str.empty()) {
         wxString patterns = GdaConst::gda_datetime_formats_str;
@@ -542,7 +554,7 @@ void PreferenceDlg::OnReset(wxCommandEvent& ev)
 	ogr_adapt.AddEntry("gdal_http_timeout", "5");
 	ogr_adapt.AddEntry("use_gda_user_seed", "1");
 	ogr_adapt.AddEntry("gda_user_seed", "123456789");
-	ogr_adapt.AddEntry("gda_datetime_formats_str", "%Y-%m-%d %H:%M:%S,%Y/%m/%d %H:%M:%S,%d.%m.%Y %H:%M:%S,%m/%d/%Y %H:%M:%S,%Y-%m-%d,%m/%d/%Y,%Y/%m/%d,%H:%M:%S,%H:%M,%Y/%m/%d %H:%M %p");
+	ogr_adapt.AddEntry("gda_datetime_formats_str", DEFAULT_DATETIME_FORMATS);
 	ogr_adapt.AddEntry("gda_cpu_cores", "6");
 	ogr_adapt.AddEntry("gda_set_cpu_cores", "1");
 	ogr_adapt.AddEntry("gda_eigen_tol", "1.0E-8");
