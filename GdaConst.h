@@ -401,10 +401,10 @@ public:
 	static const char* raw_zoom_in[65];
 	static const char* delete_icon_xpm[48];
     
-	static const char* sample_names[255];
-	static const char* sample_layer_names[255];
-	static const char* sample_datasources[255];
-	static const char* sample_meta_urls[255];
+	static const std::vector<wxString> sample_names;
+	static const std::vector<wxString> sample_layer_names;
+	static const std::vector<wxString> sample_datasources;
+	static const std::vector<wxString> sample_meta_urls;
 };
 
 #endif

@@ -2367,7 +2367,7 @@ wxString GenUtils::GetResourceDir()
 wxString GenUtils::GetSamplesDir()
 {
 #ifdef __WXOSX__
-    return GetResourceDir();
+    return GetResourceDir() + "web_plugins/";
 #else
     return GetWebPluginsDir();
 #endif

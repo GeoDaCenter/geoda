@@ -23,36 +23,37 @@
 #include <wx/mstream.h>
 #include <wx/tokenzr.h>
 
-// 10 local + 29 http
-const char* GdaConst::sample_names[] = {
+const std::vector<wxString> GdaConst::sample_names({
+    "Chicago Community Areas",
+    "Chicago Carjackings",
+    "Chicago SDOH",
+    "Ceara Zika",
+    "Oaxaca Development",
+    "Italy Community Banks",
+    "Spirals",
     "Moral Statistics of France (1833)",
     "US County Homicides",
     "House Prices Baltimore",
     "House Prices Boston",
-    "Columbus Crime",
-    "NC SIDS",
-    "Nepal Aid",
-    "NYC Data",
-    "Malaria Colombia Cities",
-    "Phoenix ACS",
-    "San Francisco Crime"
-};
+    "NYC Data"
+});
 
-const char* GdaConst::sample_layer_names[] = {
+const std::vector<wxString> GdaConst::sample_layer_names({
+    "Chicago Community Areas",
+    "Chicago Carjackings",
+    "Chicago SDOH",
+    "Ceara Zika",
+    "Oaxaca Development",
+    "Italy Community Banks",
+    "Spirals",
     "Guerry",
     "US Homicides",
     "Baltimore Home Sales",
     "Boston Home Sales",
-    "Columbus Crime",
-    "SIDS NC",
-    "Nepal Aid",
-    "NYC Data",
-    "Colombia Malaria",
-    "Phoenix ACS",
-    "SanFran Crime"
-};
+    "NYC Data"
+});
 
-const char* GdaConst::sample_datasources[] = {
+const std::vector<wxString> GdaConst::sample_datasources({
     "samples.sqlite",
 	"samples.sqlite",
 	"samples.sqlite",
@@ -63,22 +64,24 @@ const char* GdaConst::sample_datasources[] = {
 	"samples.sqlite",
 	"samples.sqlite",
 	"samples.sqlite",
+    "samples.sqlite",
 	"samples.sqlite"
-};
+});
 
-const char* GdaConst::sample_meta_urls[] = {
+const std::vector<wxString> GdaConst::sample_meta_urls({
+    "https://geodacenter.github.io/data-and-lab/Chi-CCA/",
+    "https://geodacenter.github.io/data-and-lab/Chi-Carjackings/",
+    "https://geodacenter.github.io/data-and-lab/Chi-SDOH/",
+    "https://geodacenter.github.io/data-and-lab/Ceara-Zika/",
+    "https://geodacenter.github.io/data-and-lab/Oaxaca-Development/",
+    "https://geodacenter.github.io/data-and-lab/Italy-Community-Banks/",
+    "https://geodacenter.github.io/data-and-lab/Spirals/",
     "https://geodacenter.github.io/data-and-lab/Guerry/",
     "https://geodacenter.github.io/data-and-lab/ncovr/",
     "https://geodacenter.github.io/data-and-lab/baltim/",
     "https://geodacenter.github.io/data-and-lab/boston-housing/",
-    "https://geodacenter.github.io/data-and-lab/columbus/",
-    "https://geodacenter.github.io/data-and-lab/sids2/",
-    "https://geodacenter.github.io/data-and-lab/nepal/",
-    "https://geodacenter.github.io/data-and-lab/nyc/",
-    "https://geodacenter.github.io/data-and-lab/colomb_malaria/",
-    "https://geodacenter.github.io/data-and-lab/phx/",
-    "https://geodacenter.github.io/data-and-lab/SFcrimes_vars/"
-};
+    "https://geodacenter.github.io/data-and-lab/nyc/"
+});
 
 const char* GdaConst::raw_zoom_in[] = {
 
