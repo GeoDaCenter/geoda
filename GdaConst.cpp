@@ -21,6 +21,7 @@
 #include "GeneralWxUtils.h"
 #include "GenUtils.h"
 #include <wx/mstream.h>
+#include <wx/tokenzr.h>
 
 const std::vector<wxString> GdaConst::sample_names({
     "Chicago Community Areas",
@@ -362,8 +363,18 @@ int GdaConst::gda_ogr_csv_header = 1;
 wxString GdaConst::gda_ogr_csv_x_name = "";
 wxString GdaConst::gda_ogr_csv_y_name = "";
 wxString GdaConst::gda_display_datetime_format = "";
-std::vector<wxString> GdaConst::gda_datetime_formats(10);
-wxString GdaConst::gda_datetime_formats_str =  "%Y-%m-%d %H:%M:%S,%Y/%m/%d %H:%M:%S,%d.%m.%Y %H:%M:%S,%m/%d/%Y %H:%M:%S,%Y-%m-%d,%m/%d/%Y,%Y/%m/%d,%H:%M:%S,%H:%M,%Y/%m/%d %H:%M %p";
+std::vector<wxString> GdaConst::gda_datetime_formats;
+wxString GdaConst::gda_datetime_formats_str = "%Y-%m-%d %H:%M:%S,"
+    "%Y/%m/%d %H:%M:%S,"
+    "%d.%m.%Y %H:%M:%S,"
+    "%m/%d/%Y %H:%M:%S,"
+    "%Y-%m-%d,"
+    "%m/%d/%Y,"
+    "%Y/%m/%d,"
+    "%H:%M:%S,"
+    "%H:%M,"
+    "%Y/%m/%d %H:%M %p,"
+    "%m/%d/%Y %I:%M:%S %p";
 wxString GdaConst::gda_basemap_sources =
 "Carto.Light,https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}@2x.png"
 "\nCarto.Dark,https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}@2x.png"
@@ -588,16 +599,13 @@ void GdaConst::init()
                              wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL, false,
                              wxEmptyString, wxFONTENCODING_DEFAULT);
 
-    GdaConst::gda_datetime_formats[0] = "%Y-%m-%d %H:%M:%S";
-    GdaConst::gda_datetime_formats[1] = "%Y/%m/%d %H:%M:%S";
-    GdaConst::gda_datetime_formats[2] = "%d.%m.%Y %H:%M:%S";
-    GdaConst::gda_datetime_formats[3] = "%m/%d/%Y %H:%M:%S";
-    GdaConst::gda_datetime_formats[4] = "%Y-%m-%d";
-    GdaConst::gda_datetime_formats[5] = "%m/%d/%Y";
-    GdaConst::gda_datetime_formats[6] = "%Y/%m/%d";
-    GdaConst::gda_datetime_formats[7] = "%H:%M:%S";
-    GdaConst::gda_datetime_formats[8] = "%H:%M";
-    GdaConst::gda_datetime_formats[9] = "%Y/%m/%d %H:%M %p";
+    wxStringTokenizer tokenizer(GdaConst::gda_datetime_formats_str, ",");
+    while (tokenizer.HasMoreTokens())
+    {
+        wxString token = tokenizer.GetNextToken();
+        // process token here
+        GdaConst::gda_datetime_formats.push_back(token);
+    }
     
 	// GdaShape resources
 	default_myshape_pen = wxBLACK_PEN;
