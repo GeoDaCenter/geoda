@@ -2,11 +2,15 @@
 
 name: Mac OSX builds
 
-# Controls when the action will run. 
+# Controls when the action will run.
 on:
   # Triggers the workflow on push or pull request events but only for the master branch
   push:
-    branches: [ master ]
+    branches: [master]
+    paths-ignore:
+      - '**/README.md'
+  pull_request_target:
+    branches: [master]
     paths-ignore:
       - '**/README.md'
 
@@ -25,14 +29,14 @@ jobs:
       GEODA_VER: '1.20.0'
 
     # Steps represent a sequence of tasks that will be executed as part of the job
-    
+
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
 
       - name: Install application certificate
         uses: apple-actions/import-codesign-certs@v1
-        with: 
+        with:
           keychain: ${{ github.run_id }}
           keychain-password: ${{ github.run_id }}
           p12-file-base64: ${{ secrets.MACOS_CERTIFICATE }}
@@ -50,14 +54,9 @@ jobs:
           security find-identity -v
           echo "start installing..."
           ./install.sh
-      
+
       # Upload artifact
       - uses: actions/upload-artifact@v2
         with:
           name: GeoDa-${{ env.GEODA_VER }}-MacOS
           path: ${{ github.workspace }}/BuildTools/macosx/create-dmg/GeoDa${{ env.GEODA_VER }}-Installer.dmg
-
-
-
-
-
