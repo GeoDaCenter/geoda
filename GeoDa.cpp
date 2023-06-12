@@ -18,7 +18,7 @@
  */
 
 #undef check // undefine needed for Xcode compilation and Boost.Geometry
-
+#define BOOST_BIND_NO_PLACEHOLDERS
 #include <iostream>
 #include <fstream>
 #include <sstream>

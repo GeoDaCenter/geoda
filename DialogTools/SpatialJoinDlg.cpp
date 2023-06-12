@@ -7,9 +7,11 @@
 #include <vector>
 #include <wx/wx.h>
 #include <wx/xrc/xmlres.h>
+
+#define BOOST_PHOENIX_STL_TUPLE_H_
 #include <boost/unordered_map.hpp>
 #include <boost/thread.hpp>
-#include <boost/bind.hpp>
+#include <boost/bind/bind.hpp>
 #include <boost/foreach.hpp>
 
 #include "../Project.h"

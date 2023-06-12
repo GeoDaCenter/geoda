@@ -22,7 +22,9 @@
 #include <algorithm>
 #include <stdio.h>
 #include <stdlib.h>
-#include <boost/bind.hpp>
+
+#define BOOST_PHOENIX_STL_TUPLE_H_
+#include <boost/bind/bind.hpp>
 #include <boost/make_shared.hpp>
 #include <boost/asio.hpp>
 #include <boost/thread.hpp>
