@@ -39,14 +39,14 @@ public:
     
     virtual void update(TableState* o);
     
-    void OnVarSelect( wxCommandEvent& event );
+    void OnTargetSelect(wxCommandEvent& event);
     void OnOK( wxCommandEvent& event );
     void OnClickClose( wxCommandEvent& event );
     void OnClose(wxCloseEvent& ev);
     bool ShowOptionsOfVariable(const wxString& var_name,
                                std::vector<wxInt64> cat_vals);
     void OnCheckBoxChange(wxCommandEvent& event);
-    void OnTargetSelect( wxCommandEvent& event);
+    void OnOriginSelect(wxCommandEvent& event);
     virtual wxString _printConfiguration();
 
     GeoDaWeight* CreateQueenWeights();
@@ -63,11 +63,11 @@ protected:
     wxBoxSizer *container;
     wxTextCtrl* m_textbox;
     wxTextCtrl* m_min_size;
-    wxArrayInt var_selections;
     wxFlexGridSizer *gbox;
     wxScrolledWindow* scrl;
     wxStaticText* m_cluster_lbl;
     wxComboBox* list_var;
+    wxComboBox* target_var;
     std::vector<wxCheckBox*> chk_list;
     
     DECLARE_EVENT_TABLE()

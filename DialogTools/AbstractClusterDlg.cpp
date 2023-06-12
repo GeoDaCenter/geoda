@@ -820,7 +820,7 @@ bool AbstractClusterDlg::CheckMinBound()
 void AbstractClusterDlg::InitVariableCombobox(wxListBox* var_box,
                                               bool integer_only, bool add_centroids)
 {
-    combo_var->Clear();
+    if (combo_var) combo_var->Clear();
     var_items.Clear();
     
     std::vector<int> col_id_map;
@@ -854,11 +854,13 @@ void AbstractClusterDlg::InitVariableCombobox(wxListBox* var_box,
         name_to_tm_id["<Y-Centroids>"] = 0;
     }
 
-    if (!var_items.IsEmpty()) {
-        var_box->InsertItems(var_items,0);
-    }
-    for (int i=0; i<select_vars.size(); i++) {
-        var_box->SetStringSelection(select_vars[i], true);
+    if (var_box) {
+        if (!var_items.IsEmpty()) {
+            var_box->InsertItems(var_items,0);
+        }
+        for (int i=0; i<select_vars.size(); i++) {
+            var_box->SetStringSelection(select_vars[i], true);
+        }
     }
 }
 

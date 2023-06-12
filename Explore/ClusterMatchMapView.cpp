@@ -76,13 +76,11 @@ void ClusterMatchSelectDlg::update(TableState* o)
         o->GetEventType() != TableState::time_ids_rename &&
         o->GetEventType() != TableState::time_ids_swap &&
         o->GetEventType() != TableState::cols_delta) return;
-   
-    // update
-    var_selections.Clear();
 
-    InitVariableCombobox(combo_var, true/*integer only*/);
+    // init variable without combobox, integer only, no centroids
+    InitVariableCombobox(NULL, true, false);
     wxCommandEvent ev;
-    OnVarSelect(ev);
+    OnTargetSelect(ev);
 }
 
 void ClusterMatchSelectDlg::CreateControls()
@@ -95,31 +93,40 @@ void ClusterMatchSelectDlg::CreateControls()
     
     // Input
     //AddSimpleInputCtrls(panel, vbox, true, false, false);
-    wxStaticText* st_orig = new wxStaticText (panel, wxID_ANY, _("Select Origin Cluster Indicator"));
-    list_var = new wxComboBox(panel, wxID_ANY, "", wxDefaultPosition, wxSize(250, -1), 0, NULL, wxCB_READONLY);
+    wxStaticText* st_orig = new wxStaticText (panel, wxID_ANY,
+                                              _("Select Origin Cluster Indicator"));
+    list_var = new wxComboBox(panel, wxID_ANY, "", wxDefaultPosition,
+                              wxSize(250, -1), 0, NULL, wxCB_READONLY);
     
-    bool integer_only = true, add_centroids = false;
-    wxStaticText* st = new wxStaticText (panel, wxID_ANY, _("Select Target Cluster Indicator"));
+    bool integer_only = true;
+    bool add_centroids = false;
+    wxStaticText* st = new wxStaticText (panel, wxID_ANY,
+                                         _("Select Target Cluster Indicator"));
     
-    combo_var = new wxListBox(panel, wxID_ANY, wxDefaultPosition,
-                              wxSize(250,250), 0, NULL,
-                              wxLB_MULTIPLE | wxLB_HSCROLL| wxLB_NEEDED_SB);
-    InitVariableCombobox(combo_var, integer_only, add_centroids);
+    
+    // init variable without combobox, integer only, no centroids
+    InitVariableCombobox(NULL, integer_only, add_centroids);
+
+    target_var = new wxComboBox(panel, wxID_ANY, "", wxDefaultPosition,
+                                wxSize(250, -1), 0, NULL, wxCB_READONLY);
+
     if (!var_items.IsEmpty()) {
         list_var->Append(var_items);
+        target_var->Append(var_items);
     }
     
     wxStaticBoxSizer *hbox = new wxStaticBoxSizer(wxVERTICAL, panel, _("Input:"));
     hbox->Add(st_orig, 0, wxALIGN_CENTER | wxLEFT | wxRIGHT | wxBOTTOM, 10);
     hbox->Add(list_var, 0,  wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, 10);
     hbox->Add(st, 0, wxALIGN_CENTER | wxLEFT | wxRIGHT, 10);
-    hbox->Add(combo_var, 1,  wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, 10);
+    hbox->Add(target_var, 1,  wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, 10);
     vbox->Add(hbox, 1,  wxEXPAND | wxTOP | wxLEFT, 10);
     
     
     // Parameter
     wxBoxSizer *vvbox = new wxBoxSizer(wxVERTICAL);
-    scrl = new wxScrolledWindow(panel, wxID_ANY, wxDefaultPosition, wxSize(400,130), wxHSCROLL|wxVSCROLL );
+    scrl = new wxScrolledWindow(panel, wxID_ANY, wxDefaultPosition,
+                                wxSize(400,130), wxHSCROLL|wxVSCROLL );
     if (!wxSystemSettings::GetAppearance().IsDark()) {
         scrl->SetBackgroundColour(*wxWHITE);
     }
@@ -181,17 +188,17 @@ void ClusterMatchSelectDlg::CreateControls()
     Centre();
     
     // Events
-    list_var->Bind(wxEVT_COMBOBOX, &ClusterMatchSelectDlg::OnTargetSelect, this);
-    combo_var->Bind(wxEVT_LISTBOX, &ClusterMatchSelectDlg::OnVarSelect, this);
+    list_var->Bind(wxEVT_COMBOBOX, &ClusterMatchSelectDlg::OnOriginSelect, this);
+    target_var->Bind(wxEVT_COMBOBOX, &ClusterMatchSelectDlg::OnTargetSelect, this);
     okButton->Bind(wxEVT_BUTTON, &ClusterMatchSelectDlg::OnOK, this);
     closeButton->Bind(wxEVT_BUTTON, &ClusterMatchSelectDlg::OnClickClose, this);
 }
 
-void ClusterMatchSelectDlg::OnTargetSelect( wxCommandEvent& event)
+void ClusterMatchSelectDlg::OnOriginSelect(wxCommandEvent& event)
 {
     int idx = list_var->GetSelection();
     wxString sel_str = list_var->GetString(idx);
-    selected_target= name_to_nm[sel_str];
+    selected_target = name_to_nm[sel_str];
     
     int col = table_int->FindColId(selected_target);
     if (col == wxNOT_FOUND) {
@@ -210,7 +217,7 @@ void ClusterMatchSelectDlg::OnTargetSelect( wxCommandEvent& event)
     }
     
     // recreate target variable list
-    combo_var->Clear();
+    target_var->Clear();
     var_items.Clear();
     
     std::vector<int> col_id_map;
@@ -230,54 +237,46 @@ void ClusterMatchSelectDlg::OnTargetSelect( wxCommandEvent& event)
     }
 
     if (!var_items.IsEmpty()) {
-        combo_var->InsertItems(var_items,0);
+        target_var->Append(var_items);
     }
     
-    combo_var->DeselectAll();
+    target_var->SetSelection(-1);
 }
 
-void ClusterMatchSelectDlg::OnVarSelect( wxCommandEvent& event)
+void ClusterMatchSelectDlg::OnTargetSelect( wxCommandEvent& event)
 {
     selected_variable = "";
-    var_selections.Clear();
     select_vars.clear();
     
     std::vector<int> tms;
     
-    combo_var->GetSelections(var_selections);
-    size_t num_var = var_selections.size();
-    if (num_var >= 1) {
+    int idx = target_var->GetSelection();
+    if (idx >= 0) {
         // check selected variables for any category values, and add them to choice box
-        col_ids.resize(num_var);
-        std::vector<wxString> col_names;
-        col_names.resize(num_var);
-        for (int i=0; i<num_var; i++) {
-            int idx = var_selections[i];
-            wxString sel_str = combo_var->GetString(idx);
-            select_vars.push_back(sel_str);
-            
-            wxString nm = name_to_nm[sel_str];
-            col_names.push_back(nm);
-            
-            int tm = name_to_tm_id[combo_var->GetString(idx)];
-            tms.push_back(tm);
-            
-            int col = table_int->FindColId(nm);
-            if (col == wxNOT_FOUND) {
-                wxString err_msg = wxString::Format(_("Variable %s is no longer in the Table.  Please close and reopen this dialog to synchronize with Table data."), nm);
-                wxMessageDialog dlg(NULL, err_msg, _("Error"), wxOK | wxICON_ERROR);
-                dlg.ShowModal();
-                return;
-            }
-            col_ids[i] = col;
-            
-            // get values
-            std::vector<wxInt64> cat_vals;
-            table_int->GetColData(col, tm, cat_vals);
-            if (!CheckCategorical(sel_str, cat_vals)){
-                combo_var->DeselectAll();
-                return;
-            }
+        wxString sel_str = target_var->GetString(idx);
+        select_vars.push_back(sel_str);
+        
+        wxString nm = name_to_nm[sel_str];
+        int tm = name_to_tm_id[target_var->GetString(idx)];
+        tms.push_back(tm);
+        
+        int col = table_int->FindColId(nm);
+        if (col == wxNOT_FOUND) {
+            wxString err_msg = wxString::Format(_("Variable %s is no longer in the Table.  Please close and reopen this dialog to synchronize with Table data."), nm);
+            wxMessageDialog dlg(NULL, err_msg, _("Error"), wxOK | wxICON_ERROR);
+            dlg.ShowModal();
+            return;
+        }
+        
+        col_ids.clear();
+        col_ids.push_back(col);
+        
+        // get values
+        std::vector<wxInt64> cat_vals;
+        table_int->GetColData(col, tm, cat_vals);
+        if (!CheckCategorical(sel_str, cat_vals)){
+            target_var->SetSelection(-1);
+            return;
         }
     }
     
@@ -427,9 +426,10 @@ void ClusterMatchSelectDlg::OnOK( wxCommandEvent& event)
     
     // origin variable
     int col = table_int->FindColId(selected_target);
-    wxString target_name = list_var->GetStringSelection();
-    int tm = name_to_tm_id[target_name];
-    std::vector<wxInt64> cat_vals, cat_vals_filtered(num_obs, -1);
+    wxString origin_name = list_var->GetStringSelection();
+    int tm = name_to_tm_id[origin_name];
+    std::vector<wxInt64> cat_vals;
+    std::vector<wxInt64> cat_vals_filtered(num_obs, -1);
     table_int->GetColData(col, tm, cat_vals);
     // apply user fileter
     boost::unordered_map<wxInt64, bool > obs_dict;
@@ -476,17 +476,14 @@ void ClusterMatchSelectDlg::OnOK( wxCommandEvent& event)
         cat_values.push_back(cat_vals_filtered);
     }
 
-    // create a queen contiguity weights
-    GeoDaWeight* queen_w = CreateQueenWeights();
-
-    BlockWeights block_w(cat_values, queen_w);
+    BlockWeights block_w(cat_values, NULL);
 
     wxString str_min_size = m_min_size->GetValue();
     long l_min_size = 0;
     str_min_size.ToLong(&l_min_size);
     
     int valid_clusters = 0;
-    std::vector<wxInt64> clusters = block_w.GetClusters((int)l_min_size);
+    std::vector<wxInt64> clusters = block_w.GetClustersBasedOnCategories(*cat_values.begin());
     std::vector<bool> clusters_undef(num_obs, false);
     for (int i=0; i<(int)clusters.size(); ++i) {
         if (clusters[i] == 0) {
