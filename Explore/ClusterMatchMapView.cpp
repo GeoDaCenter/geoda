@@ -148,6 +148,9 @@ void ClusterMatchSelectDlg::CreateControls()
     wxStaticBoxSizer *hbox0 = new wxStaticBoxSizer(wxHORIZONTAL, panel, _("Parameters:"));
     hbox0->Add(st2, 0, wxALIGN_CENTER_VERTICAL);
     hbox0->Add(m_min_size, 1, wxALIGN_CENTER_VERTICAL | wxRIGHT, 10);
+    // hide controls in #2437
+    st2->Hide();
+    m_min_size->Hide();
     
     // Output
     wxStaticText* st3 = new wxStaticText (panel, wxID_ANY, _("Save Common Cluster in Field:"));
@@ -339,7 +342,6 @@ bool ClusterMatchSelectDlg::ShowOptionsOfVariable(const wxString& var_name, std:
         tmp << co_it->first;
         select_values[co_it->first] = true;
         wxCheckBox* chk = new wxCheckBox(scrl, base_choice_id+cnt, tmp);
-        chk->SetValue(true);
         if (input_conf.find(var_name) != input_conf.end()) {
             long v = 0;
             tmp.ToLong(&v);
