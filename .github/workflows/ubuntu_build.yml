@@ -2,15 +2,15 @@
 
 name: Ubuntu builds
 
-# Controls when the action will run. 
+# Controls when the action will run.
 on:
   # Triggers the workflow on push or pull request events but only for the master branch
   push:
-    branches: [ master ]
+    branches: [master]
     paths-ignore:
       - '**/README.md'
   pull_request:
-    branches: [ master ]
+    branches: [master]
     paths-ignore:
       - '**/README.md'
 
@@ -31,11 +31,16 @@ jobs:
         distro:
           - 'ubuntu:18.04'
           - 'ubuntu:20.04'
+        isPullRequest:
+          - ${{ github.event_name == 'pull_request' }}
         include:
           - distro: 'ubuntu:18.04'
             pre: 'bionic'
           - distro: 'ubuntu:20.04'
             pre: 'focal'
+        exclude:
+          - isPullRequest: true
+            distro: 'ubuntu:18.04'
 
     env:
       platform: ${{ matrix.distro }}
@@ -47,7 +52,7 @@ jobs:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
 
-      # Prepare 
+      # Prepare
       - name: Prepare on ${{ matrix.distro }}
         run: |
           chmod +x BuildTools/ubuntu/install.sh
@@ -58,14 +63,9 @@ jobs:
       # Build GeoDa
       - name: Build GeoDa
         run: docker run --privileged=true -e CI -e WORK_DIR="$PWD" -e CURL_CA_BUNDLE="/etc/ssl/certs/ca-certificates.crt" -e OS=${{ env.TARGET_OS }} -e VER=${{ env.GEODA_VER }} -e APT="apt-get" -v $PWD:$PWD -v /var/run/docker.sock:/var/run/docker.sock ${{ matrix.distro }} $PWD/BuildTools/ubuntu/install.sh
-      
+
       # Upload artifact
       - uses: actions/upload-artifact@v2
         with:
           name: GeoDa-${{ env.GEODA_VER }}-${{ env.TARGET_OS }}
           path: ${{ github.workspace }}/BuildTools/ubuntu/geoda_${{ env.GEODA_VER }}-1${{ env.TARGET_OS }}1_amd64.deb
-
-
-
-
-
