@@ -340,8 +340,9 @@ bool ClusterMatchSelectDlg::ShowOptionsOfVariable(const wxString& var_name, std:
     for (co_it = cat_dict.begin(); co_it!=cat_dict.end(); co_it++) {
         wxString tmp;
         tmp << co_it->first;
-        select_values[co_it->first] = true;
+        select_values[co_it->first] = false;
         wxCheckBox* chk = new wxCheckBox(scrl, base_choice_id+cnt, tmp);
+        chk->SetValue(false);
         if (input_conf.find(var_name) != input_conf.end()) {
             long v = 0;
             tmp.ToLong(&v);
@@ -370,12 +371,10 @@ void ClusterMatchSelectDlg::OnCheckBoxChange(wxCommandEvent& event)
     std::map<wxInt64, bool> select_values;
     // Get checked values for selected variable
     for (int i=0; i < n_all_values; ++i) {
-        if (chk_list[i]->IsChecked()) {
-            wxString lbl = chk_list[i]->GetLabel();
-            long val = 0;
-            if (lbl.ToLong(&val)) {
-                select_values[(wxInt64)val] = true;
-            }
+        wxString lbl = chk_list[i]->GetLabel();
+        long val = 0;
+        if (lbl.ToLong(&val)) {
+            select_values[(wxInt64)val] = chk_list[i]->IsChecked();
         }
     }
     input_conf[selected_target] = select_values;
@@ -416,6 +415,7 @@ GeoDaWeight* ClusterMatchSelectDlg::CreateQueenWeights()
 
 void ClusterMatchSelectDlg::OnOK( wxCommandEvent& event)
 {
+    const int NOT_CLUSTERED_IDENTITY = -1;
     int num_obs = project->GetNumRecords();
     std::vector<std::vector<wxInt64> > cat_values;
     
@@ -431,18 +431,18 @@ void ClusterMatchSelectDlg::OnOK( wxCommandEvent& event)
     wxString origin_name = list_var->GetStringSelection();
     int tm = name_to_tm_id[origin_name];
     std::vector<wxInt64> cat_vals;
-    std::vector<wxInt64> cat_vals_filtered(num_obs, -1);
+    std::vector<wxInt64> cat_vals_filtered(num_obs, NOT_CLUSTERED_IDENTITY);
     table_int->GetColData(col, tm, cat_vals);
     // apply user fileter
     boost::unordered_map<wxInt64, bool > obs_dict;
     for (int j=0; j<num_obs; ++j) {
         wxInt64 v = cat_vals[j];
-        if (input_conf[selected_target].find(v) != input_conf[selected_target].end()) {
+        if (input_conf[selected_target].find(v) != input_conf[selected_target].end() &&
+            input_conf[selected_target][v]) {
             cat_vals_filtered[j] = v;
             obs_dict[j] = true;
         }
     }
-    cat_values.push_back(cat_vals_filtered);
     
     if (obs_dict.empty()) {
         wxMessageDialog dlg(this, _("Please select at least one value for origin variable."),
@@ -454,7 +454,7 @@ void ClusterMatchSelectDlg::OnOK( wxCommandEvent& event)
     // target variable
     int num_vars = (int)select_vars.size();
     if (num_vars < 1) {
-        wxMessageDialog dlg(this, _("Please select at least one target variable."),
+        wxMessageDialog dlg(this, _("Please select one target variable."),
                             _("Warning"), wxOK_DEFAULT | wxICON_WARNING );
         dlg.ShowModal();
         return;
@@ -463,7 +463,8 @@ void ClusterMatchSelectDlg::OnOK( wxCommandEvent& event)
         int col_id = col_ids[i];
         wxString col_name = select_vars[i];
         int col_t = name_to_tm_id[col_name];
-        std::vector<wxInt64> cat_vals, cat_vals_filtered(num_obs, -1);
+        std::vector<wxInt64> cat_vals;
+        std::vector<wxInt64> cat_vals_filtered(num_obs, NOT_CLUSTERED_IDENTITY);
         table_int->GetColData(col_id, col_t, cat_vals);
 
         num_obs = (int)cat_vals.size();
@@ -478,17 +479,15 @@ void ClusterMatchSelectDlg::OnOK( wxCommandEvent& event)
         cat_values.push_back(cat_vals_filtered);
     }
 
-    BlockWeights block_w(cat_values, NULL);
-
     wxString str_min_size = m_min_size->GetValue();
     long l_min_size = 0;
     str_min_size.ToLong(&l_min_size);
     
     int valid_clusters = 0;
-    std::vector<wxInt64> clusters = block_w.GetClustersBasedOnCategories(*cat_values.begin());
+    std::vector<wxInt64> clusters = *cat_values.begin();
     std::vector<bool> clusters_undef(num_obs, false);
     for (int i=0; i<(int)clusters.size(); ++i) {
-        if (clusters[i] == 0) {
+        if (clusters[i] == NOT_CLUSTERED_IDENTITY) {
             clusters_undef[i] = true;
         } else {
             valid_clusters += 1;
