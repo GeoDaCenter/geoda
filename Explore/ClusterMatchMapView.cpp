@@ -85,7 +85,7 @@ void ClusterMatchSelectDlg::update(TableState* o)
 
 void ClusterMatchSelectDlg::CreateControls()
 {
-    wxScrolledWindow* all_scrl = new wxScrolledWindow(this, wxID_ANY, wxDefaultPosition, wxSize(450,780), wxHSCROLL|wxVSCROLL );
+    wxScrolledWindow* all_scrl = new wxScrolledWindow(this, wxID_ANY, wxDefaultPosition, wxSize(450,520), wxHSCROLL|wxVSCROLL );
     all_scrl->SetScrollRate( 5, 5 );
     
     panel = new wxPanel(all_scrl);
