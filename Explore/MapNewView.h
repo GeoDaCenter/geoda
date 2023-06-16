@@ -201,6 +201,7 @@ public:
     virtual void GetExtentOfSelected(double &minx, double &miny, double &maxx,
                                      double &maxy);
     void UpdateMapTree();
+    void SetUndefinedCategory(CatClassification::UndefinedCategory undef_cat);
     
     Shapefile::Main& GetGeometryData();
     OGRLayerProxy*   GetOGRLayerProxy();
@@ -299,6 +300,7 @@ protected:
     // SetPredefinedColor(), UpdatePredifinedColor()
     std::map<wxString, wxColour> lbl_color_dict;
     
+    CatClassification::UndefinedCategory undefined_category;
 	wxBitmap* basemap_bm;
 	Gda::Basemap* basemap;
     

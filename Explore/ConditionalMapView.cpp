@@ -879,7 +879,6 @@ void ConditionalMapCanvas::CreateAndUpdateCategories()
 		CatClassification::ChangeNumCats(GetNumCats(), cat_classif_def_map);
 	}
     cat_classif_def_map.assoc_db_fld_name = var_info[CAT_VAR].name;
-    bool useUndefinedCategory = true;
 	cat_classif_def_map.color_scheme = CatClassification::GetColSchmForType(
                                         cat_classif_def_map.cat_classif_type);
 	CatClassification::PopulateCatClassifData(cat_classif_def_map,
@@ -889,7 +888,7 @@ void ConditionalMapCanvas::CreateAndUpdateCategories()
                                               map_valid,
 											  map_error_message,
                                               this->useScientificNotation,
-                                              useUndefinedCategory,
+                                              CatClassification::undefined,
                                               this->category_disp_precision);
 	if (ref_var_index != -1) {
 		cat_data.SetCurrentCanvasTmStep(var_info[ref_var_index].time

@@ -638,7 +638,6 @@ void ConditionalNewCanvas::CreateAndUpdateCategories(int var_id)
             cat_classif_def_vert.color_scheme = CatClassification::GetColSchmForType(
                                         cat_classif_def_vert.cat_classif_type);
 		}
-        bool useUndefinedCategory = false;
         if (VERT_VAR_NUM)
             CatClassification::PopulateCatClassifData(cat_classif_def_vert,
 												  vert_var_sorted,
@@ -647,7 +646,7 @@ void ConditionalNewCanvas::CreateAndUpdateCategories(int var_id)
 												  vert_cats_valid,
 												  vert_cats_error_message,
                                                   this->useScientificNotation,
-                                                  useUndefinedCategory,
+                                                  CatClassification::no_undefined,
                                                   this->category_disp_precision);
         else
             CatClassification::PopulateCatClassifData(cat_classif_def_vert,
@@ -657,7 +656,7 @@ void ConditionalNewCanvas::CreateAndUpdateCategories(int var_id)
                                                       vert_cats_valid,
                                                       vert_cats_error_message,
                                                       this->useScientificNotation,
-                                                      useUndefinedCategory,
+                                                      CatClassification::no_undefined,
                                                       this->category_disp_precision);
 		int vt = var_info[var_id].time;
         if (!vert_cat_data.categories.empty()) {
@@ -682,7 +681,6 @@ void ConditionalNewCanvas::CreateAndUpdateCategories(int var_id)
                                         cat_classif_def_horiz.cat_classif_type);
 		}		
         cat_classif_def_horiz.assoc_db_fld_name = var_info[HOR_VAR].name;
-        bool useUndefinedCategory = false;
         if (HOR_VAR_NUM)
             CatClassification::PopulateCatClassifData(cat_classif_def_horiz,
 												  horiz_var_sorted,
@@ -691,7 +689,7 @@ void ConditionalNewCanvas::CreateAndUpdateCategories(int var_id)
 												  horiz_cats_valid,
 												  horiz_cats_error_message,
                                                   this->useScientificNotation,
-                                                  useUndefinedCategory);
+                                                  CatClassification::no_undefined);
         else
             CatClassification::PopulateCatClassifData(cat_classif_def_horiz,
                                                       horiz_str_var_sorted, // could be wxString
@@ -700,7 +698,7 @@ void ConditionalNewCanvas::CreateAndUpdateCategories(int var_id)
                                                       horiz_cats_valid,
                                                       horiz_cats_error_message,
                                                       this->useScientificNotation,
-                                                      useUndefinedCategory);
+                                                      CatClassification::no_undefined);
 		int ht = var_info[var_id].time;
         if (!horiz_cat_data.categories.empty()) {
             horiz_num_cats = horiz_cat_data.categories[ht].cat_vec.size();

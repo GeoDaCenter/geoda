@@ -35,7 +35,9 @@ struct CatClassifData;
 class TableInterface;
 
 namespace CatClassification {
-		
+    
+    enum UndefinedCategory {no_undefined = 0, undefined = 1, unmatched = 2};
+
 	enum CatClassifType {
         no_theme, hinge_15, hinge_30, quantile, percentile,
 		stddev, excess_risk_theme, unique_values, colocation,
@@ -65,34 +67,34 @@ namespace CatClassification {
 	void CatLabelsFromBreaks(const std::vector<double>& breaks,
                              std::vector<wxString>& cat_labels,
 							 const CatClassifType theme,
-                             bool useScientifcNotation=false,
-                             int cat_disp_precision=GdaConst::categorical_display_precision);
+                             bool useScientifcNotation = false,
+                             int cat_disp_precision = GdaConst::categorical_display_precision);
 	
 	void SetBreakPoints(std::vector<double>& breaks,
 						std::vector<wxString>& cat_labels,
 						const Gda::dbl_int_pair_vec_type& var,
                         const std::vector<bool>& var_undef,
 						const CatClassifType theme, int num_cats,
-                        bool useScientificNotation=false,
-                        int cat_disp_precision=GdaConst::categorical_display_precision);
+                        bool useScientificNotation = false,
+                        int cat_disp_precision = GdaConst::categorical_display_precision);
 	
     void PopulateCatClassifData(const CatClassifDef& cat_def,
                                 const std::vector<Gda::dbl_int_pair_vec_type>& var,
                                 const std::vector<std::vector<bool> >& var_undef,
                                 CatClassifData& cat_data, std::vector<bool>& cats_valid,
                                 std::vector<wxString>& cats_error_message,
-                                bool useSciNotation=false,
-                                bool useUndefinedCategory=true,
-                                int cat_disp_precision=GdaConst::categorical_display_precision);
+                                bool useSciNotation = false,
+                                UndefinedCategory undef_cat = CatClassification::undefined,
+                                int cat_disp_precision = GdaConst::categorical_display_precision);
     
     void PopulateCatClassifData(const CatClassifDef& cat_def,
                                 const std::vector<Gda::str_int_pair_vec_type>& var,
                                 const std::vector<std::vector<bool> >& var_undef,
                                 CatClassifData& cat_data, std::vector<bool>& cats_valid,
                                 std::vector<wxString>& cats_error_message,
-                                bool useSciNotation=false,
-                                bool useUndefinedCategory=true,
-                                int cat_disp_precision=GdaConst::categorical_display_precision);
+                                bool useSciNotation = false,
+                                UndefinedCategory undef_cat = CatClassification::undefined,
+                                int cat_disp_precision = GdaConst::categorical_display_precision);
 		
 	bool CorrectCatClassifFromTable(CatClassifDef& cc,
 									TableInterface* table_int,
@@ -197,7 +199,8 @@ struct CatClassifData {
 	// For views that display data from two or more variables such as
 	// Scatter Plot, there may be fewer canvas time steps than global time
 	// steps.
-    void AppendUndefCategory(int time, int count);
+    void AppendUndefCategory(int time, int count,
+        CatClassification::UndefinedCategory undefined_category);
 	void CreateEmptyCategories(int num_canvas_tms, int num_obs);
 	void CreateCategoriesAllCanvasTms(int num_cats, int num_canvas_tms,
 									  int num_obs);
