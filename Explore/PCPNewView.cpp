@@ -768,7 +768,6 @@ void PCPCanvas::CreateAndUpdateCategories()
 	if (cat_classif_def.cat_classif_type != CatClassification::custom) {
 		CatClassification::ChangeNumCats(GetNumCats(), cat_classif_def);
 	}
-    bool useUndefinedCategory = true;
 	cat_classif_def.color_scheme =
 		CatClassification::GetColSchmForType(cat_classif_def.cat_classif_type);
 	CatClassification::PopulateCatClassifData(cat_classif_def,
@@ -777,7 +776,7 @@ void PCPCanvas::CreateAndUpdateCategories()
 											  cat_data, cats_valid,
 											  cats_error_message,
                                               this->useScientificNotation,
-                                              useUndefinedCategory,
+                                              CatClassification::undefined,
                                               this->category_disp_precision);
 	
 	if (ref_var_index != -1) {

@@ -552,18 +552,22 @@ void ClusterMatchSelectDlg::OnOK( wxCommandEvent& event)
     table_int->GetMinMaxVals(new_col_ids[0], new_var_info[0].min, new_var_info[0].max);
     new_var_info[0].sync_with_global_time = new_var_info[0].is_time_variant;
     new_var_info[0].fixed_scale = true;
-
-    GdaConst::map_undefined_colour = wxColour(255,255,255);
     
+    GdaConst::map_undefined_colour = wxColour(255,255,255);
+
     MapFrame* nf = new MapFrame(parent, project,
                                 new_var_info, new_col_ids,
                                 CatClassification::unique_values,
-                                MapCanvas::no_smoothing, 4,
+                                MapCanvas::no_smoothing,
+                                4,
+                                CatClassification::unmatched,
                                 boost::uuids::nil_uuid(),
                                 wxDefaultPosition,
                                 GdaConst::map_default_size);
     GdaConst::map_undefined_colour = wxColour(70, 70, 70);
     
+    CatClassification::UndefinedCategory undef_cat = CatClassification::unmatched;
+    nf->SetUndefinedCategory(undef_cat);
     wxString ttl = _("Cluster Match Map");
     ttl << ": " << list_var->GetStringSelection() << " - ";
     for (int i=0; i<select_vars.size(); i++) {

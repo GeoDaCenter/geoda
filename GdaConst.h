@@ -381,6 +381,7 @@ public:
 
 	// Category Classification
 	static const wxSize cat_classif_default_size;
+    static const int categorical_display_precision = 3;
 
 	// Weights Manager Dialog
 	static const wxSize weights_man_dlg_default_size;
