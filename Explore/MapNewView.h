@@ -201,7 +201,6 @@ public:
     virtual void GetExtentOfSelected(double &minx, double &miny, double &maxx,
                                      double &maxy);
     void UpdateMapTree();
-    void SetUndefinedCategory(CatClassification::UndefinedCategory undef_cat);
     
     Shapefile::Main& GetGeometryData();
     OGRLayerProxy*   GetOGRLayerProxy();
@@ -300,7 +299,6 @@ protected:
     // SetPredefinedColor(), UpdatePredifinedColor()
     std::map<wxString, wxColour> lbl_color_dict;
     
-    CatClassification::UndefinedCategory undefined_category;
 	wxBitmap* basemap_bm;
 	Gda::Basemap* basemap;
     
@@ -444,7 +442,6 @@ public:
         template_legend->Recreate();
     }
     void AppendCustomCategories(wxMenu* menu, CatClassifManager* ccm);
-    void SetUndefinedCategory(CatClassification::UndefinedCategory undef_cat);
 	
     std::vector<GdaVarTools::VarInfo> var_info;
     std::vector<int> col_ids;

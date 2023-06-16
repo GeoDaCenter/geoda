@@ -452,7 +452,12 @@ const int GdaConst::map_default_legend_width = 150;
 const wxColour GdaConst::map_default_fill_colour(49, 163, 84);
 const wxColour GdaConst::map_default_outline_colour(0, 0, 0);
 const wxColour GdaConst::map_default_highlight_colour(255, 255, 0); // yellow
-wxColour GdaConst::map_undefined_colour(70, 70, 70); // dark gray
+const wxColour GdaConst::map_dark_gray(70, 70, 70);
+const wxColour GdaConst::map_white(255, 255, 255);
+wxColour GdaConst::map_undefined_colour(GdaConst::map_dark_gray);
+const wxString GdaConst::map_undefined_label(_("undefined"));
+const wxString GdaConst::map_unmatched_label(_("unmatched"));
+wxString GdaConst::map_undefined_category(GdaConst::map_undefined_label);
 
 // Connectivity Map
 const wxSize GdaConst::conn_map_default_size(480, 350);

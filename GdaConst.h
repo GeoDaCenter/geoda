@@ -286,6 +286,11 @@ public:
 	static const int map_default_outline_width = 1;
 	static const wxColour map_default_highlight_colour;
     static wxColour map_undefined_colour;
+    const static wxColour map_dark_gray;
+    const static wxColour map_white;
+    static wxString map_undefined_category;
+    const static wxString map_undefined_label;
+    const static wxString map_unmatched_label;
     
 	// Connectivity Map
 	static const wxSize conn_map_default_size;
