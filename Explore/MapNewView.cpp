@@ -117,7 +117,6 @@ ref_var_index(-1),
 tran_unhighlighted(GdaConst::transparency_unhighlighted),
 print_detailed_basemap(false),
 maplayer_state(project_s->GetMapLayerState()),
-undefined_category(CatClassification::undefined),
 is_updating(true) // default true to prevent sending notify to other maps when init window
 {
     wxLogMessage("MapCanvas::MapCanvas()");
@@ -190,11 +189,6 @@ MapCanvas::~MapCanvas()
         delete basemap;
         basemap = NULL;
     }
-}
-
-void MapCanvas::SetUndefinedCategory(CatClassification::UndefinedCategory undef_cat)
-{
-    undefined_category = undef_cat;
 }
 
 void MapCanvas::GetExtent(double &minx, double &miny, double &maxx, double &maxy)
@@ -2895,6 +2889,7 @@ void MapCanvas::CreateAndUpdateCategories()
         cat_classif_def.color_scheme = CatClassification::GetColSchmForType(cat_classif_def.cat_classif_type);
 	}
 
+    bool useUndefinedCategory=true;
     if (IS_VAR_STRING)
         CatClassification::PopulateCatClassifData(cat_classif_def,
                                                   cat_str_var_sorted,
@@ -2903,7 +2898,7 @@ void MapCanvas::CreateAndUpdateCategories()
                                                   map_valid,
                                                   map_error_message,
                                                   this->useScientificNotation,
-                                                  this->undefined_category,
+                                                  useUndefinedCategory,
                                                   this->category_disp_precision);
     else
         CatClassification::PopulateCatClassifData(cat_classif_def,
@@ -2913,7 +2908,7 @@ void MapCanvas::CreateAndUpdateCategories()
                                                   map_valid,
                                                   map_error_message,
                                                   this->useScientificNotation,
-                                                  this->undefined_category,
+                                                  useUndefinedCategory,
                                                   this->category_disp_precision);
 
 	if (ref_var_index != -1) {
@@ -3808,11 +3803,6 @@ void MapFrame::OnMapMST(wxCommandEvent& event)
     ((MapCanvas*)template_canvas)->OnMSTMap(menu_id);
 
     UpdateOptionMenuItems();
-}
-
-void MapFrame::SetUndefinedCategory(CatClassification::UndefinedCategory undef_cat)
-{
-    ((MapCanvas*)template_canvas)->SetUndefinedCategory(undef_cat);
 }
 
 void MapFrame::AppendCustomCategories(wxMenu* menu, CatClassifManager* ccm)
