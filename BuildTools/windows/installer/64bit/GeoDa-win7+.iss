@@ -36,9 +36,11 @@ ShowLanguageDialog=yes
 
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"
+Name: "french"; MessagesFile: "compiler:Languages\French.isl"
 Name: "spanish"; MessagesFile: "compiler:Languages\Spanish.isl"
 Name: "russian"; MessagesFile: "compiler:Languages\Russian.isl"
 Name: "portuguese"; MessagesFile: "compiler:Languages\Portuguese.isl"
+Name: "french"; MessagesFile: "compiler:Languages\French.isl"
 
 [dirs]
 Name: "{app}"; Check: InitializeSetup
@@ -215,6 +217,10 @@ begin
     begin
       langCode := '153';  // Portuguese
     end;
+    5:
+    begin
+      langCode := '79';  // French
+    end;
   end;
 end;
 
@@ -241,6 +247,7 @@ begin
   ComboBox.Items.Add('Spanish');
   ComboBox.Items.Add('Russian');
   ComboBox.Items.Add('Portuguese');
+  ComboBox.Items.Add('French');
   ComboBox.ItemIndex := 0;
   ComboBox.OnChange := @ComboBoxChange;
   langCode := '58';
