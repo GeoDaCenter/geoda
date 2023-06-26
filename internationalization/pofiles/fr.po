@@ -1,0 +1,6608 @@
+# contributors:
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2019-05-15 10:50-0700\n"
+"PO-Revision-Date: 2023-06-26 11:02-0700\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: fr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 3.3.2\n"
+
+# contributors:Hamza Rarou
+msgid " (isolates in weights are removed)"
+msgstr " (isolats en poids ont Ã©tÃ© supprimÃ©s)"
+
+# contributors:Hamza Rarou
+msgid " = 0 at "
+msgstr " = 0 Ã  "
+
+# contributors:Hamza Rarou
+msgid " BiLISA Cluster Map"
+msgstr " Carte de Clusters BiLISA"
+
+# contributors:Hamza Rarou
+msgid " BiLISA Significance Map"
+msgstr " Carte de Signification BiLISA"
+
+# contributors:Hamza Rarou
+msgid " Bivariate Local Geary Cluster Map"
+msgstr " Carte de Clusters Local Geary BivariÃ©"
+
+# contributors:Hamza Rarou
+msgid " Bivariate LocalGeary Significance Map"
+msgstr " Carte de Significance Local Geary BivariÃ©"
+
+# contributors:Marion-Mai
+msgid " Categories"
+msgstr " CatÃ©gories"
+
+# contributors:Hamza Rarou
+msgid " Differential LISA Cluster Map"
+msgstr " Carte DiffÃ©rentielle de Clusters LISA"
+
+# contributors:Hamza Rarou
+msgid " Differential Local Geary Cluster Map"
+msgstr " Carte DiffÃ©rentielle de Clusters Local Geary"
+
+# contributors:Hamza Rarou
+msgid " Differential Significance Map"
+msgstr " Carte DiffÃ©rentielle de Signification"
+
+# contributors:Hamza Rarou
+msgid " Distance metric: "
+msgstr " Distance mÃ©trique: "
+
+# contributors:Hamza Rarou
+msgid " LISA Cluster Map"
+msgstr " Carte de Clusters LISA"
+
+# contributors:Hamza Rarou
+msgid " LISA Significance Map"
+msgstr " Carte de Signification LISA"
+
+# contributors:Hamza Rarou
+msgid " Local Geary Cluster Map"
+msgstr " Carte de Clusters Local Geary"
+
+# contributors:Hamza Rarou
+msgid " Local Geary Significance Map"
+msgstr " Carte de Significance Local Geary"
+
+# contributors:Marion-Mai
+msgid " already exists.  OK to overwrite?"
+msgstr " existe dÃ©jÃ . OK pour Ã©craser ?"
+
+# contributors:Marion-Mai
+msgid " and "
+msgstr " et "
+
+# contributors:Hamza Rarou
+msgid " and two time periods: "
+msgstr " et deux pÃ©riodes de temps: "
+
+# contributors:Hamza Rarou
+msgid " for obs within distance band "
+msgstr " pour observations Ã  distance de portÃ©e "
+
+# contributors:Marion-Mai
+msgid ""
+" has duplicate values. Please choose a different ID Variable.\n"
+"\n"
+"Details:"
+msgstr ""
+" comporte des doublons. Merci de choisir une Variable ID diffÃ©rente.\n"
+"\n"
+"DÃ©tails:"
+
+# contributors:Marion-Mai
+msgid " in range:"
+msgstr " dans l'intervalle:"
+
+# contributors:Marion-Mai
+msgid " is not supported by GeoDa.\n"
+msgstr " n'est pas pris en charge par GeoDa.\n"
+
+# contributors:Marion-Mai
+msgid " km"
+msgstr " km"
+
+# contributors:Marion-Mai
+msgid " mi"
+msgstr " mi"
+
+# contributors:Hamza Rarou
+msgid " pairs in distance band "
+msgstr " paires Ã  portÃ©e de distance "
+
+# contributors:Hamza Rarou
+msgid " should contains only numbers/letters as IDs.  Please choose a different ID Variable."
+msgstr " ne peut contenir que des chiffres/lettres comme IDs. Veuillez choisir un variable ID diffÃ©rent."
+
+# contributors:Hamza Rarou
+msgid " to "
+msgstr " Ã  "
+
+# contributors:Hamza Rarou
+msgid "# Iterations:"
+msgstr "# itÃ©rations:"
+
+# contributors:Hamza Rarou
+msgid "# Max Iteration:"
+msgstr "# itÃ©ration max:"
+
+# contributors:Hamza Rarou
+msgid "# Neighors:"
+msgstr "# Voisins:"
+
+# contributors:Hamza Rarou
+msgid "# Pairs"
+msgstr "# Paires"
+
+# contributors:Hamza Rarou
+msgid "# iterations:\t"
+msgstr "# itÃ©rations:\t"
+
+# contributors:Hamza Rarou
+msgid "# observations"
+msgstr "# observations"
+
+# contributors:Hamza Rarou
+msgid "#hover obs "
+msgstr "# observations selectionÃ©es en suspension "
+
+# contributors:Hamza Rarou
+msgid "#obs"
+msgstr "#obs"
+
+# contributors:Hamza Rarou
+msgid "#obs:"
+msgstr "#obs:"
+
+# contributors:Hamza Rarou
+msgid "#obs="
+msgstr "#obs="
+
+# contributors:Hamza Rarou
+msgid "#row="
+msgstr "#ligne="
+
+# contributors:Hamza Rarou
+msgid "#selected="
+msgstr "#choisis="
+
+# contributors:Marion-Mai
+msgid "% non-zero"
+msgstr "% non nul"
+
+# contributors:Marion-Mai
+msgid "% of total"
+msgstr "% du total"
+
+# contributors:Hamza Rarou
+msgid "%d of %d variables to include"
+msgstr "%d de %d  variables Ã  inclure"
+
+# contributors:Hamza Rarou
+msgid "%d variables to include"
+msgstr "%d variables Ã  inclure"
+
+# contributors:Hamza Rarou
+msgid "%s (Weights: %s)"
+msgstr "%s (Poids: %s)"
+
+# contributors:Hamza Rarou
+msgid "%s Cluster Map (%d clusters)"
+msgstr "%s Carte de Clusters (%d clusters)"
+
+# contributors:Hamza Rarou
+msgid "&Add ID Variable..."
+msgstr "&Ajouter variable ID…"
+
+# contributors:Hamza Rarou
+msgid "&Cancel"
+msgstr "&Annuler"
+
+# contributors:Hamza Rarou
+msgid "&Close"
+msgstr "&Fermer"
+
+# contributors:Hamza Rarou
+msgid "&Edit"
+msgstr "&Modifier"
+
+# contributors:Hamza Rarou
+msgid "&File"
+msgstr "&Fichier"
+
+# contributors:Hamza Rarou
+msgid "&Help"
+msgstr "&Aide"
+
+# contributors:Hamza Rarou
+msgid "&Map"
+msgstr "&Carte"
+
+# contributors:Hamza Rarou
+msgid "&Merge"
+msgstr "&Fusionner"
+
+# contributors:Hamza Rarou
+msgid "&New"
+msgstr "&Nouveau"
+
+# contributors:Hamza Rarou
+msgid "&Open Project"
+msgstr "&Ouvrir projet"
+
+# contributors:Hamza Rarou
+msgid "&Regression"
+msgstr "&RÃ©gression"
+
+# contributors:Hamza Rarou
+msgid "&Run"
+msgstr "&Executer"
+
+# contributors:Hamza Rarou
+msgid "&Save to Table"
+msgstr "&Sauvegarder dans tableau"
+
+# contributors:Hamza Rarou
+msgid "&Space"
+msgstr "&Espace"
+
+# contributors:Hamza Rarou
+msgid "&Tools"
+msgstr "&Outils"
+
+# contributors:Hamza Rarou
+msgid "(Dendrogram is too complex to draw. Please view clustering results in map.)"
+msgstr "(Dessin de dendogram trop complex. Consultez le rÃ©sultat de regroupement dans la carte.)"
+
+# contributors:Hamza Rarou
+msgid "(Duplicate field name)"
+msgstr "(Nom de champ dupliquÃ©)"
+
+# contributors:Hamza Rarou
+msgid "(Field name is not valid)"
+msgstr "(Nom du champ n'est pas valide)"
+
+# contributors:Hamza Rarou
+msgid "(Gaussian) Sigma:"
+msgstr "(Gaussian) Sigma:"
+
+# contributors:Hamza Rarou
+msgid "(Leave empty for undefined values)"
+msgstr "(Laissez vide pour les valeurs non dÃ©finies)"
+
+# contributors:Hamza Rarou
+msgid "(Optional) First record has field names? "
+msgstr "(Facultatif) PremiÃ¨re entrÃ©e contient noms de champs? "
+
+# contributors:Hamza Rarou
+msgid "(Optional) Longitude/X:"
+msgstr "(Facultatif) Longitude/X:"
+
+# contributors:Hamza Rarou
+msgid "(Optional) You can change the data type for a field:"
+msgstr "(Facultatif) Vous pouvez changer le type de donnÃ©es pour un champ:"
+
+# contributors:Hamza Rarou
+msgid "(Use Sequences)"
+msgstr "(Utilisez des sÃ©quences)"
+
+# contributors:Hamza Rarou
+msgid ""
+"---\n"
+"\n"
+"PCA method: "
+msgstr ""
+"---\n"
+"\n"
+" mÃ©thode PCA: "
+
+# contributors:Hamza Rarou
+msgid ""
+".\n"
+"Enter a seed value to use between\n"
+"0 and "
+msgstr ""
+".\n"
+"Saisissez une valeur de dÃ©part Ã  utiliser entre\n"
+"0 et "
+
+# contributors:Hamza Rarou
+msgid "0x03 (dBASE III+)"
+msgstr "0x03 (dBASE III+)"
+
+# contributors:Hamza Rarou
+msgid "1 Iteration"
+msgstr "1 ItÃ©ration"
+
+# contributors:Hamza Rarou
+msgid "199 Permutations"
+msgstr "199 Permutations"
+
+# contributors:Hamza Rarou
+msgid "1st Variable (X)"
+msgstr "1ier Variable (X)"
+
+# contributors:Hamza Rarou
+msgid "2 Iteration"
+msgstr "2 ItÃ©ration"
+
+# contributors:Hamza Rarou
+msgid "2nd Variable (Y)"
+msgstr "2iÃ¨me Variable (Y)"
+
+# contributors:Hamza Rarou
+msgid "3 Iteration"
+msgstr "3 ItÃ©ration"
+
+# contributors:Hamza Rarou
+msgid "3D Plot"
+msgstr "Graphique 3D"
+
+# contributors:Hamza Rarou
+msgid "3D Scatter Plot"
+msgstr "Diagramme de dispersion 3D"
+
+# contributors:Hamza Rarou
+msgid "3D Scatter Plot Variables"
+msgstr "Variables de diagramme de dispersion 3D"
+
+# contributors:Hamza Rarou
+msgid "3rd Variable (Z)"
+msgstr "3iÃ¨me Variable (Z)"
+
+# contributors:Hamza Rarou
+msgid "4 Iteration"
+msgstr "4 ItÃ©ration"
+
+# contributors:Hamza Rarou
+msgid "499 Permutations"
+msgstr "499 Permutations"
+
+# contributors:Hamza Rarou
+msgid "4th Variable"
+msgstr "4iÃ¨me Variable"
+
+# contributors:Hamza Rarou
+msgid "5 Iteration"
+msgstr "4 ItÃ©ration"
+
+# contributors:Hamza Rarou
+msgid "5 of 5 variables needed"
+msgstr "5 variables sur 5 requises"
+
+# contributors:Hamza Rarou
+msgid "6 Iteration"
+msgstr "6 ItÃ©ration"
+
+# contributors:Hamza Rarou
+msgid "99 Permutations"
+msgstr "99 Permutations"
+
+# contributors:Hamza Rarou
+msgid "999 Permutations"
+msgstr "999 Permutations"
+
+# contributors:Hamza Rarou
+msgid "<"
+msgstr "<"
+
+# contributors:Hamza Rarou
+msgid "<<"
+msgstr "<<"
+
+# contributors:Hamza Rarou
+msgid "<="
+msgstr "<="
+
+# contributors:Hamza Rarou
+msgid "="
+msgstr "="
+
+# contributors:Hamza Rarou
+msgid ">"
+msgstr ">"
+
+# contributors:Hamza Rarou
+msgid ">>"
+msgstr ">>"
+
+# contributors:Hamza Rarou
+msgid "A Table-only data source can't be stacked with current data source."
+msgstr "Une source de donnÃ©es uniquement de tableau ne peut pas Ãªtre empilÃ©e avec la source de donnÃ©es actuelle."
+
+# contributors:Hamza Rarou
+msgid "A newer version of GeoDa is found. Do you want to update to version "
+msgstr "Une version plus rÃ©cente de GeoDa a Ã©tÃ© trouvÃ©e. Voudriez-vous mettre Ã  jour vers la version "
+
+# contributors:Hamza Rarou
+msgid "A project file contains extra information not directly stored in the data source such as variable order and grouping."
+msgstr "Un fichier de projet contient des informations supplÃ©mentaires qui ne sont pas directement stockÃ©es dans la source de donnÃ©es, telles que l'ordre des variables et le regroupement."
+
+# contributors:Hamza Rarou
+msgid "About DBF Viewer"
+msgstr "A propos de DBF Visioneur"
+
+# contributors:Hamza Rarou
+msgid "About GeoDa"
+msgstr "A propos de GeoDa"
+
+# contributors:Hamza Rarou
+msgid "About Precision Threshold"
+msgstr "A propos du Seuil de PrÃ©cision"
+
+# contributors:Hamza Rarou
+msgid "Adaptive bandwidth"
+msgstr "Largeur de bande adaptative"
+
+# contributors:Hamza Rarou
+msgid "Adaptive kernel"
+msgstr "Noyau adaptatif"
+
+# contributors:Hamza Rarou
+msgid "Add"
+msgstr "Ajouter"
+
+# contributors:Hamza Rarou
+msgid "Add Centroids to Table"
+msgstr "Ajouter les CentroÃ¯des au Tableau"
+
+# contributors:Hamza Rarou
+msgid "Add Map Layer"
+msgstr "Ajouter une Couche de Carte"
+
+# contributors:Hamza Rarou
+msgid "Add Mean Centers to Table"
+msgstr "Ajouter les Centres Moyens au Tableau"
+
+# contributors:Hamza Rarou
+msgid "Add Neighbors To Selection"
+msgstr "Ajouter Voisins Ã  la SÃ©lection"
+
+# contributors:Hamza Rarou
+msgid "Add New ID Variable"
+msgstr "Ajouter Nouveau Variable ID"
+
+# contributors:Hamza Rarou
+msgid "Add OGR column error. Field type is unknown or not supported."
+msgstr "Erreur lors de l'ajout de la colonne OGR. Le type de champ est inconnu ou non pris en charge.]"
+
+# contributors:Hamza Rarou
+msgid "Add OGR column error. Field type is unknown."
+msgstr "Erreur lors de l'ajout de la colonne OGR. Le type de champ est inconnu."
+
+# contributors:Hamza Rarou
+msgid "Add Time"
+msgstr "Ajouter une date]"
+
+# contributors:Hamza Rarou
+msgid "Add Variable"
+msgstr "Ajouter une variable]"
+
+# contributors:Hamza Rarou
+msgid ""
+"Add a name for your group of variables. \n"
+"\n"
+"You can edit the time period labels for easier interpretation of results."
+msgstr ""
+"Ajouter un nom Ã  votre groupe de variables. \n"
+"\n"
+"Vous pouvez modifier les Ã©tiquettes de pÃ©riode de temps pour faciliter l'interprÃ©tation des rÃ©sultats.]"
+
+# contributors:Hamza Rarou
+msgid "Add basemap automatically:"
+msgstr "Ajouter une carte de base automatiquement:]"
+
+# contributors:Hamza Rarou
+msgid "Add new column to table"
+msgstr "Ajouter une nouvelle colonne au tableau"
+
+# contributors:Hamza Rarou
+msgid "Add/Remove Variables"
+msgstr "Ajouter/Supprimer des variables"
+
+# contributors:Hamza Rarou
+msgid "Adjust Bubble Size"
+msgstr "Ajuster la Taille des Bulles"
+
+# contributors:Hamza Rarou
+msgid "Adjust Value Range of Y Axis"
+msgstr "Ajuster la Plage de Valeurs de l'Axe Y"
+
+# contributors:Hamza Rarou
+msgid "Adjust Value Range of Y-Axis"
+msgstr "Ajuster la Plage de Valeurs de l'Axe-Y"
+
+# contributors:Hamza Rarou
+msgid "Adjust Values of Y Axis"
+msgstr "Ajuster les Valeurs de l'Axe Y"
+
+# contributors:Hamza Rarou
+msgid "Affinity with Guassian Kernel:\tSigma="
+msgstr "AffinitÃ© avec le Noyau Gaussien:\tSigma ="
+
+# contributors:Hamza Rarou
+msgid "Affinity with K-NN:"
+msgstr "AffinitÃ© avec K-NN:"
+
+# contributors:Hamza Rarou
+msgid "Affinity with K-Nearest Neighbors:\tK="
+msgstr "AffinitÃ© avec les K-Plus Proches Voisins:\tK ="
+
+# contributors:Hamza Rarou
+msgid "Affinity with Kernel:"
+msgstr "AffinitÃ© avec le Noyau:"
+
+# contributors:Hamza Rarou
+msgid "Aggregate"
+msgstr "AgrÃ©gat"
+
+# contributors:Hamza Rarou
+msgid "Aggregate - "
+msgstr "AgrÃ©gat - "
+
+# contributors:Hamza Rarou
+msgid "All"
+msgstr "Tous"
+
+# contributors:Hamza Rarou
+msgid "All Pairs"
+msgstr "Toutes les Paires"
+
+# contributors:Hamza Rarou
+msgid "All Rights Reserved"
+msgstr "Tous Droits RÃ©servÃ©s"
+
+# contributors:Hamza Rarou
+msgid "Allow a single cluster:"
+msgstr "Autoriser un seul cluster:"
+
+# contributors:Hamza Rarou
+msgid "Alpha:"
+msgstr "Alpha:"
+
+# contributors:Hamza Rarou
+msgid "Always using fixed-point notation"
+msgstr "Toujours utiliser la notation en virgule fixe"
+
+# contributors:Hamza Rarou
+msgid "Animation"
+msgstr "Animation"
+
+# contributors:Hamza Rarou
+msgid "App Key"
+msgstr "ClÃ© de l'Application"
+
+# contributors:Hamza Rarou
+msgid "Append To Current Selection"
+msgstr "Ajouter Ã  la SÃ©lection Actuelle"
+
+# contributors:Hamza Rarou
+msgid "Append to current selection"
+msgstr "Ajouter Ã  la sÃ©lection actuelle"
+
+# contributors:Hamza Rarou
+msgid "Appl&y"
+msgstr "Applique&r"
+
+# contributors:Hamza Rarou
+msgid "Apply"
+msgstr "Appliquer"
+
+# contributors:Hamza Rarou
+msgid "Apply kernel to diagonal weights"
+msgstr "Appliquer le noyau aux poids diagonaux"
+
+# contributors:Hamza Rarou
+msgid "April"
+msgstr "Avril"
+
+# contributors:Hamza Rarou
+msgid "Arabic (Windows-1256)"
+msgstr "Arabe (Windows-1256)"
+
+# contributors:Hamza Rarou
+msgid "Arc Distance"
+msgstr "Distance d'Arc"
+
+# contributors:Hamza Rarou
+msgid "Ascending order"
+msgstr "Ordre croissant"
+
+# contributors:Hamza Rarou
+msgid "Assign To Target"
+msgstr "Affecter Ã  la Cible"
+
+# contributors:Hamza Rarou
+msgid "Assign Values to Currently Selected / Unselected"
+msgstr "Affecter Valeurs aux Ã©lÃ©ments Actuellement SÃ©lectionnÃ©s / Non SÃ©lectionnÃ©s"
+
+# contributors:Hamza Rarou
+msgid "Assoc. Var."
+msgstr "Var. Assoc."
+
+# contributors:Hamza Rarou
+msgid "Attributes (Optional)"
+msgstr "Attributs (Facultatif)"
+
+# contributors:Hamza Rarou
+msgid "August"
+msgstr "AoÃ»t"
+
+# contributors:Hamza Rarou
+msgid "Auto Weighting"
+msgstr "PondÃ©ration Automatique"
+
+# contributors:Hamza Rarou
+msgid "Autocorr."
+msgstr "Autocorr."
+
+# contributors:Hamza Rarou
+msgid "Autocorr. of "
+msgstr "Autocorr. de "
+
+# contributors:Hamza Rarou
+msgid "Automatic Labels"
+msgstr "Ãtiquettes Automatiques"
+
+# contributors:Hamza Rarou
+msgid "Average"
+msgstr "Moyenne"
+
+# contributors:Hamza Rarou
+msgid "Average Comparison Chart"
+msgstr "Graphique de Comparaison des Moyennes"
+
+# contributors:Hamza Rarou
+msgid "Averages Chart"
+msgstr "Graphique des Moyennes"
+
+# contributors:Hamza Rarou
+msgid "Axes Through Origin"
+msgstr "Axes Passant par l'Origine"
+
+# contributors:Hamza Rarou
+msgid "Axis Option"
+msgstr "Option d'Axe"
+
+# contributors:Hamza Rarou
+msgid "Axis Selection"
+msgstr "SÃ©lection de l'Axe"
+
+# contributors:Hamza Rarou
+msgid "Background"
+msgstr "ArriÃ¨re-plan"
+
+# contributors:Hamza Rarou
+msgid "Background Color"
+msgstr "Couleur d'ArriÃ¨re-plan"
+
+# contributors:Hamza Rarou
+msgid "Bandwidth:"
+msgstr "Bande passante:"
+
+# contributors:Hamza Rarou
+msgid "Base Map "
+msgstr "Carte de base "
+
+# contributors:Hamza Rarou
+msgid "Base Variable"
+msgstr "Variable de base"
+
+# contributors:Hamza Rarou
+msgid "Basemap"
+msgstr "Carte de base"
+
+# contributors:Hamza Rarou
+msgid "Basemap Configuration"
+msgstr "Configuration de la Carte de Base"
+
+# contributors:Hamza Rarou
+msgid "Basemap Configuration Dialog"
+msgstr "BoÃ®te de Configuration de la Carte de Base"
+
+# contributors:Hamza Rarou
+msgid "Basemap Parameters:"
+msgstr "ParamÃ¨tres de la Carte de Base:"
+
+# contributors:Hamza Rarou
+msgid "Basemap Sources: (Format: group&name.basemap&name,basemap&url)"
+msgstr "Sources de la Carte de Base: (Format: groupe&nom.cartedebase&nom,cartedebase&url)"
+
+# contributors:Hamza Rarou
+msgid "Before add/delete observations, please close the %d view(s) that depend on it."
+msgstr "Avant d'ajouter/supprimer des observations, veuillez fermer les %d vue(s) qui en dÃ©pendent."
+
+# contributors:Hamza Rarou
+msgid "Before proceed with operation (add/remove, move, or rename), please close %d views that depend on it."
+msgstr "Avant de continuer avec l'opÃ©ration (ajouter/supprimer, dÃ©placer ou renommer), veuillez fermer %d vues qui en dÃ©pendent."
+
+# contributors:Hamza Rarou
+msgid "Before you can modify the variable %s, please close the %d view(s) that depend on it."
+msgstr "Avant de pouvoir modifier la variable %s, veuillez fermer les %d vue(s) qui en dÃ©pendent."
+
+# contributors:Hamza Rarou
+msgid "Bivariate"
+msgstr "BivariÃ©"
+
+# contributors:Hamza Rarou
+msgid "Bivariate Local Join Count"
+msgstr "Compte de Jonction Local bivariÃ©"
+
+# contributors:Hamza Rarou
+msgid "Bivariate Local Moran's I"
+msgstr "I de Moran Local BivariÃ©"
+
+# contributors:Hamza Rarou
+msgid "Bivariate Moran Variable Settings"
+msgstr "ParamÃ¨tres de Variable de Moran BivariÃ©"
+
+# contributors:Hamza Rarou
+msgid "Bivariate Moran's I"
+msgstr "I de Moran BivariÃ©"
+
+# contributors:Hamza Rarou
+msgid "Bivariate Moran's I (%s): %s and lagged %s"
+msgstr "I de Moran BivariÃ© (%s): %s et retardÃ© %s"
+
+# contributors:Hamza Rarou
+msgid "Bonferroni bound:"
+msgstr "Seuil de Bonferroni:"
+
+# contributors:Hamza Rarou
+msgid "Both are significant, Spatial Lag Model has been selected."
+msgstr "Tous les deux sont significatifs, le ModÃ¨le Spatiale avec Variable RetardÃ©e a Ã©tÃ© sÃ©lectionnÃ©."
+
+# contributors:Hamza Rarou
+msgid "Bottom"
+msgstr "En bas"
+
+# contributors:Hamza Rarou
+msgid "Bounding Box"
+msgstr "BoÃ®te Englobante"
+
+# contributors:Hamza Rarou
+msgid "Box Map (Hinge=1.5)"
+msgstr "Carte en boÃ®te (CharniÃ¨re=1.5)"
+
+# contributors:Hamza Rarou
+msgid "Box Map (Hinge=3.0)"
+msgstr "Carte en boÃ®te (CharniÃ¨re=3.0)"
+
+# contributors:Hamza Rarou
+msgid "Box Plot"
+msgstr "BoÃ®te Ã  Moustaches"
+
+# contributors:Hamza Rarou
+msgid "Boxplot Theme"
+msgstr "ThÃ¨me des BoÃ®tes Ã  Moustaches"
+
+# contributors:Hamza Rarou
+msgid "Breaks"
+msgstr "Intervalles"
+
+# contributors:Hamza Rarou
+msgid "Breaks with same values were created. Please choose a smaller categories, or manually edit the break values."
+msgstr "Des intervalles avec les mÃªmes valeurs ont Ã©tÃ© crÃ©Ã©s. Veuillez choisir des catÃ©gories plus petites ou Ã©diter manuellement les valeurs des intervalles."
+
+# contributors:Hamza Rarou
+msgid "Bubble Chart"
+msgstr "Graphique en Bulles"
+
+# contributors:Hamza Rarou
+msgid "Bubble Chart - x: %s, y: %s, size: %s, %s"
+msgstr "Graphique en Bulles - x: %s, y: %s, taille: %s, %s"
+
+# contributors:Hamza Rarou
+msgid "Bubble Chart Variables"
+msgstr "Variables du Graphique en Bulles"
+
+# contributors:Hamza Rarou
+msgid "Bubble Size"
+msgstr "Taille des Bulles"
+
+# contributors:Hamza Rarou
+msgid "Bubble Size Adjust Dialog"
+msgstr "Dialogue d'Ajustement de la Taille des Bulles"
+
+# contributors:Hamza Rarou
+msgid "Buffer query area:"
+msgstr "Zone de requÃªte tampon:"
+
+# contributors:Hamza Rarou
+msgid "Bug Report"
+msgstr "Rapport de Bug"
+
+# contributors:Hamza Rarou
+msgid "C&reate"
+msgstr "C&rÃ©er"
+
+# contributors:Hamza Rarou
+msgid "CRS (proj4 format)"
+msgstr "CRS (format proj4)"
+
+# contributors:Hamza Rarou
+msgid "CSV Configuration Warning"
+msgstr "Avertissement de Configuration CSV"
+
+# contributors:Hamza Rarou
+msgid "CSV Contains Variable Names?"
+msgstr "Le CSV contient-il des Noms de Variables ?"
+
+# contributors:Hamza Rarou
+msgid "CSV File Configuration"
+msgstr "Configuration du Fichier CSV"
+
+# contributors:Hamza Rarou
+msgid "Calculator"
+msgstr "Calculatrice"
+
+# contributors:Hamza Rarou
+msgid "Can't connect to datasource: "
+msgstr "Impossible de se connecter Ã  la source de donnÃ©es: "
+
+# contributors:Hamza Rarou
+msgid "Can't create layer %s with empty field (%s) name."
+msgstr "Impossible de crÃ©er la couche %s avec un champ vide (%s)."
+
+# contributors:Hamza Rarou
+msgid ""
+"Can't create output OGR driver. \n"
+"\n"
+"Details:"
+msgstr ""
+"Impossible de crÃ©er le pilote de sortie OGR. \n"
+"\n"
+"DÃ©tails:"
+
+# contributors:Hamza Rarou
+msgid "Can't get bounding box information from this datasource. Please try another datasource."
+msgstr "Impossible d'obtenir les informations sur la boÃ®te englobante Ã  partir de cette source de donnÃ©es. Veuillez essayer une autre source de donnÃ©es."
+
+# contributors:Hamza Rarou
+msgid ""
+"Can't get datasource type from: %s\n"
+"\n"
+"Please select datasource supported by GeoDa or add extension  to file datasource."
+msgstr ""
+"Impossible d'obtenir le type de source de donnÃ©es Ã  partir de: %s\n"
+"\n"
+"Veuillez sÃ©lectionner une source de donnÃ©es prise en charge par GeoDa ou ajouter une extension au fichier source de donnÃ©es."
+
+# contributors:Hamza Rarou
+msgid "Can't get layers from unknown datasource. Please complete the datasource fields."
+msgstr "Impossible d'obtenir les couches Ã  partir d'une source de donnÃ©es inconnue. Veuillez remplir les champs de la source de donnÃ©es."
+
+# contributors:Hamza Rarou
+msgid "Can't save Thiessen polygons"
+msgstr "Impossible d'enregistrer les polygones de Thiessen"
+
+# contributors:Hamza Rarou
+msgid "Can't write/create layer \""
+msgstr "Impossible d'Ã©crire/crÃ©er la couche \""
+
+# contributors:Hamza Rarou
+msgid "Cancel"
+msgstr "Annuler"
+
+# contributors:Hamza Rarou
+msgid "Canvas Layout Preview"
+msgstr "AperÃ§u de la Mise en Page du Canevas"
+
+# contributors:Hamza Rarou
+msgid "Carto"
+msgstr "Carto"
+
+# contributors:Hamza Rarou
+msgid "Cartogram"
+msgstr "Cartogramme"
+
+# contributors:Hamza Rarou
+msgid "Cartogram Variables"
+msgstr "Variables du Cartogramme"
+
+# contributors:Hamza Rarou
+msgid "Categories"
+msgstr "CatÃ©gories"
+
+# contributors:Hamza Rarou
+msgid "Categories \"%s\" is currently in use by another view. Please close or change all views using this custom categories before deleting."
+msgstr "Les CatÃ©gories \"%s\" sont actuellement utilisÃ©es par une autre vue. Veuillez fermer ou modifier toutes les vues utilisant ces catÃ©gories personnalisÃ©es avant de les supprimer."
+
+# contributors:Hamza Rarou
+msgid "Categories of "
+msgstr "CatÃ©gories de "
+
+# contributors:Hamza Rarou
+msgid "Categories title \"%s\" already exists. Please choose a different title."
+msgstr "Le titre des catÃ©gories \"%s\" existe dÃ©jÃ . Veuillez choisir un titre diffÃ©rent."
+
+# contributors:Hamza Rarou
+msgid "Category"
+msgstr "CatÃ©gorie"
+
+# contributors:Hamza Rarou
+msgid "Category Editor"
+msgstr "Ãditeur de CatÃ©gorie"
+
+# contributors:Hamza Rarou
+msgid "Central European (CP852)"
+msgstr "Europe Centrale (CP852)"
+
+# contributors:Hamza Rarou
+msgid "Central European (Windows-1250)"
+msgstr "Europe Centrale (Windows-1250)"
+
+# contributors:Hamza Rarou
+msgid "Central European Latin-2 (ISO-8859-2)"
+msgstr "Europe Centrale Latin-2 (ISO-8859-2)"
+
+# contributors:Hamza Rarou
+msgid "Centroid (X)"
+msgstr "CentroÃ¯de (X)"
+
+# contributors:Hamza Rarou
+msgid "Centroid (Y)"
+msgstr "CentroÃ¯de (Y)"
+
+# contributors:Hamza Rarou
+msgid "Change"
+msgstr "Modifier"
+
+# contributors:Hamza Rarou
+msgid "Change Categories Title"
+msgstr "Modifier le Titre des CatÃ©gories"
+
+# contributors:Hamza Rarou
+msgid "Change Color of Root"
+msgstr "Modifier la Couleur de la Racine"
+
+# contributors:Hamza Rarou
+msgid "Change Current Map Type"
+msgstr "Modifier le Type de Carte Actuel"
+
+# contributors:Hamza Rarou
+msgid "Change Edge Color"
+msgstr "Modifier la Couleur de Bordure"
+
+# contributors:Hamza Rarou
+msgid "Change Edge Thickness"
+msgstr "Modifier l'Epaisseur de la Bordure"
+
+# contributors:Hamza Rarou
+msgid "Change Fill Color"
+msgstr "Modifier la Couleur de Remplissage"
+
+# contributors:Hamza Rarou
+msgid "Change Fill Color of Neighbors"
+msgstr "Modifier la Couleur de Remplissage des Voisins"
+
+# contributors:Hamza Rarou
+msgid "Change Font"
+msgstr "Modifier la Police"
+
+# contributors:Hamza Rarou
+msgid "Change Map Transparency"
+msgstr "Modifier la Transparence de la Carte"
+
+# contributors:Hamza Rarou
+msgid "Change Outline Color"
+msgstr "Modifier la Couleur du Contour"
+
+# contributors:Hamza Rarou
+msgid "Change Outline Color of Selected"
+msgstr "Modifier la Couleur du Contour des ElÃ©ments SÃ©lectionnÃ©s"
+
+# contributors:Hamza Rarou
+msgid "Change Parameters"
+msgstr "Modifier les ParamÃ¨tres"
+
+# contributors:Hamza Rarou
+msgid "Change Point Radius"
+msgstr "Modifier le Rayon des Points"
+
+# contributors:Hamza Rarou
+msgid "Change Seed"
+msgstr "Modifier la Valeur de dÃ©part"
+
+# contributors:Hamza Rarou
+msgid "Change Size of Root"
+msgstr "Modifier la Taille de la Racine"
+
+# contributors:Hamza Rarou
+msgid ""
+"Change field properties (%s) failed.\n"
+"\n"
+"Details: %s"
+msgstr ""
+"La modification des propriÃ©tÃ©s du champ (%s) a Ã©chouÃ©.\n"
+"\n"
+"DÃ©tails: %s"
+
+# contributors:Hamza Rarou
+msgid "Change title \"%s\" to"
+msgstr "Modifier le titre \"%s\" en"
+
+# contributors:Hamza Rarou
+msgid "Change variable type for \"%s\" has failed. Please check all values are valid for conversion."
+msgstr "La modification du type de variable pour \"%s\" a Ã©chouÃ©. Veuillez vÃ©rifier que toutes les valeurs sont valides pour la conversion."
+
+# contributors:Hamza Rarou
+msgid "Check Bug Report on Github"
+msgstr "VÃ©rifier le Rapport de Bug sur Github"
+
+# contributors:Hamza Rarou
+msgid "Check Updates"
+msgstr "VÃ©rifier les Mises Ã  Jour"
+
+# contributors:Hamza Rarou
+msgid "Checking Symmetry..."
+msgstr "VÃ©rification de la SymÃ©trie..."
+
+# contributors:Hamza Rarou
+msgid "Chinese Simplified (GB2312)"
+msgstr "Chinois SimplifiÃ© (GB2312)"
+
+# contributors:Hamza Rarou
+msgid "Chinese Traditional (Big5)"
+msgstr "Chinois Traditionnel (Big5)"
+
+# contributors:Hamza Rarou
+msgid "Choose A Color"
+msgstr "Choisir Une Couleur"
+
+# contributors:Hamza Rarou
+msgid "Choose Cateogry Color"
+msgstr "Choisir la Couleur de la CatÃ©gorie"
+
+# contributors:Hamza Rarou
+msgid "Choose Cateogry Fill Color"
+msgstr "Choisir la Couleur de Remplissage de la CatÃ©gorie"
+
+# contributors:Hamza Rarou
+msgid "Choose Cateogry Outline Color"
+msgstr "Choisir la Couleur du Contour de la CatÃ©gorie"
+
+# contributors:Hamza Rarou
+msgid "Choose Intervals"
+msgstr "Choisir les Intervalles"
+
+# contributors:Hamza Rarou
+msgid "Choose Weights"
+msgstr "Choisir les Poids"
+
+# contributors:Hamza Rarou
+msgid "Choose Weights File"
+msgstr "Choisir un Fichier de PondÃ©ration"
+
+# contributors:Hamza Rarou
+msgid "Choose an output weights file name."
+msgstr "Choisir un nom de fichier de pondÃ©ration de sortie."
+
+# contributors:Hamza Rarou
+msgid "Chosen field is not a numeric type.  Please select a numeric type field."
+msgstr "Le champ choisi n'est pas de type numÃ©rique. Veuillez sÃ©lectionner un champ de type numÃ©rique."
+
+# contributors:Hamza Rarou
+msgid "Chosen field is not a numeric type. Please select a numeric type field."
+msgstr "Le champ choisi n'est pas de type numÃ©rique. Veuillez sÃ©lectionner un champ de type numÃ©rique."
+
+# contributors:Hamza Rarou
+msgid "Chosen key field '%s' s a time variant. Please choose a non-time variant field as key."
+msgstr "Le champ clÃ© choisi '%s' est variable dans le temps. Veuillez choisir un champ non variable dans le temps comme clÃ©."
+
+# contributors:Hamza Rarou
+msgid "Chosen key field is not valid. Please select another key field"
+msgstr "Le champ clÃ© choisi n'est pas valide. Veuillez sÃ©lectionner un autre champ clÃ©"
+
+# contributors:Hamza Rarou
+msgid "Chow test for sel/unsel regression subsets: "
+msgstr "Test de Chow pour les sous-ensembles de rÃ©gression sÃ©l/non sÃ©l: "
+
+# contributors:Hamza Rarou
+msgid "Circle"
+msgstr "Cercle"
+
+# contributors:Hamza Rarou
+msgid "Circle Color"
+msgstr "Couleur du Cercle"
+
+# contributors:Hamza Rarou
+msgid "Circle Size"
+msgstr "Taille du Cercle"
+
+# contributors:Hamza Rarou
+msgid "Classic "
+msgstr "Classique "
+
+# contributors:Hamza Rarou
+msgid "Classification Themes"
+msgstr "ThÃ¨mes de Classification"
+
+# contributors:Hamza Rarou
+msgid "Clean Basemap Cache"
+msgstr "Effacer le Cache de la Carte de Base"
+
+# contributors:Hamza Rarou
+msgid "Clear Highlight Association"
+msgstr "Effacer l'Association de Mise en Evidence"
+
+# contributors:Hamza Rarou
+msgid "Clear Selection"
+msgstr "DÃ©sÃ©lectionner Tout"
+
+# contributors:Hamza Rarou
+msgid "Click RegressionDlg::OnSaveToTxtFileClick"
+msgstr "Cliquez sur RegressionDlg::OnSaveToTxtFileClick"
+
+# contributors:Hamza Rarou
+msgid "Click RegressionDlg::OnViewResultsClick"
+msgstr "Cliquez sur RegressionDlg::OnViewResultsClick"
+
+# contributors:Hamza Rarou
+msgid "Close"
+msgstr "Fermer"
+
+# contributors:Hamza Rarou
+msgid "Cluster Map "
+msgstr "Carte de clusters "
+
+# contributors:Hamza Rarou
+msgid "Cluster Maps"
+msgstr "Cartes de clusters"
+
+# contributors:Hamza Rarou
+msgid "Cluster centers:"
+msgstr "Centres de clusters:"
+
+# contributors:Hamza Rarou
+msgid "Clusters"
+msgstr "Clusters"
+
+# contributors:Hamza Rarou
+msgid "Co-location Join Count"
+msgstr "Nombre de Jointures de Co-localisation"
+
+# contributors:Hamza Rarou
+msgid "Co-location Join Count only applies to co-location case. The selected variables have no co-location. Please change your selection, or use Univariate/Bivariate Local Join Count."
+msgstr "Le nombre de Jointures de Co-localisation ne s'applique qu'aux cas de co-localisation. Les variables sÃ©lectionnÃ©es n'ont pas de co-localisation. Veuillez modifier votre sÃ©lection ou utiliser le nombre de jointures locales univariÃ©es/bivariÃ©es."
+
+# contributors:Hamza Rarou
+msgid "Co-location Map"
+msgstr "Carte de Co-localisation"
+
+# contributors:Hamza Rarou
+msgid "Co-location Map: "
+msgstr "Carte de Co-localisation: "
+
+# contributors:Hamza Rarou
+msgid "Co-location Settings"
+msgstr "ParamÃ¨tres de Co-localisation"
+
+# contributors:Hamza Rarou
+msgid "Coeff. Var. Mat."
+msgstr "Mat. du Coeff. de Var."
+
+# contributors:Hamza Rarou
+msgid "Colocation Cluster"
+msgstr "Cluster de Co-localisation"
+
+# contributors:Hamza Rarou
+msgid "Color"
+msgstr "Couleur"
+
+# contributors:Hamza Rarou
+msgid "Color Scheme"
+msgstr "Palette de Couleurs"
+
+# contributors:Hamza Rarou
+msgid "Column Name"
+msgstr "Nom de Colonne"
+
+# contributors:Hamza Rarou
+msgid "Column Number (from 0)"
+msgstr "NumÃ©ro de Colonne (Ã  partir de 0)"
+
+# contributors:Hamza Rarou
+msgid "Comma Separated Value (*.csv)|*.csv"
+msgstr "Comma Separated Value (*.csv)|*.csv"
+
+# contributors:Hamza Rarou
+msgid "Components:"
+msgstr "Composantes:"
+
+# contributors:Hamza Rarou
+msgid "Conditional Co-location Map Variables"
+msgstr "Variables de la Carte de Co-localisation Conditionnelle"
+
+# contributors:Hamza Rarou
+msgid "Conditional G Cluster Map Variables"
+msgstr "Variables de la Carte du Cluster G Conditionnel"
+
+# contributors:Hamza Rarou
+msgid "Conditional GetisOrd Map"
+msgstr "Carte de GetisOrd Conditionnelle"
+
+# contributors:Hamza Rarou
+msgid "Conditional Histogram"
+msgstr "Histogramme Conditionnel"
+
+# contributors:Hamza Rarou
+msgid "Conditional Histogram Variables"
+msgstr "Variables de l'Histogramme Conditionnel"
+
+# contributors:Hamza Rarou
+msgid "Conditional LISA Map"
+msgstr "Carte de LISA Conditionnelle"
+
+# contributors:Hamza Rarou
+msgid "Conditional LISA Map Variables"
+msgstr "Variables de Carte de LISA Conditionnelle"
+
+# contributors:Hamza Rarou
+msgid "Conditional Local Geary Map"
+msgstr "Carte de Geary Locale Conditionnelle"
+
+# contributors:Hamza Rarou
+msgid "Conditional Local Geary Map Variables"
+msgstr "Variables de Carte de Geary Locale Conditionnelle"
+
+# contributors:Hamza Rarou
+msgid "Conditional Local Join Count Map"
+msgstr "Carte de Compte de Jointure Locale Conditionnelle"
+
+# contributors:Hamza Rarou
+msgid "Conditional Map"
+msgstr "Carte Conditionnelle"
+
+# contributors:Hamza Rarou
+msgid "Conditional Map Variables"
+msgstr "Variables de Carte Conditionnelle"
+
+# contributors:Hamza Rarou
+msgid "Conditional Plot"
+msgstr "Diagramme Conditionnel"
+
+# contributors:Hamza Rarou
+msgid "Conditional Scatter Plot"
+msgstr "Diagramme de Dispersion Conditionnel"
+
+# contributors:Hamza Rarou
+msgid "Conditional Scatter Plot Variables"
+msgstr "Variables du Diagramme de Dispersion Conditionnel"
+
+# contributors:Hamza Rarou
+msgid "Connect"
+msgstr "Connecter"
+
+# contributors:Hamza Rarou
+msgid "Connect to Data Source"
+msgstr "Se Connecter Ã  la Source de DonnÃ©es"
+
+# contributors:Hamza Rarou
+msgid "Connectivity"
+msgstr "ConnectivitÃ©"
+
+# contributors:Hamza Rarou
+msgid "Connectivity Graph"
+msgstr "Graphe de ConnectivitÃ©"
+
+# contributors:Hamza Rarou
+msgid "Connectivity Histogram"
+msgstr "Histogramme de ConnectivitÃ©"
+
+# contributors:Hamza Rarou
+msgid "Connectivity Map"
+msgstr "Carte de connectivitÃ©"
+
+# contributors:Hamza Rarou
+msgid "Connectivity Map - "
+msgstr "Carte de connectivitÃ© - "
+
+# contributors:Hamza Rarou
+msgid "Contiguity Weight"
+msgstr "Poids de ContiguÃ¯tÃ©"
+
+# contributors:Hamza Rarou
+msgid "Continue"
+msgstr "Continuer"
+
+# contributors:Hamza Rarou
+msgid "Convert ASCII to SHP"
+msgstr "Convertir ASCII en SHP"
+
+# contributors:Hamza Rarou
+msgid "Convert Boundary to SHP"
+msgstr "Convertir une Limite en SHP"
+
+# contributors:Hamza Rarou
+msgid "Convert Boundary to Shape Datasource"
+msgstr "Convertir une Limite en source de donnÃ©es Shape"
+
+# contributors:Hamza Rarou
+msgid "Cooling Rate:"
+msgstr "Taux de refroidissement:"
+
+# contributors:Hamza Rarou
+msgid "Cooling rate for Simulated Annealing algorithm has to be a float number between 0 and 1 (e.g. 0.85)."
+msgstr "Le taux de refroidissement pour l'algorithme de Recuit SimulÃ© doit Ãªtre un nombre dÃ©cimal entre 0 et 1 (par exemple, 0,85)."
+
+# contributors:Hamza Rarou
+msgid "Cooling rate:"
+msgstr "Taux de refroidissement:"
+
+# contributors:Hamza Rarou
+msgid "Copy"
+msgstr "Copier"
+
+# contributors:Hamza Rarou
+msgid "Copy Image To Clipboard"
+msgstr "Copier l'Image dans le Presse-papiers"
+
+# contributors:Hamza Rarou
+msgid "Copy Legend To Clipboard"
+msgstr "Copier la LÃ©gende dans le Presse-papiers"
+
+# contributors:Hamza Rarou
+msgid ""
+"Copyright (C) 1998-2011\n"
+"GeoDa Center for Geospatial Analysis and Computation\n"
+"and Arizona Board of Regents\n"
+"All Rights Reserved"
+msgstr ""
+"Droits d'auteur (C) 1998-2011\n"
+"GeoDa Center for Geospatial Analysis and Computation\n"
+"and Arizona Board of Regents\n"
+"All Rights Reserved"
+
+# contributors:Hamza Rarou
+msgid "Copyright (C) 2011-%d by Luc Anselin"
+msgstr "Droits d'auteur (C) 2011-%d par Luc Anselin"
+
+# contributors:Hamza Rarou
+msgid "Copyright (C) year-year by Luc Anselin"
+msgstr "Droits d'auteur (C) annÃ©e-annÃ©e par Luc Anselin"
+
+# contributors:Hamza Rarou
+msgid "Cores"
+msgstr "CÅurs"
+
+# contributors:Hamza Rarou
+msgid "Cores and Neighbors"
+msgstr "CÅurs et voisins"
+
+# contributors:Hamza Rarou
+msgid "Correlogram"
+msgstr "CorrÃ©logramme"
+
+# contributors:Hamza Rarou
+msgid "Correlogram Parameters"
+msgstr "ParamÃ¨tres du CorrÃ©logramme"
+
+# contributors:Hamza Rarou
+msgid "Correlogram Parameters Help"
+msgstr "Aide sur les ParamÃ¨tres du CorrÃ©logramme"
+
+# contributors:Hamza Rarou
+msgid "Could not create a new variable. Possibly a read-only data source."
+msgstr "Impossible de crÃ©er une nouvelle variable. Il est possible que la source de donnÃ©es soit en lecture seule."
+
+# contributors:Hamza Rarou
+msgid "Could not determine which Field Choice was selected. Please report this error."
+msgstr "Impossible de dÃ©terminer quel Choix de Champ a Ã©tÃ© sÃ©lectionnÃ©. Veuillez signaler cette erreur."
+
+# contributors:Hamza Rarou
+msgid "Could not determine which Time Choice was selected. Please report this error."
+msgstr "Impossible de dÃ©terminer quel Choix de Temps a Ã©tÃ© sÃ©lectionnÃ©. Veuillez signaler cette erreur."
+
+# contributors:Hamza Rarou
+msgid "Could not initialize new project."
+msgstr "Impossible d'initialiser le nouveau projet."
+
+# contributors:Hamza Rarou
+msgid "Count"
+msgstr "Compter"
+
+# contributors:Hamza Rarou
+msgid "Covariates"
+msgstr "Covariables"
+
+# contributors:Hamza Rarou
+msgid "Create"
+msgstr "CrÃ©er"
+
+# contributors:Hamza Rarou
+msgid "Create Custom Breaks"
+msgstr "CrÃ©er des Intervalles PersonnalisÃ©s"
+
+# contributors:Hamza Rarou
+msgid "Create Grid"
+msgstr "CrÃ©er une Grille"
+
+# contributors:Hamza Rarou
+msgid "Create New Custom"
+msgstr "CrÃ©er une Nouvelle CatÃ©gorie PersonnalisÃ©e"
+
+# contributors:Hamza Rarou
+msgid "Create Project File Now?"
+msgstr "CrÃ©er un Fichier de Projet Maintenant ?"
+
+# contributors:Hamza Rarou
+msgid "Create Weights"
+msgstr "CrÃ©er des Poids"
+
+# contributors:Hamza Rarou
+msgid "Create a project file?"
+msgstr "CrÃ©er un fichier de projet ?"
+
+# contributors:Hamza Rarou
+msgid "Create new custom categories classification."
+msgstr "CrÃ©er une nouvelle classification de catÃ©gories personnalisÃ©es."
+
+# contributors:Hamza Rarou
+msgid "Creating Grid"
+msgstr "CrÃ©ation de la Grille"
+
+# contributors:Hamza Rarou
+msgid "Cumulative"
+msgstr "Cumulatif"
+
+# contributors:Hamza Rarou
+msgid "Current OGR dirver "
+msgstr "Driver OGR actuel "
+
+# contributors:Hamza Rarou
+msgid "Current Opacity: %.2f"
+msgstr "OpacitÃ© Actuelle: %.2f"
+
+# contributors:Hamza Rarou
+msgid "Current Transparency: %.2f"
+msgstr "Transparence Actuelle: %.2f"
+
+# contributors:Hamza Rarou
+msgid "Current field name:"
+msgstr "Nom de champ actuel:"
+
+# contributors:Hamza Rarou
+msgid "Current layer has already been associated with selected layer. Please select another layer to associate with."
+msgstr "La couche actuelle est dÃ©jÃ  associÃ©e Ã  la couche sÃ©lectionnÃ©e. Veuillez sÃ©lectionner une autre couche Ã  associer."
+
+# contributors:Hamza Rarou
+msgid "Current time:"
+msgstr "Heure actuelle:"
+
+# contributors:Hamza Rarou
+msgid "Curve Color"
+msgstr "Couleur de courbe"
+
+# contributors:Hamza Rarou
+msgid "Custom"
+msgstr "PersonnalisÃ©"
+
+# contributors:Hamza Rarou
+msgid "Custom Breaks"
+msgstr "Intervalles personnalisÃ©s"
+
+# contributors:Hamza Rarou
+msgid "Custom Inference"
+msgstr "InfÃ©rence personnalisÃ©e"
+
+# contributors:Hamza Rarou
+msgid "Cut"
+msgstr "Couper"
+
+# contributors:Hamza Rarou
+msgid "Cyrillic (ISO-8859-5)"
+msgstr "Cyrillique (ISO-8859-5)"
+
+# contributors:Hamza Rarou
+msgid "Cyrillic (KOI8-R)"
+msgstr "Cyrillique (KOI8-R)"
+
+# contributors:Hamza Rarou
+msgid "Cyrillic (Windows-1251)"
+msgstr "Cyrillique (Windows-1251)"
+
+# contributors:Hamza Rarou
+msgid "Cyrillic/Russian (CP866)"
+msgstr "Cyrillique/Russe (CP866)"
+
+# contributors:Hamza Rarou
+msgid "D.F."
+msgstr "D.F."
+
+# contributors:Hamza Rarou
+msgid "DBF File Information"
+msgstr "Informations sur le Fichier DBF"
+
+# contributors:Hamza Rarou
+msgid "DBF Viewer 0.8 (July 29, 2011)"
+msgstr "Visualiseur DBF 0.8 (29 juillet 2011)"
+
+# contributors:Hamza Rarou
+msgid "Data"
+msgstr "DonnÃ©es"
+
+# contributors:Hamza Rarou
+msgid "Data Point"
+msgstr "Point de DonnÃ©es"
+
+# contributors:Hamza Rarou
+msgid "Data Preview - number of preview records:"
+msgstr "AperÃ§u des DonnÃ©es - nombre d'enregistrements d'aperÃ§u:"
+
+# contributors:Hamza Rarou
+msgid "Data Source Overview/Help: "
+msgstr "AperÃ§u/Aide de la Source de DonnÃ©es: "
+
+# contributors:Hamza Rarou
+msgid "Data Type"
+msgstr "Type de DonnÃ©es"
+
+# contributors:Hamza Rarou
+msgid "Data source (%s) doesn't exist. Please check the project configuration file."
+msgstr "La source de donnÃ©es (%s) n'existe pas. Veuillez vÃ©rifier le fichier de configuration du projet."
+
+# contributors:Hamza Rarou
+msgid "Database"
+msgstr "Base de donnÃ©es"
+
+# contributors:Hamza Rarou
+msgid "Database Host"
+msgstr "HÃ´te de la Base de donnÃ©es"
+
+# contributors:Hamza Rarou
+msgid "Database Name/Instance"
+msgstr "Nom/Instance de la Base de donnÃ©es"
+
+# contributors:Hamza Rarou
+msgid "Database Port"
+msgstr "Port de la Base de donnÃ©es"
+
+# contributors:Hamza Rarou
+msgid "Database Type"
+msgstr "Type de Base de donnÃ©es"
+
+# contributors:Hamza Rarou
+msgid "Database port is empty. Please input one."
+msgstr "Le port de la Base de donnÃ©es est vide. Veuillez en entrer un."
+
+# contributors:Hamza Rarou
+msgid "Database/Instance Name"
+msgstr "Nom de la Base de donnÃ©es/instance"
+
+# contributors:Hamza Rarou
+msgid "Datasource in project is not valid."
+msgstr "La source de donnÃ©es dans le projet n'est pas valide."
+
+# contributors:Hamza Rarou
+msgid "Datasource path is empty."
+msgstr "Le chemin de la source de donnÃ©es est vide."
+
+# contributors:Hamza Rarou
+msgid "Date/Time"
+msgstr "Date/Heure"
+
+# contributors:Hamza Rarou
+msgid "Date/Time formats (using comma to separate formats):"
+msgstr "Formats de date/heure (utilisez une virgule pour sÃ©parer les formats):"
+
+# contributors:Hamza Rarou
+msgid "December"
+msgstr "DÃ©cembre"
+
+# contributors:Hamza Rarou
+msgid "Decimal:"
+msgstr "DÃ©cimal:"
+
+# contributors:Hamza Rarou
+msgid "Decimals (max 15)"
+msgstr "DÃ©cimales (maximum 15)"
+
+# contributors:Hamza Rarou
+msgid "Default displayed decimal places in Table:"
+msgstr "Nombre de dÃ©cimales affichÃ©es par dÃ©faut dans le Tableau:"
+
+# contributors:Hamza Rarou
+msgid "Delete"
+msgstr "Supprimer"
+
+# contributors:Hamza Rarou
+msgid "Delete Variable(s)"
+msgstr "Supprimer Variable(s)"
+
+# contributors:Hamza Rarou
+msgid "Delta Factor:"
+msgstr "Facteur de DiffÃ©rence:"
+
+# contributors:Hamza Rarou
+msgid "Dendrogram"
+msgstr "Dendrogramme"
+
+# contributors:Hamza Rarou
+msgid "Dependent Var (y-axis)"
+msgstr "Variable DÃ©pendante (l'axe y)"
+
+# contributors:Hamza Rarou
+msgid "Dependent Var Y"
+msgstr "Variable DÃ©pendante Y"
+
+# contributors:Hamza Rarou
+msgid "Dependent Variable"
+msgstr "Variable DÃ©pendante"
+
+# contributors:Hamza Rarou
+msgid "Descending order"
+msgstr "Tri dÃ©croissant"
+
+# contributors:Hamza Rarou
+msgid "Description"
+msgstr "Description"
+
+# contributors:Hamza Rarou
+msgid "Diagonal weights = 1"
+msgstr "Poids diagonaux = 1"
+
+# contributors:Hamza Rarou
+msgid "Diff Values"
+msgstr "Valeurs diff"
+
+# contributors:Hamza Rarou
+msgid "Difference-in-Means Test:"
+msgstr "Test de DiffÃ©rence des Moyennes:"
+
+# contributors:Hamza Rarou
+msgid "Differential Local Moran's I"
+msgstr "I de Moran Local diffÃ©rentiel"
+
+# contributors:Hamza Rarou
+msgid "Differential Moran Variable Settings"
+msgstr "ParamÃ¨tres de variable Moran diffÃ©rentielle"
+
+# contributors:Hamza Rarou
+msgid "Differential Moran's I"
+msgstr "I de Moran diffÃ©rentiel"
+
+# contributors:Hamza Rarou
+msgid "Differential Moran's I (%s): %s - %s"
+msgstr "I de Moran diffÃ©rentiel (%s): %s - %s"
+
+# contributors:Hamza Rarou
+msgid ""
+"Differential Moran's I tests whether the change in a variable over time is spatially correlated.\n"
+"\n"
+"Please first group variables by time period: Select Time --> Time Editor."
+msgstr ""
+"Le test de I de Moran diffÃ©rentiel Ã©value si le changement d'une variable au fil du temps est spatialement corrÃ©lÃ©.\n"
+"\n"
+"Veuillez d'abord regrouper les variables par pÃ©riode de temps: SÃ©lectionnez Temps --> Ãditeur de temps."
+
+# contributors:Hamza Rarou
+msgid "Disable auto upgrade:"
+msgstr "DÃ©sactiver la mise Ã  niveau automatique:"
+
+# contributors:Hamza Rarou
+msgid "Disable crash detection for bug report:"
+msgstr "DÃ©sactiver la dÃ©tection des plantages pour le rapport d'erreur:"
+
+# contributors:Hamza Rarou
+msgid "Display Axes Scale Values"
+msgstr "Afficher les Valeurs d'Echelle des Axes"
+
+# contributors:Hamza Rarou
+msgid "Display Centroids"
+msgstr "Afficher les CentroÃ¯des"
+
+# contributors:Hamza Rarou
+msgid "Display Mean Centers"
+msgstr "Afficher les Centres Moyens"
+
+# contributors:Hamza Rarou
+msgid "Display Slope Values"
+msgstr "Afficher les Valeurs de Pente"
+
+# contributors:Hamza Rarou
+msgid "Display Statistics"
+msgstr "Afficher les Statistiques"
+
+# contributors:Hamza Rarou
+msgid "Display Thiessen Polygons"
+msgstr "Afficher les Polygones de Thiessen"
+
+# contributors:Hamza Rarou
+msgid "Displayed decimal places"
+msgstr "Nombre de dÃ©cimales affichÃ©es"
+
+# contributors:Hamza Rarou
+msgid "Displayed decimals"
+msgstr "Decimales affichÃ©es"
+
+# contributors:Hamza Rarou
+msgid "Displayed decimals places"
+msgstr "Nombre de dÃ©cimales affichÃ©es"
+
+# contributors:Hamza Rarou
+msgid "Dissolve"
+msgstr "Regrouper"
+
+# contributors:Hamza Rarou
+msgid "Dissolve - "
+msgstr "Regrouper - "
+
+# contributors:Hamza Rarou
+msgid "Dissolve does not work with Table only datasource."
+msgstr "Le regroupement ne fonctionne pas avec une source de donnÃ©es uniquement de type Table."
+
+# contributors:Hamza Rarou
+msgid "Dissolve only works on polygon dataset."
+msgstr "Le regroupement ne fonctionne qu'avec un jeu de donnÃ©es de type polygone."
+
+# contributors:Hamza Rarou
+msgid "Distance"
+msgstr "Distance"
+
+# contributors:Hamza Rarou
+msgid "Distance Function:"
+msgstr "Fonction de Distance:"
+
+# contributors:Hamza Rarou
+msgid "Distance Weight"
+msgstr "Poids de Distance"
+
+# contributors:Hamza Rarou
+msgid "Distance band"
+msgstr "Bande de Distance"
+
+# contributors:Hamza Rarou
+msgid "Distance function:\t"
+msgstr "Fonction de distance:\t"
+
+# contributors:Hamza Rarou
+msgid "Distance metric: "
+msgstr "MÃ©trique de distance: "
+
+# contributors:Hamza Rarou
+msgid "Distance:"
+msgstr "Distance:"
+
+# contributors:Hamza Rarou
+msgid "Do Means Differ? (ANOVA)"
+msgstr "Les Moyennes DiffÃ¨rent-elles ? (ANOVA)"
+
+# contributors:Hamza Rarou
+msgid ""
+"Do you want to save the results of Diff-in-Diff test?\n"
+"\n"
+"Note: the results can only be saved into an external data file, due to the change of cross-sectional observations in a space-time context."
+msgstr ""
+"Voulez-vous enregistrer les rÃ©sultats du test Diff-in-Diff ?\n"
+"\n"
+"Remarque: les rÃ©sultats ne peuvent Ãªtre enregistrÃ©s que dans un fichier de donnÃ©es externe, en raison du changement des observations transversales dans un contexte espace-temps."
+
+# contributors:Hamza Rarou
+msgid "Do you want to save your data?"
+msgstr "Voulez-vous enregistrer vos donnÃ©es?"
+
+# contributors:Hamza Rarou
+msgid "Don't show Recent/Sample Data panel again"
+msgstr "Ne plus afficher le panneau DonnÃ©es rÃ©centes/Exemple"
+
+# contributors:Hamza Rarou
+msgid "Don't show this dialog again (You can always change this setting using menu: File->Preferences)"
+msgstr "Ne plus afficher cette boÃ®te de dialogue (Vous pouvez toujours modifier ce paramÃ¨tre via le menu: Fichier -> PrÃ©fÃ©rences)"
+
+# contributors:Hamza Rarou
+msgid "Donate"
+msgstr "Faire un don"
+
+# contributors:Hamza Rarou
+msgid "Down"
+msgstr "Descendre"
+
+# contributors:Hamza Rarou
+msgid "Download OSM Roads"
+msgstr "TÃ©lÃ©charger les routes OSM"
+
+# contributors:Hamza Rarou
+msgid "Downloading updates..."
+msgstr "TÃ©lÃ©chargement des mises Ã  jour..."
+
+# contributors:Hamza Rarou
+msgid "Duplicate IDs"
+msgstr "Identifiants en Double"
+
+# contributors:Hamza Rarou
+msgid "Duplicate Thiessen Polygons Found"
+msgstr "Doublons de polygones de Thiessen trouvÃ©s"
+
+# contributors:Hamza Rarou
+msgid "Duplicate Thiessen polygons exist due to duplicate or near-duplicate map points. Please try to export current dataset without duplicates."
+msgstr "Des polygones de Thiessen en double existent en raison de points de carte dupliquÃ©s ou quasi-dupliquÃ©s. Veuillez essayer d'exporter le jeu de donnÃ©es actuel sans doublons."
+
+# contributors:Hamza Rarou
+msgid "Duplicate Thiessen polygons exist due to duplicate or near-duplicate map points. Press OK to save duplicate polygon ids to Table."
+msgstr "Des polygones de Thiessen en double existent en raison de points de carte dupliquÃ©s ou quasi-dupliquÃ©s. Appuyez sur OK pour enregistrer les identifiants de polygone en double dans la Table."
+
+# contributors:Hamza Rarou
+msgid "Duplicate variable names specified."
+msgstr "Noms de variables en double spÃ©cifiÃ©s."
+
+# contributors:Hamza Rarou
+msgid "E&xplore"
+msgstr "E&xplorer"
+
+# contributors:Hamza Rarou
+msgid "ESRI File Geodatabase (*.gdb)|*.gdb"
+msgstr "ESRI File Geodatabase (*.gdb)|*.gdb"
+
+# contributors:Hamza Rarou
+msgid "ESRI Personal Geodatabase (*.mdb)|*.mdb"
+msgstr "ESRI Personal Geodatabase (*.mdb)|*.mdb"
+
+# contributors:Hamza Rarou
+msgid "ESRI Shapefile (*.shp)|*.shp"
+msgstr "ESRI Shapefile (*.shp)|*.shp"
+
+# contributors:Hamza Rarou
+msgid "Edit"
+msgstr "Modifier"
+
+# contributors:Hamza Rarou
+msgid "Edit Custom Breaks"
+msgstr "Modifier les Intervalles personnalisÃ©s"
+
+# contributors:Hamza Rarou
+msgid "Edit LOWESS Parameters"
+msgstr "Modifier les paramÃ¨tres LOWESS"
+
+# contributors:Hamza Rarou
+msgid "Edit Title"
+msgstr "Modifier le Titre"
+
+# contributors:Hamza Rarou
+msgid "Edit Variable Properties"
+msgstr "Modifier les PropriÃ©tÃ©s de la Variable"
+
+# contributors:Hamza Rarou
+msgid "Emp Bayes Rate Std Moran's I (%s): %s / %s"
+msgstr "Taux Emp Bayes Std Moran's I (%s): %s / %s"
+
+# contributors:Hamza Rarou
+msgid "Empirical Bayes"
+msgstr "Bayes Empirique"
+
+# contributors:Hamza Rarou
+msgid "Empirical Bayes Rate Standardization Variables"
+msgstr "Variables de Standardisation du Taux Empirique Bayes"
+
+# contributors:Hamza Rarou
+msgid "Empirical Bayes Smoothed Variable Settings"
+msgstr "ParamÃ¨tres de Lissage BayÃ©sien Empirique des Variables"
+
+# contributors:Hamza Rarou
+msgid "Empirical Spatial Rate Smoothed Variable Settings"
+msgstr "ParamÃ¨tres de Lissage du Taux Spatial Empirique"
+
+# contributors:Hamza Rarou
+msgid "Enable High DPI/Retina support (Mac only):"
+msgstr "Activer la prise en charge Haute DPI/Retina (uniquement sur Mac):"
+
+# contributors:Hamza Rarou
+msgid "Enable User Defined Value Range of Y-Axis"
+msgstr "Activer la Plage de Valeurs DÃ©finie par l'Utilisateur sur l'Axe Y"
+
+# contributors:Hamza Rarou
+msgid "Enable transparency setup of category color in map (Windows only):"
+msgstr "Activer la configuration de la transparence des couleurs de catÃ©gorie sur la carte (uniquement sur Windows):"
+
+# contributors:Hamza Rarou
+msgid "Encode"
+msgstr "Encoder"
+
+# contributors:Hamza Rarou
+msgid "Enter a seed value"
+msgstr "Saisir une valeur de dÃ©part"
+
+# contributors:Hamza Rarou
+msgid "Enter a seed value for random number generator:"
+msgstr "Saisir une valeur de dÃ©part pour le gÃ©nÃ©rateur de nombres alÃ©atoires:"
+
+# contributors:Hamza Rarou
+msgid "Enter new ID variable name:"
+msgstr "Saisir un nouveau nom de variable ID:"
+
+# contributors:Hamza Rarou
+msgid "Equal Intervals"
+msgstr "Intervalles Ã©gaux"
+
+# contributors:Hamza Rarou
+msgid "Equal Intervals Map"
+msgstr "Carte des Intervalles Ã©gaux"
+
+# contributors:Hamza Rarou
+msgid "Error"
+msgstr "Erreur"
+
+# contributors:Hamza Rarou
+msgid ""
+"Error while opening project:\n"
+"\n"
+msgstr ""
+"Erreur lors de l'ouverture du projet:\n"
+"\n"
+
+# contributors:Hamza Rarou
+msgid "Error: "
+msgstr "Erreur: "
+
+# contributors:Hamza Rarou
+msgid "Error: Base values contain non-positive numbers which will result in undefined values."
+msgstr "Erreur: Les valeurs de base contiennent des nombres non positifs, ce qui entraÃ®nera des valeurs indÃ©finies."
+
+# contributors:Hamza Rarou
+msgid "Error: Chosen theme requires more cateogries than observations."
+msgstr "Erreur: Le thÃ¨me choisi nÃ©cessite plus de catÃ©gories que d'observations."
+
+# contributors:Hamza Rarou
+msgid "Error: Due to restrictions on the DBF file format, the particular combination of length and decimals entered is not valid.  Based on your current choices, we recommend length = %d and decimals = %d"
+msgstr "Erreur: En raison des restrictions du format de fichier DBF, la combinaison spÃ©cifique de longueur et de dÃ©cimales saisie n'est pas valide. En fonction de vos choix actuels, nous recommandons une longueur de %d et %d dÃ©cimales"
+
+# contributors:Hamza Rarou
+msgid "Error: Maximum number of neighbors %d exceeded."
+msgstr "Erreur: Le nombre maximum de voisins %d est dÃ©passÃ©."
+
+# contributors:Hamza Rarou
+msgid "Error: The table variable name is empty."
+msgstr "Erreur: Le nom de la variable de table est vide."
+
+# contributors:Hamza Rarou
+msgid "Error: \"%s\" already exists in Table, please specify a different name."
+msgstr "Erreur: \"%s\" existe dÃ©jÃ  dans la Table, veuillez spÃ©cifier un nom diffÃ©rent."
+
+# contributors:Hamza Rarou
+msgid "Error: \"%s\" is an invalid variable name. The first character must be alphabetic, and the remaining characters can be either alphanumeric or underscores. For DBF table, a valid variable name is between one and ten characters long."
+msgstr "Erreur: \"%s\" est un nom de variable invalide. Le premier caractÃ¨re doit Ãªtre alphabÃ©tique et les caractÃ¨res suivants peuvent Ãªtre alphanumÃ©riques ou des traits de soulignement. Pour une table DBF, un nom de variable valide comporte entre un et dix caractÃ¨res."
+
+# contributors:Hamza Rarou
+msgid "Error: \"%s\" not found."
+msgstr "Erreur: \"%s\" introuvable."
+
+# contributors:Hamza Rarou
+msgid "Error: no records found in data source."
+msgstr "Erreur: aucun enregistrement trouvÃ© dans la source de donnÃ©es."
+
+# contributors:Hamza Rarou
+msgid "Error: the inverse matrix is ill-conditioned."
+msgstr "Erreur: la matrice inverse est mal conditionnÃ©e."
+
+# contributors:Hamza Rarou
+msgid "Estimated Pairs:"
+msgstr "Paires EstimÃ©es:"
+
+# contributors:Hamza Rarou
+msgid "Euclidean Distance"
+msgstr "Distance Euclidienne"
+
+# contributors:Hamza Rarou
+msgid "Event Variable"
+msgstr "Variable d'EvÃ©nement"
+
+# contributors:Hamza Rarou
+msgid "Excess Risk"
+msgstr "Risque ExcÃ©dentaire"
+
+# contributors:Hamza Rarou
+msgid "Excess Risk Map Variable Settings"
+msgstr "ParamÃ¨tres de variable de carte de risque excÃ©dentaire"
+
+# contributors:Hamza Rarou
+msgid "Exclude"
+msgstr "Exclure"
+
+# contributors:Hamza Rarou
+msgid "Existing Variables"
+msgstr "Variables Existantes"
+
+# contributors:Hamza Rarou
+msgid "Exit"
+msgstr "Quitter"
+
+# contributors:Hamza Rarou
+msgid "Exit with unsaved changes?"
+msgstr "Quitter avec des modifications non enregistrÃ©es?"
+
+# contributors:Hamza Rarou
+msgid "Exit?"
+msgstr "Quitter?"
+
+# contributors:Hamza Rarou
+msgid "Explore"
+msgstr "Explorer"
+
+# contributors:Hamza Rarou
+msgid "Export or save layer to"
+msgstr "Exporter ou enregistrer la couche sous"
+
+# contributors:Hamza Rarou
+msgid "Exporting Shape to Boundary"
+msgstr "Exportation de la Forme vers une Limite"
+
+# contributors:Hamza Rarou
+msgid "Expression"
+msgstr "Expression"
+
+# contributors:Hamza Rarou
+msgid "Extent"
+msgstr "Ãtendue"
+
+# contributors:Hamza Rarou
+msgid "Fail in reading the Boundary file: at polygon-%d"
+msgstr "Ãchec de la lecture du Fichier de Limite: Ã  partir du polygone-%d"
+
+# contributors:Hamza Rarou
+msgid "Failed to create the weights file."
+msgstr "Impossible de crÃ©er le fichier de pondÃ©ration."
+
+# contributors:Hamza Rarou
+msgid ""
+"Failed to open data source. Please check the data/datasource and check if the data type/format is supported by GeoDa.\n"
+"\n"
+"Tip: you can set up the necessary GeoDa driver by following the instructions at:\n"
+" http://geodacenter.github.io/formats.html"
+msgstr ""
+"Impossible d'ouvrir la source de donnÃ©es. Veuillez vÃ©rifier les donnÃ©es/la source de donnÃ©es et vÃ©rifier si le type/format des donnÃ©es est pris en charge par GeoDa.\n"
+"\n"
+"Conseil: vous pouvez configurer le pilote GeoDa nÃ©cessaire en suivant les instructions sur:\n"
+" http://geodacenter.github.io/formats.html"
+
+# contributors:Hamza Rarou
+msgid "False Discovery Rate:"
+msgstr "Taux de Fausses DÃ©couvertes:"
+
+# contributors:Hamza Rarou
+msgid "February"
+msgstr "FÃ©vrier"
+
+# contributors:Hamza Rarou
+msgid "Field (%s) already exited."
+msgstr "Champ (%s) dÃ©jÃ  existant."
+
+# contributors:Hamza Rarou
+msgid "File"
+msgstr "Fichier"
+
+# contributors:Hamza Rarou
+msgid "File Path"
+msgstr "Chemin du Fichier"
+
+# contributors:Hamza Rarou
+msgid "File doesn't exist!"
+msgstr "Le fichier n'existe pas!"
+
+# contributors:Hamza Rarou
+msgid "File merged into Table successfully."
+msgstr "Le fichier a Ã©tÃ© fusionnÃ© avec succÃ¨s dans la Table."
+
+# contributors:Hamza Rarou
+msgid "Fill Color"
+msgstr "Couleur de remplissage"
+
+# contributors:Hamza Rarou
+msgid "Fill Color for Category"
+msgstr "Couleur de Remplissage par CatÃ©gorie"
+
+# contributors:Hamza Rarou
+msgid "Fill Opacity for Category"
+msgstr "OpacitÃ© de Remplissage par CatÃ©gorie"
+
+# contributors:Hamza Rarou
+msgid "Finished"
+msgstr "TerminÃ©"
+
+# contributors:Hamza Rarou
+msgid "First Variable (X)"
+msgstr "PremiÃ¨re variable (X)"
+
+# contributors:Hamza Rarou
+msgid "First Variable (X/Longitude)"
+msgstr "PremiÃ¨re variable (X/Longitude)"
+
+# contributors:Hamza Rarou
+msgid "First line of CSV is variable names?"
+msgstr "La premiÃ¨re ligne du fichier CSV contient les noms des variables ?"
+
+# contributors:Hamza Rarou
+msgid "First row of CSV file"
+msgstr "PremiÃ¨re ligne du fichier CSV"
+
+# contributors:Hamza Rarou
+msgid "Fit-To-Window Mode"
+msgstr "Mode Ajuster Ã  la fenÃªtre"
+
+# contributors:Hamza Rarou
+msgid "Fixed Aspect Ratio Mode"
+msgstr "Mode Rapport d'aspect fixe"
+
+# contributors:Hamza Rarou
+msgid "Fixed scale over time"
+msgstr "Ãchelle fixe au fil du temps"
+
+# contributors:Hamza Rarou
+msgid "Fixed x-axis scale over time"
+msgstr "Ãchelle fixe de l'axe x au fil du temps"
+
+# contributors:Hamza Rarou
+msgid "Fixed y-axis scale over time"
+msgstr "Ãchelle fixe de l'axe y au fil du temps"
+
+# contributors:Hamza Rarou
+msgid "Fourth Variable"
+msgstr "QuatriÃ¨me variable"
+
+# contributors:Hamza Rarou
+msgid "Frequency"
+msgstr "FrÃ©quence"
+
+# contributors:Hamza Rarou
+msgid "Full Extent"
+msgstr "Ãtendue ComplÃ¨te"
+
+# contributors:Hamza Rarou
+msgid "GAL files (*.gal)|*.gal"
+msgstr "Fichiers GAL (*.gal)|*.gal"
+
+# contributors:Hamza Rarou
+msgid "GWT files (*.gwt)|*.gwt"
+msgstr "Fichiers GWT (*.gwt)|*.gwt"
+
+# contributors:Hamza Rarou
+msgid "GeoDa Bug Report Dialog"
+msgstr "Dialogue de Rapport de Bug GeoDa"
+
+# contributors:Hamza Rarou
+msgid "GeoDa CSV File Configuration"
+msgstr "Configuration du Fichier CSV GeoDa"
+
+# contributors:Hamza Rarou
+msgid "GeoDa Help"
+msgstr "Aide GeoDa"
+
+# contributors:Hamza Rarou
+msgid "GeoDa Preference Setup"
+msgstr "Configuration des PrÃ©fÃ©rences de GeoDa"
+
+# contributors:Hamza Rarou
+msgid "GeoDa Project (*.gda)|*.gda"
+msgstr "Projet GeoDa (*.gda)|*.gda"
+
+# contributors:Hamza Rarou
+msgid "GeoDa Project File (*.gda)|*.gda"
+msgstr "Fichier de Projet GeoDa (*.gda)|*.gda"
+
+# contributors:Hamza Rarou
+msgid "GeoDa Project File to Open"
+msgstr "Fichier de Projet GeoDa Ã  Ouvrir"
+
+# contributors:Hamza Rarou
+msgid "GeoDa Project to Save As"
+msgstr "Projet GeoDa Ã  Enregistrer Sous"
+
+# contributors:Hamza Rarou
+msgid "GeoDa Update Dialog"
+msgstr "Dialogue de Mise Ã  Jour de GeoDa"
+
+# contributors:Hamza Rarou
+msgid "GeoDa can not get valid spatial reference from input data source. Please try another data source."
+msgstr "GeoDa ne peut pas obtenir de rÃ©fÃ©rence spatiale valide Ã  partir de la source de donnÃ©es d'entrÃ©e. Veuillez essayer une autre source de donnÃ©es."
+
+# contributors:Hamza Rarou
+msgid "GeoDa can not open the input data source. Please try another data source."
+msgstr "GeoDa ne peut pas ouvrir la source de donnÃ©es d'entrÃ©e. Veuillez essayer une autre source de donnÃ©es."
+
+# contributors:Hamza Rarou
+msgid "GeoDa can't change the variable type to DATE/TIME. Please select another type."
+msgstr "GeoDa ne peut pas changer le type de variable en DATE/HEURE. Veuillez sÃ©lectionner un autre type."
+
+# contributors:Hamza Rarou
+msgid "GeoDa can't create a layer."
+msgstr "GeoDa ne peut pas crÃ©er une couche."
+
+# contributors:Hamza Rarou
+msgid "GeoDa can't load dataset with duplicate field names."
+msgstr "GeoDa ne peut pas charger un jeu de donnÃ©es avec des noms de champ en double."
+
+# contributors:Hamza Rarou
+msgid ""
+"GeoDa can't read data from datasource. \n"
+"\n"
+"Details: Datasource is empty."
+msgstr ""
+"GeoDa ne peut pas lire les donnÃ©es de la source de donnÃ©es. \n"
+"\n"
+"DÃ©tails: la Source de donnÃ©es est vide."
+
+# contributors:Hamza Rarou
+msgid "GeoDa can't save a Table-only data source as a Geometry enabled data source. Please try to add a geometry layer and then use File->Save As."
+msgstr "GeoDa ne peut pas enregistrer une source de donnÃ©es uniquement sous forme de Table en tant que source de donnÃ©es avec gÃ©omÃ©trie. Veuillez essayer d'ajouter une couche de gÃ©omÃ©trie, puis utilisez Fichier->Enregistrer sous."
+
+# contributors:Hamza Rarou
+msgid "GeoDa can't save changes to this datasource. Please try to use File->Export."
+msgstr "GeoDa ne peut pas enregistrer les modifications apportÃ©es Ã  cette source de donnÃ©es. Veuillez essayer d'utiliser Fichier->Exporter."
+
+# contributors:Hamza Rarou
+msgid "GeoDa cannot find proper projection or geographic coordinate system information to add a basemap. Please update this information (e.g. in .prj file)."
+msgstr "GeoDa ne peut pas trouver les informations de projection ou de systÃ¨me de coordonnÃ©es gÃ©ographiques appropriÃ©es pour ajouter une carte de base. Veuillez mettre Ã  jour ces informations (par exemple, dans le fichier .prj)."
+
+# contributors:Hamza Rarou
+msgid "GeoDa could not find the required weights file."
+msgstr "GeoDa n'a pas trouvÃ© le fichier de pondÃ©ration requis."
+
+# contributors:Hamza Rarou
+msgid ""
+"GeoDa could not find the required weights file. \n"
+"Please specify weights in Tools > Weights Manager."
+msgstr ""
+"GeoDa n'a pas trouvÃ© le fichier de pondÃ©ration requis. \n"
+"Veuillez spÃ©cifier les pondÃ©rations dans Outils > Gestion des pondÃ©rations."
+
+# contributors:Hamza Rarou
+msgid "GeoDa could not load this layer. Please check if the datasource is valid and not table only."
+msgstr "GeoDa n'a pas pu charger cette couche. Veuillez vÃ©rifier si la source de donnÃ©es est valide et non seulement une Table."
+
+# contributors:Hamza Rarou
+msgid "GeoDa does not support creating data of %s. Please try to 'Export' to other supported data source format."
+msgstr "GeoDa ne prend pas en charge la crÃ©ation de donnÃ©es de type %s. Veuillez essayer d'exporter vers un autre format de source de donnÃ©es pris en charge."
+
+# contributors:Hamza Rarou
+msgid "GeoDa does not support datasource with line data at this time.  Please choose a datasource with either point or polygon data."
+msgstr "GeoDa ne prend pas en charge les sources de donnÃ©es avec des donnÃ©es linÃ©aires pour le moment. Veuillez choisir une source de donnÃ©es avec des donnÃ©es de points ou polygonales."
+
+# contributors:Hamza Rarou
+msgid "GeoDa has run into a problem and will close."
+msgstr "GeoDa a rencontrÃ© un problÃ¨me et va se fermer."
+
+# contributors:Hamza Rarou
+msgid "GeoDa maj.min.bld (type), day month year"
+msgstr "GeoDa maj.min.bld (type), jour mois annÃ©e"
+
+# contributors:Hamza Rarou
+msgid "GeoDa was unable to save the file."
+msgstr "GeoDa n'a pas pu enregistrer le fichier."
+
+# contributors:Hamza Rarou
+msgid "GeoJSON (*.geojson;*.json)|*.geojson;*.json"
+msgstr "GeoJSON (*.geojson;*.json)|*.geojson;*.json"
+
+# contributors:Hamza Rarou
+msgid "GeoJson URL"
+msgstr "URL GeoJSON"
+
+# contributors:Hamza Rarou
+msgid "GeoPackage (*.gpkg)|*.gpkg"
+msgstr "GeoPackage (*.gpkg)|*.gpkg"
+
+# contributors:Hamza Rarou
+msgid "Geography Markup Language (*.gml)|*.gml"
+msgstr "Geography Markup Language (*.gml)|*.gml"
+
+# contributors:Hamza Rarou
+msgid "Geometric centroids"
+msgstr "CentroÃ¯des gÃ©omÃ©triques"
+
+# contributors:Hamza Rarou
+msgid "Geometries have been added to existing Table-only data source. Do you want to save them as a new datasource?"
+msgstr "Les gÃ©omÃ©tries ont Ã©tÃ© ajoutÃ©es Ã  la source de donnÃ©es existante uniquement sous forme de Table. Voulez-vous les enregistrer sous forme d'une nouvelle source de donnÃ©es?"
+
+# contributors:Hamza Rarou
+msgid "Geometries not saved"
+msgstr "GÃ©omÃ©tries non enregistrÃ©es"
+
+# contributors:Hamza Rarou
+msgid "Get a free Carto account: "
+msgstr "Obtenez un compte gratuit Carto: "
+
+# contributors:Hamza Rarou
+msgid "Get a free GeoDa-Web account: "
+msgstr "Obtenez un compte gratuit GeoDa-Web: "
+
+# contributors:Hamza Rarou
+msgid "Get a free Nokia/HERE account: "
+msgstr "Obtenez un compte gratuit Nokia/HERE: "
+
+# contributors:Hamza Rarou
+msgid "Getis-Ord"
+msgstr "Getis-Ord"
+
+# contributors:Hamza Rarou
+msgid "Gi cluster map, pseudo p-val"
+msgstr "Carte des clusters Gi, pseudo valeur-p"
+
+# contributors:Hamza Rarou
+msgid "Gi* cluster map, pseudo p-val"
+msgstr "Carte des clusters Gi*, pseudo valeur-p"
+
+# contributors:Hamza Rarou
+msgid "Greedy"
+msgstr "Gourmand"
+
+# contributors:Hamza Rarou
+msgid "Greek (ISO-8859-7)"
+msgstr "Grec (ISO-8859-7)"
+
+# contributors:Hamza Rarou
+msgid "Grid Bounding Box"
+msgstr "BoÃ®te Englobante de la Grille"
+
+# contributors:Hamza Rarou
+msgid "Grid Size"
+msgstr "Taille de la Grille"
+
+# contributors:Hamza Rarou
+msgid "Grid file was successfully created."
+msgstr "Le fichier de grille a Ã©tÃ© crÃ©Ã© avec succÃ¨s."
+
+# contributors:Hamza Rarou
+msgid "Group"
+msgstr "Groupe"
+
+# contributors:Hamza Rarou
+msgid "Group 1:"
+msgstr "Groupe 1:"
+
+# contributors:Hamza Rarou
+msgid "Group 2:"
+msgstr "Groupe 2:"
+
+# contributors:Hamza Rarou
+msgid "Group Variable:"
+msgstr "Variable de groupe:"
+
+# contributors:Hamza Rarou
+msgid "Grouped Variables"
+msgstr "Variables groupÃ©es"
+
+# contributors:Hamza Rarou
+msgid "Groups:"
+msgstr "Groupes:"
+
+# contributors:Hamza Rarou
+msgid "HDBScan"
+msgstr "HDBScan"
+
+# contributors:Hamza Rarou
+msgid "HDBScan Cluster Map (%d clusters)"
+msgstr "Carte des Clusters HDBScan (%d clusters)"
+
+# contributors:Hamza Rarou
+msgid "HDBScan Clustering Settings"
+msgstr "ParamÃ¨tres de Regroupement HDBScan"
+
+# contributors:Hamza Rarou
+msgid "HERE App ID"
+msgstr "Identifiant de l'Application HERE"
+
+# contributors:Hamza Rarou
+msgid "HERE App Key"
+msgstr "ClÃ© de l'Application HERE"
+
+# contributors:Hamza Rarou
+msgid "Has Colocation"
+msgstr "PossÃ¨de une Colocalisation"
+
+# contributors:Hamza Rarou
+msgid "Hebrew (ISO-8859-8-1)"
+msgstr "HÃ©breu (ISO-8859-8-1)"
+
+# contributors:Hamza Rarou
+msgid "Hebrew (Windows-1255)"
+msgstr "HÃ©breu (Windows-1255)"
+
+# contributors:Hamza Rarou
+msgid "Height:"
+msgstr "Hauteur:"
+
+# contributors:Hamza Rarou
+msgid "Help"
+msgstr "Aide"
+
+# contributors:Hamza Rarou
+msgid "Hide Map"
+msgstr "Cacher la carte"
+
+# contributors:Hamza Rarou
+msgid "Hide system table in Postgresql connection:"
+msgstr "Masquer les tables systÃ¨me dans la connexion Postgresql:"
+
+# contributors:Hamza Rarou
+msgid "Hide system table in SQLITE connection:"
+msgstr "Masquer les tables systÃ¨me dans la connexion SQLITE:"
+
+# contributors:Hamza Rarou
+msgid "Hierachical Map does not work with Table only datasource."
+msgstr "La carte hiÃ©rarchique ne fonctionne pas avec une source de donnÃ©es uniquement sous forme de Table."
+
+# contributors:Hamza Rarou
+msgid "Hierachical Map: "
+msgstr "Carte hiÃ©rarchique: "
+
+# contributors:Hamza Rarou
+msgid "Hierarchical"
+msgstr "HiÃ©rarchique"
+
+# contributors:Hamza Rarou
+msgid "Hierarchical Clustering Settings"
+msgstr "ParamÃ¨tres de Regroupement HiÃ©rarchique"
+
+# contributors:Hamza Rarou
+msgid "Hierarchical Map"
+msgstr "Carte HiÃ©rarchique"
+
+# contributors:Hamza Rarou
+msgid "High"
+msgstr "ÃlevÃ©"
+
+# contributors:Hamza Rarou
+msgid "High-High"
+msgstr "ÃlevÃ©-ÃlevÃ©"
+
+# contributors:Hamza Rarou
+msgid "High-Low"
+msgstr "ÃlevÃ©-Faible"
+
+# contributors:Hamza Rarou
+msgid "Highlight Color"
+msgstr "Couleur de Surbrillance"
+
+# contributors:Hamza Rarou
+msgid "Hinge"
+msgstr "CharniÃ¨re"
+
+# contributors:Hamza Rarou
+msgid "Hinge=1.5"
+msgstr "CharniÃ¨re=1.5"
+
+# contributors:Hamza Rarou
+msgid "Hinge=3.0"
+msgstr "CharniÃ¨re=3.0"
+
+# contributors:Hamza Rarou
+msgid "Histogram"
+msgstr "Histogramme"
+
+# contributors:Hamza Rarou
+msgid "Histogram Classification"
+msgstr "Classification de l'Histogramme"
+
+# contributors:Hamza Rarou
+msgid "Histogram Variable"
+msgstr "Variable de l'Histogramme"
+
+# contributors:Hamza Rarou
+msgid "Histogram: "
+msgstr "Histogramme: "
+
+# contributors:Hamza Rarou
+msgid "Horizontal Bins Breaks"
+msgstr "Intervalles de Classe Horizontaux"
+
+# contributors:Hamza Rarou
+msgid "Horizontal Cells"
+msgstr "Cellules Horizontales"
+
+# contributors:Hamza Rarou
+msgid "Http connection timeout (seconds) for e.g. WFS, Geojson etc.:"
+msgstr "DÃ©lai d'expiration de la connexion HTTP (en secondes) pour, par exemple, WFS, Geojson, etc.:"
+
+# contributors:Hamza Rarou
+msgid "ID is not specified!"
+msgstr "L'ID n'est pas spÃ©cifiÃ©!"
+
+# contributors:Hamza Rarou
+msgid "Image Dimension Settings"
+msgstr "ParamÃ¨tres de Dimension de l'Image"
+
+# contributors:Hamza Rarou
+msgid "Improve Cartogram"
+msgstr "AmÃ©liorer le Cartogramme"
+
+# contributors:Hamza Rarou
+msgid "Include"
+msgstr "Inclure"
+
+# contributors:Hamza Rarou
+msgid "Include Variable Names"
+msgstr "Inclure les Noms de Variables"
+
+# contributors:Hamza Rarou
+msgid "Include diagonal of weights matrix"
+msgstr "Inclure la diagonale de la matrice de pondÃ©ration"
+
+# contributors:Hamza Rarou
+msgid "Include lower orders"
+msgstr "Inclure les ordres infÃ©rieurs"
+
+# contributors:Hamza Rarou
+msgid "Incomplete Group Variable"
+msgstr "Variable de Groupe incomplÃ¨te"
+
+# contributors:Hamza Rarou
+msgid "Independent Var (x-axis)"
+msgstr "Var IndÃ©pendante (l'axe x)"
+
+# contributors:Hamza Rarou
+msgid "Independent Var X"
+msgstr "Variable indÃ©pendante X"
+
+# contributors:Hamza Rarou
+msgid "Inference Settings"
+msgstr "ParamÃ¨tres d'InfÃ©rence"
+
+# contributors:Hamza Rarou
+msgid "Inference Settings (%d perm)"
+msgstr "ParamÃ¨tres d'InfÃ©rence (%d perm)"
+
+# contributors:Hamza Rarou
+msgid "Info"
+msgstr "Infos"
+
+# contributors:Hamza Rarou
+msgid "Information"
+msgstr "Information"
+
+# contributors:Hamza Rarou
+msgid "Initial Groups:"
+msgstr "Groupes Initiaux:"
+
+# contributors:Hamza Rarou
+msgid "Initial groups:\t"
+msgstr "Groupes Initiaux:\t"
+
+# contributors:Hamza Rarou
+msgid "Initialization Method:"
+msgstr "MÃ©thode d'Initialisation:"
+
+# contributors:Hamza Rarou
+msgid "Initialization Re-runs:"
+msgstr "RÃ©exÃ©cutions de l'initialisation:"
+
+# contributors:Hamza Rarou
+msgid "Initialization method:\t"
+msgstr "MÃ©thode d'initialisation:\t"
+
+# contributors:Hamza Rarou
+msgid "Initialization re-runs:\t"
+msgstr "RÃ©exÃ©cutions de l'initialisation:\t"
+
+# contributors:Hamza Rarou
+msgid "Input"
+msgstr "EntrÃ©e"
+
+# contributors:Hamza Rarou
+msgid "Input ASCII file"
+msgstr "Fichier ASCII d'entrÃ©e"
+
+# contributors:Hamza Rarou
+msgid "Input data source"
+msgstr "Source de donnÃ©es d'entrÃ©e"
+
+# contributors:Hamza Rarou
+msgid "Input datasource"
+msgstr "Source de donnÃ©es d'entrÃ©e"
+
+# contributors:Hamza Rarou
+msgid "Input file "
+msgstr "Fichier d'entrÃ©e "
+
+# contributors:Hamza Rarou
+msgid "Input file (text file)"
+msgstr "Fichier d'entrÃ©e (fichier texte)"
+
+# contributors:Hamza Rarou
+msgid "Input is duplicated."
+msgstr "L'entrÃ©e est en double."
+
+# contributors:Hamza Rarou
+msgid "Input is not valid."
+msgstr "L'entrÃ©e n'est pas valide."
+
+# contributors:Hamza Rarou
+msgid "Input is required"
+msgstr "L'entrÃ©e est requise"
+
+# contributors:Hamza Rarou
+msgid "Input significance:"
+msgstr "Signification de l'entrÃ©e:"
+
+# contributors:Hamza Rarou
+msgid "Input:"
+msgstr "EntrÃ©e:"
+
+# contributors:Hamza Rarou
+msgid "Insert before"
+msgstr "InsÃ©rer avant"
+
+# contributors:Hamza Rarou
+msgid "Insufficient Random Sampling"
+msgstr "Ãchantillonnage AlÃ©atoire insuffisant"
+
+# contributors:Hamza Rarou
+msgid ""
+"Internal Error: Add new field (%s) failed.\n"
+"\n"
+"Details:%s"
+msgstr ""
+"Erreur interne: Ãchec de l'ajout du nouveau champ (%s).\n"
+"\n"
+"DÃ©tails: %s"
+
+# contributors:Hamza Rarou
+msgid ""
+"Internal Error: Delete field failed.\n"
+"\n"
+"Details:"
+msgstr ""
+"Erreur interne: Ãchec de la suppression du champ.\n"
+"\n"
+"DÃ©tails:"
+
+# contributors:Hamza Rarou
+msgid "Internal Error: can't update an in-memory cell."
+msgstr "Erreur interne: impossible de mettre Ã  jour une cellule en mÃ©moire."
+
+# contributors:Hamza Rarou
+msgid "Intervals"
+msgstr "Intervalles"
+
+# contributors:Hamza Rarou
+msgid "Intervals in the Histogram"
+msgstr "Intervalles dans l'histogramme"
+
+# contributors:Hamza Rarou
+msgid "Invalid Variable"
+msgstr "Variable non valide"
+
+# contributors:Hamza Rarou
+msgid ""
+"Invalid Weights Information:\n"
+"\n"
+" The selected weights file is not valid.\n"
+" Please choose another weights file, or use Tools > Weights > Weights Manager to define a valid weights file."
+msgstr ""
+"Informations de pondÃ©ration non valides:\n"
+"\n"
+"Le fichier de pondÃ©ration sÃ©lectionnÃ© n'est pas valide.\n"
+"Veuillez choisir un autre fichier de pondÃ©ration ou utiliser Outils > PondÃ©rations > Gestionnaire de pondÃ©rations pour dÃ©finir un fichier de pondÃ©ration valide."
+
+# contributors:Hamza Rarou
+msgid ""
+"Invalid Weights Information:\n"
+"\n"
+" The selected weights file is not valid.\n"
+" Please choose another weights file, or use Tools > Weights > Weights Manager\n"
+" to define a valid weights file."
+msgstr ""
+"Informations de pondÃ©ration non valides:\n"
+"\n"
+"Le fichier de pondÃ©ration sÃ©lectionnÃ© n'est pas valide.\n"
+"Veuillez choisir un autre fichier de pondÃ©ration ou utiliser Outils > PondÃ©rations > Gestionnaire de pondÃ©rations\n"
+"pour dÃ©finir un fichier de pondÃ©ration valide."
+
+# contributors:Hamza Rarou
+msgid "Invalid layer association has been detected, which will cause infinite highlighting loop. Please try to reset highlight association between layers."
+msgstr "Une association de couches invalide a Ã©tÃ© dÃ©tectÃ©e, ce qui entraÃ®nera une boucle de mise en Ã©vidence infinie. Veuillez rÃ©initialiser l'association de mise en Ã©vidence entre les couches."
+
+# contributors:Hamza Rarou
+msgid "Invert Select"
+msgstr "SÃ©lection inverse"
+
+# contributors:Hamza Rarou
+msgid "Invert Selection"
+msgstr "Inverser la sÃ©lection"
+
+# contributors:Hamza Rarou
+msgid ""
+"It looks like GeoDa has been terminated abnormally. \n"
+"Do you want to send a crash report to GeoDa team? \n"
+"\n"
+"(Optional) Please leave your email address,\n"
+"so we can send a follow-up email once we have a fix."
+msgstr ""
+"Il semble que GeoDa ait Ã©tÃ© fermÃ© de maniÃ¨re anormale. \n"
+"Voulez-vous envoyer un rapport de plantage Ã  l'Ã©quipe de GeoDa ? \n"
+"\n"
+"(Facultatif) Veuillez laisser votre adresse e-mail,\n"
+"de maniÃ¨re Ã  ce que nous puissions vous envoyer un e-mail de suivi une fois que nous aurons rÃ©solu le problÃ¨me."
+
+# contributors:Hamza Rarou
+msgid "Iterations:"
+msgstr "ItÃ©rations:"
+
+# contributors:Hamza Rarou
+msgid "January"
+msgstr "Janvier"
+
+# contributors:Hamza Rarou
+msgid "Japanese (EUC-JP)"
+msgstr "Japanese (EUC-JP)"
+
+# contributors:Hamza Rarou
+msgid "Japanese (Shift&JIS)"
+msgstr "Japanese (Shift&JIS)"
+
+# contributors:Hamza Rarou
+msgid "Japanese (Shift_JIS)"
+msgstr "Japanese (Shift_JIS)"
+
+# contributors:Hamza Rarou
+msgid "Join Operation:"
+msgstr "OpÃ©ration de jointure:"
+
+# contributors:Hamza Rarou
+msgid "Join Variable:"
+msgstr "Variable de jointure:"
+
+# contributors:Hamza Rarou
+msgid "July"
+msgstr "Juillet"
+
+# contributors:Hamza Rarou
+msgid "June"
+msgstr "Juin"
+
+# contributors:Hamza Rarou
+msgid "K Means"
+msgstr "K-moyennes"
+
+# contributors:Hamza Rarou
+msgid "K Medians"
+msgstr "K-mÃ©dianes"
+
+# contributors:Hamza Rarou
+msgid "K Medoids"
+msgstr "K-mÃ©doides"
+
+# contributors:Hamza Rarou
+msgid "K-Nearest neighbors"
+msgstr "K-Plus Proches voisins"
+
+# contributors:Hamza Rarou
+msgid "KMeans Clustering Settings"
+msgstr "ParamÃ¨tres de la classification K-moyennes"
+
+# contributors:Hamza Rarou
+msgid "KMedians Clustering Settings"
+msgstr "ParamÃ¨tres de la classification K-mÃ©dianes"
+
+# contributors:Hamza Rarou
+msgid "KMedoids Clustering Settings"
+msgstr "ParamÃ¨tres de la classification K-mÃ©doides"
+
+# contributors:Hamza Rarou
+msgid "KWT files (*.kwt)|*.kwt"
+msgstr "Fichiers KWT (*.kwt)|*.kwt"
+
+# contributors:Hamza Rarou
+msgid "Kernel function"
+msgstr "Fonction de noyau"
+
+# contributors:Hamza Rarou
+msgid "Key"
+msgstr "ClÃ©"
+
+# contributors:Hamza Rarou
+msgid "Keyhole Markup Language (*.kml)|*.kml"
+msgstr "Langage de Balisage Keyhole (*.kml)|*.kml"
+
+# contributors:Hamza Rarou
+msgid "Korean (EUC-KR)"
+msgstr "CorÃ©en (EUC-KR)"
+
+# contributors:Hamza Rarou
+msgid "LISA"
+msgstr "LISA"
+
+# contributors:Hamza Rarou
+msgid "LOWESS Smoother"
+msgstr "Suaviseur LOWESS"
+
+# contributors:Hamza Rarou
+msgid "LOWESS Smoother Help"
+msgstr "Aide pour le suaviseur LOWESS"
+
+# contributors:Hamza Rarou
+msgid "LOWESS Smoother Parameters"
+msgstr "ParamÃ¨tres du suaviseur LOWESS"
+
+# contributors:Hamza Rarou
+msgid "Language"
+msgstr "Langage"
+
+# contributors:Hamza Rarou
+msgid "Language:"
+msgstr "Langage:"
+
+# contributors:Hamza Rarou
+msgid "Latitude/Y:"
+msgstr "Latitude/Y:"
+
+# contributors:Hamza Rarou
+msgid "Layer names"
+msgstr "Noms des couches"
+
+# contributors:Hamza Rarou
+msgid "Left"
+msgstr "Gauche"
+
+# contributors:Hamza Rarou
+msgid "Legend Background Color"
+msgstr "Couleur d'arriÃ¨re-plan de la lÃ©gende"
+
+# contributors:Hamza Rarou
+msgid "Length (max 254)"
+msgstr "Longueur (max 254)"
+
+# contributors:Hamza Rarou
+msgid "Light"
+msgstr "LumiÃ¨re"
+
+# contributors:Hamza Rarou
+msgid ""
+"Limited date/time type recognition can be done for Date (YYYY-MM-DD), Time (HH:MM:SS+nn) and DateTime (YYYY-MM-DD HH:MM:SS+nn) in configuration.\n"
+"\n"
+"Please try to load customized date/time type as string and covert it using Table->Edit Variable Property"
+msgstr ""
+"La reconnaissance limitÃ©e du type de date/heure peut Ãªtre effectuÃ©e pour Date (AAAA-MM-JJ), Heure (HH:MM:SS+nn) et DateTime (AAAA-MM-JJ HH:MM:SS+nn) dans la configuration.\n"
+"\n"
+"Veuillez essayer de charger le type de date/heure personnalisÃ© en tant que chaÃ®ne et de le convertir en utilisant Tableau->Modifier les propriÃ©tÃ©s de la variable"
+
+# contributors:Hamza Rarou
+msgid "Line"
+msgstr "Ligne"
+
+# contributors:Hamza Rarou
+msgid "Linear Smoother"
+msgstr "Simplification LinÃ©aire"
+
+# contributors:Hamza Rarou
+msgid ""
+"List of existing ungrouped variables. To group variables by time, move them to the list on the right.\n"
+"\n"
+"For example, to group Pop80 and Pop90, select them on the left and move them to the right."
+msgstr ""
+"Liste des variables non regroupÃ©es existantes. Pour regrouper les variables par temps, dÃ©placez-les vers la liste de droite.\n"
+"\n"
+"Par exemple, pour regrouper Pop80 et Pop90, sÃ©lectionnez-les Ã  gauche et dÃ©placez-les vers la droite."
+
+# contributors:Hamza Rarou
+msgid "Load"
+msgstr "Charger"
+
+# contributors:Hamza Rarou
+msgid "Load CRS from a data source"
+msgstr "Charger le CRS Ã  partir d'une source de donnÃ©es"
+
+# contributors:Hamza Rarou
+msgid "Load Layer Failed."
+msgstr "Ãchec du Chargement de la Couche."
+
+# contributors:Hamza Rarou
+msgid "Load time definition from project file."
+msgstr "Charger la dÃ©finition du temps Ã  partir du fichier de projet."
+
+# contributors:Hamza Rarou
+msgid "Loading data..."
+msgstr "Chargement des donnÃ©es en cours..."
+
+# contributors:Hamza Rarou
+msgid "Local G"
+msgstr "G local"
+
+# contributors:Hamza Rarou
+msgid "Local G Maps"
+msgstr "Cartes G local"
+
+# contributors:Hamza Rarou
+msgid "Local G Statistics Maps"
+msgstr "Cartes statistiques G local"
+
+# contributors:Hamza Rarou
+msgid "Local G*"
+msgstr "G* local"
+
+# contributors:Hamza Rarou
+msgid "Local Geary"
+msgstr "Geary local"
+
+# contributors:Hamza Rarou
+msgid "Local Geary Maps"
+msgstr "Cartes Geary local"
+
+# contributors:Hamza Rarou
+msgid "Local Join Count "
+msgstr "Compte de jointure local "
+
+# contributors:Hamza Rarou
+msgid "Local Moran's I Maps"
+msgstr "Cartes I de Moran local"
+
+# contributors:Hamza Rarou
+msgid "Local Moran's I with EB Rate"
+msgstr "I de Moran local avec taux EB"
+
+# contributors:Hamza Rarou
+msgid "Local Search:"
+msgstr "Recherche locale:"
+
+# contributors:Hamza Rarou
+msgid "Local search:"
+msgstr "Recherche locale:"
+
+# contributors:Hamza Rarou
+msgid "Locale for numbers has been setup successfully. Please re-open current project to enable this locale."
+msgstr "La configuration rÃ©gionale des nombres a Ã©tÃ© dÃ©finie avec succÃ¨s. Veuillez rouvrir le projet en cours pour activer cette configuration rÃ©gionale."
+
+# contributors:Hamza Rarou
+msgid "Loop"
+msgstr "Boucle"
+
+# contributors:Hamza Rarou
+msgid "Low"
+msgstr "Faible"
+
+# contributors:Hamza Rarou
+msgid "Low-High"
+msgstr "Faible-ÃlevÃ©"
+
+# contributors:Hamza Rarou
+msgid "Low-Low"
+msgstr "Faible-Faible"
+
+# contributors:Hamza Rarou
+msgid "Lower outlier"
+msgstr "Outlier infÃ©rieur"
+
+# contributors:Hamza Rarou
+msgid "Lower-left corner"
+msgstr "Coin infÃ©rieur gauche"
+
+# contributors:Hamza Rarou
+msgid "MDS"
+msgstr "MDS"
+
+# contributors:Hamza Rarou
+msgid "MDS Plot"
+msgstr "Graphique MDS"
+
+# contributors:Hamza Rarou
+msgid "MDS Plot - "
+msgstr "Graphique MDS - "
+
+# contributors:Hamza Rarou
+msgid "MDS Settings"
+msgstr "ParamÃ¨tres MDS"
+
+# contributors:Hamza Rarou
+msgid "MS Excel (*.xls)|*.xls"
+msgstr "MS Excel (*.xls)|*.xls"
+
+# contributors:Hamza Rarou
+msgid "Make selection from expression "
+msgstr "SÃ©lectionner Ã  partir d'une expression "
+
+# contributors:Hamza Rarou
+msgid "Manual Resize Column"
+msgstr "Redimensionner Manuellement la Colonne"
+
+# contributors:Hamza Rarou
+msgid "Map"
+msgstr "Carte"
+
+# contributors:Hamza Rarou
+msgid "Map Color Classification"
+msgstr "Classification des Couleurs de la Carte"
+
+# contributors:Hamza Rarou
+msgid "Map Layer Settings"
+msgstr "ParamÃ¨tres de la Couche de la Carte"
+
+# contributors:Hamza Rarou
+msgid "Map Layout Preview"
+msgstr "AperÃ§u de la Mise en Page de la Carte"
+
+# contributors:Hamza Rarou
+msgid "Map Movie"
+msgstr "Film Cartographique"
+
+# contributors:Hamza Rarou
+msgid "Map Theme"
+msgstr "ThÃ¨me de la Carte"
+
+# contributors:Hamza Rarou
+msgid "Map Themes"
+msgstr "ThÃ¨mes de la Carte"
+
+# contributors:Hamza Rarou
+msgid "MapInfo (*.tab;*.mif;*.mid)|*.tab;*.mif;*.mid"
+msgstr "MapInfo (*.tab;*.mif;*.mid)|*.tab;*.mif;*.mid"
+
+# contributors:Hamza Rarou
+msgid "Maps To Open"
+msgstr "Cartes Ã  Ouvrir"
+
+# contributors:Hamza Rarou
+msgid "Maps and Rates"
+msgstr "Cartes et Taux"
+
+# contributors:Hamza Rarou
+msgid "Maps:"
+msgstr "Cartes:"
+
+# contributors:Hamza Rarou
+msgid "March"
+msgstr "Mars"
+
+# contributors:Hamza Rarou
+msgid "Max"
+msgstr "Max"
+
+# contributors:Hamza Rarou
+msgid "Max Distance:"
+msgstr "Distance Maximale:"
+
+# contributors:Hamza Rarou
+msgid "Max value of Y axis"
+msgstr "Valeur maximale de l'axe Y"
+
+# contributors:Hamza Rarou
+msgid "Max-p Settings"
+msgstr "ParamÃ¨tres Max-p"
+
+# contributors:Hamza Rarou
+msgid "Maximum # of regions:"
+msgstr "Nombre maximal de rÃ©gions:"
+
+# contributors:Hamza Rarou
+msgid "Maximum Iterations:"
+msgstr "Nombre maximal d'itÃ©rations:"
+
+# contributors:Hamza Rarou
+msgid "Maximum iterations:\t"
+msgstr "ItÃ©rations maximales:\t"
+
+# contributors:Hamza Rarou
+msgid "May"
+msgstr "Mai"
+
+# contributors:Hamza Rarou
+msgid "Mean"
+msgstr "Moyenne"
+
+# contributors:Hamza Rarou
+msgid "Merge"
+msgstr "Fusionner"
+
+# contributors:Hamza Rarou
+msgid "Merge - "
+msgstr "Fusionner - "
+
+# contributors:Hamza Rarou
+msgid "Merge by key values"
+msgstr "Fusionner par valeurs de clÃ©"
+
+# contributors:Hamza Rarou
+msgid "Merge by record order"
+msgstr "Fusionner par ordre des enregistrements"
+
+# contributors:Hamza Rarou
+msgid "Merge error: Geometric type of selected datasource has to be the same with current datasource."
+msgstr "Erreur de fusion: le type gÃ©omÃ©trique de la source de donnÃ©es sÃ©lectionnÃ©e doit Ãªtre identique Ã  celui de la source de donnÃ©es actuelle."
+
+# contributors:Hamza Rarou
+msgid "Message area"
+msgstr "Espace des messages"
+
+# contributors:Hamza Rarou
+msgid "Meta-data"
+msgstr "MÃ©ta-donnÃ©es"
+
+# contributors:Hamza Rarou
+msgid "Method"
+msgstr "MÃ©thode"
+
+# contributors:Hamza Rarou
+msgid "Method of selecting clusters:"
+msgstr "MÃ©thode de sÃ©lection des clusters:"
+
+# contributors:Hamza Rarou
+msgid "Method:"
+msgstr "MÃ©thode:"
+
+# contributors:Hamza Rarou
+msgid "Method:\t"
+msgstr "MÃ©thode:\t"
+
+# contributors:Hamza Rarou
+msgid "Min"
+msgstr "Min"
+
+# contributors:Hamza Rarou
+msgid "Min # per Region:"
+msgstr "Min # par rÃ©gion:"
+
+# contributors:Hamza Rarou
+msgid "Min Region Size:"
+msgstr "Taille min de la RÃ©gion:"
+
+# contributors:Hamza Rarou
+msgid "Min cluster size:"
+msgstr "Taille min du cluster:"
+
+# contributors:Hamza Rarou
+msgid "Min samples:"
+msgstr "Nombre min d'Ã©chantillons:"
+
+# contributors:Hamza Rarou
+msgid "Min value of Y axis"
+msgstr "Valeur min de l'axe Y"
+
+# contributors:Hamza Rarou
+msgid "Minimum Bound:"
+msgstr "Limite Minimale:"
+
+# contributors:Hamza Rarou
+msgid "Minimum bound:\t"
+msgstr "Limite minimale:\t"
+
+# contributors:Hamza Rarou
+msgid "Minimum cluster size should be greater than one."
+msgstr "La taille minimale du cluster doit Ãªtre supÃ©rieure Ã  un."
+
+# contributors:Hamza Rarou
+msgid "Minimum region size:\t"
+msgstr "Taille minimale de la rÃ©gion:\t"
+
+# contributors:Hamza Rarou
+msgid "Minimum samples should be greater than zero."
+msgstr "Le nombre minimal d'Ã©chantillons doit Ãªtre supÃ©rieur Ã  zÃ©ro."
+
+# contributors:Hamza Rarou
+msgid "Models"
+msgstr "ModÃ¨les"
+
+# contributors:Hamza Rarou
+msgid "Moran Scatter Plot"
+msgstr "Graphique de dispersion de Moran"
+
+# contributors:Hamza Rarou
+msgid "Moran scatter plot is not supported when isolates are present in weights. Do you want to continue by removing the isolates when compute Moran's I?"
+msgstr "Le graphique de dispersion de Moran n'est pas pris en charge lorsque des isolats sont prÃ©sents dans les poids. Voulez-vous continuer en supprimant les isolats lors du calcul de l'I de Moran ?"
+
+# contributors:Hamza Rarou
+msgid "Moran's I (%s): %s"
+msgstr "I de Moran (%s): %s"
+
+# contributors:Hamza Rarou
+msgid "Moran's I with EB Rate"
+msgstr "I de Moran avec taux EB"
+
+# contributors:Hamza Rarou
+msgid "Move Down"
+msgstr "DÃ©placer vers le bas"
+
+# contributors:Hamza Rarou
+msgid "Move Selected to Top"
+msgstr "DÃ©placer la SÃ©lection vers le haut"
+
+# contributors:Hamza Rarou
+msgid "Move Up"
+msgstr "DÃ©placer vers le haut"
+
+# contributors:Hamza Rarou
+msgid "Multi-Variable Settings"
+msgstr "ParamÃ¨tres MultivariÃ©s"
+
+# contributors:Hamza Rarou
+msgid "Multivariate Local Geary"
+msgstr "Geary Local MultivariÃ©"
+
+# contributors:Hamza Rarou
+msgid "Name"
+msgstr "Nom"
+
+# contributors:Hamza Rarou
+msgid "Natural Breaks"
+msgstr "Intervalles Naturelles"
+
+# contributors:Hamza Rarou
+msgid "Natural Breaks Map"
+msgstr "Carte des Intervalles Naturelles"
+
+# contributors:Hamza Rarou
+msgid "Negative"
+msgstr "NÃ©gatif"
+
+# contributors:Hamza Rarou
+msgid "Neighborless"
+msgstr "Sans voisin"
+
+# contributors:Hamza Rarou
+msgid "Neighbors of Cores"
+msgstr "Voisins des CÅurs"
+
+# contributors:Hamza Rarou
+msgid "New"
+msgstr "Nouveau"
+
+# contributors:Hamza Rarou
+msgid "New Categories Title"
+msgstr "Titre des Nouvelles CatÃ©gories"
+
+# contributors:Hamza Rarou
+msgid "New Custom Categories Title:"
+msgstr "Titre PersonnalisÃ© des Nouvelles CatÃ©gories:"
+
+# contributors:Hamza Rarou
+msgid "New From Recent"
+msgstr "Nouveau Ã  Partir des RÃ©cents"
+
+# contributors:Hamza Rarou
+msgid "New Group Details"
+msgstr "DÃ©tails du Nouveau Groupe"
+
+# contributors:Hamza Rarou
+msgid "New Map Coordinates"
+msgstr "Nouvelles CoordonnÃ©es de la Carte"
+
+# contributors:Hamza Rarou
+msgid "New Project Filename"
+msgstr "Nom du Fichier de Projet"
+
+# contributors:Hamza Rarou
+msgid "New Selection"
+msgstr "Nouvelle SÃ©lection"
+
+# contributors:Hamza Rarou
+msgid "New datasource:"
+msgstr "Nouvelle source de donnÃ©es:"
+
+# contributors:Hamza Rarou
+msgid "New project file:"
+msgstr "Nouveau fichier de projet:"
+
+# contributors:Hamza Rarou
+msgid "New selection"
+msgstr "Nouvelle sÃ©lection"
+
+# contributors:Hamza Rarou
+msgid "New space-time variable name"
+msgstr "Nouveau nom de variable espace-temps"
+
+# contributors:Hamza Rarou
+msgid "New variable name"
+msgstr "Nouveau nom de variable"
+
+# contributors:Hamza Rarou
+msgid "No Basemap"
+msgstr "Aucune Carte de Base"
+
+# contributors:Hamza Rarou
+msgid "No Colocation"
+msgstr "Aucune Colocalisation"
+
+# contributors:Hamza Rarou
+msgid "No Weights Found"
+msgstr "Aucun Poids TrouvÃ©"
+
+# contributors:Hamza Rarou
+msgid "No clusters can be found using current parameters."
+msgstr "Aucun cluster ne peut Ãªtre trouvÃ© avec les paramÃ¨tres actuels."
+
+# contributors:Hamza Rarou
+msgid "No field chosen for first and second variable."
+msgstr "Aucun champ choisi pour la premiÃ¨re et la deuxiÃ¨me variable."
+
+# contributors:Hamza Rarou
+msgid "No field chosen for first variable."
+msgstr "Aucun champ choisi pour la premiÃ¨re variable."
+
+# contributors:Hamza Rarou
+msgid "No field chosen for fourth variable."
+msgstr "Aucun champ choisi pour la quatriÃ¨me variable."
+
+# contributors:Hamza Rarou
+msgid "No field chosen for second variable."
+msgstr "Aucun champ choisi pour la deuxiÃ¨me variable."
+
+# contributors:Hamza Rarou
+msgid "No field chosen for third variable."
+msgstr "Aucun champ choisi pour la troisiÃ¨me variable."
+
+# contributors:Hamza Rarou
+msgid "No layer has been selected. Please select a layer."
+msgstr "Aucune couche n'a Ã©tÃ© sÃ©lectionnÃ©e. Veuillez sÃ©lectionner une couche."
+
+# contributors:Hamza Rarou
+msgid "No layer was found in the selected data source."
+msgstr "Aucune couche n'a Ã©tÃ© trouvÃ©e dans la source de donnÃ©es sÃ©lectionnÃ©e."
+
+# contributors:Hamza Rarou
+msgid "No layer was found in this datasource."
+msgstr "Aucune couche n'a Ã©tÃ© trouvÃ©e dans cette source de donnÃ©es."
+
+# contributors:Hamza Rarou
+msgid "No numeric variables found in table."
+msgstr "Aucune variable numÃ©rique trouvÃ©e dans la table."
+
+# contributors:Hamza Rarou
+msgid "No numeric variables found."
+msgstr "Aucune variable numÃ©rique trouvÃ©e."
+
+# contributors:Hamza Rarou
+msgid "No rates currently calculated to save."
+msgstr "Aucun taux actuellement calculÃ© Ã  sauvegarder."
+
+# contributors:Hamza Rarou
+msgid "No update required"
+msgstr "Aucune mise Ã  jour nÃ©cessaire"
+
+# contributors:Hamza Rarou
+msgid "No weights file was created due to all observations being isolates for the specified threshold value. Increase the threshold to create a non-empty weights file."
+msgstr "Aucun fichier de pondÃ©ration n'a Ã©tÃ© crÃ©Ã© car toutes les observations sont des isolats pour la valeur de seuil spÃ©cifiÃ©e. Augmentez le seuil pour crÃ©er un fichier de poids non vide."
+
+# contributors:Hamza Rarou
+msgid "None of your observations have neighbors. This could be related to digitizing problems, which can be fixed by adjusting the precision threshold."
+msgstr "Aucune de vos observations n'a de voisins. Cela peut Ãªtre dÃ» Ã  des problÃ¨mes de numÃ©risation, qui peuvent Ãªtre rÃ©solus en ajustant le seuil de prÃ©cision."
+
+# contributors:Hamza Rarou
+msgid "Nordic Latin-6 (ISO-8859-10)"
+msgstr "Nordic Latin-6 (ISO-8859-10)"
+
+# contributors:Hamza Rarou
+msgid "Normal"
+msgstr "Normal"
+
+# contributors:Hamza Rarou
+msgid "Not Clustered"
+msgstr "Non GroupÃ©"
+
+# contributors:Hamza Rarou
+msgid "Not Significant"
+msgstr "Non Significatif"
+
+# contributors:Hamza Rarou
+msgid "Not enough memory!"
+msgstr "Pas assez de mÃ©moire !"
+
+# contributors:Hamza Rarou
+msgid "Notice"
+msgstr "Remarque"
+
+# contributors:Hamza Rarou
+msgid "November"
+msgstr "Novembre"
+
+# contributors:Hamza Rarou
+msgid "Null geometry was detected in dataset. GeoDa can't create weights with NULL geometry. Please try to save as records with valid geometries and try again."
+msgstr "Une gÃ©omÃ©trie nulle a Ã©tÃ© dÃ©tectÃ©e dans l'ensemble de donnÃ©es. GeoDa ne peut pas crÃ©er de poids avec une gÃ©omÃ©trie NULL. Veuillez essayer de sauvegarder les enregistrements avec des gÃ©omÃ©tries valides et rÃ©essayez."
+
+# contributors:Hamza Rarou
+msgid "Number Bins:"
+msgstr "Nombre d'Intervalles de Classe:"
+
+# contributors:Hamza Rarou
+msgid "Number of Box Plots"
+msgstr "Nombre de BoÃ®tes Ã  Moustaches"
+
+# contributors:Hamza Rarou
+msgid "Number of Categories"
+msgstr "Nombre de CatÃ©gories"
+
+# contributors:Hamza Rarou
+msgid "Number of Clusters:"
+msgstr "Nombre de Clusters:"
+
+# contributors:Hamza Rarou
+msgid "Number of Columns"
+msgstr "Nombre de Colonnes"
+
+# contributors:Hamza Rarou
+msgid "Number of Neighbors"
+msgstr "Nombre de Voisins"
+
+# contributors:Hamza Rarou
+msgid "Number of Rows"
+msgstr "Nombre de Lignes"
+
+# contributors:Hamza Rarou
+msgid "Number of clusters:\t"
+msgstr "Nombre de clusters:\t"
+
+# contributors:Hamza Rarou
+msgid "Number of neighbors"
+msgstr "Nombre de voisins"
+
+# contributors:Hamza Rarou
+msgid "Number of not clustered observations: "
+msgstr "Nombre d'observations non groupÃ©es: "
+
+# contributors:Hamza Rarou
+msgid ""
+"OGR failed to create field.\n"
+"\n"
+"Details:"
+msgstr ""
+"Ãchec de la crÃ©ation du champ par OGR.\n"
+"\n"
+"DÃ©tails:"
+
+# contributors:Hamza Rarou
+msgid "OK"
+msgstr "OK"
+
+# contributors:Hamza Rarou
+msgid "OK to Exit?"
+msgstr "OK pour quitter?"
+
+# contributors:Hamza Rarou
+msgid "OLS Model has been selected."
+msgstr "Le modÃ¨le OLS a Ã©tÃ© sÃ©lectionnÃ©."
+
+# contributors:Hamza Rarou
+msgid "OLS Model with White test has been selected."
+msgstr "Le modÃ¨le OLS avec le test de White a Ã©tÃ© sÃ©lectionnÃ©."
+
+# contributors:Hamza Rarou
+msgid "Obs."
+msgstr "Obs."
+
+# contributors:Hamza Rarou
+msgid "October"
+msgstr "Octobre"
+
+# contributors:Hamza Rarou
+msgid "Ok"
+msgstr "Ok"
+
+# contributors:Hamza Rarou
+msgid "On line %d of weights file, observation id %d encountered which does not exist in field \"%s\" of the Table."
+msgstr "Ã la ligne %d du fichier de pondÃ©ration, l'identifiant de l'observation %d rencontrÃ© n'existe pas dans le champ \"%s\" de la Table."
+
+# contributors:Hamza Rarou
+msgid "On line %d of weights file, observation id %d encountered which is out of allowed observation range of 1 through %d."
+msgstr "Ã la ligne %d du fichier de pondÃ©ration, l'identifiant de l'observation %d rencontrÃ© est en dehors de la plage d'observations autorisÃ©e de 1 Ã  %d."
+
+# contributors:Hamza Rarou
+msgid "Once you have grouped variables, you can save a new space-time table and weights: To add a spatial ID to your space-time table and create space-time weights, you need to have an active weights file (Tools-Weights Manager)."
+msgstr "Une fois que vous avez regroupÃ© les variables, vous pouvez enregistrer une nouvelle table espace-temps et des poids: Pour ajouter un identifiant spatial Ã  votre table espace-temps et crÃ©er des poids espace-temps, vous devez avoir un fichier de poids actif (Outils-Gestionnaire de poids)."
+
+# contributors:Hamza Rarou
+msgid "Only 'gal', 'gwt', 'kwt', 'mat' and 'swm' weights files supported."
+msgstr "Seuls les fichiers de poids 'gal', 'gwt', 'kwt', 'mat' et 'swm' sont pris en charge."
+
+# contributors:Hamza Rarou
+msgid "Only Map Boundary"
+msgstr "Uniquement les Limites de la Carte"
+
+# contributors:Hamza Rarou
+msgid "Oops. GeoDa was unable to submit a bug report. Please try again or create it here instead: https://github.com/GeoDaCenter/geoda/issues Thanks!"
+msgstr "Oops. GeoDa n'a pas pu envoyer un rapport de bug. Veuillez rÃ©essayer ou le crÃ©er ici Ã  la place: https://github.com/GeoDaCenter/geoda/issues Merci !"
+
+# contributors:Hamza Rarou
+msgid "Open"
+msgstr "Ouvrir"
+
+# contributors:Hamza Rarou
+msgid "Open Datasource:"
+msgstr "Ouvrir la Source de DonnÃ©es:"
+
+# contributors:Hamza Rarou
+msgid "Open Document Spreadsheet (*.ods)|*.ods"
+msgstr "Oubrir Feuille de Calcul de format OpenDocument (*.ods)|*.ods"
+
+# contributors:Hamza Rarou
+msgid "Open Layer:"
+msgstr "Ouvrir la Couche:"
+
+# contributors:Hamza Rarou
+msgid "Open data source progress dialog"
+msgstr "Ouvrir dialogue de progression de la source de donnÃ©es"
+
+# contributors:Hamza Rarou
+msgid "Open file"
+msgstr "Ouvrir fichier"
+
+# contributors:Hamza Rarou
+msgid "Open project file:"
+msgstr "Ouvrir fichier de projet:"
+
+# contributors:Hamza Rarou
+msgid "Open weights file"
+msgstr "Ouvrir fichier de pondÃ©ration"
+
+# contributors:Hamza Rarou
+msgid "Operation requires a valid field name or constant."
+msgstr "L'opÃ©ration nÃ©cessite un nom de champ valide ou une constante."
+
+# contributors:Hamza Rarou
+msgid "Operator"
+msgstr "OpÃ©rateur"
+
+# contributors:Hamza Rarou
+msgid "Options"
+msgstr "Options"
+
+# contributors:Hamza Rarou
+msgid "Options > Change Parameters"
+msgstr "Options > Changer les paramÃ¨tres"
+
+# contributors:Hamza Rarou
+msgid "Options:"
+msgstr "Options:"
+
+# contributors:Hamza Rarou
+msgid "Order of contiguity"
+msgstr "Ordre de contiguÃ¯tÃ©"
+
+# contributors:Hamza Rarou
+msgid "Other (up to 99999)"
+msgstr "Autre (jusqu'Ã  99999)"
+
+# contributors:Hamza Rarou
+msgid "Other Pos"
+msgstr "Autre Pos"
+
+# contributors:Hamza Rarou
+msgid "Other Positive"
+msgstr "Autre Positif"
+
+# contributors:Hamza Rarou
+msgid "Outline Color"
+msgstr "Couleur du Contour"
+
+# contributors:Hamza Rarou
+msgid "Outline Color for Category"
+msgstr "Couleur du Contour pour la CatÃ©gorie"
+
+# contributors:Hamza Rarou
+msgid "Outline Visible"
+msgstr "Contour Visible"
+
+# contributors:Hamza Rarou
+msgid "Outlines Visible"
+msgstr "Contours Visibles"
+
+# contributors:Hamza Rarou
+msgid "Output file (*.shp)"
+msgstr "Fichier de sortie (*.shp)"
+
+# contributors:Hamza Rarou
+msgid "Output file (text file)"
+msgstr "Fichier de sortie (fichier texte)"
+
+# contributors:Hamza Rarou
+msgid "Output:"
+msgstr "Sortie:"
+
+# contributors:Hamza Rarou
+msgid "Overwrite?"
+msgstr "Ecraser?"
+
+# contributors:Hamza Rarou
+msgid "PCA"
+msgstr "ACP"
+
+# contributors:Hamza Rarou
+msgid "PCA Settings"
+msgstr "ParamÃ¨tres de l'ACP"
+
+# contributors:Hamza Rarou
+msgid "POLY&ID"
+msgstr "POLY&ID"
+
+# contributors:Hamza Rarou
+msgid "Pan"
+msgstr "Panning"
+
+# contributors:Hamza Rarou
+msgid "Panning Mode"
+msgstr "Mode de Panning"
+
+# contributors:Hamza Rarou
+msgid "Parallel Coordinate Plot"
+msgstr "Graphique de CoordonnÃ©es ParallÃ¨les"
+
+# contributors:Hamza Rarou
+msgid "Parallel Coordinate Plot: "
+msgstr "Graphique de CoordonnÃ©es ParallÃ¨les: "
+
+# contributors:Hamza Rarou
+msgid "Parameters"
+msgstr "ParamÃ¨tres"
+
+# contributors:Hamza Rarou
+msgid "Parameters:"
+msgstr "ParamÃ¨tres:"
+
+# contributors:Hamza Rarou
+msgid "Password"
+msgstr "Mot de passe"
+
+# contributors:Hamza Rarou
+msgid "Paste"
+msgstr "Coller"
+
+# contributors:Hamza Rarou
+msgid "Percentile"
+msgstr "Percentile"
+
+# contributors:Hamza Rarou
+msgid "Percentile Map"
+msgstr "Carte des percentiles"
+
+# contributors:Hamza Rarou
+msgid "Period 1"
+msgstr "PÃ©riode 1"
+
+# contributors:Hamza Rarou
+msgid "Period 1:"
+msgstr "PÃ©riode 1:"
+
+# contributors:Hamza Rarou
+msgid "Period 2"
+msgstr "PÃ©riode 2"
+
+# contributors:Hamza Rarou
+msgid "Period 2:"
+msgstr "PÃ©riode 2:"
+
+# contributors:Hamza Rarou
+msgid "Please briefly describe what went wrong."
+msgstr "Veuillez dÃ©crire briÃ¨vement ce qui s'est mal passÃ©."
+
+# contributors:Hamza Rarou
+msgid "Please check input values are valid"
+msgstr "Veuillez vÃ©rifier que les valeurs saisies sont valides"
+
+# contributors:Hamza Rarou
+msgid "Please check the selected variables are all valid."
+msgstr "Veuillez vÃ©rifier que les variables sÃ©lectionnÃ©es sont toutes valides."
+
+# contributors:Hamza Rarou
+msgid "Please check your network connection, or contact GeoDa support team."
+msgstr "Veuillez vÃ©rifier votre connexion rÃ©seau ou contacter l'Ã©quipe de support de GeoDa."
+
+# contributors:Hamza Rarou
+msgid "Please choose Period 1 first."
+msgstr "Veuillez d'abord choisir la PÃ©riode 1."
+
+# contributors:Hamza Rarou
+msgid "Please choose Period 1."
+msgstr "Veuillez choisir la PÃ©riode 1."
+
+# contributors:Hamza Rarou
+msgid "Please choose Period 2 first."
+msgstr "Veuillez d'abord choisir la PÃ©riode 2."
+
+# contributors:Hamza Rarou
+msgid "Please choose Period 2."
+msgstr "Veuillez choisir la PÃ©riode 2."
+
+# contributors:Hamza Rarou
+msgid "Please choose Periods first."
+msgstr "Veuillez d'abord choisir les PÃ©riodes."
+
+# contributors:Hamza Rarou
+msgid "Please choose a Result field."
+msgstr "Veuillez choisir un champ de RÃ©sultat."
+
+# contributors:Hamza Rarou
+msgid "Please click to choose a highlighting style in GeoDa:"
+msgstr "Veuillez cliquer pour choisir un style de mise en Ã©vidence dans GeoDa:"
+
+# contributors:Hamza Rarou
+msgid "Please describe steps you took before something went wrong."
+msgstr "Veuillez dÃ©crire les Ã©tapes que vous avez suivies avant que quelque chose ne se passe mal."
+
+# contributors:Hamza Rarou
+msgid "Please enter a field name for saving clustering results."
+msgstr "Veuillez entrer un nom de champ pour enregistrer les rÃ©sultats du regroupement."
+
+# contributors:Hamza Rarou
+msgid "Please enter a valid number of cluster."
+msgstr "Veuillez entrer un nombre de clusters valide."
+
+# contributors:Hamza Rarou
+msgid "Please enter a valid number of clusters."
+msgstr "Veuillez entrer un nombre de clusters valide."
+
+# contributors:Hamza Rarou
+msgid "Please enter a valid positive integer"
+msgstr "Veuillez entrer un entier positif valide"
+
+# contributors:Hamza Rarou
+msgid "Please enter iteration number"
+msgstr "Veuillez entrer le nombre d'itÃ©rations"
+
+# contributors:Hamza Rarou
+msgid "Please enter maximum number of regions."
+msgstr "Veuillez entrer le nombre maximum de rÃ©gions."
+
+# contributors:Hamza Rarou
+msgid "Please enter minimum bound value"
+msgstr "Veuillez entrer la valeur de la limite minimale"
+
+# contributors:Hamza Rarou
+msgid "Please enter minimum number of observations per regions, or use minimum bound instead."
+msgstr "Veuillez entrer le nombre minimum d'observations par rÃ©gion ou utiliser plutÃ´t la limite minimale."
+
+# contributors:Hamza Rarou
+msgid "Please enter number of regions"
+msgstr "Veuillez entrer le nombre de rÃ©gions"
+
+# contributors:Hamza Rarou
+msgid "Please enter values of bounding box."
+msgstr "Veuillez entrer les valeurs de la boÃ®te englobante."
+
+# contributors:Hamza Rarou
+msgid "Please first select observations in one of the other data or map views."
+msgstr "Veuillez d'abord sÃ©lectionner des observations dans l'une des autres vues de donnÃ©es ou de cartes."
+
+# contributors:Hamza Rarou
+msgid "Please fix the grid bounding box."
+msgstr "Veuillez corriger la boÃ®te englobante de la grille."
+
+# contributors:Hamza Rarou
+msgid "Please input Carto App Key."
+msgstr "Veuillez saisir la ClÃ© de l'Appli Carto."
+
+# contributors:Hamza Rarou
+msgid "Please input Carto User Name."
+msgstr "Veuillez saisir le Nom d'Utilisateur Carto."
+
+# contributors:Hamza Rarou
+msgid "Please input a valid url address."
+msgstr "Veuillez entrer une adresse URL valide."
+
+# contributors:Hamza Rarou
+msgid "Please input a valid url."
+msgstr "Veuillez entrer une URL valide."
+
+# contributors:Hamza Rarou
+msgid "Please input database host."
+msgstr "Veuillez entrer l'hÃ´te de la base de donnÃ©es."
+
+# contributors:Hamza Rarou
+msgid "Please input database name."
+msgstr "Veuillez entrer le nom de la base de donnÃ©es."
+
+# contributors:Hamza Rarou
+msgid "Please input database port."
+msgstr "Veuillez entrer le port de la base de donnÃ©es."
+
+# contributors:Hamza Rarou
+msgid "Please input minimum bound value."
+msgstr "Veuillez entrer une valeur de la limite minimale valide."
+
+# contributors:Hamza Rarou
+msgid "Please input password."
+msgstr "Veuillez entrer un mot de passe."
+
+# contributors:Hamza Rarou
+msgid "Please input table name."
+msgstr "Veuillez entrer le nom de la table."
+
+# contributors:Hamza Rarou
+msgid "Please input user name."
+msgstr "Veuillez entrer le nom d'utilisateur."
+
+# contributors:Hamza Rarou
+msgid "Please load another layer using map window to apply Spatial Join."
+msgstr "Veuillez charger une autre couche en utilisant la fenÃªtre de la carte pour appliquer une Jointure Spatiale."
+
+# contributors:Hamza Rarou
+msgid "Please open a data file rather than a project file (*.gda)."
+msgstr "Veuillez ouvrir un fichier de donnÃ©es plutÃ´t qu'un fichier de projet (*.gda)."
+
+# contributors:Hamza Rarou
+msgid "Please provide paths for both Project file and  Datasource."
+msgstr "Veuillez fournir des chemins pour le fichier de Projet et la Source de donnÃ©es."
+
+# contributors:Hamza Rarou
+msgid "Please restart GeoDa to apply the language setup."
+msgstr "Veuillez redÃ©marrer GeoDa pour appliquer la configuration linguistique."
+
+# contributors:Hamza Rarou
+msgid "Please restart GeoDa to finish installing updates."
+msgstr "Veuillez redÃ©marrer GeoDa pour terminer l'installation des mises Ã  jour."
+
+# contributors:Hamza Rarou
+msgid "Please right-click or use<br />"
+msgstr "Veuillez faire un clic droit ou utiliser<br />"
+
+# contributors:Hamza Rarou
+msgid "Please select Join Operation with Join Variable."
+msgstr "Veuillez sÃ©lectionner une OpÃ©ration de Jointure avec une Variable de Jointure."
+
+# contributors:Hamza Rarou
+msgid "Please select a binary variable for Local Join Count."
+msgstr "Veuillez sÃ©lectionner une variable binaire pour le Compte de Jointure Local."
+
+# contributors:Hamza Rarou
+msgid "Please select a map layer to apply spatial join to current map (%s):"
+msgstr "Veuillez sÃ©lectionner une couche de carte pour appliquer une jointure spatiale Ã  la carte actuelle (%s):"
+
+# contributors:Hamza Rarou
+msgid "Please select a results field."
+msgstr "Veuillez sÃ©lectionner un champ de rÃ©sultats."
+
+# contributors:Hamza Rarou
+msgid "Please select a time variable first, and make sure more than one time steps have been defined."
+msgstr "Veuillez d'abord sÃ©lectionner une variable de temps et assurez-vous que plusieurs Ã©tapes de temps ont Ã©tÃ© dÃ©finies."
+
+# contributors:Hamza Rarou
+msgid "Please select a weights type."
+msgstr "Veuillez sÃ©lectionner un type de poids."
+
+# contributors:Hamza Rarou
+msgid "Please select an Base field."
+msgstr "Veuillez sÃ©lectionner un champ de Base."
+
+# contributors:Hamza Rarou
+msgid "Please select an Event field."
+msgstr "Veuillez sÃ©lectionner un champ d'ÃvÃ©nement."
+
+# contributors:Hamza Rarou
+msgid "Please select an Variable field."
+msgstr "Veuillez sÃ©lectionner un champ de Variable."
+
+# contributors:Hamza Rarou
+msgid "Please select another variable with values more suitable for computing a correlogram."
+msgstr "Veuillez sÃ©lectionner une autre variable avec des valeurs plus adaptÃ©es pour calculer un correlogramme."
+
+# contributors:Hamza Rarou
+msgid "Please select at least %d variables."
+msgstr "Veuillez sÃ©lectionner au moins %d variables."
+
+# contributors:Hamza Rarou
+msgid "Please select at least 2 variables."
+msgstr "Veuillez sÃ©lectionner au moins 2 variables."
+
+# contributors:Hamza Rarou
+msgid "Please select at least one variable."
+msgstr "Veuillez sÃ©lectionner au moins une variable."
+
+# contributors:Hamza Rarou
+msgid "Please select binary variables for Co-location Join Count."
+msgstr "Veuillez sÃ©lectionner des variables binaires pour le Compte de Co-localisation."
+
+# contributors:Hamza Rarou
+msgid "Please select features first."
+msgstr "Veuillez d'abord sÃ©lectionner des entitÃ©s."
+
+# contributors:Hamza Rarou
+msgid "Please select the layer name to connect:"
+msgstr "Veuillez sÃ©lectionner le nom de la couche Ã  connecter:"
+
+# contributors:Hamza Rarou
+msgid "Please select two binary variables for Bivariate Local Join Count."
+msgstr "Veuillez sÃ©lectionner deux variables binaires pour le Compte de Jointure Locale BivariÃ©e."
+
+# contributors:Hamza Rarou
+msgid "Please setup co-locations first."
+msgstr "Veuillez d'abord configurer les co-localisations."
+
+# contributors:Hamza Rarou
+msgid "Please specify a Weights matrix."
+msgstr "Veuillez spÃ©cifier une matrice de pondÃ©ration."
+
+# contributors:Hamza Rarou
+msgid "Please specify a valid data source name."
+msgstr "Veuillez spÃ©cifier un nom de source de donnÃ©es valide."
+
+# contributors:Hamza Rarou
+msgid "Please specify distance metric."
+msgstr "Veuillez spÃ©cifier une mesure de distance."
+
+# contributors:Hamza Rarou
+msgid ""
+"Please specify the p-value to be used in tests; \n"
+"default: p-value = 0.01"
+msgstr ""
+"Veuillez spÃ©cifier la valeur-p Ã  utiliser dans les tests; \n"
+"par dÃ©faut: p-value = 0,01"
+
+# contributors:Hamza Rarou
+msgid "Please specify weights in Tools > Weights Manager."
+msgstr "Veuillez spÃ©cifier les poids dans Outils > Gestion des pondÃ©rations."
+
+# contributors:Hamza Rarou
+msgid "Please use<br /><font color=\"blue\">Options > Change Variable<br /></font>to specify a variable."
+msgstr "Veuillez utiliser<br /><font color=\"blue\">Options > Modifier la variable<br /></font>pour spÃ©cifier une variable."
+
+# contributors:Hamza Rarou
+msgid "Plots:"
+msgstr "Graphiques:"
+
+# contributors:Hamza Rarou
+msgid "Point Color"
+msgstr "Couleur du Point"
+
+# contributors:Hamza Rarou
+msgid "Point Radius:"
+msgstr "Rayon du Point:"
+
+# contributors:Hamza Rarou
+msgid "Points from Table"
+msgstr "Points Ã  partir d'une Table"
+
+# contributors:Hamza Rarou
+msgid "Positive"
+msgstr "Positif"
+
+# contributors:Hamza Rarou
+msgid "Power"
+msgstr "Puissance"
+
+# contributors:Hamza Rarou
+msgid "Precision threshold"
+msgstr "Seuil de prÃ©cision"
+
+# contributors:Hamza Rarou
+msgid "Pred. Val. and Res."
+msgstr "Val. PrÃ©v. et RÃ©s."
+
+# contributors:Hamza Rarou
+msgid "Preferences..."
+msgstr "PrÃ©fÃ©rences..."
+
+# contributors:Hamza Rarou
+msgid "Produce bounding-box file?"
+msgstr "Produire un fichier de boÃ®te englobante?"
+
+# contributors:Hamza Rarou
+msgid "Progress"
+msgstr "Progression"
+
+# contributors:Hamza Rarou
+msgid "Project Information"
+msgstr "Informations sur le Projet"
+
+# contributors:Hamza Rarou
+msgid "Project file path is empty."
+msgstr "Le chemin du fichier de projet est vide."
+
+# contributors:Hamza Rarou
+msgid "Project filename not specified."
+msgstr "Le nom du fichier de projet n'est pas spÃ©cifiÃ©."
+
+# contributors:Hamza Rarou
+msgid "Project to X-Y"
+msgstr "Projet vers X-Y"
+
+# contributors:Hamza Rarou
+msgid "Project to X-Z"
+msgstr "Projet vers X-Z"
+
+# contributors:Hamza Rarou
+msgid "Project to Z-Y"
+msgstr "Projet vers Z-Y"
+
+# contributors:Hamza Rarou
+msgid "Property"
+msgstr "PropriÃ©tÃ©"
+
+# contributors:Hamza Rarou
+msgid "Publish Maps and Plots to GeoDa-Web"
+msgstr "Publier des Cartes et des Graphiques sur GeoDa-Web"
+
+# contributors:Hamza Rarou
+msgid "Publish to GeoDa-Web"
+msgstr "Publier sur GeoDa-Web"
+
+# contributors:Hamza Rarou
+msgid "Quantile"
+msgstr "Quantile"
+
+# contributors:Hamza Rarou
+msgid "Quantile Map"
+msgstr "Carte des Quantiles"
+
+# contributors:Hamza Rarou
+msgid "Queen contiguity"
+msgstr "ContiguÃ¯tÃ© Queen"
+
+# contributors:Hamza Rarou
+msgid "REDCAP Settings"
+msgstr "ParamÃ¨tres REDCAP"
+
+# contributors:Hamza Rarou
+msgid "Random Gaussian dist with mean=%s, sd=%s"
+msgstr "Distribution Gaussienne AlÃ©atoire avec moyenne = %s, Ã©cart-type = %s"
+
+# contributors:Hamza Rarou
+msgid "Random Sample"
+msgstr "Ãchantillon AlÃ©atoire"
+
+# contributors:Hamza Rarou
+msgid "Random uniform dist on unit interval"
+msgstr "Distribution uniforme alÃ©atoire sur un intervalle unitaire"
+
+# contributors:Hamza Rarou
+msgid "Randomization"
+msgstr "Randomisation"
+
+# contributors:Hamza Rarou
+msgid "Rate calculation successful."
+msgstr "Le calcul du taux a rÃ©ussi."
+
+# contributors:Hamza Rarou
+msgid "Rates"
+msgstr "Taux"
+
+# contributors:Hamza Rarou
+msgid "Rates Variable Settings"
+msgstr "ParamÃ¨tres de la Variable de Taux"
+
+# contributors:Hamza Rarou
+msgid "Rates-Calculated Map"
+msgstr "Carte des Taux CalculÃ©s"
+
+# contributors:Hamza Rarou
+msgid "Rates-Calculated Maps"
+msgstr "Cartes des Taux CalculÃ©s"
+
+# contributors:Hamza Rarou
+msgid "Raw Rate"
+msgstr "Taux Brut"
+
+# contributors:Hamza Rarou
+msgid "Raw Rate Smoothed Variable Settings"
+msgstr "ParamÃ¨tres de la Variable LissÃ©e de Taux Brut"
+
+# contributors:Hamza Rarou
+msgid "Re&set"
+msgstr "RÃ©&initialiser"
+
+# contributors:Hamza Rarou
+msgid "Read from an ASCII file"
+msgstr "Lire Ã  partir d'un fichier ASCII"
+
+# contributors:Hamza Rarou
+msgid "Recent"
+msgstr "RÃ©cent"
+
+# contributors:Hamza Rarou
+msgid "Record order specified, but found minimum and maximum observation values of %d and %d which is incompatible with number of observations specified in first line of weights file:  %d ."
+msgstr "Ordre d'enregistrement spÃ©cifiÃ©, mais les valeurs minimales et maximales des observations trouvÃ©es sont %d et %d, ce qui est incompatible avec le nombre d'observations spÃ©cifiÃ© dans la premiÃ¨re ligne du fichier de pondÃ©ration: %d."
+
+# contributors:Hamza Rarou
+msgid "Rectangle"
+msgstr "Rectangle"
+
+# contributors:Hamza Rarou
+msgid "Redo"
+msgstr "RÃ©tablir"
+
+# contributors:Hamza Rarou
+msgid "Refresh"
+msgstr "Actualiser"
+
+# contributors:Hamza Rarou
+msgid "Regimes Regression"
+msgstr "RÃ©gression des RÃ©gimes"
+
+# contributors:Hamza Rarou
+msgid "Regression"
+msgstr "RÃ©gression"
+
+# contributors:Hamza Rarou
+msgid "Regression Line Color"
+msgstr "Couleur de la Ligne de RÃ©gression"
+
+# contributors:Hamza Rarou
+msgid "Regression Output Text File"
+msgstr "Fichier Texte de Sortie de RÃ©gression"
+
+# contributors:Hamza Rarou
+msgid "Regression Report"
+msgstr "Rapport de RÃ©gression"
+
+# contributors:Hamza Rarou
+msgid "Remove"
+msgstr "Supprimer"
+
+# contributors:Hamza Rarou
+msgid "Remove Time"
+msgstr "Supprimer le Temps"
+
+# contributors:Hamza Rarou
+msgid "Rename Space-Time Variable"
+msgstr "Renommer la Variable Spatio-Temporelle"
+
+# contributors:Hamza Rarou
+msgid "Rename Variable"
+msgstr "Renommer la Variable"
+
+# contributors:Hamza Rarou
+msgid "Reset"
+msgstr "RÃ©initialiser"
+
+# contributors:Hamza Rarou
+msgid "Reset to default"
+msgstr "RÃ©tablir les paramÃ¨tres par dÃ©faut"
+
+# contributors:Hamza Rarou
+msgid "Reset to system locale information"
+msgstr "RÃ©initialiser aux informations de localisation du systÃ¨me"
+
+# contributors:Hamza Rarou
+msgid "Reset to system locale successfully. Please re-open current project with system locale."
+msgstr "RÃ©initialisation rÃ©ussie aux paramÃ¨tres de localisation du systÃ¨me. Veuillez rouvrir le projet en cours avec la localisation du systÃ¨me."
+
+# contributors:Hamza Rarou
+msgid "Resize"
+msgstr "Redimensionner"
+
+# contributors:Hamza Rarou
+msgid "Resolution(dpi):"
+msgstr "RÃ©solution(ppp):"
+
+# contributors:Hamza Rarou
+msgid "Result"
+msgstr "RÃ©sultat"
+
+# contributors:Hamza Rarou
+msgid "Reverse"
+msgstr "Inverser"
+
+# contributors:Hamza Rarou
+msgid "Right"
+msgstr "Droite"
+
+# contributors:Hamza Rarou
+msgid "Rook contiguity"
+msgstr "ContiguÃ¯tÃ© Rook"
+
+# contributors:Hamza Rarou
+msgid "Root Variable:"
+msgstr "Variable Racine:"
+
+# contributors:Hamza Rarou
+msgid "Run"
+msgstr "ExÃ©cuter"
+
+# contributors:Hamza Rarou
+msgid "Run Diff-in-Diff Test"
+msgstr "ExÃ©cuter le test Diff-in-Diff"
+
+# contributors:Hamza Rarou
+msgid "S.D"
+msgstr "Ãcart-Type"
+
+# contributors:Hamza Rarou
+msgid "SELECTED"
+msgstr "SÃLECTIONNÃ"
+
+# contributors:Hamza Rarou
+msgid "SQLite/SpatiaLite (*.sqlite)|*.sqlite"
+msgstr "SQLite/SpatiaLite (*.sqlite)|*.sqlite"
+
+# contributors:Hamza Rarou
+msgid "SVD will be automatically used for PCA since the number of rows is less than the number of columns."
+msgstr "SVD sera automatiquement utilisÃ©e pour l'ACP puisque le nombre de lignes est infÃ©rieur au nombre de colonnes."
+
+# contributors:Hamza Rarou
+msgid "Sample Autocorrelation"
+msgstr "AutocorrÃ©lation d'Ãchantillon"
+
+# contributors:Hamza Rarou
+msgid "Sample Data"
+msgstr "DonnÃ©es d'Ãchantillon"
+
+# contributors:Hamza Rarou
+msgid "Sample Size:"
+msgstr "Taille de l'Ãchantillon:"
+
+# contributors:Hamza Rarou
+msgid "Save"
+msgstr "Enregistrer"
+
+# contributors:Hamza Rarou
+msgid "Save "
+msgstr "Enregistrer "
+
+# contributors:Hamza Rarou
+msgid "Save As"
+msgstr "Enregistrer Sous"
+
+# contributors:Hamza Rarou
+msgid "Save As Datasource"
+msgstr "Enregistrer Sous une Source de DonnÃ©es"
+
+# contributors:Hamza Rarou
+msgid "Save As has been cancelled."
+msgstr "L'enregistrement Sous a Ã©tÃ© annulÃ©."
+
+# contributors:Hamza Rarou
+msgid "Save Categories"
+msgstr "Enregistrer les CatÃ©gories"
+
+# contributors:Hamza Rarou
+msgid "Save Categories to Table"
+msgstr "Enregistrer les CatÃ©gories dans une Table"
+
+# contributors:Hamza Rarou
+msgid "Save Centroids"
+msgstr "Enregistrer les CentroÃ¯des"
+
+# contributors:Hamza Rarou
+msgid "Save Cluster in Field:"
+msgstr "Enregistrer le cluster dans le champ:"
+
+# contributors:Hamza Rarou
+msgid "Save Connectivity To Table"
+msgstr "Enregistrer la ConnectivitÃ© dans une Table"
+
+# contributors:Hamza Rarou
+msgid "Save Details"
+msgstr "Enregistrer les DÃ©tails"
+
+# contributors:Hamza Rarou
+msgid "Save Diff-in-Diff Test Results"
+msgstr "Enregistrer les RÃ©sultats du Test Diff-in-Diff"
+
+# contributors:Hamza Rarou
+msgid "Save Dummy"
+msgstr "Enregistrer la Variable Muette"
+
+# contributors:Hamza Rarou
+msgid "Save Duplicate Thiessen Polygon Ids"
+msgstr "Enregistrer les Identifiants de Polygones Thiessen en Double"
+
+# contributors:Hamza Rarou
+msgid "Save Duplicate Thiessen Polygons to Table"
+msgstr "Enregistrer les Polygones Thiessen en Double dans une Table"
+
+# contributors:Hamza Rarou
+msgid "Save Image As"
+msgstr "Enregistrer l'Image Sous"
+
+# contributors:Hamza Rarou
+msgid "Save Image to File"
+msgstr "Enregistrer l'Image dans un Fichier"
+
+# contributors:Hamza Rarou
+msgid "Save Mean Centers"
+msgstr "Enregistrer les Centres de GravitÃ©"
+
+# contributors:Hamza Rarou
+msgid "Save OSM roads file"
+msgstr "Enregistrer le fichier des routes OSM"
+
+# contributors:Hamza Rarou
+msgid "Save OSM roads to file successfully."
+msgstr "Enregistrement des routes OSM dans un fichier rÃ©ussi."
+
+# contributors:Hamza Rarou
+msgid "Save Project"
+msgstr "Enregistrer le Projet"
+
+# contributors:Hamza Rarou
+msgid "Save Project File As..."
+msgstr "Enregistrer le Fichier de Projet sous..."
+
+# contributors:Hamza Rarou
+msgid "Save Projet File As"
+msgstr "Enregistrer le Fichier de Projet sous"
+
+# contributors:Hamza Rarou
+msgid "Save Rates"
+msgstr "Enregistrer les Taux"
+
+# contributors:Hamza Rarou
+msgid "Save Rates - %s over %s"
+msgstr "Enregistrer les Taux - %s sur %s"
+
+# contributors:Hamza Rarou
+msgid "Save Regression Results"
+msgstr "Enregistrer les RÃ©sultats de RÃ©gression"
+
+# contributors:Hamza Rarou
+msgid "Save Results"
+msgstr "Enregistrer les RÃ©sultats"
+
+# contributors:Hamza Rarou
+msgid "Save Results to Table: "
+msgstr "Enregistrer les RÃ©sultats dans une Table: "
+
+# contributors:Hamza Rarou
+msgid "Save Results: HDBScan (Core Distances/Probabilities/Outliers)"
+msgstr "Enregistrer les RÃ©sultats: HDBScan (Distances de Base/ProbabilitÃ©s/Anomalies)"
+
+# contributors:Hamza Rarou
+msgid "Save Results: Local Join Count stats, "
+msgstr "Enregistrer les rÃ©sultats: statistiques de comptage de jointure local, "
+
+# contributors:Hamza Rarou
+msgid "Save Results: LocalGeary"
+msgstr "Enregistrer les RÃ©sultats: Geary Local"
+
+# contributors:Hamza Rarou
+msgid "Save Results: MDS"
+msgstr "Enregistrer les RÃ©sultats: MDS"
+
+# contributors:Hamza Rarou
+msgid "Save Results: Moran's I"
+msgstr "Enregistrer les RÃ©sultats: I de Moran"
+
+# contributors:Hamza Rarou
+msgid "Save Selected As"
+msgstr "Enregistrer la SÃ©lection Sous"
+
+# contributors:Hamza Rarou
+msgid "Save Selection"
+msgstr "Enregistrer la SÃ©lection"
+
+# contributors:Hamza Rarou
+msgid "Save Space-Time Table/Weights"
+msgstr "Enregistrer Table/Poids Espace-Temps"
+
+# contributors:Hamza Rarou
+msgid "Save Spanning Tree"
+msgstr "Enregistrer l'Arbre Couvrant"
+
+# contributors:Hamza Rarou
+msgid "Save Spanning Tree to a Weights File"
+msgstr "Enregistrer l'Arbre Couvrant dans un Fichier de PondÃ©ration"
+
+# contributors:Hamza Rarou
+msgid "Save Statistics file"
+msgstr "Enregistrer le Fichier de Statistiques"
+
+# contributors:Hamza Rarou
+msgid "Save Table As CSV File"
+msgstr "Enregistrer la Table sous Forme de Fichier CSV"
+
+# contributors:Hamza Rarou
+msgid "Save Test Results"
+msgstr "Enregistrer les RÃ©sultats des Tests"
+
+# contributors:Hamza Rarou
+msgid "Save Thiessen Polygons"
+msgstr "Enregistrer les Polygones de Thiessen"
+
+# contributors:Hamza Rarou
+msgid ""
+"Save as data source (%s) failed.\n"
+"\n"
+"Details:"
+msgstr ""
+"Enregistrement sous source de donnÃ©es (%s) Ã©chouÃ©.\n"
+"\n"
+"DÃ©tails:"
+
+# contributors:Hamza Rarou
+msgid "Save data source progress dialog"
+msgstr "Enregistrer dialogue de progression de la source de donnÃ©es"
+
+# contributors:Hamza Rarou
+msgid "Save is not supported on current data source type: %s. Please try to use \"File->Save As\" other data source. However, the project file can still be saved as other project file."
+msgstr "L'enregistrement n'est pas pris en charge pour le type de source de donnÃ©es actuel: %s. Veuillez essayer d'utiliser \"Fichier -> Enregistrer sous\" pour un autre type de source de donnÃ©es. Cependant, le fichier de projet peut toujours Ãªtre enregistrÃ© sous un autre format de projet."
+
+# contributors:Hamza Rarou
+msgid "Save to File"
+msgstr "Enregistrer dans un Fichier"
+
+# contributors:Hamza Rarou
+msgid "Save/Show Map"
+msgstr "Enregistrer/Afficher la Carte"
+
+# contributors:Hamza Rarou
+msgid "Saved successfully."
+msgstr "EnregistrÃ© avec succÃ¨s."
+
+# contributors:Hamza Rarou
+msgid "Saving data source cancelled."
+msgstr "Enregistrement de la source de donnÃ©es annulÃ©."
+
+# contributors:Hamza Rarou
+msgid "Saving data..."
+msgstr "Enregistrement des donnÃ©es en cours..."
+
+# contributors:Hamza Rarou
+msgid "Saving failed: GeoDa can't save as empty datasource."
+msgstr "Ãchec de l'enregistrement: GeoDa ne peut pas enregistrer une source de donnÃ©es vide."
+
+# contributors:Hamza Rarou
+msgid ""
+"Saving to data source (%s) failed.\n"
+"\n"
+"Details: %s"
+msgstr ""
+"Ãchec de l'enregistrement de la source de donnÃ©es (%s).\n"
+"\n"
+"DÃ©tails: %s"
+
+# contributors:Hamza Rarou
+msgid "Scale Basemap"
+msgstr "Ãchelle du Fond de carte"
+
+# contributors:Hamza Rarou
+msgid "Scale Options"
+msgstr "Options d'Ãchelle"
+
+# contributors:Hamza Rarou
+msgid "Scatter Plot"
+msgstr "Graphique de Dispersion"
+
+# contributors:Hamza Rarou
+msgid "Scatter Plot - x: %s, y: %s"
+msgstr "Graphique de Dispersion - x: %s, y: %s"
+
+# contributors:Hamza Rarou
+msgid "Scatter Plot Matrix"
+msgstr "Matrice du Graphique de Dispersion"
+
+# contributors:Hamza Rarou
+msgid "Scatter Plot Matrix Help"
+msgstr "Aide de la Matrice du Graphique de Dispersion"
+
+# contributors:Hamza Rarou
+msgid "Scatter Plot Matrix Variables Add/Remove"
+msgstr "Ajouter/Supprimer les Variables de la Matrice du Graphique de Dispersion"
+
+# contributors:Hamza Rarou
+msgid "Scatter Plot Variables"
+msgstr "Variables du Graphique de Dispersion"
+
+# contributors:Hamza Rarou
+msgid "Scatter Plot- x: %s, y: %s"
+msgstr "Graphique de Dispersion - x: %s, y: %s"
+
+# contributors:Hamza Rarou
+msgid "Second Variable (Y)"
+msgstr "DeuxiÃ¨me variable (Y)"
+
+# contributors:Hamza Rarou
+msgid "Second Variable (Y/Latitude)"
+msgstr "DeuxiÃ¨me variable (Y/Latitude)"
+
+# contributors:Hamza Rarou
+msgid "Select"
+msgstr "SÃ©lectionner"
+
+# contributors:Hamza Rarou
+msgid "Select All"
+msgstr "Tout SÃ©lectionner"
+
+# contributors:Hamza Rarou
+msgid "Select All In Range"
+msgstr "Tout SÃ©lectionner dans la Plage"
+
+# contributors:Hamza Rarou
+msgid "Select All Undefined"
+msgstr "Tout SÃ©lectionner Non dÃ©fini"
+
+# contributors:Hamza Rarou
+msgid "Select All..."
+msgstr "Tout SÃ©lectionner..."
+
+# contributors:Hamza Rarou
+msgid "Select From Current Selection"
+msgstr "SÃ©lectionner Ã  partir de la SÃ©lection Actuelle"
+
+# contributors:Hamza Rarou
+msgid "Select ID Variable"
+msgstr "SÃ©lectionner la Variable ID"
+
+# contributors:Hamza Rarou
+msgid "Select ID Variable (Optional)"
+msgstr "SÃ©lectionner la Variable ID (facultatif)"
+
+# contributors:Hamza Rarou
+msgid "Select Neighborless Observations"
+msgstr "SÃ©lectionner les Observations Sans Voisin"
+
+# contributors:Hamza Rarou
+msgid "Select Variables"
+msgstr "SÃ©lectionner les Variables"
+
+# contributors:Hamza Rarou
+msgid "Select Variables (Multi-Selection)"
+msgstr "SÃ©lectionner les Variables (SÃ©lection Multiple)"
+
+# contributors:Hamza Rarou
+msgid "Select a file:"
+msgstr "SÃ©lectionner un fichier:"
+
+# contributors:Hamza Rarou
+msgid "Select an existing *.gdb directory, or create an New Folder named *.gdb"
+msgstr "SÃ©lectionner un rÃ©pertoire existant *.gdb ou crÃ©er un Nouveau Dossier nommÃ© *.gdb"
+
+# contributors:Hamza Rarou
+msgid "Select color scheme:"
+msgstr "SÃ©lectionner un jeu de couleurs:"
+
+# contributors:Hamza Rarou
+msgid "Select datasource"
+msgstr "SÃ©lectionner la source de donnÃ©es"
+
+# contributors:Hamza Rarou
+msgid "Select encoding (optional): "
+msgstr "SÃ©lectionner l'encodage (facultatif): "
+
+# contributors:Hamza Rarou
+msgid "Select field is not integer type. Default record order will be used instead."
+msgstr "SÃ©lectionner le champ n'est pas de type entier. L'ordre d'enregistrement par dÃ©faut sera utilisÃ© Ã  la place."
+
+# contributors:Hamza Rarou
+msgid "Select fields:"
+msgstr "SÃ©lectionner les champs:"
+
+# contributors:Hamza Rarou
+msgid "Select from current selection"
+msgstr "SÃ©lectionner Ã  partir de la sÃ©lection actuelle"
+
+# contributors:Hamza Rarou
+msgid "Select key:"
+msgstr "SÃ©lectionner la clÃ©:"
+
+# contributors:Hamza Rarou
+msgid "Select layer"
+msgstr "SÃ©lectionner la couche"
+
+# contributors:Hamza Rarou
+msgid "Select the language"
+msgstr "SÃ©lectionner la langue"
+
+# contributors:Hamza Rarou
+msgid "Select variable "
+msgstr "SÃ©lectionner une variable "
+
+# contributors:Hamza Rarou
+msgid "Select variable for dissolving:"
+msgstr "SÃ©lectionner une variable pour la fusion:"
+
+# contributors:Hamza Rarou
+msgid "Select variables to delete "
+msgstr "SÃ©lectionner les variables Ã  supprimer "
+
+# contributors:Hamza Rarou
+msgid "Select variables:"
+msgstr "SÃ©lectionner les variables:"
+
+# contributors:Hamza Rarou
+msgid "Select, hold CMD for brushing"
+msgstr "SÃ©lectionner, maintenir CMD pour la sÃ©lection par brossage"
+
+# contributors:Hamza Rarou
+msgid "Select, hold CTRL for brushing"
+msgstr "SÃ©lectionner, maintenir CTRL pour la sÃ©lection par brossage"
+
+# contributors:Hamza Rarou
+msgid "Selectable Fill Color"
+msgstr "Couleur de Remplissage SÃ©lectionnable"
+
+# contributors:Hamza Rarou
+msgid "Selected"
+msgstr "SÃ©lectionnÃ©"
+
+# contributors:Hamza Rarou
+msgid "Selected ="
+msgstr "SÃ©lectionnÃ© ="
+
+# contributors:Hamza Rarou
+msgid "Selected vs. Unselected"
+msgstr "SÃ©lectionnÃ© vs. Non sÃ©lectionnÃ©"
+
+# contributors:Hamza Rarou
+msgid "Selection"
+msgstr "SÃ©lection"
+
+# contributors:Hamza Rarou
+msgid "Selection Mode"
+msgstr "Mode de SÃ©lection"
+
+# contributors:Hamza Rarou
+msgid "Selection Shape"
+msgstr "Forme de SÃ©lection"
+
+# contributors:Hamza Rarou
+msgid "Selection Tool"
+msgstr "Outil de SÃ©lection"
+
+# contributors:Hamza Rarou
+msgid "Selection Variable"
+msgstr "Variable de SÃ©lection"
+
+# contributors:Hamza Rarou
+msgid "Send Crash Report"
+msgstr "Envoyer un Rapport de Plantage"
+
+# contributors:Hamza Rarou
+msgid "September"
+msgstr "Septembre"
+
+# contributors:Hamza Rarou
+msgid "Set Association Dialog"
+msgstr "Configurer l'Association"
+
+# contributors:Hamza Rarou
+msgid "Set Display Precision"
+msgstr "DÃ©finir la PrÃ©cision d'Affichage"
+
+# contributors:Hamza Rarou
+msgid "Set Display Precision of Y-Axis"
+msgstr "DÃ©finir la PrÃ©cision d'Affichage de l'axe Y"
+
+# contributors:Hamza Rarou
+msgid "Set Display Precision on Axes"
+msgstr "DÃ©finir la PrÃ©cision d'Affichage sur les Axes"
+
+# contributors:Hamza Rarou
+msgid "Set Display Precision:"
+msgstr "DÃ©finir la PrÃ©cision d'Affichage:"
+
+# contributors:Hamza Rarou
+msgid "Set Highlight Association"
+msgstr "DÃ©finir l'Association Mise en Ãvidence"
+
+# contributors:Hamza Rarou
+msgid "Set Number Separators"
+msgstr "DÃ©finir les SÃ©parateurs de Nombres"
+
+# contributors:Hamza Rarou
+msgid "Set Number Separators in Table"
+msgstr "DÃ©finir les SÃ©parateurs de Nombres dans le Tableau"
+
+# contributors:Hamza Rarou
+msgid "Set Number of Permutation"
+msgstr "DÃ©finir le Nombre de Permutations"
+
+# contributors:Hamza Rarou
+msgid "Set number of CPU cores manually:"
+msgstr "DÃ©finir manuellement le nombre de cÅurs de CPU:"
+
+# contributors:Hamza Rarou
+msgid "Set seed for randomization:"
+msgstr "DÃ©finir la graine pour la randomisation:"
+
+# contributors:Hamza Rarou
+msgid "Set the threshold to bridge the gap between disconnected polygons (often caused by digitizing errors). The value depends on your measurement unit (e.g. 1 foot or 0.0000001 degrees). Use the weights histogram to detect neighborless observations."
+msgstr "DÃ©finir le seuil pour combler l'Ã©cart entre les polygones non connectÃ©s (souvent causÃ© par des erreurs de numÃ©risation). La valeur dÃ©pend de votre unitÃ© de mesure (par exemple, 1 pied ou 0,0000001 degrÃ©). Utilisez l'histogramme des poids pour dÃ©tecter les observations sans voisins."
+
+# contributors:Hamza Rarou
+msgid "Set transparency of highlighted objects in selection:"
+msgstr "DÃ©finir la transparence des objets mis en Ã©vidence dans la sÃ©lection:"
+
+# contributors:Hamza Rarou
+msgid "Set transparency of unhighlighted objects in selection:"
+msgstr "DÃ©finir la transparence des objets non mis en Ã©vidence dans la sÃ©lection:"
+
+# contributors:Hamza Rarou
+msgid "Set value to cell failed."
+msgstr "Ãchec de la dÃ©finition de la valeur de la cellule."
+
+# contributors:Hamza Rarou
+msgid "Setup Locale of GeoDa Table"
+msgstr "Configuration de la Localisation de la Table GeoDa"
+
+# contributors:Hamza Rarou
+msgid "Setup co-locations:"
+msgstr "Configuration des co-localisations:"
+
+# contributors:Hamza Rarou
+msgid "Shape"
+msgstr "Forme"
+
+# contributors:Hamza Rarou
+msgid "Shape Centers"
+msgstr "Centres de Formes"
+
+# contributors:Hamza Rarou
+msgid "Show As Conditional Map"
+msgstr "Afficher en tant que Carte Conditionnelle"
+
+# contributors:Hamza Rarou
+msgid "Show Axes"
+msgstr "Afficher les Axes"
+
+# contributors:Hamza Rarou
+msgid "Show Axes Through Origin"
+msgstr "Afficher les Axes Passant par l'Origine"
+
+# contributors:Hamza Rarou
+msgid "Show CSV Configuration in Merge Data Dialog:"
+msgstr "Afficher la Configuration CSV dans la boÃ®te de Dialogue Fusionner les DonnÃ©es:"
+
+# contributors:Hamza Rarou
+msgid "Show Graph"
+msgstr "Afficher le Graphique"
+
+# contributors:Hamza Rarou
+msgid "Show LOWESS Smoother"
+msgstr "Afficher le Lissage LOWESS"
+
+# contributors:Hamza Rarou
+msgid "Show Legend"
+msgstr "Afficher la LÃ©gende"
+
+# contributors:Hamza Rarou
+msgid "Show Linear Smoother"
+msgstr "Afficher le Lissage linÃ©aire"
+
+# contributors:Hamza Rarou
+msgid "Show Map Boundary"
+msgstr "Afficher la Limite de la Carte"
+
+# contributors:Hamza Rarou
+msgid "Show Recent/Sample Data panel in Connect Datasource Dialog:"
+msgstr "Afficher le panneau des DonnÃ©es RÃ©centes/ÃchantillonnÃ©es dans la BoÃ®te de Dialogue de Connexion Ã  la source de donnÃ©es:"
+
+# contributors:Hamza Rarou
+msgid "Show Selection and Neighbors"
+msgstr "Afficher la SÃ©lection et les Voisins"
+
+# contributors:Hamza Rarou
+msgid "Show Status Bar"
+msgstr "Afficher la Barre d'Ãtat"
+
+# contributors:Hamza Rarou
+msgid "Show Vertical Axis"
+msgstr "Afficher l'Axe Vertical"
+
+# contributors:Hamza Rarou
+msgid "Show connect line"
+msgstr "Afficher la ligne de connexion"
+
+# contributors:Hamza Rarou
+msgid "Significance Filter"
+msgstr "Filtre de Signification"
+
+# contributors:Hamza Rarou
+msgid "Significance Map"
+msgstr "Carte de Signification"
+
+# contributors:Hamza Rarou
+msgid "Simulated Annealing"
+msgstr "Recuit SimulÃ©"
+
+# contributors:Hamza Rarou
+msgid "Skater Settings"
+msgstr "ParamÃ¨tres de Skater"
+
+# contributors:Hamza Rarou
+msgid "Smoother"
+msgstr "Lisseur"
+
+# contributors:Hamza Rarou
+msgid "Some calculated values were undefined and this is most likely due to neighborless observations in the weight matrix. Rate calculation successful for observations with neighbors."
+msgstr "Certaines valeurs calculÃ©es Ã©taient indÃ©finies, probablement en raison d'observations sans voisins dans la matrice de pondÃ©ration. Le calcul du taux a rÃ©ussi pour les observations avec des voisins."
+
+# contributors:Hamza Rarou
+msgid "Sort"
+msgstr "Trier"
+
+# contributors:Hamza Rarou
+msgid "South European Latin-3 (ISO-8859-3)"
+msgstr "Sud de l'Europe Latin-3 (ISO-8859-3)"
+
+# contributors:Hamza Rarou
+msgid "Space-time variables with duplicate name \"%s\" found."
+msgstr "Variables espace-temps avec le nom en double \"%s\" trouvÃ©."
+
+# contributors:Hamza Rarou
+msgid "Spatial Constraint:"
+msgstr "Contrainte Spatiale:"
+
+# contributors:Hamza Rarou
+msgid "Spatial Correlogram"
+msgstr "CorrÃ©logramme Spatial"
+
+# contributors:Hamza Rarou
+msgid "Spatial Empirical Bayes"
+msgstr "BayÃ©s Empirique Spatial"
+
+# contributors:Hamza Rarou
+msgid "Spatial Error"
+msgstr "Erreur Spatiale"
+
+# contributors:Hamza Rarou
+msgid "Spatial Join"
+msgstr "Jointure Spatiale"
+
+# contributors:Hamza Rarou
+msgid "Spatial Join can not be applied on two points layers. Please select another layer."
+msgstr "La Jointure Spatiale ne peut pas Ãªtre appliquÃ©e sur deux couches de points. Veuillez sÃ©lectionner une autre couche."
+
+# contributors:Hamza Rarou
+msgid "Spatial Join can not be applied on unknonwn layers. Please select another layer."
+msgstr "La Jointure Spatiale ne peut pas Ãªtre appliquÃ©e sur des couches inconnues. Veuillez sÃ©lectionner une autre couche."
+
+# contributors:Hamza Rarou
+msgid "Spatial Join does not work with Table only datasource."
+msgstr "La Jointure Spatiale ne fonctionne pas avec une source de donnÃ©es uniquement sous forme de Tableau."
+
+# contributors:Hamza Rarou
+msgid "Spatial Lag"
+msgstr "Lag spatial"
+
+# contributors:Hamza Rarou
+msgid "Spatial Rate"
+msgstr "Taux Spatial"
+
+# contributors:Hamza Rarou
+msgid "Spatial Rate Smoothed Variable Settings"
+msgstr "ParamÃ¨tres de Variable LissÃ©e pour le Taux Spatial"
+
+# contributors:Hamza Rarou
+msgid "Spatial lag and error regressions require symmetric weights (not KNN). You can still use KNN weights to obtain spatial diagnostics for classic regressions."
+msgstr "Les rÃ©gressions des erreurs et des retards spatiaux nÃ©cessitent des poids symÃ©triques (pas KNN). Vous pouvez toujours utiliser les poids KNN pour obtenir des diagnostics spatiaux pour les rÃ©gressions classiques."
+
+# contributors:Hamza Rarou
+msgid "Special"
+msgstr "SpÃ©cial"
+
+# contributors:Hamza Rarou
+msgid "Specified id field (%s) not found in currently loaded Table."
+msgstr "Champ d'identifiant spÃ©cifiÃ© (%s) introuvable dans la Table actuellement chargÃ©e."
+
+# contributors:Hamza Rarou
+msgid "Specified key (%d) not found in currently loaded Table."
+msgstr "ClÃ© spÃ©cifiÃ©e (%d) introuvable dans la Table actuellement chargÃ©e."
+
+# contributors:Hamza Rarou
+msgid "Specified key (%s) not found in currently loaded Table."
+msgstr "ClÃ© spÃ©cifiÃ©e (%s) introuvable dans la Table actuellement chargÃ©e."
+
+# contributors:Hamza Rarou
+msgid "Specified key value field \"%s\" in weights file contains duplicate values in the currently loaded Table."
+msgstr "Le champ de valeur de clÃ© spÃ©cifiÃ© \"%s\" dans le fichier de pondÃ©ration contient des valeurs en double dans la Table actuellement chargÃ©e."
+
+# contributors:Hamza Rarou
+msgid "Specified key value field \"%s\" on first line of weights file is not an integer type in the currently loaded Table."
+msgstr "Le champ de valeur de clÃ© spÃ©cifiÃ© \"%s\" Ã  la premiÃ¨re ligne du fichier de pondÃ©ration n'est pas de type entier dans la Table actuellement chargÃ©e."
+
+# contributors:Hamza Rarou
+msgid "Specified key value field \"%s\" on first line of weights file not found in currently loaded Table."
+msgstr "Le champ de valeur de clÃ© spÃ©cifiÃ© \"%s\" Ã  la premiÃ¨re ligne du fichier de pondÃ©ration est introuvable dans la Table actuellement chargÃ©e."
+
+# contributors:Hamza Rarou
+msgid "Specify Seed..."
+msgstr "SpÃ©cifier une Graine..."
+
+# contributors:Hamza Rarou
+msgid "Specify bandwidth"
+msgstr "SpÃ©cifier la largeur de bande"
+
+# contributors:Hamza Rarou
+msgid "Specify manually"
+msgstr "SpÃ©cifier manuellement"
+
+# contributors:Hamza Rarou
+msgid "Spectral"
+msgstr "Spectral"
+
+# contributors:Hamza Rarou
+msgid "Spectral Clustering Map (%d clusters)"
+msgstr "Carte de Regroupement Spectral (%d clusters)"
+
+# contributors:Hamza Rarou
+msgid "Spectral Clustering Settings"
+msgstr "ParamÃ¨tres de Regroupement Spectral"
+
+# contributors:Hamza Rarou
+msgid "Speed"
+msgstr "Vitesse"
+
+# contributors:Hamza Rarou
+msgid "Stable Version and Bug Fixes Only"
+msgstr "Version Stable et Corrections de Bugs Uniquement"
+
+# contributors:Hamza Rarou
+msgid "Stack"
+msgstr "Empiler"
+
+# contributors:Hamza Rarou
+msgid "Standard Deviation"
+msgstr "Ãcart Type"
+
+# contributors:Hamza Rarou
+msgid "Standard Deviation Color"
+msgstr "Couleur de l'Ãcart Type"
+
+# contributors:Hamza Rarou
+msgid "Standard Deviation Map"
+msgstr "Carte de l'Ãcart Type"
+
+# contributors:Hamza Rarou
+msgid "Standardized Data"
+msgstr "DonnÃ©es StandardisÃ©es"
+
+# contributors:Hamza Rarou
+msgid "Statistics"
+msgstr "Statistiques"
+
+# contributors:Hamza Rarou
+msgid "Status Bar"
+msgstr "Barre d'Ãtat"
+
+# contributors:Hamza Rarou
+msgid "Stopping criterion for power iteration:"
+msgstr "CritÃ¨re d'arrÃªt pour l'itÃ©ration de puissance:"
+
+# contributors:Hamza Rarou
+msgid "Strong"
+msgstr "Fort"
+
+# contributors:Hamza Rarou
+msgid "Submit Bug Error"
+msgstr "Signaler une Erreur de Bug"
+
+# contributors:Hamza Rarou
+msgid "Submit Bug Report"
+msgstr "Envoyer un Rapport de Bug"
+
+# contributors:Hamza Rarou
+msgid "Success"
+msgstr "RÃ©ussite"
+
+# contributors:Hamza Rarou
+msgid "Success / Warning"
+msgstr "RÃ©ussite / Avertissement"
+
+# contributors:Hamza Rarou
+msgid "Successful aggregation."
+msgstr "AgrÃ©gation rÃ©ussie."
+
+# contributors:Hamza Rarou
+msgid "Suggested field name:"
+msgstr "Nom de champ suggÃ©rÃ©:"
+
+# contributors:Hamza Rarou
+msgid "Sum"
+msgstr "Somme"
+
+# contributors:Hamza Rarou
+msgid "Summary"
+msgstr "RÃ©sumÃ©"
+
+# contributors:Hamza Rarou
+msgid "Synchronize %s with Time Control"
+msgstr "Synchroniser %s avec le ContrÃ´le du Temps"
+
+# contributors:Hamza Rarou
+msgid "System"
+msgstr "SystÃ¨me"
+
+# contributors:Hamza Rarou
+msgid "System:"
+msgstr "SystÃ¨me:"
+
+# contributors:Hamza Rarou
+msgid "T&able"
+msgstr "T&able"
+
+# contributors:Hamza Rarou
+msgid "Table"
+msgstr "Tableau"
+
+# contributors:Hamza Rarou
+msgid "Table Name"
+msgstr "Nom de la Table"
+
+# contributors:Hamza Rarou
+msgid "Tabu Length:"
+msgstr "Longueur Tabu:"
+
+# contributors:Hamza Rarou
+msgid "Tabu Search"
+msgstr "Recherche Tabu"
+
+# contributors:Hamza Rarou
+msgid "Tabu length for Tabu Search algorithm has to be an integer number larger than 1 (e.g. 85)."
+msgstr "La longueur Tabu pour l'algorithme de recherche Tabu doit Ãªtre un nombre entier supÃ©rieur Ã  1 (par exemple, 85)."
+
+# contributors:Hamza Rarou
+msgid "Tabu length:"
+msgstr "Longueur Tabu:"
+
+# contributors:Hamza Rarou
+msgid "Target"
+msgstr "Cible"
+
+# contributors:Hamza Rarou
+msgid "Target Variable"
+msgstr "Variable Cible"
+
+# contributors:Hamza Rarou
+msgid ""
+"Thank you for helping us improve GeoDa with your bug report! \n"
+"\n"
+"You can track our response and add screenshots or details here (or email us at spatial@uchicago.edu):"
+msgstr ""
+"Merci de nous aider Ã  amÃ©liorer GeoDa grÃ¢ce Ã  votre rapport de bug! \n"
+"\n"
+"Vous pouvez suivre notre rÃ©ponse et ajouter des captures d'Ã©cran ou des dÃ©tails ici (ou nous envoyer un e-mail Ã  spatial@uchicago.edu):"
+
+# contributors:Hamza Rarou
+msgid ""
+"The GeoDa project file cannot find one or more associated data sources.\n"
+"\n"
+"Details: GeoDa is looking for: %s\n"
+"\n"
+"Tip: You can open the .gda project file in a text editor to modify the path(s) of the data source associated with your project."
+msgstr ""
+"Le fichier de projet GeoDa ne peut pas trouver une ou plusieurs sources de donnÃ©es associÃ©es.\n"
+"\n"
+"DÃ©tails: GeoDa recherche: %s\n"
+"\n"
+"Conseil: Vous pouvez ouvrir le fichier de projet .gda dans un Ã©diteur de texte pour modifier le(s) chemin(s) de la source de donnÃ©es associÃ©e Ã  votre projet."
+
+# contributors:Hamza Rarou
+msgid "The Table should always be open, although somtimes it is hidden while the project is open.  This condition has been violated.  Please report this to the program developers."
+msgstr "La Table devrait toujours Ãªtre ouverte, bien qu'elle soit parfois masquÃ©e lorsque le projet est ouvert. Cette condition a Ã©tÃ© violÃ©e. Veuillez signaler cela aux dÃ©veloppeurs du programme."
+
+# contributors:Hamza Rarou
+msgid "The between-cluster sum of squares:\t"
+msgstr "La somme des carrÃ©s entre clusters:\t"
+
+# contributors:Hamza Rarou
+msgid "The categories of the selected variables do not overlap in space. Please select other variables."
+msgstr "Les catÃ©gories des variables sÃ©lectionnÃ©es ne se chevauchent pas dans l'espace. Veuillez sÃ©lectionner d'autres variables."
+
+# contributors:Hamza Rarou
+msgid "The connectivity of selected spatial weights is incomplete, please adjust the spatial weights."
+msgstr "La connectivitÃ© des pondÃ©rations spatiales sÃ©lectionnÃ©es est incomplÃ¨te, veuillez ajuster les pondÃ©rations spatiales."
+
+# contributors:Hamza Rarou
+msgid "The currently entered threshold value is not a valid number.  Please move the slider, or enter a valid number."
+msgstr "La valeur de seuil actuellement saisie n'est pas un nombre valide. Veuillez dÃ©placer le curseur ou entrer un nombre valide."
+
+# contributors:Hamza Rarou
+msgid "The currently entered threshold value is not a valid number. Please move the slider, or enter a valid number."
+msgstr "La valeur de seuil actuellement saisie n'est pas un nombre valide.Veuillez dÃ©placer le curseur ou entrer un nombre valide."
+
+# contributors:Hamza Rarou
+msgid ""
+"The currently entered threshold value of %f is less than %f which is the minimum value for which there will be no neighborless observations (isolates). \n"
+"\n"
+"Press Yes to proceed anyhow, press No to abort."
+msgstr ""
+"La valeur de seuil actuellement saisie de %f est infÃ©rieure Ã  %f, qui est la valeur minimale pour laquelle il n'y aura pas d'observations sans voisin (isolats).\n"
+"\n"
+"Appuyez sur Oui pour continuer malgrÃ© tout, appuyez sur Non pour annuler."
+
+# contributors:Hamza Rarou
+msgid "The data source is read only. Please try to save as other data source."
+msgstr "La source de donnÃ©es est en lecture seule. Veuillez essayer de sauvegarder sous une autre source de donnÃ©es."
+
+# contributors:Hamza Rarou
+msgid "The first line should have comma separated number of rows and ID name!"
+msgstr "La premiÃ¨re ligne doit avoir le nombre de lignes sÃ©parÃ©es par des virgules et le nom de l'ID!"
+
+# contributors:Hamza Rarou
+msgid ""
+"The geometries will not be saved when exporting to a Table-only data source.\n"
+"\n"
+"Do you want to continue?"
+msgstr ""
+"Les gÃ©omÃ©tries ne seront pas sauvegardÃ©es lors de l'exportation vers une source de donnÃ©es de type Table seulement.\n"
+"\n"
+"Voulez-vous continuer ?"
+
+# contributors:Hamza Rarou
+msgid ""
+"The last seed used by the pseudo random\n"
+"number generator was "
+msgstr ""
+"La derniÃ¨re graine utilisÃ©e par le gÃ©nÃ©rateur de nombres\n"
+"pseudo-alÃ©atoires Ã©tait "
+
+# contributors:Hamza Rarou
+msgid "The length of a string field must be at least %d and at most %d. Keeping original value."
+msgstr "La longueur d'un champ de chaÃ®ne doit Ãªtre d'au moins %d et au plus %d. La valeur d'origine est conservÃ©e."
+
+# contributors:Hamza Rarou
+msgid "The length of an integral numeric field must be at least %d and at most %d. Keeping original value."
+msgstr "La longueur d'un champ numÃ©rique entier doit Ãªtre d'au moins %d et au plus %d. La valeur d'origine est conservÃ©e."
+
+# contributors:Hamza Rarou
+msgid "The length of an non-integral numeric field must be at least %d and at most %d. Keeping original value."
+msgstr "La longueur d'un champ numÃ©rique non entier doit Ãªtre d'au moins %d et au plus %d. La valeur d'origine est conservÃ©e."
+
+# contributors:Hamza Rarou
+msgid ""
+"The length of field name should be between 1 and %d.\n"
+"Current field length (%d) is not valid"
+msgstr ""
+"La longueur du nom de champ doit Ãªtre comprise entre 1 et %d.\n"
+"La longueur actuelle du champ (%d) n'est pas valide"
+
+# contributors:Hamza Rarou
+msgid "The new theme chosen will no longer include rates smoothing. Please use the Rates submenu to choose a theme with rates again."
+msgstr "Le nouveau thÃ¨me choisi n'inclura plus de lissage des taux. Veuillez utiliser le sous-menu Taux pour choisir Ã  nouveau un thÃ¨me avec des taux."
+
+# contributors:Hamza Rarou
+msgid "The number of covariates should be more than the number of observations."
+msgstr "Le nombre de covariables doit Ãªtre supÃ©rieur au nombre d'observations."
+
+# contributors:Hamza Rarou
+msgid "The number of decimal places for a non-integral numeric field must be at least %d and at most %d. Keeping original value."
+msgstr "Le nombre de dÃ©cimales pour un champ numÃ©rique non entier doit Ãªtre d'au moins %d et au plus %d. La valeur d'origine est conservÃ©e."
+
+# contributors:Hamza Rarou
+msgid "The number of displayed decimal places for a non-integral numeric field must be at least %d and at most %d. Keeping original value."
+msgstr "Le nombre de dÃ©cimales affichÃ©es pour un champ numÃ©rique non entier doit Ãªtre d'au moins %d et au plus %d. La valeur d'origine est conservÃ©e."
+
+# contributors:Hamza Rarou
+msgid "The number of identified clusters is less than "
+msgstr "Le nombre de clusters identifiÃ©s est infÃ©rieur Ã "
+
+# contributors:Hamza Rarou
+msgid "The number of observations specified in chosen weights file is %d, but the number in the current Table is %d, which is incompatible."
+msgstr "Le nombre d'observations spÃ©cifiÃ© dans le fichier de pondÃ©rations choisi est de %d, mais le nombre dans la Table actuelle est de %d, ce qui est incompatible."
+
+# contributors:Hamza Rarou
+msgid "The number of observations specified in chosen weights file is incompatible with current Table."
+msgstr "Le nombre d'observations spÃ©cifiÃ© dans le fichier de pondÃ©rations choisi est incompatible avec la Table actuelle."
+
+# contributors:Hamza Rarou
+msgid "The number of records in current table is larger than the number of records in import table. Please choose import table >= %d records"
+msgstr "Le nombre d'enregistrements dans la table actuelle est supÃ©rieur au nombre d'enregistrements dans la table d'importation. Veuillez choisir une table d'importation >= %d enregistrements"
+
+# contributors:Hamza Rarou
+msgid "The original datasource %s is not a valid file. GeoDa \"Save\" only works on file datasource."
+msgstr "La source de donnÃ©es d'origine %s n'est pas un fichier valide.  \"Enregistrer\" de GeoDa ne fonctionne qu'avec les sources de donnÃ©es de type fichier."
+
+# contributors:Hamza Rarou
+msgid "The ratio of between to total sum of squares:\t"
+msgstr "Le rapport entre la somme des carrÃ©s inter-groupes sur la somme des carrÃ©s totale:\t"
+
+# contributors:Hamza Rarou
+msgid ""
+"The sample size for random sampling is too small.\n"
+"Please increase the number of iterations."
+msgstr ""
+"La taille de l'Ã©chantillon pour l'Ã©chantillonnage alÃ©atoire est trop petite.\n"
+"Veuillez augmenter le nombre d'itÃ©rations."
+
+# contributors:Hamza Rarou
+msgid "The selected database driver is not supported on this platform. Please check GeoDa website for more information about database support and connection."
+msgstr "Le pilote de base de donnÃ©es sÃ©lectionnÃ© n'est pas pris en charge sur cette plateforme. Veuillez consulter le site Web de GeoDa pour plus d'informations sur la prise en charge des bases de donnÃ©es et la connexion."
+
+# contributors:Hamza Rarou
+msgid "The selected group variable should contains %d items. Please modify the group variable in Time Editor, or select another variable."
+msgstr "La variable de groupe sÃ©lectionnÃ©e doit contenir %d Ã©lÃ©ments. Veuillez la modifier dans l'Ãditeur de Temps ou sÃ©lectionner une autre variable."
+
+# contributors:Hamza Rarou
+msgid "The selected group variable should contains %d items. Please modify the group variable in Time->Time Editor, or select another variable."
+msgstr "La variable de groupe sÃ©lectionnÃ©e doit contenir %d Ã©lÃ©ments. Veuillez la modifier dans Temps->Ãditeur de Temps ou sÃ©lectionner une autre variable."
+
+# contributors:Hamza Rarou
+msgid "The selected variable %s is not valid. If it's a grouped variable, please modify it in Time->Time Editor. Or please select another variable."
+msgstr "La variable sÃ©lectionnÃ©e %s n'est pas valide. S'il s'agit d'une variable groupÃ©e, veuillez la modifier dans Temps->Ãditeur de temps. Ou veuillez sÃ©lectionner une autre variable."
+
+# contributors:Hamza Rarou
+msgid "The selected variable is not numeric. Please select another variable."
+msgstr "La variable sÃ©lectionnÃ©e n'est pas numÃ©rique. Veuillez sÃ©lectionner une autre variable."
+
+# contributors:Hamza Rarou
+msgid "The set of values in the import key fields has no match in current table. Please choose keys with matching sets of values."
+msgstr "L'ensemble de valeurs dans les champs clÃ©s d'importation ne correspond Ã  aucun enregistrement dans la table actuelle. Veuillez choisir des clÃ©s avec des ensembles de valeurs correspondants."
+
+# contributors:Hamza Rarou
+msgid "The total sum of squares:\t"
+msgstr "La somme des carrÃ©s totale:\t"
+
+# contributors:Hamza Rarou
+msgid "The total within-cluster sum of squares:\t"
+msgstr "La somme des carrÃ©s intra-groupe totale:\t"
+
+# contributors:Hamza Rarou
+msgid "Themeless"
+msgstr "ThÃ¨meless"
+
+# contributors:Hamza Rarou
+msgid "Themeless Map"
+msgstr "Carte sans ThÃ¨me"
+
+# contributors:Hamza Rarou
+msgid "There are spatial objects being counted more than once. Please check the results."
+msgstr "Certains objets spatiaux sont comptÃ©s plusieurs fois. Veuillez vÃ©rifier les rÃ©sultats."
+
+# contributors:Hamza Rarou
+msgid "There are unsaved data source or weights/time definition changes."
+msgstr "Il existe des sources de donnÃ©es ou des modifications de dÃ©finition de pondÃ©ration/temps non enregistrÃ©es."
+
+# contributors:Hamza Rarou
+msgid "There is a view could not be closed. Please manually close and try again."
+msgstr "Il existe une vue qui ne peut pas Ãªtre fermÃ©e. Veuillez la fermer manuellement et rÃ©essayer."
+
+# contributors:Hamza Rarou
+msgid "There is an error during PCA calculation. Please check if the data is valid."
+msgstr "Une erreur s'est produite lors du calcul de l'ACP. Veuillez vÃ©rifier si les donnÃ©es sont valides."
+
+# contributors:Hamza Rarou
+msgid "There is at least one neighborless observation. Check the islands in weights histogram and linked map."
+msgstr "Il y a au moins une observation sans voisin. VÃ©rifiez les Ã®les dans l'histogramme des pondÃ©rations et la carte liÃ©e."
+
+# contributors:Hamza Rarou
+msgid "There is at least one neighborless observation. Check the weights histogram and linked map to see if the islands are real or not. If not, adjust the distance threshold (points) or the precision threshold (polygons)."
+msgstr "Il y a au moins une observation sans voisin. Veuillez vÃ©rifier l'histogramme des pondÃ©rations et la carte liÃ©e pour voir si les Ã®les sont rÃ©elles ou non. Si ce n'est pas le cas, ajustez le seuil de distance (points) ou le seuil de prÃ©cision (polygones)."
+
+# contributors:Hamza Rarou
+msgid "There is at least one view could not be closed. Please manually close and try again."
+msgstr "Il y a au moins une vue qui ne peut pas Ãªtre fermÃ©e. Veuillez la fermer manuellement et rÃ©essayer."
+
+# contributors:Hamza Rarou
+msgid "There is at least one view open that depends on this matrix. Ok to close these views and remove?"
+msgstr "Il y a au moins une vue ouverte qui dÃ©pend de cette matrice. Voulez-vous fermer ces vues et les supprimer?"
+
+# contributors:Hamza Rarou
+msgid "There is one other view open that depends on this matrix. Ok to close this view and remove?"
+msgstr "Il y a une autre vue ouverte qui dÃ©pend de cette matrice. Voulez-vous fermer cette vue et la supprimer?"
+
+# contributors:Hamza Rarou
+msgid "There was a problem associating the weights file."
+msgstr "Un problÃ¨me est survenu lors de l'association du fichier de pondÃ©ration."
+
+# contributors:Hamza Rarou
+msgid "There was a problem generating voronoi contiguity neighbors. Please report this."
+msgstr "Un problÃ¨me est survenu lors de la gÃ©nÃ©ration des voisins de contiguÃ¯tÃ© Voronoi. Veuillez signaler cela."
+
+# contributors:Hamza Rarou
+msgid "There was a problem reading the layer"
+msgstr "Un problÃ¨me est survenu lors de la lecture de la couche"
+
+# contributors:Hamza Rarou
+msgid "There was a problem reading the table"
+msgstr "Un problÃ¨me est survenu lors de la lecture de la table"
+
+# contributors:Hamza Rarou
+msgid "There was a problem requesting the weights file."
+msgstr "Un problÃ¨me est survenu lors de la demande du fichier de pondÃ©ration."
+
+# contributors:Hamza Rarou
+msgid "These are the row numbers of the records without location information."
+msgstr "Ce sont les numÃ©ros de ligne des enregistrements sans information de localisation."
+
+# contributors:Hamza Rarou
+msgid "Thiessen Polygons"
+msgstr "Polygones de Thiessen"
+
+# contributors:Hamza Rarou
+msgid "Third Variable (Z)"
+msgstr "TroisiÃ¨me Variable (Z)"
+
+# contributors:Hamza Rarou
+msgid "This datasource is not supported. Please export to other datasource that GeoDa supports first."
+msgstr "Cette source de donnÃ©es n'est pas prise en charge. Veuillez d'abord exporter vers une autre source de donnÃ©es prise en charge par GeoDa."
+
+# contributors:Hamza Rarou
+msgid "This field name already exists (non-integer type). Please input a unique name."
+msgstr "Ce nom de champ existe dÃ©jÃ  (type non entier). Veuillez saisir un nom unique."
+
+# contributors:Hamza Rarou
+msgid "This format is not supported."
+msgstr "Ce format n'est pas pris en charge."
+
+# contributors:Hamza Rarou
+msgid "This is the list of existing grouped variables. As new groups are created, they will appear on this list. You can open an existing .gda file and edit it here."
+msgstr "Voici la liste des variables groupÃ©es existantes. Au fur et Ã  mesure que de nouveaux groupes sont crÃ©Ã©s, ils apparaÃ®tront dans cette liste. Vous pouvez ouvrir un fichier .gda existant et le modifier ici."
+
+# contributors:Hamza Rarou
+msgid "This view currently supports data with at most 1000 observations. The Spatial Correlogram Scatterplot plots distances between all pairs of observations. The current data set has %d observations and %d unordered pairs of observations."
+msgstr "Cette vue prend actuellement en charge les donnÃ©es comportant au maximum 1000 observations. Le graphique de Dispersion du Correlogramme Spatial trace les distances entre toutes les paires d'observations. L'ensemble de donnÃ©es actuel compte %d observations et %d paires non ordonnÃ©es d'observations."
+
+# contributors:Hamza Rarou
+msgid "Thousands:"
+msgstr "Milliers:"
+
+# contributors:Hamza Rarou
+msgid "Tim&e"
+msgstr "Heur&e"
+
+# contributors:Hamza Rarou
+msgid "Time"
+msgstr "Temps"
+
+# contributors:Hamza Rarou
+msgid "Time Editor"
+msgstr "Ãditeur de Temps"
+
+# contributors:Hamza Rarou
+msgid "Time Player"
+msgstr "Lecteur de Temps"
+
+# contributors:Hamza Rarou
+msgid "Time Setup"
+msgstr "Configuration de l'heure"
+
+# contributors:Hamza Rarou
+msgid "Time Variable Options"
+msgstr "Options de Variable Temporelle"
+
+# contributors:Hamza Rarou
+msgid "Time:"
+msgstr "Heure:"
+
+# contributors:Hamza Rarou
+msgid "Title of Visualization"
+msgstr "Titre de la visualisation"
+
+# contributors:Hamza Rarou
+msgid "Tools"
+msgstr "Outils"
+
+# contributors:Hamza Rarou
+msgid "Top"
+msgstr "Haut"
+
+# contributors:Hamza Rarou
+msgid "Transformation:"
+msgstr "Transformation:"
+
+# contributors:Hamza Rarou
+msgid "Transformation:  "
+msgstr "Transformation: "
+
+# contributors:Hamza Rarou
+msgid "Transformation:\t"
+msgstr "Transformation:\t"
+
+# contributors:Hamza Rarou
+msgid "Travel Distances Tool"
+msgstr "Outil de Distances de DÃ©placement"
+
+# contributors:Hamza Rarou
+msgid "Turkish (Windows-1254)"
+msgstr "Turc (Windows-1254)"
+
+# contributors:Hamza Rarou
+msgid "Turkish Latin-5 (ISO-8859-9)"
+msgstr "Turc Latin-5 (ISO-8859-9)"
+
+# contributors:Hamza Rarou
+msgid "Type"
+msgstr "Type"
+
+# contributors:Hamza Rarou
+msgid "Type 1"
+msgstr "Type 1"
+
+# contributors:Hamza Rarou
+msgid "Type 1a"
+msgstr "Type 1a"
+
+# contributors:Hamza Rarou
+msgid "Type 2"
+msgstr "Type 2"
+
+# contributors:Hamza Rarou
+msgid "Type 2a"
+msgstr "Type 2a"
+
+# contributors:Hamza Rarou
+msgid "Unable to overwrite "
+msgstr "Impossible d'Ã©craser "
+
+# contributors:Hamza Rarou
+msgid "Undefined"
+msgstr "IndÃ©fini"
+
+# contributors:Hamza Rarou
+msgid "Undo"
+msgstr "Annuler"
+
+# contributors:Hamza Rarou
+msgid "Ungrouped Variables"
+msgstr "Variables non groupÃ©es"
+
+# contributors:Hamza Rarou
+msgid "Unicode (UTF-16LE)"
+msgstr "Unicode (UTF-16LE)"
+
+# contributors:Hamza Rarou
+msgid "Unicode (UTF-8)"
+msgstr "Unicode (UTF-8)"
+
+# contributors:Hamza Rarou
+msgid "Unique Values"
+msgstr "Valeurs Uniques"
+
+# contributors:Hamza Rarou
+msgid "Unique Values Map"
+msgstr "Carte des Valeurs Uniques"
+
+# contributors:Hamza Rarou
+msgid "Univariate"
+msgstr "UnivariÃ©"
+
+# contributors:Hamza Rarou
+msgid "Univariate Local Geary"
+msgstr "Geary Local UnivariÃ©"
+
+# contributors:Hamza Rarou
+msgid "Univariate Local Join Count"
+msgstr "Compte de Jonction Local UnivariÃ©"
+
+# contributors:Hamza Rarou
+msgid "Univariate Local Moran's I"
+msgstr "I de Moran Local UnivariÃ©"
+
+# contributors:Hamza Rarou
+msgid "Univariate Moran's I"
+msgstr "I de Moran UnivariÃ©"
+
+# contributors:Hamza Rarou
+msgid "Unknow exception. Please contact GeoDa support."
+msgstr "Exception inconnue. Veuillez contacter le support GeoDa."
+
+# contributors:Hamza Rarou
+msgid "Unselected"
+msgstr "Non sÃ©lectionnÃ©"
+
+# contributors:Hamza Rarou
+msgid "Unselected ="
+msgstr "Non sÃ©lectionnÃ© ="
+
+# contributors:Hamza Rarou
+msgid "Up"
+msgstr "Monter"
+
+# contributors:Hamza Rarou
+msgid "Update GeoDa completed"
+msgstr "Mise Ã  jour de GeoDa terminÃ©e"
+
+# contributors:Hamza Rarou
+msgid "Update GeoDa failed"
+msgstr "Ãchec de la mise Ã  jour de GeoDa"
+
+# contributors:Hamza Rarou
+msgid ""
+"Update project information failed. \n"
+"\n"
+"Details: The layer information defined in project file does no match opened datasource."
+msgstr ""
+"Ãchec de la mise Ã  jour des informations du projet. \n"
+"\n"
+"DÃ©tails: Les informations de la couche dÃ©finies dans le fichier de projet ne correspondent pas Ã  la source de donnÃ©es ouverte."
+
+# contributors:Hamza Rarou
+msgid "Upper outlier"
+msgstr "Outlier supÃ©rieur"
+
+# contributors:Hamza Rarou
+msgid "Upper-right corner"
+msgstr "Coin supÃ©rieur droit"
+
+# contributors:Hamza Rarou
+msgid "Use GPU to Accelerate computation:"
+msgstr "Utiliser le GPU pour accÃ©lÃ©rer le calcul:"
+
+# contributors:Hamza Rarou
+msgid "Use Power Iteration method:\tMax iterations="
+msgstr "Utiliser la mÃ©thode de l'itÃ©ration de puissance:\tNombre maximal d'itÃ©rations="
+
+# contributors:Hamza Rarou
+msgid "Use Power Iteration:"
+msgstr "Utiliser l'ItÃ©ration de Puissance:"
+
+# contributors:Hamza Rarou
+msgid "Use Scientific Notation"
+msgstr "Utiliser la Notation Scientifique"
+
+# contributors:Hamza Rarou
+msgid "Use Specified Seed"
+msgstr "Utiliser une Graine SpÃ©cifiÃ©e"
+
+# contributors:Hamza Rarou
+msgid "Use Transparent Legend Background"
+msgstr "Utiliser un ArriÃ¨re-plan Transparent pour la LÃ©gende"
+
+# contributors:Hamza Rarou
+msgid "Use Weights:"
+msgstr "Utiliser les PondÃ©rations:"
+
+# contributors:Hamza Rarou
+msgid "Use bounding box of input datasource"
+msgstr "Utiliser la boÃ®te englobante de la source de donnÃ©es d'entrÃ©e"
+
+# contributors:Hamza Rarou
+msgid "Use classic yellow cross-hatching to highlight selection in maps:"
+msgstr "Utiliser le hachurage en croix jaune classique pour mettre en Ã©vidence la sÃ©lection sur les cartes:"
+
+# contributors:Hamza Rarou
+msgid "Use existing field name"
+msgstr "Utiliser le nom de champ existant"
+
+# contributors:Hamza Rarou
+msgid "Use geometric centroids"
+msgstr "Utiliser les centroÃ¯des gÃ©omÃ©triques"
+
+# contributors:Hamza Rarou
+msgid "Use geometric centroids (weighting): \n"
+msgstr "Utiliser les centroÃ¯des gÃ©omÃ©triques (pondÃ©ration): \n"
+
+# contributors:Hamza Rarou
+msgid "Use inverse distance?"
+msgstr "Utiliser la distance inverse?"
+
+# contributors:Hamza Rarou
+msgid "Use max knn distance as bandwidth"
+msgstr "Utiliser la distance maximale des k plus proches voisins comme largeur de bande"
+
+# contributors:Hamza Rarou
+msgid "Use outline + motorway(~bbox) of input datasource"
+msgstr "Utiliser le contour + l'autoroute (~bbox) de la source de donnÃ©es d'entrÃ©e"
+
+# contributors:Hamza Rarou
+msgid "Use outline of input datasource"
+msgstr "Utiliser le contour de la source de donnÃ©es d'entrÃ©e"
+
+# contributors:Hamza Rarou
+msgid "Use row-standardized weights"
+msgstr "Utiliser des pondÃ©rations normalisÃ©es par ligne"
+
+# contributors:Hamza Rarou
+msgid "Use selected as specified alpha level"
+msgstr "Utiliser la sÃ©lection actuelle comme niveau alpha spÃ©cifiÃ©"
+
+# contributors:Hamza Rarou
+msgid "Use specified seed:"
+msgstr "Utiliser une graine spÃ©cifiÃ©e:"
+
+# contributors:Hamza Rarou
+msgid "Use the bounding box of shape datasource"
+msgstr "Utiliser la boÃ®te englobante de la source de formes"
+
+# contributors:Hamza Rarou
+msgid "User Defined"
+msgstr "DÃ©fini par l'Utilisateur"
+
+# contributors:Hamza Rarou
+msgid "User Name"
+msgstr "Nom d'Utilisateur"
+
+# contributors:Hamza Rarou
+msgid "User name"
+msgstr "Nom d'utilisateur"
+
+# contributors:Hamza Rarou
+msgid "Value"
+msgstr "Valeur"
+
+# contributors:Hamza Rarou
+msgid "Values assigned to target field successfully."
+msgstr "Valeurs attribuÃ©es au champ cible avec succÃ¨s."
+
+# contributors:Hamza Rarou
+msgid "Var Calc Container"
+msgstr "Conteneur de Calc de Var"
+
+# contributors:Hamza Rarou
+msgid "Variable"
+msgstr "Variable"
+
+# contributors:Hamza Rarou
+msgid "Variable %s at time %d could not be standardized."
+msgstr "La variable %s Ã  l'instant %d n'a pas pu Ãªtre standardisÃ©e."
+
+# contributors:Hamza Rarou
+msgid "Variable %s at time %d is a placeholer"
+msgstr "La variable %s Ã  l'instant %d est un espace rÃ©servÃ©"
+
+# contributors:Hamza Rarou
+msgid "Variable %s is a placeholer"
+msgstr "La variable %s est un espace rÃ©servÃ©"
+
+# contributors:Hamza Rarou
+msgid "Variable %s is a time-grouped variable.  Please ungroup this variable to delete."
+msgstr "La variable %s est une variable groupÃ©e par temps. Veuillez dÃ©grouper cette variable pour la supprimer."
+
+# contributors:Hamza Rarou
+msgid "Variable %s is no longer in the Table.  Please close and reopen the Regression Dialog to synchronize with Table data."
+msgstr "La variable %s n'est plus dans la Table. Veuillez fermer et rÃ©ouvrir la boÃ®te de dialogue de rÃ©gression pour la synchroniser avec les donnÃ©es de la Table."
+
+# contributors:Hamza Rarou
+msgid "Variable %s is no longer in the Table.  Please close and reopen this dialog to synchronize with Table data."
+msgstr "La variable %s n'est plus dans la Table. Veuillez fermer et rÃ©ouvrir cette boÃ®te de dialogue pour la synchroniser avec les donnÃ©es de la Table."
+
+# contributors:Hamza Rarou
+msgid "Variable %s is not valid. Please select another variable."
+msgstr "La variable %s n'est pas valide. Veuillez sÃ©lectionner une autre variable."
+
+# contributors:Hamza Rarou
+msgid "Variable / Constant"
+msgstr "Variable / Constante"
+
+# contributors:Hamza Rarou
+msgid "Variable <font color=\"blue\">%s</font> is specified. "
+msgstr "La variable <font color=\"blue\">%s</font> est spÃ©cifiÃ©e. "
+
+# contributors:Hamza Rarou
+msgid "Variable Choice"
+msgstr "Choix de la Variable"
+
+# contributors:Hamza Rarou
+msgid "Variable Name"
+msgstr "Nom de la Variable"
+
+# contributors:Hamza Rarou
+msgid "Variable Properties"
+msgstr "PropriÃ©tÃ©s de la Variable"
+
+# contributors:Hamza Rarou
+msgid "Variable Properties - "
+msgstr "PropriÃ©tÃ©s de la Variable - "
+
+# contributors:Hamza Rarou
+msgid "Variable Setting"
+msgstr "Configuration de la Variable"
+
+# contributors:Hamza Rarou
+msgid "Variable Settings"
+msgstr "ParamÃ¨tres de la Variable"
+
+# contributors:Hamza Rarou
+msgid "Variable Type Error"
+msgstr "Erreur de Type de Variable"
+
+# contributors:Hamza Rarou
+msgid "Variable Value Error"
+msgstr "Erreur de Valeur de Variable"
+
+# contributors:Hamza Rarou
+msgid "Variable name \"%s\" is either a duplicate or is invalid. Please enter an alternative, non-duplicate variable name."
+msgstr "Le nom de variable \"%s\" est en double ou non valide. Veuillez saisir un nom de variable alternatif et non duplicat."
+
+# contributors:Hamza Rarou
+msgid "Variable name \"%s\" is either a duplicate or is invalid. Please enter an alternative, non-duplicate variable name. The first character must be a letter, and the remaining characters can be either letters, numbers or underscores. For DBF table, a valid variable name is between one and ten characters long."
+msgstr "Le nom de variable \"%s\" est en double ou non valide. Veuillez saisir un nom de variable alternatif et non duplicat. Le premier caractÃ¨re doit Ãªtre une lettre et les caractÃ¨res suivants peuvent Ãªtre des lettres, des chiffres ou des traits de soulignement. Pour une table DBF, un nom de variable valide doit comporter entre un et dix caractÃ¨res."
+
+# contributors:Hamza Rarou
+msgid "Variable name can't be empty."
+msgstr "Le nom de variable ne peut pas Ãªtre vide."
+
+# contributors:Hamza Rarou
+msgid ""
+"Variable name is either a duplicate or is invalid. Please\n"
+"enter an alternative, non-duplicate variable name.\n"
+"\n"
+msgstr ""
+"Le nom de variable est en double ou non valide. Veuillez\n"
+"saisir un nom de variable alternatif et non duplicat.\n"
+"\n"
+
+# contributors:Hamza Rarou
+msgid "Variable:"
+msgstr "Variable:"
+
+# contributors:Hamza Rarou
+msgid "Variables"
+msgstr "Variables"
+
+# contributors:Hamza Rarou
+msgid "Variables:"
+msgstr "Variables:"
+
+# contributors:Hamza Rarou
+msgid "Vertical Bins Breaks"
+msgstr "Classes de coupure verticales"
+
+# contributors:Hamza Rarou
+msgid "Vertical Cells"
+msgstr "Cellules verticales"
+
+# contributors:Hamza Rarou
+msgid "Vietnamese (Windows-1258)"
+msgstr "Vietnamien (Windows-1258)"
+
+# contributors:Hamza Rarou
+msgid "View"
+msgstr "Afficher"
+
+# contributors:Hamza Rarou
+msgid "View Original Data"
+msgstr "Afficher les DonnÃ©es Originales"
+
+# contributors:Hamza Rarou
+msgid "View Standardized Data"
+msgstr "Afficher les DonnÃ©es StandardisÃ©es"
+
+# contributors:Hamza Rarou
+msgid "Voronoi Contiguity Error"
+msgstr "Erreur de ContiguÃ¯tÃ© de VoronoÃ¯"
+
+# contributors:Hamza Rarou
+msgid "WFS URL"
+msgstr "URL WFS"
+
+# contributors:Hamza Rarou
+msgid "Warning"
+msgstr "Avertissement"
+
+# contributors:Hamza Rarou
+msgid "Warning: %d observations are neighborless."
+msgstr "Attention: %d observations sont sans voisin."
+
+# contributors:Hamza Rarou
+msgid "Warning: %d observations is neighborless."
+msgstr "Attention: %d observation est sans voisin."
+
+# contributors:Hamza Rarou
+msgid "Warning: NULL geometry"
+msgstr "Avertissement: gÃ©omÃ©trie NULL"
+
+# contributors:Hamza Rarou
+msgid "Warning: loss data"
+msgstr "Avertissement: perte de donnÃ©es"
+
+# contributors:Hamza Rarou
+msgid "Was not able to load weights matrix."
+msgstr "Impossible de charger la matrice de pondÃ©ration."
+
+# contributors:Hamza Rarou
+msgid "Web"
+msgstr "Web"
+
+# contributors:Hamza Rarou
+msgid "Weight"
+msgstr "PondÃ©ration"
+
+# contributors:Hamza Rarou
+msgid "Weight matrix required for chosen spatial rate method."
+msgstr "Matrice de pondÃ©ration requise pour la mÃ©thode de taux spatial choisie."
+
+# contributors:Hamza Rarou
+msgid "Weighting:"
+msgstr "PondÃ©ration:"
+
+# contributors:Hamza Rarou
+msgid "Weights"
+msgstr "PondÃ©rations"
+
+# contributors:Hamza Rarou
+msgid "Weights File"
+msgstr "Fichier de PondÃ©ration"
+
+# contributors:Hamza Rarou
+msgid "Weights File Creation"
+msgstr "CrÃ©ation du Fichier de PondÃ©ration"
+
+# contributors:Hamza Rarou
+msgid "Weights Intersection"
+msgstr "Intersection des Poids"
+
+# contributors:Hamza Rarou
+msgid "Weights Manager"
+msgstr "Gestionnaire de PondÃ©rations"
+
+# contributors:Hamza Rarou
+msgid "Weights Name"
+msgstr "Nom de PondÃ©ration"
+
+# contributors:Hamza Rarou
+msgid "Weights Symmetry Check"
+msgstr "VÃ©rification de la SymÃ©trie des PondÃ©rations"
+
+# contributors:Hamza Rarou
+msgid "Weights Union"
+msgstr "Union des PondÃ©rations"
+
+# contributors:Hamza Rarou
+msgid "Weights file \"%s\" created successfully."
+msgstr "Le fichier de pondÃ©ration \"%s\" a Ã©tÃ© crÃ©Ã© avec succÃ¨s."
+
+# contributors:Hamza Rarou
+msgid "Weights file/format is not valid."
+msgstr "Le fichier/format de pondÃ©ration n'est pas valide."
+
+# contributors:Hamza Rarou
+msgid "Weights:"
+msgstr "PondÃ©rations:"
+
+# contributors:Hamza Rarou
+msgid "Welcome to GeoDa"
+msgstr "Bienvenue dans GeoDa"
+
+# contributors:Hamza Rarou
+msgid "Welcome to GeoDa 1.8.16"
+msgstr "Bienvenue dans GeoDa 1.8.16"
+
+# contributors:Hamza Rarou
+msgid "West European Latin-1 (ISO-8859-1)"
+msgstr "Europe occidentale Latin-1 (ISO-8859-1)"
+
+# contributors:Hamza Rarou
+msgid "West European Latin-9 (ISO-8859-15)"
+msgstr "Europe occidentale Latin-9 (ISO-8859-15)"
+
+# contributors:Hamza Rarou
+msgid "What windows to open?"
+msgstr "Quelles fenÃªtres ouvrir?"
+
+# contributors:Hamza Rarou
+msgid "When \"all times\" selected for either variable, result field must also be \"all times.\""
+msgstr "Quand \"tous les temps\" est sÃ©lectionnÃ© pour une des deux variable, le champ de rÃ©sultat doit Ã©galement Ãªtre \"tous les temps.\""
+
+# contributors:Hamza Rarou
+msgid "When \"all times\" selected for variable, result field must also be \"all times.\""
+msgstr "Quand \"tous les temps\" est sÃ©lectionnÃ© pour une variable, le champ de rÃ©sultat doit Ã©galement Ãªtre \"tous les temps.\""
+
+# contributors:Hamza Rarou
+msgid "White Test"
+msgstr "Test de White"
+
+# contributors:Hamza Rarou
+msgid "Width in pixels"
+msgstr "Largeur en pixels"
+
+# contributors:Hamza Rarou
+msgid "Width:"
+msgstr "Largeur:"
+
+# contributors:Hamza Rarou
+msgid "Within cluster S.S."
+msgstr "S.S. intra-cluster"
+
+# contributors:Hamza Rarou
+msgid "Within-cluster sum of squares:\n"
+msgstr "Somme des carrÃ©s intra-cluster:\n"
+
+# contributors:Hamza Rarou
+msgid "Wrong number of rows!"
+msgstr "Mauvais nombre de lignes!"
+
+# contributors:Hamza Rarou
+msgid "Wrote GeoDa Project File: "
+msgstr "Fichier de projet GeoDa Ã©crit: "
+
+# contributors:Hamza Rarou
+msgid "X"
+msgstr "X"
+
+# contributors:Hamza Rarou
+msgid "X Variable"
+msgstr "Variable X"
+
+# contributors:Hamza Rarou
+msgid "X-Axis"
+msgstr "Axe des X"
+
+# contributors:Hamza Rarou
+msgid "X-Coordinates"
+msgstr "CoordonnÃ©es X"
+
+# contributors:Hamza Rarou
+msgid "X-coord"
+msgstr "X-coord"
+
+# contributors:Hamza Rarou
+msgid "X-coordinate"
+msgstr "CoordonnÃ©e X"
+
+# contributors:Hamza Rarou
+msgid "X-coordinate variable"
+msgstr "Variable de coordonnÃ©e X"
+
+# contributors:Hamza Rarou
+msgid "Y"
+msgstr "Y"
+
+# contributors:Hamza Rarou
+msgid "Y Variable"
+msgstr "Variable Y"
+
+# contributors:Hamza Rarou
+msgid "Y-Axis"
+msgstr "Axe des Y"
+
+# contributors:Hamza Rarou
+msgid "Y-Coordinates"
+msgstr "CoordonnÃ©es Y"
+
+# contributors:Hamza Rarou
+msgid "Y-coord"
+msgstr "Y-coord"
+
+# contributors:Hamza Rarou
+msgid "Y-coordinate"
+msgstr "CoordonnÃ©e Y"
+
+# contributors:Hamza Rarou
+msgid "Y-coordinate variable"
+msgstr "Variable de coordonnÃ©e Y"
+
+# contributors:Hamza Rarou
+msgid "Yes"
+msgstr "Oui"
+
+# contributors:Hamza Rarou
+msgid "You can try to proceed but the current threshold distance value might be too large to compute. If it fails, please input a smaller distance band (which might leave some observations neighborless) or use other weights (e.g. KNN)."
+msgstr "Vous pouvez essayer de continuer, mais la valeur de distance seuil actuelle peut Ãªtre trop grande pour le calcul. Si cela Ã©choue, veuillez entrer une bande de distance plus petite (ce qui peut laisser certaines observations sans voisin) ou utiliser d'autres pondÃ©rations (par exemple, KNN)."
+
+# contributors:Hamza Rarou
+msgid "You have requested to create a new file project %s  while another project is open. Please close project %s and try again."
+msgstr "Votre demande de crÃ©ation d'un nouveau projet de fichier %s est en cours alors qu'un autre projet est ouvert. Veuillez fermer le projet %s et rÃ©essayer."
+
+# contributors:Hamza Rarou
+msgid "Your Email address (Optional):"
+msgstr "Votre adresse E-mail (facultatif):"
+
+# contributors:Hamza Rarou
+msgid "Your GeoDa is already up-to-date."
+msgstr "Votre GeoDa est dÃ©jÃ  Ã  jour."
+
+# contributors:Hamza Rarou
+msgid "Your Github account (Optional):"
+msgstr "Votre compte Github (Facultatif):"
+
+# contributors:Hamza Rarou
+msgid "Your table cannot be aggregated because the key field \"%s\" is unique. Please use another key."
+msgstr "Votre table ne peut pas Ãªtre agrÃ©gÃ©e car le champ clÃ© \"%s\" est unique. Veuillez utiliser une autre clÃ©."
+
+# contributors:Hamza Rarou
+msgid ""
+"Your table cannot be merged because the key field \"%s\" is not unique. \n"
+"It contains undefined or duplicate values.\n"
+"\n"
+"Details:"
+msgstr ""
+"Votre table ne peut pas Ãªtre fusionnÃ©e car le champ clÃ© \"%s\" n'est pas unique. \n"
+"Il contient des valeurs non dÃ©finies ou en double.\n"
+"\n"
+"DÃ©tails:"
+
+# contributors:Hamza Rarou
+msgid "Z"
+msgstr "Z"
+
+# contributors:Hamza Rarou
+msgid "Z Variable"
+msgstr "Variable Z"
+
+# contributors:Hamza Rarou
+msgid "Zoom : press right-mouse button"
+msgstr "Zoom : appuyez sur le bouton droit de la souris"
+
+# contributors:Hamza Rarou
+msgid "Zoom In"
+msgstr "Zoom Avant"
+
+# contributors:Hamza Rarou
+msgid "Zoom Out"
+msgstr "Zoom ArriÃ¨re"
+
+# contributors:Hamza Rarou
+msgid "Zooming Mode"
+msgstr "Mode de Zoom"
+
+# contributors:Hamza Rarou
+msgid "[Please briefly describe what went wrong]"
+msgstr "[Veuillez dÃ©crire briÃ¨vement ce qui s'est mal passÃ©]"
+
+# contributors:Hamza Rarou
+msgid "[Steps you took before something went wrong]"
+msgstr "[Ãtapes que vous avez suivies avant que quelque chose ne se passe mal]"
+
+# contributors:Hamza Rarou
+msgid "\"%s\" is not a valid p-value. Default p-value (0.01) is used"
+msgstr "\"%s\" n'est pas une valeur de p-valeur valide. La valeur de p-valeur par dÃ©faut (0.01) est utilisÃ©e"
+
+# contributors:Hamza Rarou
+msgid "\"%s\" is not a valid seed. Seed unchanged."
+msgstr "\"%s\" n'est pas une graine valide. La graine reste inchangÃ©e."
+
+# contributors:Hamza Rarou
+msgid ""
+"\". \n"
+"\n"
+"Details: Attemp to write a readonly database, or "
+msgstr ""
+"\". \n"
+"\n"
+"DÃ©tails: Tentative d'Ã©criture dans une base de donnÃ©es en lecture seule, ou "
+
+# contributors:Hamza Rarou
+msgid ""
+"\n"
+"REGRESSION\n"
+"----------\n"
+msgstr ""
+"\n"
+"RÃGRESSION\n"
+"----------\n"
+
+# contributors:Hamza Rarou
+msgid ""
+"\n"
+"Select whether to use periods or commas as\n"
+"separators in numeric fields. \n"
+"\n"
+"E.g., by default, GeoDa uses commas to\n"
+"separate thousands and periods\n"
+"for decimals (1,000.00).\n"
+"                "
+msgstr ""
+"\n"
+"SÃ©lectionnez si vous souhaitez utiliser des points ou des virgules comme\n"
+"sÃ©parateurs dans les champs numÃ©riques. \n"
+"\n"
+"Par exemple, par dÃ©faut, GeoDa utilise des virgules pour\n"
+"sÃ©parer les milliers et des points\n"
+"pour les dÃ©cimales (1,000.00).\n"
+"                "
+
+# contributors:Hamza Rarou
+msgid ""
+"\n"
+"\n"
+"95% threshold criterion: "
+msgstr ""
+"\n"
+"\n"
+"CritÃ¨re de seuil de 95%:  "
+
+# contributors:Hamza Rarou
+msgid ""
+"\n"
+"\n"
+"Cumulative proportion:\n"
+msgstr ""
+"\n"
+"\n"
+"Proportion cumulative:\n"
+
+# contributors:Hamza Rarou
+msgid ""
+"\n"
+"\n"
+"Details: "
+msgstr ""
+"\n"
+"\n"
+"DÃ©tails: "
+
+# contributors:Hamza Rarou
+msgid ""
+"\n"
+"\n"
+"Eigenvalues:\n"
+msgstr ""
+"\n"
+"\n"
+"Valeurs propres:\n"
+
+# contributors:Hamza Rarou
+msgid ""
+"\n"
+"\n"
+"Kaiser criterion: "
+msgstr ""
+"\n"
+"\n"
+"CritÃ¨re de Kaiser: "
+
+# contributors:Hamza Rarou
+msgid ""
+"\n"
+"\n"
+"Proportion of variance:\n"
+msgstr ""
+"\n"
+"\n"
+"Proportion de variance:\n"
+
+# contributors:Hamza Rarou
+msgid ""
+"\n"
+"\n"
+"Squared correlations:\n"
+msgstr ""
+"\n"
+"\n"
+"CorrÃ©lations au carrÃ©:\n"
+
+# contributors:Hamza Rarou
+msgid ""
+"\n"
+"\n"
+"Standard deviation:\n"
+msgstr ""
+"\n"
+"\n"
+"Ãcart type:\n"
+
+# contributors:Hamza Rarou
+msgid ""
+"\n"
+"\n"
+"Variable Loadings:\n"
+msgstr ""
+"\n"
+"\n"
+"Chargements des Variables:\n"
+
+# contributors:Hamza Rarou
+msgid "adaptive kernel"
+msgstr "noyau adaptatif"
+
+# contributors:Hamza Rarou
+msgid "and field"
+msgstr "et champ"
+
+# contributors:Hamza Rarou
+msgid "autocorrelation is "
+msgstr "l'autocorrÃ©lation est "
+
+# contributors:Hamza Rarou
+msgid "bandwidth"
+msgstr "largeur de bande"
+
+# contributors:Hamza Rarou
+msgid "binary"
+msgstr "binaire"
+
+# contributors:Hamza Rarou
+msgid "break 0"
+msgstr "rupture 0"
+
+# contributors:Hamza Rarou
+msgid "calculating..."
+msgstr "calcul en cours..."
+
+# contributors:Hamza Rarou
+msgid "can't compute"
+msgstr "impossible de calculer"
+
+# contributors:Hamza Rarou
+msgid "category 1"
+msgstr "catÃ©gorie 1"
+
+# contributors:Hamza Rarou
+msgid "choice:"
+msgstr "choix:"
+
+# contributors:Hamza Rarou
+msgid "choose a variable"
+msgstr "choisir une variable"
+
+# contributors:Hamza Rarou
+msgid "csv file:"
+msgstr "fichier CSV:"
+
+# contributors:Hamza Rarou
+msgid "current table key"
+msgstr "clÃ© de table actuelle"
+
+# contributors:Hamza Rarou
+msgid "custom"
+msgstr "personnalisÃ©"
+
+# contributors:Hamza Rarou
+msgid "dBase Database File (*.dbf)|*.dbf"
+msgstr "Fichier de base de donnÃ©es dBase (*.dbf)|*.dbf"
+
+# contributors:Hamza Rarou
+msgid "datasource.type %s unknown.."
+msgstr "type de source de donnÃ©es %s inconnu.."
+
+# contributors:Hamza Rarou
+msgid "day:"
+msgstr "jour:"
+
+# contributors:Hamza Rarou
+msgid ""
+"decimal\n"
+"places"
+msgstr ""
+"dÃ©cimales\n"
+"places"
+
+# contributors:Hamza Rarou
+msgid ""
+"displayed\n"
+"decimal places"
+msgstr "places dÃ©cimales affichÃ©es"
+
+# contributors:Hamza Rarou
+msgid "distance metric"
+msgstr "mÃ©trique de distance"
+
+# contributors:Hamza Rarou
+msgid "distance unit"
+msgstr "unitÃ© de distance"
+
+# contributors:Hamza Rarou
+msgid "distance vars"
+msgstr "vars de distance"
+
+# contributors:Hamza Rarou
+msgid "diverging"
+msgstr "divergent"
+
+# contributors:Hamza Rarou
+msgid "done"
+msgstr "terminÃ©"
+
+# contributors:Hamza Rarou
+msgid "ds:"
+msgstr "ds:"
+
+# contributors:Hamza Rarou
+msgid "enumerate as 1, 2, 3, ..."
+msgstr "Ã©numÃ©rer comme 1, 2, 3, ..."
+
+# contributors:Hamza Rarou
+msgid "false"
+msgstr "faux"
+
+# contributors:Hamza Rarou
+msgid "field name:"
+msgstr "nom de champ:"
+
+# contributors:Hamza Rarou
+msgid "fields:"
+msgstr "champs:"
+
+# contributors:Hamza Rarou
+msgid "file"
+msgstr "fichier"
+
+# contributors:Hamza Rarou
+msgid "file size:"
+msgstr "taille du fichier:"
+
+# contributors:Hamza Rarou
+msgid "from"
+msgstr "de"
+
+# contributors:Hamza Rarou
+msgid "id variable"
+msgstr "variable d'ID"
+
+# contributors:Hamza Rarou
+msgid "import table key"
+msgstr "importer la clÃ© de table"
+
+# contributors:Hamza Rarou
+msgid "in current layer."
+msgstr "dans la couche actuelle."
+
+# contributors:Hamza Rarou
+msgid "inches"
+msgstr "pouces"
+
+# contributors:Hamza Rarou
+msgid "include lower orders"
+msgstr "inclure les ordres infÃ©rieurs"
+
+# contributors:Hamza Rarou
+msgid "inverse distance"
+msgstr "distance inverse"
+
+# contributors:Hamza Rarou
+msgid "is associated to"
+msgstr "est associÃ© Ã"
+
+# contributors:Hamza Rarou
+msgid "kernel method"
+msgstr "mÃ©thode du noyau"
+
+# contributors:Hamza Rarou
+msgid "kernel to diagonal"
+msgstr "noyau Ã  diagonale"
+
+# contributors:Hamza Rarou
+msgid "large"
+msgstr "grand"
+
+# contributors:Hamza Rarou
+msgid "length"
+msgstr "longueur"
+
+# contributors:Hamza Rarou
+msgid "max dist"
+msgstr "dist max"
+
+# contributors:Hamza Rarou
+msgid "max neighbors"
+msgstr "voisins max"
+
+# contributors:Hamza Rarou
+msgid "max-p"
+msgstr "p-max"
+
+# contributors:Hamza Rarou
+msgid "max:"
+msgstr "max:"
+
+# contributors:Hamza Rarou
+msgid "maximum"
+msgstr "maximum"
+
+# contributors:Hamza Rarou
+msgid ""
+"maximum\n"
+"possible"
+msgstr ""
+"maximum\n"
+"possible"
+
+# contributors:Hamza Rarou
+msgid "mean"
+msgstr "moyenne"
+
+# contributors:Hamza Rarou
+msgid "mean neighbors"
+msgstr "moyenne voisins"
+
+# contributors:Hamza Rarou
+msgid "mean:"
+msgstr "moyenne:"
+
+# contributors:Hamza Rarou
+msgid "median neighbors"
+msgstr "mÃ©diane voisins"
+
+# contributors:Hamza Rarou
+msgid "median:"
+msgstr "mÃ©diane:"
+
+# contributors:Hamza Rarou
+msgid "min dist"
+msgstr "dist min"
+
+# contributors:Hamza Rarou
+msgid "min neighbors"
+msgstr "voisins min"
+
+# contributors:Hamza Rarou
+msgid "min:"
+msgstr "min:"
+
+# contributors:Hamza Rarou
+msgid "minimum"
+msgstr "minimum"
+
+# contributors:Hamza Rarou
+msgid ""
+"minimum\n"
+"possible"
+msgstr ""
+"minimum\n"
+"possible"
+
+# contributors:Hamza Rarou
+msgid "mm"
+msgstr "mm"
+
+# contributors:Hamza Rarou
+msgid "month:"
+msgstr "mois:"
+
+# contributors:Hamza Rarou
+msgid "name:"
+msgstr "nom:"
+
+# contributors:Hamza Rarou
+msgid "need two valid regressions"
+msgstr "besoin de deux rÃ©gressions valides"
+
+# contributors:Hamza Rarou
+msgid "neighbors"
+msgstr "voisins"
+
+# contributors:Hamza Rarou
+msgid "not saved"
+msgstr "non enregistrÃ©"
+
+# contributors:Hamza Rarou
+msgid "numeric"
+msgstr "numÃ©rique"
+
+# contributors:Hamza Rarou
+msgid "obs "
+msgstr "obs "
+
+# contributors:Hamza Rarou
+msgid "obs#"
+msgstr "obs#"
+
+# contributors:Hamza Rarou
+msgid "observation:"
+msgstr "observation:"
+
+# contributors:Hamza Rarou
+msgid "order"
+msgstr "ordre"
+
+# contributors:Hamza Rarou
+msgid "parent group"
+msgstr "groupe parent"
+
+# contributors:Hamza Rarou
+msgid "pixels"
+msgstr "en pixels"
+
+# contributors:Hamza Rarou
+msgid "power"
+msgstr "puissance"
+
+# contributors:Hamza Rarou
+msgid "range, est. distance"
+msgstr "plage, dist. estimÃ©e"
+
+# contributors:Hamza Rarou
+msgid "records:"
+msgstr "enregistrements:"
+
+# contributors:Hamza Rarou
+msgid "redcap"
+msgstr "redcap"
+
+# contributors:Hamza Rarou
+msgid "row-standardized"
+msgstr "standardisÃ© par ligne"
+
+# contributors:Hamza Rarou
+msgid "row:\n"
+msgstr "ligne:\n"
+
+# contributors:Hamza Rarou
+msgid "s.d."
+msgstr "Ã©.t."
+
+# contributors:Hamza Rarou
+msgid "s.d.:"
+msgstr "Ã©.t.:"
+
+# contributors:Hamza Rarou
+msgid "sd from mean"
+msgstr "Ã©t Ã  partir de la moyenne"
+
+# contributors:Hamza Rarou
+msgid "selected:"
+msgstr "sÃ©lectionnÃ©:"
+
+# contributors:Hamza Rarou
+msgid "sequential"
+msgstr "sÃ©quentiel"
+
+# contributors:Hamza Rarou
+msgid "show normal distribution p-val map"
+msgstr "afficher la carte de val-p de la distribution normale"
+
+# contributors:Hamza Rarou
+msgid "show normal distribution p-val maps"
+msgstr "afficher les cartes de val-p de la distribution normale"
+
+# contributors:Hamza Rarou
+msgid "show significance maps"
+msgstr "afficher les cartes de signification"
+
+# contributors:Hamza Rarou
+msgid "skater"
+msgstr "skater"
+
+# contributors:Hamza Rarou
+msgid "small"
+msgstr "petit"
+
+# contributors:Hamza Rarou
+msgid "space-time variable found with no name"
+msgstr "variable espace-temps trouvÃ©e sans nom"
+
+# contributors:Hamza Rarou
+msgid "standard deviation"
+msgstr "Ã©cart-type"
+
+# contributors:Hamza Rarou
+msgid "suggested title:"
+msgstr "titre suggÃ©rÃ©:"
+
+# contributors:Hamza Rarou
+msgid "symmetry"
+msgstr "symÃ©trie"
+
+# contributors:Hamza Rarou
+msgid "thematic"
+msgstr "thÃ©matique"
+
+# contributors:Hamza Rarou
+msgid "threshold value"
+msgstr "valeur de seuil"
+
+# contributors:Hamza Rarou
+msgid "time"
+msgstr "temps"
+
+# contributors:Hamza Rarou
+msgid "to"
+msgstr "Ã"
+
+# contributors:Hamza Rarou
+msgid "to define weights."
+msgstr "pour dÃ©finir les poids."
+
+# contributors:Hamza Rarou
+msgid "to specify variable and distance parameters."
+msgstr "pour spÃ©cifier les variables et les paramÃ¨tres de distance."
+
+# contributors:Hamza Rarou
+msgid "total # pairs"
+msgstr "total # paires"
+
+# contributors:Hamza Rarou
+msgid "true"
+msgstr "vrai"
+
+# contributors:Hamza Rarou
+msgid "type"
+msgstr "type"
+
+# contributors:Hamza Rarou
+msgid "undefined: "
+msgstr "indÃ©fini: "
+
+# contributors:Hamza Rarou
+msgid "uni. dist. Min"
+msgstr "dist. uni. Min"
+
+# contributors:Hamza Rarou
+msgid "uniform distribution"
+msgstr "distribution uniforme"
+
+# contributors:Hamza Rarou
+msgid "unknown"
+msgstr "inconnu"
+
+# contributors:Hamza Rarou
+msgid "using row-standardized weights"
+msgstr "en utilisant des poids standardisÃ©s par ligne"
+
+# contributors:Hamza Rarou
+msgid "value"
+msgstr "valeur"
+
+# contributors:Hamza Rarou
+msgid "value:"
+msgstr "valeur:"
+
+# contributors:Hamza Rarou
+msgid "var name:"
+msgstr "nom de var:"
+
+# contributors:Hamza Rarou
+msgid "variable name"
+msgstr "nom de variable"
+
+# contributors:Hamza Rarou
+msgid "version:"
+msgstr "version:"
+
+# contributors:Hamza Rarou
+msgid "weights:"
+msgstr "poids:"
+
+# contributors:Hamza Rarou
+msgid "wrong model number"
+msgstr "numÃ©ro de modÃ¨le incorrect"
+
+# contributors:Hamza Rarou
+msgid "y:"
+msgstr "y:"
+
+# contributors:Hamza Rarou
+msgid "year:"
+msgstr "annÃ©e:"
