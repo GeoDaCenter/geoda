@@ -428,6 +428,13 @@ const wxString GdaConst::gda_lbl_2sigma = "> 2Std";
 const wxPen* GdaConst::default_myshape_pen=0;
 const wxBrush* GdaConst::default_myshape_brush=0;
 
+const wxString GdaConst::gda_lang_english = "English";
+const wxString GdaConst::gda_lang_chinese = "Chinese (Simplified)";
+const wxString GdaConst::gda_lang_french = "French";
+const wxString GdaConst::gda_lang_portuguese = "Portuguese";
+const wxString GdaConst::gda_lang_russian = "Russian";
+const wxString GdaConst::gda_lang_spanish = "Spanish";
+
 //background color -- this is light gray
 const wxColour GdaConst::backColor(192, 192, 192);
 // background color -- this is light gray

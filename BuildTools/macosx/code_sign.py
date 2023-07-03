@@ -22,10 +22,14 @@ def ProcessDependency(dylib_path, cid):
         dylib_path = '/opt/homebrew/opt/icu4c/lib/libicuuc.71.dylib'
     if dylib_path == '@loader_path/libicuuc.72.dylib':
         dylib_path = '/opt/homebrew/opt/icu4c/lib/libicuuc.72.dylib'
+    if dylib_path == '@loader_path/libicuuc.73.dylib':
+        dylib_path = '/opt/homebrew/opt/icu4c/lib/libicuuc.73.dylib'
     if dylib_path == '@loader_path/libicudata.71.dylib':
         dylib_path = '/opt/homebrew/opt/icu4c/lib/libicudata.71.dylib'
     if dylib_path == '@loader_path/libicudata.72.dylib':
         dylib_path = '/opt/homebrew/opt/icu4c/lib/libicudata.72.dylib'
+    if dylib_path == '@loader_path/libicudata.73.dylib':
+        dylib_path = '/opt/homebrew/opt/icu4c/lib/libicudata.73.dylib'
     if dylib_path == '@loader_path/libbrotlicommon.1.dylib':
         dylib_path = '/opt/homebrew/opt/brotli/lib/libbrotlicommon.1.dylib'
     if dylib_path == '@rpath/libsharpyuv.0.dylib':

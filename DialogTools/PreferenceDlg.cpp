@@ -270,12 +270,14 @@ void PreferenceDlg::Init()
     wxStaticText* lbl_txt113 = new wxStaticText(vis_page, wxID_ANY, lbl113);
     cmb113 = new wxComboBox(vis_page, wxID_ANY, "", pos, wxDefaultSize, 0,
                             NULL, wxCB_READONLY);
-    cmb113->Append("");
-    cmb113->Append("English");
-    cmb113->Append("Chinese (Simplified)");
-    cmb113->Append("Spanish");
-    cmb113->Append("Russian");
-    cmb113->Append("Portuguese");
+    cmb113->Append(wxEmptyString);
+    cmb113->Append(GdaConst::gda_lang_chinese);
+    cmb113->Append(GdaConst::gda_lang_english);
+    cmb113->Append(GdaConst::gda_lang_french);
+    cmb113->Append(GdaConst::gda_lang_portuguese);
+    cmb113->Append(GdaConst::gda_lang_russian);
+    cmb113->Append(GdaConst::gda_lang_spanish);
+    
     cmb113->Bind(wxEVT_COMBOBOX, &PreferenceDlg::OnChooseLanguage, this);
     //cmb113->Disable();
     
@@ -940,17 +942,20 @@ void PreferenceDlg::OnChooseLanguage(wxCommandEvent& ev)
     wxConfigBase * config = new wxFileConfig("GeoDa", wxEmptyString, configPath);
     
     if (lan_sel > 0) {
+        wxString sel_lan_name = cmb113->GetString(lan_sel);
         long language = wxLANGUAGE_UNKNOWN;
-        if (lan_sel == 1) {
+        if (sel_lan_name == GdaConst::gda_lang_english) {
             language = wxLANGUAGE_ENGLISH + 1;
-        } else if (lan_sel == 2) {
+        } else if (sel_lan_name == GdaConst::gda_lang_chinese) {
             language = 45;//wxLANGUAGE_CHINESE + 1;
-        } else if (lan_sel == 3) {
+        } else if (sel_lan_name == GdaConst::gda_lang_spanish) {
             language = 179;//wxLANGUAGE_SPANISH;
-        } else if (lan_sel == 4) {
-            language = wxLANGUAGE_RUSSIAN;
-        } else if (lan_sel == 5) {
-            language = wxLANGUAGE_PORTUGUESE;
+        } else if (sel_lan_name == GdaConst::gda_lang_russian) {
+            language = wxLANGUAGE_RUSSIAN; // 159
+        } else if (sel_lan_name == GdaConst::gda_lang_portuguese) {
+            language = wxLANGUAGE_PORTUGUESE; // 153
+        } else if (sel_lan_name == GdaConst::gda_lang_french) {
+            language = wxLANGUAGE_FRENCH; // 79
         }
         config->DeleteEntry("Translation");
         config->SetPath("Translation");

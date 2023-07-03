@@ -240,6 +240,14 @@ public:
     static const wxString gda_lbl_1sigma_2sigma;
     static const wxString gda_lbl_2sigma;
     
+    // Languages
+    static const wxString gda_lang_english;
+    static const wxString gda_lang_chinese;
+    static const wxString gda_lang_french;
+    static const wxString gda_lang_portuguese;
+    static const wxString gda_lang_russian;
+    static const wxString gda_lang_spanish;
+    
 	// Preferences
     static double gda_autoweight_stop;
     static bool gda_draw_map_labels;
