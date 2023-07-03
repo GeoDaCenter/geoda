@@ -39,14 +39,14 @@ public:
     
     virtual void update(TableState* o);
     
-    void OnVarSelect( wxCommandEvent& event );
+    void OnTargetSelect(wxCommandEvent& event);
     void OnOK( wxCommandEvent& event );
     void OnClickClose( wxCommandEvent& event );
     void OnClose(wxCloseEvent& ev);
     bool ShowOptionsOfVariable(const wxString& var_name,
                                std::vector<wxInt64> cat_vals);
     void OnCheckBoxChange(wxCommandEvent& event);
-    void OnTargetSelect( wxCommandEvent& event);
+    void OnOriginSelect(wxCommandEvent& event);
     virtual wxString _printConfiguration();
 
     GeoDaWeight* CreateQueenWeights();
@@ -63,13 +63,47 @@ protected:
     wxBoxSizer *container;
     wxTextCtrl* m_textbox;
     wxTextCtrl* m_min_size;
-    wxArrayInt var_selections;
     wxFlexGridSizer *gbox;
     wxScrolledWindow* scrl;
     wxStaticText* m_cluster_lbl;
     wxComboBox* list_var;
+    wxComboBox* target_var;
     std::vector<wxCheckBox*> chk_list;
     
+    DECLARE_EVENT_TABLE()
+};
+
+class ClusterMatchMapCanvas : public MapCanvas
+{
+    DECLARE_CLASS(ClusterMatchMapCanvas)
+public:
+    ClusterMatchMapCanvas(wxWindow *parent,
+                          TemplateFrame* t_frame,
+                          Project* project,
+                          const std::vector<wxInt64>& cat_values,
+                          const std::map<wxInt64, bool>& cat_value_flags,
+                          const wxPoint& pos = wxDefaultPosition,
+                          const wxSize& size = wxDefaultSize);
+    virtual ~ClusterMatchMapCanvas();
+    
+    virtual void CreateAndUpdateCategories();
+    
+    DECLARE_EVENT_TABLE()
+};
+
+class ClusterMatchMapFrame : public MapFrame
+{
+    DECLARE_CLASS(ClusterMatchMapFrame)
+public:
+    ClusterMatchMapFrame(wxFrame *parent,
+                         Project* project,
+                         const std::vector<wxInt64>& cat_values,
+                         const std::map<wxInt64, bool>& cat_value_flags,
+                         const wxPoint& pos = wxDefaultPosition,
+                         const wxSize& size = GdaConst::map_default_size,
+                         const long style = wxDEFAULT_FRAME_STYLE);
+    virtual ~ClusterMatchMapFrame();
+        
     DECLARE_EVENT_TABLE()
 };
 

@@ -26,6 +26,7 @@
 #include <wx/pen.h>
 #include <wx/string.h>
 #include "../GenUtils.h"
+#include "../GdaConst.h"
 
 struct CatClassifDef;
 struct Category;
@@ -65,7 +66,7 @@ namespace CatClassification {
                              std::vector<wxString>& cat_labels,
 							 const CatClassifType theme,
                              bool useScientifcNotation=false,
-                             int cat_disp_precision=3);
+                             int cat_disp_precision=GdaConst::categorical_display_precision);
 	
 	void SetBreakPoints(std::vector<double>& breaks,
 						std::vector<wxString>& cat_labels,
@@ -73,7 +74,7 @@ namespace CatClassification {
                         const std::vector<bool>& var_undef,
 						const CatClassifType theme, int num_cats,
                         bool useScientificNotation=false,
-                        int cat_disp_precision=3);
+                        int cat_disp_precision=GdaConst::categorical_display_precision);
 	
     void PopulateCatClassifData(const CatClassifDef& cat_def,
                                 const std::vector<Gda::dbl_int_pair_vec_type>& var,
@@ -82,7 +83,7 @@ namespace CatClassification {
                                 std::vector<wxString>& cats_error_message,
                                 bool useSciNotation=false,
                                 bool useUndefinedCategory=true,
-                                int cat_disp_precision=3);
+                                int cat_disp_precision=GdaConst::categorical_display_precision);
     
     void PopulateCatClassifData(const CatClassifDef& cat_def,
                                 const std::vector<Gda::str_int_pair_vec_type>& var,
@@ -91,7 +92,7 @@ namespace CatClassification {
                                 std::vector<wxString>& cats_error_message,
                                 bool useSciNotation=false,
                                 bool useUndefinedCategory=true,
-                                int cat_disp_precision=3);
+                                int cat_disp_precision=GdaConst::categorical_display_precision);
 		
 	bool CorrectCatClassifFromTable(CatClassifDef& cc,
 									TableInterface* table_int,
@@ -108,7 +109,7 @@ namespace CatClassification {
                               CatClassifData& cat_data, std::vector<bool>& cats_valid,
                               ColorScheme coltype=CatClassification::sequential_color_scheme,
                               bool useSciNotation=false,
-                              int cat_disp_precision=3);
+                              int cat_disp_precision=GdaConst::categorical_display_precision);
 	
 	ColorScheme GetColSchmForType(CatClassifType theme_type);
 	

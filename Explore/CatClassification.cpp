@@ -2675,7 +2675,7 @@ void CatClassifData::AppendUndefCategory(int t, int count)
     Category c_undef;
     c_undef.brush.SetColour(brush_clr);
     c_undef.pen.SetColour(pen_clr);
-    c_undef.label = "undefined";
+    c_undef.label = GdaConst::map_undefined_category;
     c_undef.min_val = 0;
     c_undef.max_val = 0;
     c_undef.count = count;
