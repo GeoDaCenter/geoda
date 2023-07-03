@@ -39,7 +39,7 @@ jobs:
 
     env:
       platform: ${{ matrix.distro }}
-      GEODA_VER: '1.20.0'
+      GEODA_VER: '1.22.0'
       TARGET_OS: ${{ matrix.pre }}
 
     # Steps represent a sequence of tasks that will be executed as part of the job

@@ -26,7 +26,7 @@ jobs:
     if: ${{ !contains(github.event.head_commit.message, '[ci skip]') && !contains(github.event.head_commit.message, '[skip ci]') }}
 
     env:
-      GEODA_VER: '1.20.0'
+      GEODA_VER: '1.22.0'
 
     # Steps represent a sequence of tasks that will be executed as part of the job
 
