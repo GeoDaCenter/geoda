@@ -23,9 +23,9 @@
 	<key>CFBundleSignature</key>
 	<string>lgeoda</string>
 	<key>CFBundleVersion</key>
-	<string>1.20.0.46</string>
+	<string>1.22.0.0</string>
 	<key>CFBundleShortVersionString</key>
-	<string>1.20.0.46</string>
+	<string>1.22.0.0</string>
 	<key>DTCompiler</key>
 	<string>4.2</string>
 	<key>DTPlatformBuild</key>
