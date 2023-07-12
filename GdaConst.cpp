@@ -424,6 +424,9 @@ const wxString GdaConst::gda_lbl_n1sigma = "[-1Std, Mean)";
 const wxString GdaConst::gda_lbl_1sigma = "(Mean, 1Std]";
 const wxString GdaConst::gda_lbl_1sigma_2sigma = "(1Std, 2Std]";
 const wxString GdaConst::gda_lbl_2sigma = "> 2Std";
+const wxString GdaConst::gda_projection_UNIT = "UNIT";
+const wxString GdaConst::gda_projection_metre = "metre";
+const wxString GdaConst::gda_projection_meter = "meter";
 
 const wxPen* GdaConst::default_myshape_pen=0;
 const wxBrush* GdaConst::default_myshape_brush=0;

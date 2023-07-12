@@ -1518,7 +1518,10 @@ bool Project::CommonProjectInit()
     // convert projection to WGS84 by default if there is projection
     sourceSR = GetSpatialReference();
     if (sourceSR ) {
-        project_unit = sourceSR->GetAttrValue("UNIT");
+        project_unit = sourceSR->GetAttrValue(GdaConst::gda_projection_UNIT);
+        if (project_unit.CmpNoCase(GdaConst::gda_projection_metre) == 0) {
+            project_unit = GdaConst::gda_projection_meter;
+        }
     }
     // configurations for save gda project file
     LayerConfiguration* layer_conf = project_conf->GetLayerConfiguration();
