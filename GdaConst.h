@@ -240,6 +240,11 @@ public:
     static const wxString gda_lbl_1sigma_2sigma;
     static const wxString gda_lbl_2sigma;
     
+    // Projection
+    static const wxString gda_projection_UNIT;
+    static const wxString gda_projection_metre;
+    static const wxString gda_projection_meter;
+    
     // Languages
     static const wxString gda_lang_english;
     static const wxString gda_lang_chinese;
