@@ -84,7 +84,6 @@ jobs:
           cp -R ../json_spirit ../../../libraries/include/.
           cp json_spirit/libjson_spirit.a ../../../libraries/lib/.
           cd ../..
-          cd ../..
 
       - name: Build GeoDa
         run: |
