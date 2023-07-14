@@ -8,11 +8,11 @@ echo $GEODA_HOME
 CPUS=2
 
 # Install boost 1.75
-brew install boost@1.76
-ln -s /usr/local/opt/boost@1.76 /usr/local/opt/boost
+# brew install boost@1.76
+# ln -s /usr/local/opt/boost@1.76 /usr/local/opt/boost
 
 # Install libgdal 3.6
-brew install gdal
+# brew install gdal
 
 cd $GEODA_HOME
 mkdir -p temp
@@ -33,35 +33,35 @@ mkdir -p ../../o
 # cd ..
 
 # Build wxWidgets 3.1.4
-cd temp
-if ! [ -f "wxWidgets-3.1.4.tar.bz2" ]; then
-    curl -L -O https://github.com/wxWidgets/wxWidgets/releases/download/v3.1.4/wxWidgets-3.1.4.tar.bz2
-    tar -xf wxWidgets-3.1.4.tar.bz2
-fi
-if ! [ -f "../libraries/bin/wx-config" ]; then
-    cd wxWidgets-3.1.4
-    ./configure --with-cocoa --with-opengl --enable-postscript --enable-textfile --without-liblzma --enable-webview --enable-cxx11 --enable-webview --disable-mediactrl --enable-webviewwebkit --enable-monolithic --with-libtiff=builtin --with-libpng=builtin --with-libjpeg=builtin --prefix=$GEODA_HOME/libraries
-    make -j $CPUS
-    make install
-    cd ..
-fi
+# cd temp
+# if ! [ -f "wxWidgets-3.1.4.tar.bz2" ]; then
+#     curl -L -O https://github.com/wxWidgets/wxWidgets/releases/download/v3.1.4/wxWidgets-3.1.4.tar.bz2
+#     tar -xf wxWidgets-3.1.4.tar.bz2
+# fi
+# if ! [ -f "../libraries/bin/wx-config" ]; then
+#     cd wxWidgets-3.1.4
+#     ./configure --with-cocoa --with-opengl --enable-postscript --enable-textfile --without-liblzma --enable-webview --enable-cxx11 --enable-webview --disable-mediactrl --enable-webviewwebkit --enable-monolithic --with-libtiff=builtin --with-libpng=builtin --with-libjpeg=builtin --prefix=$GEODA_HOME/libraries
+#     make -j $CPUS
+#     make install
+#     cd ..
+# fi
 
 # Build JSON Spirit v4.08
-if ! [ -f "json_spirit_v4.08.zip" ]; then
-    curl -L -O https://github.com/GeoDaCenter/software/releases/download/v2000/json_spirit_v4.08.zip
-    unzip json_spirit_v4.08.zip
-fi
-if ! [ -f "../libraries/lib/libjson_spirit.a" ]; then
-    cd json_spirit_v4.08
-    cp ../../dep/json_spirit/CMakeLists.txt .
-    mkdir -p bld
-    cd bld
-    cmake -DBoost_NO_BOOST_CMAKE=TRUE -DBOOST_ROOT:PATHNAME=/usr/local/opt ..
-    make -j $CPUS
-    cp -R ../json_spirit ../../../libraries/include/.
-    cp json_spirit/libjson_spirit.a ../../../libraries/lib/.
-    cd ../..
-fi
+# if ! [ -f "json_spirit_v4.08.zip" ]; then
+#     curl -L -O https://github.com/GeoDaCenter/software/releases/download/v2000/json_spirit_v4.08.zip
+#     unzip json_spirit_v4.08.zip
+# fi
+# if ! [ -f "../libraries/lib/libjson_spirit.a" ]; then
+#     cd json_spirit_v4.08
+#     cp ../../dep/json_spirit/CMakeLists.txt .
+#     mkdir -p bld
+#     cd bld
+#     cmake -DBoost_NO_BOOST_CMAKE=TRUE -DBOOST_ROOT:PATHNAME=/usr/local/opt ..
+#     make -j $CPUS
+#     cp -R ../json_spirit ../../../libraries/include/.
+#     cp json_spirit/libjson_spirit.a ../../../libraries/lib/.
+#     cd ../..
+# fi
 
 # Build CLAPACK
 if ! [ -f "clapack.tgz" ]; then
