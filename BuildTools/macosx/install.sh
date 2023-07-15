@@ -20,6 +20,7 @@ mkdir -p libraries
 mkdir -p libraries/lib
 mkdir -p libraries/include
 mkdir -p ../../o
+
 cd temp
 
 # FIX for libgdal on Monterey using sqlite 3.30.1
@@ -34,35 +35,34 @@ cd temp
 # cd ..
 
 # Build wxWidgets 3.1.4
-# cd temp
-# if ! [ -f "wxWidgets-3.1.4.tar.bz2" ]; then
-#     curl -L -O https://github.com/wxWidgets/wxWidgets/releases/download/v3.1.4/wxWidgets-3.1.4.tar.bz2
-#     tar -xf wxWidgets-3.1.4.tar.bz2
-# fi
-# if ! [ -f "../libraries/bin/wx-config" ]; then
-#     cd wxWidgets-3.1.4
-#     ./configure --with-cocoa --with-opengl --enable-postscript --enable-textfile --without-liblzma --enable-webview --enable-cxx11 --enable-webview --disable-mediactrl --enable-webviewwebkit --enable-monolithic --with-libtiff=builtin --with-libpng=builtin --with-libjpeg=builtin --prefix=$GEODA_HOME/libraries
-#     make -j $CPUS
-#     make install
-#     cd ..
-# fi
+if ! [ -f "wxWidgets-3.1.4.tar.bz2" ]; then
+    curl -L -O https://github.com/wxWidgets/wxWidgets/releases/download/v3.1.4/wxWidgets-3.1.4.tar.bz2
+    tar -xf wxWidgets-3.1.4.tar.bz2
+fi
+if ! [ -f "../libraries/bin/wx-config" ]; then
+    cd wxWidgets-3.1.4
+    ./configure --with-cocoa --with-opengl --enable-postscript --enable-textfile --without-liblzma --enable-webview --enable-cxx11 --enable-webview --disable-mediactrl --enable-webviewwebkit --enable-monolithic --with-libtiff=builtin --with-libpng=builtin --with-libjpeg=builtin --prefix=$GEODA_HOME/libraries
+    make -j $CPUS
+    make install
+    cd ..
+fi
 
 # Build JSON Spirit v4.08
-# if ! [ -f "json_spirit_v4.08.zip" ]; then
-#     curl -L -O https://github.com/GeoDaCenter/software/releases/download/v2000/json_spirit_v4.08.zip
-#     unzip json_spirit_v4.08.zip
-# fi
-# if ! [ -f "../libraries/lib/libjson_spirit.a" ]; then
-#     cd json_spirit_v4.08
-#     cp ../../dep/json_spirit/CMakeLists.txt .
-#     mkdir -p bld
-#     cd bld
-#     cmake -DBoost_NO_BOOST_CMAKE=TRUE -DBOOST_ROOT:PATHNAME=/usr/local/opt ..
-#     make -j $CPUS
-#     cp -R ../json_spirit ../../../libraries/include/.
-#     cp json_spirit/libjson_spirit.a ../../../libraries/lib/.
-#     cd ../..
-# fi
+if ! [ -f "json_spirit_v4.08.zip" ]; then
+    curl -L -O https://github.com/GeoDaCenter/software/releases/download/v2000/json_spirit_v4.08.zip
+    unzip json_spirit_v4.08.zip
+fi
+if ! [ -f "../libraries/lib/libjson_spirit.a" ]; then
+    cd json_spirit_v4.08
+    cp ../../dep/json_spirit/CMakeLists.txt .
+    mkdir -p bld
+    cd bld
+    cmake -DBoost_NO_BOOST_CMAKE=TRUE -DBOOST_ROOT:PATHNAME=/usr/local/opt ..
+    make -j $CPUS
+    cp -R ../json_spirit ../../../libraries/include/.
+    cp json_spirit/libjson_spirit.a ../../../libraries/lib/.
+    cd ../..
+fi
 
 # Build CLAPACK
 if ! [ -f "clapack.tgz" ]; then
@@ -95,19 +95,19 @@ if ! [ -f "v0.8.0.zip" ]; then
     mv spectra-0.8.0 spectra
 fi
 
-# Build GeoDa
 cd ..
-cp ../../GeoDamake.macosx.opt ../../GeoDamake.opt
-make -j $CPUS
-make app
+# Build GeoDa
+# cp ../../GeoDamake.macosx.opt ../../GeoDamake.opt
+# make -j $CPUS
+# make app
 
-# Create dmg
-VER_MAJOR=$(grep version_major $GEODA_HOME/../../version.h | sed -e 's/^[[:space:]][[:alpha:]|[:space:]|_|=]*//g' | sed -e 's/;//g')
-VER_MINOR=$(grep version_minor $GEODA_HOME/../../version.h | sed -e 's/^[[:space:]][[:alpha:]|[:space:]|_|=]*//g' | sed -e 's/;//g')
-VER_BUILD=$(grep version_build $GEODA_HOME/../../version.h | sed -e 's/^[[:space:]][[:alpha:]|[:space:]|_|=]*//g' | sed -e 's/;//g')
-GEODA_VERSION=$VER_MAJOR.$VER_MINOR.$VER_BUILD
-echo $GEODA_VERSION
+# # Create dmg
+# VER_MAJOR=$(grep version_major $GEODA_HOME/../../version.h | sed -e 's/^[[:space:]][[:alpha:]|[:space:]|_|=]*//g' | sed -e 's/;//g')
+# VER_MINOR=$(grep version_minor $GEODA_HOME/../../version.h | sed -e 's/^[[:space:]][[:alpha:]|[:space:]|_|=]*//g' | sed -e 's/;//g')
+# VER_BUILD=$(grep version_build $GEODA_HOME/../../version.h | sed -e 's/^[[:space:]][[:alpha:]|[:space:]|_|=]*//g' | sed -e 's/;//g')
+# GEODA_VERSION=$VER_MAJOR.$VER_MINOR.$VER_BUILD
+# echo $GEODA_VERSION
 
-cd create-dmg
-./geoda.sh $GEODA_VERSION
-codesign --timestamp -s "Developer ID Application: Geodapress LLC (26M5NG43GP)" -i edu.uchicago.spatial GeoDa$GEODA_VERSION-Installer.dmg
+# cd create-dmg
+# ./geoda.sh $GEODA_VERSION
+# codesign --timestamp -s "Developer ID Application: Geodapress LLC (26M5NG43GP)" -i edu.uchicago.spatial GeoDa$GEODA_VERSION-Installer.dmg
