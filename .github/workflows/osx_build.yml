@@ -63,8 +63,10 @@ jobs:
           mkdir -p BuildTools/macosx/temp
           mkdir -p BuildTools/macosx/libraries
           mkdir -p BuildTools/macosx/libraries/lib
-          mkdir -p BuildTools/macosx/libraries/include
-          cd BuildTools/macosx/temp
+          mkdir -p BuildTools/macosx/libraries/include 
+          cd BuildTools/macosx
+          export GEODA_HOME=$PWD
+          cd temp
           curl -L -O https://github.com/wxWidgets/wxWidgets/releases/download/v3.1.4/wxWidgets-3.1.4.tar.bz2
           tar -xf wxWidgets-3.1.4.tar.bz2
           cd wxWidgets-3.1.4
@@ -83,6 +85,7 @@ jobs:
           make
           cp -R ../json_spirit ../../../libraries/include/.
           cp json_spirit/libjson_spirit.a ../../../libraries/lib/.
+          cd ../..
           cd ../..
 
       - name: Build GeoDa
