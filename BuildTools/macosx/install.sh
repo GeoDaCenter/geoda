@@ -20,6 +20,7 @@ mkdir -p libraries
 mkdir -p libraries/lib
 mkdir -p libraries/include
 mkdir -p ../../o
+cd temp
 
 # FIX for libgdal on Monterey using sqlite 3.30.1
 # cd temp
