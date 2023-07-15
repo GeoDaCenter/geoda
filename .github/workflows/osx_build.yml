@@ -46,8 +46,8 @@ jobs:
         id: cache
         with:
           path: |
-            BuildTools/macosx/libraries
-            BuildTools/macosx/temp
+            ~/geoda/BuildTools/macosx/libraries
+            ~/geoda/BuildTools/macosx/temp
             /opt/homebrew
             /usr/local/bin
             /usr/local/opt
@@ -56,18 +56,16 @@ jobs:
       - if: steps.cache.outputs.cache-hit != 'true'
         name: Build Dependencies
         run: |
-          brew install boost@1.76
-          ln -s /usr/local/opt/boost@1.76 /usr/local/opt/boost
-          brew install gdal
-          cd BuildTools/macosx
+          cd ~/geoda/BuildTools/macosx
           export GEODA_HOME=$PWD
+          export GEODA_ARCH=x86_64
           ./install.sh
 
       - name: Build GeoDa
         run: |
+          cd ~/geoda
           cp GeoDamake.macosx.opt GeoDamake.opt
-          cd BuildTools
-          cd macosx
+          cd BuildTools/macosx
           export GEODA_HOME=$PWD
           export GEODA_ARCH=x86_64
           echo "find identity"
