@@ -63,6 +63,7 @@ jobs:
 
       - name: Build GeoDa
         run: |
+          mkdir -p o
           cd BuildTools/macosx
           export GEODA_HOME=$PWD
           cp ../../GeoDamake.macosx.opt ../../GeoDamake.opt
