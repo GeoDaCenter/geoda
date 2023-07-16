@@ -60,7 +60,8 @@ jobs:
 
       - name: Build GeoDa
         run: |
-          brew install boost
+          brew install boost@1.76
+          ln -s /usr/local/opt/boost@1.76 /usr/local/opt/boost
           brew install gdal
           mkdir -p o
           cd BuildTools/macosx
