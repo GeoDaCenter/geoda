@@ -46,7 +46,7 @@ jobs:
         run: |
           brew install boost@1.76
           ln -s /usr/local/opt/boost@1.76 /usr/local/opt/boost
-          brew install gdal@3.6.4
+          brew install gdal
 
       - uses: actions/cache@v3
         id: cache
