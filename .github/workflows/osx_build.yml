@@ -42,6 +42,12 @@ jobs:
           p12-file-base64: ${{ secrets.MACOS_CERTIFICATE }}
           p12-password: ${{ secrets.MACOS_CERTIFICATE_PWD }}
 
+      - name: Setup Brew
+        run: |
+          brew install boost@1.76
+          ln -s /usr/local/opt/boost@1.76 /usr/local/opt/boost
+          brew install gdal
+
       - uses: actions/cache@v3
         id: cache
         with:
@@ -60,9 +66,6 @@ jobs:
 
       - name: Build GeoDa
         run: |
-          brew install boost@1.76
-          ln -s /usr/local/opt/boost@1.76 /usr/local/opt/boost
-          brew install gdal
           mkdir -p o
           cd BuildTools/macosx
           export GEODA_HOME=$PWD
