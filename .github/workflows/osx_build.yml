@@ -48,9 +48,6 @@ jobs:
           path: |
             BuildTools/macosx/libraries
             BuildTools/macosx/temp
-            /opt/homebrew
-            /usr/local/bin
-            /usr/local/opt
           key: ${{ runner.os }}-deps-cache-${{ hashFiles('BuildTools/macosx/install.sh') }}
 
       - if: steps.cache.outputs.cache-hit != 'true'

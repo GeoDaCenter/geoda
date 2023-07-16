@@ -8,11 +8,11 @@ echo $GEODA_HOME
 CPUS=2
 
 # Install boost 1.75
-brew install boost@1.76
-ln -s /usr/local/opt/boost@1.76 /usr/local/opt/boost
+#brew install boost@1.76
+#ln -s /usr/local/opt/boost@1.76 /usr/local/opt/boost
 
 # Install libgdal 3.6
-brew install gdal
+#brew install gdal
 
 cd $GEODA_HOME
 mkdir -p temp
