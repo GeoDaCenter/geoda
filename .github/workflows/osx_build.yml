@@ -42,13 +42,19 @@ jobs:
           p12-file-base64: ${{ secrets.MACOS_CERTIFICATE }}
           p12-password: ${{ secrets.MACOS_CERTIFICATE_PWD }}
 
+      - name: Setup Brew
+        run: |
+          brew install boost@1.76
+          ln -s /usr/local/opt/boost@1.76 /usr/local/opt/boost
+          brew install gdal@3.6.4
+
       - uses: actions/cache@v3
         id: cache
         with:
           path: |
             BuildTools/macosx/libraries
             BuildTools/macosx/temp
-          key: ${{ runner.os }}-deps-cache-c2bc86cb95f273b013ec7e6539f5ea8d1f0a361027d23497af2de2f24b1cec42
+          key: ${{ runner.os }}-deps-cache-${{ hashFiles('BuildTools/macosx/install.sh') }}
 
       - if: steps.cache.outputs.cache-hit != 'true'
         name: Build Dependencies
@@ -60,6 +66,23 @@ jobs:
 
       - name: Build GeoDa
         run: |
+          mkdir -p o
+          cd BuildTools/macosx
+          export GEODA_HOME=$PWD
+          cp ../../GeoDamake.macosx.opt ../../GeoDamake.opt
+          echo "find identity"
+          security find-identity -v
+          VER_MAJOR=$(grep version_major $GEODA_HOME/../../version.h | sed -e 's/^[[:space:]][[:alpha:]|[:space:]|_|=]*//g' | sed -e 's/;//g')
+          VER_MINOR=$(grep version_minor $GEODA_HOME/../../version.h | sed -e 's/^[[:space:]][[:alpha:]|[:space:]|_|=]*//g' | sed -e 's/;//g')
+          VER_BUILD=$(grep version_build $GEODA_HOME/../../version.h | sed -e 's/^[[:space:]][[:alpha:]|[:space:]|_|=]*//g' | sed -e 's/;//g')
+          GEODA_VERSION=$VER_MAJOR.$VER_MINOR.$VER_BUILD
+          echo $GEODA_VERSION
+          make -j 4
+          make app
+          cd create-dmg
+          ./geoda.sh $GEODA_VERSION
+          codesign --timestamp -s "Developer ID Application: Geodapress LLC (26M5NG43GP)" -i edu.uchicago.spatial GeoDa$GEODA_VERSION-Installer.dmg
+          ls /usr/local
           ls /usr/local/opt
 
       # Upload artifact
