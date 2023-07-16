@@ -64,6 +64,7 @@ jobs:
       - name: Build GeoDa
         run: |
           brew install boost
+          brew install gdal
           mkdir -p o
           cd BuildTools/macosx
           export GEODA_HOME=$PWD
