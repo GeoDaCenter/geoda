@@ -62,7 +62,7 @@ jobs:
           path: |
             BuildTools/ubuntu/libraries
             BuildTools/ubuntu/temp
-          key: ${{ runner.os }}-deps-cache-${{ hashFiles('BuildTools/ubuntu/create_deps.sh') }}
+          key: ${{ runner.os }}-${{ env.TARGET_OS }}-deps-cache-${{ hashFiles('BuildTools/ubuntu/create_deps.sh') }}
 
       # Create Deps
       - if: steps.cache.outputs.cache-hit != 'true'
