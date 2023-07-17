@@ -51,6 +51,8 @@ def ProcessDependency(dylib_path, cid):
         dylib_path = '/usr/local/opt/openexr/lib/libOpenEXRCore-3_1.30.dylib'
     if dylib_path == '@rpath/libabsl_log_internal_conditions.2301.0.0.dylib ':
         dylib_path = '/usr/local/opt/abseil/lib/libabsl_log_internal_conditions.2301.0.0.dylib'
+    if dylib_path == '@rpath/libabsl_base.2301.0.0.dylib ':
+        dylib_path = '/usr/local/opt/abseil/lib/libabsl_base.2301.0.0.dylib'
        
 
     m = re.search('@rpath/(libaws.*)', dylib_path)
