@@ -35,7 +35,7 @@ jobs:
       - uses: actions/checkout@v3
 
       - name: Install application certificate
-        uses: apple-actions/import-codesign-certs@v1
+        uses: apple-actions/import-codesign-certs@v2
         with:
           keychain: ${{ github.run_id }}
           keychain-password: ${{ github.run_id }}
@@ -84,7 +84,7 @@ jobs:
           codesign --timestamp -s "Developer ID Application: Geodapress LLC (26M5NG43GP)" -i edu.uchicago.spatial GeoDa$GEODA_VERSION-Installer.dmg
 
       # Upload artifact
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v3
         with:
           name: GeoDa-${{ env.GEODA_VER }}-MacOS
           path: ${{ github.workspace }}/BuildTools/macosx/create-dmg/GeoDa${{ env.GEODA_VER }}-Installer.dmg

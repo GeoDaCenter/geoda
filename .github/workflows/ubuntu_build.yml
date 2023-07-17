@@ -67,14 +67,17 @@ jobs:
       # Create Deps
       - if: steps.cache.outputs.cache-hit != 'true'
         name: Create Dependencies
-        run: docker run --privileged=true -e CI -e WORK_DIR="$PWD" -e CURL_CA_BUNDLE="/etc/ssl/certs/ca-certificates.crt" -e OS=${{ env.TARGET_OS }} -e VER=${{ env.GEODA_VER }} -e APT="apt-get" -v $PWD:$PWD -v /var/run/docker.sock:/var/run/docker.sock ${{ matrix.distro }} $PWD/BuildTools/ubuntu/create_deps.sh
+        run: |
+          docker run --privileged=true -e CI -e WORK_DIR="$PWD" -e CURL_CA_BUNDLE="/etc/ssl/certs/ca-certificates.crt" -e OS=${{ env.TARGET_OS }} -e VER=${{ env.GEODA_VER }} -e APT="apt-get" -v $PWD:$PWD -v /var/run/docker.sock:/var/run/docker.sock ${{ matrix.distro }} $PWD/BuildTools/ubuntu/create_deps.sh
+          chmod -R 755 BuildTools/ubuntu/temp
+          chmod -R 755 BuildTools/ubuntu/libraries
 
       # Build GeoDa
       - name: Build GeoDa
         run: docker run --privileged=true -e CI -e WORK_DIR="$PWD" -e CURL_CA_BUNDLE="/etc/ssl/certs/ca-certificates.crt" -e OS=${{ env.TARGET_OS }} -e VER=${{ env.GEODA_VER }} -e APT="apt-get" -v $PWD:$PWD -v /var/run/docker.sock:/var/run/docker.sock ${{ matrix.distro }} $PWD/BuildTools/ubuntu/install.sh
 
       # Upload artifact
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v3
         with:
           name: GeoDa-${{ env.GEODA_VER }}-${{ env.TARGET_OS }}
           path: ${{ github.workspace }}/BuildTools/ubuntu/geoda_${{ env.GEODA_VER }}-1${{ env.TARGET_OS }}1_amd64.deb
