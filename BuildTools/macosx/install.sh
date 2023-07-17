@@ -5,7 +5,7 @@ set -e
 
 export GEODA_HOME=$PWD
 echo $GEODA_HOME
-CPUS=2
+CPUS=`sysctl -n hw.ncpu`
 
 # Install boost 1.75
 #brew install boost@1.76

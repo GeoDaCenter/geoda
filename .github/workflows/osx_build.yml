@@ -77,13 +77,11 @@ jobs:
           VER_BUILD=$(grep version_build $GEODA_HOME/../../version.h | sed -e 's/^[[:space:]][[:alpha:]|[:space:]|_|=]*//g' | sed -e 's/;//g')
           GEODA_VERSION=$VER_MAJOR.$VER_MINOR.$VER_BUILD
           echo $GEODA_VERSION
-          make -j 4
+          make -j$(sysctl -n hw.ncpu)
           make app
           cd create-dmg
           ./geoda.sh $GEODA_VERSION
           codesign --timestamp -s "Developer ID Application: Geodapress LLC (26M5NG43GP)" -i edu.uchicago.spatial GeoDa$GEODA_VERSION-Installer.dmg
-          ls /usr/local
-          ls /usr/local/opt
 
       # Upload artifact
       - uses: actions/upload-artifact@v2
