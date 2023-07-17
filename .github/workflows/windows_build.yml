@@ -49,7 +49,7 @@ jobs:
 
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       # Set environment
       - name: Set environment
@@ -81,8 +81,17 @@ jobs:
           echo ::set-env name=LIB::%LIB%
           echo ::set-env name=LIBPATH::%LIBPATH%
 
-      # Build GeoDa
-      - name: Build
+      - uses: actions/cache@v3
+        id: cache
+        with:
+          path: |
+            BuildTools/windows/libraries
+            BuildTools/windows/temp
+          key: ${{ runner.os }}-deps-cache-${{ hashFiles('BuildTools/windows/deps.md') }}
+
+      # Create Deps
+      - if: steps.cache.outputs.cache-hit != 'true'
+        name: Create Dependencies 
         shell: pwsh
         run: |
           $ErrorActionPreference = 'continue'
@@ -206,9 +215,14 @@ jobs:
           7z x OpenCL.zip
           dir
           cd ..
-          #
-          # GeoDa
-          #
+
+      # Build GeoDa
+      - name: Build GeoDa
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'continue'
+          $env:GDA_PATH="$env:GITHUB_WORKSPACE\BuildTools\windows"
+          cd $env:GDA_PATH
           if($env:platform -eq "x86")
           {
             msbuild.exe GeoDa.vs2019.sln /t:GeoDa /property:Configuration="Release" /p:Platform="Win32"

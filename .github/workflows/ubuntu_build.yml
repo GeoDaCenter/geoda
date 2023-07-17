@@ -45,15 +45,29 @@ jobs:
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       # Prepare
       - name: Prepare on ${{ matrix.distro }}
         run: |
+          chmod +x BuildTools/ubuntu/create_deps.sh
           chmod +x BuildTools/ubuntu/install.sh
           mkdir -p o
           chmod 644 o
           echo ${{ env.TARGET_OS }}
+
+      - uses: actions/cache@v3
+        id: cache
+        with:
+          path: |
+            BuildTools/ubuntu/libraries
+            BuildTools/ubuntu/temp
+          key: ${{ runner.os }}-deps-cache-${{ hashFiles('BuildTools/ubuntu/create_deps.sh') }}
+
+      # Create Deps
+      - if: steps.cache.outputs.cache-hit != 'true'
+        name: Create Dependencies
+        run: docker run --privileged=true -e CI -e WORK_DIR="$PWD" -e CURL_CA_BUNDLE="/etc/ssl/certs/ca-certificates.crt" -e OS=${{ env.TARGET_OS }} -e VER=${{ env.GEODA_VER }} -e APT="apt-get" -v $PWD:$PWD -v /var/run/docker.sock:/var/run/docker.sock ${{ matrix.distro }} $PWD/BuildTools/ubuntu/create_deps.sh
 
       # Build GeoDa
       - name: Build GeoDa
