@@ -53,6 +53,8 @@ def ProcessDependency(dylib_path, cid):
         dylib_path = '/usr/local/opt/abseil/lib/libabsl_log_internal_conditions.2301.0.0.dylib'
     if dylib_path == '@rpath/libabsl_raw_logging_internal.2301.0.0.dylib ':
         dylib_path = '/usr/local/opt/abseil/lib/libabsl_raw_logging_internal.2301.0.0.dylib'
+    if dylib_path == '@rpath/libabsl_log_severity.2301.0.0.dylib ':
+        dylib_path = '/usr/local/opt/abseil/lib/libabsl_log_severity.2301.0.0.dylib'
     if dylib_path == '@rpath/libabsl_base.2301.0.0.dylib ':
         dylib_path = '/usr/local/opt/abseil/lib/libabsl_base.2301.0.0.dylib'
        
