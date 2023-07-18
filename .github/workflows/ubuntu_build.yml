@@ -77,7 +77,7 @@ jobs:
       - name: Build GeoDa
         run: |
           mkdir -p o
-          chmod 644 o
+          chmod 755 o
           export WORK_DIR=$PWD
           export OS=${{ env.TARGET_OS }}
           export VER=${{ env.GEODA_VER }}
