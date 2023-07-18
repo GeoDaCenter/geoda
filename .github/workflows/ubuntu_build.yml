@@ -71,7 +71,7 @@ jobs:
           export WORK_DIR=$PWD
           export OS=${{ env.TARGET_OS }}
           export VER=${{ env.GEODA_VER }}
-          export APT="apt-get"
+          export APT="sudo apt-get"
           cd BuildTools/ubuntu
           ./create_deps.sh
 
@@ -81,7 +81,7 @@ jobs:
           export WORK_DIR=$PWD
           export OS=${{ env.TARGET_OS }}
           export VER=${{ env.GEODA_VER }}
-          export APT="apt-get"
+          export APT="sudo apt-get"
           cd BuildTools/ubuntu
           ./install.sh
 
