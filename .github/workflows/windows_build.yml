@@ -220,6 +220,25 @@ jobs:
       - name: Build GeoDa
         shell: pwsh
         run: |
+          function exec
+          {
+            param ( [ScriptBlock] $ScriptBlock )
+            & $ScriptBlock 2>&1 | ForEach-Object -Process { "$_" }
+            if ($LastExitCode -ne 0) { exit $LastExitCode }
+          }
+          echo "ARCH_FLAGS = $env:ARCH_FLAGS"
+          Import-PackageProvider NuGet -Force
+          Set-PSRepository -Name PSGallery -InstallationPolicy Trusted
+          # install pscx powershell and vSSetup
+          Install-Module Pscx -AllowClobber
+          Install-Module VSSetup -Scope CurrentUser
+          if($env:VS_VER -eq "2019")
+          {
+          }
+          else
+          {
+              Import-VisualStudioVars -VisualStudioVersion $env:VS_VER -Architecture $env:ARCHITECTURE
+          }
           $ErrorActionPreference = 'continue'
           $env:GDA_PATH="$env:GITHUB_WORKSPACE\BuildTools\windows"
           cd $env:GDA_PATH

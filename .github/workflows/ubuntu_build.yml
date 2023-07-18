@@ -68,9 +68,11 @@ jobs:
       - if: steps.cache.outputs.cache-hit != 'true'
         name: Create Dependencies
         run: |
+          mkdir -p BuildTools/ubuntu/libraries
+          mkdir -p BuildTools/ubuntu/libraries/include
+          mkdir -p BuildTools/ubuntu/libraries/lib
+          mkdir -p BuildTools/ubuntu/temp
           docker run --privileged=true -e CI -e WORK_DIR="$PWD" -e CURL_CA_BUNDLE="/etc/ssl/certs/ca-certificates.crt" -e OS=${{ env.TARGET_OS }} -e VER=${{ env.GEODA_VER }} -e APT="apt-get" -v $PWD:$PWD -v /var/run/docker.sock:/var/run/docker.sock ${{ matrix.distro }} $PWD/BuildTools/ubuntu/create_deps.sh
-          chmod -R 755 BuildTools/ubuntu/temp
-          chmod -R 755 BuildTools/ubuntu/libraries
 
       # Build GeoDa
       - name: Build GeoDa
