@@ -244,11 +244,11 @@ jobs:
           cd $env:GDA_PATH
           if($env:platform -eq "x86")
           {
-            msbuild.exe GeoDa.vs2019.sln /t:GeoDa /property:Configuration="Release" /p:Platform="Win32"
+            msbuild.exe GeoDa.vs2019.sln /t:GeoDa /property:Configuration="Release" /m /p:Platform="Win32"
           }
           else
           {
-            msbuild.exe GeoDa.vs2019.sln /t:GeoDa /property:Configuration="Release" /p:Platform="x64"  
+            msbuild.exe GeoDa.vs2019.sln /t:GeoDa /property:Configuration="Release" /m /p:Platform="x64"  
           }
           #
           # InnoSetup
