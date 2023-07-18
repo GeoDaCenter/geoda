@@ -82,6 +82,8 @@ jobs:
           export OS=${{ env.TARGET_OS }}
           export VER=${{ env.GEODA_VER }}
           export APT="sudo apt-get"
+          mkdir -p o
+          chmod +w o
           cd BuildTools/ubuntu
           ./install.sh
 
