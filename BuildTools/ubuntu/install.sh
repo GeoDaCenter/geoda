@@ -6,7 +6,7 @@ set -e
 # prepare: BuildTools/ubuntu
 cd "$WORK_DIR"
 mkdir -p o
-chmod +w o
+chmod 644 o
 cd BuildTools
 cd ubuntu
 export GEODA_HOME=$PWD 

@@ -52,8 +52,6 @@ jobs:
         run: |
           chmod +x BuildTools/ubuntu/create_deps.sh
           chmod +x BuildTools/ubuntu/install.sh
-          mkdir -p o
-          chmod 644 o
           echo ${{ env.TARGET_OS }}
 
       - uses: actions/cache@v3
@@ -78,12 +76,12 @@ jobs:
       # Build GeoDa
       - name: Build GeoDa
         run: |
+          mkdir -p o
+          chmod 644 o
           export WORK_DIR=$PWD
           export OS=${{ env.TARGET_OS }}
           export VER=${{ env.GEODA_VER }}
           export APT="sudo apt-get"
-          mkdir -p o
-          chmod +w o
           cd BuildTools/ubuntu
           ./install.sh
 

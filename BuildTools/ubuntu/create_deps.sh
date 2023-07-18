@@ -9,7 +9,6 @@ echo $APT
 
 # prepare: BuildTools/ubuntu
 cd "$WORK_DIR"
-mkdir -p o
 cd BuildTools
 cd ubuntu
 export GEODA_HOME=$PWD 
