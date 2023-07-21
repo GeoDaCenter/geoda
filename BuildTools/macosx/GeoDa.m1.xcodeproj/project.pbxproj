@@ -62,6 +62,7 @@
 		A1C9F3ED18B55EE000E14394 /* FieldNameCorrectionDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A1C9F3EC18B55EE000E14394 /* FieldNameCorrectionDlg.cpp */; };
 		A1CE3D331C1A427A0010F170 /* PublishDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A1CE3D311C1A427A0010F170 /* PublishDlg.cpp */; };
 		A1D0081A26CF0ADB0058E3C7 /* spatial_validation.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A1D0081826CF0ADB0058E3C7 /* spatial_validation.cpp */; };
+		A1D309542A68AAD4006ABEB1 /* WebGLMapView.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A1D309522A68AAD4006ABEB1 /* WebGLMapView.cpp */; };
 		A1D82DEF174D3EB6003DE20A /* ConnectDatasourceDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A1D82DEE174D3EB6003DE20A /* ConnectDatasourceDlg.cpp */; };
 		A1DA623A17BCBC070070CAAB /* AutoCompTextCtrl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A1DA623817BCBC070070CAAB /* AutoCompTextCtrl.cpp */; };
 		A1DDBC41262A87E400116D5B /* localjc_kernel.cl in Resources */ = {isa = PBXBuildFile; fileRef = A4E00F0F20FD8ECC0038BA80 /* localjc_kernel.cl */; };
@@ -431,6 +432,8 @@
 		A1CE6938261B7BC3006027BA /* GeoDaDebug.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; name = GeoDaDebug.entitlements; path = BuildTools/macosx/GeoDaDebug.entitlements; sourceTree = "<group>"; };
 		A1D0081826CF0ADB0058E3C7 /* spatial_validation.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = spatial_validation.cpp; path = Algorithms/spatial_validation.cpp; sourceTree = "<group>"; };
 		A1D0081926CF0ADB0058E3C7 /* spatial_validation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = spatial_validation.h; path = Algorithms/spatial_validation.h; sourceTree = "<group>"; };
+		A1D309522A68AAD4006ABEB1 /* WebGLMapView.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = WebGLMapView.cpp; sourceTree = "<group>"; };
+		A1D309532A68AAD4006ABEB1 /* WebGLMapView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WebGLMapView.h; sourceTree = "<group>"; };
 		A1D82DED174D3EB6003DE20A /* ConnectDatasourceDlg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ConnectDatasourceDlg.h; sourceTree = "<group>"; };
 		A1D82DEE174D3EB6003DE20A /* ConnectDatasourceDlg.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ConnectDatasourceDlg.cpp; sourceTree = "<group>"; };
 		A1DA623817BCBC070070CAAB /* AutoCompTextCtrl.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AutoCompTextCtrl.cpp; sourceTree = "<group>"; };
@@ -1447,6 +1450,8 @@
 		DD7975B70F1D2A9000496A84 /* Explore */ = {
 			isa = PBXGroup;
 			children = (
+				A1D309522A68AAD4006ABEB1 /* WebGLMapView.cpp */,
+				A1D309532A68AAD4006ABEB1 /* WebGLMapView.h */,
 				A185D12E261FFD8000A62EAC /* ClusterMatchMapView.cpp */,
 				A185D12F261FFD8000A62EAC /* ClusterMatchMapView.h */,
 				A4502B3324E1F66F001D378F /* MapViewHelper.cpp */,
@@ -1907,6 +1912,7 @@
 				A4A591F424A515DA00BEA1FF /* ConditionalBoxPlotView.cpp in Sources */,
 				DD7976C40F1D2CA800496A84 /* SparseVector.cpp in Sources */,
 				DD7976C50F1D2CA800496A84 /* Weights.cpp in Sources */,
+				A1D309542A68AAD4006ABEB1 /* WebGLMapView.cpp in Sources */,
 				A4BBABA12444D82B00BD4E57 /* smacof.c in Sources */,
 				DD7976F30F1D2D3100496A84 /* Randik.cpp in Sources */,
 				A46099A62416E41B000A53E2 /* loessf.c in Sources */,
@@ -2262,8 +2268,8 @@
 					"-I/opt/homebrew/opt/boost/include",
 					"-I/opt/homebrew/opt/gdal/include",
 					"-I/usr/include",
-					"-I./libraries/lib/wx/include/osx_cocoa-unicode-3.1",
-					"-I./libraries/include/wx-3.1/",
+					"-I./libraries/lib/wx/include/osx_cocoa-unicode-3.2",
+					"-I./libraries/include/wx-3.2/",
 					"-I./temp/boost",
 					"-I./libraries/include",
 					"-I./temp/eigen3",
@@ -2286,8 +2292,8 @@
 					"-L/opt/homebrew/opt/gdal/lib",
 					"-lgdal",
 					"-L$(SRCROOT)/libraries/lib",
-					"-lwx_osx_cocoau-3.1",
-					"-lwx_osx_cocoau_gl-3.1",
+					"-lwx_osx_cocoau-3.2",
+					"-lwx_osx_cocoau_gl-3.2",
 					"-framework",
 					OpenCL,
 					"-framework",
@@ -2378,8 +2384,8 @@
 					"-L/opt/homebrew/opt/gdal/lib",
 					"-lgdal",
 					"-L$(SRCROOT)/libraries/lib",
-					"-lwx_osx_cocoau-3.1",
-					"-lwx_osx_cocoau_gl-3.1",
+					"-lwx_osx_cocoau-3.2",
+					"-lwx_osx_cocoau_gl-3.2",
 					"-framework",
 					OpenCL,
 					"-framework",

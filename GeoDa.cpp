@@ -167,6 +167,7 @@
 #include "Explore/ClusterMatchMapView.h"
 #include "Explore/GroupingMapView.h"
 #include "Explore/DistancePlotView.h"
+#include "Explore/WebGLMapView.h"
 #include "Regression/DiagnosticReport.h"
 #include "ShapeOperations/CsvFileUtils.h"
 #include "ShapeOperations/WeightsManager.h"
@@ -1499,6 +1500,8 @@ void GdaFrame::InitWithProject(wxString gda_file_path)
                                     wxPoint(80,160),
                                     GdaConst::map_default_size);
         nf->UpdateTitle();
+        WebGLMapFrame *glMap = new WebGLMapFrame();
+        glMap->Show();
     }
 
     // Associate Project with Calculator if open
