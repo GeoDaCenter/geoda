@@ -3,7 +3,7 @@ include_directories(${gtest_SOURCE_DIR}/include ${gtest_SOURCE_DIR})
 # Add test cpp file
 set(TEST_SOURCE_FILES
     ${GEODA_SOURCE_FILES}
-    test-webgl-map.cpp)
+    webview.cpp)
 
 message(PROJECT_SOURCE_DIR="${BOOST_SRC_DIR}")
 
