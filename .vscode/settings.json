@@ -22,5 +22,12 @@
   "C_Cpp.default.cppStandard": "c++17",
   "C_Cpp.default.cpplint.filters": "CPPLINT.cfg",
   "C_Cpp.errorSquiggles": "enabled",
-  "C_Cpp.loggingLevel": "Debug"
+  "C_Cpp.loggingLevel": "Debug",
+  "files.associations": {
+    "vector": "cpp",
+    "array": "cpp",
+    "string": "cpp",
+    "string_view": "cpp",
+    "alignedvector3": "cpp"
+  }
 }

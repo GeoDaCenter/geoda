@@ -1,39 +1,42 @@
 {
-  "configurations": [
-    {
-      "name": "Mac",
-      "includePath": [
-        "/Library/Developer/CommandLineTools/usr/include/c++/v1",
-        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include",
-        "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/14.0.3/include",
-        "${workspaceFolder}/**",
-        "/usr/local/include",
-        "/usr/local/opt/boost/include",
-        "/usr/local/opt/gdal/include",
-        "/usr/local/opt/boost/include",
-        "${workspaceFolder}/BuildTools/macosx/temp/eigen3",
-        "${workspaceFolder}/BuildTools/macosx/temp/spectra/include",
-        "${workspaceFolder}/BuildTools/macosx/libraries/include",
-        "${workspaceFolder}/BuildTools/macosx/libraries/include/wx-3.2",
-        "${workspaceFolder}/BuildTools/macosx/libraries/lib/wx/include/osx_cocoa-unicode-3.2"
-      ],
-      "defines": [
-        "_FILE_OFFSET_BITS=64",
-        "__WXMAC__",
-        "__WXOSX__",
-        "__WXOSX_COCOA__",
-        "__WXDEBUG__",
-        "EIGEN_NO_DEBUG",
-        "__PROJ6__"
-      ],
-      "macFrameworkPath": [
-        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks"
-      ],
-      "compilerPath": "/usr/bin/clang",
-      "cStandard": "c17",
-      "cppStandard": "c++17",
-      "intelliSenseMode": "macos-clang-arm64"
-    }
-  ],
-  "version": 4
+    "configurations": [
+        {
+            "name": "Mac",
+            "includePath": [
+                "/Library/Developer/CommandLineTools/usr/include/c++/v1",
+                "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include",
+                "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/14.0.3/include",
+                "${workspaceFolder}/**",
+                "/usr/local/include",
+                "/usr/local/opt/boost/include",
+                "/usr/local/opt/gdal/include",
+                "/usr/local/opt/boost/include",
+                "${workspaceFolder}/build/_deps/googletest-src/googletest/include",
+                "${workspaceFolder}/BuildTools/macosx/temp/eigen3",
+                "${workspaceFolder}/BuildTools/macosx/temp/spectra/include",
+                "${workspaceFolder}/BuildTools/macosx/libraries/include",
+                "${workspaceFolder}/BuildTools/macosx/libraries/include/wx-3.2",
+                "${workspaceFolder}/BuildTools/macosx/libraries/lib/wx/include/osx_cocoa-unicode-3.2",
+                "${workspaceFolder}/build/_deps/googletest-src/googletest/include",
+                "${workspaceFolder}/build/_deps/googletest-src/googlemock/include"
+            ],
+            "defines": [
+                "_FILE_OFFSET_BITS=64",
+                "__WXMAC__",
+                "__WXOSX__",
+                "__WXOSX_COCOA__",
+                "__WXDEBUG__",
+                "EIGEN_NO_DEBUG",
+                "__PROJ6__"
+            ],
+            "macFrameworkPath": [
+                "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks"
+            ],
+            "compilerPath": "/usr/bin/clang",
+            "cStandard": "c17",
+            "cppStandard": "c++17",
+            "intelliSenseMode": "macos-clang-arm64"
+        }
+    ],
+    "version": 4
 }
