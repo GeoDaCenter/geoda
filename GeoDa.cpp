@@ -1500,8 +1500,12 @@ void GdaFrame::InitWithProject(wxString gda_file_path)
                                     wxPoint(80,160),
                                     GdaConst::map_default_size);
         nf->UpdateTitle();
-        WebGLMapFrame *glMap = new WebGLMapFrame();
-        glMap->Show();
+        
+        const OGRLayerProxy* ogr_layer = project_p->GetOGRLayerProxy();
+        if (ogr_layer) {
+            WebGLMapFrame *glMap = new WebGLMapFrame(ogr_layer->data);
+            glMap->Show();
+        }
     }
 
     // Associate Project with Calculator if open

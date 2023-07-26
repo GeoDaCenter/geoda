@@ -37,6 +37,7 @@
 #include <wx/ffile.h>
 #include <wx/fs_mem.h>
 #include <wx/stdpaths.h>
+#include <wx/textfile.h>
 #include <wx/webviewarchivehandler.h>
 #include <wx/webviewfshandler.h>
 
@@ -46,7 +47,8 @@ IMPLEMENT_CLASS(WebGLMapFrame, wxFrame)
 BEGIN_EVENT_TABLE(WebGLMapFrame, wxFrame)
 END_EVENT_TABLE()
 
-WebGLMapFrame::WebGLMapFrame(const wxString& title) : wxFrame(NULL, wxID_ANY, title) {
+WebGLMapFrame::WebGLMapFrame(const std::vector<OGRFeature*>& features, const wxString& title)
+    : wxFrame(NULL, wxID_ANY, title) {
   wxBoxSizer* topsizer = new wxBoxSizer(wxVERTICAL);
 
   // Create a log window
@@ -96,7 +98,7 @@ WebGLMapFrame::WebGLMapFrame(const wxString& title) : wxFrame(NULL, wxID_ANY, ti
   wxFileSystem::AddHandler(new wxMemoryFSHandler);
 
   // Create the memory files
-  CreateMemoryFiles();
+  CreateMemoryFiles(features);
 
   m_browser->LoadURL("memory:index.html");
   m_browser->SetFocus();
@@ -107,7 +109,7 @@ WebGLMapFrame::WebGLMapFrame(const wxString& title) : wxFrame(NULL, wxID_ANY, ti
 
 WebGLMapFrame::~WebGLMapFrame() {}
 
-void WebGLMapFrame::CreateMemoryFiles() {
+void WebGLMapFrame::CreateMemoryFiles(const std::vector<OGRFeature*>& features) {
   wxString exe_path = wxStandardPaths::Get().GetExecutablePath();
   wxFileName exe_file(exe_path);
   wxString exe_dir = exe_file.GetPathWithSep();
@@ -115,14 +117,22 @@ void WebGLMapFrame::CreateMemoryFiles() {
   wxPathList pathlist;
   pathlist.Add(exe_dir + "../Resources");
 
-  // Create data.json TODO: can be replaced by passing in OGRLayer with only geometries
-  // and selected variables
-  wxString data_path = wxFileName(pathlist.FindValidPath("data.json")).GetAbsolutePath();
-  wxFFile data_file(data_path);
-  wxString data_content;
-  data_file.ReadAll(&data_content);
-
-  wxMemoryFSHandler::AddFile("data.json", data_content);
+  // Create data.csv by passing in OGRLayer with only geometries and selected variables
+  const wxString csv_filename = "data.csv";
+  const wxString mem_csv_filename = "memory:" + csv_filename;
+  wxMemoryFSHandler::AddFile(csv_filename, wxEmptyString);
+  wxTextFile csv_file(mem_csv_filename);
+  const wxString first_line = "id, geom";
+  csv_file.AddLine(first_line);
+  for (size_t i = 0; i < features.size(); ++i) {
+    const OGRFeature* feat = features[i];
+    const OGRGeometry* geom = feat->GetGeometryRef();
+    wxString wkt = geom->exportToWkt();
+    wxString line = wxString::Format(_("%zd,\"%s\""), i, wkt);
+    csv_file.AddLine(line);
+  }
+    csv_file.Write();
+    csv_file.Close();
 
   // Create bundle.js
   wxString bundle_path = wxFileName(pathlist.FindValidPath("bundle.js")).GetAbsolutePath();
@@ -140,7 +150,7 @@ void WebGLMapFrame::CreateMemoryFiles() {
 
   // replace relative urls in index.html with "memory:bundle.js"
   index_content.Replace("bundle.js", "memory:bundle.js");
-  index_content.Replace("data.json", "memory:data.json");
+  index_content.Replace("data.csv", "memory:data.csv");
 
   wxMemoryFSHandler::AddFile("index.html", index_content);
 }
