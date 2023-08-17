@@ -49,7 +49,7 @@ jobs:
 
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       # Set environment
       - name: Set environment
@@ -81,8 +81,17 @@ jobs:
           echo ::set-env name=LIB::%LIB%
           echo ::set-env name=LIBPATH::%LIBPATH%
 
-      # Build GeoDa
-      - name: Build
+      - uses: actions/cache@v3
+        id: cache
+        with:
+          path: |
+            BuildTools/windows/libraries
+            BuildTools/windows/temp
+          key: ${{ runner.os }}-${{ matrix.platform }}-deps-cache-${{ hashFiles('BuildTools/windows/deps.md') }}
+
+      # Create Deps
+      - if: steps.cache.outputs.cache-hit != 'true'
+        name: Create Dependencies 
         shell: pwsh
         run: |
           $ErrorActionPreference = 'continue'
@@ -206,16 +215,40 @@ jobs:
           7z x OpenCL.zip
           dir
           cd ..
-          #
-          # GeoDa
-          #
-          if($env:platform -eq "x86")
+
+      # Build GeoDa
+      - name: Build GeoDa
+        shell: pwsh
+        run: |
+          function exec
           {
-            msbuild.exe GeoDa.vs2019.sln /t:GeoDa /property:Configuration="Release" /p:Platform="Win32"
+            param ( [ScriptBlock] $ScriptBlock )
+            & $ScriptBlock 2>&1 | ForEach-Object -Process { "$_" }
+            if ($LastExitCode -ne 0) { exit $LastExitCode }
+          }
+          echo "ARCH_FLAGS = $env:ARCH_FLAGS"
+          Import-PackageProvider NuGet -Force
+          Set-PSRepository -Name PSGallery -InstallationPolicy Trusted
+          # install pscx powershell and vSSetup
+          Install-Module Pscx -AllowClobber
+          Install-Module VSSetup -Scope CurrentUser
+          if($env:VS_VER -eq "2019")
+          {
           }
           else
           {
-            msbuild.exe GeoDa.vs2019.sln /t:GeoDa /property:Configuration="Release" /p:Platform="x64"  
+              Import-VisualStudioVars -VisualStudioVersion $env:VS_VER -Architecture $env:ARCHITECTURE
+          }
+          $ErrorActionPreference = 'continue'
+          $env:GDA_PATH="$env:GITHUB_WORKSPACE\BuildTools\windows"
+          cd $env:GDA_PATH
+          if($env:platform -eq "x86")
+          {
+            msbuild.exe GeoDa.vs2019.sln /t:GeoDa /property:Configuration="Release" /m /p:Platform="Win32"
+          }
+          else
+          {
+            msbuild.exe GeoDa.vs2019.sln /t:GeoDa /property:Configuration="Release" /m /p:Platform="x64"  
           }
           #
           # InnoSetup
@@ -236,12 +269,12 @@ jobs:
           } 
           dir
 
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v3
         with:
           name: GeoDa-Windows-${{ env.platform }}-installer
           path: ${{ github.workspace }}\BuildTools\windows\GeoDa_1.22_${{ env.platform }}_Setup.exe
 
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v3
         with:
           name: GeoDa-Windows7+-${{ env.platform }}-installer
           path: ${{ github.workspace }}\BuildTools\windows\GeoDa_1.22_win7+${{ env.platform }}_Setup.exe

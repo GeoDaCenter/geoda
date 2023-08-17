@@ -18,6 +18,8 @@ def ProcessDependency(dylib_path, cid):
         dylib_path = '/opt/homebrew/opt/geos/lib/libgeos.3.11.0.dylib'
     if dylib_path == '@rpath/libgeos.3.11.2.dylib':
         dylib_path = '/opt/homebrew/opt/geos/lib/libgeos.3.11.2.dylib'
+    if dylib_path == '@rpath/libgeos.3.12.2.dylib':
+        dylib_path = '/opt/homebrew/opt/geos/lib/libgeos.3.12.2.dylib'
     if dylib_path == '@loader_path/libicuuc.71.dylib':
         dylib_path = '/opt/homebrew/opt/icu4c/lib/libicuuc.71.dylib'
     if dylib_path == '@loader_path/libicuuc.72.dylib':
@@ -47,6 +49,10 @@ def ProcessDependency(dylib_path, cid):
         dylib_path = '/usr/local/opt/openexr/lib/libOpenEXR-3_1.30.dylib'
     if dylib_path == '@rpath/libOpenEXRCore-3_1.30.dylib':
         dylib_path = '/usr/local/opt/openexr/lib/libOpenEXRCore-3_1.30.dylib'
+       
+    m = re.search('@rpath/(libabsl.*)', dylib_path)
+    if m:
+        dylib_path = '/usr/local/opt/abseil/lib/' + m.group(1)
 
     m = re.search('@rpath/(libaws.*)', dylib_path)
     if m:

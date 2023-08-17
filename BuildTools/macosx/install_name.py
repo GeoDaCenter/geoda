@@ -21,6 +21,8 @@ def ProcessDependency(dir_path, dylib_name):
             copyitem = '/usr/local/opt/geos/lib/libgeos.dylib'
         if item == '@rpath/libgeos.3.11.0.dylib':
             copyitem = '/usr/local/opt/geos/lib/libgeos.dylib'
+        if item == '@rpath/libgeos.3.12.0.dylib':
+            copyitem = '/usr/local/opt/geos/lib/libgeos.dylib'
         if item == '@rpath/libgeos.3.11.1.dylib':
             copyitem = '/usr/local/opt/geos/lib/libgeos.dylib'
         if item == '@rpath/libgeos.3.11.2.dylib':
@@ -51,7 +53,19 @@ def ProcessDependency(dir_path, dylib_name):
             copyitem = '/usr/local/opt/openexr/lib/libOpenEXR-3_1.30.dylib'
         if item == '@rpath/libOpenEXRCore-3_1.30.dylib':
             copyitem = '/usr/local/opt/openexr/lib/libOpenEXRCore-3_1.30.dylib'
+        if item == '@rpath/libabsl_log_internal_conditions.2301.0.0.dylib':
+            copyitem = '/usr/local/opt/abseil/lib/libabsl_log_internal_conditions.2301.0.0.dylib'
+        if item == '@rpath/libabsl_raw_logging_internal.2301.0.0.dylib':
+            copyitem = '/usr/local/opt/abseil/lib/libabsl_raw_logging_internal.2301.0.0.dylib'
+        if item == '@rpath/libabsl_log_severity.2301.0.0.dylib':
+            copyitem = '/usr/local/opt/abseil/lib/libabsl_log_severity.2301.0.0.dylib'
+        if item == '@rpath/libabsl_base.2301.0.0.dylib':
+            copyitem = '/usr/local/opt/abseil/lib/libabsl_base.2301.0.0.dylib'
 
+        m = re.search('@rpath/(libabsl.*)', item)
+        if m:
+            copyitem = '/usr/local/opt/abseil/lib/' + m.group(1)
+            
         m = re.search('@rpath/(libaws.*)', item)
         if m:
             copyitem = '/usr/local/opt/aws-sdk-cpp/lib/' + m.group(1)

@@ -5,14 +5,14 @@ set -e
 
 export GEODA_HOME=$PWD
 echo $GEODA_HOME
-CPUS=2
+CPUS=`sysctl -n hw.ncpu`
 
 # Install boost 1.75
-brew install boost@1.76
-ln -s /usr/local/opt/boost@1.76 /usr/local/opt/boost
+#brew install boost@1.76
+#ln -s /usr/local/opt/boost@1.76 /usr/local/opt/boost
 
 # Install libgdal 3.6
-brew install gdal
+#brew install gdal
 
 cd $GEODA_HOME
 mkdir -p temp
@@ -20,6 +20,8 @@ mkdir -p libraries
 mkdir -p libraries/lib
 mkdir -p libraries/include
 mkdir -p ../../o
+
+cd temp
 
 # FIX for libgdal on Monterey using sqlite 3.30.1
 # cd temp
@@ -33,7 +35,6 @@ mkdir -p ../../o
 # cd ..
 
 # Build wxWidgets 3.1.4
-cd temp
 if ! [ -f "wxWidgets-3.1.4.tar.bz2" ]; then
     curl -L -O https://github.com/wxWidgets/wxWidgets/releases/download/v3.1.4/wxWidgets-3.1.4.tar.bz2
     tar -xf wxWidgets-3.1.4.tar.bz2
@@ -94,19 +95,19 @@ if ! [ -f "v0.8.0.zip" ]; then
     mv spectra-0.8.0 spectra
 fi
 
-# Build GeoDa
 cd ..
-cp ../../GeoDamake.macosx.opt ../../GeoDamake.opt
-make -j $CPUS
-make app
+# Build GeoDa
+# cp ../../GeoDamake.macosx.opt ../../GeoDamake.opt
+# make -j $CPUS
+# make app
 
-# Create dmg
-VER_MAJOR=$(grep version_major $GEODA_HOME/../../version.h | sed -e 's/^[[:space:]][[:alpha:]|[:space:]|_|=]*//g' | sed -e 's/;//g')
-VER_MINOR=$(grep version_minor $GEODA_HOME/../../version.h | sed -e 's/^[[:space:]][[:alpha:]|[:space:]|_|=]*//g' | sed -e 's/;//g')
-VER_BUILD=$(grep version_build $GEODA_HOME/../../version.h | sed -e 's/^[[:space:]][[:alpha:]|[:space:]|_|=]*//g' | sed -e 's/;//g')
-GEODA_VERSION=$VER_MAJOR.$VER_MINOR.$VER_BUILD
-echo $GEODA_VERSION
+# # Create dmg
+# VER_MAJOR=$(grep version_major $GEODA_HOME/../../version.h | sed -e 's/^[[:space:]][[:alpha:]|[:space:]|_|=]*//g' | sed -e 's/;//g')
+# VER_MINOR=$(grep version_minor $GEODA_HOME/../../version.h | sed -e 's/^[[:space:]][[:alpha:]|[:space:]|_|=]*//g' | sed -e 's/;//g')
+# VER_BUILD=$(grep version_build $GEODA_HOME/../../version.h | sed -e 's/^[[:space:]][[:alpha:]|[:space:]|_|=]*//g' | sed -e 's/;//g')
+# GEODA_VERSION=$VER_MAJOR.$VER_MINOR.$VER_BUILD
+# echo $GEODA_VERSION
 
-cd create-dmg
-./geoda.sh $GEODA_VERSION
-codesign --timestamp -s "Developer ID Application: Geodapress LLC (26M5NG43GP)" -i edu.uchicago.spatial GeoDa$GEODA_VERSION-Installer.dmg
+# cd create-dmg
+# ./geoda.sh $GEODA_VERSION
+# codesign --timestamp -s "Developer ID Application: Geodapress LLC (26M5NG43GP)" -i edu.uchicago.spatial GeoDa$GEODA_VERSION-Installer.dmg

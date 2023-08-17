@@ -22,19 +22,19 @@ jobs:
   # This workflow contains a single job called "build"
   ubuntu_build:
     # The type of runner that the job will run on
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.distro }}
     if: ${{ !contains(github.event.head_commit.message, '[ci skip]') && !contains(github.event.head_commit.message, '[skip ci]') }}
 
     strategy:
       fail-fast: true
       matrix:
         distro:
-          - 'ubuntu:18.04'
-          - 'ubuntu:20.04'
+          - 'ubuntu-22.04'
+          - 'ubuntu-20.04'
         include:
-          - distro: 'ubuntu:18.04'
-            pre: 'bionic'
-          - distro: 'ubuntu:20.04'
+          - distro: 'ubuntu-22.04'
+            pre: 'jammy'
+          - distro: 'ubuntu-20.04'
             pre: 'focal'
 
     env:
@@ -45,22 +45,48 @@ jobs:
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       # Prepare
       - name: Prepare on ${{ matrix.distro }}
         run: |
+          chmod +x BuildTools/ubuntu/create_deps.sh
           chmod +x BuildTools/ubuntu/install.sh
-          mkdir -p o
-          chmod 644 o
           echo ${{ env.TARGET_OS }}
+
+      - uses: actions/cache@v3
+        id: cache
+        with:
+          path: |
+            BuildTools/ubuntu/libraries
+            BuildTools/ubuntu/temp
+          key: ${{ runner.os }}-${{ env.TARGET_OS }}-deps-cache-${{ hashFiles('BuildTools/ubuntu/create_deps.sh') }}
+
+      # Create Deps
+      - if: steps.cache.outputs.cache-hit != 'true'
+        name: Create Dependencies
+        run: |
+          export WORK_DIR=$PWD
+          export OS=${{ env.TARGET_OS }}
+          export VER=${{ env.GEODA_VER }}
+          export APT="sudo apt-get"
+          cd BuildTools/ubuntu
+          ./create_deps.sh
 
       # Build GeoDa
       - name: Build GeoDa
-        run: docker run --privileged=true -e CI -e WORK_DIR="$PWD" -e CURL_CA_BUNDLE="/etc/ssl/certs/ca-certificates.crt" -e OS=${{ env.TARGET_OS }} -e VER=${{ env.GEODA_VER }} -e APT="apt-get" -v $PWD:$PWD -v /var/run/docker.sock:/var/run/docker.sock ${{ matrix.distro }} $PWD/BuildTools/ubuntu/install.sh
+        run: |
+          mkdir -p o
+          chmod 755 o
+          export WORK_DIR=$PWD
+          export OS=${{ env.TARGET_OS }}
+          export VER=${{ env.GEODA_VER }}
+          export APT="sudo apt-get"
+          cd BuildTools/ubuntu
+          ./install.sh
 
       # Upload artifact
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v3
         with:
           name: GeoDa-${{ env.GEODA_VER }}-${{ env.TARGET_OS }}
           path: ${{ github.workspace }}/BuildTools/ubuntu/geoda_${{ env.GEODA_VER }}-1${{ env.TARGET_OS }}1_amd64.deb
