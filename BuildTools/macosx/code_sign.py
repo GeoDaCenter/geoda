@@ -57,6 +57,10 @@ def ProcessDependency(dylib_path, cid):
     m = re.search('@rpath/(libaws.*)', dylib_path)
     if m:
         dylib_path = '/usr/local/opt/aws-sdk-cpp/lib/' + m.group(1)
+        
+    m = re.search('@loader_path/../../../../(opt*)', dylib_path)
+    if m:
+        dylib_path = '/usr/local/' + m.group(1)
 
 
     print("Process:", dylib_path)

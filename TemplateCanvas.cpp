@@ -60,7 +60,6 @@
 #include "logger.h"
 
 
-using namespace std;
 ////////////////////////////////////////////////////////////////////////////////
 //
 //
@@ -453,7 +452,7 @@ std::vector<int> TemplateCanvas::CreateSelShpsFromProj(std::vector<GdaShape*>& s
 	int num_recs = project->GetNumRecords();
 	selectable_shps.resize(num_recs);
     
-	vector<MainRecord>& records = project->main_data.records;
+	std::vector<MainRecord>& records = project->main_data.records;
 	Header& hdr = project->main_data.header;
 	
 	if (hdr.shape_type == Shapefile::POINT_TYP) {
@@ -645,7 +644,7 @@ void TemplateCanvas::RenderToSVG(wxDC &dc, int w, int h)
     BOOST_FOREACH( GdaShape* shp, background_shps ) {
         shp->paintSelf(dc);
     }
-    vector<bool>& hs = highlight_state->GetHighlight();
+    std::vector<bool>& hs = highlight_state->GetHighlight();
     if (use_category_brushes) {
         helper_DrawSelectableShapes_dc(dc, hs, false, false);
         
@@ -867,7 +866,7 @@ void TemplateCanvas::DrawHighlightedShapes(wxMemoryDC &dc)
         DrawSelectableShapes_dc(dc, highlight_only);
         
     } else {
-        vector<bool>& hs = GetSelBitVec();
+        std::vector<bool>& hs = GetSelBitVec();
         for (size_t i=0, iend=selectable_shps.size(); i<iend; i++) {
             if (hs[i] && _IsShpValid(i)) {
                 selectable_shps[i]->paintSelf(dc);
@@ -879,7 +878,7 @@ void TemplateCanvas::DrawHighlightedShapes(wxMemoryDC &dc)
 void TemplateCanvas::DrawSelectableShapes_dc(wxMemoryDC &_dc, bool hl_only,
                                              bool revert)
 {
-    vector<bool>& hs = highlight_state->GetHighlight();
+    std::vector<bool>& hs = highlight_state->GetHighlight();
 #ifdef __WXOSX__
     wxGCDC dc(_dc);
     helper_DrawSelectableShapes_dc(dc, hs, hl_only, revert);
@@ -1042,7 +1041,7 @@ void TemplateCanvas::helper_DrawSelectableShapes_dc(wxDC &dc, vector<bool>& hs,
 }
 
 void TemplateCanvas::DrawPoints(wxGCDC& dc, CatClassifData& cat_data,
-                                vector<bool>& hs, double radius, int alpha,
+                                std::vector<bool>& hs, double radius, int alpha,
                                 wxColour fixed_pen_color, bool cross_hatch)
 {
     //int alpha = GdaConst::plot_transparency_unhighlighted;;
@@ -1052,7 +1051,7 @@ void TemplateCanvas::DrawPoints(wxGCDC& dc, CatClassifData& cat_data,
     int w = sz.GetWidth();
     int h = sz.GetHeight();
     int bnd = w * h;
-    vector<bool> dirty(bnd, false);
+    std::vector<bool> dirty(bnd, false);
     
     dc.SetBrush(*wxTRANSPARENT_BRUSH);
     GdaPoint* p;
@@ -1079,7 +1078,7 @@ void TemplateCanvas::DrawPoints(wxGCDC& dc, CatClassifData& cat_data,
                                        brush_color.Blue(), alpha);
             dc.SetBrush(wxBrush(brush_color_alpha));
         }
-        vector<int>& ids = cat_data.GetIdsRef(cc_ts, cat);
+        std::vector<int>& ids = cat_data.GetIdsRef(cc_ts, cat);
         for (int i=0, iend=ids.size(); i<iend; i++) {
             if (!_IsShpValid(ids[i])) {
                 continue;
@@ -1098,7 +1097,7 @@ void TemplateCanvas::DrawPoints(wxGCDC& dc, CatClassifData& cat_data,
 }
 
 void TemplateCanvas::DrawPolygons(wxGCDC& dc, CatClassifData& cat_data,
-                                  vector<bool>& hs, int alpha,
+                                  std::vector<bool>& hs, int alpha,
                                   wxColour fixed_pen_color, bool cross_hatch)
 {
     //int alpha = GdaConst::plot_transparency_unhighlighted;;
@@ -1128,7 +1127,7 @@ void TemplateCanvas::DrawPolygons(wxGCDC& dc, CatClassifData& cat_data,
             wxColour brush_color_alpha(brush_color.Red(), brush_color.Green(), brush_color.Blue(), alpha);
             dc.SetBrush(wxBrush(brush_color_alpha));
         }
-        vector<int>& ids = cat_data.GetIdsRef(cc_ts, cat);
+        std::vector<int>& ids = cat_data.GetIdsRef(cc_ts, cat);
         
         for (int i=0, iend=ids.size(); i<iend; i++) {
             if (!_IsShpValid(ids[i])) {
@@ -1182,7 +1181,7 @@ void TemplateCanvas::DrawCircles(wxGCDC& dc, CatClassifData& cat_data, vector<bo
             wxColour brush_color_alpha(brush_color.Red(), brush_color.Green(), brush_color.Blue(), alpha);
             dc.SetBrush(wxBrush(brush_color_alpha));
         }
-        vector<int>& ids = cat_data.GetIdsRef(cc_ts, cat);
+        std::vector<int>& ids = cat_data.GetIdsRef(cc_ts, cat);
         for (int i=0, iend=ids.size(); i<iend; i++) {
             if (!_IsShpValid(ids[i]))
                 continue;
@@ -1195,7 +1194,7 @@ void TemplateCanvas::DrawCircles(wxGCDC& dc, CatClassifData& cat_data, vector<bo
 }
 
 void TemplateCanvas::DrawLines(wxGCDC& dc, CatClassifData& cat_data,
-                               vector<bool>& hs, int alpha,
+                               std::vector<bool>& hs, int alpha,
                                wxColour fixed_pen_color, bool cross_hatch)
 {
     //int alpha = GdaConst::plot_transparency_unhighlighted;;
@@ -1221,7 +1220,7 @@ void TemplateCanvas::DrawLines(wxGCDC& dc, CatClassifData& cat_data,
                                  pen_color.Blue(), alpha);
         dc.SetPen(wxPen(pen_color_alpha));
         
-        vector<int>& ids = cat_data.GetIdsRef(cc_ts, cat);
+        std::vector<int>& ids = cat_data.GetIdsRef(cc_ts, cat);
         for (int i=0, iend=ids.size(); i<iend; i++) {
             if (!_IsShpValid(ids[i])) {
                 continue;
@@ -1238,7 +1237,7 @@ void TemplateCanvas::DrawLines(wxGCDC& dc, CatClassifData& cat_data,
 
 // draw unhighlighted selectable shapes with wxGraphicsContext
 void TemplateCanvas::helper_DrawSelectableShapes_gc(wxGraphicsContext &gc,
-                                                    vector<bool>& hs,
+                                                    std::vector<bool>& hs,
                                                     bool hl_only,
                                                     bool revert, 
 													bool crosshatch,
@@ -1307,7 +1306,7 @@ void TemplateCanvas::helper_DrawSelectableShapes_gc(wxGraphicsContext &gc,
                 gc.SetBrush(newBrush);
             }
             
-            vector<int>& ids = cat_data.GetIdsRef(cc_ts, cat);
+            std::vector<int>& ids = cat_data.GetIdsRef(cc_ts, cat);
             
             for (int i=0, iend=ids.size(); i<iend; i++) {
                 wxGraphicsPath path = gc.CreatePath();
@@ -2431,7 +2430,7 @@ wxString TemplateCanvas::GetCategoriesTitle()
 std::vector<wxString> TemplateCanvas::SaveCategories(const wxString& title,
 									const wxString& label,
 									const wxString& field_default,
-                                    vector<bool>& undefs)
+                                    std::vector<bool>& undefs)
 {
     std::vector<wxString> new_fields;
 	if (project->GetNumRecords() != selectable_shps.size()) return new_fields;
@@ -2484,8 +2483,8 @@ void TemplateCanvas::GetVizInfo(map<wxString, vector<int> >& colors)
 }
 
 void TemplateCanvas::GetVizInfo(wxString& shape_type,
-                                vector<wxString>& clrs,
-                                vector<double>& bins)
+                                std::vector<wxString>& clrs,
+                                std::vector<double>& bins)
 {
     
 	if (selectable_shps_type == points) {

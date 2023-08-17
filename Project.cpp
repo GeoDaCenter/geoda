@@ -427,7 +427,6 @@ rtree_box_2d_t& Project::GetBBoxRtree()
 void Project::CalcEucPlaneRtreeStats()
 {
     wxLogMessage("Project::CalcEucPlaneRtreeStats()");
-    using namespace std;
     
     GetCentroids();
     size_t num_obs = centroids.size();
@@ -451,7 +450,6 @@ void Project::CalcEucPlaneRtreeStats()
 void Project::CalcUnitSphereRtreeStats()
 {
 	wxLogMessage("Project::CalcUnitSphereRtreeStats()");
-	using namespace std;
 	GetCentroids();
 	size_t num_obs = centroids.size();
 	std::vector<pt_lonlat> pts_ll(num_obs);
@@ -992,10 +990,9 @@ CovSpHLStateProxy* Project::GetPairsHLState()
 
 TableBase* Project::FindTableBase()
 {
-	using namespace std;
 	if (frames_manager == NULL) return NULL;
-	list<FramesManagerObserver*> observers(frames_manager->getCopyObservers());
-	list<FramesManagerObserver*>::iterator it;
+	std::list<FramesManagerObserver*> observers(frames_manager->getCopyObservers());
+	std::list<FramesManagerObserver*>::iterator it;
 	for (it=observers.begin(); it != observers.end(); ++it) {
 		if (TableFrame* w = dynamic_cast<TableFrame*>(*it)) {
 			return w->GetTableBase();
