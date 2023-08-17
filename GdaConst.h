@@ -413,6 +413,12 @@ public:
 	static const int ShpHeaderSize = 50; // size of the header record in Shapefile
 	static const int ShpObjIdLen = 20;    // length of the ID of shape object
 
+    // Basemap
+    static const wxString gda_basemap_osm_useragent;
+    static const wxString gda_basemap_win_useragent;
+    static const wxString gda_basemap_mac_useragent;
+    static const wxString gda_basemap_linux_useragent;
+    
     static wxCursor zoomInCursor;
     static wxCursor zoomOutCursor;
 

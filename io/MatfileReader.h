@@ -12,8 +12,6 @@
 #include <vector>
 #include <cstring>
 
-using namespace std;
-
 enum EDataType {
     miINT8 = 1,
     miUINT8 = 2,
@@ -286,9 +284,9 @@ public:
             delete _cells[i];
     }
 public:
-    vector<MatrixDataElement*>& cells() { return _cells; }
+    std::vector<MatrixDataElement*>& cells() { return _cells; }
 protected:
-    vector<MatrixDataElement*> _cells;
+    std::vector<MatrixDataElement*> _cells;
 };
 
 class Struct: public MatrixDataElement
@@ -306,7 +304,7 @@ public:
 public:
     FieldNameLength* fieldNameLength() { return _fieldNameLength; }
     FieldNames* fieldNames() { return _fieldNames; }
-    vector<MatrixDataElement*> fields() { return _fields; }
+    std::vector<MatrixDataElement*> fields() { return _fields; }
 protected:
     void parseFieldNameLength(char* fieldNameLength) {
         _fieldNameLength = new FieldNameLength(fieldNameLength, _endianSwap);
@@ -317,7 +315,7 @@ protected:
 protected:
     FieldNameLength* _fieldNameLength;
     FieldNames* _fieldNames;
-    vector<MatrixDataElement*> _fields;
+    std::vector<MatrixDataElement*> _fields;
 };
 
 class Object: public Struct
@@ -351,8 +349,8 @@ public:
     int numberDataElements() { return _dataElements.size(); }
     std::vector<DataElement*> dataElements() { return _dataElements; }
 public:
-    void gotoHeader() { _inputStream.seekg(0, ios_base::beg); }
-    void gotoData() { _inputStream.seekg(128, ios_base::beg); }
+    void gotoHeader() { _inputStream.seekg(0, std::ios_base::beg); }
+    void gotoData() { _inputStream.seekg(128, std::ios_base::beg); }
     void parseHeader();
     bool parseDataElement();
     void parseAllDataElements();

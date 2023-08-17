@@ -395,6 +395,10 @@ wxString GdaConst::gda_basemap_sources =
 "\nOther (China).GaoDe,http://webst{s}.is.autonavi.com/appmaptile?style=8&x={x}&y={y}&z={z}"
 "\nOther (China).GaoDe(Satellite),http://webst{s}.is.autonavi.com/appmaptile?style=6&x={x}&y={y}&z={z}"
 ;
+const wxString GdaConst::gda_basemap_osm_useragent = "GeoDa 1.14 contact spatial@uchiago.edu";
+const wxString GdaConst::gda_basemap_win_useragent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36";
+const wxString GdaConst::gda_basemap_mac_useragent = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36";
+const wxString GdaConst::gda_basemap_linux_useragent = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36";
 
 const wxString GdaConst::gda_lbl_not_sig = _("Not Significant");
 const wxString GdaConst::gda_lbl_undefined = _("Undefined");

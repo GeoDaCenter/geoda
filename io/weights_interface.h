@@ -24,8 +24,6 @@
 
 #include "../ShapeOperations/GalWeight.h"
 
-using namespace std;
-
 class WeightsNotValidException: public std::exception {
     virtual const char* what() const throw() {
         return "weights exception: weights file not valid";
