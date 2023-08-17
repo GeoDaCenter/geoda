@@ -42,6 +42,8 @@
 #include <ogr_spatialref.h>
 
 #include <curl/curl.h>
+#include "../GdaConst.h"
+#include "../GeneralWxUtils.h"
 #include "../ShapeOperations/OGRDataAdapter.h"
 #include "Basemap.h"
 
@@ -155,8 +157,6 @@ XYFraction::XYFraction(double _x, double _y)
     xfrac = modf(_x, &xint);
     yfrac = modf(_y, &yint);
 }
-
-const char *Basemap::USER_AGENT = "GeoDa 1.14 contact spatial@uchiago.edu";
 
 Basemap::Basemap(BasemapItem& _basemap_item,
                  Screen* _screen,
@@ -612,6 +612,21 @@ size_t curlCallback(void *ptr, size_t size, size_t nmemb, void* userdata)
     return written;
 }
 
+wxString Basemap::GetUserAgent(const wxString& url)
+{
+    if (url.Find("openstreetmap") != wxNOT_FOUND) {
+        return GdaConst::gda_basemap_osm_useragent;
+    }
+    if (GeneralWxUtils::isWindows()) {
+        return GdaConst::gda_basemap_win_useragent;
+    } else if (GeneralWxUtils::isMac()) {
+        return GdaConst::gda_basemap_mac_useragent;
+    } else {
+        return GdaConst::gda_basemap_linux_useragent;
+    }
+    
+}
+
 wxString Basemap::GetContentType()
 {
     wxString url = GetTileUrl(16, 11); // guerry
@@ -621,7 +636,8 @@ wxString Basemap::GetContentType()
     if(curl) {
         curl_easy_setopt(curl, CURLOPT_URL, url.ToUTF8().data());
         curl_easy_setopt(curl, CURLOPT_SSLVERSION, CURL_SSLVERSION_TLSv1_2);
-        curl_easy_setopt(curl, CURLOPT_USERAGENT, Basemap::USER_AGENT);
+        curl_easy_setopt(curl, CURLOPT_USERAGENT, GetUserAgent(url).ToUTF8().data());
+        curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1);
         curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 0);
         curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0);
         curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT, 1L);
@@ -670,10 +686,10 @@ void Basemap::DownloadTile(int x, int y)
             if (fp) {
                 curl_easy_setopt(image, CURLOPT_URL, url.ToUTF8().data());
                 curl_easy_setopt(image, CURLOPT_SSLVERSION, CURL_SSLVERSION_TLSv1_2);
-                curl_easy_setopt(image, CURLOPT_USERAGENT, Basemap::USER_AGENT);
+                curl_easy_setopt(image, CURLOPT_USERAGENT, GetUserAgent(url).ToUTF8().data());
                 curl_easy_setopt(image, CURLOPT_WRITEFUNCTION, curlCallback);
                 curl_easy_setopt(image, CURLOPT_WRITEDATA, fp);
-                //curl_easy_setopt(image, CURLOPT_FOLLOWLOCATION, 1);
+                curl_easy_setopt(image, CURLOPT_FOLLOWLOCATION, 1);
                 curl_easy_setopt(image, CURLOPT_SSL_VERIFYHOST, 0);
                 curl_easy_setopt(image, CURLOPT_SSL_VERIFYPEER, 0);
                 curl_easy_setopt(image, CURLOPT_CONNECTTIMEOUT, 1L);

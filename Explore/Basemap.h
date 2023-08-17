@@ -235,11 +235,11 @@ namespace Gda {
                     east = _e;
                     south = _s;
                 }
-                OGRSpatialReference* s1 = poCT->GetTargetCS();
-                OGRSpatialReference* s2 = poCT->GetSourceCS();
+                const OGRSpatialReference* s1 = poCT->GetTargetCS();
+                const OGRSpatialReference* s2 = poCT->GetSourceCS();
 #ifdef __PROJ6__
-                s1->SetAxisMappingStrategy(OAMS_TRADITIONAL_GIS_ORDER);
-                s2->SetAxisMappingStrategy(OAMS_TRADITIONAL_GIS_ORDER);
+                const_cast<OGRSpatialReference*>(s1)->SetAxisMappingStrategy(OAMS_TRADITIONAL_GIS_ORDER);
+                const_cast<OGRSpatialReference*>(s2)->SetAxisMappingStrategy(OAMS_TRADITIONAL_GIS_ORDER);
 #endif
                 poCT_rev = OGRCreateCoordinateTransformation(s1, s2);
             }
@@ -327,20 +327,20 @@ namespace Gda {
             poCT_rev = NULL;
             if (other) {
                 if (other->poCT) {
-                    OGRSpatialReference* s1 = other->poCT->GetSourceCS();
-                    OGRSpatialReference* s2 = other->poCT->GetTargetCS();
+                    const OGRSpatialReference* s1 = other->poCT->GetSourceCS();
+                    const OGRSpatialReference* s2 = other->poCT->GetTargetCS();
 #ifdef __PROJ6__
-                    s1->SetAxisMappingStrategy(OAMS_TRADITIONAL_GIS_ORDER);
-                    s2->SetAxisMappingStrategy(OAMS_TRADITIONAL_GIS_ORDER);
+                    const_cast<OGRSpatialReference*>(s1)->SetAxisMappingStrategy(OAMS_TRADITIONAL_GIS_ORDER);
+                    const_cast<OGRSpatialReference*>(s2)->SetAxisMappingStrategy(OAMS_TRADITIONAL_GIS_ORDER);
 #endif
                     poCT = OGRCreateCoordinateTransformation(s1, s2);
                 }
                 if (other->poCT_rev) {
-                    OGRSpatialReference* s1 = other->poCT_rev->GetSourceCS();
-                    OGRSpatialReference* s2 = other->poCT_rev->GetTargetCS();
+                    const OGRSpatialReference* s1 = other->poCT_rev->GetSourceCS();
+                    const OGRSpatialReference* s2 = other->poCT_rev->GetTargetCS();
 #ifdef __PROJ6__
-                    s1->SetAxisMappingStrategy(OAMS_TRADITIONAL_GIS_ORDER);
-                    s2->SetAxisMappingStrategy(OAMS_TRADITIONAL_GIS_ORDER);
+                    const_cast<OGRSpatialReference*>(s1)->SetAxisMappingStrategy(OAMS_TRADITIONAL_GIS_ORDER);
+                    const_cast<OGRSpatialReference*>(s2)->SetAxisMappingStrategy(OAMS_TRADITIONAL_GIS_ORDER);
 #endif
                     poCT_rev = OGRCreateCoordinateTransformation(s1, s2);
                 }
@@ -377,7 +377,6 @@ namespace Gda {
                 double scale_factor = 1.0);
         ~Basemap();
 
-        static const char* USER_AGENT;
         OGRCoordinateTransformation *poCT;
         BasemapItem basemap_item;
         wxString basemapName;
@@ -439,6 +438,7 @@ namespace Gda {
         
         void CleanCache();
         wxString GetContentType();
+        wxString GetUserAgent(const wxString& url);
     };
     
 }

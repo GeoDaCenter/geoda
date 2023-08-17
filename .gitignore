@@ -42,6 +42,10 @@ BuildTools/macosx/build/
 BuildTools/macosx/GeoDa.xcodeproj/
 BuildTools/macosx/GeoDa.xcodeproj/xcuserdata/
 BuildTools/macosx/GeoDa-leopard.xcodeproj/
+BuildTools/reactgeoda
+BuildTools/node_modules
+
+build/
 
 *.dmg
 *.mode1v3
