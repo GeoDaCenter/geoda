@@ -44,17 +44,17 @@
     {
       "name": "Linux",
       "includePath": [
-        "/home/xun/Documents/GitHub/geoda/**",
-        "/home/xun/Documents/GitHub/geoda/BuildTools/ubuntu/libraries/lib/wx/include/gtk3-unicode-static-3.1",
-        "/home/xun/Documents/GitHub/geoda/BuildTools/ubuntu/libraries/include",
-        "/home/xun/Documents/GitHub/geoda/BuildTools/ubuntu/libraries/include/wx-3.1",
-        "/home/xun/Documents/GitHub/geoda/BuildTools/ubuntu/temp/boost",
+        "${workspaceFolder}/**",
+        "${workspaceFolder}/BuildTools/ubuntu/libraries/lib/wx/include/gtk3-unicode-static-3.1",
+        "${workspaceFolder}/BuildTools/ubuntu/libraries/include",
+        "${workspaceFolder}/BuildTools/ubuntu/libraries/include/wx-3.1",
+        "${workspaceFolder}/BuildTools/ubuntu/temp/boost",
         "/usr/include/gdal",
         "/usr/include",
         "/usr/include/c++/11",
         "/usr/include/x86_64-linux-gnu/c++/11",
-        "/home/xun/Documents/GitHub/geoda/BuildTools/ubuntu/temp/eigen3",
-        "/home/xun/Documents/GitHub/geoda/BuildTools/ubuntu/temp/spectra/include"
+        "${workspaceFolder}/BuildTools/ubuntu/temp/eigen3",
+        "${workspaceFolder}/BuildTools/ubuntu/temp/spectra/include"
       ],
       "defines": [],
       "compilerPath": "/usr/bin/gcc",
