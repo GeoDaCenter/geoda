@@ -46,13 +46,12 @@
  #endif
 #endif
 
-using namespace std;
 
 class wxDC;
 class TableState;
 
 namespace StringUtils {
-    int utf8_strlen(const string& str);
+    int utf8_strlen(const std::string& str);
 }
 
 namespace DbfFileUtils {
@@ -76,41 +75,41 @@ namespace GdaColorUtils {
 	 brightness = 0 is black, brightness = 200 is white. */
 	wxColour ChangeBrightness(const wxColour& input_col, int brightness = 75);
     
-    void GetUnique20Colors(vector<wxColour>& colors);
+    void GetUnique20Colors(std::vector<wxColour>& colors);
     
-    void GetLISAColors(vector<wxColour>& colors);
-    void GetLISAColorLabels(vector<wxString>& labels);
+    void GetLISAColors(std::vector<wxColour>& colors);
+    void GetLISAColorLabels(std::vector<wxString>& labels);
     
-    void GetLocalGColors(vector<wxColour>& colors);
-    void GetLocalGColorLabels(vector<wxString>& labels);
+    void GetLocalGColors(std::vector<wxColour>& colors);
+    void GetLocalGColorLabels(std::vector<wxString>& labels);
     
-    void GetLocalJoinCountColors(vector<wxColour>& colors);
-    void GetLocalJoinCountColorLabels(vector<wxString>& labels);
+    void GetLocalJoinCountColors(std::vector<wxColour>& colors);
+    void GetLocalJoinCountColorLabels(std::vector<wxString>& labels);
     
-    void GetLocalGearyColors(vector<wxColour>& colors);
-    void GetLocalGearyColorLabels(vector<wxString>& labels);
+    void GetLocalGearyColors(std::vector<wxColour>& colors);
+    void GetLocalGearyColorLabels(std::vector<wxString>& labels);
     
-    void GetMultiLocalGearyColors(vector<wxColour>& colors);
-    void GetMultiLocalGearyColorLabels(vector<wxString>& labels);
+    void GetMultiLocalGearyColors(std::vector<wxColour>& colors);
+    void GetMultiLocalGearyColorLabels(std::vector<wxString>& labels);
     
-    void GetPercentileColors(vector<wxColour>& colors);
-    void GetPercentileColorLabels(vector<wxString>& labels);
+    void GetPercentileColors(std::vector<wxColour>& colors);
+    void GetPercentileColorLabels(std::vector<wxString>& labels);
     
-    void GetBoxmapColors(vector<wxColour>& colors);
-    void GetBoxmapColorLabels(vector<wxString>& labels);
+    void GetBoxmapColors(std::vector<wxColour>& colors);
+    void GetBoxmapColorLabels(std::vector<wxString>& labels);
     
-    void GetStddevColors(vector<wxColour>& colors);
-    void GetStddevColorLabels(vector<wxString>& labels);
+    void GetStddevColors(std::vector<wxColour>& colors);
+    void GetStddevColorLabels(std::vector<wxString>& labels);
     
-    void GetQuantile2Colors(vector<wxColour>& colors);
-    void GetQuantile3Colors(vector<wxColour>& colors);
-    void GetQuantile4Colors(vector<wxColour>& colors);
-    void GetQuantile5Colors(vector<wxColour>& colors);
-    void GetQuantile6Colors(vector<wxColour>& colors);
-    void GetQuantile7Colors(vector<wxColour>& colors);
-    void GetQuantile8Colors(vector<wxColour>& colors);
-    void GetQuantile9Colors(vector<wxColour>& colors);
-    void GetQuantile10Colors(vector<wxColour>& colors);
+    void GetQuantile2Colors(std::vector<wxColour>& colors);
+    void GetQuantile3Colors(std::vector<wxColour>& colors);
+    void GetQuantile4Colors(std::vector<wxColour>& colors);
+    void GetQuantile5Colors(std::vector<wxColour>& colors);
+    void GetQuantile6Colors(std::vector<wxColour>& colors);
+    void GetQuantile7Colors(std::vector<wxColour>& colors);
+    void GetQuantile8Colors(std::vector<wxColour>& colors);
+    void GetQuantile9Colors(std::vector<wxColour>& colors);
+    void GetQuantile10Colors(std::vector<wxColour>& colors);
 }
 
 namespace Gda {
@@ -139,15 +138,15 @@ namespace Gda {
     
     wxString CreateUUID(int nSize);
     
-    wxString DetectDateFormat(wxString s, vector<wxString>& date_items);
+    wxString DetectDateFormat(wxString s, std::vector<wxString>& date_items);
     
-    unsigned long long DateToNumber(wxString s_date, wxRegEx& regex, vector<wxString>& date_items);
+    unsigned long long DateToNumber(wxString s_date, wxRegEx& regex, std::vector<wxString>& date_items);
     
 	// useful for sorting a vector of double with their original indexes:
-	// vector<dbl_int_pair_type> data;
+	// std::vector<dbl_int_pair_type> data;
 	// sort(data.begin(), data.end(), Gda::dbl_int_pair_cmp_less);	
-	typedef pair<double, int> dbl_int_pair_type;
-	typedef vector<dbl_int_pair_type> dbl_int_pair_vec_type;
+	typedef std::pair<double, int> dbl_int_pair_type;
+	typedef std::vector<dbl_int_pair_type> dbl_int_pair_vec_type;
 	bool dbl_int_pair_cmp_less(const dbl_int_pair_type& ind1,
 							   const dbl_int_pair_type& ind2);
 	bool dbl_int_pair_cmp_greater(const dbl_int_pair_type& ind1,
@@ -156,18 +155,18 @@ namespace Gda {
 									  const dbl_int_pair_type& ind2);
 	bool dbl_int_pair_cmp_second_greater(const dbl_int_pair_type& ind1,
 										 const dbl_int_pair_type& ind2);
-    typedef pair<wxString, int> str_int_pair_type;
-    typedef vector<str_int_pair_type> str_int_pair_vec_type;
+    typedef std::pair<wxString, int> str_int_pair_type;
+    typedef std::vector<str_int_pair_type> str_int_pair_vec_type;
     
     // Percentile using Linear interpolation between closest ranks
     // Definition as described in Matlab documentation
     // and at http://en.wikipedia.org/wiki/Percentile
     // Assumes that input vector v is sorted in ascending order.
     // Duplicate values are allowed.
-    double percentile(double x, const vector<double>& v);
+    double percentile(double x, const std::vector<double>& v);
     double percentile(double x, const Gda::dbl_int_pair_vec_type& v);
     double percentile(double x, const Gda::dbl_int_pair_vec_type& v,
-                      const vector<bool>& undefs);
+                      const std::vector<bool>& undefs);
 }
 
 // Note: In "Exploratory Data Analysis", pp 32-34, 1977, Tukey only defines
@@ -214,9 +213,9 @@ struct HingeStats {
 		max_val(0), is_even_num_obs(false),
 		Q2(0), Q2_ind(0), Q1(0), Q1_ind(0),
 		Q3(0), Q3_ind(0), min_IQR_ind(0), max_IQR_ind(0) {}
-	void CalculateHingeStats(const vector<Gda::dbl_int_pair_type>& data);
-	void CalculateHingeStats(const vector<Gda::dbl_int_pair_type>& data,
-                             const vector<bool>& data_undef);
+	void CalculateHingeStats(const std::vector<Gda::dbl_int_pair_type>& data);
+	void CalculateHingeStats(const std::vector<Gda::dbl_int_pair_type>& data,
+                             const std::vector<bool>& data_undef);
 	int num_obs;
 	double min_val;
 	double max_val;
@@ -242,19 +241,19 @@ struct HingeStats {
 
 struct SampleStatistics {
 	SampleStatistics();
-    SampleStatistics(const vector<double>& data);
-    SampleStatistics(const vector<double>& data,
-                     const vector<bool>& undefs);
-    SampleStatistics(const vector<double>& data,
-                     const vector<bool>& undefs1,
-                     const vector<bool>& undefs2);
-    void CalculateFromSample(const vector<double>& data);
-    void CalculateFromSample(const vector<double>& data,
-                             const vector<bool>& undefs);
-    void CalculateFromSample(const vector<Gda::dbl_int_pair_type>& data,
-                             const vector<bool>& undefs);
+    SampleStatistics(const std::vector<double>& data);
+    SampleStatistics(const std::vector<double>& data,
+                     const std::vector<bool>& undefs);
+    SampleStatistics(const std::vector<double>& data,
+                     const std::vector<bool>& undefs1,
+                     const std::vector<bool>& undefs2);
+    void CalculateFromSample(const std::vector<double>& data);
+    void CalculateFromSample(const std::vector<double>& data,
+                             const std::vector<bool>& undefs);
+    void CalculateFromSample(const std::vector<Gda::dbl_int_pair_type>& data,
+                             const std::vector<bool>& undefs);
     
-	string ToString();
+	std::string ToString();
 	
 	int sample_size;
 	double min;
@@ -265,12 +264,12 @@ struct SampleStatistics {
 	double sd_with_bessel;
 	double sd_without_bessel;
 	
-	static double CalcMin(const vector<double>& data);
-	static double CalcMax(const vector<double>& data);
-	static void   CalcMinMax(const vector<double>& data, double& min,
+	static double CalcMin(const std::vector<double>& data);
+	static double CalcMax(const std::vector<double>& data);
+	static void   CalcMinMax(const std::vector<double>& data, double& min,
 						     double& max);
-	static double CalcMean(const vector<double>& data);
-	static double CalcMean(const vector<Gda::dbl_int_pair_type>& data);
+	static double CalcMean(const std::vector<double>& data);
+	static double CalcMean(const std::vector<Gda::dbl_int_pair_type>& data);
     
 };
 
@@ -282,26 +281,26 @@ struct SimpleLinearRegression {
 		valid(false), valid_correlation(false),
 		valid_std_err(false) {}
     
-	SimpleLinearRegression(const vector<double>& X,
-						   const vector<double>& Y,
+	SimpleLinearRegression(const std::vector<double>& X,
+						   const std::vector<double>& Y,
 						   double meanX, double meanY,
 						   double varX, double varY);
     
-	SimpleLinearRegression(const vector<double>& X,
-						   const vector<double>& Y,
-                           const vector<bool>& X_undef,
-						   const vector<bool>& Y_undef,
+	SimpleLinearRegression(const std::vector<double>& X,
+						   const std::vector<double>& Y,
+                           const std::vector<bool>& X_undef,
+						   const std::vector<bool>& Y_undef,
 						   double meanX, double meanY,
 						   double varX, double varY);
     
-	void CalculateRegression(const vector<double>& X,
-							 const vector<double>& Y,
+	void CalculateRegression(const std::vector<double>& X,
+							 const std::vector<double>& Y,
 							 double meanX, double meanY,
 							 double varX, double varY);
     
 	static double TScoreTo2SidedPValue(double tscore, int df);
     
-	string ToString();
+	std::string ToString();
 
     int n;
 	double covariance;
@@ -332,7 +331,7 @@ struct AxisScale {
 						const int ticks = 5);
 	void SkipEvenTics(); // only display every other tic value
 	void ShowAllTics();
-	string ToString();
+	std::string ToString();
 	
 	double data_min;
 	double data_max;
@@ -344,9 +343,9 @@ struct AxisScale {
     bool lbl_prec_fixed_point;
 	int ticks;
 	int p; // power of ten to scale significant digit
-	vector<double>tics; // numerical tic values
-	vector<string>tics_str; // tics in formated string representation
-	vector<bool>tics_str_show; // if false, then don't draw tic string
+	std::vector<double>tics; // numerical tic values
+	std::vector<std::string>tics_str; // tics in formated string representation
+	std::vector<bool>tics_str_show; // if false, then don't draw tic string
 };
 
 
@@ -360,47 +359,47 @@ namespace GenUtils {
     wxString IntToStr(int x, int precision = 0);
 	wxString PtToStr(const wxPoint& p);
 	wxString PtToStr(const wxRealPoint& p);
-    void Transformation(int trans_type, vector<vector<double> >& data,
-                        vector<vector<bool> >& undef);
+    void Transformation(int trans_type, std::vector<std::vector<double> >& data,
+                        std::vector<std::vector<bool> >& undef);
     
 	void MeanAbsoluteDeviation(int nObs, double* data);
-    void MeanAbsoluteDeviation(int nObs, double* data, vector<bool>& undef);
-	void MeanAbsoluteDeviation(vector<double>& data);
-    void MeanAbsoluteDeviation(vector<double>& data, vector<bool>& undef);
+    void MeanAbsoluteDeviation(int nObs, double* data, std::vector<bool>& undef);
+	void MeanAbsoluteDeviation(std::vector<double>& data);
+    void MeanAbsoluteDeviation(std::vector<double>& data, std::vector<bool>& undef);
     
 	void DeviationFromMean(int nObs, double* data);
-    void DeviationFromMean(int nObs, double* data, vector<bool>& undef);
+    void DeviationFromMean(int nObs, double* data, std::vector<bool>& undef);
     void DeviationFromMean(std::vector<double>& data, std::vector<bool>& undef);
-    void DeviationFromMean(vector<double>& data);
-    void DeviationFromMedian(vector<double>& data);
-    void DeviationFromMedoid(vector<double>& data, double medoid_val);
+    void DeviationFromMean(std::vector<double>& data);
+    void DeviationFromMedian(std::vector<double>& data);
+    void DeviationFromMedoid(std::vector<double>& data, double medoid_val);
 
-	double Sum(vector<double>& data);
+	double Sum(std::vector<double>& data);
     double Median(std::vector<double>& data);
     double Median(double* data, int n, const std::vector<bool>& undefs);
 
-	double SumOfSquares(vector<double>& data);
-    double SumOfSquaresMedian(vector<double>& data);
-    double SumOfSquaresMedoid(vector<double>& data, double medoid_val);
+	double SumOfSquares(std::vector<double>& data);
+    double SumOfSquaresMedian(std::vector<double>& data);
+    double SumOfSquaresMedoid(std::vector<double>& data, double medoid_val);
 
-    double SumOfManhattanMedian(vector<double>& data);
-    double SumOfManhattanMedoid(vector<double>& data, double medoid_val);
+    double SumOfManhattanMedian(std::vector<double>& data);
+    double SumOfManhattanMedoid(std::vector<double>& data, double medoid_val);
 
 	bool StandardizeData(int nObs, double* data);
-    bool StandardizeData(int nObs, double* data, vector<bool>& undef);
-	bool StandardizeData(vector<double>& data);
-    bool StandardizeData(vector<double>& data, vector<bool>& undef);
+    bool StandardizeData(int nObs, double* data, std::vector<bool>& undef);
+	bool StandardizeData(std::vector<double>& data);
+    bool StandardizeData(std::vector<double>& data, std::vector<bool>& undef);
 
     void RangeAdjust(std::vector<double>& data);
     void RangeAdjust(std::vector<double>& data, std::vector<bool>& undef);
     void RangeStandardize(std::vector<double>& data);
     void RangeStandardize(std::vector<double>& data, std::vector<bool>& undef);
 
-    std::vector<double> rankify(const vector<double>& x);
-    void rankify_fast(const vector<double>& x, std::vector<double>& Rank_X);
-    double RankCorrelation(vector<double>& x, vector<double>& y);
-    double Correlation(vector<double>& x, vector<double>& y);
-    double GetVariance(vector<double>& data);
+    std::vector<double> rankify(const std::vector<double>& x);
+    void rankify_fast(const std::vector<double>& x, std::vector<double>& Rank_X);
+    double RankCorrelation(std::vector<double>& x, std::vector<double>& y);
+    double Correlation(std::vector<double>& x, std::vector<double>& y);
+    double GetVariance(std::vector<double>& data);
 	wxString swapExtension(const wxString& fname, const wxString& ext);
 	wxString GetFileDirectory(const wxString& path);
 	wxString GetFileName(const wxString& path);
@@ -423,12 +422,12 @@ namespace GenUtils {
 	 by SimplfyPath to see if they can be converted into a relative path
 	 with respect to the current Working Directory (project file location). */
 	wxString SimplifyPath(const wxFileName& wd, const wxString& path);
-	void SplitLongPath(const wxString& path, vector<wxString>& parts,
+	void SplitLongPath(const wxString& path, std::vector<wxString>& parts,
 					   wxString& html_formatted,
 					   int max_chars_per_part = 30);
 	wxInt32 Reverse(const wxInt32 &val);
 	long ReverseInt(const int &val);
-	void SkipTillNumber(istream &s);
+	void SkipTillNumber(std::istream &s);
 	void longToString(const long d, char* Id, const int base);
 	double distance(const wxRealPoint& p1, const wxRealPoint& p2);
 	double distance(const wxRealPoint& p1, const wxPoint& p2);
@@ -448,7 +447,7 @@ namespace GenUtils {
 	bool isEmptyOrSpaces(const wxString& str);
 	bool ExistsShpShxDbf(const wxFileName& fname, bool* shp_found,
 						 bool* shx_found, bool* dbf_found);
-	wxString FindLongestSubString(const vector<wxString> strings,
+	wxString FindLongestSubString(const std::vector<wxString> strings,
 								  bool case_sensitive=false);
 	wxString WrapText(wxWindow *win, const wxString& text, int widthMax);
 	wxString GetExeDir();
@@ -462,7 +461,7 @@ namespace GenUtils {
 	wxString GetLangConfigPath();
     wxString GetLoggerPath();
 
-    bool less_vectors(const vector<int>& a,const vector<int>& b);
+    bool less_vectors(const std::vector<int>& a,const std::vector<int>& b);
     bool smaller_pair(const std::pair<int, int>& a,
                       const std::pair<int, int>& b);
     
@@ -474,9 +473,9 @@ namespace GenUtils {
     //   index_map  an index map such that sorted[i] = unsorted[index_map[i]]
     template <class T>
     void sort(
-              vector<T> &unsorted,
-              vector<T> &sorted,
-              vector<size_t> &index_map);
+              std::vector<T> &unsorted,
+              std::vector<T> &sorted,
+              std::vector<size_t> &index_map);
     // Act like matlab's Y = X[I]
     // where I contains a vector of indices so that after,
     // Y[j] = X[I[j]] for index j
@@ -484,9 +483,9 @@ namespace GenUtils {
     // X and Y are allowed to be the same reference
     template< class T >
     void reorder(
-                 vector<T> & unordered,
-                 vector<size_t> const & index_map,
-                 vector<T> & ordered);
+                 std::vector<T> & unordered,
+                 std::vector<size_t> const & index_map,
+                 std::vector<T> & ordered);
     
     // Comparison struct used by sort
     // http://bytes.com/topic/c/answers/132045-sort-get-index
@@ -502,9 +501,9 @@ namespace GenUtils {
     
     template <class T>
     void sort(
-              vector<T> & unsorted,
-              vector<T> & sorted,
-              vector<size_t> & index_map)
+              std::vector<T> & unsorted,
+              std::vector<T> & sorted,
+              std::vector<size_t> & index_map)
     {
         // Original unsorted index map
         index_map.resize(unsorted.size());
@@ -516,7 +515,7 @@ namespace GenUtils {
         sort(
              index_map.begin(),
              index_map.end(),
-             index_cmp<vector<T>& >(unsorted));
+             index_cmp<std::vector<T>& >(unsorted));
         
         sorted.resize(unsorted.size());
         reorder(unsorted,index_map,sorted);
@@ -524,13 +523,13 @@ namespace GenUtils {
     // This implementation is O(n), but also uses O(n) extra memory
     template< class T >
     void reorder(
-                 vector<T> & unordered,
-                 vector<size_t> const & index_map,
-                 vector<T> & ordered)
+                 std::vector<T> & unordered,
+                 std::vector<size_t> const & index_map,
+                 std::vector<T> & ordered)
     {
         // copy for the reorder according to index_map, because unsorted may also be
         // sorted
-        vector<T> copy = unordered;
+        std::vector<T> copy = unordered;
         ordered.resize(index_map.size());
         for(int i = 0; i<index_map.size();i++)
         {

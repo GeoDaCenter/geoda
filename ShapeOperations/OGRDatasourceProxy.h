@@ -30,8 +30,6 @@
 #include "../GdaShape.h"
 #include "../DataViewer/TableInterface.h"
 
-using namespace std;
-
 /**
  * A proxy class for OGR data source. It will parallel run threaded 
  * OGRLayerProxy instances to fetch data from different data resources 

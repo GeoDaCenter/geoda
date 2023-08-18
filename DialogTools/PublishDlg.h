@@ -32,41 +32,38 @@
 
 class Project;
 
-using namespace std;
-
-
 class GeoDaWebProxy {
 
 public:
     GeoDaWebProxy();
     
-    GeoDaWebProxy(const string& _user_name, const string& _api_key);
+    GeoDaWebProxy(const std::string& _user_name, const std::string& _api_key);
     
     ~GeoDaWebProxy();
 
-	void SetKey(const string& key);
-	void SetUserName(const string& name);
+	void SetKey(const std::string& key);
+	void SetUserName(const std::string& name);
 	
 	void Publish(Project* p, wxString& title, wxString& description);
 	
     
 private:
     
-    string api_key;
-    string user_name;
-    string api_url;
+    std::string api_key;
+    std::string user_name;
+    std::string api_url;
     
-	string buildParameter(const char* key, string& val);
+	string buildParameter(const char* key, std::string& val);
 	string buildParameter(const char* key, wxString& val);
-	string buildParameter(const char* key, vector<int>& val);
-	string buildParameter(const char* key, vector<wxString>& val);
-	string buildParameter(map<wxString, vector<int> >& val);
+	string buildParameter(const char* key, std::vector<int>& val);
+	string buildParameter(const char* key, std::vector<wxString>& val);
+	string buildParameter(map<wxString, std::vector<int> >& val);
 	
     void doGet(string& parameter);
-    string doPost(const string& parameter);
+    std::string doPost(const std::string& parameter);
 
     
-    string buildBaseUrl();
+    std::string buildBaseUrl();
 };
 
 class PublishDlg: public wxDialog

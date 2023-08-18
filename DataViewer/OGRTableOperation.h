@@ -26,8 +26,6 @@
 
 namespace bt = boost::posix_time;
 
-using namespace std;
-
 /**
  * OGRTableOperation
  *   OGRTableOpInsertColumn

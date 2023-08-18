@@ -34,7 +34,6 @@
 #include "OGRLayerProxy.h"
 
 
-using namespace std;
 
 /**
  * A threaded proxy class for OGR layer. It will read all meta information, such

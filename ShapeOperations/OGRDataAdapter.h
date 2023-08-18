@@ -36,7 +36,6 @@
 #include "GdaCache.h"
 
 using namespace Shapefile;
-using namespace std;
 
 /**
  * A singleton data adapter for communicating with all OGR data sources.
@@ -117,7 +116,7 @@ public:
      * functions for cache.sqlite used by GeoDa
      *
      */
-	vector<wxString> GetHistory(const wxString& param_key);
+	std::vector<wxString> GetHistory(const wxString& param_key);
 	void AddHistory(const wxString& param_key, const wxString& param_val);
     void AddEntry(const wxString& param_key, const wxString& param_val);
 	void CleanHistory();
@@ -128,7 +127,7 @@ public:
 	 * @param ds_name OGR data source name
 	 * @param layer_names a reference to a string vector that stores layer names
 	 */
-	GdaConst::DataSourceType GetLayerNames(const wxString& ds_name, GdaConst::DataSourceType& ds_type, vector<wxString>& layer_names);
+	GdaConst::DataSourceType GetLayerNames(const wxString& ds_name, GdaConst::DataSourceType& ds_type, std::vector<wxString>& layer_names);
 	
 		
 	/**
@@ -157,9 +156,9 @@ public:
                                     const wxString& o_ds_name,
                                     const wxString& o_layer_name,
                                     OGRwkbGeometryType geom_type,
-                                    vector<OGRGeometry*> ogr_geometries,
+                                    std::vector<OGRGeometry*> ogr_geometries,
                                     TableInterface* table,
-                                    vector<int>& selected_rows,
+                                    std::vector<int>& selected_rows,
                                     OGRSpatialReference* spatial_ref,
                                     bool is_update,
                                     wxString cpg_encode = wxEmptyString);
@@ -171,9 +170,9 @@ public:
     /**
      * Create OGR geometries from internal GdaShapes
      */
-	OGRwkbGeometryType MakeOGRGeometries(vector<GdaShape*>& geometries, 
+	OGRwkbGeometryType MakeOGRGeometries(std::vector<GdaShape*>& geometries, 
 								  Shapefile::ShapeType shape_type,
-								  vector<OGRGeometry*>& ogr_geometries,
-								  vector<int>& selected_rows);
+								  std::vector<OGRGeometry*>& ogr_geometries,
+								  std::vector<int>& selected_rows);
 };
 #endif

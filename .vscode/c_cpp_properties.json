@@ -5,14 +5,14 @@
       "includePath": [
         "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include",
         "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/14.0.3/include",
-        "${workspaceFolder}/**",
+        "/home/xun/Documents/GitHub/geoda/**",
         "/usr/local/include",
         "/usr/local/opt/boost/include",
         "/usr/local/opt/gdal/include",
         "/usr/local/opt/boost/include",
-        "${workspaceFolder}/BuildTools/macosx/libraries/include",
-        "${workspaceFolder}/BuildTools/macosx/libraries/include/wx-3.2",
-        "${workspaceFolder}/BuildTools/macosx/libraries/lib/wx/include/osx_cocoa-unicode-3.2"
+        "/home/xun/Documents/GitHub/geoda/BuildTools/macosx/libraries/include",
+        "/home/xun/Documents/GitHub/geoda/BuildTools/macosx/libraries/include/wx-3.2",
+        "/home/xun/Documents/GitHub/geoda/BuildTools/macosx/libraries/lib/wx/include/osx_cocoa-unicode-3.2"
       ],
       "defines": ["__WXMAC__"],
       "macFrameworkPath": [
@@ -21,7 +21,72 @@
       "compilerPath": "/usr/bin/clang",
       "cStandard": "c17",
       "cppStandard": "c++17",
-      "intelliSenseMode": "macos-clang-arm64"
+      "intelliSenseMode": "macos-clang-arm64",
+      "compilerPathInCppPropertiesJson": "/usr/bin/gcc",
+      "mergeConfigurations": false,
+      "browse": {
+        "path": [
+          "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include",
+          "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/14.0.3/include",
+          "/home/xun/Documents/GitHub/geoda/**",
+          "/usr/local/include",
+          "/usr/local/opt/boost/include",
+          "/usr/local/opt/gdal/include",
+          "/usr/local/opt/boost/include",
+          "/home/xun/Documents/GitHub/geoda/BuildTools/macosx/libraries/include",
+          "/home/xun/Documents/GitHub/geoda/BuildTools/macosx/libraries/include/wx-3.2",
+          "/home/xun/Documents/GitHub/geoda/BuildTools/macosx/libraries/lib/wx/include/osx_cocoa-unicode-3.2",
+          "${workspaceFolder}"
+        ],
+        "limitSymbolsToIncludedHeaders": true
+      }
+    },
+    {
+      "name": "Linux",
+      "includePath": [
+        "/home/xun/Documents/GitHub/geoda/**",
+        "/home/xun/Documents/GitHub/geoda/BuildTools/ubuntu/libraries/lib/wx/include/gtk3-unicode-static-3.1",
+        "/home/xun/Documents/GitHub/geoda/BuildTools/ubuntu/libraries/include",
+        "/home/xun/Documents/GitHub/geoda/BuildTools/ubuntu/libraries/include/wx-3.1",
+        "/home/xun/Documents/GitHub/geoda/BuildTools/ubuntu/temp/boost",
+        "/usr/include/gdal",
+        "/usr/include",
+        "/usr/include/gdal",
+        "/usr/include/c++/11",
+        "/usr/include/x86_64-linux-gnu/c++/11",
+        "/home/xun/Documents/GitHub/geoda/BuildTools/ubuntu/temp/eigen3",
+        "/home/xun/Documents/GitHub/geoda/BuildTools/ubuntu/temp/spectra/include"
+      ],
+      "defines": [],
+      "compilerPath": "/usr/bin/gcc",
+      "intelliSenseMode": "linux-gcc-x64",
+      "compilerArgs": [
+        "-D_FILE_OFFSET_BITS=64",
+        "-DwxDEBUG_LEVEL=0",
+        "-D__WXGTK__",
+        "-D__PROJ6__",
+        "-std=gnu++14"
+      ],
+      "cppStandard": "c++17",
+      "compilerPathInCppPropertiesJson": "/usr/bin/gcc",
+      "cStandard": "c11",
+      "mergeConfigurations": false,
+      "browse": {
+        "path": [
+          "/home/xun/Documents/GitHub/geoda/**",
+          "/home/xun/Documents/GitHub/geoda/BuildTools/ubuntu/libraries/lib/wx/include/gtk3-unicode-static-3.1",
+          "/home/xun/Documents/GitHub/geoda/BuildTools/ubuntu/libraries/include",
+          "/home/xun/Documents/GitHub/geoda/BuildTools/ubuntu/libraries/include/wx-3.1",
+          "/home/xun/Documents/GitHub/geoda/BuildTools/ubuntu/temp/boost",
+          "/usr/include/gdal",
+          "/usr/include",
+          "/usr/include/gdal",
+          "/home/xun/Documents/GitHub/geoda/BuildTools/ubuntu/temp/eigen3",
+          "/home/xun/Documents/GitHub/geoda/BuildTools/ubuntu/temp/spectra/include",
+          "${workspaceFolder}"
+        ],
+        "limitSymbolsToIncludedHeaders": true
+      }
     }
   ],
   "version": 4
