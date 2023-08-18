@@ -496,8 +496,8 @@ void RegressionDlg::OnRunClick( wxCommandEvent& event )
                 int cnt = 0;
                 for (int i=0; i<m_obs; i++) {
                     if (!undefs[i]) {
-                        vector<long> nbrs = gw->gal[i].GetNbrs();
-                        vector<double> nbrs_w = gw->gal[i].GetNbrWeights();
+                        std::vector<long> nbrs = gw->gal[i].GetNbrs();
+                        std::vector<double> nbrs_w = gw->gal[i].GetNbrWeights();
                        
                         int n_idx = 0;
                         for (int j=0; j<nbrs.size(); j++) {

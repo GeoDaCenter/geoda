@@ -39,8 +39,6 @@
 
 #include "SimpleHistCanvas.h"
 
-using namespace std;
-
 //////////////////////////////////////////////////////////////////////////////// //
 //
 //
@@ -58,9 +56,9 @@ SimpleHistStatsCanvas::SimpleHistStatsCanvas(wxWindow *parent,
                                              TemplateFrame* t_frame,
                                              Project* project,
                                              HLStateInt* hl_state_int,
-                                             const vector<wxString>& lbls,
-                                             const vector<vector<double> >& vals,
-                                             const vector<double>& stats_,
+                                             const std::vector<wxString>& lbls,
+                                             const std::vector<std::vector<double> >& vals,
+                                             const std::vector<double>& stats_,
                                              const int display_precision_,
                                              const bool display_fixed_point_,
                                              const wxString& right_click_menu_id_,
@@ -97,9 +95,9 @@ void SimpleHistStatsCanvas::PopulateCanvas()
     
 	// orig_x_pos is the center of each histogram bar
     int cur_intervals = values.size();
-	vector<double> orig_x_pos(cur_intervals);
-    vector<double> orig_x_pos_left(cur_intervals);
-    vector<double> orig_x_pos_right(cur_intervals);
+    std::vector<double> orig_x_pos(cur_intervals);
+    std::vector<double> orig_x_pos_left(cur_intervals);
+    std::vector<double> orig_x_pos_right(cur_intervals);
     int    default_intervals = 7;
     double left_pad = 0;
     double right_pad = 0;
@@ -127,7 +125,7 @@ void SimpleHistStatsCanvas::PopulateCanvas()
     int cols = 1;
     int rows = labels.size();
     
-    vector<GdaShapeTable::CellAttrib> attribs(0); // undefined
+    std::vector<GdaShapeTable::CellAttrib> attribs(0); // undefined
     wxFont font = *GdaConst::small_font;
     wxRealPoint ref_pt(0, 0);
     GdaShapeText::HorizAlignment horiz_align = GdaShapeText::h_center;

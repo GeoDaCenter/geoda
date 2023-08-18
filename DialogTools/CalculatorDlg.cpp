@@ -563,7 +563,7 @@ void CalculatorDlg::AssignOrSelect(bool assign)
             }
 		}
 		int num_obs_sel = 0;
-		vector<bool> selected(obs);
+	    std::vector<bool> selected(obs);
 		if (V_obs == 1) {
 			bool val = V[t]!=0 ? true : false;
 			for (size_t i=0; i<obs; ++i) {

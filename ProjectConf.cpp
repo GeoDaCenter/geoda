@@ -27,7 +27,6 @@
 #include "GdaException.h"
 
 using boost::property_tree::ptree;
-using namespace std;
 
 //------------------------------------------------------------------------------
 // LayerConfiguration member functions
@@ -92,7 +91,7 @@ void LayerConfiguration::ReadPtree(const ptree& pt,
 	
 	// create DataSource instance from <datasource>...
 	const ptree& subtree = pt.get_child("datasource");
-	string type_str = subtree.get<string>("type");
+    std::string type_str = subtree.get<std::string>("type");
 	datasource = IDataSource::CreateDataSource(type_str, subtree, proj_path);
 
 	wxString tmp1(pt.get("layername", "").c_str(), wxConvUTF8);

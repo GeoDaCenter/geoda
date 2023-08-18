@@ -16,7 +16,7 @@
 #include "../GenUtils.h"
 #include "skater.h"
 
-Skater::Skater(int _num_obs, int _num_vars, int _num_clusters, double** _data, vector<vector<double> >& dist_matrix, bool _check_floor, double _floor, double* _floor_variable)
+Skater::Skater(int _num_obs, int _num_vars, int _num_clusters, double** _data, std::vector<std::vector<double> >& dist_matrix, bool _check_floor, double _floor, double* _floor_variable)
 : num_obs(_num_obs), num_vars(_num_vars), num_clusters(_num_clusters),data(_data), check_floor(_check_floor), floor(_floor), floor_variable(_floor_variable)
 {
     BGraph g(num_obs);
@@ -39,7 +39,7 @@ Skater::~Skater()
     
 }
 
-void Skater::run_threads(vector<E> tree, vector<double>& scores, vector<vector<set<int> > >& cids, vector<ClusterPair>& candidates)
+void Skater::run_threads(std::vector<E> tree, std::vector<double>& scores, std::vector<std::vector<std::set<int> > >& cids, std::vector<ClusterPair>& candidates)
 {
     int n_jobs = tree.size();
     
@@ -69,21 +69,21 @@ void Skater::run_threads(vector<E> tree, vector<double>& scores, vector<vector<s
     threadPool.join_all();
 }
 
-vector<vector<int> > Skater::GetRegions()
+std::vector<std::vector<int> > Skater::GetRegions()
 {
-    vector<vector<int> > regions;
+    std::vector<std::vector<int> > regions;
     PriorityQueue::iterator begin = solution.begin();
     PriorityQueue::iterator end = solution.end();
    
-    set<int>::iterator set_it;
+    std::set<int>::iterator set_it;
     for (PriorityQueue::iterator it = begin; it != end; ++it) {
-        const vector<E>& c = (*it).second;
-        set<int> ids;
+        const std::vector<E>& c = (*it).second;
+        std::set<int> ids;
         for (int i=0; i< c.size(); i++) {
             ids.insert(c[i].first);
             ids.insert(c[i].second);
         }
-        vector<int> reg;
+        std::vector<int> reg;
         for (set_it=ids.begin(); set_it!=ids.end(); set_it++) {
             reg.push_back(*set_it);
         }
@@ -100,14 +100,14 @@ void Skater::run()
     
     while (solution.size() < num_clusters) {
         const ClusterEl& cluster = solution.top();
-        vector<E> tree = cluster.second;
+        std::vector<E> tree = cluster.second;
        
         double sswt = ssw(tree);
         // check where to split
         int tree_size = tree.size();
-        vector<double> scores(tree_size);
-        vector<vector<set<int> > > cids(tree_size);
-        vector<ClusterPair> candidates(tree_size);
+        std::vector<double> scores(tree_size);
+        std::vector<std::vector<std::set<int> > > cids(tree_size);
+        std::vector<ClusterPair> candidates(tree_size);
         
         //prunecost(tree, 0, tree_size-1, scores, cids, candidates);
         run_threads(tree, scores, cids, candidates);
@@ -118,7 +118,7 @@ void Skater::run()
         
         // check where to split
         double best_score = scores[0];
-        vector<set<int> > best_cids = cids[0];
+        std::vector<std::set<int> > best_cids = cids[0];
         ClusterPair best_pair = candidates[0];
         
         for (int i=1; i<scores.size(); i++) {
@@ -136,9 +136,9 @@ void Skater::run()
         
         // subtree 1
         int t1_size = best_pair[0].size();
-        vector<double> scores1(t1_size);
-        vector<vector<set<int> > > cids1(t1_size);
-        vector<ClusterPair> cand1(t1_size);
+        std::vector<double> scores1(t1_size);
+        std::vector<std::vector<std::set<int> > > cids1(t1_size);
+        std::vector<ClusterPair> cand1(t1_size);
         run_threads(best_pair[0], scores1, cids1, cand1);
         double best_score_1 = DBL_MAX;
         for (int i=0; i<scores1.size(); i++) {
@@ -148,7 +148,7 @@ void Skater::run()
         }
         best_score_1 = ssw(best_pair[0]) - best_score_1;
         if (t1_size == 0) {
-            set<int>& tmp_set = best_cids[0];
+            std::set<int>& tmp_set = best_cids[0];
             int tmp_id = *tmp_set.begin();
             E tmp_e(tmp_id, tmp_id);
             best_pair[0].push_back(tmp_e);
@@ -157,9 +157,9 @@ void Skater::run()
         
         // subtree 2
         int t2_size = best_pair[1].size();
-        vector<double> scores2(t2_size);
-        vector<vector<set<int> > > cids2(t2_size);
-        vector<ClusterPair> cand2(t2_size);
+        std::vector<double> scores2(t2_size);
+        std::vector<std::vector<std::set<int> > > cids2(t2_size);
+        std::vector<ClusterPair> cand2(t2_size);
         run_threads(best_pair[1], scores2, cids2, cand2);
         double best_score_2 = DBL_MAX;
         for (int i=0; i<scores2.size(); i++) {
@@ -169,7 +169,7 @@ void Skater::run()
         }
         best_score_2 = ssw(best_pair[1]) - best_score_2;
         if (t2_size == 0) {
-            set<int>& tmp_set = best_cids[1];
+            std::set<int>& tmp_set = best_cids[1];
 			if (!tmp_set.empty()) {
             int tmp_id = *tmp_set.begin();
             E tmp_e(tmp_id, tmp_id);
@@ -180,7 +180,7 @@ void Skater::run()
     }
 }
 
-void Skater::prunecost(vector<E> tree, int start, int end, vector<double>& scores, vector<vector<set<int> > >& cids, vector<ClusterPair>& candidates)
+void Skater::prunecost(std::vector<E> tree, int start, int end, std::vector<double>& scores, std::vector<std::vector<std::set<int> > >& cids, std::vector<ClusterPair>& candidates)
 {
     //prune mst by removing one edge and get the best cut
     
@@ -191,8 +191,8 @@ void Skater::prunecost(vector<E> tree, int start, int end, vector<double>& score
         tree.insert(tree.begin(), e_i);
         
         // prune tree to get two groups
-        set<int> vex1, vex2;
-        vector<E> part1, part2;
+        std::set<int> vex1, vex2;
+        std::vector<E> part1, part2;
         prunemst(tree, vex1, vex2, part1, part2);
         
         // compute objective function
@@ -209,7 +209,7 @@ void Skater::prunecost(vector<E> tree, int start, int end, vector<double>& score
         }
        
         if (valid) {
-            vector<set<int> > pts;
+            std::vector<std::set<int> > pts;
             pts.push_back(vex1);
             pts.push_back(vex2);
             cids[i] = pts;
@@ -242,9 +242,9 @@ void Skater::get_MST(const BGraph &in)
     }
 }
 
-double Skater::ssw(vector<E>& cluster)
+double Skater::ssw(std::vector<E>& cluster)
 {
-    set<int> ids;
+    std::set<int> ids;
     for (int i=0; i<cluster.size(); i++) {
         ids.insert(cluster[i].first);
         ids.insert(cluster[i].second);
@@ -252,15 +252,15 @@ double Skater::ssw(vector<E>& cluster)
     return ssw(ids);
 }
 
-double Skater::ssw(set<int>& ids)
+double Skater::ssw(std::set<int>& ids)
 {
     // This function computes the sum of dissimilarity between each
     // observation and the mean (scalar of vector) of the observations.
     // sum((x_i - x_min)^2)
   
     double n = ids.size();
-    vector<double> means(num_vars);
-    set<int>::iterator it;
+    std::vector<double> means(num_vars);
+    std::set<int>::iterator it;
     
     for (int c=0; c<num_vars; c++) {
         double sum = 0;
@@ -287,9 +287,9 @@ double Skater::ssw(set<int>& ids)
     return ssw_val;
 }
 
-bool Skater::bound_check(set<int>& cluster)
+bool Skater::bound_check(std::set<int>& cluster)
 {
-    set<int>::iterator it;
+    std::set<int>::iterator it;
     double sum=0;
     for (it=cluster.begin(); it!=cluster.end(); it++) {
         int i = *it;
@@ -300,14 +300,14 @@ bool Skater::bound_check(set<int>& cluster)
 
 // This function deletes a first edge and makes two subsets of edges. Each
 // subset is a Minimun Spanning Treee.
-void Skater::prunemst(vector<E>& edges, set<int>& set1, set<int>& set2, vector<E>& part1, vector<E>& part2)
+void Skater::prunemst(std::vector<E>& edges, std::set<int>& set1, std::set<int>& set2, std::vector<E>& part1, std::vector<E>& part2)
 {
     // first edge is going to be removed
     int num_edges = edges.size();
     int i, j, n1=1, li=0, ls=1;
     
-    vector<int> no1(num_edges);
-    vector<int> gr(num_edges);
+    std::vector<int> no1(num_edges);
+    std::vector<int> gr(num_edges);
     
     //no1[0] = e1[0];
     no1[0] = edges[0].first;

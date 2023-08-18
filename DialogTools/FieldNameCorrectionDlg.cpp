@@ -41,16 +41,16 @@ END_EVENT_TABLE()
 
 ScrolledWidgetsPane::ScrolledWidgetsPane(wxWindow* parent, wxWindowID id,
                                          GdaConst::DataSourceType ds_type,
-                                         vector<wxString>& all_fname)
+                                         std::vector<wxString>& all_fname)
 : wxScrolledWindow(parent, id, wxDefaultPosition, wxSize(700,300)),
 ds_type(ds_type), need_correction(false)
 {
     //is_case_sensitive = OGRLayerProxy::IsFieldCaseSensitive(ds_type);
     is_case_sensitive = false;
-    vector<wxString> merged_field_names;
-	set<wxString> bad_fnames, dup_fname, uniq_upper_fname;
-    set<wxString>::iterator uniq_iter;
-    vector<int> bad_fname_idx_s, dup_fname_idx_s;
+    std::vector<wxString> merged_field_names;
+    std::set<wxString> bad_fnames, dup_fname, uniq_upper_fname;
+    std::set<wxString>::iterator uniq_iter;
+    std::vector<int> bad_fname_idx_s, dup_fname_idx_s;
     
 	for (int i=0; i < all_fname.size(); i++) {
 		wxString field_name = all_fname[i];
@@ -97,10 +97,10 @@ ds_type(ds_type), need_correction(false)
 ScrolledWidgetsPane::ScrolledWidgetsPane(wxWindow* parent, wxWindowID id,
                                         GdaConst::DataSourceType ds_type,
                                          std::set<wxString> table_fnames,
-                                        map<wxString, wxString>& fnames_dict,
-                                        vector<wxString>& merged_field_names,
-                                        set<wxString>& dup_fname,
-                                        set<wxString>& bad_fname)
+                                        std::map<wxString, wxString>& fnames_dict,
+                                        std::vector<wxString>& merged_field_names,
+                                        std::set<wxString>& dup_fname,
+                                        std::set<wxString>& bad_fname)
 : wxScrolledWindow(parent, id, wxDefaultPosition, wxSize(700,300)),
 field_names_dict(fnames_dict),
 ds_type(ds_type),
@@ -123,8 +123,8 @@ ScrolledWidgetsPane::~ScrolledWidgetsPane()
     }
 }
 
-void ScrolledWidgetsPane::Init(vector<int>& dup_fname_idx_s,
-                               vector<int>& bad_fname_idx_s)
+void ScrolledWidgetsPane::Init(std::vector<int>& dup_fname_idx_s,
+                               std::vector<int>& bad_fname_idx_s)
 {
 	// the sizer will take care of determining the needed scroll size
 	// (if you don't use sizers you will need to manually set the viewport size)
@@ -251,16 +251,16 @@ void ScrolledWidgetsPane::Init(vector<int>& dup_fname_idx_s,
     Centre();
 }
 
-void ScrolledWidgetsPane::Init(vector<wxString>& merged_field_names,
-                                 set<wxString>& dup_fname, 
-                                 set<wxString>& bad_fname)
+void ScrolledWidgetsPane::Init(std::vector<wxString>& merged_field_names,
+                                 std::set<wxString>& dup_fname, 
+                                 std::set<wxString>& bad_fname)
 {
 	// the sizer will take care of determining the needed scroll size
 	// (if you don't use sizers you will need to manually set the viewport size)
 	
    
     // build a dict for searching duplicated field
-    map<wxString,wxString>::iterator iter;
+    std::map<wxString,wxString>::iterator iter;
     // update changed fields
     for (iter = field_names_dict.begin();
          iter != field_names_dict.end(); ++iter )
@@ -301,7 +301,7 @@ void ScrolledWidgetsPane::Init(vector<wxString>& merged_field_names,
     
     size_t ctrl_cnt = 0;
 
-    for (set<wxString>::iterator it=dup_fname.begin();
+    for (std::set<wxString>::iterator it=dup_fname.begin();
          it != dup_fname.end(); ++it ) {
         wxString field_name = *it;
         warn_msg=DUP_WARN;
@@ -330,7 +330,7 @@ void ScrolledWidgetsPane::Init(vector<wxString>& merged_field_names,
         ++ctrl_cnt;
     }
     
-    for (set<wxString>::iterator it=bad_fname.begin();
+    for (std::set<wxString>::iterator it=bad_fname.begin();
          it != bad_fname.end(); ++it ) {
         wxString field_name = *it;
         warn_msg=INV_WARN;
@@ -559,7 +559,7 @@ bool ScrolledWidgetsPane::CheckUserInput()
     wxString str_invalid_field = _("Input is not valid.");
     
     // reset
-    map<wxString, int> current_inputs;
+    std::map<wxString, int> current_inputs;
 	for ( size_t i=0, sz=txt_input.size(); i<sz; ++i) {
 		if (txt_input[i]) {
             txt_input[i]->SetForegroundColour(*wxBLACK);
@@ -617,12 +617,12 @@ bool ScrolledWidgetsPane::CheckUserInput()
 }
 
 
-map<wxString, wxString> ScrolledWidgetsPane::GetMergedFieldNameDict()
+std::map<wxString, wxString> ScrolledWidgetsPane::GetMergedFieldNameDict()
 {
 	return field_names_dict;
 }
 
-vector<wxString> ScrolledWidgetsPane::GetNewFieldNames()
+std::vector<wxString> ScrolledWidgetsPane::GetNewFieldNames()
 {
     return new_field_names;
 }
@@ -635,7 +635,7 @@ vector<wxString> ScrolledWidgetsPane::GetNewFieldNames()
 
 FieldNameCorrectionDlg::
 FieldNameCorrectionDlg(GdaConst::DataSourceType ds_type,
-                       vector<wxString>& all_fname,
+                       std::vector<wxString>& all_fname,
                        wxString title)
 : wxDialog(NULL, wxID_ANY, title, wxDefaultPosition, wxDefaultSize,
            wxDEFAULT_DIALOG_STYLE | wxRESIZE_BORDER)
@@ -674,10 +674,10 @@ FieldNameCorrectionDlg(GdaConst::DataSourceType ds_type,
 FieldNameCorrectionDlg::
 FieldNameCorrectionDlg(GdaConst::DataSourceType ds_type,
                        std::set<wxString> table_fnames,
-                       map<wxString, wxString>& fnames_dict,
-                       vector<wxString>& merged_field_names,
-                       set<wxString>& dup_fname,
-                       set<wxString>& bad_fname,
+                       std::map<wxString, wxString>& fnames_dict,
+                       std::vector<wxString>& merged_field_names,
+                       std::set<wxString>& dup_fname,
+                       std::set<wxString>& bad_fname,
                        wxString title)
 : wxDialog(NULL, wxID_ANY, title, wxDefaultPosition, wxDefaultSize,
            wxDEFAULT_DIALOG_STYLE|wxRESIZE_BORDER)

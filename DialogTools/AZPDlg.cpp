@@ -723,7 +723,7 @@ void AZPDlg::OnOK(wxCommandEvent& event )
     final_of = azp->GetFinalObjectiveFunction();
     delete azp;
 
-    vector<vector<int> > cluster_ids;
+    std::vector<std::vector<int> > cluster_ids;
     std::map<int, std::vector<int> > solution;
     for (int i=0; i<final_solution.size(); ++i) {
         solution[final_solution[i]].push_back(i);
@@ -737,8 +737,8 @@ void AZPDlg::OnOK(wxCommandEvent& event )
     free(ragged_distances);
 
     int ncluster = (int)cluster_ids.size();
-    vector<wxInt64> clusters(rows, 0);
-    vector<bool> clusters_undef(rows, false);
+    std::vector<wxInt64> clusters(rows, 0);
+    std::vector<bool> clusters_undef(rows, false);
 
     // sort result
     std::sort(cluster_ids.begin(), cluster_ids.end(), GenUtils::less_vectors);

@@ -30,7 +30,6 @@
 #include "../DataViewer/VarOrderMapper.h"
 #include "../ShapeOperations/OGRLayerProxy.h"
 
-using namespace std;
 namespace bt = boost::posix_time;
 
 /**
@@ -48,7 +47,7 @@ protected:
     int  rows;
     OGRLayerProxy* ogr_layer;
     // markers for a new column if the cell has ben assigned a value
-    vector<bool> undef_markers;
+    std::vector<bool> undef_markers;
     int get_date_format(std::string& s);
     
 public:
@@ -62,8 +61,8 @@ public:
     // Get column index from loaded ogr_layer
     int GetColIndex();
    
-    void SetUndefinedMarkers(vector<bool>& undefs) {undef_markers = undefs;}
-    vector<bool> GetUndefinedMarkers() { return undef_markers;}
+    void SetUndefinedMarkers(std::vector<bool>& undefs) {undef_markers = undefs;}
+    std::vector<bool> GetUndefinedMarkers() { return undef_markers;}
     
     //  When SaveAs current datasource to a new datasource, the underneath OGRLayer will be replaced.
     void UpdateOGRLayer(OGRLayerProxy* new_ogr_layer);
@@ -98,44 +97,44 @@ public:
     virtual GdaConst::FieldType GetType() {return GdaConst::unknown_type;}
     
     
-    virtual void UpdateData(const vector<wxString>& data);
-    virtual void UpdateData(const vector<wxInt64>& data);
-    virtual void UpdateData(const vector<double>& data);
-    virtual void UpdateData(const vector<unsigned long long>& data);
+    virtual void UpdateData(const std::vector<wxString>& data);
+    virtual void UpdateData(const std::vector<wxInt64>& data);
+    virtual void UpdateData(const std::vector<double>& data);
+    virtual void UpdateData(const std::vector<unsigned long long>& data);
    
     // following UpdateData will be used for any undefined/null values
-    virtual void UpdateData(const vector<double>& data,
-                            const vector<bool>& undef_markers);
-    virtual void UpdateData(const vector<wxInt64>& data,
-                            const vector<bool>& undef_markers);
-    virtual void UpdateData(const vector<wxString>& data,
-                            const vector<bool>& undef_markers);
-    virtual void UpdateData(const vector<unsigned long long>& data,
-                            const vector<bool>& undef_markers);
+    virtual void UpdateData(const std::vector<double>& data,
+                            const std::vector<bool>& undef_markers);
+    virtual void UpdateData(const std::vector<wxInt64>& data,
+                            const std::vector<bool>& undef_markers);
+    virtual void UpdateData(const std::vector<wxString>& data,
+                            const std::vector<bool>& undef_markers);
+    virtual void UpdateData(const std::vector<unsigned long long>& data,
+                            const std::vector<bool>& undef_markers);
     
     // Should return true, unless if a undefined value is found
 	virtual bool GetCellValue(int row, wxInt64& val);
 	virtual bool GetCellValue(int row, double& val);
 	virtual bool GetCellValue(int row, wxString& val);
     
-    virtual void UpdateNullMarkers(const vector<bool>& set_markers);
+    virtual void UpdateNullMarkers(const std::vector<bool>& set_markers);
     
     // interfaces for TableInterface
-    virtual void FillData(vector<double>& data);
-    virtual void FillData(vector<wxInt64>& data);
-    virtual void FillData(vector<wxString>& data,
+    virtual void FillData(std::vector<double>& data);
+    virtual void FillData(std::vector<wxInt64>& data);
+    virtual void FillData(std::vector<wxString>& data,
                           wxCSConv* m_wx_encoding = NULL);
-    virtual void FillData(vector<unsigned long long>& data);
+    virtual void FillData(std::vector<unsigned long long>& data);
     
-    virtual void FillData(vector<double>& data,
-                          vector<bool>& undef_markers);
-    virtual void FillData(vector<wxInt64>& data,
-                          vector<bool>& undef_markers);
-    virtual void FillData(vector<wxString>& datam,
-                          vector<bool>& undef_markers,
+    virtual void FillData(std::vector<double>& data,
+                          std::vector<bool>& undef_markers);
+    virtual void FillData(std::vector<wxInt64>& data,
+                          std::vector<bool>& undef_markers);
+    virtual void FillData(std::vector<wxString>& datam,
+                          std::vector<bool>& undef_markers,
                           wxCSConv* m_wx_encoding = NULL);
-    virtual void FillData(vector<unsigned long long>& datam,
-                          vector<bool>& undef_markers);
+    virtual void FillData(std::vector<unsigned long long>& datam,
+                          std::vector<bool>& undef_markers);
     
     virtual wxString GetValueAt(int row_idx,
                                 int disp_decimals=0,
@@ -152,7 +151,7 @@ public:
 class OGRColumnInteger : public OGRColumn
 {
 private:
-    vector<wxInt64> new_data;
+    std::vector<wxInt64> new_data;
     void InitMemoryData();
     
 public:
@@ -167,15 +166,15 @@ public:
     
     virtual GdaConst::FieldType GetType() {return GdaConst::long64_type;}
     
-    virtual void FillData(vector<double>& data);
+    virtual void FillData(std::vector<double>& data);
     
-    virtual void FillData(vector<wxInt64>& data);
+    virtual void FillData(std::vector<wxInt64>& data);
                           
-    virtual void FillData(vector<wxString>& data, wxCSConv* m_wx_encoding=NULL);
+    virtual void FillData(std::vector<wxString>& data, wxCSConv* m_wx_encoding=NULL);
     
-    virtual void UpdateData(const vector<wxInt64>& data);
+    virtual void UpdateData(const std::vector<wxInt64>& data);
     
-    virtual void UpdateData(const vector<double>& data);
+    virtual void UpdateData(const std::vector<double>& data);
     
 	virtual bool GetCellValue(int row, wxInt64& val);
     
@@ -195,7 +194,7 @@ public:
 class OGRColumnDouble : public OGRColumn
 {
 private:
-    vector<double> new_data;
+    std::vector<double> new_data;
     void InitMemoryData();
     
 public:
@@ -210,15 +209,15 @@ public:
     
     virtual GdaConst::FieldType GetType() {return GdaConst::double_type;}
     
-    virtual void FillData(vector<double>& data);
+    virtual void FillData(std::vector<double>& data);
     
-    virtual void FillData(vector<wxInt64>& data);
+    virtual void FillData(std::vector<wxInt64>& data);
     
-    virtual void FillData(vector<wxString>& data, wxCSConv* m_wx_encodin = NULL);
+    virtual void FillData(std::vector<wxString>& data, wxCSConv* m_wx_encodin = NULL);
     
-    virtual void UpdateData(const vector<wxInt64>& data);
+    virtual void UpdateData(const std::vector<wxInt64>& data);
     
-    virtual void UpdateData(const vector<double>& data);
+    virtual void UpdateData(const std::vector<double>& data);
     
 	virtual bool GetCellValue(int row, double& val);
     
@@ -238,7 +237,7 @@ public:
 class OGRColumnString : public OGRColumn
 {
 private:
-    vector<wxString> new_data;
+    std::vector<wxString> new_data;
     
     void InitMemoryData();
     
@@ -255,19 +254,19 @@ public:
     
     virtual GdaConst::FieldType GetType() {return GdaConst::string_type;}
     
-    virtual void FillData(vector<double>& data);
+    virtual void FillData(std::vector<double>& data);
     
-    virtual void FillData(vector<wxInt64>& data);
+    virtual void FillData(std::vector<wxInt64>& data);
     
-    virtual void FillData(vector<wxString>& data, wxCSConv* m_wx_encodin = NULL);
+    virtual void FillData(std::vector<wxString>& data, wxCSConv* m_wx_encodin = NULL);
     
-    virtual void FillData(vector<unsigned long long>& data);
+    virtual void FillData(std::vector<unsigned long long>& data);
     
-    virtual void UpdateData(const vector<wxString>& data);
+    virtual void UpdateData(const std::vector<wxString>& data);
     
-    virtual void UpdateData(const vector<wxInt64>& data);
+    virtual void UpdateData(const std::vector<wxInt64>& data);
     
-    virtual void UpdateData(const vector<double>& data);
+    virtual void UpdateData(const std::vector<double>& data);
     
 	virtual bool GetCellValue(int row, wxString& val);
     
@@ -285,7 +284,7 @@ public:
 class OGRColumnDate: public OGRColumn
 {
 protected:
-    vector<unsigned long long> new_data;
+    std::vector<unsigned long long> new_data;
     void InitMemoryData();
     
 public:
@@ -294,13 +293,13 @@ public:
     OGRColumnDate(OGRLayerProxy* ogr_layer, wxString name, int field_length, int decimals);
     virtual ~OGRColumnDate();
     
-    virtual void FillData(vector<wxInt64>& data);
+    virtual void FillData(std::vector<wxInt64>& data);
     
-    virtual void FillData(vector<wxString>& data, wxCSConv* m_wx_encoding = NULL);
+    virtual void FillData(std::vector<wxString>& data, wxCSConv* m_wx_encoding = NULL);
     
-    virtual void FillData(vector<unsigned long long>& data);
+    virtual void FillData(std::vector<unsigned long long>& data);
   
-    virtual void UpdateData(const vector<unsigned long long>& data);
+    virtual void UpdateData(const std::vector<unsigned long long>& data);
     
     virtual GdaConst::FieldType GetType() {return GdaConst::date_type;}
     

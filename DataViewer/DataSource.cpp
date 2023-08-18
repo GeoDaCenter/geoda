@@ -32,8 +32,6 @@
 #include "DataSource.h"
 
 using boost::property_tree::ptree;
-using namespace std;
-
 
 //------------------------------------------------------------------------------
 // IDataSource static functions
@@ -340,7 +338,7 @@ void FileDataSource::ReadPtree(const ptree& pt,
 {
 	try {
 		//const ptree& subtree = pt.get_child("datasource");
-		string type_str = pt.get<string>("type");
+	    std::string type_str = pt.get<std::string>("type");
         ds_type = IDataSource::FindDataSourceType(type_str);
         
 		if (ds_type == GdaConst::ds_unknown) {
@@ -349,7 +347,7 @@ void FileDataSource::ReadPtree(const ptree& pt,
             throw GdaException(error_msg.mb_str());
 		}
 		
-		wxString tmp(pt.get<string>("path").c_str(), wxConvUTF8);
+		wxString tmp(pt.get<std::string>("path").c_str(), wxConvUTF8);
         file_repository_path = tmp;
 		file_repository_path = GenUtils::RestorePath(proj_path,
 													 file_repository_path);
@@ -452,7 +450,7 @@ void WebServiceDataSource::ReadPtree(const ptree& pt,
 									 const wxString& proj_path)
 {
 	try {
-		string type_str = pt.get<string>("type");
+	    std::string type_str = pt.get<std::string>("type");
         ds_type = IDataSource::FindDataSourceType(type_str);
         
 		if (ds_type == GdaConst::ds_unknown) {
@@ -461,7 +459,7 @@ void WebServiceDataSource::ReadPtree(const ptree& pt,
 			throw GdaException(error_msg.mb_str());
 		}
 		
-        webservice_url = pt.get<string>("url");
+        webservice_url = pt.get<std::string>("url");
 		
 	} catch (std::exception &e) {
 		throw GdaException(e.what());
@@ -614,7 +612,7 @@ void DBDataSource::ReadPtree(const ptree& pt,
 							 const wxString& proj_path)
 {
     try{
-        string type_str = pt.get<string>("type");
+        std::string type_str = pt.get<std::string>("type");
         ds_type = IDataSource::FindDataSourceType(type_str);
         
         if (ds_type == GdaConst::ds_unknown) {
@@ -623,11 +621,11 @@ void DBDataSource::ReadPtree(const ptree& pt,
             throw GdaException(error_msg.mb_str());
         }
         
-        db_name = pt.get<string>("db_name");
-        db_host = pt.get<string>("host");
-        db_port = pt.get<string>("port");
-        db_user = pt.get<string>("user");
-        db_pwd  = pt.get<string>("pwd");
+        db_name = pt.get<std::string>("db_name");
+        db_host = pt.get<std::string>("host");
+        db_port = pt.get<std::string>("port");
+        db_user = pt.get<std::string>("user");
+        db_pwd  = pt.get<std::string>("pwd");
     } catch (std::exception &e) {
         throw GdaException(e.what());
     }

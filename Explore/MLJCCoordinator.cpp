@@ -315,7 +315,7 @@ void JCCoordinator::CalcMultiLocalJoinCount()
 {
 	for (int t=0; t<num_time_vals; t++) {
         // get undefs of objects/values at this time step
-        vector<bool> undefs;
+        std::vector<bool> undefs;
         bool has_undef = false;
         for (int i=0; i<num_obs; i++){
             bool is_undef = false;
@@ -361,7 +361,7 @@ void JCCoordinator::CalcMultiLocalJoinCount()
         // local join count
         double* local_jc = local_jc_vecs[t];
         
-        vector<int> local_t;
+        std::vector<int> local_t;
         int delta_t = t - var_info[0].time;
         for (int v=0; v<num_vars; v++) {
             if (data_vecs[v].size()==1) {
@@ -462,7 +462,7 @@ void JCCoordinator::CalcPseudoP()
         }
     } else {
         for (int t=0; t<num_time_vals; t++) {
-            vector<int> local_t;
+            std::vector<int> local_t;
             for (int v=0; v<num_vars; v++) {
                 if (data_vecs[v].size()==1) {
                     local_t.push_back(0);
@@ -594,7 +594,7 @@ void JCCoordinator::CalcPseudoP_range(int t, int obs_start, int obs_end, uint64_
     std::vector<bool>& undefs = undef_tms[t];
     double* pseudo_p = sig_local_jc_vecs[t];
     
-    vector<int> local_t;
+    std::vector<int> local_t;
     int delta_t = t - var_info[0].time;
     for (int v=0; v<num_vars; v++) {
         if (data_vecs[v].size()==1) {

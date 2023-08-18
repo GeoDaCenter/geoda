@@ -22,8 +22,6 @@
 #include "ConnectDatasourceDlg.h"
 #include "SpatialJoinDlg.h"
 
-using namespace std;
-
 SpatialJoinWorker::SpatialJoinWorker(BackgroundMapLayer* _ml, Project* _project)
 {
     duplicate_count = false;
@@ -57,7 +55,7 @@ std::vector<std::vector<double> > SpatialJoinWorker::GetJoinResults()
     return spatial_joins;
 }
 
-vector<wxInt64> SpatialJoinWorker::GetResults()
+std::vector<wxInt64> SpatialJoinWorker::GetResults()
 {
      return spatial_counts;
 }
@@ -201,7 +199,7 @@ void CountPointsInPolygon::sub_run(int start, int end)
 
 
 AssignPolygonToPoint::AssignPolygonToPoint(BackgroundMapLayer* _ml,
-                                Project* _project, vector<wxInt64>& _poly_ids)
+                                Project* _project, std::vector<wxInt64>& _poly_ids)
 : SpatialJoinWorker(_ml, _project)
 {
     join_variable = false;
@@ -314,7 +312,7 @@ void CountLinesInPolygon::sub_run(int start, int end)
 
 AssignPolygonToLine::AssignPolygonToLine(BackgroundMapLayer* _ml,
                                          Project* _project,
-                                         vector<wxInt64>& _poly_ids)
+                                         std::vector<wxInt64>& _poly_ids)
 : SpatialJoinWorker(_ml, _project)
 {
     join_variable = false;
@@ -618,7 +616,7 @@ void SpatialJoinDlg::OnRemoveRow(wxCommandEvent& e)
 void SpatialJoinDlg::InitMapList()
 {
     map_list->Clear();
-    map<wxString, BackgroundMapLayer*>::iterator it;
+    std::map<wxString, BackgroundMapLayer*>::iterator it;
 
     for (it=project->bg_maps.begin(); it!=project->bg_maps.end(); it++) {
         wxString name = it->first;
@@ -643,7 +641,7 @@ void SpatialJoinDlg::UpdateFieldList(wxString name)
             project->GetShapeType() != Shapefile::POLYGON ) {
             // assign polygon to point
             field_list->Clear();
-            vector<wxString> field_names = ml->GetIntegerFieldNames();
+            std::vector<wxString> field_names = ml->GetIntegerFieldNames();
             field_list->Append("");
             for (int i=0; i<field_names.size(); i++) {
                 field_list->Append(field_names[i]);
@@ -674,7 +672,7 @@ void SpatialJoinDlg::UpdateFieldList(wxString name)
             join_op_st->Show();
             // spatial join
             join_var_list->Clear();
-            vector<wxString> field_names = ml->GetNumericFieldNames();
+            std::vector<wxString> field_names = ml->GetNumericFieldNames();
             for (int i=0; i<field_names.size(); i++) {
                 join_var_list->Append(field_names[i]);
             }
@@ -729,7 +727,7 @@ void SpatialJoinDlg::OnOK(wxCommandEvent& e)
         if (project->GetShapeType() == Shapefile::POINT_TYP ||
             project->GetShapeType() == Shapefile::POLY_LINE) {
             // working layer is Points/Lines
-            vector<wxInt64> poly_ids;
+            std::vector<wxInt64> poly_ids;
             for (int i=0; i<n; i++) {
                 poly_ids.push_back(i);
             }
@@ -818,7 +816,7 @@ void SpatialJoinDlg::OnOK(wxCommandEvent& e)
             std::vector<std::vector<double> > spatial_joins = sj->GetJoinResults();
             int new_col = (int)spatial_joins.size();
             std::vector<SaveToTableEntry> new_data(new_col);
-            vector<bool> undefs(project->GetNumRecords(), false);
+            std::vector<bool> undefs(project->GetNumRecords(), false);
             for (int i=0; i<new_col; ++i) {
                 new_data[i].d_val = &spatial_joins[i];
                 new_data[i].label = label + " " + field_name;
@@ -832,10 +830,10 @@ void SpatialJoinDlg::OnOK(wxCommandEvent& e)
             dlg.ShowModal();
         } else {
             // Spatial count or Spatial assigning
-            vector<wxInt64> spatial_counts = sj->GetResults();
+            std::vector<wxInt64> spatial_counts = sj->GetResults();
             int new_col = 1;
             std::vector<SaveToTableEntry> new_data(new_col);
-            vector<bool> undefs(project->GetNumRecords(), false);
+            std::vector<bool> undefs(project->GetNumRecords(), false);
             new_data[0].l_val = &spatial_counts;
             new_data[0].label = label;
             new_data[0].field_default = field_name;

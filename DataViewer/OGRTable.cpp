@@ -39,8 +39,6 @@
 #include "OGRTableOperation.h"
 #include "VarOrderMapper.h"
 
-using namespace std;
-
 OGRTable::OGRTable(int n_rows)
 : TableInterface(NULL, NULL)
 {
@@ -636,10 +634,10 @@ void OGRTable::GetColData(int col, GdaFlexValue& data)
 		|| !IsColNumeric(col)) return;
 	VarGroup vg = var_order.FindVarGroup(col);
 	if (vg.IsEmpty()) return;
-	vector<wxString> vars;
+    std::vector<wxString> vars;
 	vg.GetVarNames(vars);
 	size_t tms = vars.size();
-	vector<int> ftr_c(tms); // OGRFeature column id
+    std::vector<int> ftr_c(tms); // OGRFeature column id
 	for (size_t t=0; t<vars.size(); ++t) {
 		ftr_c[t] = vars[t].IsEmpty() ? -1 : FindOGRColId(vars[t]);
 	}
@@ -672,10 +670,10 @@ void OGRTable::GetColData(int col, d_array_type& data)
 		|| !IsColNumeric(col)) return;
 	VarGroup vg = var_order.FindVarGroup(col);
 	if (vg.IsEmpty()) return;
-	vector<wxString> vars;
+    std::vector<wxString> vars;
 	vg.GetVarNames(vars);
 	size_t tms = vars.size();
-	vector<int> ftr_c(tms); // OGRFeature column id
+    std::vector<int> ftr_c(tms); // OGRFeature column id
 	for (size_t t=0; t<vars.size(); ++t) {
 		ftr_c[t] = vars[t].IsEmpty() ? -1 : FindOGRColId(vars[t]);
 	}
@@ -701,10 +699,10 @@ void OGRTable::GetColData(int col, l_array_type& data)
 		|| !IsColNumeric(col)) return;
 	VarGroup vg = var_order.FindVarGroup(col);
 	if (vg.IsEmpty()) return;
-	vector<wxString> vars;
+    std::vector<wxString> vars;
 	vg.GetVarNames(vars);
 	size_t tms = vars.size();
-	vector<int> ftr_c(tms); // OGRFeature column id
+    std::vector<int> ftr_c(tms); // OGRFeature column id
 	for (size_t t=0; t<vars.size(); ++t) {
 		ftr_c[t] = vars[t].IsEmpty() ? -1 : FindOGRColId(vars[t]);
 	}
@@ -734,11 +732,11 @@ void OGRTable::GetColData(int col, s_array_type& data)
 	if (vg.IsEmpty())
         return;
     
-	vector<wxString> vars;
+    std::vector<wxString> vars;
 	vg.GetVarNames(vars);
     
 	size_t tms = vars.size();
-	vector<int> ftr_c(tms); // OGRFeature column id
+    std::vector<int> ftr_c(tms); // OGRFeature column id
 	for (size_t t=0; t<vars.size(); ++t) {
 		ftr_c[t] = vars[t].IsEmpty() ? -1 : FindOGRColId(vars[t]);
 	}
@@ -897,10 +895,10 @@ bool OGRTable::GetColUndefined(int col, b_array_type& undefined)
     
     if (vg.IsEmpty()) return false;
     
-    vector<wxString> vars;
+    std::vector<wxString> vars;
     vg.GetVarNames(vars);
     size_t tms = vars.size();
-    vector<int> ftr_c(tms); // OGRFeature column id
+    std::vector<int> ftr_c(tms); // OGRFeature column id
     for (size_t t=0; t<vars.size(); ++t) {
         ftr_c[t] = vars[t].IsEmpty() ? -1 : FindOGRColId(vars[t]);
     }
@@ -959,8 +957,8 @@ bool OGRTable::GetDirectColUndefined(int col, std::vector<bool>& undefined)
  * min_vals, max_vals: the values of same column at different time steps
  *
  */
-void OGRTable::GetMinMaxVals(int col, vector<double>& min_vals,
-							 vector<double>& max_vals)
+void OGRTable::GetMinMaxVals(int col, std::vector<double>& min_vals,
+							 std::vector<double>& max_vals)
 {
 	if (col < 0 || col >= GetNumberCols()) return;
 	if (!IsColNumeric(col)) return;
@@ -972,14 +970,14 @@ void OGRTable::GetMinMaxVals(int col, vector<double>& min_vals,
 	if (vg.IsEmpty()) return;
 	int times = vg.GetNumTms();
     
-    vector<wxString> vars;
+    std::vector<wxString> vars;
 	vg.GetVarNames(vars);
 
 	for (size_t t=0; t<times; ++t) {
 		int col_idx = vars[t].IsEmpty() ? -1 : FindOGRColId(vars[t]);
 		if (col_idx != -1) {
-            vector<double> data(rows, 0);
-            vector<bool> undef(rows, false);
+            std::vector<double> data(rows, 0);
+            std::vector<bool> undef(rows, false);
             columns[col_idx]->FillData(data, undef);
             bool has_init = false;
 			for (size_t i=0; i<rows; ++i) {
@@ -1301,7 +1299,7 @@ int OGRTable::InsertCol(GdaConst::FieldType type,
     // note the differences between "Group/Ungroup" and "Append new column"
     // (new field always added to the end of existing columns)
     
-	vector<wxString> names(SuggestDBColNames(name, name, time_steps));
+    std::vector<wxString> names(SuggestDBColNames(name, name, time_steps));
 
     // return could be group of names (e.g. pop2001, pop2002, pop2003)
 	for (size_t t=0; t<names.size(); t++) {
@@ -1332,7 +1330,7 @@ int OGRTable::InsertCol(GdaConst::FieldType type,
         columns.insert(columns.begin()+pos, ogr_col);
         operations_queue.push(new OGRTableOpInsertColumn(ogr_col));
         
-        vector<wxString>::iterator iter = org_var_names.begin() + pos;
+        std::vector<wxString>::iterator iter = org_var_names.begin() + pos;
         org_var_names.insert(iter, names[t]);
 	}
     // when init a column, set display decimals to -1 so that UI will determine
@@ -1411,7 +1409,7 @@ void OGRTable::UngroupCol(int col)
 	if (col < 0 || col >= var_order.GetNumVarGroups()) return;
 	if (GetColTimeSteps(col) <= 1) return;
 	
-	map<wxString, GdaConst::FieldInfo> nm_to_fi;
+    std::map<wxString, GdaConst::FieldInfo> nm_to_fi;
 	for (size_t t=0; t<GetColTimeSteps(col); ++t) {
 		GdaConst::FieldInfo fi;
 		fi.type = GetColType(col, t);

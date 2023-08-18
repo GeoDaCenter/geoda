@@ -271,7 +271,7 @@ void GStatCoordinator::InitFromVarInfo()
     
 	for (int t=var_info[0].time_min; t<=var_info[0].time_max; t++) {
 		int d_t = t - var_info[0].time_min;
-        vector<bool> undefs(num_obs);
+        std::vector<bool> undefs(num_obs);
         for (int i=0; i<num_obs; i++) {
             x_vecs[d_t][i] = data[0][t][i];
             undefs[i] = data_undef[0][t][i];

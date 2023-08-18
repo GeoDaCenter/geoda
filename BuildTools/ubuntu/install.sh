@@ -5,9 +5,11 @@ set -e
 
 # prepare: BuildTools/ubuntu
 cd "$WORK_DIR"
+mkdir -p o
 cd BuildTools
 cd ubuntu
 export GEODA_HOME=$PWD 
+echo $GEODA_HOME
 
 # Install libgdal
 export DEBIAN_FRONTEND=noninteractive

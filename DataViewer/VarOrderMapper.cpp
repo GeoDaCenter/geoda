@@ -257,8 +257,7 @@ void VarOrderMapper::Group(const std::vector<int>& col_ids,
 						  TableDeltaList_type& tdl,
                            bool case_sensitive)
 {
-	using namespace std;
-	vector<wxString> cols;
+    std::vector<wxString> cols;
 	BOOST_FOREACH(int cid, col_ids) cols.push_back(GetGroupName(cid));
 	// cols[i] with empty or not found names are assumed to refer to
 	// placeholder var_grps.
@@ -292,7 +291,6 @@ void VarOrderMapper::Group(const std::vector<int>& col_ids,
 void VarOrderMapper::Ungroup(int grp_pos, TableDeltaList_type& tdl,
                              bool case_sensitive)
 {
-	using namespace std;
 	VarGroup e = FindVarGroup(grp_pos);
 	if (e.IsSimple()) return;
 	wxString grp_name = e.name;
@@ -398,7 +396,6 @@ void VarOrderMapper::RenameTime(int time, const wxString& new_time_id)
 
 wxString VarOrderMapper::VarOrderToStr() const
 {
-	using namespace std;
 	wxString ss;
 	int col = 0;
 	ss << "VarGroups_container:\n";

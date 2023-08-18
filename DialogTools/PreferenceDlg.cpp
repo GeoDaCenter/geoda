@@ -61,7 +61,6 @@
 #include "../logger.h"
 #include "PreferenceDlg.h"
 
-using namespace std;
 using namespace GdaJson;
 
 const wxString DEFAULT_DATETIME_FORMATS = "%Y-%m-%d %H:%M:%S,"
@@ -194,7 +193,7 @@ void PreferenceDlg::Init()
     if (encoded_str.IsEmpty() == false) {
         basemap_sources = encoded_str;
     }
-    vector<wxString> keys;
+    std::vector<wxString> keys;
     wxString newline = basemap_sources.Find('\r') == wxNOT_FOUND ? "\n" : "\r\n";
     wxStringTokenizer tokenizer(basemap_sources, newline);
     while ( tokenizer.HasMoreTokens() ) {
@@ -634,7 +633,7 @@ void PreferenceDlg::ReadFromCache()
 {
     OGRDataAdapter& ogr_adapt = OGRDataAdapter::GetInstance();
     
-	vector<wxString> transp_h = ogr_adapt.GetHistory("transparency_highlighted");
+    std::vector<wxString> transp_h = ogr_adapt.GetHistory("transparency_highlighted");
 	if (!transp_h.empty()) {
 		long transp_l = 0;
 		wxString transp = transp_h[0];
@@ -642,7 +641,7 @@ void PreferenceDlg::ReadFromCache()
 			GdaConst::transparency_highlighted = transp_l;
 		}
 	}
-	vector<wxString> transp_uh = ogr_adapt.GetHistory("transparency_unhighlighted");
+    std::vector<wxString> transp_uh = ogr_adapt.GetHistory("transparency_unhighlighted");
 	if (!transp_uh.empty()) {
 		long transp_l = 0;
 		wxString transp = transp_uh[0];
@@ -650,7 +649,7 @@ void PreferenceDlg::ReadFromCache()
 			GdaConst::transparency_unhighlighted = transp_l;
 		}
 	}
-	vector<wxString> plot_transparency_unhighlighted = ogr_adapt.GetHistory("plot_transparency_unhighlighted");
+    std::vector<wxString> plot_transparency_unhighlighted = ogr_adapt.GetHistory("plot_transparency_unhighlighted");
 	if (!plot_transparency_unhighlighted.empty()) {
 		long transp_l = 0;
 		wxString transp = plot_transparency_unhighlighted[0];
@@ -658,7 +657,7 @@ void PreferenceDlg::ReadFromCache()
 			GdaConst::plot_transparency_unhighlighted = transp_l;
 		}
 	}
-	vector<wxString> basemap_sel = ogr_adapt.GetHistory("default_basemap_selection");
+    std::vector<wxString> basemap_sel = ogr_adapt.GetHistory("default_basemap_selection");
 	if (!basemap_sel.empty()) {
 		long sel_l = 0;
 		wxString sel = basemap_sel[0];
@@ -666,7 +665,7 @@ void PreferenceDlg::ReadFromCache()
 			GdaConst::default_basemap_selection = sel_l;
 		}
 	}
-	vector<wxString> basemap_default = ogr_adapt.GetHistory("use_basemap_by_default");
+    std::vector<wxString> basemap_default = ogr_adapt.GetHistory("use_basemap_by_default");
 	if (!basemap_default.empty()) {
 		long sel_l = 0;
 		wxString sel = basemap_default[0];
@@ -677,7 +676,7 @@ void PreferenceDlg::ReadFromCache()
 				GdaConst::use_basemap_by_default = false;
 		}
 	}
-	vector<wxString> crossht_sel = ogr_adapt.GetHistory("use_cross_hatching");
+    std::vector<wxString> crossht_sel = ogr_adapt.GetHistory("use_cross_hatching");
 	if (!crossht_sel.empty()) {
 		long cross_l = 0;
 		wxString cross = crossht_sel[0];
@@ -688,7 +687,7 @@ void PreferenceDlg::ReadFromCache()
 				GdaConst::use_cross_hatching = false;
 		}
 	}
-    vector<wxString> enable_transp_sel = ogr_adapt.GetHistory("gda_enable_set_transparency_windows");
+    std::vector<wxString> enable_transp_sel = ogr_adapt.GetHistory("gda_enable_set_transparency_windows");
     if (!enable_transp_sel.empty()) {
         long enable_l = 0;
         wxString enable_transp = enable_transp_sel[0];
@@ -699,7 +698,7 @@ void PreferenceDlg::ReadFromCache()
                 GdaConst::gda_enable_set_transparency_windows = false;
         }
     }
-	vector<wxString> postgres_sys_sel = ogr_adapt.GetHistory("hide_sys_table_postgres");
+    std::vector<wxString> postgres_sys_sel = ogr_adapt.GetHistory("hide_sys_table_postgres");
 	if (!postgres_sys_sel.empty()) {
 		long sel_l = 0;
 		wxString sel = postgres_sys_sel[0];
@@ -710,7 +709,7 @@ void PreferenceDlg::ReadFromCache()
 				GdaConst::hide_sys_table_postgres = false;
 		}
 	}
-	vector<wxString> hide_sys_table_sqlite = ogr_adapt.GetHistory("hide_sys_table_sqlite");
+    std::vector<wxString> hide_sys_table_sqlite = ogr_adapt.GetHistory("hide_sys_table_sqlite");
 	if (!hide_sys_table_sqlite.empty()) {
 		long sel_l = 0;
 		wxString sel = hide_sys_table_sqlite[0];
@@ -721,7 +720,7 @@ void PreferenceDlg::ReadFromCache()
 				GdaConst::hide_sys_table_sqlite = false;
 		}
 	}
-	vector<wxString> disable_crash_detect = ogr_adapt.GetHistory("disable_crash_detect");
+    std::vector<wxString> disable_crash_detect = ogr_adapt.GetHistory("disable_crash_detect");
 	if (!disable_crash_detect.empty()) {
 		long sel_l = 0;
 		wxString sel = disable_crash_detect[0];
@@ -732,7 +731,7 @@ void PreferenceDlg::ReadFromCache()
 				GdaConst::disable_crash_detect = false;
 		}
 	}
-	vector<wxString> disable_auto_upgrade = ogr_adapt.GetHistory("disable_auto_upgrade");
+    std::vector<wxString> disable_auto_upgrade = ogr_adapt.GetHistory("disable_auto_upgrade");
 	if (!disable_auto_upgrade.empty()) {
 		long sel_l = 0;
 		wxString sel = disable_auto_upgrade[0];
@@ -744,7 +743,7 @@ void PreferenceDlg::ReadFromCache()
 		}
 	}
 
-	vector<wxString> show_recent_sample_connect_ds_dialog = ogr_adapt.GetHistory("show_recent_sample_connect_ds_dialog");
+    std::vector<wxString> show_recent_sample_connect_ds_dialog = ogr_adapt.GetHistory("show_recent_sample_connect_ds_dialog");
 	if (!show_recent_sample_connect_ds_dialog.empty()) {
 		long sel_l = 0;
 		wxString sel = show_recent_sample_connect_ds_dialog[0];
@@ -756,7 +755,7 @@ void PreferenceDlg::ReadFromCache()
 		}
 	}
 
-	vector<wxString> show_csv_configure_in_merge = ogr_adapt.GetHistory("show_csv_configure_in_merge");
+    std::vector<wxString> show_csv_configure_in_merge = ogr_adapt.GetHistory("show_csv_configure_in_merge");
 	if (!show_csv_configure_in_merge.empty()) {
 		long sel_l = 0;
 		wxString sel = show_csv_configure_in_merge[0];
@@ -767,7 +766,7 @@ void PreferenceDlg::ReadFromCache()
 				GdaConst::show_csv_configure_in_merge = false;
 		}
 	}
-	vector<wxString> enable_high_dpi_support = ogr_adapt.GetHistory("enable_high_dpi_support");
+    std::vector<wxString> enable_high_dpi_support = ogr_adapt.GetHistory("enable_high_dpi_support");
 	if (!enable_high_dpi_support.empty()) {
 		long sel_l = 0;
 		wxString sel = enable_high_dpi_support[0];
@@ -778,7 +777,7 @@ void PreferenceDlg::ReadFromCache()
 				GdaConst::enable_high_dpi_support = false;
 		}
 	}
-	vector<wxString> gdal_http_timeout = ogr_adapt.GetHistory("gdal_http_timeout");
+    std::vector<wxString> gdal_http_timeout = ogr_adapt.GetHistory("gdal_http_timeout");
 	if (!gdal_http_timeout.empty()) {
 		long sel_l = 0;
 		wxString sel = gdal_http_timeout[0];
@@ -787,7 +786,7 @@ void PreferenceDlg::ReadFromCache()
 		}
 	}
     
-    vector<wxString> gda_datetime_formats_str = ogr_adapt.GetHistory("gda_datetime_formats_str");
+    std::vector<wxString> gda_datetime_formats_str = ogr_adapt.GetHistory("gda_datetime_formats_str");
     if (!gda_datetime_formats_str.empty()) {
         wxString patterns = gda_datetime_formats_str[0];
         wxStringTokenizer tokenizer(patterns, ",");
@@ -799,7 +798,7 @@ void PreferenceDlg::ReadFromCache()
         GdaConst::gda_datetime_formats_str = patterns;
     }
     
-    vector<wxString> gda_user_seed = ogr_adapt.GetHistory("gda_user_seed");
+    std::vector<wxString> gda_user_seed = ogr_adapt.GetHistory("gda_user_seed");
     if (!gda_user_seed.empty()) {
         long sel_l = 0;
         wxString sel = gda_user_seed[0];
@@ -807,7 +806,7 @@ void PreferenceDlg::ReadFromCache()
             GdaConst::gda_user_seed = sel_l;
         }
     }
-    vector<wxString> use_gda_user_seed = ogr_adapt.GetHistory("use_gda_user_seed");
+    std::vector<wxString> use_gda_user_seed = ogr_adapt.GetHistory("use_gda_user_seed");
     if (!use_gda_user_seed.empty()) {
         long sel_l = 0;
         wxString sel = use_gda_user_seed[0];
@@ -821,7 +820,7 @@ void PreferenceDlg::ReadFromCache()
         }
     }
     
-    vector<wxString> gda_set_cpu_cores = ogr_adapt.GetHistory("gda_set_cpu_cores");
+    std::vector<wxString> gda_set_cpu_cores = ogr_adapt.GetHistory("gda_set_cpu_cores");
     if (!gda_set_cpu_cores.empty()) {
         long sel_l = 0;
         wxString sel = gda_set_cpu_cores[0];
@@ -832,7 +831,7 @@ void PreferenceDlg::ReadFromCache()
                 GdaConst::gda_set_cpu_cores = false;
         }
     }
-    vector<wxString> gda_cpu_cores = ogr_adapt.GetHistory("gda_cpu_cores");
+    std::vector<wxString> gda_cpu_cores = ogr_adapt.GetHistory("gda_cpu_cores");
     if (!gda_cpu_cores.empty()) {
         long sel_l = 0;
         wxString sel = gda_cpu_cores[0];
@@ -841,7 +840,7 @@ void PreferenceDlg::ReadFromCache()
         }
     }
     
-    vector<wxString> gda_eigen_tol = ogr_adapt.GetHistory("gda_eigen_tol");
+    std::vector<wxString> gda_eigen_tol = ogr_adapt.GetHistory("gda_eigen_tol");
     if (!gda_eigen_tol.empty()) {
         double sel_l = 0;
         wxString sel = gda_eigen_tol[0];
@@ -850,7 +849,7 @@ void PreferenceDlg::ReadFromCache()
         }
     }
     
-    vector<wxString> gda_ui_language = ogr_adapt.GetHistory("gda_ui_language");
+    std::vector<wxString> gda_ui_language = ogr_adapt.GetHistory("gda_ui_language");
     if (!gda_ui_language.empty()) {
         long sel_l = 0;
         wxString sel = gda_ui_language[0];
@@ -859,7 +858,7 @@ void PreferenceDlg::ReadFromCache()
         }
     }
     
-    vector<wxString> gda_use_gpu = ogr_adapt.GetHistory("gda_use_gpu");
+    std::vector<wxString> gda_use_gpu = ogr_adapt.GetHistory("gda_use_gpu");
     if (!gda_use_gpu.empty()) {
         long sel_l = 0;
         wxString sel = gda_use_gpu[0];
@@ -871,7 +870,7 @@ void PreferenceDlg::ReadFromCache()
         }
     }
 
-    vector<wxString> gda_create_csvt = ogr_adapt.GetHistory("gda_create_csvt");
+    std::vector<wxString> gda_create_csvt = ogr_adapt.GetHistory("gda_create_csvt");
     if (!gda_create_csvt.empty()) {
         long sel_l = 0;
         wxString sel = gda_create_csvt[0];
@@ -883,7 +882,7 @@ void PreferenceDlg::ReadFromCache()
         }
     }
 
-    vector<wxString> gda_disp_decimals = ogr_adapt.GetHistory("gda_displayed_decimals");
+    std::vector<wxString> gda_disp_decimals = ogr_adapt.GetHistory("gda_displayed_decimals");
     if (!gda_disp_decimals.empty()) {
         long sel_l = 0;
         wxString sel = gda_disp_decimals[0];
@@ -892,7 +891,7 @@ void PreferenceDlg::ReadFromCache()
         }
     }
 
-    vector<wxString> gda_autoweight_stop = ogr_adapt.GetHistory("gda_autoweight_stop");
+    std::vector<wxString> gda_autoweight_stop = ogr_adapt.GetHistory("gda_autoweight_stop");
     if (!gda_autoweight_stop.empty()) {
         double sel_l = 0;
         wxString sel = gda_autoweight_stop[0];
@@ -901,7 +900,7 @@ void PreferenceDlg::ReadFromCache()
         }
     }
 
-    vector<wxString> gda_draw_map_labels = ogr_adapt.GetHistory("gda_draw_map_labels");
+    std::vector<wxString> gda_draw_map_labels = ogr_adapt.GetHistory("gda_draw_map_labels");
     if (!gda_draw_map_labels.empty()) {
         long sel_l = 0;
         wxString sel = gda_draw_map_labels[0];
@@ -912,7 +911,7 @@ void PreferenceDlg::ReadFromCache()
                 GdaConst::gda_draw_map_labels = false;
         }
     }
-    vector<wxString> gda_map_label_font_size = ogr_adapt.GetHistory("gda_map_label_font_size");
+    std::vector<wxString> gda_map_label_font_size = ogr_adapt.GetHistory("gda_map_label_font_size");
     if (!gda_map_label_font_size.empty()) {
         long sel_l = 0;
         wxString sel = gda_map_label_font_size[0];
@@ -922,7 +921,7 @@ void PreferenceDlg::ReadFromCache()
     }
     
     // following are not in this UI, but still global variable
-    vector<wxString> gda_user_email = ogr_adapt.GetHistory("gda_user_email");
+    std::vector<wxString> gda_user_email = ogr_adapt.GetHistory("gda_user_email");
     if (!gda_user_email.empty()) {
         wxString email = gda_user_email[0];
         GdaConst::gda_user_email = email;

@@ -237,7 +237,7 @@ void ConditionalNewCanvas::SetCheckMarks(wxMenu* menu)
 	// view in the xrc file.  Items that cannot be enable/disabled,
 	// or are not checkable do not appear.
     CatClassifManager* ccm = project->GetCatClassifManager();
-    vector<wxString> titles;
+    std::vector<wxString> titles;
     ccm->GetTitles(titles);
     
 	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_COND_VERT_THEMELESS"),

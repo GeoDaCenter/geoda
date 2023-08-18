@@ -26,7 +26,6 @@
 #include "../GdaConst.h"
 #include "../GdaException.h"
 
-using namespace std;
 using boost::property_tree::ptree;
 
 /**

@@ -45,8 +45,6 @@
 #include "MLJCCoordinator.h"
 #include "ConditionalClusterMapView.h"
 
-using namespace std;
-
 IMPLEMENT_CLASS(ConditionalClusterMapCanvas, ConditionalNewCanvas)
 BEGIN_EVENT_TABLE(ConditionalClusterMapCanvas, ConditionalNewCanvas)
 	EVT_PAINT(TemplateCanvas::OnPaint)
@@ -61,8 +59,8 @@ ConditionalClusterMapCanvas::
 ConditionalClusterMapCanvas(wxWindow *parent,
                             TemplateFrame* t_frame,
                             Project* project_s,
-                            const vector<GdaVarTools::VarInfo>& v_info,
-                            const vector<int>& col_ids,
+                            const std::vector<GdaVarTools::VarInfo>& v_info,
+                            const std::vector<int>& col_ids,
                             const wxString& ttl,
                             const wxPoint& pos, const wxSize& size)
 : ConditionalNewCanvas(parent, t_frame, project_s, v_info, col_ids,
@@ -219,7 +217,7 @@ void ConditionalClusterMapCanvas::OnSaveCategories()
 	wxString title;
 	title << "Save " << label;
     
-    vector<bool> undefs(num_obs, false);
+    std::vector<bool> undefs(num_obs, false);
     
     for (size_t i=0; i<cat_var_undef.size(); i++) {
         for (size_t j=0; j<cat_var_undef[i].size(); j++) {
@@ -432,8 +430,8 @@ void ConditionalClusterMapCanvas::ResizeSelectableShps(int virtual_scrn_w,
 	double bg_ymax = scn_h-marg_top;
     int n_rows = is_vert_number ? vert_num_cats-1 : vert_num_cats;
     int n_cols = is_horz_number ? horiz_num_cats-1 : horiz_num_cats;
-    vector<wxRealPoint> v_brk_ref(n_rows);
-    vector<wxRealPoint> h_brk_ref(n_cols);
+    std::vector<wxRealPoint> v_brk_ref(n_rows);
+    std::vector<wxRealPoint> h_brk_ref(n_cols);
 
 	for (int row=0; row<n_rows; row++) {
         double bin_height = bin_extents[row][0].lower_left.y -bin_extents[row][0].upper_right.y;
@@ -694,8 +692,8 @@ END_EVENT_TABLE()
 
 ConditionalClusterMapFrame::
 ConditionalClusterMapFrame(wxFrame *parent, Project* project,
-                           const vector<GdaVarTools::VarInfo>& var_info,
-                           const vector<int>& col_ids,
+                           const std::vector<GdaVarTools::VarInfo>& var_info,
+                           const std::vector<int>& col_ids,
                            LisaCoordinator* lisa_coord,
                            const wxString& title, const wxPoint& pos,
                            const wxSize& size, const long style)
@@ -746,8 +744,8 @@ ConditionalClusterMapFrame(wxFrame *parent, Project* project,
 
 ConditionalClusterMapFrame::
 ConditionalClusterMapFrame(wxFrame *parent, Project* project,
-                           const vector<GdaVarTools::VarInfo>& var_info,
-                           const vector<int>& col_ids,
+                           const std::vector<GdaVarTools::VarInfo>& var_info,
+                           const std::vector<int>& col_ids,
                            GStatCoordinator* g_coord,
                            bool is_gi, bool is_perm,
                            const wxString& title, const wxPoint& pos,
@@ -800,8 +798,8 @@ ConditionalClusterMapFrame(wxFrame *parent, Project* project,
 
 ConditionalClusterMapFrame::
 ConditionalClusterMapFrame(wxFrame *parent, Project* project,
-                           const vector<GdaVarTools::VarInfo>& var_info,
-                           const vector<int>& col_ids,
+                           const std::vector<GdaVarTools::VarInfo>& var_info,
+                           const std::vector<int>& col_ids,
                            LocalGearyCoordinator* local_geary_coord,
                            const wxString& title, const wxPoint& pos,
                            const wxSize& size, const long style)
@@ -852,8 +850,8 @@ ConditionalClusterMapFrame(wxFrame *parent, Project* project,
 
 ConditionalClusterMapFrame::
 ConditionalClusterMapFrame(wxFrame *parent, Project* project,
-                           const vector<GdaVarTools::VarInfo>& var_info,
-                           const vector<int>& col_ids,
+                           const std::vector<GdaVarTools::VarInfo>& var_info,
+                           const std::vector<int>& col_ids,
                            JCCoordinator* local_jc_coord,
                            const wxString& title, const wxPoint& pos,
                            const wxSize& size, const long style)
@@ -1046,8 +1044,8 @@ void ConditionalClusterMapFrame::ChangeThemeType(
 ConditionalLISAClusterMapCanvas::
 ConditionalLISAClusterMapCanvas(wxWindow *parent, TemplateFrame* t_frame,
                                 Project* project,
-                                const vector<GdaVarTools::VarInfo>& var_info,
-                                const vector<int>& col_ids,
+                                const std::vector<GdaVarTools::VarInfo>& var_info,
+                                const std::vector<int>& col_ids,
                                 LisaCoordinator* lisa_coordinator,
                                 const wxString& title,
                                 const wxPoint& pos,
@@ -1214,7 +1212,7 @@ void ConditionalLISAClusterMapCanvas::UpdateStatusBar()
     //int t = var_info[CAT_VAR].time;
     int t = 0;
     
-    const vector<bool>& hl = highlight_state->GetHighlight();
+    const std::vector<bool>& hl = highlight_state->GetHighlight();
     wxString s;
     if (highlight_state->GetTotalHighlighted()> 0) {
         int n_total_hl = highlight_state->GetTotalHighlighted();
@@ -1261,8 +1259,8 @@ void ConditionalLISAClusterMapCanvas::UpdateStatusBar()
 ConditionalGClusterMapCanvas::
 ConditionalGClusterMapCanvas(wxWindow *parent, TemplateFrame* t_frame,
                              Project* project,
-                             const vector<GdaVarTools::VarInfo>& var_info,
-                             const vector<int>& col_ids,
+                             const std::vector<GdaVarTools::VarInfo>& var_info,
+                             const std::vector<int>& col_ids,
                              GStatCoordinator* g_coordinator,
                              bool is_gi_,
                              bool is_perm_,
@@ -1304,7 +1302,7 @@ void ConditionalGClusterMapCanvas::CreateAndUpdateCategories()
         cat_var_sorted[t].resize(num_obs);
         cat_var_undef[t].resize(num_obs);
                 
-        vector<wxInt64> cluster;
+        std::vector<wxInt64> cluster;
         g_coord->FillClusterCats(t, is_gi, is_perm, cluster);
         
         for (int i=0; i<num_obs; i++) {
@@ -1383,7 +1381,7 @@ void ConditionalGClusterMapCanvas::CreateAndUpdateCategories()
             cat_data.SetCategoryColor(t, isolates_cat, wxColour(140, 140, 140));
         }
         
-        vector<wxInt64> cluster;
+        std::vector<wxInt64> cluster;
         g_coord->FillClusterCats(t, is_gi, is_perm, cluster);
         
         for (int i=0, iend=g_coord->num_obs; i<iend; i++) {
@@ -1429,7 +1427,7 @@ void ConditionalGClusterMapCanvas::UpdateStatusBar()
     //int t = var_info[CAT_VAR].time;
     int t = 0;
     
-    const vector<bool>& hl = highlight_state->GetHighlight();
+    const std::vector<bool>& hl = highlight_state->GetHighlight();
     wxString s;
     if (highlight_state->GetTotalHighlighted()> 0) {
         int n_total_hl = highlight_state->GetTotalHighlighted();
@@ -1477,8 +1475,8 @@ void ConditionalGClusterMapCanvas::UpdateStatusBar()
 ConditionalLocalGearyClusterMapCanvas::
 ConditionalLocalGearyClusterMapCanvas(wxWindow *parent, TemplateFrame* t_frame,
                                 Project* project,
-                                const vector<GdaVarTools::VarInfo>& var_info,
-                                const vector<int>& col_ids,
+                                const std::vector<GdaVarTools::VarInfo>& var_info,
+                                const std::vector<int>& col_ids,
                                 LocalGearyCoordinator* local_geary_coordinator,
                                 const wxString& title,
                                 const wxPoint& pos,
@@ -1647,7 +1645,7 @@ void ConditionalLocalGearyClusterMapCanvas::UpdateStatusBar()
     //int t = var_info[CAT_VAR].time;
     int t = 0;
     
-    const vector<bool>& hl = highlight_state->GetHighlight();
+    const std::vector<bool>& hl = highlight_state->GetHighlight();
     wxString s;
     if (highlight_state->GetTotalHighlighted()> 0) {
         int n_total_hl = highlight_state->GetTotalHighlighted();
@@ -1693,8 +1691,8 @@ void ConditionalLocalGearyClusterMapCanvas::UpdateStatusBar()
 ConditionalLocalJoinCountClusterMapCanvas::
 ConditionalLocalJoinCountClusterMapCanvas(wxWindow *parent, TemplateFrame* t_frame,
                                       Project* project,
-                                      const vector<GdaVarTools::VarInfo>& var_info,
-                                      const vector<int>& col_ids,
+                                      const std::vector<GdaVarTools::VarInfo>& var_info,
+                                      const std::vector<int>& col_ids,
                                       JCCoordinator* local_jc_coordinator,
                                       const wxString& title,
                                       const wxPoint& pos,
@@ -1860,7 +1858,7 @@ void ConditionalLocalJoinCountClusterMapCanvas::UpdateStatusBar()
     //int t = var_info[CAT_VAR].time;
     int t = 0;
     
-    const vector<bool>& hl = highlight_state->GetHighlight();
+    const std::vector<bool>& hl = highlight_state->GetHighlight();
     wxString s;
     if (highlight_state->GetTotalHighlighted()> 0) {
         int n_total_hl = highlight_state->GetTotalHighlighted();

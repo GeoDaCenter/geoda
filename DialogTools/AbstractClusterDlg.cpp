@@ -1370,7 +1370,7 @@ wxString AbstractClusterDlg::_printMeanCenters(const std::vector<std::vector<dou
     wxString txt;
     txt << _("Cluster centers:") << mean_center_type << "\n";
     
-    stringstream ss;
+    std::stringstream ss;
     TextTable t( TextTable::MD );
    
     //       v1     v2    v3
@@ -1403,7 +1403,7 @@ wxString AbstractClusterDlg::_printMeanCenters(const std::vector<std::vector<dou
         t.endOfRow();
     }
     
-    stringstream ss1;
+    std::stringstream ss1;
     ss1 << t;
     txt << ss1.str();
     txt << "\n";
@@ -1423,7 +1423,7 @@ wxString AbstractClusterDlg::_printWithinSS(const std::vector<double>& within_ss
     
     wxString ss_str = header;
     
-    stringstream ss;
+    std::stringstream ss;
     TextTable t( TextTable::MD );
     
     // first row
@@ -1445,7 +1445,7 @@ wxString AbstractClusterDlg::_printWithinSS(const std::vector<double>& within_ss
     }
     //t.setAlignment( 4, TextTable::Alignment::RIGHT );
     
-    stringstream ss1;
+    std::stringstream ss1;
     ss1 << t;
     summary << ss1.str();
     summary << "\n";
@@ -1469,7 +1469,7 @@ wxString AbstractClusterDlg::_printWithinSS(const std::vector<double>& within_ss
 
     wxString ss_str = header1;
     wxString ss_str2 = header2;
-    stringstream ss;
+    std::stringstream ss;
     TextTable t( TextTable::MD );
 
     // first row
@@ -1497,7 +1497,7 @@ wxString AbstractClusterDlg::_printWithinSS(const std::vector<double>& within_ss
     }
     //t.setAlignment( 4, TextTable::Alignment::RIGHT );
 
-    stringstream ss1;
+    std::stringstream ss1;
     ss1 << t;
     summary << ss1.str();
     summary << "\n";

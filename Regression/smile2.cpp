@@ -396,9 +396,9 @@ double Compute_MoranZ(GalElement* g,
 	// Note: following map can be either std::map or boost::unordered_map
 	// unordered map is a hash table but has slower iterator access, while
 	// map is a tree but has a fast iterator.
-	vector< boost::unordered_map<int, double> > W_map(n);   // W
-	vector< boost::unordered_map<int, double> > Wt_map(n);  // W'
-	vector< map<int, bool> > B(n); // union of pattern of non-zeros in W and W'
+    std::vector< boost::unordered_map<int, double> > W_map(n);   // W
+    std::vector< boost::unordered_map<int, double> > Wt_map(n);  // W'
+    std::vector< std::map<int, bool> > B(n); // union of pattern of non-zeros in W and W'
 	for (int i=0; i<n; i++) {
 		Link *r = W.getRow(i).getNb();
 		for (int nb=0, nb_sz=W.getRow(i).getSize(); nb<nb_sz; nb++) {
@@ -412,7 +412,7 @@ double Compute_MoranZ(GalElement* g,
 	}
 	for (int i=0; i<n; i++) {
 		boost::unordered_map<int, double>::iterator it;
-		for (map<int, bool>::iterator B_it = B[i].begin();
+		for (std::map<int, bool>::iterator B_it = B[i].begin();
 			 B_it != B[i].end(); ++B_it) {
 			int j = B_it->first;
 			it = W_map[i].find(j);

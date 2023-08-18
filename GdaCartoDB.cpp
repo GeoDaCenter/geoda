@@ -28,8 +28,6 @@
 
 #include "GdaCartoDB.h"
 
-using namespace std;
-
 CartoDBProxy::CartoDBProxy()
 {
     user_name = "";
@@ -97,7 +95,7 @@ wxString CartoDBProxy::buildUpdateSQL(const wxString& table_name, const wxString
     return sql;
 }
 
-void CartoDBProxy::UpdateColumn(const wxString& table_name, const wxString& col_name, vector<wxString>& vals)
+void CartoDBProxy::UpdateColumn(const wxString& table_name, const wxString& col_name, std::vector<wxString>& vals)
 {
     wxString ss_newtable;
     for (size_t i=0, n=vals.size(); i<n; i++) {
@@ -109,9 +107,9 @@ void CartoDBProxy::UpdateColumn(const wxString& table_name, const wxString& col_
     _doPost(sql);
 }
 
-void CartoDBProxy::UpdateColumn(const wxString& table_name, const wxString& col_name, vector<double>& vals)
+void CartoDBProxy::UpdateColumn(const wxString& table_name, const wxString& col_name, std::vector<double>& vals)
 {
-    ostringstream ss_newtable;
+    std::ostringstream ss_newtable;
     ss_newtable.precision(std::numeric_limits<double>::digits10);
     
     for (size_t i=0, n=vals.size(); i<n; i++) {
@@ -123,9 +121,9 @@ void CartoDBProxy::UpdateColumn(const wxString& table_name, const wxString& col_
     _doPost(sql);
 }
 
-void CartoDBProxy::UpdateColumn(const wxString& table_name, const wxString& col_name, vector<long long>& vals)
+void CartoDBProxy::UpdateColumn(const wxString& table_name, const wxString& col_name, std::vector<long long>& vals)
 {
-    ostringstream ss_newtable;
+    std::ostringstream ss_newtable;
     
     for (size_t i=0, n=vals.size(); i<n; i++) {
         ss_newtable << "(" << i+1 << ", " << vals[i] << "),";

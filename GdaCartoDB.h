@@ -23,8 +23,6 @@
 #include <string>
 #include <vector>
 
-using namespace std;
-
 class CartoDBProxy {
 
 public:
@@ -44,15 +42,15 @@ public:
 
     void UpdateColumn(const wxString& table_name,
                       const wxString& col_name,
-                      vector<wxString>& vals);
+                      std::vector<wxString>& vals);
     
     void UpdateColumn(const wxString& table_name,
                       const wxString& col_name,
-                      vector<double>& vals);
+                      std::vector<double>& vals);
     
     void UpdateColumn(const wxString& table_name,
                       const wxString& col_name,
-                      vector<long long>& vals);
+                      std::vector<long long>& vals);
     
 private:
     CartoDBProxy();

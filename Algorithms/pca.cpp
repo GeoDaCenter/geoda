@@ -6,7 +6,6 @@
 #include <Eigen/SVD>
 #include "pca.h"
 
-using namespace std;
 using namespace Eigen;
 
 Pca::Pca(double** x,  const unsigned int &nrows, const unsigned int &ncols)
@@ -46,7 +45,7 @@ std::vector<float> Pca::prop_of_var(void) {return _prop_of_var; };
 std::vector<float> Pca::cum_prop(void) { return _cum_prop; };
 std::vector<float> Pca::scores(void) { return _scores; };
 std::vector<unsigned int> Pca::eliminated_columns(void) { return _eliminated_columns; }
-string Pca::method(void) { return _method; }
+std::string Pca::method(void) { return _method; }
 unsigned int Pca::kaiser(void) { return _kaiser; };
 unsigned int Pca::thresh95(void) { return _thresh95; };
 unsigned int Pca::ncols(void) { return _ncols; }
@@ -85,9 +84,9 @@ int Pca::CalculateSVD()
         _prop_of_var.push_back(tmp_vec(i));
     }
     #ifdef DEBUG
-      cout << "\n\nStandard deviations for PCs:\n";
+      std::cout << "\n\nStandard deviations for PCs:\n";
       copy(_sd.begin(), _sd.end(),std::ostream_iterator<float>(std::cout," "));  
-      cout << "\n\nKaiser criterion: PC #" << _kaiser << endl;
+      std::cout << "\n\nKaiser criterion: PC #" << _kaiser << std::endl;
     #endif
     tmp_vec.resize(0);
     
@@ -101,16 +100,16 @@ int Pca::CalculateSVD()
         }
     }
     #ifdef DEBUG
-      cout << "\nCumulative proportion:\n";
+      std::cout << "\nCumulative proportion:\n";
       copy(_cum_prop.begin(), _cum_prop.end(),std::ostream_iterator<float>(std::cout," "));  
-      cout << "\n\nThresh95 criterion: PC #" << _thresh95 << endl;
+      std::cout << "\n\nThresh95 criterion: PC #" << _thresh95 << std::endl;
     #endif
     
     // Scores
     MatrixXf eigen_scores = _xXf * eigen_vectors;
     #ifdef DEBUG
-      cout << "\n\nEigen vectors:\n" << eigen_vectors;
-      cout << "\n\nRotated values (scores):\n" << eigen_scores;
+      std::cout << "\n\nEigen vectors:\n" << eigen_vectors;
+      std::cout << "\n\nRotated values (scores):\n" << eigen_scores;
     #endif
     _scores.reserve(eigen_scores.rows()*eigen_scores.cols());
     for (unsigned int i = 0; i < eigen_scores.rows(); ++i) {
@@ -120,9 +119,9 @@ int Pca::CalculateSVD()
     }
     eigen_scores.resize(0, 0);
     #ifdef DEBUG
-      cout << "\n\nScores in vector:\n";
+      std::cout << "\n\nScores in vector:\n";
       copy(_scores.begin(), _scores.end(),std::ostream_iterator<float>(std::cout," "));  
-      cout << "\n";  
+      std::cout << "\n";
     #endif
     return 0;
 }
@@ -145,10 +144,10 @@ int Pca::Calculate()
     sds = eigen_cov.diagonal().array().sqrt();
     MatrixXf outer_sds = sds * sds.transpose();
 #ifdef DEBUG
-      cout << _xXf << endl;
-      cout << eigen_cov << endl;
-      cout << sds << endl;
-      cout << outer_sds << endl;
+      std::cout << _xXf << std::endl;
+      std::cout << eigen_cov << std::endl;
+      std::cout << sds << std::endl;
+      std::cout << outer_sds << std::endl;
 #endif
     eigen_cov = eigen_cov.array() / outer_sds.array();
     outer_sds.resize(0, 0);
@@ -157,16 +156,16 @@ int Pca::Calculate()
     VectorXf eigen_eigenvalues = edc.eigenvalues().real();
     MatrixXf eigen_eigenvectors = edc.eigenvectors().real();
     #ifdef DEBUG
-      cout << eigen_cov << endl;
-      cout << endl << eigen_eigenvalues.transpose() << endl;
-      cout << endl << eigen_eigenvectors << endl;
+      std::cout << eigen_cov << std::endl;
+      std::cout << std::endl << eigen_eigenvalues.transpose() << std::endl;
+      std::cout << std::endl << eigen_eigenvectors << std::endl;
     #endif
     // The eigenvalues and eigenvectors are not sorted in any particular order.
     // So, we should sort them
-    typedef pair<float, int> eigen_pair;
-    vector<eigen_pair> ep;	
+    typedef std::pair<float, int> eigen_pair;
+    std::vector<eigen_pair> ep;	
     for (unsigned int i = 0 ; i < _ncols; ++i) {
-	    ep.push_back(make_pair(eigen_eigenvalues(i), i));
+	    ep.push_back(std::make_pair(eigen_eigenvalues(i), i));
     }
     sort(ep.begin(), ep.end()); // Ascending order by default
     // Sort them all in descending order
@@ -179,8 +178,8 @@ int Pca::Calculate()
       eigen_eigenvectors_sorted.col(colnum++) += eigen_eigenvectors.col(ep[i].second);
     }
     #ifdef DEBUG
-      cout << endl << eigen_eigenvalues_sorted.transpose() << endl;
-      cout << endl << eigen_eigenvectors_sorted << endl;
+      std::cout << std::endl << eigen_eigenvalues_sorted.transpose() << std::endl;
+      std::cout << std::endl << eigen_eigenvectors_sorted << std::endl;
     #endif  
     // We don't need not sorted arrays anymore
     eigen_eigenvalues.resize(0);
@@ -196,11 +195,11 @@ int Pca::Calculate()
       _prop_of_var.push_back(eigen_eigenvalues_sorted(i)/tmp_sum);
     }
     #ifdef DEBUG
-      cout << "\nStandard deviations for PCs:\n";
+      std::cout << "\nStandard deviations for PCs:\n";
       copy(_sd.begin(), _sd.end(), std::ostream_iterator<float>(std::cout," "));  
-      cout << "\nProportion of variance:\n";
+      std::cout << "\nProportion of variance:\n";
       copy(_prop_of_var.begin(), _prop_of_var.end(), std::ostream_iterator<float>(std::cout," ")); 
-      cout << "\nKaiser criterion: PC #" << _kaiser << endl;
+      std::cout << "\nKaiser criterion: PC #" << _kaiser << std::endl;
     #endif
     // PC's cumulative proportion
     _cum_prop.clear(); _thresh95 = 1;
@@ -212,9 +211,9 @@ int Pca::Calculate()
       }
     }  
     #ifdef DEBUG
-      cout << "\n\nCumulative proportions:\n";
+      std::cout << "\n\nCumulative proportions:\n";
       copy(_cum_prop.begin(), _cum_prop.end(), std::ostream_iterator<float>(std::cout," "));  
-      cout << "\n\n95% threshold: PC #" << _thresh95 << endl;
+      std::cout << "\n\n95% threshold: PC #" << _thresh95 << std::endl;
     #endif
     eigen_values = eigen_eigenvalues_sorted;
     eigen_vectors = eigen_eigenvectors_sorted;
@@ -226,7 +225,7 @@ int Pca::Calculate()
     sds.resize(0);
     MatrixXf eigen_scores = _xXf * eigen_eigenvectors_sorted;
     #ifdef DEBUG
-      cout << "\n\nRotated values (scores):\n" << eigen_scores;
+      std::cout << "\n\nRotated values (scores):\n" << eigen_scores;
     #endif
     _scores.clear();
     _scores.reserve(_ncols*_nrows);
@@ -237,9 +236,9 @@ int Pca::Calculate()
     }
     eigen_scores.resize(0, 0);
     #ifdef DEBUG
-      cout << "\n\nScores in vector:\n";
+      std::cout << "\n\nScores in vector:\n";
       copy(_scores.begin(), _scores.end(), std::ostream_iterator<float>(std::cout," "));  
-      cout << "\n";  
+      std::cout << "\n";
     #endif
     return 0;
 }

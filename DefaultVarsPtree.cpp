@@ -65,7 +65,6 @@ void DefaultVarsPtree::ReadPtree(const boost::property_tree::ptree& pt,
 {
 	LOG_MSG("Entering DefaultVarsPtree::ReadPtree");
 	using boost::property_tree::ptree;
-	using namespace std;
 	default_vars_list.clear();
 	try {
 		try {
@@ -112,7 +111,6 @@ void DefaultVarsPtree::WritePtree(boost::property_tree::ptree& pt,
 								  const wxString& proj_path)
 {
 	using boost::property_tree::ptree;
-	using namespace std;
 	try {
 		ptree& sub = pt.put("default_vars", "");
 
@@ -147,7 +145,6 @@ void DefaultVarsPtree::SetDefaultVarList(const std::vector<wxString>& names,
 
 wxString DefaultVarsPtree::ToStr() const
 {
-	using namespace std;
 	wxString s;
 	BOOST_FOREACH(const DefaultVar& w, default_vars_list) s << w.ToStr();
 	return s;

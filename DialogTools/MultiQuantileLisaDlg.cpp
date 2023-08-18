@@ -475,7 +475,7 @@ void MultiQuantileLisaDlg::OnOK(wxCommandEvent& event )
         }
         GalElement* W = gw->gal;
         int t = 0;
-        vector<int> local_t;
+        std::vector<int> local_t;
         for (int v=0; v<num_vars; v++) {
             if (data[v].size()==1) {
                 local_t.push_back(0);
@@ -483,7 +483,7 @@ void MultiQuantileLisaDlg::OnOK(wxCommandEvent& event )
                 local_t.push_back(t);
             }
         }
-        vector<bool> undefs;
+        std::vector<bool> undefs;
         for (int i=0; i<rows; i++){
             bool is_undef = false;
             for (int v=0; v<undef_data.size(); v++) {

@@ -30,11 +30,7 @@
 
 #include "../Algorithms/threadpool.h"
 
-using namespace std;
-
 namespace Gda {
-
-
     /**
      * BasemapItem is for "Basemap Source Configuration" dialog
      * Each basemap source can be represented in the form of:
@@ -102,7 +98,7 @@ namespace Gda {
             items.push_back(item);
         }
         wxString name;
-        vector<BasemapItem> items;
+        std::vector<BasemapItem> items;
     };
 
     // Return an instance of BasemapItem based on the basemap_source, which is
@@ -112,7 +108,7 @@ namespace Gda {
     // Construct a std::vector of BasemapGroup (which is a collection of
     // BasemapItems) using basemap_sources (e.g. GdaConst::gda_basemap_sources
     // or the value in "Basemap Sources:" TextCtrl in Basemap Configuration Dialog
-    vector<BasemapGroup> ExtractBasemapResources(wxString basemap_sources) ;
+    std::vector<BasemapGroup> ExtractBasemapResources(wxString basemap_sources) ;
 
     // inline function return separator for local file path
     inline char separator() {

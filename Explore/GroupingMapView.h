@@ -25,8 +25,6 @@
 #include "MapNewView.h"
 #include "../GdaConst.h"
 
-using namespace std;
-
 class HierachicalMapSelectDlg : public wxDialog
 {
     std::vector<GdaVarTools::VarInfo> vars;

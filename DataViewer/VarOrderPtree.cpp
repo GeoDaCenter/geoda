@@ -27,8 +27,6 @@
 #include "VarOrderPtree.h"
 #include "VarOrderPtree.h"
 
-using namespace std;
-
 VarOrderPtree::VarOrderPtree() : time_ids(1, "time 0")
 {
 }
@@ -59,7 +57,7 @@ void VarOrderPtree::ReadPtree(const boost::property_tree::ptree& pt,
 {
 	LOG_MSG("Entering VarOrderPtree::ReadPtree");
 	using boost::property_tree::ptree;
-	set<wxString> grp_set;
+    std::set<wxString> grp_set;
 	try {
 		try {
 			pt.get_child("variable_order");
@@ -234,14 +232,14 @@ bool VarOrderPtree::CorrectVarGroups(const std::vector<wxString>& ds_var_list,
 	LOG_MSG("Entering VarOrderPtree::CorrectVarGroups");
 	bool changed = false;
 
-	set<wxString> ds_var_set;
+    std::set<wxString> ds_var_set;
 	BOOST_FOREACH(const wxString &v, ds_var_list) {
         if (case_sensitive) ds_var_set.insert(v);
         else ds_var_set.insert(v.Lower());
     }
 	
-	set<wxString> var_set;
-	set<wxString> group_nm_set;
+    std::set<wxString> var_set;
+    std::set<wxString> group_nm_set;
 	BOOST_FOREACH(const VarGroup& e, var_grps) {
 		if (e.vars.size() == 0) {
 			if (case_sensitive) var_set.insert(e.name);
@@ -268,7 +266,7 @@ bool VarOrderPtree::CorrectVarGroups(const std::vector<wxString>& ds_var_list,
 	
 	// Ensure all vars in each group have compatible types.  If not
 	// compatible, ungroup and append to end.
-	list<wxString> ungroup;
+    std::list<wxString> ungroup;
 	for (VarGroup_container::iterator i=var_grps.begin(); i!=var_grps.end();) {
 		if (!IsTypeCompatible(i->vars, ds_var_list, ds_var_type)) {
 			BOOST_FOREACH(const wxString& v, i->vars) {
@@ -320,7 +318,7 @@ void VarOrderPtree::ReInitFromTableInt(TableInterface* table)
 	var_grps.clear();
 	time_ids.clear();
 	
-	vector<wxString> tm_strs;
+    std::vector<wxString> tm_strs;
 	table->GetTimeStrings(tm_strs);
 	int times = table->GetTimeSteps();
 	int cols = table->GetNumberCols();
@@ -328,7 +326,7 @@ void VarOrderPtree::ReInitFromTableInt(TableInterface* table)
 	for (int t=0; t<times; ++t) {
 		this->time_ids[t] = tm_strs[t].ToStdString();
 	}
-	vector<int> col_map;
+    std::vector<int> col_map;
 	table->FillColIdMap(col_map);
 	for (int i=0; i<cols; ++i) {
 		int col = col_map[i];
@@ -406,7 +404,7 @@ bool VarOrderPtree::IsTypeCompatible(const std::vector<wxString>& vars,
                                      const std::vector<GdaConst::FieldType>& ds_var_type)
 {
 	if (vars.size() == 0) return true;
-    set<GdaConst::FieldType> type_set;
+    std::set<GdaConst::FieldType> type_set;
     
 	BOOST_FOREACH(const wxString& v, vars) {
 		if (!v.empty()) {

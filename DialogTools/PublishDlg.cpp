@@ -88,9 +88,6 @@ void PublishDlg::OnOkClick( wxCommandEvent& event )
 	EndDialog(wxID_OK);
 }
 
-
-using namespace std;
-
 GeoDaWebProxy::GeoDaWebProxy()
 {
     api_key = CartoDBProxy::GetInstance().GetKey();
@@ -98,7 +95,7 @@ GeoDaWebProxy::GeoDaWebProxy()
 }
 
 
-GeoDaWebProxy::GeoDaWebProxy(const string& _user_name, const string& _api_key)
+GeoDaWebProxy::GeoDaWebProxy(const std::string& _user_name, const std::string& _api_key)
 {
     user_name = _user_name;
     api_key = _api_key;
@@ -115,7 +112,7 @@ void GeoDaWebProxy::Publish(Project* p, wxString& title, wxString& description)
 	if (p == NULL)
 		return;
 	
-	ostringstream ss;
+    std::ostringstream ss;
 	
 	// table_name
 	ss << buildParameter("table_name", p->layername);
@@ -127,11 +124,11 @@ void GeoDaWebProxy::Publish(Project* p, wxString& title, wxString& description)
 	
 	// maps & plots
 	FramesManager* fm = p->GetFramesManager();
-	list<FramesManagerObserver*> observers(fm->getCopyObservers());
-	list<FramesManagerObserver*>::iterator it;
+    std::list<FramesManagerObserver*> observers(fm->getCopyObservers());
+    std::list<FramesManagerObserver*>::iterator it;
 	for (it=observers.begin(); it != observers.end(); ++it) {
 		if (LisaMapFrame* w = dynamic_cast<LisaMapFrame*>(*it)) {
-			vector<int> clusters;
+		    std::vector<int> clusters;
 			w->GetVizInfo(clusters);
 			if (!clusters.empty()) {
 				ss << "&" << buildParameter("lisa", clusters);
@@ -184,7 +181,7 @@ void GeoDaWebProxy::Publish(Project* p, wxString& title, wxString& description)
 			continue;
 		} 
 		if (ScatterPlotMatFrame* w = dynamic_cast<ScatterPlotMatFrame*>(*it)) {
-			vector<wxString> vars;
+		    std::vector<wxString> vars;
 			w->GetVizInfo(vars);
 			if (!vars.empty()) {
 				ss << "&" << buildParameter("scattermatrix", vars);
@@ -206,9 +203,9 @@ void GeoDaWebProxy::Publish(Project* p, wxString& title, wxString& description)
 	}
 	
 	// submit request
-	string parameter = ss.str();
+    std::string parameter = ss.str();
 	
-	string returnUrl = doPost(parameter);
+    std::string returnUrl = doPost(parameter);
 	
 	// launch browser with return url
 	wxString published_url(returnUrl);
@@ -216,23 +213,23 @@ void GeoDaWebProxy::Publish(Project* p, wxString& title, wxString& description)
 }
 
 
-void GeoDaWebProxy::SetKey(const string& key) {
+void GeoDaWebProxy::SetKey(const std::string& key) {
     api_key = key;
 }
 
-void GeoDaWebProxy::SetUserName(const string& name) {
+void GeoDaWebProxy::SetUserName(const std::string& name) {
     user_name = name;
 }
 
-string GeoDaWebProxy::buildParameter(map<wxString, vector<int> >& val)
+std::string GeoDaWebProxy::buildParameter(std::map<wxString, std::vector<int> >& val)
 {
-	ostringstream par;
-	map<wxString, vector<int> >::iterator it;
+    std::ostringstream par;
+    std::map<wxString, std::vector<int> >::iterator it;
 	
 	par << "{" ;
 	for (it=val.begin(); it != val.end(); ++it) {
 		wxString clr( it->first);
-		vector<int>& ids = it->second;
+	    std::vector<int>& ids = it->second;
 		
 		par << "\"" << clr.mb_str() << "\": [";
 		for (size_t i=0; i< ids.size(); i++) {
@@ -246,24 +243,24 @@ string GeoDaWebProxy::buildParameter(map<wxString, vector<int> >& val)
 	return par.str();
 }
 
-string GeoDaWebProxy::buildParameter(const char* key, string& val)
+std::string GeoDaWebProxy::buildParameter(const char* key, std::string& val)
 {
-	ostringstream par;
+    std::ostringstream par;
 	par << key << "=" << val;
 	return par.str();
 }
 
 
-string GeoDaWebProxy::buildParameter(const char* key, wxString& val)
+std::string GeoDaWebProxy::buildParameter(const char* key, wxString& val)
 {
-	ostringstream par;
+    std::ostringstream par;
 	par << key << "=" << val.mb_str();
 	return par.str();
 }
 
-string GeoDaWebProxy::buildParameter(const char* key, vector<int>& val)
+std::string GeoDaWebProxy::buildParameter(const char* key, std::vector<int>& val)
 {
-	ostringstream par;
+    std::ostringstream par;
 	par << key << "=" << "[";
 	for (size_t i=0, n=val.size(); i<n; i++) {
 		par << val[i];
@@ -273,9 +270,9 @@ string GeoDaWebProxy::buildParameter(const char* key, vector<int>& val)
 	return par.str();
 }
 
-string GeoDaWebProxy::buildParameter(const char* key, vector<wxString>& val)
+std::string GeoDaWebProxy::buildParameter(const char* key, std::vector<wxString>& val)
 {
-	ostringstream par;
+    std::ostringstream par;
 	par << key << "=" << "[";
 	for (size_t i=0, n=val.size(); i<n; i++) {
 		par << "\"" << val[i] << "\"";
@@ -285,9 +282,9 @@ string GeoDaWebProxy::buildParameter(const char* key, vector<wxString>& val)
 	return par.str();
 }
 									 
-string GeoDaWebProxy::buildBaseUrl()
+std::string GeoDaWebProxy::buildBaseUrl()
 {
-    ostringstream url;
+    std::ostringstream url;
     url << "https://webpool.csf.asu.edu/xun/myapp/geoda_publish/";
     //url << "http://127.0.0.1:8000/myapp/geoda_publish/";
     return url.str();
@@ -301,14 +298,14 @@ size_t write_data(char *ptr, size_t size, size_t nmemb, void *userdata) {
 }
 
 
-void GeoDaWebProxy::doGet(string& parameter)
+void GeoDaWebProxy::doGet(std::string& parameter)
 {
     CURL* curl;
     CURLcode res;
     
     curl = curl_easy_init();
     if (curl) {
-        string url = buildBaseUrl() + "?api_key=" + api_key +"&" + parameter;
+        std::string url = buildBaseUrl() + "?api_key=" + api_key +"&" + parameter;
         
         curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
         
@@ -337,19 +334,19 @@ void GeoDaWebProxy::doGet(string& parameter)
     
 }
 
-string GeoDaWebProxy::doPost(const string& _parameter)
+std::string GeoDaWebProxy::doPost(const std::string& _parameter)
 {
     CURL* curl;
     CURLcode res;
 
-	string parameter = _parameter;
+    std::string parameter = _parameter;
 
     //curl_global_init(CURL_GLOBAL_ALL);
-    ostringstream out;
+    std::ostringstream out;
 	
     curl = curl_easy_init();
     if (curl) {
-        string url = buildBaseUrl();
+        std::string url = buildBaseUrl();
         parameter = "api_key=" + api_key + "&" + parameter;
         
         curl_easy_setopt(curl, CURLOPT_URL, url.c_str());

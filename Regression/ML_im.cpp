@@ -1719,7 +1719,7 @@ VALUE   ECL(WVector & resid, WVector & residW, const VALUE rho, const double* wr
         ji = -rho * (ji * (1.0 - rho * wr[cnt]) + wi[cnt] * (1.0 - rho * jr));
     }
     jr = log(jr);
-cout << ji << endl;
+cout << ji << std::endl;
     WVector   tmp;
     tmp.reset();
     tmp.copy(residW());       // copy residiual of wy on X
@@ -1896,7 +1896,7 @@ double SmallSimulationLag(Weights &W,
 			// eigenvalues are in s
 			// good and nothing else to do in this step
 		} else {
-			cerr << "error in computing eigenvalues" << endl;
+			cerr << "error in computing eigenvalues" << std::endl;
 		//	wxMessageBox("error in computing eigenvalues";
 			return -1;
 		}
@@ -1931,7 +1931,7 @@ double SmallSimulationLag(Weights &W,
 			// eigenvalues are in wr and wi
 			// good and nothing else to do in this step
 		} else {
-			cerr << "error in computing eigenvalues" << endl;
+			cerr << "error in computing eigenvalues" << std::endl;
 		//	wxMessageBox("error in computing eigenvalues";
 			return -1;
 		}
@@ -2115,7 +2115,7 @@ VALUE SmallErrorLogLikelihood(Iterator<WVector> X,
         ji = -lambda * (ji * (1.0 - lambda * wr[cnt]) + wi[cnt] * (1.0 - lambda * jr));
     }
     jr = log(jr);
-cout << ji << endl;    
+cout << ji << std::endl;    
     WMatrix XminusLambdaLagX(X.count());
     WVector YminusLambdaLagY(y.count());
 
@@ -2358,7 +2358,7 @@ double SmallSimulationError(Weights &W,
 			// eigenvalues are in s
 			// good and nothing else to do in this step
 		} else {
-			cerr << "error in computing eigenvalues" << endl;
+			cerr << "error in computing eigenvalues" << std::endl;
 			wxMessageBox("Error: There was an error computing eigenvalues.");
 			return -1;
 		}
@@ -2393,7 +2393,7 @@ double SmallSimulationError(Weights &W,
 			// eigenvalues are in wr and wi
 			// good and nothing else to do in this step
 		} else {
-			cerr << "error in computing eigenvalues" << endl;
+			cerr << "error in computing eigenvalues" << std::endl;
 			wxMessageBox("Error: There was an error computing eigenvalues.");
 			return -1;
 		}

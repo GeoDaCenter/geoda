@@ -260,32 +260,32 @@ public:
     void OnMouseCaptureLostEvent(wxMouseCaptureLostEvent& event);
 
     void helper_DrawSelectableShapes_dc(wxDC &dc,
-                                        vector<bool>& hs,
+                                        std::vector<bool>& hs,
                                         bool hl_only=false,
                                         bool revert=false,
                                         bool crosshatch= false,
                                         bool is_print = false,
                                         const wxColour& fixed_pen_color = *wxWHITE);
     void helper_DrawSelectableShapes_gc(wxGraphicsContext &gc,
-                                        vector<bool>& hs,
+                                        std::vector<bool>& hs,
                                         bool hl_only=false,
                                         bool revert=false,
                                         bool crosshatch= false,
                                         int alpha=255);
-    void DrawPoints(wxGCDC& dc, CatClassifData& cat_data, vector<bool>& hs,
+    void DrawPoints(wxGCDC& dc, CatClassifData& cat_data, std::vector<bool>& hs,
                     double radius,
                     int alpha = 255,
                     wxColour fixed_pen_color = *wxWHITE,
                     bool cross_hatch = false);
-    void DrawPolygons(wxGCDC& dc, CatClassifData& cat_data, vector<bool>& hs,
+    void DrawPolygons(wxGCDC& dc, CatClassifData& cat_data, std::vector<bool>& hs,
                       int alpha = 255,
                       wxColour fixed_pen_color = *wxWHITE,
                       bool cross_hatch = false);
-    void DrawCircles(wxGCDC& dc, CatClassifData& cat_data, vector<bool>& hs,
+    void DrawCircles(wxGCDC& dc, CatClassifData& cat_data, std::vector<bool>& hs,
                      int alpha = 255,
                      wxColour fixed_pen_color = *wxWHITE,
                      bool cross_hatch = false);
-    void DrawLines(wxGCDC& dc, CatClassifData& cat_data, vector<bool>& hs,
+    void DrawLines(wxGCDC& dc, CatClassifData& cat_data, std::vector<bool>& hs,
                    int alpha = 255,
                    wxColour fixed_pen_color = *wxWHITE,
                    bool cross_hatch = false);

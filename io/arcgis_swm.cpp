@@ -11,9 +11,7 @@
 #include "weights_interface.h"
 #include "arcgis_swm.h"
 
-using namespace std;
-
-bool iequals(const string& a, const string& b)
+bool iequals(const std::string& a, const std::string& b)
 {
     unsigned int sz = a.size();
     if (b.size() != sz)
@@ -27,18 +25,18 @@ bool iequals(const string& a, const string& b)
 wxString ReadIdFieldFromSwm(const wxString& fname)
 {
 #ifdef __WIN32__
-    ifstream istream;
-    istream.open(fname.wc_str(), ios::binary|ios::in);
+    std::ifstream istream;
+    istream.open(fname.wc_str(), std::ios::binary|std::ios::in);
 #else
-    ifstream istream;
-    istream.open(GET_ENCODED_FILENAME(fname), ios::binary|ios::in);  // a text file
+    std::ifstream istream;
+    istream.open(GET_ENCODED_FILENAME(fname), std::ios::binary|std::ios::in);  // a text file
 #endif
     
     if (!(istream.is_open() && istream.good())) {
         return wxEmptyString;
     }
     // first line
-    string line;
+    std::string line;
     // ID_VAR_NAME;ESRI_SRS\n
     getline(istream, line, '\n');
     
@@ -64,11 +62,11 @@ wxString ReadIdFieldFromSwm(const wxString& fname)
 GalElement* ReadSwmAsGal(const wxString& fname, TableInterface* table_int)
 {
 #ifdef __WIN32__
-    ifstream istream;
-    istream.open(fname.wc_str(), ios::binary|ios::in);
+    std::ifstream istream;
+    istream.open(fname.wc_str(), std::ios::binary|std::ios::in);
 #else
-    ifstream istream;
-    istream.open(GET_ENCODED_FILENAME(fname), ios::binary|ios::in);  // a text file
+    std::ifstream istream;
+    istream.open(GET_ENCODED_FILENAME(fname), std::ios::binary|std::ios::in);  // a text file
 #endif
     
     if (!(istream.is_open() && istream.good())) {
@@ -76,9 +74,9 @@ GalElement* ReadSwmAsGal(const wxString& fname, TableInterface* table_int)
     }
     // first line
     // ID_VAR_NAME;ESRI_SRS\n
-    string line;
+    std::string line;
     getline(istream, line, '\n');
-    string id_name = line.substr(0, line.find(';'));
+    std::string id_name = line.substr(0, line.find(';'));
     
     int swmType = 0; // old
     bool fixed = false;
@@ -93,7 +91,7 @@ GalElement* ReadSwmAsGal(const wxString& fname, TableInterface* table_int)
         }
         int pos = line.find("FIXEDWEIGHTS@");
         if (pos > 0) {
-            string fixed_w = line.substr(pos+13, 4);
+            std::string fixed_w = line.substr(pos+13, 4);
             if (iequals(fixed_w, "True")) {
                 fixed = true;
             }
@@ -132,8 +130,8 @@ GalElement* ReadSwmAsGal(const wxString& fname, TableInterface* table_int)
     istream.read((char*)&row_std, 4);
     
     
-    vector<vector<int> > nbr_ids(no_obs);
-    vector<vector<double> > nbr_ws(no_obs);
+    std::vector<std::vector<int> > nbr_ids(no_obs);
+    std::vector<std::vector<double> > nbr_ws(no_obs);
     
 
     for (int i=0; i<no_obs; i++) {
@@ -202,8 +200,8 @@ GalElement* ReadSwmAsGal(const wxString& fname, TableInterface* table_int)
     for (int i=0; i<no_obs; i++) {
         int no_nghs = nbr_ids[i].size();
         gal[i].SetSizeNbrs(no_nghs);
-        vector<int>& n_ids = nbr_ids[i];
-        vector<double>& n_w = nbr_ws[i];
+        std::vector<int>& n_ids = nbr_ids[i];
+        std::vector<double>& n_w = nbr_ws[i];
         for (int j=0; j<no_nghs; j++) {
             int nid = n_ids[j];
             gal[ i ].SetNbr(j, nid, n_w[j]);

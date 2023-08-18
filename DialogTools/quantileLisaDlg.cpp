@@ -284,7 +284,7 @@ void QuantileLisaDlg::OnOK(wxCommandEvent& event )
     }
 
     if (new_col > 0) {
-        vector<bool> clusters_undef(rows, false);
+        std::vector<bool> clusters_undef(rows, false);
         table_int->SetColData(new_col, time, bin_data);
         table_int->SetColUndefined(col, time, clusters_undef);
     }

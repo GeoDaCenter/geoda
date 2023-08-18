@@ -639,7 +639,7 @@ bool SpectralClusteringDlg::CheckAllInputs()
     return true;
 }
 
-bool SpectralClusteringDlg::Run(vector<wxInt64>& clusters)
+bool SpectralClusteringDlg::Run(std::vector<wxInt64>& clusters)
 {
     if (GdaConst::use_gda_user_seed) {
         setrandomstate((int)GdaConst::gda_user_seed);
@@ -746,7 +746,7 @@ void SpectralClusteringDlg::OnOK(wxCommandEvent& event )
     }
     
     if (col > 0) {
-        vector<bool> clusters_undef(rows, false);
+        std::vector<bool> clusters_undef(rows, false);
         table_int->SetColData(col, time, clusters);
         table_int->SetColUndefined(col, time, clusters_undef);
     }

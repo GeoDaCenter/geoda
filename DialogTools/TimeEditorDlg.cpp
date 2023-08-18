@@ -180,7 +180,6 @@ void TimeEditorDlg::OnSize(wxSizeEvent& ev)
 
 void TimeEditorDlg::OnEndEditItem(wxListEvent& ev)
 {
-	using namespace std;
 	LOG_MSG(wxString::Format("In TimeEditorDlg::OnEndEditItem, item %d",
 							 (int) ev.GetItem().GetId()));
 	// ensure that new time label is unique and not empty

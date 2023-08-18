@@ -55,10 +55,8 @@
 #include "../ShapeOperations/OGRDataAdapter.h"
 #include "AutoUpdateDlg.h"
 
-using namespace std;
-
 size_t write_to_string(void *ptr, size_t size, size_t count, void *stream) {
-    ((string*)stream)->append((char*)ptr, 0, size*count);
+    ((std::string*)stream)->append((char*)ptr, 0, size*count);
     return size*count;
 }
 
@@ -75,10 +73,10 @@ size_t write_to_file(void *ptr, size_t size, size_t nmemb, void* userdata)
     return written;
 }
 
-string ReadUrlContent(const char* url)
+std::string ReadUrlContent(const char* url)
 {
     wxLogMessage("AutoUpdate::ReadUrlContent()");
-    string response;
+    std::string response;
     
     CURL* curl = curl_easy_init();
     CURLcode res;

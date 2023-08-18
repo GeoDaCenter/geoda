@@ -38,7 +38,6 @@
 #include "OGRColumn.h"
 #include "VarOrderMapper.h"
 
-using namespace std;
 namespace bt = boost::posix_time;
 
 OGRColumn::OGRColumn(wxString name, int field_length, int decimals, int n_rows)
@@ -140,111 +139,111 @@ bool OGRColumn::IsUndefined(int row)
     return undef_markers[row];
 }
 
-void OGRColumn::UpdateData(const vector<double> &data)
+void OGRColumn::UpdateData(const std::vector<double> &data)
 {
     wxString msg = "Internal error: UpdateData(double) not implemented.";
     throw GdaException(msg.mb_str());
 }
 
-void OGRColumn::UpdateData(const vector<wxInt64> &data)
+void OGRColumn::UpdateData(const std::vector<wxInt64> &data)
 {
     wxString msg = "Internal error: UpdateData(wxInt64) not implemented.";
     throw GdaException(msg.mb_str());
     
 }
 
-void OGRColumn::UpdateData(const vector<wxString> &data)
+void OGRColumn::UpdateData(const std::vector<wxString> &data)
 {
     wxString msg = "Internal error: UpdateData(wxString) not implemented.";
     throw GdaException(msg.mb_str());
     
 }
 
-void OGRColumn::UpdateData(const vector<unsigned long long> &data)
+void OGRColumn::UpdateData(const std::vector<unsigned long long> &data)
 {
     wxString msg = "Internal error: UpdateData(wxString) not implemented.";
     throw GdaException(msg.mb_str());
 }
 
-void OGRColumn::UpdateData(const vector<double> &data,
-                           const vector<bool>& undef_markers_)
+void OGRColumn::UpdateData(const std::vector<double> &data,
+                           const std::vector<bool>& undef_markers_)
 {
     UpdateData(data);
     undef_markers = undef_markers_;
 }
 
-void OGRColumn::UpdateData(const vector<wxInt64> &data,
-                           const vector<bool>& undef_markers_)
+void OGRColumn::UpdateData(const std::vector<wxInt64> &data,
+                           const std::vector<bool>& undef_markers_)
 {
     UpdateData(data);
     undef_markers = undef_markers_;
 }
 
-void OGRColumn::UpdateData(const vector<wxString> &data,
-                           const vector<bool>& undef_markers_)
+void OGRColumn::UpdateData(const std::vector<wxString> &data,
+                           const std::vector<bool>& undef_markers_)
 {
     UpdateData(data);
     undef_markers = undef_markers_;
 }
 
-void OGRColumn::UpdateData(const vector<unsigned long long> &data,
-                           const vector<bool>& undef_markers_)
+void OGRColumn::UpdateData(const std::vector<unsigned long long> &data,
+                           const std::vector<bool>& undef_markers_)
 {
     UpdateData(data);
     undef_markers = undef_markers_;
 }
 
-void OGRColumn::FillData(vector<double>& data)
+void OGRColumn::FillData(std::vector<double>& data)
 {
     wxString msg = "Internal error: FillData(double) not implemented.";
     throw GdaException(msg.mb_str());
     
 }
 
-void OGRColumn::FillData(vector<wxInt64>& data)
+void OGRColumn::FillData(std::vector<wxInt64>& data)
 {
     wxString msg = "Internal error: FillData(wxInt64) not implemented.";
     throw GdaException(msg.mb_str());
     
 }
 
-void OGRColumn::FillData(vector<wxString>& data, wxCSConv* m_wx_encoding)
+void OGRColumn::FillData(std::vector<wxString>& data, wxCSConv* m_wx_encoding)
 {
     wxString msg = "Internal error: FillData(wxString) not implemented.";
     throw GdaException(msg.mb_str());
 }
 
-void OGRColumn::FillData(vector<unsigned long long>& data)
+void OGRColumn::FillData(std::vector<unsigned long long>& data)
 {
     wxString msg = "Internal error: FillData(date) not implemented.";
     throw GdaException(msg.mb_str());
     
 }
 
-void OGRColumn::FillData(vector<double> &data,
-                         vector<bool>& undef_markers_)
+void OGRColumn::FillData(std::vector<double> &data,
+                         std::vector<bool>& undef_markers_)
 {
     FillData(data);
     undef_markers_ = undef_markers;
 }
 
-void OGRColumn::FillData(vector<wxInt64> &data,
-                         vector<bool>& undef_markers_)
+void OGRColumn::FillData(std::vector<wxInt64> &data,
+                         std::vector<bool>& undef_markers_)
 {
     FillData(data);
     undef_markers_ = undef_markers;
 }
 
-void OGRColumn::FillData(vector<wxString> &data,
-                         vector<bool>& undef_markers_,
+void OGRColumn::FillData(std::vector<wxString> &data,
+                         std::vector<bool>& undef_markers_,
                          wxCSConv* m_wx_encoding)
 {
     FillData(data);
     undef_markers_ = undef_markers;
 }
 
-void OGRColumn::FillData(vector<unsigned long long> &data,
-                         vector<bool>& undef_markers_)
+void OGRColumn::FillData(std::vector<unsigned long long> &data,
+                         std::vector<bool>& undef_markers_)
 {
     FillData(data);
     undef_markers_ = undef_markers;
@@ -271,7 +270,7 @@ bool OGRColumn::GetCellValue(int row, wxString& val)
 
 }
 
-void OGRColumn::UpdateNullMarkers(const vector<bool>& undef_markers_)
+void OGRColumn::UpdateNullMarkers(const std::vector<bool>& undef_markers_)
 {
     if (!undef_markers_.empty())
         undef_markers = undef_markers_;
@@ -330,7 +329,7 @@ OGRColumnInteger::~OGRColumnInteger()
 }
 
 // Return this column to a vector of wxInt64
-void OGRColumnInteger::FillData(vector<wxInt64> &data)
+void OGRColumnInteger::FillData(std::vector<wxInt64> &data)
 {
     if (is_new) {
         for (int i=0; i<rows; ++i) {
@@ -345,7 +344,7 @@ void OGRColumnInteger::FillData(vector<wxInt64> &data)
 }
 
 // Return this column to a vector of double
-void OGRColumnInteger::FillData(vector<double> &data)
+void OGRColumnInteger::FillData(std::vector<double> &data)
 {
     if (is_new) {
         for (int i=0; i<rows; ++i) {
@@ -360,7 +359,7 @@ void OGRColumnInteger::FillData(vector<double> &data)
 }
 
 // Return this column to a vector of wxString
-void OGRColumnInteger::FillData(vector<wxString> &data, wxCSConv* m_wx_encoding)
+void OGRColumnInteger::FillData(std::vector<wxString> &data, wxCSConv* m_wx_encoding)
 {
     if (is_new) {
         for (int i=0; i<rows; ++i) {
@@ -376,7 +375,7 @@ void OGRColumnInteger::FillData(vector<wxString> &data, wxCSConv* m_wx_encoding)
 }
 
 // Update this column from a vector of wxInt64
-void OGRColumnInteger::UpdateData(const vector<wxInt64>& data)
+void OGRColumnInteger::UpdateData(const std::vector<wxInt64>& data)
 {
     if (is_new) {
         for (int i=0; i<rows; ++i) {
@@ -392,7 +391,7 @@ void OGRColumnInteger::UpdateData(const vector<wxInt64>& data)
     }
 }
 
-void OGRColumnInteger::UpdateData(const vector<double>& data)
+void OGRColumnInteger::UpdateData(const std::vector<double>& data)
 {
     if (is_new) {
         for (int i=0; i<rows; ++i) {
@@ -560,7 +559,7 @@ OGRColumnDouble::~OGRColumnDouble()
 
 
 // Assign this column to a vector of wxInt64
-void OGRColumnDouble::FillData(vector<wxInt64> &data)
+void OGRColumnDouble::FillData(std::vector<wxInt64> &data)
 {
     if (is_new) {
         for (int i=0; i<rows; ++i) {
@@ -577,7 +576,7 @@ void OGRColumnDouble::FillData(vector<wxInt64> &data)
 }
 
 // Assign this column to a vector of double
-void OGRColumnDouble::FillData(vector<double> &data)
+void OGRColumnDouble::FillData(std::vector<double> &data)
 {
     if (is_new) {
         for (int i=0; i<rows; ++i) {
@@ -591,7 +590,7 @@ void OGRColumnDouble::FillData(vector<double> &data)
     }
 }
 
-void OGRColumnDouble::FillData(vector<wxString> &data, wxCSConv* m_wx_encoding)
+void OGRColumnDouble::FillData(std::vector<wxString> &data, wxCSConv* m_wx_encoding)
 {
     if (is_new) {
         for (int i=0; i<rows; ++i) {
@@ -607,7 +606,7 @@ void OGRColumnDouble::FillData(vector<wxString> &data, wxCSConv* m_wx_encoding)
 }
 
 // Update this column from a vector of double
-void OGRColumnDouble::UpdateData(const vector<double>& data)
+void OGRColumnDouble::UpdateData(const std::vector<double>& data)
 {
     if (is_new) {
         for (int i=0; i<rows; ++i) {
@@ -623,7 +622,7 @@ void OGRColumnDouble::UpdateData(const vector<double>& data)
     }
 }
 
-void OGRColumnDouble::UpdateData(const vector<wxInt64>& data)
+void OGRColumnDouble::UpdateData(const std::vector<wxInt64>& data)
 {
     if (is_new) {
         for (int i=0; i<rows; ++i) {
@@ -787,8 +786,8 @@ OGRColumnString::~OGRColumnString()
         undef_markers.clear();
 }
 
-// This column -> vector<double>
-void OGRColumnString::FillData(vector<double>& data)
+// This column -> std::vector<double>
+void OGRColumnString::FillData(std::vector<double>& data)
 {
     const char* thousand_sep = CPLGetConfigOption("GEODA_LOCALE_SEPARATOR", ",");
     const char* decimal_sep = CPLGetConfigOption("GEODA_LOCALE_DECIMAL", ".");
@@ -833,8 +832,8 @@ void OGRColumnString::FillData(vector<double>& data)
     }
 }
 
-// This column -> vector<wxInt64>
-void OGRColumnString::FillData(vector<wxInt64> &data)
+// This column -> std::vector<wxInt64>
+void OGRColumnString::FillData(std::vector<wxInt64> &data)
 {
     const char* thousand_sep = CPLGetConfigOption("GEODA_LOCALE_SEPARATOR", ",");
     const char* decimal_sep = CPLGetConfigOption("GEODA_LOCALE_DECIMAL", ".");
@@ -879,8 +878,8 @@ void OGRColumnString::FillData(vector<wxInt64> &data)
     }
 }
 
-// This column -> vector<wxString>
-void OGRColumnString::FillData(vector<wxString> &data, wxCSConv* m_wx_encoding)
+// This column -> std::vector<wxString>
+void OGRColumnString::FillData(std::vector<wxString> &data, wxCSConv* m_wx_encoding)
 {
     if (is_new) {
         for (int i=0; i<rows; ++i) {
@@ -897,12 +896,12 @@ void OGRColumnString::FillData(vector<wxString> &data, wxCSConv* m_wx_encoding)
 }
 
 // for date/time
-void OGRColumnString::FillData(vector<unsigned long long>& data)
+void OGRColumnString::FillData(std::vector<unsigned long long>& data)
 {
     if (is_new) {
         wxString test_s = new_data[0];
         test_s.Trim(true).Trim(false);
-        vector<wxString> date_items;
+        std::vector<wxString> date_items;
         wxString pattern = Gda::DetectDateFormat(test_s, date_items);
         if (pattern.IsEmpty()) {
             wxString error_msg = wxString::Format("Fill data error: can't convert '%s' to date/time.", test_s);
@@ -921,7 +920,7 @@ void OGRColumnString::FillData(vector<unsigned long long>& data)
         int col_idx = GetColIndex();
         wxString test_s = ogr_layer->data[0]->GetFieldAsString(col_idx);
         test_s.Trim(true).Trim(false);
-        vector<wxString> date_items;
+        std::vector<wxString> date_items;
         wxString pattern = Gda::DetectDateFormat(test_s, date_items);
         
         if (pattern.IsEmpty()) {
@@ -944,8 +943,8 @@ void OGRColumnString::FillData(vector<unsigned long long>& data)
     }
 }
 
-// vector<wxString> -> this column
-void OGRColumnString::UpdateData(const vector<wxString>& data)
+// std::vector<wxString> -> this column
+void OGRColumnString::UpdateData(const std::vector<wxString>& data)
 {
     if (is_new) {
         for (int i=0; i<rows; ++i) {
@@ -961,7 +960,7 @@ void OGRColumnString::UpdateData(const vector<wxString>& data)
     }
 }
 
-void OGRColumnString::UpdateData(const vector<wxInt64>& data)
+void OGRColumnString::UpdateData(const std::vector<wxInt64>& data)
 {
     if (is_new) {
         for (int i=0; i<rows; ++i) {
@@ -981,7 +980,7 @@ void OGRColumnString::UpdateData(const vector<wxInt64>& data)
     }
 }
 
-void OGRColumnString::UpdateData(const vector<double>& data)
+void OGRColumnString::UpdateData(const std::vector<double>& data)
 {
     if (is_new) {
         for (int i=0; i<rows; ++i) {
@@ -1101,7 +1100,7 @@ OGRColumnDate::~OGRColumnDate()
     if (new_data.size() > 0 ) new_data.clear();
 }
 
-void OGRColumnDate::FillData(vector<wxInt64> &data)
+void OGRColumnDate::FillData(std::vector<wxInt64> &data)
 {
     if (is_new) {
         for (int i=0; i<rows; ++i) {
@@ -1134,7 +1133,7 @@ void OGRColumnDate::FillData(vector<wxInt64> &data)
     }
 }
 
-void OGRColumnDate::FillData(vector<unsigned long long> &data)
+void OGRColumnDate::FillData(std::vector<unsigned long long> &data)
 {
     if (is_new) {
         for (int i=0; i<rows; ++i) {
@@ -1160,7 +1159,7 @@ void OGRColumnDate::FillData(vector<unsigned long long> &data)
     }
 }
 
-void OGRColumnDate::FillData(vector<wxString> &data, wxCSConv* m_wx_encoding)
+void OGRColumnDate::FillData(std::vector<wxString> &data, wxCSConv* m_wx_encoding)
 {
     int year, month, day, hour, minute, second, tzflag;
     if (is_new) {
@@ -1215,7 +1214,7 @@ void OGRColumnDate::FillData(vector<wxString> &data, wxCSConv* m_wx_encoding)
     }
 }
 
-void OGRColumnDate::UpdateData(const vector<unsigned long long> &data)
+void OGRColumnDate::UpdateData(const std::vector<unsigned long long> &data)
 {
     if (is_new) {
         for (int i=0; i<rows; ++i) {
@@ -1312,7 +1311,7 @@ void OGRColumnDate::SetValueAt(int row_idx, const wxString &value,
     }
     wxString _value = value;
     _value.Trim(true).Trim(false);
-    vector<wxString> date_items;
+    std::vector<wxString> date_items;
     wxString pattern = Gda::DetectDateFormat(_value, date_items);
     wxRegEx regex;
     regex.Compile(pattern);
@@ -1390,7 +1389,7 @@ void OGRColumnTime::SetValueAt(int row_idx, const wxString &value,
     }
     wxString _value = value;
     _value.Trim(true).Trim(false);
-    vector<wxString> date_items;
+    std::vector<wxString> date_items;
     wxString pattern = Gda::DetectDateFormat(_value, date_items);
     wxRegEx regex;
     regex.Compile(pattern);
@@ -1475,7 +1474,7 @@ void OGRColumnDateTime::SetValueAt(int row_idx, const wxString &value,
     }
     wxString _value = value;
     _value.Trim(true).Trim(false);
-    vector<wxString> date_items;
+    std::vector<wxString> date_items;
     wxString pattern = Gda::DetectDateFormat(_value, date_items);
     wxRegEx regex;
     regex.Compile(pattern);

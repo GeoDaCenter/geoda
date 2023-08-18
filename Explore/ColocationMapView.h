@@ -24,8 +24,6 @@
 #include "MapNewView.h"
 #include "../GdaConst.h"
 
-using namespace std;
-
 class ColocationSelectDlg : public AbstractClusterDlg
 {
 public:
@@ -89,11 +87,11 @@ public:
 	ColocationMapCanvas(wxWindow *parent,
                         TemplateFrame* t_frame,
                         Project* project,
-                        vector<wxString>& select_vars,
-                        vector<wxString>& co_vals,
-                        vector<wxColour>& co_clrs,
-                        vector<wxString>& co_lbls,
-                        vector<vector<int> >& co_ids,
+                        std::vector<wxString>& select_vars,
+                        std::vector<wxString>& co_vals,
+                        std::vector<wxColour>& co_clrs,
+                        std::vector<wxString>& co_lbls,
+                        std::vector<std::vector<int> >& co_ids,
                         CatClassification::CatClassifType theme_type,
                         boost::uuids::uuid weights_id_s,
                         const wxPoint& pos = wxDefaultPosition,
@@ -111,11 +109,11 @@ public:
 	virtual void TimeSyncVariableToggle(int var_index);
     virtual void UpdateStatusBar();
 
-    vector<wxString> select_vars;
-    vector<wxString> co_vals;
-    vector<wxColour> co_clrs;
-    vector<wxString> co_lbls;
-    vector<vector<int> > co_ids;
+    std::vector<wxString> select_vars;
+    std::vector<wxString> co_vals;
+    std::vector<wxColour> co_clrs;
+    std::vector<wxString> co_lbls;
+    std::vector<std::vector<int> > co_ids;
     
 	DECLARE_EVENT_TABLE()
 };
@@ -127,11 +125,11 @@ class ColocationMapFrame : public MapFrame
 public:
     ColocationMapFrame(wxFrame *parent,
                        Project* project,
-                       vector<wxString>& select_vars,
-                       vector<wxString>& co_vals,
-                       vector<wxColour>& co_clrs,
-                       vector<wxString>& co_lbls,
-                       vector<vector<int> >& co_ids,
+                       std::vector<wxString>& select_vars,
+                       std::vector<wxString>& co_vals,
+                       std::vector<wxColour>& co_clrs,
+                       std::vector<wxString>& co_lbls,
+                       std::vector<std::vector<int> >& co_ids,
                        boost::uuids::uuid weights_id_s,
                        const wxString title,
                        const wxPoint& pos = wxDefaultPosition,

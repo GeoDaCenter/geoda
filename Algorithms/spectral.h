@@ -18,7 +18,6 @@
 #include "../Weights/DistUtils.h"
 
 using namespace Eigen;
-using namespace std;
 
 class Spectral{
     

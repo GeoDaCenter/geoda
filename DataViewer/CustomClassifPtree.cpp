@@ -64,7 +64,6 @@ void CustomClassifPtree::ReadPtree(const boost::property_tree::ptree& pt,
 {
 	LOG_MSG("Entering CustomClassifPtree::ReadPtree");
 	using boost::property_tree::ptree;
-	using namespace std;
 	
 	cc.clear();
 	try {
@@ -286,7 +285,6 @@ void CustomClassifPtree::WritePtree(boost::property_tree::ptree& pt,
 									const wxString& proj_path)
 {
 	using boost::property_tree::ptree;
-	using namespace std;
 	try {
 		ptree& subtree = pt.put("custom_classifications", "");
 
@@ -373,7 +371,6 @@ void CustomClassifPtree::SetCatClassifList(CatClassifManager* cc_manager)
 
 wxString CustomClassifPtree::ToStr() const
 {
-	using namespace std;
 	wxString ss;
 	BOOST_FOREACH(const CatClassifDef& c, cc) {
 		ss << c.ToStr();

@@ -96,7 +96,7 @@ protected:
     wxTextCtrl* m_crs_input;
 	Project* project_p;
     TableInterface* table_p;
-	vector<GdaShape*> geometries;
+    std::vector<GdaShape*> geometries;
     Shapefile::ShapeType shape_type;
     OGRSpatialReference* spatial_ref;
     
@@ -108,7 +108,7 @@ protected:
     bool is_selected_only;
     bool is_create_project;
     bool is_saveas_op;
-	// e.g. centroids, grids. vector<GdaShape*> geometries
+	// e.g. centroids, grids. std::vector<GdaShape*> geometries
 	// take ownership of external geometries temporarily, 
 	// so its memory will be maintained (no cleanup).
 	bool is_geometry_only;

@@ -60,8 +60,6 @@ BEGIN_EVENT_TABLE( MergeTableDlg, wxDialog )
     EVT_CLOSE( MergeTableDlg::OnClose )
 END_EVENT_TABLE()
 
-using namespace std;
-
 MergeTableDlg::MergeTableDlg(wxWindow* parent, Project* _project_s,
                              const wxPoint& pos)
 : merge_datasource_proxy(NULL), project_s(_project_s)
@@ -246,7 +244,7 @@ void MergeTableDlg::OnOpenClick( wxCommandEvent& ev )
         m_input_file_name->SetValue(layer_name);
         
         // get the unique field names, and fill to m_import_key (wxChoice)
-        map<wxString, int> dbf_fn_freq;
+        std::map<wxString, int> dbf_fn_freq;
         dups.clear();
         dedup_to_id.clear();
         
@@ -344,8 +342,8 @@ void MergeTableDlg::OnExclListDClick( wxCommandEvent& ev)
 	OnIncOneClick(ev);
 }
 
-bool MergeTableDlg::CheckKeys(wxString key_name, vector<wxString>& key_vec,
-                              map<wxString, int>& key_map)
+bool MergeTableDlg::CheckKeys(wxString key_name, std::vector<wxString>& key_vec,
+                              std::map<wxString, int>& key_map)
 {
     std::map<wxString, std::vector<int> > dup_dict; // value:[]
 	
@@ -384,11 +382,11 @@ bool MergeTableDlg::CheckKeys(wxString key_name, vector<wxString>& key_vec,
     return true;
 }
 
-vector<wxString> MergeTableDlg::
-GetSelectedFieldNames(map<wxString,wxString>& merged_fnames_dict)
+std::vector<wxString> MergeTableDlg::
+GetSelectedFieldNames(std::map<wxString,wxString>& merged_fnames_dict)
 {
-    vector<wxString> merged_field_names;
-    set<wxString> dup_merged_field_names, bad_merged_field_names;
+    std::vector<wxString> merged_field_names;
+    std::set<wxString> dup_merged_field_names, bad_merged_field_names;
 
     bool case_sensitive = false;//project_s->IsFieldCaseSensitive();
     for (int i=0, iend=m_include_list->GetCount(); i<iend; i++) {
@@ -448,7 +446,7 @@ void MergeTableDlg::OnMergeClick( wxCommandEvent& ev )
 
 OGRColumn* MergeTableDlg::
 CreateNewOGRColumn(int new_rows, TableInterface* table_int,
-                   vector<bool>& undefs, int idx, int t)
+                   std::vector<bool>& undefs, int idx, int t)
 {
     wxString f_name = table_int->GetColName(idx, t);
     int f_length = table_int->GetColLength(idx, t);
@@ -459,19 +457,19 @@ CreateNewOGRColumn(int new_rows, TableInterface* table_int,
     if (f_type == GdaConst::long64_type) {
         _col = new OGRColumnInteger(f_name, f_length, f_decimal, new_rows);
         _col->SetUndefinedMarkers(undefs);
-        vector<wxInt64> vals;
+        std::vector<wxInt64> vals;
         table_int->GetColData(idx, t, vals);
         for(int i=0; i<vals.size(); i++) _col->SetValueAt(i, vals[i]);
     } else if (f_type == GdaConst::double_type) {
         _col = new OGRColumnDouble(f_name, f_length, f_decimal, new_rows);
         _col->SetUndefinedMarkers(undefs);
-        vector<double> vals;
+        std::vector<double> vals;
         table_int->GetColData(idx, t, vals);
         for(int i=0; i<vals.size(); i++) _col->SetValueAt(i, vals[i]);
     } else {
         _col = new OGRColumnString(f_name, f_length, f_decimal, new_rows);
         _col->SetUndefinedMarkers(undefs);
-        vector<wxString> vals;
+        std::vector<wxString> vals;
         table_int->GetColData(idx, t, vals);
         for(int i=0; i<vals.size(); i++) _col->SetValueAt(i, vals[i]);
     }
@@ -480,9 +478,9 @@ CreateNewOGRColumn(int new_rows, TableInterface* table_int,
 
 OGRColumn* MergeTableDlg::CreateNewOGRColumn(int new_rows,
                                              OGRLayerProxy* layer_proxy,
-                                             vector<bool>& undefs,
+                                             std::vector<bool>& undefs,
                                              wxString f_name,
-                                             map<int, int>& idx2_dict)
+                                             std::map<int, int>& idx2_dict)
 {
     int col_idx = layer_proxy->GetFieldPos(f_name);
     GdaConst::FieldType f_type = layer_proxy->GetFieldType(col_idx);
@@ -520,7 +518,7 @@ OGRColumn* MergeTableDlg::CreateNewOGRColumn(int new_rows,
 
 // update OGRColumn using import layer_proxy[field_name]
 void MergeTableDlg::UpdateOGRColumn(OGRColumn* _col, OGRLayerProxy* layer_proxy,
-                                    wxString f_name, map<int, int>& idx2_dict)
+                                    wxString f_name, std::map<int, int>& idx2_dict)
 {
     int col_idx = layer_proxy->GetFieldPos(f_name);
     GdaConst::FieldType f_type = layer_proxy->GetFieldType(col_idx);
@@ -558,7 +556,7 @@ void MergeTableDlg::OuterJoinMerge()
         wxString error_msg;
         
         // get selected field names from merging table
-        vector<wxString> merged_field_names;
+        std::vector<wxString> merged_field_names;
         for (int i=0, iend=m_include_list->GetCount(); i<iend; i++) {
             wxString inc_n = m_include_list->GetString(i);
             merged_field_names.push_back(inc_n);
@@ -569,11 +567,11 @@ void MergeTableDlg::OuterJoinMerge()
         int n_rows = table_int->GetNumberRows();
         //int n_merge_field = (int)merged_field_names.size();
         
-        map<int, int> rowid_map;
+        std::map<int, int> rowid_map;
         
-        vector<wxString> key1_vec; // keys from first table
-        map<wxString,int> key1_map; // key-idx map from first table
-        vector<wxString> key2_vec; // keys from second table
+        std::vector<wxString> key1_vec; // keys from first table
+        std::map<wxString,int> key1_map; // key-idx map from first table
+        std::vector<wxString> key2_vec; // keys from second table
         
         if (m_key_val_rb->GetValue()==1) {
             // merge by key/record order checked
@@ -588,7 +586,7 @@ void MergeTableDlg::OuterJoinMerge()
                 throw GdaException(error_msg.mb_str());
             }
             
-            vector<wxInt64>  key1_l_vec; // keys (int type) from first table
+            std::vector<wxInt64>  key1_l_vec; // keys (int type) from first table
             
             if (table_int->GetColType(col1_id, 0) == GdaConst::string_type) {
                 table_int->GetColData(col1_id, 0, key1_vec);
@@ -613,7 +611,7 @@ void MergeTableDlg::OuterJoinMerge()
             wxString key2_name = m_import_key->GetString(key2_id);
             int col2_id = merge_layer_proxy->GetFieldPos(key2_name);
             int n_merge_rows = merge_layer_proxy->GetNumRecords();
-            map<wxString,int> key2_map;
+            std::map<wxString,int> key2_map;
             for (int i=0; i < n_merge_rows; i++) {
                 wxString tmp = merge_layer_proxy->GetValueAt(i, col2_id,
                                                              m_wx_encoding);
@@ -673,8 +671,8 @@ void MergeTableDlg::OuterJoinMerge()
             }
         }
         std::vector<GdaShape*> new_geoms = geoms;
-        vector<wxString> new_key_vec = key1_vec;
-        map<int, int> idx2_dict;
+        std::vector<wxString> new_key_vec = key1_vec;
+        std::map<int, int> idx2_dict;
         int idx2 = (int)key1_vec.size();
         for (int i=0; i<key2_vec.size(); i++) {
             wxString tmp = key2_vec[i];
@@ -692,10 +690,10 @@ void MergeTableDlg::OuterJoinMerge()
         // Create a new in-memory geometries&table for merging
         int new_rows = (int)new_key_vec.size();
         OGRTable* mem_table = new OGRTable(new_rows);
-        vector<bool> undefs(new_rows, true);
+        std::vector<bool> undefs(new_rows, true);
         
-        map<wxString, OGRColumn*> new_fields_dict;
-        vector<wxString> new_fields;
+        std::map<wxString, OGRColumn*> new_fields_dict;
+        std::vector<wxString> new_fields;
         // all columns from table
         int time_steps = table_int->GetTimeSteps();
         for ( int id=0; id < table_int->GetNumberCols(); id++ ) {
@@ -778,12 +776,12 @@ void MergeTableDlg::LeftJoinMerge()
         wxString error_msg;
         
         // get selected field names from merging table
-        map<wxString, wxString> merged_fnames_dict;
-        for (set<wxString>::iterator it = dups.begin();
+        std::map<wxString, wxString> merged_fnames_dict;
+        for (std::set<wxString>::iterator it = dups.begin();
              it != dups.end(); ++it ) {
              merged_fnames_dict[ *it ] = *it;
         }
-        vector<wxString> merged_field_names =
+        std::vector<wxString> merged_field_names =
             GetSelectedFieldNames(merged_fnames_dict);
         
         if (merged_field_names.empty())
@@ -792,7 +790,7 @@ void MergeTableDlg::LeftJoinMerge()
         int n_rows = table_int->GetNumberRows();
         int n_merge_field = (int)merged_field_names.size();
        
-        map<int, int> rowid_map;
+        std::map<int, int> rowid_map;
         if (m_key_val_rb->GetValue()==1) { // check merge by key/record order
             // get and check keys from original table
             int key1_id = m_current_key->GetSelection();
@@ -803,9 +801,9 @@ void MergeTableDlg::LeftJoinMerge()
                 throw GdaException(error_msg.mb_str());
             }
             
-            vector<wxString> key1_vec;
-            vector<wxInt64>  key1_l_vec;
-            map<wxString,int> key1_map;
+            std::vector<wxString> key1_vec;
+            std::vector<wxInt64>  key1_l_vec;
+            std::map<wxString,int> key1_map;
             
             if ( table_int->GetColType(col1_id, 0) == GdaConst::string_type ) {
                 table_int->GetColData(col1_id, 0, key1_vec);
@@ -831,8 +829,8 @@ void MergeTableDlg::LeftJoinMerge()
             int col2_id = merge_layer_proxy->GetFieldPos(key2_name);
             if (col2_id == -1) col2_id = dedup_to_id[key2_name];
             int n_merge_rows = merge_layer_proxy->GetNumRecords();
-            vector<wxString> key2_vec;
-            map<wxString,int> key2_map;
+            std::vector<wxString> key2_vec;
+            std::map<wxString,int> key2_map;
             for (int i=0; i < n_merge_rows; i++) {
                 key2_vec.push_back(merge_layer_proxy->GetValueAt(i, col2_id,
                                                                  m_wx_encoding));
@@ -843,7 +841,7 @@ void MergeTableDlg::LeftJoinMerge()
 
             // make sure key1 <= key2, and store their mappings
             int n_matches = 0;
-            map<wxString,int>::iterator key1_it, key2_it;
+            std::map<wxString,int>::iterator key1_it, key2_it;
             for (key1_it=key1_map.begin(); key1_it!=key1_map.end(); key1_it++) {
                 key2_it = key2_map.find(key1_it->first);
                 
@@ -894,7 +892,7 @@ void MergeTableDlg::LeftJoinMerge()
 void MergeTableDlg::AppendNewField(wxString field_name,
                                    wxString real_field_name,
                                    int n_rows,
-                                   map<int,int>& rowid_map)
+                                   std::map<int,int>& rowid_map)
 {
     int fid = dedup_to_id[real_field_name];
     GdaConst::FieldType ftype = merge_layer_proxy->GetFieldType(fid);
@@ -905,8 +903,8 @@ void MergeTableDlg::AppendNewField(wxString field_name,
     if ( ftype == GdaConst::long64_type ) {
         int add_pos = table_int->InsertCol(ftype, field_name, init_pos,
                                            time_steps, field_len, decimals);
-        vector<wxInt64> data(n_rows);
-        vector<bool> undefs(n_rows);
+        std::vector<wxInt64> data(n_rows);
+        std::vector<bool> undefs(n_rows);
         for (int i=0; i<n_rows; i++) {
             int import_rid = i;
             if (!rowid_map.empty()) {
@@ -933,8 +931,8 @@ void MergeTableDlg::AppendNewField(wxString field_name,
     } else if ( ftype == GdaConst::double_type ) {
         int add_pos=table_int->InsertCol(ftype, field_name, init_pos,
                                          time_steps, field_len, decimals);
-        vector<double> data(n_rows);
-        vector<bool> undefs(n_rows);
+        std::vector<double> data(n_rows);
+        std::vector<bool> undefs(n_rows);
         for (int i=0; i<n_rows; i++) {
             int import_rid = i;
             if (!rowid_map.empty()) {
@@ -959,8 +957,8 @@ void MergeTableDlg::AppendNewField(wxString field_name,
     } else {
         // other types as GdaConst::string_type ) {
         int add_pos = table_int->InsertCol(ftype, field_name);
-        vector<wxString> data(n_rows);
-        vector<bool> undefs(n_rows, false);
+        std::vector<wxString> data(n_rows);
+        std::vector<bool> undefs(n_rows, false);
         for (int i=0; i<n_rows; i++) {
             int import_rid = i; // default merge by row
             if (!rowid_map.empty()) {

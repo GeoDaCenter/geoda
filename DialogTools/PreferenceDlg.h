@@ -34,8 +34,6 @@
 #include "../DataViewer/TableState.h"
 #include "../HighlightStateObserver.h"
 
-using namespace std;
-
 ////////////////////////////////////////////////////////////////////////////////
 //
 // PreferenceDlg

@@ -51,8 +51,6 @@
 #include "ConnectDatasourceDlg.h"
 #include "ExportDataDlg.h"
 
-using namespace std;
-
 BEGIN_EVENT_TABLE( ExportDataDlg, wxDialog )
     EVT_BUTTON( XRCID("IDC_OPEN_IASC"), ExportDataDlg::OnBrowseDSfileBtn )
     EVT_BUTTON( wxID_OK, ExportDataDlg::OnOkClick )
@@ -83,7 +81,7 @@ spatial_ref(NULL)
 }
 
 ExportDataDlg::ExportDataDlg(wxWindow* parent,
-                             vector<GdaShape*>& _geometries,
+                             std::vector<GdaShape*>& _geometries,
                              Shapefile::ShapeType _shape_type,
                              Project* _project,
                              bool isSelectedOnly,
@@ -117,7 +115,7 @@ ExportDataDlg::ExportDataDlg(wxWindow* parent,
 
 // Export POINT data only, e.g. centroids/mean centers
 ExportDataDlg::ExportDataDlg(wxWindow* parent,
-                             vector<GdaPoint*>& _geometries,
+                             std::vector<GdaPoint*>& _geometries,
                              Shapefile::ShapeType _shape_type,
                              wxString _point_name,
                              Project* _project,
@@ -389,8 +387,8 @@ void ExportDataDlg::OnOkClick( wxCommandEvent& event )
                     if (col_y == wxNOT_FOUND)
                         col_y = table_p->InsertCol(GdaConst::double_type,
                                                    y_field_name);
-                    vector<double> x_data;
-                    vector<double> y_data;
+                    std::vector<double> x_data;
+                    std::vector<double> y_data;
                     for(size_t i=0; i<geometries.size(); i++) {
                         x_data.push_back(((GdaPoint*)(geometries[i]))->GetX());
                         y_data.push_back(((GdaPoint*)(geometries[i]))->GetY());
@@ -526,18 +524,18 @@ ExportDataDlg::CreateOGRLayer(wxString& ds_name, bool is_table,
 {
     // The reason that we don't use Project::Main directly is for creating
     // datasource from centroids/centers directly, we have to use
-    // vector<GdaShape*>. Therefore, we use it as a uniform interface.
+    // std::vector<GdaShape*>. Therefore, we use it as a uniform interface.
     // for shp/dbf reading, we need to convert Main data to GdaShape first
     // this will spend some time, but keep the rest of code clean.
     // Note: potential speed/memory performance issue
-    vector<int> selected_rows;
+    std::vector<int> selected_rows;
     
     if ( project_p != NULL && geometries.empty() && !is_save_centroids ) {
         shape_type = Shapefile::NULL_SHAPE;
         int num_obs = project_p->main_data.records.size();
         if (num_obs == 0) num_obs = project_p->GetNumRecords();
         if (num_obs == 0) {
-            ostringstream msg;
+            std::ostringstream msg;
             msg << _("Saving failed: GeoDa can't save as empty datasource.");
             throw GdaException(msg.str().c_str());
         }
@@ -586,7 +584,7 @@ ExportDataDlg::CreateOGRLayer(wxString& ds_name, bool is_table,
     
 	// convert to OGR geometries, reproject if needed
     OGRDataAdapter& ogr_adapter = OGRDataAdapter::GetInstance();
-	vector<OGRGeometry*> ogr_geometries;
+    std::vector<OGRGeometry*> ogr_geometries;
     OGRwkbGeometryType geom_type = wkbNone;
     OGRSpatialReference new_ref;
     if (is_table) {
