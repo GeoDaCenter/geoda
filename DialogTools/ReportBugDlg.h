@@ -33,9 +33,6 @@
 #include "../HLStateInt.h"
 #include "../HighlightStateObserver.h"
 
-using namespace std;
-
-
 ////////////////////////////////////////////////////////////////////////////////
 //
 // WelcomeSelectionStyleDlg

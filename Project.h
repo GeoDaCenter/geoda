@@ -149,7 +149,7 @@ public:
     bool CheckSpatialProjection(bool& check_again, bool is_arc=false);
     OGRLayerProxy*        GetOGRLayerProxy() {return layer_proxy;}
     /** Save in-memory Table+Geometries to OGR DataSource */
-    Shapefile::ShapeType  GetGdaGeometries(vector<GdaShape*>& geometries);
+    Shapefile::ShapeType  GetGdaGeometries(std::vector<GdaShape*>& geometries);
     Shapefile::ShapeType  GetShapefileType();
 
 	void AddNeighborsToSelection(boost::uuids::uuid weights_id);
@@ -163,7 +163,7 @@ public:
 	GalElement* GetVoronoiRookNeighborGal();
 	void AddMeanCenters();
 	void AddCentroids();
-    void GetSelectedRows(vector<int>& rowids);
+    void GetSelectedRows(std::vector<int>& rowids);
 
 	/// centroids by default
 	const std::vector<GdaPoint*>& GetMeanCenters();
@@ -188,25 +188,25 @@ public:
 	rtree_pt_3d_t& GetUnitSphereRtree();
 	
     // for multi-layer
-    map<wxString, BackgroundMapLayer*> bg_maps;
-    map<wxString, BackgroundMapLayer*> fg_maps;
+    std::map<wxString, BackgroundMapLayer*> bg_maps;
+    std::map<wxString, BackgroundMapLayer*> fg_maps;
     BackgroundMapLayer* AddMapLayer(wxString datasource_name,
                                     GdaConst::DataSourceType ds_type,
                                     wxString layer_name);
-    void SetForegroundMayLayers(map<wxString, BackgroundMapLayer*>& val);
-    void SetBackgroundMayLayers(map<wxString, BackgroundMapLayer*>& val);
-    map<wxString, BackgroundMapLayer*> GetBackgroundMayLayers();
-    map<wxString, BackgroundMapLayer*> GetForegroundMayLayers();
+    void SetForegroundMayLayers(std::map<wxString, BackgroundMapLayer*>& val);
+    void SetBackgroundMayLayers(std::map<wxString, BackgroundMapLayer*>& val);
+    std::map<wxString, BackgroundMapLayer*> GetBackgroundMayLayers();
+    std::map<wxString, BackgroundMapLayer*> GetForegroundMayLayers();
     int GetMapLayerCount();
     // clone all except shapes and geoms, which are owned by Project* instance;
     // so that different map window can configure the multi-layers
-    vector<BackgroundMapLayer*> CloneBackgroundMaps(bool clone_style=false);
-    map<wxString, BackgroundMapLayer*> CloneForegroundMaps(bool clone_style=false);
+    std::vector<BackgroundMapLayer*> CloneBackgroundMaps(bool clone_style=false);
+    std::map<wxString, BackgroundMapLayer*> CloneForegroundMaps(bool clone_style=false);
     BackgroundMapLayer* GetMapLayer(wxString map_name);
-    vector<wxString> GetLayerNames();
+    std::vector<wxString> GetLayerNames();
     void RemoveLayer(wxString name);
-    bool GetStringColumnData(wxString field_name, vector<wxString>& data);
-    vector<wxString> GetIntegerAndStringFieldNames();
+    bool GetStringColumnData(wxString field_name, std::vector<wxString>& data);
+    std::vector<wxString> GetIntegerAndStringFieldNames();
     
 	// default variables
 	wxString GetDefaultVarName(int var);

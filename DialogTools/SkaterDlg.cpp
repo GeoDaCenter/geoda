@@ -222,7 +222,7 @@ void SkaterDlg::OnSaveTree(wxCommandEvent& event )
         if (col < 0) {
             return;
         }
-        vector<wxString> ids;
+        std::vector<wxString> ids;
         table_int->GetColData(col, 0, ids);
         
         wxFileName fname = wxFileName(dialog.GetPath());
@@ -240,8 +240,8 @@ void SkaterDlg::OnSaveTree(wxCommandEvent& event )
         header << id;
         file.AddLine(header);
         
-        vector<vector<int> > cluster_ids = skater->GetRegions();
-        map<int, int> nid_cid; // node id -> cluster id
+        std::vector<std::vector<int> > cluster_ids = skater->GetRegions();
+        std::map<int, int> nid_cid; // node id -> cluster id
         for (int c=0; c<cluster_ids.size(); ++c) {
             for (int i=0; i<cluster_ids[c].size(); ++i) {
                 nid_cid[ cluster_ids[c][i] ] = c;
@@ -536,12 +536,12 @@ void SkaterDlg::OnOK(wxCommandEvent& event )
     for (int i=0; i<rows; i++) {
         distances[i] = new double[rows];
     }
-    boost::unordered_map<pair<int, int>, bool> access_dict;
+    boost::unordered_map<std::pair<int, int>, bool> access_dict;
     for (int i=0; i<rows; i++) {
         for (int j=0; j<gw->gal[i].Size(); j++) {
             int nbr = gw->gal[i][j];
-            pair<int, int> i_nbr(i, nbr);
-            pair<int, int> nbr_i(nbr, i);
+            std::pair<int, int> i_nbr(i, nbr);
+            std::pair<int, int> nbr_i(nbr, i);
             if (access_dict.find(i_nbr) != access_dict.end() ||
                 access_dict.find(nbr_i) != access_dict.end() )
             {
@@ -579,7 +579,7 @@ void SkaterDlg::OnOK(wxCommandEvent& event )
     
     skater->Partitioning(n_regions);
     
-    vector<vector<int> > cluster_ids = skater->GetRegions();
+    std::vector<std::vector<int> > cluster_ids = skater->GetRegions();
     
     int ncluster = cluster_ids.size();
     
@@ -590,8 +590,8 @@ void SkaterDlg::OnOK(wxCommandEvent& event )
         wxMessageDialog dlg(NULL, warn_str, _("Warning"), wxOK | wxICON_WARNING);
         dlg.ShowModal();
     }
-    vector<wxInt64> clusters(rows, 0);
-    vector<bool> clusters_undef(rows, false);
+    std::vector<wxInt64> clusters(rows, 0);
+    std::vector<bool> clusters_undef(rows, false);
 
 
     // sort result

@@ -14,9 +14,6 @@
 
 #include "MapLayoutView.h"
 
-using namespace std;
-
-
 CanvasExportSettingDialog::CanvasExportSettingDialog(int w, int h, const wxString & title)
 : wxDialog(NULL, wxID_ANY, title, wxDefaultPosition, wxSize(320, 230))
 {

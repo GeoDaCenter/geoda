@@ -708,7 +708,7 @@ double MC_Condition_Number(double **X, int dim, int expl)
 		double max = s[expl - 1], min = s[0];
 		return sqrt(max / min);
 	} else {
-	//	cerr << "error in computing eigenvalues" << endl;
+	//	cerr << "error in computing eigenvalues" << std::endl;
 		wxMessageBox("error in computing eigenvalues");
 		return -999;
 	}

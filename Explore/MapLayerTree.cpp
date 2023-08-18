@@ -24,7 +24,7 @@
 
 wxString SetAssociationDlg::LAYER_LIST_ID = "SETASSOCIATIONDLG_LAYER_LIST";
 
-SetAssociationDlg::SetAssociationDlg(wxWindow* parent, AssociateLayerInt* ml,vector<AssociateLayerInt*>& _all_layers, const wxString& title, const wxPoint& pos, const wxSize& size)
+SetAssociationDlg::SetAssociationDlg(wxWindow* parent, AssociateLayerInt* ml, std::vector<AssociateLayerInt*>& _all_layers, const wxString& title, const wxPoint& pos, const wxSize& size)
 : wxDialog(parent, wxID_ANY, title, pos, size)
 {
     current_ml = ml;
@@ -115,15 +115,15 @@ void SetAssociationDlg::Init()
         my_field_list[i]->Clear();
         my_field_list[i]->Append("");
         my_field_list[i]->Append(_("(Use Sequences)"));
-        vector<wxString> my_fieldnames = current_ml->GetKeyNames();
+        std::vector<wxString> my_fieldnames = current_ml->GetKeyNames();
         for (int j=0; j<my_fieldnames.size(); j++) {
             my_field_list[i]->Append(my_fieldnames[j]);
         }
     }
     
     int i = 0;
-    map<AssociateLayerInt*, Association>& asso = current_ml->associated_layers;
-    map<AssociateLayerInt*, Association>::iterator it;
+    std::map<AssociateLayerInt*, Association>& asso = current_ml->associated_layers;
+    std::map<AssociateLayerInt*, Association>::iterator it;
     for (it = asso.begin(); it!=asso.end(); it++) {
         AssociateLayerInt* layer = it->first;
         Association& lyr = it->second;
@@ -149,7 +149,7 @@ void SetAssociationDlg::Init()
                     if (key.IsEmpty()) {
                         field_list[i]->SetSelection(1);
                     } else {
-                        vector<wxString> names = ml->GetKeyNames();
+                        std::vector<wxString> names = ml->GetKeyNames();
                         for (int j=0; j<names.size(); j++) {
                             if (key == names[j]) {
                                 field_list[i]->SetSelection(j+2);
@@ -162,7 +162,7 @@ void SetAssociationDlg::Init()
             }
         }
         
-        vector<wxString> my_fieldnames = current_ml->GetKeyNames();
+        std::vector<wxString> my_fieldnames = current_ml->GetKeyNames();
         for (int j=0; j<my_fieldnames.size(); j++) {
             if (my_key == my_fieldnames[j]) {
                 my_field_list[i]->SetSelection(j+2);
@@ -210,7 +210,7 @@ void SetAssociationDlg::OnLayerSelect(wxCommandEvent& e)
         if (ml) {
             field_list[sel_row]->Append("");
             field_list[sel_row]->Append(_("(Use Sequences)"));
-            vector<wxString> names = ml->GetKeyNames();
+            std::vector<wxString> names = ml->GetKeyNames();
             for (int i=0; i<names.size(); i++) {
                 field_list[sel_row]->Append(names[i]);
             }
@@ -463,7 +463,7 @@ void MapTree::OnSpatialJoinCount(wxCommandEvent& event)
         OGRLayerProxy* ogr_layer = canvas->GetOGRLayerProxy();
         Shapefile::PolygonContents* pc;
         int n_polygons = main_data.records.size();
-        vector<wxInt64> spatial_counts(n_polygons, 0);
+        std::vector<wxInt64> spatial_counts(n_polygons, 0);
         for (int i=0; i<n_polygons; i++) {
             pc = (Shapefile::PolygonContents*)main_data.records[i].contents_p;
             // create a box, tl, br
@@ -487,7 +487,7 @@ void MapTree::OnSpatialJoinCount(wxCommandEvent& event)
         // save results
         int new_col = 1;
         std::vector<SaveToTableEntry> new_data(new_col);
-        vector<bool> undefs(n_polygons, false);
+        std::vector<bool> undefs(n_polygons, false);
         new_data[0].l_val = &spatial_counts;
         new_data[0].label = "Spatial Counts";
         new_data[0].field_default = "SC";
@@ -626,7 +626,7 @@ void MapTree::OnZoomToSelected(wxCommandEvent& event)
 
 void MapTree::OnSetAssociateLayer(wxCommandEvent& event)
 {
-    vector<AssociateLayerInt*> all_layers;
+    std::vector<AssociateLayerInt*> all_layers;
     wxString map_name = map_titles[new_order[select_id]];
     AssociateLayerInt* ml = GetMapLayer(map_name);
     
@@ -655,14 +655,14 @@ void MapTree::OnSetAssociateLayer(wxCommandEvent& event)
     
     if (dlg.ShowModal() == wxID_OK) {
         bool check_flag = false;
-        map<AssociateLayerInt*, Association>::iterator it;
+        std::map<AssociateLayerInt*, Association>::iterator it;
         
         for (int i=0; i<all_layers.size(); i++) {
             AssociateLayerInt* ml = all_layers[i];
             
             // check if loop happens start from this layer
-            map<wxString, int> checker;
-            vector<AssociateLayerInt*> stack;
+            std::map<wxString, int> checker;
+            std::vector<AssociateLayerInt*> stack;
             
             stack.push_back(ml);
             
@@ -676,7 +676,7 @@ void MapTree::OnSetAssociateLayer(wxCommandEvent& event)
                 } else {
                     checker[tmp_ml->GetName()] = true;
                 }
-                map<AssociateLayerInt*, Association>& asso = tmp_ml->associated_layers;
+                std::map<AssociateLayerInt*, Association>& asso = tmp_ml->associated_layers;
                 for (it = asso.begin(); it!= asso.end(); it++) {                    
                     AssociateLayerInt* layer = it->first;
                     Association& lyr = it->second;
@@ -1065,8 +1065,8 @@ BackgroundMapLayer* MapTree::GetMapLayer(wxString map_name)
 
 void MapTree::OnMapLayerChange()
 {
-    vector<BackgroundMapLayer*> new_bg_maps;
-    vector<BackgroundMapLayer*> new_fg_maps;
+    std::vector<BackgroundMapLayer*> new_bg_maps;
+    std::vector<BackgroundMapLayer*> new_fg_maps;
     
     bool is_fgmap = true;
     for (int i=0; i<new_order.size(); i++) {

@@ -124,7 +124,7 @@ void GwtWeight::GetNbrStats()
     sparsity = empties / (double)num_obs;
     // others
     int sum_nnbrs = 0;
-    vector<int> nnbrs_array;
+    std::vector<int> nnbrs_array;
     std::map<int, int> e_dict;
     for (int i=0; i<num_obs; i++) {
         GwtNeighbor* nbrs = gwt[i].dt();
@@ -156,7 +156,6 @@ void GwtWeight::GetNbrStats()
 
 bool GwtWeight::SaveDIDWeights(Project* project, int num_obs, std::vector<wxInt64>& newids, std::vector<wxInt64>& stack_ids, const wxString& ofname)
 {
-    using namespace std;
     if (!project || ofname.empty()) return false;
     
     WeightsManInterface* wmi = project->GetWManInt();
@@ -169,9 +168,9 @@ bool GwtWeight::SaveDIDWeights(Project* project, int num_obs, std::vector<wxInt6
     int n = newids.size();
     
 #ifdef __WIN32__
-	ofstream out(ofname.wc_str());
+    std::ofstream out(ofname.wc_str());
 #else
-	ofstream out;
+    std::ofstream out;
 	out.open(GET_ENCODED_FILENAME(ofname));
 #endif
 
@@ -185,7 +184,7 @@ bool GwtWeight::SaveDIDWeights(Project* project, int num_obs, std::vector<wxInt6
     
     wxString id_var_name("STID");
     out << "0 " << n << " " << layer_name;
-    out << " " << id_var_name << endl;
+    out << " " << id_var_name << std::endl;
     
     int offset = 0;
     
@@ -201,7 +200,7 @@ bool GwtWeight::SaveDIDWeights(Project* project, int num_obs, std::vector<wxInt6
             
             int n_id = current.nbx + offset + 1; // current.nbx starts from 0, so add 1
             
-            out << newids[i] << ' ' << n_id << ' ' << setprecision(9) << setw(18) << current.weight << endl;
+            out << newids[i] << ' ' << n_id << ' ' << std::setprecision(9) << std::setw(18) << current.weight << std::endl;
         }
     }
     return true;
@@ -209,15 +208,13 @@ bool GwtWeight::SaveDIDWeights(Project* project, int num_obs, std::vector<wxInt6
 
 bool GwtWeight::SaveSpaceTimeWeights(const wxString& ofname, WeightsManInterface* wmi, TableInterface* table_int)
 {
-    using namespace std;
-    
     if (ofname.empty() || !wmi || !table_int)
         return false;
     
     wxString layer_name = GenUtils::GetFileNameNoExt(ofname);
     if (!gwt) return false;
     
-    vector<wxString> id_vec;
+    std::vector<wxString> id_vec;
     int c_id = table_int->FindColId(this->id_field);
     if (c_id < 0) return false;
     
@@ -243,9 +240,9 @@ bool GwtWeight::SaveSpaceTimeWeights(const wxString& ofname, WeightsManInterface
     }
     
 #ifdef __WIN32__
-	ofstream out(ofname.wc_str());
+    std::ofstream out(ofname.wc_str());
 #else
-	ofstream out;
+    std::ofstream out;
 	out.open(GET_ENCODED_FILENAME(ofname));
 #endif
 
@@ -259,7 +256,7 @@ bool GwtWeight::SaveSpaceTimeWeights(const wxString& ofname, WeightsManInterface
     
     wxString id_var_name("STID");
     out << "0 " << n << " " << layer_name;
-    out << " " << id_var_name << endl;
+    out << " " << id_var_name << std::endl;
     
     
     for (size_t i=0; i<num_t; ++i) {
@@ -273,7 +270,7 @@ bool GwtWeight::SaveSpaceTimeWeights(const wxString& ofname, WeightsManInterface
                 STID_KEY k1(id_vec[current.nbx], time_ids[i]);
                 int n_id = stid_dict[k1];
                 
-                out << m_id << ' ' << n_id << ' ' << setprecision(9) << setw(18) << current.weight << endl;
+                out << m_id << ' ' << n_id << ' ' << std::setprecision(9) << std::setw(18) << current.weight << std::endl;
             }
         }
     }
@@ -288,7 +285,6 @@ bool Gda::SaveGwt(const GwtElement* g,
 									const wxString& id_var_name,
 									const std::vector<wxInt64>& id_vec)  
 {
-	using namespace std;
 	if (g == NULL || _layer_name.IsEmpty() || ofname.IsEmpty()
 			|| id_vec.size() == 0) return false;
 	
@@ -296,9 +292,9 @@ bool Gda::SaveGwt(const GwtElement* g,
 	wxString final_ofn(wx_fn.GetFullPath());
 
 #ifdef __WIN32__
-	ofstream out(final_ofn.wc_str());
+    std::ofstream out(final_ofn.wc_str());
 #else
-	ofstream out;
+    std::ofstream out;
 	out.open(GET_ENCODED_FILENAME(final_ofn));
 #endif
 
@@ -313,14 +309,14 @@ bool Gda::SaveGwt(const GwtElement* g,
     
 	size_t num_obs = (int) id_vec.size();
 	out << "0 " << num_obs << " " << layer_name;
-	out << " " << id_var_name << endl;
+	out << " " << id_var_name << std::endl;
 	
 	for (int i=0; i<num_obs; ++i) {
 		for (long nbr=0; nbr<g[i].Size(); ++nbr) {
 			const GwtNeighbor& current = g[i].elt(nbr);
 			out << id_vec[i] << ' ' << id_vec[current.nbx];
-			out << ' ' << setprecision(9) << setw(18)
-				<< current.weight << endl;
+			out << ' ' << std::setprecision(9) << std::setw(18)
+				<< current.weight << std::endl;
 		}
 	}
 	return true;
@@ -333,7 +329,6 @@ bool Gda::SaveGwt(const GwtElement* g,
                   const wxString& id_var_name,
                   const std::vector<wxString>& id_vec)
 {
-	using namespace std;
 	if (g == NULL || _layer_name.IsEmpty() || ofname.IsEmpty()
 			|| id_vec.size() == 0) return false;
 	
@@ -341,9 +336,9 @@ bool Gda::SaveGwt(const GwtElement* g,
 	wxString final_ofn(wx_fn.GetFullPath());
 
 #ifdef __WIN32__
-	ofstream out(final_ofn.wc_str());
+    std::ofstream out(final_ofn.wc_str());
 #else
-	ofstream out;
+    std::ofstream out;
 	out.open(GET_ENCODED_FILENAME(final_ofn));
 #endif
 
@@ -358,14 +353,14 @@ bool Gda::SaveGwt(const GwtElement* g,
     
 	size_t num_obs = (int) id_vec.size();
 	out << "0 " << num_obs << " " << layer_name;
-	out << " " << id_var_name << endl;
+	out << " " << id_var_name << std::endl;
 	
 	for (int i=0; i<num_obs; ++i) {
 		for (long nbr=0; nbr<g[i].Size(); ++nbr) {
 			const GwtNeighbor& current = g[i].elt(nbr);
 			out << id_vec[i] << ' ' << id_vec[current.nbx];
-			out << ' ' << setprecision(9) << setw(18)
-				<< current.weight << endl;
+			out << ' ' << std::setprecision(9) << std::setw(18)
+				<< current.weight << std::endl;
 		}
 	}
 	return true;

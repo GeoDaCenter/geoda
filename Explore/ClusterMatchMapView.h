@@ -27,8 +27,6 @@
 #include "MapNewView.h"
 #include "../GdaConst.h"
 
-using namespace std;
-
 class ClusterMatchSelectDlg : public AbstractClusterDlg
 {
 public:

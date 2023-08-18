@@ -57,7 +57,7 @@ class OGRDataAdapter {
     // Store opened data source in memory
     // In multi-layer scenario, this ogr-datasource pool will automatically
     // manage ogr datasources and layers.
-    map<wxString, OGRDatasourceProxy*> ogr_ds_pool;
+    std::map<wxString, OGRDatasourceProxy*> ogr_ds_pool;
     
     OGRDatasourceProxy* export_ds;
 	
@@ -84,7 +84,7 @@ public:
 	// Note: this should be moved to OGRlayerProxy
 	int  export_progress;
 	bool stop_exporting;
-	ostringstream error_message;
+    std::ostringstream error_message;
 	
 public:
     static OGRDataAdapter& GetInstance() {

@@ -54,8 +54,6 @@ BEGIN_EVENT_TABLE( AggregationDlg, wxDialog )
     EVT_CLOSE( AggregationDlg::OnClose )
 END_EVENT_TABLE()
 
-using namespace std;
-
 AggregationDlg::AggregationDlg(wxWindow* parent, Project* _project_s, const wxPoint& pos)
 : project_s(_project_s), export_dlg(NULL)
 {
@@ -221,8 +219,8 @@ void AggregationDlg::OnExclListDClick( wxCommandEvent& ev)
 	OnIncOneClick(ev);
 }
 
-bool AggregationDlg::CheckKeys(wxString key_name, vector<wxString>& key_vec,
-                               map<int, vector<int> >& key_map)
+bool AggregationDlg::CheckKeys(wxString key_name, std::vector<wxString>& key_vec,
+                               std::map<int, std::vector<int> >& key_map)
 {
     std::map<wxString, std::vector<int> > dup_dict; // value:[]
     std::vector<wxString> uniq_fnames;
@@ -351,7 +349,7 @@ void AggregationDlg::OnOKClick( wxCommandEvent& ev )
 	ev.Skip();
 }
 
-double AggregationDlg::ComputeAgg(vector<double>& vals, vector<bool>& undefs, vector<int>& ids)
+double AggregationDlg::ComputeAgg(std::vector<double>& vals, std::vector<bool>& undefs, std::vector<int>& ids)
 {
     if (m_sum->GetValue()) {
         double v_sum = 0;
@@ -402,7 +400,7 @@ double AggregationDlg::ComputeAgg(vector<double>& vals, vector<bool>& undefs, ve
 }
 
 OGRColumn* AggregationDlg::CreateNewOGRColumn(int new_rows, int col_id, int tm_id,
-                                              std::map<wxString, vector<int> >& key_map)
+                                              std::map<wxString, std::vector<int> >& key_map)
 {
     int f_length = table_int->GetColLength(col_id, tm_id);
     int f_decimal = table_int->GetColDecimals(col_id, tm_id);
@@ -443,7 +441,7 @@ OGRColumn* AggregationDlg::CreateNewOGRColumn(int new_rows, int col_id, int tm_i
         cnt = 0;
         table_int->GetColData(col_id, tm_id, vals, undefs);
         for (it = key_map.begin(); it != key_map.end(); ++it) {
-            vector<int>& ids = it->second;
+            std::vector<int>& ids = it->second;
             double v = ComputeAgg(vals, undefs, ids);
             _col->SetValueAt(cnt, v);
             cnt += 1;

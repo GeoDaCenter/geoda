@@ -28,8 +28,6 @@
 #include <wx/scrolwin.h>
 #include "../DataViewer/TableInterface.h"
 
-using namespace std;
-
 class ScrolledWidgetsPane : public wxScrolledWindow
 {
 private:
@@ -37,14 +35,14 @@ private:
 	GdaConst::DataSourceType ds_type;
     bool is_case_sensitive;
     // old_name : new_name (after correction)
-	map<wxString, wxString> field_names_dict;
-	map<wxString, bool> field_dict;
-	vector<wxString> merged_field_names;
+    std::map<wxString, wxString> field_names_dict;
+    std::map<wxString, bool> field_dict;
+    std::vector<wxString> merged_field_names;
     
-	map<wxString, int> user_input_dict;
+    std::map<wxString, int> user_input_dict;
     
-    vector<wxString> old_field_names;
-    vector<wxString> new_field_names;
+    std::vector<wxString> old_field_names;
+    std::vector<wxString> new_field_names;
     std::set<wxString> table_fnames;
     
 public:
@@ -64,14 +62,14 @@ public:
 	ScrolledWidgetsPane(wxWindow* parent,
                         wxWindowID id,
                         GdaConst::DataSourceType ds_type,
-                        vector<wxString>& all_fname);
+                        std::vector<wxString>& all_fname);
 	ScrolledWidgetsPane(wxWindow* parent, wxWindowID id,
                         GdaConst::DataSourceType ds_type,
                         std::set<wxString> table_fnames,
-                        map<wxString, wxString>& fnames_dict,
-                        vector<wxString>& merged_field_names,
-                        set<wxString>& dup_fname,
-                        set<wxString>& bad_fname);
+                        std::map<wxString, wxString>& fnames_dict,
+                        std::vector<wxString>& merged_field_names,
+                        std::set<wxString>& dup_fname,
+                        std::set<wxString>& bad_fname);
 	virtual ~ScrolledWidgetsPane();
 
     void OnUserInput(wxCommandEvent& ev);
@@ -82,14 +80,14 @@ public:
 	wxString TruncateFieldName(const wxString& old_name, int max_len=0);
 	bool IsFieldNameValid(const wxString& col_name);
 	
-	map<wxString, wxString> GetMergedFieldNameDict();
-    vector<wxString> GetNewFieldNames();
+    std::map<wxString, wxString> GetMergedFieldNameDict();
+    std::vector<wxString> GetNewFieldNames();
 
-	void Init(vector<wxString>& merged_field_names,
-              set<wxString>& dup_fname,
-              set<wxString>& bad_fname);
+	void Init(std::vector<wxString>& merged_field_names,
+              std::set<wxString>& dup_fname,
+              std::set<wxString>& bad_fname);
     
-	void Init(vector<int>& dup_fname_idx_s, vector<int>& bad_fname_idx_s);
+	void Init(std::vector<int>& dup_fname_idx_s, std::vector<int>& bad_fname_idx_s);
 	
 	bool CheckUserInput();
 		
@@ -103,25 +101,25 @@ private:
     
 public:
     FieldNameCorrectionDlg(GdaConst::DataSourceType ds_type,
-                           vector<wxString>& all_fname,
+                           std::vector<wxString>& all_fname,
                            wxString title="Update Field Name");
     
     FieldNameCorrectionDlg(GdaConst::DataSourceType ds_type,
                            std::set<wxString> table_fnames,
-                           map<wxString, wxString>& fnames_dict,
-                           vector<wxString>& merged_field_names,
-                           set<wxString>& dup_fname,
-                           set<wxString>& bad_fname,
+                           std::map<wxString, wxString>& fnames_dict,
+                           std::vector<wxString>& merged_field_names,
+                           std::set<wxString>& dup_fname,
+                           std::set<wxString>& bad_fname,
                            wxString title="Update Field Name");
 	virtual ~FieldNameCorrectionDlg();
 
 	bool NeedCorrection() { return need_correction;}
     
-	map<wxString, wxString> GetMergedFieldNameDict(){ 
+    std::map<wxString, wxString> GetMergedFieldNameDict(){ 
         return fieldPane->GetMergedFieldNameDict();
     }
     
-    vector<wxString> GetNewFieldNames() {
+    std::vector<wxString> GetNewFieldNames() {
         return fieldPane->GetNewFieldNames();
     }
 	

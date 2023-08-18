@@ -49,8 +49,6 @@
 #include "MapNewView.h"
 #include "ClusterMatchMapView.h"
 
-using namespace std;
-
 BEGIN_EVENT_TABLE( ClusterMatchSelectDlg, wxDialog )
 EVT_CLOSE( ClusterMatchSelectDlg::OnClose )
 END_EVENT_TABLE()
@@ -589,8 +587,8 @@ BEGIN_EVENT_TABLE(ClusterMatchMapCanvas, MapCanvas)
 END_EVENT_TABLE()
 
 ClusterMatchMapCanvas::ClusterMatchMapCanvas(wxWindow *parent, TemplateFrame *t_frame, Project *project, const std::vector<wxInt64>& cat_values, const std::map<wxInt64, bool>& cat_value_flags, const wxPoint &pos, const wxSize &size)
-: MapCanvas(parent, t_frame, project, vector<GdaVarTools::VarInfo>(0),
-            vector<int>(0), CatClassification::no_theme,
+: MapCanvas(parent, t_frame, project, std::vector<GdaVarTools::VarInfo>(0),
+            std::vector<int>(0), CatClassification::no_theme,
             no_smoothing, 1, boost::uuids::nil_uuid(), pos, size) {
     // get categories
     num_obs = (int)cat_values.size();

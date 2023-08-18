@@ -46,7 +46,6 @@
  #endif
 #endif
 
-
 class wxDC;
 class TableState;
 

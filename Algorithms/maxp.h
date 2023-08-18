@@ -28,7 +28,6 @@
 
 #include "../ShapeOperations/GalWeight.h"
 
-using namespace std;
 using namespace boost;
 
 class qvector
@@ -42,7 +41,7 @@ public:
     void add(int val);
     
 protected:
-    vector<int> vdata;
+    std::vector<int> vdata;
     boost::unordered_map<int, int> mdict;
     std::vector<int>::iterator v_iter;
     boost::unordered_map<int, int>::iterator m_iter;
@@ -79,7 +78,7 @@ public:
      \param initial int number of initial solutions to generate
      \param seed list ids of observations to form initial seeds. If len(ids) is less than the number of observations, the complementary ids are added to the end of seeds. Thus the specified seeds get priority in the solution
      */
-    Maxp(const GalElement* w, const vector<vector<double> >& z, double floor, double* floor_variable, int initial, vector<wxInt64> seeds,int _method, int _tabu_lenght, double _cool_rate, int rnd_seed=-1, char dist='e',  bool test=false);
+    Maxp(const GalElement* w, const std::vector<std::vector<double> >& z, double floor, double* floor_variable, int initial, std::vector<wxInt64> seeds,int _method, int _tabu_lenght, double _cool_rate, int rnd_seed=-1, char dist='e',  bool test=false);
     
     
     //! A Deconstructor
@@ -95,7 +94,7 @@ public:
      \param neighbor
      \return boolean
      */
-    vector<vector<int> >& GetRegions();
+    std::vector<std::vector<int> >& GetRegions();
     
 protected:
     //! A const spatial weights reference.
@@ -128,11 +127,11 @@ protected:
      */
     int num_vars;
     
-    //! A vector of vector<int> list of ids to form initial seeds.
+    //! A vector of std::vector<int> list of ids to form initial seeds.
     /*!
      Details. seed list ids of observations to form initial seeds.
      */
-    vector<size_t> seeds;
+    std::vector<size_t> seeds;
     
     //! A n*1 vector of observations on variable for the floor
     /*!
@@ -144,7 +143,7 @@ protected:
     /*!
      Details. This is used to calculate intra-regional
      */
-    const vector<vector<double> > z;
+    const std::vector<std::vector<double> > z;
     
     //! A map variable mapping of areas to region.
     /*!
@@ -156,13 +155,13 @@ protected:
     
     boost::unordered_map<std::vector<int>, double> objval_dict;
     
-    //! A vector of vector<int> list of lists of regions.
+    //! A vector of std::vector<int> list of lists of regions.
     /*!
      Details. each list has the ids of areas in that region.
      */
-    vector<vector<int> > regions;
+    std::vector<std::vector<int> > regions;
     
-    vector<vector<vector<int> > > regions_group;
+    std::vector<std::vector<std::vector<int> > > regions_group;
    
     double best_ss;
     
@@ -172,7 +171,7 @@ protected:
      */
     int p;
     
-    vector<int> p_group;
+    std::vector<int> p_group;
     
     //! A integer number of initializations.
     /*!
@@ -214,7 +213,7 @@ protected:
     
     uint64_t seed_increment;
     
-    vector<double> initial_wss;
+    std::vector<double> initial_wss;
     
     //! A protected member function: init_solution(void).
     /*!
@@ -230,7 +229,7 @@ protected:
     /*!
      Details.
      */
-    void swap(vector<vector<int> >& init_regions, boost::unordered_map<int, int>& area2region, uint64_t seed_local);
+    void swap(std::vector<std::vector<int> >& init_regions, boost::unordered_map<int, int>& area2region, uint64_t seed_local);
    
     //! xxx
     /* !
@@ -238,7 +237,7 @@ protected:
      \param neighbor
      \return boolean
      */
-    void tabu_search(vector<vector<int> >& init_regions, boost::unordered_map<int, int>& init_area2region, int tabuLength, uint64_t seed_local);
+    void tabu_search(std::vector<std::vector<int> >& init_regions, boost::unordered_map<int, int>& init_area2region, int tabuLength, uint64_t seed_local);
   
     //! xxx
     /* !
@@ -246,7 +245,7 @@ protected:
      \param neighbor
      \return boolean
      */
-    void simulated_annealing(vector<vector<int> >& init_regions, boost::unordered_map<int, int>& init_area2region, double alpha, double temperature, uint64_t seed_local);
+    void simulated_annealing(std::vector<std::vector<int> >& init_regions, boost::unordered_map<int, int>& init_area2region, double alpha, double temperature, uint64_t seed_local);
     
     //! xxx
     /* !
@@ -254,46 +253,46 @@ protected:
      \param neighbor
      \return boolean
      */
-    void move(int area, int from_region, int to_region, vector<vector<int> >& regions, boost::unordered_map<int, int>& area2region);
+    void move(int area, int from_region, int to_region, std::vector<std::vector<int> >& regions, boost::unordered_map<int, int>& area2region);
     
-    void move(int area, int from_region, int to_region, vector<vector<int> >& regions, boost::unordered_map<int, int>& area2region, vector<TabuMove>& tabu_list, int max_tabu_length);
+    void move(int area, int from_region, int to_region, std::vector<std::vector<int> >& regions, boost::unordered_map<int, int>& area2region, std::vector<TabuMove>& tabu_list, int max_tabu_length);
     
     //! A protected member function: init_solution(void). return
     /*!
      \param region a const vector of unsigned int.
      \return boolean true if meet floor else return false
      */
-    bool check_floor(const vector<int>& region);
+    bool check_floor(const std::vector<int>& region);
     
-    bool check_floor(const vector<int>& region, int leaver);
+    bool check_floor(const std::vector<int>& region, int leaver);
     
     double objective_function();
     
-    double objective_function(vector<int>& solution);
+    double objective_function(std::vector<int>& solution);
     
-    double objective_function(vector<int>& region1, int leaver, vector<int>& region2, int comer);
+    double objective_function(std::vector<int>& region1, int leaver, std::vector<int>& region2, int comer);
     
-    double objective_function(vector<vector<int> >& solution);
+    double objective_function(std::vector<std::vector<int> >& solution);
     
-    double objective_function(vector<int>& current_internal, vector<int>& current_outter);
+    double objective_function(std::vector<int>& current_internal, std::vector<int>& current_outter);
     
-    double objective_function_change(int area, vector<int>& current_internal, vector<int>& current_outter);
+    double objective_function_change(int area, std::vector<int>& current_internal, std::vector<int>& current_outter);
    
-    wxString print_regions(vector<vector<int> >& _regions);
+    wxString print_regions(std::vector<std::vector<int> >& _regions);
     //! xxx
     /* !
      \param block
      \param neighbor
      \return boolean
      */
-    bool check_contiguity(const GalElement* w, vector<int>& block, int neighbor);
+    bool check_contiguity(const GalElement* w, std::vector<int>& block, int neighbor);
        
-    void shuffle(vector<int>& arry, uint64_t& seed);
+    void shuffle(std::vector<int>& arry, uint64_t& seed);
     
     bool test;
-    list<int> test_random_numbers;
-    list<int> enclave_random_number;
-    list<vector<int> > test_random_cand;
+    std::list<int> test_random_numbers;
+    std::list<int> enclave_random_number;
+    std::list<std::vector<int> > test_random_cand;
 };
 
 #endif

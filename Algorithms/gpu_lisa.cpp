@@ -175,11 +175,11 @@ bool gpu_lisa(const char* cl_path, int rows, int permutations, unsigned long lon
     ret = clBuildProgram(program, 1, &device_id, NULL, NULL, NULL);
     
 	if (ret != CL_SUCCESS) {
-        cout<<"Program Build failed\n";
+        std::cout<<"Program Build failed\n";
         size_t length;
         char buffer[2048];
         clGetProgramBuildInfo(program, device_id, CL_PROGRAM_BUILD_LOG, sizeof(buffer), buffer, &length);
-        cout<<"--- Build log ---\n "<<buffer<<endl;
+        std::cout<<"--- Build log ---\n "<<buffer<<endl;
         
         delete[] num_nbrs;
         delete[] nbr_idx;
@@ -408,11 +408,11 @@ bool gpu_localjoincount(const char* cl_path, int rows, int permutations, unsigne
     ret = clBuildProgram(program, 1, &device_id, NULL, NULL, NULL);
     
     if (ret != CL_SUCCESS) {
-        cout<<"Program Build failed\n";
+        std::cout<<"Program Build failed\n";
         size_t length;
         char buffer[2048];
         clGetProgramBuildInfo(program, device_id, CL_PROGRAM_BUILD_LOG, sizeof(buffer), buffer, &length);
-        cout<<"--- Build log ---\n "<<buffer<<endl;
+        std::cout<<"--- Build log ---\n "<<buffer<<endl;
         
         if(v_zz) delete[] v_zz;
         if(v_local_jc) delete[] v_local_jc;

@@ -24,8 +24,6 @@
 #include "../TemplateLegend.h"
 #include "ConditionalNewView.h"
 
-using namespace std;
-
 class LisaCoordinator;
 class GStatCoordinator;
 class LocalGearyCoordinator;
@@ -41,8 +39,8 @@ public:
 	
     ConditionalClusterMapCanvas(wxWindow *parent, TemplateFrame* t_frame,
                                 Project* project,
-                                const vector<GdaVarTools::VarInfo>& var_info,
-                                const vector<int>& col_ids,
+                                const std::vector<GdaVarTools::VarInfo>& var_info,
+                                const std::vector<int>& col_ids,
                                 const wxString& title,
                                 const wxPoint& pos = wxDefaultPosition,
                                 const wxSize& size = wxDefaultSize);
@@ -92,11 +90,11 @@ protected:
     wxString title;
 	CatClassifState* cc_state_map;
 	int num_categories; // current number of categories
-	vector<Gda::dbl_int_pair_vec_type> cat_var_sorted;
-    vector<vector<bool> > cat_var_undef;
+    std::vector<Gda::dbl_int_pair_vec_type> cat_var_sorted;
+    std::vector<std::vector<bool> > cat_var_undef;
     
-	vector<bool> map_valid;
-	vector<wxString> map_error_message;
+    std::vector<bool> map_valid;
+    std::vector<wxString> map_error_message;
 	
 	// background map related:
 	wxBitmap* bin_bm;
@@ -122,16 +120,16 @@ class ConditionalClusterMapFrame : public ConditionalNewFrame {
    DECLARE_CLASS(ConditionalClusterMapFrame)
 public:
     ConditionalClusterMapFrame(wxFrame *parent, Project* project,
-                               const vector<GdaVarTools::VarInfo>& var_info,
-                               const vector<int>& col_ids,
+                               const std::vector<GdaVarTools::VarInfo>& var_info,
+                               const std::vector<int>& col_ids,
                                LisaCoordinator* lisa_coord,
                                const wxString& title = _("Conditional LISA Map"),
                                const wxPoint& pos = wxDefaultPosition,
                                const wxSize& size = wxDefaultSize,
                                const long style = wxDEFAULT_FRAME_STYLE);
     ConditionalClusterMapFrame(wxFrame *parent, Project* project,
-                               const vector<GdaVarTools::VarInfo>& var_info,
-                               const vector<int>& col_ids,
+                               const std::vector<GdaVarTools::VarInfo>& var_info,
+                               const std::vector<int>& col_ids,
                                GStatCoordinator* g_coord,
                                bool is_gi, bool is_perm,
                                const wxString& title = _("Conditional GetisOrd Map"),
@@ -139,16 +137,16 @@ public:
                                const wxSize& size = wxDefaultSize,
                                const long style = wxDEFAULT_FRAME_STYLE);
     ConditionalClusterMapFrame(wxFrame *parent, Project* project,
-                               const vector<GdaVarTools::VarInfo>& var_info,
-                               const vector<int>& col_ids,
+                               const std::vector<GdaVarTools::VarInfo>& var_info,
+                               const std::vector<int>& col_ids,
                                LocalGearyCoordinator* local_geary_coord,
                                const wxString& title = _("Conditional Local Geary Map"),
                                const wxPoint& pos = wxDefaultPosition,
                                const wxSize& size = wxDefaultSize,
                                const long style = wxDEFAULT_FRAME_STYLE);
     ConditionalClusterMapFrame(wxFrame *parent, Project* project,
-                               const vector<GdaVarTools::VarInfo>& var_info,
-                               const vector<int>& col_ids,
+                               const std::vector<GdaVarTools::VarInfo>& var_info,
+                               const std::vector<int>& col_ids,
                                JCCoordinator* local_jc_coord,
                                const wxString& title = _("Conditional Local Join Count Map"),
                                const wxPoint& pos = wxDefaultPosition,
@@ -198,8 +196,8 @@ public:
     
     ConditionalLISAClusterMapCanvas(wxWindow *parent, TemplateFrame* t_frame,
                                 Project* project,
-                                const vector<GdaVarTools::VarInfo>& var_info,
-                                const vector<int>& col_ids,
+                                const std::vector<GdaVarTools::VarInfo>& var_info,
+                                const std::vector<int>& col_ids,
                                 LisaCoordinator* lisa_coordinator,
                                     const wxString& title,
                                 const wxPoint& pos = wxDefaultPosition,
@@ -226,8 +224,8 @@ public:
     
     ConditionalGClusterMapCanvas(wxWindow *parent, TemplateFrame* t_frame,
                                  Project* project,
-                                 const vector<GdaVarTools::VarInfo>& var_info,
-                                 const vector<int>& col_ids,
+                                 const std::vector<GdaVarTools::VarInfo>& var_info,
+                                 const std::vector<int>& col_ids,
                                  GStatCoordinator* g_coordinator,
                                  bool is_gi,
                                  bool is_perm,
@@ -257,8 +255,8 @@ public:
     
     ConditionalLocalGearyClusterMapCanvas(wxWindow *parent, TemplateFrame* t_frame,
                                 Project* project,
-                                const vector<GdaVarTools::VarInfo>& var_info,
-                                const vector<int>& col_ids,
+                                const std::vector<GdaVarTools::VarInfo>& var_info,
+                                const std::vector<int>& col_ids,
                                 LocalGearyCoordinator* local_geary_coordinator,
                                     const wxString& title,
                                 const wxPoint& pos = wxDefaultPosition,
@@ -285,8 +283,8 @@ public:
     
     ConditionalLocalJoinCountClusterMapCanvas(wxWindow *parent, TemplateFrame* t_frame,
                                           Project* project,
-                                          const vector<GdaVarTools::VarInfo>& var_info,
-                                          const vector<int>& col_ids,
+                                          const std::vector<GdaVarTools::VarInfo>& var_info,
+                                          const std::vector<int>& col_ids,
                                           JCCoordinator* local_jc_coordinator,
                                           const wxString& title,
                                           const wxPoint& pos = wxDefaultPosition,

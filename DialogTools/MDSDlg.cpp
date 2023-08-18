@@ -391,7 +391,7 @@ void MDSDlg::OnOK(wxCommandEvent& event )
     }
 
     int new_col = combo_n->GetSelection() == 0 ? 2 : 3;
-    vector<vector<double> > results;
+    std::vector<std::vector<double> > results;
     double stress = 0;
     int itel = 0;
     std::vector<std::pair<wxString, double> > output_vals;
@@ -438,7 +438,7 @@ void MDSDlg::OnOK(wxCommandEvent& event )
     } else {
         if (chk_poweriteration->IsChecked()) {
             // classical MDS with power iteration and full matrix
-            vector<vector<double> > distances = DataUtils::copyRaggedMatrix(ragged_distances, rows, rows);
+            std::vector<std::vector<double> > distances = DataUtils::copyRaggedMatrix(ragged_distances, rows, rows);
             if (dist == 'b') {
                 for (size_t i=0; i<distances.size(); i++) {
                     for (int j=0; j<distances.size(); j++) {

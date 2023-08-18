@@ -33,8 +33,6 @@
 #include "OGRFieldProxy.h"
 #include "OGRLayerProxy.h"
 
-
-
 /**
  * A threaded proxy class for OGR layer. It will read all meta information, such
  * as field properties, and data from OGR data soruce.
@@ -73,12 +71,12 @@ public:
 	OGRLayer*	layer;
 
     //!< Fields and the meta data are stored in OGRFieldProxy.
-	vector<OGRFieldProxy*> fields;
+	std::vector<OGRFieldProxy*> fields;
     
     //!< OGR will read data sources and store the he content in many OGRFeature
     //!< objects. The OGRLayerProxy will maintain these objects until the proxy
     //!< is dismissed.
-	vector<OGRFeature*> data;
+    std::vector<OGRFeature*> data;
     
     //!< OGR layer GeomType
     OGRwkbGeometryType eGType;
@@ -118,9 +116,9 @@ public:
      * Add new features to an empty OGRLayer
      * This function should be only used when create a new OGRLayer
      */
-    void AddFeatures(vector<OGRGeometry*>& geometries,
+    void AddFeatures(std::vector<OGRGeometry*>& geometries,
                      TableInterface* table,
-                     vector<int>& selected_rows);
+                     std::vector<int>& selected_rows);
     
 	/**
 	 * Read geometries and save to Shapefile::Main data structure.
@@ -129,20 +127,20 @@ public:
     
     bool AddGeometries(Shapefile::Main& p_main);
     
-    void GetCentroids(vector<GdaPoint*>& centroids);
+    void GetCentroids(std::vector<GdaPoint*>& centroids);
     
     static GdaPolygon* OGRGeomToGdaShape(OGRGeometry* geom);
 
-    static GdaPolygon* DissolvePolygons(vector<OGRGeometry*>& geoms);
+    static GdaPolygon* DissolvePolygons(std::vector<OGRGeometry*>& geoms);
 
     GdaPolygon* GetMapBoundary();
 
     std::vector<GdaShape*> DissolveMap(const std::map<wxString, std::vector<int> >& cids);
 
-    Shapefile::ShapeType GetGdaGeometries(vector<GdaShape*>& geoms,
+    Shapefile::ShapeType GetGdaGeometries(std::vector<GdaShape*>& geoms,
                                           OGRSpatialReference* input_sr=NULL);
     
-    Shapefile::ShapeType GetOGRGeometries(vector<OGRGeometry*>& geoms,
+    Shapefile::ShapeType GetOGRGeometries(std::vector<OGRGeometry*>& geoms,
                                           OGRSpatialReference* input_sr=NULL);
     
 	/**
@@ -199,9 +197,9 @@ public:
     void SetFieldDecimals(int pos, int new_dec);
 
 	bool UpdateColumn();
-    bool UpdateColumn(int col_idx, vector<double> &vals);
-    bool UpdateColumn(int col_idx, vector<wxInt64> &vals);
-    bool UpdateColumn(int col_idx, vector<wxString> &vals);
+    bool UpdateColumn(int col_idx, std::vector<double> &vals);
+    bool UpdateColumn(int col_idx, std::vector<wxInt64> &vals);
+    bool UpdateColumn(int col_idx, std::vector<wxString> &vals);
 
 	bool IsTableOnly();
     
@@ -209,23 +207,23 @@ public:
 
 	bool UpdateOGRFeature(OGRFeature* feature);
 
-	bool AppendOGRFeature(vector<wxString>& content);
+	bool AppendOGRFeature(std::vector<wxString>& content);
 
 	bool InsertOGRFeature();
 	
-	vector<GdaConst::FieldType> GetFieldTypes();
+    std::vector<GdaConst::FieldType> GetFieldTypes();
 
-    vector<wxString> GetFieldNames();
+    std::vector<wxString> GetFieldNames();
     
     OGRFeature* GetFeatureAt(int rid);
     
     OGRGeometry* GetGeometry(int idx);
     
-    vector<wxString> GetIntegerFieldNames();
+    std::vector<wxString> GetIntegerFieldNames();
 
-    vector<wxString> GetNumericFieldNames();
+    std::vector<wxString> GetNumericFieldNames();
     
-    vector<wxString> GetIntegerAndStringFieldNames();
+    std::vector<wxString> GetIntegerAndStringFieldNames();
     
     bool IsUndefined(int rid, int cid);
     

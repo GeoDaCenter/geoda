@@ -31,8 +31,6 @@
 #include "../ShapeOperations/WeightsManStateObserver.h"
 #include "../ShapeOperations/OGRDataAdapter.h"
 
-using namespace std;
-
 class LocalGearyCoordinatorObserver;
 class LocalGearyCoordinator;
 class Project;
@@ -76,14 +74,14 @@ public:
 	
 	LocalGearyCoordinator(boost::uuids::uuid weights_id,
                     Project* project,
-					const vector<GdaVarTools::VarInfo>& var_info,
-					const vector<int>& col_ids,
+					const std::vector<GdaVarTools::VarInfo>& var_info,
+					const std::vector<int>& col_ids,
 					LocalGearyType local_geary_type, bool calc_significances = true,
                     bool row_standardize_s = true);
     
     LocalGearyCoordinator(wxString weights_path,
                     int n,
-                    vector<vector<double> >& vars,
+                    std::vector<std::vector<double> >& vars,
                     int permutations_s = 599,
                     bool calc_significances_s = true,
                     bool row_standardize_s = true);
@@ -144,19 +142,19 @@ public:
 	virtual void closeObserver(boost::uuids::uuid id);
 	
 public:
-	vector<double*> lags_vecs;
-	vector<double*> local_geary_vecs;
-	vector<double*> sig_local_geary_vecs;
-	vector<int*> sig_cat_vecs;
-	vector<int*> cluster_vecs;
+    std::vector<double*> lags_vecs;
+    std::vector<double*> local_geary_vecs;
+    std::vector<double*> sig_local_geary_vecs;
+    std::vector<int*> sig_cat_vecs;
+    std::vector<int*> cluster_vecs;
     
-	vector<double*> data1_vecs;
-	vector<double*> data1_square_vecs;
-	vector<double*> data2_vecs;
+    std::vector<double*> data1_vecs;
+    std::vector<double*> data1_square_vecs;
+    std::vector<double*> data2_vecs;
 	
 	boost::uuids::uuid w_id;
-    vector<GalWeight*> Gal_vecs;
-    vector<GalWeight*> Gal_vecs_orig;
+    std::vector<GalWeight*> Gal_vecs;
+    std::vector<GalWeight*> Gal_vecs_orig;
 	//const GalElement* W;
     
 	wxString weight_name;
@@ -168,23 +166,23 @@ public:
 	int num_time_vals; // number of valid time periods based on var_info
 	
 	// These two variables should be empty for LocalGearyMapCanvas
-	vector<d_array_type> data; // data[variable][time][obs]
-	vector<b_array_type> undef_data; // undef_data[variable][time][obs]
+    std::vector<d_array_type> data; // data[variable][time][obs]
+    std::vector<b_array_type> undef_data; // undef_data[variable][time][obs]
     
-    vector<vector<bool> > undef_tms;
+    std::vector<std::vector<bool> > undef_tms;
 
     // These are for multi variable LocalGeary
-    vector<vector<double*> > data_vecs;
-    vector<vector<double*> > data_square_vecs;
+    std::vector<std::vector<double*> > data_vecs;
+    std::vector<std::vector<double*> > data_square_vecs;
     
 	// All LocalGearyMapCanvas objects synchronize themselves
 	// from the following 6 variables.
 	int ref_var_index;
-	vector<GdaVarTools::VarInfo> var_info;
+    std::vector<GdaVarTools::VarInfo> var_info;
 	bool is_any_time_variant;
 	bool is_any_sync_with_global_time;
-	vector<bool> map_valid;
-	vector<wxString> map_error_message;
+    std::vector<bool> map_valid;
+    std::vector<wxString> map_error_message;
 	
 	bool GetHasIsolates(int time) { return has_isolates[time]; }
 	bool GetHasUndefined(int time) { return has_undefined[time]; }
@@ -193,7 +191,7 @@ public:
 	void removeObserver(LocalGearyCoordinatorObserver* o);
 	void notifyObservers();
 	/** The list of registered observer objects. */
-	list<LocalGearyCoordinatorObserver*> observers;
+    std::list<LocalGearyCoordinatorObserver*> observers;
 	
 	void CalcPseudoP();
 	void CalcPseudoP_range(int obs_start,
@@ -224,8 +222,8 @@ protected:
 	void CalcLocalGeary();
 	void CalcMultiLocalGeary();
 	void StandardizeData();
-	vector<bool> has_undefined;
-	vector<bool> has_isolates;
+    std::vector<bool> has_undefined;
+    std::vector<bool> has_isolates;
 	bool row_standardize;
 	bool calc_significances; // if false, then p-vals will never be needed
 	uint64_t last_seed_used;

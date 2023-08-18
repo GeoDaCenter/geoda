@@ -5,8 +5,6 @@
 
 #include "../ShapeOperations/GalWeight.h"
 
-using namespace std;
-
 wxString ReadIdFieldFromMat(const wxString& fname);
 
 GalElement* ReadMatAsGal(const wxString& fname, TableInterface* table_int);

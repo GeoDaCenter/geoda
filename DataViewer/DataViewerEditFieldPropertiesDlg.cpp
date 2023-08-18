@@ -33,7 +33,6 @@
 #include "TableState.h"
 #include "DataViewerEditFieldPropertiesDlg.h"
 
-using namespace std;
 namespace bt = boost::posix_time;
 
 
@@ -464,29 +463,29 @@ void DataViewerEditFieldPropertiesDlg::OnCellChanging( wxGridEvent& ev )
                     int num_rows = table_int->GetNumberRows();
                     if (new_type == GdaConst::long64_type) {
                         // get data from old
-                        vector<wxInt64> data(num_rows);
+                        std::vector<wxInt64> data(num_rows);
                         table_int->GetColData(from_col, 0, data);
                         table_int->SetColData(to_col, 0, data);
                         field_grid->SetReadOnly(row, COL_DD, true);
                     } else if (new_type == GdaConst::date_type ||
                                new_type == GdaConst::time_type ||
                                new_type == GdaConst::datetime_type) {
-                        vector<unsigned long long> data(num_rows);
+                        std::vector<unsigned long long> data(num_rows);
                         table_int->GetColData(from_col, 0, data);
                         table_int->SetColData(to_col, 0, data);
                         field_grid->SetReadOnly(row, COL_DD, true);
                     } else if (new_type == GdaConst::double_type) {
-                        vector<double> data(num_rows);
+                        std::vector<double> data(num_rows);
                         table_int->GetColData(from_col, 0, data);
                         table_int->SetColData(to_col, 0, data);
                         field_grid->SetReadOnly(row, COL_DD, false);
                     } else if (new_type == GdaConst::string_type) {
-                        vector<wxString> data(num_rows);
+                        std::vector<wxString> data(num_rows);
                         table_int->GetColData(from_col, 0, data);
                         table_int->SetColData(to_col, 0, data);
                         field_grid->SetReadOnly(row, COL_DD, true);
                     }
-                    vector<bool> undefined(num_rows, false);
+                    std::vector<bool> undefined(num_rows, false);
                     table_int->GetColUndefined(from_col, 0, undefined);
                     table_int->SetColUndefined(to_col, 0, undefined);
 
@@ -839,9 +838,8 @@ void DataViewerEditFieldPropertiesDlg::UpdateLength(int row)
 
 void DataViewerEditFieldPropertiesDlg::UpdateTmStrMap()
 {
-	using namespace std;
 	tm_str_map.clear();
-	vector<wxString> tm_strs;
+    std::vector<wxString> tm_strs;
 	table_int->GetTimeStrings(tm_strs);
 	for (int t=0, tt=tm_strs.size(); t<tt; ++t) tm_str_map[tm_strs[t]] = t;
 }

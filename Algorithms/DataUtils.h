@@ -235,7 +235,7 @@ public:
         return d;
     }
     
-    static void doubleCenter(vector<vector<double> >& matrix)
+    static void doubleCenter(std::vector<std::vector<double> >& matrix)
     {
         int n = (int)matrix[0].size();
         int k = (int)matrix.size();
@@ -255,7 +255,7 @@ public:
         }
     }
     
-    static void multiply(vector<vector<double> >& matrix, double factor)
+    static void multiply(std::vector<std::vector<double> >& matrix, double factor)
     {
         int n = (int)matrix[0].size();
         int k = (int)matrix.size();
@@ -266,7 +266,7 @@ public:
         }
     }
     
-    static void squareEntries(vector<vector<double> >& matrix)
+    static void squareEntries(std::vector<std::vector<double> >& matrix)
     {
         int n = (int)matrix[0].size();
         int k = (int)matrix.size();
@@ -277,7 +277,7 @@ public:
         }
     }
     
-    static double prod(vector<double> x, vector<double> y) {
+    static double prod(std::vector<double> x, std::vector<double> y) {
         int n = (int)x.size();
         double val = 0;
         for (int i=0; i<n; i++) {
@@ -286,18 +286,18 @@ public:
         return val;
     }
     
-    static double normalize(vector<double>& x) {
+    static double normalize(std::vector<double>& x) {
         double norm = sqrt(prod(x, x));
         for (int i = 0; i < x.size(); i++) x[i] /= norm;
         return norm;
     }
     
-    static void normalize(vector<vector<double> >& x)
+    static void normalize(std::vector<std::vector<double> >& x)
     {
         for (int i = 0; i < x.size(); i++) normalize(x[i]);
     }
     
-    static void eigen(vector<vector<double> >& matrix, vector<vector<double> >& evecs, vector<double>& evals, int maxiter) {
+    static void eigen(std::vector<std::vector<double> >& matrix, std::vector<std::vector<double> >& evecs, std::vector<double>& evals, int maxiter) {
         
         if ( GdaConst::use_gda_user_seed) {
             srand((int)GdaConst::gda_user_seed);
@@ -320,7 +320,7 @@ public:
             
             for (int iter = 0; (fabs(1.0 - r) > eps) && (iter < maxiter); iter++) {
             //for (int iter = 0; iter < maxiter; iter++) {
-                vector<double> q(k,0);
+                std::vector<double> q(k,0);
                 for (int i = 0; i < k; i++) {
                     for (int j = 0; j < k; j++)
                         q[i] += matrix[i][j] * evecs[m][j];
@@ -333,7 +333,7 @@ public:
         }
     }
     
-    static void reverse_eigen(vector<vector<double> >& matrix, vector<vector<double> >& evecs, vector<double>& evals, int maxiter) {
+    static void reverse_eigen(std::vector<std::vector<double> >& matrix, std::vector<std::vector<double> >& evecs, std::vector<double>& evals, int maxiter) {
         
         if ( GdaConst::use_gda_user_seed) {
             srand((int)GdaConst::gda_user_seed);
@@ -354,7 +354,7 @@ public:
             double r = 0.0;
             
             for (int iter = 0; (fabs(1.0 - r) > eps) && (iter < maxiter); iter++) {
-                vector<double> q(k,0);
+                std::vector<double> q(k,0);
                 for (int i = 0; i < k; i++) {
                     q[i] -= rho * evecs[m][i];
                     for (int j = 0; j < k; j++)
@@ -368,14 +368,14 @@ public:
         }
     }
  
-    static double smallestEigenvalue(vector<vector<double> >& matrix)
+    static double smallestEigenvalue(std::vector<std::vector<double> >& matrix)
     {
         int n = (int)matrix.size();
         double rho = largestEigenvalue(matrix);
         double eps = 1.0E-6;
         //int maxiter = 100;
         double lambda = 0.0;
-        vector<double> x(n);
+        std::vector<double> x(n);
         for (int i = 0; i < n; i++)
             x[i] = (0.5 - (double) rand() / RAND_MAX);
         normalize(x);
@@ -383,7 +383,7 @@ public:
         double r = 0.0;
         
         for (int iter = 0; (abs(1.0 - r) > eps) && (iter < 100); iter++) {
-            vector<double> q(n,0);
+            std::vector<double> q(n,0);
             
             for (int i = 0; i < n; i++) {
                 q[i] -= rho * x[i];
@@ -398,17 +398,17 @@ public:
         return lambda + rho;
     }
     
-    static double largestEigenvalue(vector<vector<double> >& matrix)
+    static double largestEigenvalue(std::vector<std::vector<double> >& matrix)
     {
         int n = (int)matrix.size();
         double eps = 1.0E-6;
         //int maxiter = 100;
         double lambda = 0.0;
-        vector<double> x(n,1.0);
+        std::vector<double> x(n,1.0);
         double r = 0.0;
         
         for (int iter = 0; (fabs(1.0 - r) > eps) && (iter < 100); iter++) {
-            vector<double> q(n,0);
+            std::vector<double> q(n,0);
             
             for (int i = 0; i < n; i++) {
                 for (int j = 0; j < n; j++)
@@ -422,7 +422,7 @@ public:
         return lambda;
     }
     
-    static void randomize(vector<vector<double> >& matrix) {
+    static void randomize(std::vector<std::vector<double> >& matrix) {
         if ( GdaConst::use_gda_user_seed) {
             srand((int)GdaConst::gda_user_seed);
         }
@@ -435,10 +435,10 @@ public:
         }
     }
     
-    static vector<int> landmarkIndices(vector<vector<double> >& matrix) {
+    static std::vector<int> landmarkIndices(std::vector<std::vector<double> >& matrix) {
         int k = (int)matrix.size();
         int n = (int)matrix[0].size();
-        vector<int> result(k);
+        std::vector<int> result(k);
         for (int i = 0; i < k; i++) {
             for (int j = 0; j < n; j++) {
                 if (matrix[i][j] == 0.0) {
@@ -449,10 +449,10 @@ public:
         return result;
     }
     
-    static vector<vector<double> > copyMatrix(vector<vector<double> >& matrix) {
+    static std::vector<std::vector<double> > copyMatrix(std::vector<std::vector<double> >& matrix) {
         int k = (int)matrix.size();
         int n = (int)matrix[0].size();
-        vector<vector<double> > copy(k);
+        std::vector<std::vector<double> > copy(k);
         
         for (int i = 0; i < k; i++) {
             copy[i].resize(n);
@@ -540,8 +540,8 @@ public:
         return result;
     }
     
-    static vector<vector<double> > copyRaggedMatrix(double** matrix, int n, int k) {
-        vector<vector<double> > copy(k);
+    static std::vector<std::vector<double> > copyRaggedMatrix(double** matrix, int n, int k) {
+        std::vector<std::vector<double> > copy(k);
         
         for (int i = 0; i < k; i++) {
             copy[i].resize(n);
@@ -559,7 +559,7 @@ public:
         return copy;
     }
    
-    static void selfprod(vector<vector<double> >& d, vector<vector<double> >& result)
+    static void selfprod(std::vector<std::vector<double> >& d, std::vector<std::vector<double> >& result)
     {
         int k = (int)d.size();
         int n = (int)d[0].size();
@@ -573,18 +573,18 @@ public:
         }
     }
     
-    static void svd(vector<vector<double> >& matrix, vector<vector<double> >& svecs, vector<double>& svals, int maxiter=100)
+    static void svd(std::vector<std::vector<double> >& matrix, std::vector<std::vector<double> >& svecs, std::vector<double>& svals, int maxiter=100)
     {
         int k = (int)matrix.size();
         int n = (int)matrix[0].size();
         int d = (int)svecs.size();
         
         for (int m = 0; m < d; m++) svals[m] = normalize(svecs[m]);
-        vector<vector<double> > K(k);
+        std::vector<std::vector<double> > K(k);
         for (int i=0; i<k; i++) K[i].resize(k);
         
         selfprod(matrix, K);
-        vector<vector<double> > temp(d);
+        std::vector<std::vector<double> > temp(d);
         for (int i=0; i<d; i++) temp[i].resize(k);
         
         for (int m = 0; m < d; m++) {
@@ -597,7 +597,7 @@ public:
         for (int m = 0; m < d; m++) svals[m] = normalize(svecs[m]);
         eigen(K, temp, svals, maxiter);
         
-        vector<vector<double> > tempOld(d);
+        std::vector<std::vector<double> > tempOld(d);
         for (int i=0; i<d; i++) tempOld[i].resize(k);
         
         for (int m = 0; m < d; m++)
@@ -623,14 +623,14 @@ public:
     }
     
     
-    static vector<vector<double> > landmarkMatrix(vector<vector<double> >& matrix)
+    static std::vector<std::vector<double> > landmarkMatrix(std::vector<std::vector<double> >& matrix)
     {
         int k = (int)matrix.size();
         
-        vector<vector<double> > result(k);
+        std::vector<std::vector<double> > result(k);
         for (int i=0; i<k; i++) result[i].resize(k);
         
-        vector<int> index = landmarkIndices(matrix);
+        std::vector<int> index = landmarkIndices(matrix);
         for (int i = 0; i < k; i++) {
             for (int j = 0; j < k; j++) {
                 result[i][j] = matrix[i][index[j]];
@@ -640,7 +640,7 @@ public:
     }
    
     /*
-    static vector<vector<double> > pivotRows(vector<vector<double> >& matrix, int k)
+    static std::vector<std::vector<double> > pivotRows(std::vector<std::vector<double> >& matrix, int k)
     {
         int K = matrix.size();
         if (k >= K) {
@@ -648,11 +648,11 @@ public:
         }
         int n = matrix[0].size();
         //System.out.println(n + " " + k + " " + K);
-        vector<vector<double> > result(k);
+        std::vector<std::vector<double> > result(k);
         for (int i=0; i<n; i++) result[i].resize(n);
         
         int pivot = 0;
-        vector<double> _min(n);
+        std::vector<double> _min(n);
         for (int i = 0; i < n; i++)
             _min[i] = DBL_MAX;
         for (int i = 0; i < k; i++) {
@@ -669,7 +669,7 @@ public:
         return result;
     }*/
     
-    static void scale(vector<vector<double> >& x, vector<vector<double> >& D)
+    static void scale(std::vector<std::vector<double> >& x, std::vector<std::vector<double> >& D)
     {
         int n = (int)x[0].size();
         int d = (int)x.size();
@@ -690,13 +690,13 @@ public:
     }
     
     /*
-    static vector<vector<double> > maxminPivotMatrix(vector<vector<double> >& matrix, int k)
+    static std::vector<std::vector<double> > maxminPivotMatrix(std::vector<std::vector<double> >& matrix, int k)
     {
         int n = matrix[0].size();
-        vector<vector<double> > result(k);
+        std::vector<std::vector<double> > result(k);
         for (int i=0; i<n; i++) result[i].resize(n);
         int pivot = 0;
-        vector<double> min(n);
+        std::vector<double> min(n);
         for (int i = 0; i < n; i++) min[i] = DBL_MAX;
         for (int i = 0; i < k; i++) {
             for (int j = 0; j < n; j++) {
@@ -711,10 +711,10 @@ public:
         return result;
     }
   
-    static vector<vector<double> > randomPivotMatrix(vector<vector<double> >& matrix, int k)
+    static std::vector<std::vector<double> > randomPivotMatrix(std::vector<std::vector<double> >& matrix, int k)
     {
         int n = matrix[0].size();
-        vector<vector<double> > result(k);
+        std::vector<std::vector<double> > result(k);
         for (int i=0; i<n; i++) result[i].resize(n);
      
         boolean[] isPivot = new boolean[n];

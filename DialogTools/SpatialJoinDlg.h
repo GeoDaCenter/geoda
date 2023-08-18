@@ -92,20 +92,20 @@ public:
 class AssignPolygonToPoint : public SpatialJoinWorker
 {
 protected:
-    vector<wxInt64> poly_ids;
+    std::vector<wxInt64> poly_ids;
     rtree_pt_2d_t rtree;
 public:
-    AssignPolygonToPoint(BackgroundMapLayer* ml, Project* project, vector<wxInt64>& poly_ids);
+    AssignPolygonToPoint(BackgroundMapLayer* ml, Project* project, std::vector<wxInt64>& poly_ids);
     virtual void sub_run(int start, int end);
 };
 
 class AssignPolygonToLine : public SpatialJoinWorker
 {
 protected:
-    vector<wxInt64> poly_ids;
+    std::vector<wxInt64> poly_ids;
     rtree_box_2d_t rtree;
 public:
-    AssignPolygonToLine(BackgroundMapLayer* ml, Project* project, vector<wxInt64>& poly_ids);
+    AssignPolygonToLine(BackgroundMapLayer* ml, Project* project, std::vector<wxInt64>& poly_ids);
     virtual void sub_run(int start, int end);
 };
 

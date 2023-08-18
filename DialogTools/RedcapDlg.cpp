@@ -389,7 +389,7 @@ void RedcapDlg::OnSaveTree(wxCommandEvent& event )
         if (col < 0) {
             return;
         }
-        vector<wxString> ids;
+        std::vector<wxString> ids;
         table_int->GetColData(col, 0, ids);
         
         wxFileName fname = wxFileName(dialog.GetPath());
@@ -407,8 +407,8 @@ void RedcapDlg::OnSaveTree(wxCommandEvent& event )
         header << id;
 		file.AddLine(header);
 
-        vector<vector<int> > cluster_ids = redcap->GetRegions();
-        map<int, int> nid_cid; // node id -> cluster id
+        std::vector<std::vector<int> > cluster_ids = redcap->GetRegions();
+        std::map<int, int> nid_cid; // node id -> cluster id
         for (int c=0; c<cluster_ids.size(); ++c) {
             for (int i=0; i<cluster_ids[c].size(); ++i) {
                 nid_cid[ cluster_ids[c][i] ] = c;
@@ -600,7 +600,7 @@ void RedcapDlg::OnOK(wxCommandEvent& event )
     
     redcap->Partitioning(n_regions);
     
-    vector<vector<int> > cluster_ids = redcap->GetRegions();
+    std::vector<std::vector<int> > cluster_ids = redcap->GetRegions();
     
     int ncluster = cluster_ids.size();
     
@@ -611,8 +611,8 @@ void RedcapDlg::OnOK(wxCommandEvent& event )
         wxMessageDialog dlg(NULL, warn_str, _("Warning"), wxOK | wxICON_WARNING);
         dlg.ShowModal();
     }
-    vector<wxInt64> clusters(rows, 0);
-    vector<bool> clusters_undef(rows, false);
+    std::vector<wxInt64> clusters(rows, 0);
+    std::vector<bool> clusters_undef(rows, false);
 
     // sort result
     std::sort(cluster_ids.begin(), cluster_ids.end(), GenUtils::less_vectors);

@@ -37,13 +37,12 @@
 void Gda::StringsToCsvRecord(const std::vector<std::string>& strings,
 							   std::string& record)
 {
-	using namespace std;
-	vector<string> escaped_strs(strings.size());
+    std::vector<std::string> escaped_strs(strings.size());
 	
 	for (int i=0, iend=strings.size(); i<iend; i++) {
-		string item(strings[i]);
-		if (item.find('\"') != string::npos || item.find(',') != string::npos) {
-			ostringstream ss;
+	    std::string item(strings[i]);
+		if (item.find('\"') != std::string::npos || item.find(',') != std::string::npos) {
+		    std::ostringstream ss;
 			for (int j=0, jend=item.size(); j<jend; j++) {
 				if (item[j] == '"') {
 					ss << "\"\"";
@@ -57,7 +56,7 @@ void Gda::StringsToCsvRecord(const std::vector<std::string>& strings,
 		}
 	}
 	
-	ostringstream ss;
+    std::ostringstream ss;
 	for (int i=0, iend=escaped_strs.size(); i<iend; i++) {
 		ss << escaped_strs[i];
 		if (i < iend-1) ss << ",";
@@ -101,19 +100,17 @@ bool Gda::GetCsvStats(const std::string& csv_fname,
 						std::vector<std::string>& first_row,
 						wxString& err_msg)
 {
-	using namespace std;
-	
-	ifstream file(csv_fname.c_str());
+    std::ifstream file(csv_fname.c_str());
 	if (!file.is_open()) {
 		err_msg << "Unable to open CSV file.";
 		return false;
 	}
 	
-	typedef Gda::csv_record_grammar<string::const_iterator> csv_rec_gram;
+	typedef Gda::csv_record_grammar<std::string::const_iterator> csv_rec_gram;
 	csv_rec_gram csv_record; // CSV grammar instance
 	using boost::spirit::ascii::space;
 	
-	string line;
+    std::string line;
 	num_rows = 0;
 	num_cols = 0;
 	first_row.clear();
@@ -127,8 +124,8 @@ bool Gda::GetCsvStats(const std::string& csv_fname,
 		file.close();
 		return false;
 	} else {
-		string::const_iterator iter = line.begin();
-		string::const_iterator end = line.end();
+        std::string::const_iterator iter = line.begin();
+        std::string::const_iterator end = line.end();
 		bool r = phrase_parse(iter, end, csv_record, space, first_row);
 		if (!r || iter != end) {
 			err_msg << "Problem parsing first line of CSV.";
@@ -158,7 +155,6 @@ bool Gda::FillStringTableFromCsv(const std::string& csv_fname,
 								   bool first_row_field_names,
 								   wxString& err_msg)
 {
-	using namespace std;
 	wxStopWatch sw;
 	
 	int num_rows = 0;
@@ -175,19 +171,19 @@ bool Gda::FillStringTableFromCsv(const std::string& csv_fname,
 	
 	string_table.resize(boost::extents[num_rows][num_cols]);
 	
-	ifstream file(csv_fname.c_str());
+    std::ifstream file(csv_fname.c_str());
 	if (!file.is_open()) {
-		//cout << "Error: unable to open CSV file." << endl;
+		//cout << "Error: unable to open CSV file." << std::endl;
 		return false;
 	}
 	
-	vector<string> v;
-	typedef Gda::csv_record_grammar<string::const_iterator> csv_rec_gram;
+    std::vector<std::string> v;
+	typedef Gda::csv_record_grammar<std::string::const_iterator> csv_rec_gram;
 	csv_rec_gram csv_record; // CSV grammar instance
 	using boost::spirit::ascii::space;
 	
 	int row = 0;
-	string line;
+    std::string line;
 	// skip first row if these are field names
 	if (first_row_field_names) Gda::safeGetline(file, line);
 	bool done = false;
@@ -196,8 +192,8 @@ bool Gda::FillStringTableFromCsv(const std::string& csv_fname,
 		Gda::safeGetline(file, line);
 		if (!line.empty()) {
 			v.clear();
-			string::const_iterator iter = line.begin();
-			string::const_iterator end = line.end();
+            std::string::const_iterator iter = line.begin();
+            std::string::const_iterator end = line.end();
 			
 			bool r = phrase_parse(iter, end, csv_record, space, v);
 			if (!r || iter != end) {
@@ -237,7 +233,6 @@ bool Gda::ConvertColToLongs(const std_str_array_type& string_table,
 							  std::vector<bool>& undef,
 							  int& failed_index)
 {
-	using namespace std;
 	using boost::lexical_cast;
     using boost::bad_lexical_cast;
 	
@@ -248,7 +243,7 @@ bool Gda::ConvertColToLongs(const std_str_array_type& string_table,
 	undef.resize(num_rows);
 	
 	for (int i=0; i<num_rows; i++) {
-		string s(string_table[i][col]);
+	    std::string s(string_table[i][col]);
 		boost::trim(s);
 		undef[i] = true;
 		if (!s.empty()) {
@@ -271,7 +266,6 @@ bool Gda::ConvertColToDoubles(const std_str_array_type& string_table,
 								std::vector<bool>& undef,
 								int& failed_index)
 {
-	using namespace std;
 	using boost::lexical_cast;
     using boost::bad_lexical_cast;
 	
@@ -282,7 +276,7 @@ bool Gda::ConvertColToDoubles(const std_str_array_type& string_table,
 	undef.resize(num_rows);
 	
 	for (int i=0; i<num_rows; i++) {
-		string s(string_table[i][col]);
+	    std::string s(string_table[i][col]);
 		boost::trim(s);
 		undef[i] = s.empty();
 		if (!s.empty()) {

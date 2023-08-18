@@ -38,17 +38,16 @@
 
 wxString WeightUtils::ReadIdField(const wxString& fname)
 {
-	using namespace std;
 	wxString ext = GenUtils::GetFileExt(fname).Lower();
     if (ext != "gal" && ext != "gwt" && ext != "kwt") {
         return "";
     }
 	
 #ifdef __WIN32__
-	ifstream file(fname.wc_str());
+    std::ifstream file(fname.wc_str());
 #else
-	ifstream file;
-	file.open(GET_ENCODED_FILENAME(fname), ios::in);  // a text file
+    std::ifstream file;
+	file.open(GET_ENCODED_FILENAME(fname), std::ios::in);  // a text file
 #endif
 	if (!(file.is_open() && file.good())) return "";
 	
@@ -56,17 +55,17 @@ wxString WeightUtils::ReadIdField(const wxString& fname)
 	// First determine if header line is correct
 	// Can be either: int int string string  (type n_obs filename field)
 	// or : int (n_obs)
-	string str;
+    std::string str;
 	getline(file, str);
-	stringstream ss (str, stringstream::in | stringstream::out);
+    std::stringstream ss (str, std::stringstream::in | std::stringstream::out);
 		
 	wxInt64 num1 = 0;
 	wxInt64 num2 = 0;
 	wxInt64 num_obs = 0;
-	string dbf_name, t_key_field;
+    std::string dbf_name, t_key_field;
     
     
-    string line;
+    std::string line;
     std::getline(ss, line);
     wxString header(line);
     
@@ -87,7 +86,7 @@ wxString WeightUtils::ReadIdField(const wxString& fname)
     } else {
     
         ss.clear();
-        ss.seekg(0, ios::beg); // reset to beginning
+        ss.seekg(0, std::ios::beg); // reset to beginning
         ss >> num1 >> num2 >> dbf_name >> t_key_field;
     }
     
@@ -109,12 +108,11 @@ wxString WeightUtils::ReadIdField(const wxString& fname)
 GalElement* WeightUtils::ReadGal(const wxString& fname,
 								 TableInterface* table_int)
 {
-	using namespace std;
 #ifdef __WIN32__
-	ifstream file(fname.wc_str());
+    std::ifstream file(fname.wc_str());
 #else
-	ifstream file;
-	file.open(GET_ENCODED_FILENAME(fname), ios::in);  // a text file
+    std::ifstream file;
+	file.open(GET_ENCODED_FILENAME(fname), std::ios::in);  // a text file
 #endif
 	
 	if (!(file.is_open() && file.good())) {
@@ -127,17 +125,17 @@ GalElement* WeightUtils::ReadGal(const wxString& fname,
 	
 	int line_cnt = 0;
 	bool use_rec_order = false;
-	string str;
+    std::string str;
 	getline(file, str);
 	line_cnt++;
-	stringstream ss (str, stringstream::in | stringstream::out);
+    std::stringstream ss (str, std::stringstream::in | std::stringstream::out);
 	
 	wxInt64 num1 = 0;
 	wxInt64 num2 = 0;
 	wxInt64 num_obs = 0;
-	string dbf_name, t_key_field;
+    std::string dbf_name, t_key_field;
   
-    string line;
+    std::string line;
     std::getline(ss, line);
     wxString header(line);
     
@@ -158,7 +156,7 @@ GalElement* WeightUtils::ReadGal(const wxString& fname,
     } else {
         
         ss.clear();
-        ss.seekg(0, ios::beg); // reset to beginning
+        ss.seekg(0, std::ios::beg); // reset to beginning
         ss >> num1 >> num2 >> dbf_name >> t_key_field;
     }
     
@@ -190,7 +188,7 @@ GalElement* WeightUtils::ReadGal(const wxString& fname,
 	// either be empty or blank.
     // note: we use wxString as key (convert int to string) for the case of any
     // string type numbers (e.g. the FIPS)
-	map<wxString, int> id_map;
+    std::map<wxString, int> id_map;
     
 	if (use_rec_order) {
 		// we need to traverse through every second line of the file and
@@ -209,7 +207,7 @@ GalElement* WeightUtils::ReadGal(const wxString& fname,
 			}
 			if (file.eof()) continue;
 			{
-				stringstream ss (str, stringstream::in | stringstream::out);
+			    std::stringstream ss (str, std::stringstream::in | std::stringstream::out);
 				ss >> obs >> num_neigh;
 				if (obs < min_val) {
 					min_val = obs;
@@ -265,7 +263,7 @@ GalElement* WeightUtils::ReadGal(const wxString& fname,
 		// get mapping from key_field to record ids (which always start
 		// from 0 internally, but are displayed to the user from 1)
         if (table_int->GetColType(col) == GdaConst::long64_type) {
-    		vector<wxInt64> vec;
+    	    std::vector<wxInt64> vec;
     		table_int->GetColData(col, 0, vec);
     		for (int i=0; i<num_obs; i++) {
                 wxString str_id;
@@ -274,7 +272,7 @@ GalElement* WeightUtils::ReadGal(const wxString& fname,
             }
         }
         if (table_int->GetColType(col) == GdaConst::string_type) {
-    		vector<wxString> vec;
+    	    std::vector<wxString> vec;
     		table_int->GetColData(col, 0, vec);
     		for (int i=0; i<num_obs; i++) {
                 id_map[ vec[i] ] = i;
@@ -291,11 +289,11 @@ GalElement* WeightUtils::ReadGal(const wxString& fname,
 	
 	GalElement* gal = new GalElement[num_obs];
 	file.clear();
-	file.seekg(0, ios::beg); // reset to beginning
+	file.seekg(0, std::ios::beg); // reset to beginning
 	line_cnt = 0;
 	getline(file, str); // skip header line
 	line_cnt++;
-	map<wxString, int>::iterator it;
+    std::map<wxString, int>::iterator it;
 	while (!file.eof()) {
 		int gal_obs;
         std::string obs;
@@ -308,7 +306,7 @@ GalElement* WeightUtils::ReadGal(const wxString& fname,
 		}
 		if (file.eof()) continue;
 		{
-			stringstream ss (str, stringstream::in | stringstream::out);
+		    std::stringstream ss (str, std::stringstream::in | std::stringstream::out);
 			ss >> obs >> num_neigh;
 			it = id_map.find(wxString(obs));
 			if (it == id_map.end()) {
@@ -338,9 +336,9 @@ GalElement* WeightUtils::ReadGal(const wxString& fname,
 			}
 			if (file.eof()) continue;
 			{
-				stringstream ss (str, stringstream::in | stringstream::out);
+			    std::stringstream ss (str, std::stringstream::in | std::stringstream::out);
 				for (int j=0; j<num_neigh; j++) {
-					string neigh;
+				    std::string neigh;
 					ss >> neigh;
 					it = id_map.find(wxString(neigh));
 					if (it == id_map.end()) {
@@ -380,12 +378,11 @@ GalElement* WeightUtils::ReadGal(const wxString& fname,
 GalElement* WeightUtils::ReadGwtAsGal(const wxString& fname,
 									  TableInterface* table_int)
 {
-	using namespace std;
 #ifdef __WIN32__
-	ifstream file(fname.wc_str());
+    std::ifstream file(fname.wc_str());
 #else
-	ifstream file;
-	file.open(GET_ENCODED_FILENAME(fname), ios::in);  // a text file
+    std::ifstream file;
+	file.open(GET_ENCODED_FILENAME(fname), std::ios::in);  // a text file
 #endif
  
 	if (!(file.is_open() && file.good())) {
@@ -397,17 +394,17 @@ GalElement* WeightUtils::ReadGwtAsGal(const wxString& fname,
 	// or : int (n_obs)
 	
 	bool use_rec_order = false;
-	string str;
+    std::string str;
 	getline(file, str);
-	cout << str << endl;
-	stringstream ss(str, stringstream::in | stringstream::out);
+	std::cout << str << std::endl;
+    std::stringstream ss(str, std::stringstream::in | std::stringstream::out);
 	
 	wxInt64 num1 = 0;
 	wxInt64 num2 = 0;
 	wxInt64 num_obs = 0;	
-	string dbf_name, t_key_field;
+    std::string dbf_name, t_key_field;
     
-    string line;
+    std::string line;
     std::getline(ss, line);
     wxString header(line);
     
@@ -428,7 +425,7 @@ GalElement* WeightUtils::ReadGwtAsGal(const wxString& fname,
     } else {
         
         ss.clear();
-        ss.seekg(0, ios::beg); // reset to beginning
+        ss.seekg(0, std::ios::beg); // reset to beginning
         ss >> num1 >> num2 >> dbf_name >> t_key_field;
     }
     
@@ -452,9 +449,9 @@ GalElement* WeightUtils::ReadGwtAsGal(const wxString& fname,
 	}
 	
 	file.clear();
-	file.seekg(0, ios::beg); // reset to beginning
+	file.seekg(0, std::ios::beg); // reset to beginning
 	getline(file, str); // skip header line
-	map<wxString, int> id_map;
+    std::map<wxString, int> id_map;
 	if (use_rec_order) {
 		// we need to traverse through every line of the file and
 		// record the max and min values.  So long as the max and min
@@ -466,7 +463,7 @@ GalElement* WeightUtils::ReadGwtAsGal(const wxString& fname,
 			wxInt64 obs1=0, obs2=0;
 			getline(file, str);
 			if (!str.empty()) {
-				stringstream ss (str, stringstream::in | stringstream::out);
+			    std::stringstream ss (str, std::stringstream::in | std::stringstream::out);
 				ss >> obs1 >> obs2;
 				if (obs1 < min_val) {
 					min_val = obs1;
@@ -514,7 +511,7 @@ GalElement* WeightUtils::ReadGwtAsGal(const wxString& fname,
 		// get mapping from key_field to record ids (which always start
 		// from 0 internally, but are displayed to the user from 1)
         if (table_int->GetColType(col) == GdaConst::long64_type) {
-    		vector<wxInt64> vec;
+    	    std::vector<wxInt64> vec;
     		table_int->GetColData(col, 0, vec);
     		for (int i=0; i<num_obs; i++) {
                 wxString str_id;
@@ -523,7 +520,7 @@ GalElement* WeightUtils::ReadGwtAsGal(const wxString& fname,
             }
         }
         if (table_int->GetColType(col) == GdaConst::string_type) {
-    		vector<wxString> vec;
+    	    std::vector<wxString> vec;
     		table_int->GetColData(col, 0, vec);
     		for (int i=0; i<num_obs; i++) {
                 id_map[ vec[i] ] = i;
@@ -539,21 +536,21 @@ GalElement* WeightUtils::ReadGwtAsGal(const wxString& fname,
 		}
 	}
 	file.clear();
-	file.seekg(0, ios::beg); // reset to beginning
+	file.seekg(0, std::ios::beg); // reset to beginning
 	getline(file, str); // skip header line
 	// we need to traverse through every line of the file and
 	// record the number of neighbors for each observation.
-	map<wxString, set<wxString> >::iterator it;
-	map<wxString, set<wxString> > nbr_histogram;
+    std::map<wxString, std::set<wxString> >::iterator it;
+    std::map<wxString, std::set<wxString> > nbr_histogram;
 	while (!file.eof()) {
-		string obs1, obs2;
+	    std::string obs1, obs2;
 		getline(file, str);
 		if (!str.empty()) {
-			stringstream ss (str, stringstream::in | stringstream::out);
+		    std::stringstream ss (str, std::stringstream::in | std::stringstream::out);
             ss >> obs1 >> obs2;
 			it = nbr_histogram.find(wxString(obs1));
 			if (it == nbr_histogram.end()) {
-                set<wxString> s;
+                std::set<wxString> s;
 				nbr_histogram[obs1] = s;
 			}
             if (obs2 != obs1)
@@ -561,27 +558,27 @@ GalElement* WeightUtils::ReadGwtAsGal(const wxString& fname,
 		}
 	}
 	
-	vector<size_t> gal_cnt(num_obs, 0);
+    std::vector<size_t> gal_cnt(num_obs, 0);
 	GalElement* gal = new GalElement[num_obs];
 	file.clear();
-	file.seekg(0, ios::beg); // reset to beginning
+	file.seekg(0, std::ios::beg); // reset to beginning
 	getline(file, str); // skip header line
-	map<wxString, int>::iterator it1;
-	map<wxString, int>::iterator it2;
+    std::map<wxString, int>::iterator it1;
+    std::map<wxString, int>::iterator it2;
 	int line_num=1;
 	while (!file.eof()) {
 		int gwt_obs1, gwt_obs2;
 		//wxInt64 obs1, obs2;
-        string obs1, obs2;
+        std::string obs1, obs2;
         double wVal;
 		getline(file, str);
 		if (!str.empty()) {
-			stringstream ss(str, stringstream::in | stringstream::out);
+		    std::stringstream ss(str, std::stringstream::in | std::stringstream::out);
 			ss >> obs1 >> obs2 >> wVal;
 			it1 = id_map.find(obs1);
 			it2 = id_map.find(obs2);
 			if (it1 == id_map.end() || it2 == id_map.end()) {
-				string obs;
+			    std::string obs;
 				if (it1 == id_map.end())
                     obs = obs1;
 				if (it2 == id_map.end())
@@ -626,12 +623,11 @@ GalElement* WeightUtils::ReadGwtAsGal(const wxString& fname,
 GwtElement* WeightUtils::ReadGwt(const wxString& fname,
 								 TableInterface* table_int)
 {
-	using namespace std;
 #ifdef __WIN32__
-	ifstream file(fname.wc_str());
+    std::ifstream file(fname.wc_str());
 #else
-	ifstream file;
-	file.open(GET_ENCODED_FILENAME(fname), ios::in);  // a text file
+    std::ifstream file;
+	file.open(GET_ENCODED_FILENAME(fname), std::ios::in);  // a text file
 #endif
 
 	if (!(file.is_open() && file.good())) {
@@ -643,17 +639,17 @@ GwtElement* WeightUtils::ReadGwt(const wxString& fname,
 	// or : int (n_obs)
 	
 	bool use_rec_order = false;
-	string str;
+    std::string str;
 	getline(file, str);
-	cout << str << endl;
-	stringstream ss(str, stringstream::in | stringstream::out);
+    std::cout << str << std::endl;
+    std::stringstream ss(str, std::stringstream::in | std::stringstream::out);
 	
 	wxInt64 num1 = 0;
 	wxInt64 num2 = 0;
 	wxInt64 num_obs = 0;	
-	string dbf_name, t_key_field;
+    std::string dbf_name, t_key_field;
     
-    string line;
+    std::string line;
     std::getline(ss, line);
     wxString header(line);
     
@@ -674,7 +670,7 @@ GwtElement* WeightUtils::ReadGwt(const wxString& fname,
     } else {
         
         ss.clear();
-        ss.seekg(0, ios::beg); // reset to beginning
+        ss.seekg(0, std::ios::beg); // reset to beginning
         ss >> num1 >> num2 >> dbf_name >> t_key_field;
     }
     
@@ -700,9 +696,9 @@ GwtElement* WeightUtils::ReadGwt(const wxString& fname,
 	}
 	
 	file.clear();
-	file.seekg(0, ios::beg); // reset to beginning
+	file.seekg(0, std::ios::beg); // reset to beginning
 	getline(file, str); // skip header line
-	map<wxInt64, int> id_map;
+    std::map<wxInt64, int> id_map;
 	if (use_rec_order) {
 		// we need to traverse through every line of the file and
 		// record the max and min values.  So long as the max and min
@@ -714,7 +710,7 @@ GwtElement* WeightUtils::ReadGwt(const wxString& fname,
 			wxInt64 obs1=0, obs2=0;
 			getline(file, str);
 			if (!str.empty()) {
-				stringstream ss (str, stringstream::in | stringstream::out);
+			    std::stringstream ss (str, std::stringstream::in | std::stringstream::out);
 				ss >> obs1 >> obs2;
 				if (obs1 < min_val) {
 					min_val = obs1;
@@ -759,7 +755,7 @@ GwtElement* WeightUtils::ReadGwt(const wxString& fname,
 		}
 		// get mapping from key_field to record ids (which always start
 		// from 0 internally, but are displayed to the user from 1)
-		vector<wxInt64> vec;
+	    std::vector<wxInt64> vec;
 		table_int->GetColData(col, 0, vec);
 		for (int i=0; i<num_obs; i++) id_map[vec[i]] = i;
 		if (id_map.size() != num_obs) {
@@ -771,17 +767,17 @@ GwtElement* WeightUtils::ReadGwt(const wxString& fname,
 		}
 	}
 	file.clear();
-	file.seekg(0, ios::beg); // reset to beginning
+	file.seekg(0, std::ios::beg); // reset to beginning
 	getline(file, str); // skip header line
 	// we need to traverse through every line of the file and
 	// record the number of neighbors for each observation.
-	map<wxInt64, int>::iterator it;
-	map<wxInt64, int> nbr_histogram;
+    std::map<wxInt64, int>::iterator it;
+    std::map<wxInt64, int> nbr_histogram;
 	while (!file.eof()) {
 		wxInt64 obs1=0;
 		getline(file, str);
 		if (!str.empty()) {
-			stringstream ss (str, stringstream::in | stringstream::out);
+		    std::stringstream ss (str, std::stringstream::in | std::stringstream::out);
 			ss >> obs1;
 			
 			it = nbr_histogram.find(obs1);
@@ -795,10 +791,10 @@ GwtElement* WeightUtils::ReadGwt(const wxString& fname,
 	
 	GwtElement* gwt = new GwtElement[num_obs];
 	file.clear();
-	file.seekg(0, ios::beg); // reset to beginning
+	file.seekg(0, std::ios::beg); // reset to beginning
 	getline(file, str); // skip header line
-	map<wxInt64, int>::iterator it1;
-	map<wxInt64, int>::iterator it2;
+    std::map<wxInt64, int>::iterator it1;
+    std::map<wxInt64, int>::iterator it2;
 	int line_num = 1;
 	while (!file.eof()) {
 		int gwt_obs1, gwt_obs2;
@@ -806,7 +802,7 @@ GwtElement* WeightUtils::ReadGwt(const wxString& fname,
         double w_val;
 		getline(file, str);
 		if (!str.empty()) {
-			stringstream ss(str, stringstream::in | stringstream::out);
+		    std::stringstream ss(str, std::stringstream::in | std::stringstream::out);
 			ss >> obs1 >> obs2 >> w_val;
 			it1 = id_map.find(obs1);
 			it2 = id_map.find(obs2);

@@ -53,13 +53,13 @@ private:
     std::string user_name;
     std::string api_url;
     
-	string buildParameter(const char* key, std::string& val);
-	string buildParameter(const char* key, wxString& val);
-	string buildParameter(const char* key, std::vector<int>& val);
-	string buildParameter(const char* key, std::vector<wxString>& val);
-	string buildParameter(map<wxString, std::vector<int> >& val);
+    std::string buildParameter(const char* key, std::string& val);
+    std::string buildParameter(const char* key, wxString& val);
+    std::string buildParameter(const char* key, std::vector<int>& val);
+    std::string buildParameter(const char* key, std::vector<wxString>& val);
+    std::string buildParameter(std::map<wxString, std::vector<int> >& val);
 	
-    void doGet(string& parameter);
+    void doGet(std::string& parameter);
     std::string doPost(const std::string& parameter);
 
     

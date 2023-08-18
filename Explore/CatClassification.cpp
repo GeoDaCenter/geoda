@@ -34,8 +34,6 @@
 #include "../GdaConst.h"
 #include "CatClassification.h"
 
-using namespace std;
-
 struct UniqueValElem {
 	UniqueValElem(double v, int f, int l): val(v), first(f), last(l) {}
 	double val; // value
@@ -129,7 +127,7 @@ void CatClassification::CatLabelsFromBreaks(const std::vector<double>& breaks,
                                             bool useScientificNotation,
                                             int cat_disp_precision)
 {
-    stringstream s;
+    std::stringstream s;
     if (useScientificNotation)
         s << std::setprecision(cat_disp_precision) << std::scientific;
     else s << std::setprecision(cat_disp_precision) << std::fixed;
@@ -303,7 +301,7 @@ void CatClassification::SetBreakPoints(std::vector<double>& breaks,
 		FindNaturalBreaks(num_cats, var, var_undef, breaks);
         // Get labels
         cat_labels.resize(num_cats);
-        stringstream s;
+        std::stringstream s;
         if (useScientificNotation)
             s << std::setprecision(cat_disp_precision) << std::scientific;
         else
@@ -593,7 +591,7 @@ PopulateCatClassifData(const CatClassifDef& cat_def,
 		return;
 	}
 	
-    stringstream ss;
+    std::stringstream ss;
     if (useSciNotation)
         ss << std::setprecision(cat_disp_precision) << std::scientific;
     else
@@ -1990,7 +1988,7 @@ SetNaturalBreaksCats(int num_cats,
         if (undef_cnts_tms[t]>0)
             cat_data.AppendUndefCategory(t, undef_cnts_tms[t]);
 
-        stringstream s;
+        std::stringstream s;
         
         if (useSciNotation)
             s << std::setprecision(cat_disp_precision) << std::scientific;

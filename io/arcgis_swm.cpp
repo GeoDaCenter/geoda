@@ -91,7 +91,7 @@ GalElement* ReadSwmAsGal(const wxString& fname, TableInterface* table_int)
         }
         int pos = line.find("FIXEDWEIGHTS@");
         if (pos > 0) {
-            string fixed_w = line.substr(pos+13, 4);
+            std::string fixed_w = line.substr(pos+13, 4);
             if (iequals(fixed_w, "True")) {
                 fixed = true;
             }
@@ -127,7 +127,7 @@ GalElement* ReadSwmAsGal(const wxString& fname, TableInterface* table_int)
     
     // ROW_STD length = 4
     uint32_t row_std = 0;
-    std::istream.read((char*)&row_std, 4);
+    istream.read((char*)&row_std, 4);
     
     
     std::vector<std::vector<int> > nbr_ids(no_obs);

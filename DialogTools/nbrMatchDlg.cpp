@@ -504,7 +504,7 @@ LocalMatchMapCanvas::LocalMatchMapCanvas(wxWindow *parent, TemplateFrame* t_fram
                                          const std::vector<double>& pval,
                                          boost::uuids::uuid weights_id,
                                          const wxPoint& pos, const wxSize& size)
-:MapCanvas(parent, t_frame, project, vector<GdaVarTools::VarInfo>(0), vector<int>(0), CatClassification::no_theme, no_smoothing, 1, weights_id, pos, size),
+:MapCanvas(parent, t_frame, project, std::vector<GdaVarTools::VarInfo>(0), std::vector<int>(0), CatClassification::no_theme, no_smoothing, 1, weights_id, pos, size),
 groups(groups), pval(pval)
 {
     wxLogMessage("Entering LocalMatchMapCanvas::LocalMatchMapCanvas");

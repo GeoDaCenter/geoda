@@ -373,7 +373,7 @@ void Tree::Partition(int start, int end, std::vector<int>& ids,
             if (checkControl(cand_ids, ids, -1)) {
                 Measure result;
                 ssd_utils->MeasureSplit(ssd, visited_ids, tmp_split_pos, result);
-                //cout << result.measure_reduction << endl;
+                //cout << result.measure_reduction << std::endl;
                 if (result.measure_reduction > tmp_ssd_reduce) {
                     tmp_ssd_reduce = result.measure_reduction;
                     tmp_ssd = result.ssd;
@@ -398,7 +398,7 @@ void Tree::Partition(int start, int end, std::vector<int>& ids,
 
 void Tree::Split(int orig, int dest, boost::unordered_map<int, std::vector<int> >& nbr_dict, std::vector<int>& cand_ids)
 {
-    stack<int> visited_ids;
+    std::stack<int> visited_ids;
     int cur_id, i, nbr_size, nbr;
     
     visited_ids.push(orig);
@@ -537,10 +537,10 @@ void AbstractClusterFactory::init()
             dest = nodes[nbr];
             length = dist_matrix[orig->id][dest->id];
             
-            if (access_dict.find(make_pair(i, nbr)) == access_dict.end()) {
+            if (access_dict.find(std::make_pair(i, nbr)) == access_dict.end()) {
                 edges.push_back(new Edge(orig, dest, length));
-                access_dict[make_pair(i, nbr)] = true;
-                access_dict[make_pair(nbr, i)] = true;
+                access_dict[std::make_pair(i, nbr)] = true;
+                access_dict[std::make_pair(nbr, i)] = true;
             }
             this->dist_dict[i][nbr] = length;
         }
@@ -567,7 +567,7 @@ void AbstractClusterFactory::Partitioning(int k)
     
     while (!sub_trees.empty() && sub_trees.size() < k) {
         Tree* tmp_tree = sub_trees.top();
-        //cout << tmp_tree->ssd_reduce << endl;
+        //cout << tmp_tree->ssd_reduce << std::endl;
         sub_trees.pop();
         
         if (tmp_tree->ssd == 0) {
@@ -642,10 +642,10 @@ void Skater::Clustering()
     boost::unordered_map<std::pair<int, int>, bool> access_dict;
     for (int i=0; i<rows; i++) {
         for (int j=0; j<w[i].Size(); j++) {
-            if (access_dict.find(make_pair(i, w[i][j])) == access_dict.end()) {
+            if (access_dict.find(std::make_pair(i, w[i][j])) == access_dict.end()) {
                 boost::add_edge(i, w[i][j], dist_matrix[i][ w[i][j] ], g);
-                access_dict[make_pair(i, w[i][j])] = true;
-                access_dict[make_pair(w[i][j], i)] = true;
+                access_dict[std::make_pair(i, w[i][j])] = true;
+                access_dict[std::make_pair(w[i][j], i)] = true;
             }
         }
     }
@@ -654,8 +654,8 @@ void Skater::Clustering()
     boost::unordered_map<std::pair<int, int>, Edge*> edge_dict;
     for (int i=0; i<edges.size(); i++) {
         Edge* e = edges[i];
-        edge_dict[make_pair(e->orig->id, e->dest->id)] = e;
-        edge_dict[make_pair(e->dest->id, e->orig->id)] = e;
+        edge_dict[std::make_pair(e->orig->id, e->dest->id)] = e;
+        edge_dict[std::make_pair(e->dest->id, e->orig->id)] = e;
     }
     
     //https://github.com/vinecopulib/vinecopulib/issues/22
@@ -680,7 +680,7 @@ void Skater::Clustering()
         }
     }
     
-    //cout << "Skater mst sum length:" << sum_length << endl;
+    //cout << "Skater mst sum length:" << sum_length << std::endl;
     
     for (int i=0; i<ordered_edges.size(); i++) {
         int source = ordered_edges[i]->orig->id;
@@ -747,7 +747,7 @@ void FirstOrderSLKRedCap::Clustering()
             break;
         }
     }
-    //cout << "FO-SLK mst sum length:" << sum_length << endl;
+    //cout << "FO-SLK mst sum length:" << sum_length << std::endl;
     
     boost::unordered_map<int, bool> id_dict;
     for (int i=0; i<ordered_edges.size(); i++) {
@@ -903,7 +903,7 @@ void FullOrderALKRedCap::Clustering()
         edges_copy[i] = edges[i];
     }
     
-    //cout << "# edges:" << num_edges << endl;
+    //cout << "# edges:" << num_edges << std::endl;
     
     this->ordered_edges.resize(num_nodes-1);
     
@@ -1030,7 +1030,7 @@ void FullOrderALKRedCap::Clustering()
         }
     }
     
-    //cout << "cnt: " << cnt << endl;
+    //cout << "cnt: " << cnt << std::endl;
     
     boost::unordered_map<int, bool> id_dict;
 
@@ -1185,7 +1185,7 @@ void FullOrderWardRedCap::Clustering()
         edges_copy[i] = edges[i];
     }
     
-    //cout << "# edges:" << num_edges << endl;
+    //cout << "# edges:" << num_edges << std::endl;
     
     this->ordered_edges.resize(num_nodes-1);
     
@@ -1336,7 +1336,7 @@ void FullOrderWardRedCap::Clustering()
         }
     }
     
-    //cout << "cnt: " << cnt << endl;
+    //cout << "cnt: " << cnt << std::endl;
     
     boost::unordered_map<int, bool> id_dict;
 

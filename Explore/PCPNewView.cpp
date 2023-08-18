@@ -1215,9 +1215,9 @@ void PCPFrame::AppendCustomCategories(wxMenu* menu, CatClassifManager* ccm)
 {
     // search for ID_CAT_CLASSIF_A(B,C)_MENU submenus
     const int num_sub_menus=3;
-    vector<int> menu_id(num_sub_menus);
-    vector<int> sub_menu_id(num_sub_menus);
-    vector<int> base_id(num_sub_menus);
+    std::vector<int> menu_id(num_sub_menus);
+    std::vector<int> sub_menu_id(num_sub_menus);
+    std::vector<int> base_id(num_sub_menus);
     menu_id[0] = XRCID("ID_NEW_CUSTOM_CAT_CLASSIF_A");
     menu_id[1] = XRCID("ID_NEW_CUSTOM_CAT_CLASSIF_B"); // conditional horizontal menu
     menu_id[2] = XRCID("ID_NEW_CUSTOM_CAT_CLASSIF_C"); // conditional verticle menu
@@ -1247,7 +1247,7 @@ void PCPFrame::AppendCustomCategories(wxMenu* menu, CatClassifManager* ccm)
         sm->Append(menu_id[i], _("Create New Custom"), _("Create new custom categories classification."));
         sm->AppendSeparator();
         
-        vector<wxString> titles;
+        std::vector<wxString> titles;
         ccm->GetTitles(titles);
         for (size_t j=0; j<titles.size(); j++) {
             wxMenuItem* mi = sm->Append(base_id[i]+j, titles[j]);
@@ -1270,7 +1270,7 @@ void PCPFrame::OnCustomCategoryClick(wxCommandEvent& event)
     int xrc_id = event.GetId();
     CatClassifManager* ccm = project->GetCatClassifManager();
     if (!ccm) return;
-    vector<wxString> titles;
+    std::vector<wxString> titles;
     ccm->GetTitles(titles);
     int idx = xrc_id - GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A0;
     if (idx < 0 || idx >= titles.size()) return;

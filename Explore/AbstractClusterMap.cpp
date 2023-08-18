@@ -48,8 +48,6 @@ BEGIN_EVENT_TABLE(AbstractMapCanvas, MapCanvas)
 	EVT_MOUSE_CAPTURE_LOST(TemplateCanvas::OnMouseCaptureLostEvent)
 END_EVENT_TABLE()
 
-using namespace std;
-
 AbstractMapCanvas::AbstractMapCanvas(wxWindow *parent, TemplateFrame* t_frame,
                              Project* project,
                              AbstractCoordinator* a_coordinator,
@@ -57,7 +55,7 @@ AbstractMapCanvas::AbstractMapCanvas(wxWindow *parent, TemplateFrame* t_frame,
                                      bool is_clust_s,
                              const wxPoint& pos, const wxSize& size)
 :MapCanvas(parent, t_frame, project,
-           vector<GdaVarTools::VarInfo>(0), vector<int>(0),
+           std::vector<GdaVarTools::VarInfo>(0), std::vector<int>(0),
            CatClassification::no_theme,
            no_smoothing, 1, boost::uuids::nil_uuid(), pos, size),
 a_coord(a_coordinator),

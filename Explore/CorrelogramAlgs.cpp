@@ -72,7 +72,6 @@ bool CorrelogramAlgs::MakeCorrRandSamp(const std::vector<wxRealPoint>& pts,
 									   int num_bins, int iters,
 									   std::vector<CorreloBin>& out)
 {
-	using namespace std;
 	using namespace GenGeomAlgs;
 	wxLogMessage("Entering CorrelogramAlgs::MakeCorrRandSamp");
 	wxStopWatch sw;
@@ -179,7 +178,6 @@ bool CorrelogramAlgs::MakeCorrAllPairs(const std::vector<wxRealPoint>& pts,
 									   std::vector<CorreloBin>& out)
 
 {
-	using namespace std;
 	using namespace GenGeomAlgs;
 	wxLogMessage("Entering CorrelogramAlgs::MakeCorrAllPairs");
 	wxStopWatch sw;
@@ -204,9 +202,9 @@ bool CorrelogramAlgs::MakeCorrAllPairs(const std::vector<wxRealPoint>& pts,
 	max_d = min_d;
 
 	size_t pairs = ((nobs-1)*nobs)/2;
-	vector<double> Zdist(pairs);
-	vector<double> Zprod(calc_prods ? pairs : 0);
-	vector<double> Zprod_undef(calc_prods ? pairs : 0);
+    std::vector<double> Zdist(pairs);
+    std::vector<double> Zprod(calc_prods ? pairs : 0);
+    std::vector<double> Zprod_undef(calc_prods ? pairs : 0);
 	size_t pc = 0;
 	for (size_t i=0; i<nobs; ++i) {
 		for (size_t j=i+1; j<nobs; ++j) {
@@ -285,7 +283,6 @@ bool CorrelogramAlgs::MakeCorrThresh(const rtree_pt_2d_t& rtree,
 									 double thresh, int num_bins,
 									 std::vector<CorreloBin>& out)
 {
-	using namespace std;
 	using namespace GenGeomAlgs;
 	using namespace SpatialIndAlgs;
 	wxLogMessage("Entering CorrelogramAlgs::MakeCorrThresh (plane)");
@@ -328,7 +325,7 @@ bool CorrelogramAlgs::MakeCorrThresh(const rtree_pt_2d_t& rtree,
 		double x = v.first.get<0>();
 		double y = v.first.get<1>();
 		box_2d b(pt_2d(x-thresh, y-thresh), pt_2d(x+thresh, y+thresh));
-		vector<pt_2d_val> q;
+	    std::vector<pt_2d_val> q;
 		rtree.query(bgi::intersects(b), std::back_inserter(q));
 		BOOST_FOREACH(const pt_2d_val& w, q) {
 			const size_t j = w.second;
@@ -369,7 +366,6 @@ bool CorrelogramAlgs::MakeCorrThresh(const rtree_pt_3d_t& rtree,
                                      double thresh, int num_bins,
                                      std::vector<CorreloBin>& out)
 {
-	using namespace std;
 	using namespace GenGeomAlgs;
 	using namespace SpatialIndAlgs;
 	wxLogMessage("Entering CorrelogramAlgs::MakeCorrThresh (sphere)");
@@ -416,7 +412,7 @@ bool CorrelogramAlgs::MakeCorrThresh(const rtree_pt_3d_t& rtree,
 		double z = v.first.get<2>();
 		box_3d b(pt_3d(x-sec_thresh, y-sec_thresh, z-sec_thresh),
 						 pt_3d(x+sec_thresh, y+sec_thresh, z+sec_thresh));
-		vector<pt_3d_val> q;
+	    std::vector<pt_3d_val> q;
 		rtree.query(bgi::intersects(b), std::back_inserter(q));
 		BOOST_FOREACH(const pt_3d_val& w, q) {
 			const size_t j = w.second;

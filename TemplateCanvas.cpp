@@ -887,7 +887,7 @@ void TemplateCanvas::DrawSelectableShapes_dc(wxMemoryDC &_dc, bool hl_only,
 #endif
 }
 
-void TemplateCanvas::helper_DrawSelectableShapes_dc(wxDC &dc, vector<bool>& hs,
+void TemplateCanvas::helper_DrawSelectableShapes_dc(wxDC &dc, std::vector<bool>& hs,
                                                     bool hl_only, bool revert,
                                                     bool crosshatch,
                                                     bool is_print,
@@ -901,7 +901,7 @@ void TemplateCanvas::helper_DrawSelectableShapes_dc(wxDC &dc, vector<bool>& hs,
     
     if (selectable_shps_type == points) {
 		int bnd = w*h;
-		vector<bool> dirty(bnd, false);
+	    std::vector<bool> dirty(bnd, false);
 
 		dc.SetBrush(*wxTRANSPARENT_BRUSH);
 		GdaPoint* p;
@@ -920,7 +920,7 @@ void TemplateCanvas::helper_DrawSelectableShapes_dc(wxDC &dc, vector<bool>& hs,
                 }
                 dc.SetBrush(cat_data.GetCategoryBrush(cc_ts, cat));
             }
-			vector<int>& ids =	cat_data.GetIdsRef(cc_ts, cat);
+		    std::vector<int>& ids =	cat_data.GetIdsRef(cc_ts, cat);
 			for (size_t i=0, iend=ids.size(); i<iend; i++) {
                 if (!_IsShpValid(ids[i]) || (hl_only && hs[ids[i]] == revert)) {
                     continue;
@@ -955,7 +955,7 @@ void TemplateCanvas::helper_DrawSelectableShapes_dc(wxDC &dc, vector<bool>& hs,
                 }
                 dc.SetBrush(cat_data.GetCategoryBrush(cc_ts, cat));
             }
-			vector<int>& ids = cat_data.GetIdsRef(cc_ts, cat);
+		    std::vector<int>& ids = cat_data.GetIdsRef(cc_ts, cat);
             
 			for (int i=0, iend=ids.size(); i<iend; i++) {
                 if (!_IsShpValid(ids[i]) || (hl_only && hs[ids[i]] == revert))
@@ -996,7 +996,7 @@ void TemplateCanvas::helper_DrawSelectableShapes_dc(wxDC &dc, vector<bool>& hs,
                 wxBrush brush =  cat_data.GetCategoryBrush(cc_ts, cat);
                 dc.SetBrush(brush);
             }
-			vector<int>& ids = cat_data.GetIdsRef(cc_ts, cat);
+		    std::vector<int>& ids = cat_data.GetIdsRef(cc_ts, cat);
 			for (int i=0, iend=ids.size(); i<iend; i++) {
                 if (!_IsShpValid(ids[i]) || (hl_only && hs[ids[i]] == revert))
                     continue;
@@ -1024,7 +1024,7 @@ void TemplateCanvas::helper_DrawSelectableShapes_dc(wxDC &dc, vector<bool>& hs,
             if (fixed_pen_color != *wxWHITE) {
                 dc.SetPen(wxPen(fixed_pen_color));
             }
-			vector<int>& ids = cat_data.GetIdsRef(cc_ts, cat);
+		    std::vector<int>& ids = cat_data.GetIdsRef(cc_ts, cat);
 			for (int i=0, iend=ids.size(); i<iend; i++) {
                 if (!_IsShpValid(ids[i]) || (hl_only && hs[ids[i]] == revert)) {
                     continue;
@@ -1150,7 +1150,7 @@ void TemplateCanvas::DrawPolygons(wxGCDC& dc, CatClassifData& cat_data,
     }
 }
 
-void TemplateCanvas::DrawCircles(wxGCDC& dc, CatClassifData& cat_data, vector<bool>& hs,int alpha, wxColour fixed_pen_color, bool cross_hatch)
+void TemplateCanvas::DrawCircles(wxGCDC& dc, CatClassifData& cat_data, std::vector<bool>& hs,int alpha, wxColour fixed_pen_color, bool cross_hatch)
 {
     //int alpha = GdaConst::plot_transparency_unhighlighted;;
     int cc_ts = cat_data.curr_canvas_tm_step;
@@ -1253,7 +1253,7 @@ void TemplateCanvas::helper_DrawSelectableShapes_gc(wxGraphicsContext &gc,
     
     if (selectable_shps_type == points) {
 		int bnd = w*h;
-		vector<bool> dirty(bnd, false);
+	    std::vector<bool> dirty(bnd, false);
         
         GdaPoint* p;
         for (int cat=0; cat<num_cats; cat++) {
@@ -1672,7 +1672,7 @@ void TemplateCanvas::PaintControls(wxDC& dc)
 // HLStateInt object
 // Returns bit vector of selection values according
 // to selectable objects
-vector<bool>& TemplateCanvas::GetSelBitVec()
+std::vector<bool>& TemplateCanvas::GetSelBitVec()
 {
 	return highlight_state->GetHighlight();
 }
@@ -1691,7 +1691,7 @@ void TemplateCanvas::SetNumNewlySel(int n)
 
 // Returns list of newly selected objects.  Only indexes
 // 0 through GetNumNewlySel()-1 are valid.
-vector<int>& TemplateCanvas::GetNewlySelList()
+std::vector<int>& TemplateCanvas::GetNewlySelList()
 {
 	return highlight_state->GetNewlyHighlighted();
 }
@@ -1709,7 +1709,7 @@ void TemplateCanvas::SetNumNewlyUnsel(int n)
 
 // Returns list of newly unselected objects.  Only indexes
 // 0 through GetNumNewlyUnsel()-1 are valid.
-vector<int>& TemplateCanvas::GetNewlyUnselList()
+std::vector<int>& TemplateCanvas::GetNewlyUnselList()
 {
 	return highlight_state->GetNewlyUnhighlighted();
 }
@@ -1729,9 +1729,9 @@ void TemplateCanvas::AppendCustomCategories(wxMenu* menu,
 {
 	// search for ID_CAT_CLASSIF_A(B,C)_MENU submenus
 	const int num_sub_menus=3;
-	vector<int> menu_id(num_sub_menus);
-	vector<int> sub_menu_id(num_sub_menus);
-	vector<int> base_id(num_sub_menus);
+    std::vector<int> menu_id(num_sub_menus);
+    std::vector<int> sub_menu_id(num_sub_menus);
+    std::vector<int> base_id(num_sub_menus);
 	menu_id[0] = XRCID("ID_NEW_CUSTOM_CAT_CLASSIF_A");
 	menu_id[1] = XRCID("ID_NEW_CUSTOM_CAT_CLASSIF_B"); // conditional horizontal menu
 	menu_id[2] = XRCID("ID_NEW_CUSTOM_CAT_CLASSIF_C"); // conditional verticle menu
@@ -1762,7 +1762,7 @@ void TemplateCanvas::AppendCustomCategories(wxMenu* menu,
                    _("Create new custom categories classification."));
 		sm->AppendSeparator();
         
-		vector<wxString> titles;
+	    std::vector<wxString> titles;
 		ccm->GetTitles(titles);
 		for (size_t j=0; j<titles.size(); j++) {
 			wxMenuItem* mi = sm->Append(base_id[i]+j, titles[j]);
@@ -1831,7 +1831,7 @@ void TemplateCanvas::UpdateSelectionPoints(bool shiftdown, bool pointsel)
 	int hl_size = GetSelBitVec().size();
 	if (hl_size != selectable_shps.size()) return;
     
-	vector<bool>& hs = GetSelBitVec();
+    std::vector<bool>& hs = GetSelBitVec();
     bool selection_changed = false;
     
 	if (pointsel) { // a point selection
@@ -1973,7 +1973,7 @@ void TemplateCanvas::UpdateSelectionCircles(bool shiftdown, bool pointsel)
 	int hl_size = GetSelBitVec().size();
 	if (hl_size != selectable_shps.size()) return;
     
-	vector<bool>& hs = GetSelBitVec();
+    std::vector<bool>& hs = GetSelBitVec();
     bool selection_changed = false;
 	
 	if (pointsel) { // a point selection
@@ -2121,7 +2121,7 @@ void TemplateCanvas::UpdateSelectionPolylines(bool shiftdown, bool pointsel)
 	int hl_size = GetSelBitVec().size();
 	if (hl_size != selectable_shps.size()) return;
     
-	vector<bool>& hs = GetSelBitVec();
+    std::vector<bool>& hs = GetSelBitVec();
     bool selection_changed = false;
 	
 	GdaPolyLine* p;
@@ -2313,11 +2313,11 @@ void TemplateCanvas::SelectAllInCategory(int category,
 	int hl_size = highlight_state->GetHighlightSize();
 	if (hl_size != selectable_shps.size()) return;
     
-	vector<bool>& hs = highlight_state->GetHighlight();
+    std::vector<bool>& hs = highlight_state->GetHighlight();
     bool selection_changed = false;
 	
-	vector<bool> obs_in_cat(hl_size, false);
-	vector<int>& ids = cat_data.GetIdsRef(cc_ts, category);
+    std::vector<bool> obs_in_cat(hl_size, false);
+    std::vector<int>& ids = cat_data.GetIdsRef(cc_ts, category);
 
 	for (int i=0, iend=ids.size(); i<iend; i++) obs_in_cat[ids[i]] = true;
 	
@@ -2434,11 +2434,11 @@ std::vector<wxString> TemplateCanvas::SaveCategories(const wxString& title,
 {
     std::vector<wxString> new_fields;
 	if (project->GetNumRecords() != selectable_shps.size()) return new_fields;
-	vector<SaveToTableEntry> data(1);
+    std::vector<SaveToTableEntry> data(1);
 	
 	int cc_ts = cat_data.curr_canvas_tm_step;
 	int num_cats = cat_data.GetNumCategories(cc_ts);
-	vector<wxInt64> dt(selectable_shps.size());
+    std::vector<wxInt64> dt(selectable_shps.size());
 	
 	data[0].type = GdaConst::long64_type;
 	data[0].l_val = &dt;
@@ -2447,7 +2447,7 @@ std::vector<wxString> TemplateCanvas::SaveCategories(const wxString& title,
     data[0].undefined = &undefs;
 	
 	for (int cat=0; cat<num_cats; cat++) {
-		vector<int>& ids = cat_data.GetIdsRef(cc_ts, cat);
+	    std::vector<int>& ids = cat_data.GetIdsRef(cc_ts, cat);
         for (int i=0, iend=ids.size(); i<iend; i++) {
             dt[ids[i]] = cat+1;
         }
@@ -2462,7 +2462,7 @@ std::vector<wxString> TemplateCanvas::SaveCategories(const wxString& title,
 }
 
 
-void TemplateCanvas::GetVizInfo(map<wxString, vector<int> >& colors)
+void TemplateCanvas::GetVizInfo(std::map<wxString, std::vector<int> >& colors)
 {
 	int cc_ts = cat_data.curr_canvas_tm_step;
 	int num_cats=cat_data.GetNumCategories(cc_ts);
@@ -2471,10 +2471,10 @@ void TemplateCanvas::GetVizInfo(map<wxString, vector<int> >& colors)
 		wxColour brushClr = cat_data.GetCategoryBrush(cc_ts, cat).GetColour();		
 		wxString clr = GdaColorUtils::ToHexColorStr(brushClr);
 			
-		vector<int> ids_copy;
+	    std::vector<int> ids_copy;
 		colors[clr] = ids_copy;
 		
-		vector<int>& ids = cat_data.GetIdsRef(cc_ts, cat);
+	    std::vector<int>& ids = cat_data.GetIdsRef(cc_ts, cat);
 		
 		for (int i=0, iend=ids.size(); i<iend; i++) {
 			colors[clr].push_back(ids[i]);

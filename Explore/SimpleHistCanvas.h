@@ -30,8 +30,6 @@
 #include "../TemplateFrame.h"
 #include "../GdaShape.h"
 
-using namespace std;
-
 class HighlightState;
 class Project;
 
@@ -42,9 +40,9 @@ public:
     
     SimpleHistStatsCanvas(wxWindow *parent, TemplateFrame* t_frame,
                           Project* project, HLStateInt* hl_state_int,
-                          const vector<wxString>& labels,
-                          const vector<vector<double> >& values,
-                          const vector<double>& stats_,
+                          const std::vector<wxString>& labels,
+                          const std::vector<std::vector<double> >& values,
+                          const std::vector<double>& stats_,
                           const int display_precision = 3,
                           const bool display_fixed_point = false,
                           const wxString& right_click_menu_id = wxEmptyString,
@@ -62,9 +60,9 @@ protected:
 	virtual void PopulateCanvas();
    
     wxString right_click_menu_id;
-    vector<wxString> labels;
-    vector<vector<double> > values;
-    vector<double> stats;
+    std::vector<wxString> labels;
+    std::vector<std::vector<double> > values;
+    std::vector<double> stats;
     DECLARE_EVENT_TABLE()
 };
 
@@ -74,8 +72,8 @@ public:
 	DECLARE_CLASS(SimpleHistCanvas)
     SimpleHistCanvas(wxWindow *parent, TemplateFrame* t_frame,
                      Project* project, HLStateInt* hl_state_int,
-                     const vector<double>& X,
-                     const vector<bool>& X_undef,
+                     const std::vector<double>& X,
+                     const std::vector<bool>& X_undef,
                      const wxString& Xname, double Xmin, double Xmax,
                      bool show_axes = false,
                      const wxPoint& pos = wxDefaultPosition,
@@ -105,8 +103,8 @@ public:
 	virtual void UpdateStatusBar();
 	
 protected:
-	const vector<double>& X;
-	const vector<bool>& X_undef;
+	const std::vector<double>& X;
+	const std::vector<bool>& X_undef;
 	wxString Xname;
 	// used for scaling, so can be smaller/larger than min/max in X
 	double Xmin, Xmax; 
@@ -122,16 +120,16 @@ protected:
 	bool show_axes;
 	bool display_stats;
 	
-	vector<double> ival_breaks; // size = cur_num_intervals-1
+    std::vector<double> ival_breaks; // size = cur_num_intervals-1
 	double min_ival_val;
 	double max_ival_val;
 	double max_num_obs_in_ival;
 	double overall_max_num_obs_in_ival;
 	int cur_intervals;
-	vector<int> ival_obs_cnt; // size = cur_num_intervals
-	vector<int> ival_obs_sel_cnt;  // size = cur_num_intervals
-	vector<int> obs_id_to_ival; // size = num_obs
-	vector<list<int> > ival_to_obs_ids;
+    std::vector<int> ival_obs_cnt; // size = cur_num_intervals
+    std::vector<int> ival_obs_sel_cnt;  // size = cur_num_intervals
+    std::vector<int> obs_id_to_ival; // size = num_obs
+    std::vector<std::list<int> > ival_to_obs_ids;
 	
 	int max_intervals; // min of num_obs and MAX_INTERVALS
 	static const int MAX_INTERVALS;
