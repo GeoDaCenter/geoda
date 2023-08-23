@@ -18,8 +18,7 @@
                 "${workspaceFolder}/BuildTools/macosx/libraries/include/wx-3.2",
                 "${workspaceFolder}/BuildTools/macosx/libraries/lib/wx/include/osx_cocoa-unicode-3.2",
                 "${workspaceFolder}/build/_deps/googletest-src/googletest/include",
-                "${workspaceFolder}/build/_deps/googletest-src/googlemock/include",
-                "/opt/homebrew/Cellar/gdal/3.6.4_1/include"
+                "${workspaceFolder}/build/_deps/googletest-src/googlemock/include"
             ],
             "defines": [
                 "_FILE_OFFSET_BITS=64",

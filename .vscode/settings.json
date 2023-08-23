@@ -13,7 +13,6 @@
     "/usr/local/include",
     "/usr/local/opt/boost/include",
     "/usr/local/opt/gdal/include",
-    "/opt/homebrew/Cellar/gdal/3.6.4_1/include",
     "${workspaceFolder}/BuildTools/macosx/temp/eigen3",
     "${workspaceFolder}/BuildTools/macosx/temp/spectra/include",
     "${workspaceFolder}/BuildTools/macosx/libraries/include",
