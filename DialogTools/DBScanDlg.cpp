@@ -81,7 +81,7 @@ DBScanDlg::~DBScanDlg()
 
 void DBScanDlg::Highlight(int id)
 {
-    vector<bool>& hs = highlight_state->GetHighlight();
+    std::vector<bool>& hs = highlight_state->GetHighlight();
     
     for (int i=0; i<hs.size(); i++) hs[i] = false;
     hs[id] = true;
@@ -90,9 +90,9 @@ void DBScanDlg::Highlight(int id)
     highlight_state->notifyObservers(this);
 }
 
-void DBScanDlg::Highlight(vector<int>& ids)
+void DBScanDlg::Highlight(std::vector<int>& ids)
 {
-    vector<bool>& hs = highlight_state->GetHighlight();
+    std::vector<bool>& hs = highlight_state->GetHighlight();
     
     for (int i=0; i<hs.size(); i++) hs[i] = false;
     for (int i=0; i<ids.size(); i++) hs[ids[i]] = true;
@@ -557,7 +557,7 @@ void DBScanDlg::UpdateFromDendrogram(double cutoff, std::vector<wxInt64>& cluste
     cluster_ids = cluster_groups;
 }
 
-bool DBScanDlg::Run(vector<wxInt64>& clusters)
+bool DBScanDlg::Run(std::vector<wxInt64>& clusters)
 {
     cluster_ids.clear();
     clusters.clear();
@@ -667,7 +667,7 @@ void DBScanDlg::OnOKClick(wxCommandEvent& event )
     }
 }
 
-void DBScanDlg::GetClusterFromDendrogram(vector<wxInt64>& clusters)
+void DBScanDlg::GetClusterFromDendrogram(std::vector<wxInt64>& clusters)
 {
     cluster_ids.clear();
     clusters.clear();
@@ -737,7 +737,7 @@ void DBScanDlg::OnSaveClick(wxCommandEvent& event )
     }
     
     if (col > 0) {
-        vector<bool> clusters_undef(rows, false);
+        std::vector<bool> clusters_undef(rows, false);
         table_int->SetColData(col, time, clusters);
         table_int->SetColUndefined(col, time, clusters_undef);
     }

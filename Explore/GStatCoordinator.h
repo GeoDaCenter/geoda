@@ -147,7 +147,7 @@ public:
 	// since W is row-standardized, sdGstar same for all i
 	std::vector<double> sdGstar;
     // number of neighbors
-    vector<wxInt64> num_neighbors;
+    std::vector<wxInt64> num_neighbors;
     // number of neighbors with 1
     std::vector<wxInt64* > num_neighbors_1;
 

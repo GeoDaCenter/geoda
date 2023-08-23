@@ -376,7 +376,7 @@ void GalWeight::GetNbrStats()
     // density
     // other
     int sum_nnbrs = 0;
-    vector<int> nnbrs_array;
+    std::vector<int> nnbrs_array;
     std::map<int, int> e_dict;
     
     for (int i=0; i<num_obs; i++) {
@@ -422,7 +422,6 @@ bool GalWeight::SaveDIDWeights(Project* project, int num_obs,
                                std::vector<wxInt64>& stack_ids,
                                const wxString& ofname)
 {
-    using namespace std;
     if (!project || ofname.empty()) return false;
     
     WeightsManInterface* wmi = project->GetWManInt();
@@ -435,7 +434,7 @@ bool GalWeight::SaveDIDWeights(Project* project, int num_obs,
     
     int n = newids.size();
     
-    ofstream out;
+    std::ofstream out;
     out.open(GET_ENCODED_FILENAME(ofname));
     if (!(out.is_open() && out.good())) return false;
   
@@ -447,7 +446,7 @@ bool GalWeight::SaveDIDWeights(Project* project, int num_obs,
     
     wxString id_var_name("STID");
     out << "0 " << n << " " << layer_name;
-    out << " " << id_var_name << endl;
+    out << " " << id_var_name << std::endl;
    
     int offset = 0;
     
@@ -459,14 +458,14 @@ bool GalWeight::SaveDIDWeights(Project* project, int num_obs,
         }
         
         out << newids[i];
-        out << " " << gal[orig_id].Size() << endl;
+        out << " " << gal[orig_id].Size() << std::endl;
         
         for (int cp=gal[orig_id].Size(); --cp >= 0;) {
 			int n_id = gal[orig_id][cp];
             out << n_id + offset + 1; // n_id starts from 0, so add 1
             if (cp > 0) out << " ";
         }
-        out << endl;
+        out << std::endl;
     }
     return true;
 }
@@ -475,8 +474,6 @@ bool GalWeight::SaveSpaceTimeWeights(const wxString& ofname,
                                      WeightsManInterface* wmi,
                                      TableInterface* table_int)
 {
-    using namespace std;
-    
     if (ofname.empty() || !wmi || !table_int)
         return false;
     
@@ -484,7 +481,7 @@ bool GalWeight::SaveSpaceTimeWeights(const wxString& ofname,
     GalElement* gal = this->gal;
     if (!gal) return false;
 
-    vector<wxString> id_vec;
+    std::vector<wxString> id_vec;
     int c_id = table_int->FindColId(this->id_field);
     if (c_id < 0) return false;
 
@@ -509,7 +506,7 @@ bool GalWeight::SaveSpaceTimeWeights(const wxString& ofname,
         }
     }
 
-    ofstream out;
+    std::ofstream out;
     out.open(GET_ENCODED_FILENAME(ofname));
     if (!(out.is_open() && out.good())) return false;
     
@@ -521,14 +518,14 @@ bool GalWeight::SaveSpaceTimeWeights(const wxString& ofname,
     
     wxString id_var_name("STID");
     out << "0 " << n << " " << layer_name;
-    out << " " << id_var_name << endl;
+    out << " " << id_var_name << std::endl;
 
     for (size_t i=0; i<num_t; ++i) {
         for (size_t j=0; j<num_obs; ++j) {
             STID_KEY k(id_vec[j], time_ids[i]);
             int m_id = stid_dict[k];
             out << m_id;
-            out << " " << gal[j].Size() << endl;
+            out << " " << gal[j].Size() << std::endl;
             
             for (int cp=gal[j].Size(); --cp >= 0;) {
                 STID_KEY k(id_vec[gal[j][cp]], time_ids[i]);
@@ -536,7 +533,7 @@ bool GalWeight::SaveSpaceTimeWeights(const wxString& ofname,
                 out << n_id;
                 if (cp > 0) out << " ";
             }
-            out << endl;
+            out << std::endl;
         }
     }
 
@@ -551,7 +548,6 @@ bool Gda::SaveGal(const GalElement* g,
                   const wxString& id_var_name,
                   const std::vector<wxInt64>& id_vec)
 {
-	using namespace std;
 	if (g == NULL || ofname.empty() ||
 			id_var_name.empty() || id_vec.size() == 0) return false;
 	
@@ -560,9 +556,9 @@ bool Gda::SaveGal(const GalElement* g,
 	wxString final_fon(wx_fn.GetFullPath());
 	
 #ifdef __WIN32__
-	ofstream out(final_fon.wc_str());
+    std::ofstream out(final_fon.wc_str());
 #else
-	ofstream out;
+    std::ofstream out;
 	out.open(GET_ENCODED_FILENAME(final_fon));
 #endif
 	if (!(out.is_open() && out.good())) return false;
@@ -576,17 +572,17 @@ bool Gda::SaveGal(const GalElement* g,
     
 	size_t num_obs = (int) id_vec.size();
 	out << "0 " << num_obs << " " << layer_name;
-	out << " " << id_var_name << endl;
+	out << " " << id_var_name << std::endl;
 	
 	for (size_t i=0; i<num_obs; ++i) {
 		out << id_vec[i];
-		out << " " << g[i].Size() << endl;
+		out << " " << g[i].Size() << std::endl;
 		for (int cp=g[i].Size(); --cp >= 0;) {
 			out << id_vec[g[i][cp]];
 			if (cp > 0)
                 out << " ";
 		}
-		out << endl;
+		out << std::endl;
 	}
 	return true;
 }
@@ -597,7 +593,6 @@ bool Gda::SaveGal(const GalElement* g,
                   const wxString& id_var_name,
                   const std::vector<wxString>& id_vec)
 {
-	using namespace std;
 	if (g == NULL || ofname.empty() ||
         id_var_name.empty() || id_vec.size() == 0) return false;
 	
@@ -606,9 +601,9 @@ bool Gda::SaveGal(const GalElement* g,
 	wxString final_fon(wx_fn.GetFullPath());
 
 #ifdef __WIN32__
-	ofstream out(final_fon.wc_str());
+    std::ofstream out(final_fon.wc_str());
 #else
-	ofstream out;
+    std::ofstream out;
 	out.open(GET_ENCODED_FILENAME(final_fon));
 #endif
 	if (!(out.is_open() && out.good()))
@@ -623,17 +618,17 @@ bool Gda::SaveGal(const GalElement* g,
     }
 	size_t num_obs = (int) id_vec.size();
 	out << "0 " << num_obs << " " << layer_name;
-	out << " " << id_var_name << endl;
+	out << " " << id_var_name << std::endl;
 	
 	for (size_t i=0; i<num_obs; ++i) {
 		out << id_vec[i];
-		out << " " << g[i].Size() << endl;
+		out << " " << g[i].Size() << std::endl;
 		for (int cp=g[i].Size(); --cp >= 0;) {
 			out << id_vec[g[i][cp]];
 			if (cp > 0)
                 out << " ";
 		}
-		out << endl;
+		out << std::endl;
 	}
 	return true;
 }
@@ -645,7 +640,6 @@ bool Gda::SaveSpaceTimeGal(const GalElement* g,
                   const wxString& id_var_name,
                   const std::vector<wxString>& id_vec)
 {
-	using namespace std;
 	if (g == NULL || ofname.empty() ||
         id_var_name.empty() || id_vec.size() == 0) return false;
 	
@@ -653,9 +647,9 @@ bool Gda::SaveSpaceTimeGal(const GalElement* g,
 	wx_fn.SetExt("gal");
 	wxString final_fon(wx_fn.GetFullPath());
 #ifdef __WIN32__
-	ofstream out(final_fon.wc_str());
+    std::ofstream out(final_fon.wc_str());
 #else
-	ofstream out;
+    std::ofstream out;
 	out.open(GET_ENCODED_FILENAME(final_fon));
 #endif
 	if (!(out.is_open() && out.good())) return false;
@@ -672,18 +666,18 @@ bool Gda::SaveSpaceTimeGal(const GalElement* g,
     }
     
 	out << "0 " << n << " " << layer_name;
-	out << " " << id_var_name << endl;
+	out << " " << id_var_name << std::endl;
 
     for (size_t i=0; i<num_t; ++i) {
     	for (size_t j=0; j<num_obs; ++j) {
             out << id_vec[i] << "_t" << time_ids[i];
-    		out << " " << g[i].Size() << endl;
+    		out << " " << g[i].Size() << std::endl;
             
     		for (int cp=g[i].Size(); --cp >= 0;) {
     			out << id_vec[g[i][cp]] << "_t" << time_ids[i];
     			if (cp > 0) out << " ";
     		}
-    		out << endl;
+    		out << std::endl;
     	}
     }
 	return true;
@@ -696,17 +690,16 @@ void Gda::MakeHigherOrdContiguity(size_t distance, size_t obs,
                                   GalElement* W,
                                   bool cummulative)
 {	
-	using namespace std;
 	if (obs < 1 || distance <=1) return;
-	vector<vector<long> > X(obs);
+    std::vector<std::vector<long> > X(obs);
 	for (size_t i=0; i<obs; ++i) {
-		vector<set<long> > n_at_d(distance+1);
+	    std::vector<std::set<long> > n_at_d(distance+1);
 		n_at_d[0].insert(i);
 		for (size_t j=0, sz=W[i].Size(); j<sz; ++j) {
 			n_at_d[1].insert(W[i][j]);
 		}
 		for (size_t d=2; d<=distance; ++d) {
-			for (set<long>::const_iterator it=n_at_d[d-1].begin();
+			for (std::set<long>::const_iterator it=n_at_d[d-1].begin();
 					 it!=n_at_d[d-1].end(); ++it)
 			{
 				for (size_t j=0, sz=W[*it].Size(); j<sz; ++j) {
@@ -725,10 +718,10 @@ void Gda::MakeHigherOrdContiguity(size_t distance, size_t obs,
 		X[i].resize(sz_Xi);
 		size_t cnt=0;
 		for (size_t d=(cummulative ? 1 : distance); d<=distance; ++d) {
-			for (set<long>::const_iterator it=n_at_d[d].begin();
+			for (std::set<long>::const_iterator it=n_at_d[d].begin();
 					 it!=n_at_d[d].end(); ++it) { X[i][cnt++] = *it; }
 		}
-		sort(X[i].begin(), X[i].end(), greater<long>());
+		sort(X[i].begin(), X[i].end(), std::greater<long>());
 	}
 	for (size_t i=0; i<obs; ++i) {
 		W[i].SetSizeNbrs(X[i].size());

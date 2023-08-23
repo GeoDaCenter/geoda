@@ -91,7 +91,7 @@ void SpatialIndAlgs::default_test()
     // note: in Boost.Geometry WKT representation of a box is polygon
 
     // display results
-	stringstream ss;
+    std::stringstream ss;
     ss << "spatial query box:" << std::endl;
     ss << boost::geometry::wkt<box_2d>(query_box) << std::endl;
     ss << "spatial query result:" << std::endl;
@@ -116,10 +116,10 @@ void SpatialIndAlgs::default_test()
 
 void SpatialIndAlgs::print_rtree_stats(rtree_box_2d_t& rtree)
 {
-	stringstream ss;
-	ss << "Rtree stats:" << endl;
-	ss << "  size: " << rtree.size() << endl;
-	ss << "  empty?: " << rtree.empty() << endl;
+    std::stringstream ss;
+	ss << "Rtree stats:" << std::endl;
+	ss << "  size: " << rtree.size() << std::endl;
+	ss << "  empty?: " << rtree.empty() << std::endl;
 	box_2d bnds = rtree.bounds();
 	ss << "  bounds: " << boost::geometry::wkt<box_2d>(bnds);
 }
@@ -467,10 +467,10 @@ double SpatialIndAlgs::est_thresh_for_avg_num_neigh(const rtree_pt_2d_t& rtree,
 		guess = lower + (upper-lower)/2.0;
 		guess_avg = est_avg_num_neigh_thresh(rtree, guess);
 		{
-			stringstream ss;
-			ss << "\niter: " << iters << "   target avg: " << avg_n << endl;
-			ss << "  lower: " << lower << ", lower_avg: " << lower_avg << endl;
-			ss << "  guess: " << guess << ", guess_avg: " << guess_avg << endl;
+		    std::stringstream ss;
+			ss << "\niter: " << iters << "   target avg: " << avg_n << std::endl;
+			ss << "  lower: " << lower << ", lower_avg: " << lower_avg << std::endl;
+			ss << "  guess: " << guess << ", guess_avg: " << guess_avg << std::endl;
 			ss << "  upper: " << upper << ", upper_avg: " << upper_avg;
 		}
 		if (guess_avg == avg_n) {
@@ -498,9 +498,9 @@ double SpatialIndAlgs::est_thresh_for_avg_num_neigh(const rtree_pt_2d_t& rtree,
 		}
 	}
 
-	stringstream ss;
+    std::stringstream ss;
 	ss << "Estimated " << th << " threshold for average "
-	   << "number neighbors " << avg_n << "." << endl;
+	   << "number neighbors " << avg_n << "." << std::endl;
 	ss << "Calculation time to peform " << iters << " iterations: "
 	   << sw.Time() << " ms.";
 	//LOG_MSG("Exiting est_thresh_for_avg_num_neigh");
@@ -513,7 +513,7 @@ double SpatialIndAlgs::est_avg_num_neigh_thresh(const rtree_pt_2d_t& rtree,
 	wxStopWatch sw;
 	using namespace GenGeomAlgs;
 
-	vector<pt_2d_val> query_pts;
+    std::vector<pt_2d_val> query_pts;
 	rtree.query(boost::geometry::index::intersects(rtree.bounds()), back_inserter(query_pts));
 	// Mersenne Twister random number generator, randomly seeded
 	// with current time in seconds since Jan 1 1970.
@@ -537,9 +537,9 @@ double SpatialIndAlgs::est_avg_num_neigh_thresh(const rtree_pt_2d_t& rtree,
 
 	double avg = ((double) tot_neigh) / ((double) trials);
 
-	stringstream ss;
+    std::stringstream ss;
 	ss << "Estimated " << avg << " neighbors on average for "
-	   << "threshold " << th << "." << endl;
+	   << "threshold " << th << "." << std::endl;
 	ss << "Time to perform " << trials << " random trials: "
 	   << sw.Time() << " ms.";
 	//LOG_MSG(ss.str());
@@ -579,7 +579,7 @@ double SpatialIndAlgs::est_mean_distance(const std::vector<double>& x,
 		}
 		smp_cnt = max_iters;
 	}
-	stringstream ss;
+    std::stringstream ss;
 	ss << "est_mean_distance finished in " << sw.Time() << " ms.";
 	return sum/smp_cnt;
 }
@@ -593,7 +593,7 @@ double SpatialIndAlgs::est_median_distance(const std::vector<double>& x,
 	if (x.size() != y.size() || x.size() == 0 || y.size() == 0) { return -1; }
 	const size_t pts_sz = x.size();
 	const size_t all_pairs_sz = (pts_sz*(pts_sz-1))/2;
-	vector<double> v;
+    std::vector<double> v;
 
 	if (all_pairs_sz <= max_iters) {
 		v.resize((pts_sz*(pts_sz-1))/2);
@@ -619,14 +619,14 @@ double SpatialIndAlgs::est_median_distance(const std::vector<double>& x,
 			v[t] = (is_arc ? ComputeArcDistRad(x[i], y[i], x[j], y[j]) :
 					ComputeEucDist(x[i], y[i], x[j], y[j]));
 			if (!Gda::is_finite(v[t]) || Gda::is_nan(v[t])) {
-				stringstream ss;
+			    std::stringstream ss;
 				ss << "d(i="<<i<<",j="<<j<<"): "<<v[t];
 			}
 			
 		}
 	}
 	sort(v.begin(), v.end());
-	stringstream ss;
+    std::stringstream ss;
 	ss << "est_median_distance finished in " << sw.Time() << " ms.";
 	return v[v.size()/2];
 }
@@ -695,7 +695,7 @@ GwtWeight* SpatialIndAlgs::thresh_build(const rtree_pt_2d_t& rtree, double th, d
         std::vector<pt_2d_val> q;
 		rtree.query(boost::geometry::index::intersects(b), std::back_inserter(q));
 		size_t lcnt = 0;
-		list<pt_2d_val> l;
+	    std::list<pt_2d_val> l;
 		BOOST_FOREACH(pt_2d_val const& w, q) {
 			if (w.second != v.second &&
 				boost::geometry::distance(v.first, w.first) <= th)
@@ -744,9 +744,9 @@ GwtWeight* SpatialIndAlgs::thresh_build(const rtree_pt_2d_t& rtree, double th, d
         apply_kernel(Wp, kernel, use_kernel_diagnals);
     }
     
-	stringstream ss;
+    std::stringstream ss;
 	ss << "Time to create " << th << " threshold GwtWeight,"
-	   << endl << "  with " << cnt << " total neighbors in ms : "
+	   << std::endl << "  with " << cnt << " total neighbors in ms : "
 	   << sw.Time();
 	return Wp;
 }
@@ -757,7 +757,7 @@ double SpatialIndAlgs::est_avg_num_neigh_thresh(const rtree_pt_3d_t& rtree,
 	wxStopWatch sw;
 	using namespace GenGeomAlgs;
 
-	vector<pt_3d_val> query_pts;
+    std::vector<pt_3d_val> query_pts;
 	rtree.query(boost::geometry::index::intersects(rtree.bounds()), back_inserter(query_pts));
 	// Mersenne Twister random number generator, randomly seeded
 	// with current time in seconds since Jan 1 1970.
@@ -780,9 +780,9 @@ double SpatialIndAlgs::est_avg_num_neigh_thresh(const rtree_pt_3d_t& rtree,
 		}
 	}
 	double avg = ((double) tot_neigh) / ((double) trials);
-	stringstream ss;
+    std::stringstream ss;
 	ss << "Estimated " << avg << " neighbors on average for "
-	   << "threshold " << th << "." << endl;
+	   << "threshold " << th << "." << std::endl;
 	ss << "Time to perform " << trials << " random trials: "
 	   << sw.Time() << " ms.";
 	return avg;
@@ -802,13 +802,13 @@ GwtWeight* SpatialIndAlgs::thresh_build(const rtree_pt_3d_t& rtree, double th, d
 	Wp->gwt = new GwtElement[Wp->num_obs];
 	
 	{
-		stringstream ss;
-		ss << "In thresh_build for unit sphere" << endl;
-		ss << "th : " << th << endl;
-		ss << "Input th (unit sphere secant distance): " << th << endl;
+	    std::stringstream ss;
+		ss << "In thresh_build for unit sphere" << std::endl;
+		ss << "th : " << th << std::endl;
+		ss << "Input th (unit sphere secant distance): " << th << std::endl;
 		double r = UnitDistToRad(th);
-		ss << "Input th (unit sphere rad): " << r << endl;
-		ss << "Input th (earth km): " << EarthRadToKm(r) << endl;
+		ss << "Input th (unit sphere rad): " << r << std::endl;
+		ss << "Input th (earth km): " << EarthRadToKm(r) << std::endl;
 		ss << "Input th (earth mi): " << EarthRadToMi(r);	
 	}
 	int cnt=0;
@@ -827,7 +827,7 @@ GwtWeight* SpatialIndAlgs::thresh_build(const rtree_pt_3d_t& rtree, double th, d
         std::vector<pt_3d_val> q;
 		rtree.query(boost::geometry::index::intersects(b), std::back_inserter(q));
 		size_t lcnt = 0;
-		list<pt_3d_val> l;
+	    std::list<pt_3d_val> l;
 		BOOST_FOREACH(pt_3d_val const& w, q) {
 			if (w.second != v.second &&
 				boost::geometry::distance(v.first, w.first) <= th)
@@ -868,9 +868,9 @@ GwtWeight* SpatialIndAlgs::thresh_build(const rtree_pt_3d_t& rtree, double th, d
         }
 	}
 
-	stringstream ss;
+    std::stringstream ss;
 	ss << "Time to create arc " << th << " threshold GwtWeight,"
-	   << endl << "  with " << cnt << " total neighbors in ms : "
+	   << std::endl << "  with " << cnt << " total neighbors in ms : "
 	   << sw.Time();
     
     if (!kernel.IsEmpty()) {
@@ -920,7 +920,7 @@ void SpatialIndAlgs::get_pt_rtree_stats(const rtree_pt_2d_t& rtree,
 	wxStopWatch sw;
 	const int k=2;
 	size_t obs = rtree.size();
-	vector<double> d(obs);
+    std::vector<double> d(obs);
 	for (rtree_pt_2d_t::const_query_iterator it =
 			 rtree.qbegin(boost::geometry::index::intersects(rtree.bounds()));
 		 it != rtree.qend() ; ++it)
@@ -941,12 +941,12 @@ void SpatialIndAlgs::get_pt_rtree_stats(const rtree_pt_2d_t& rtree,
 	for (size_t i=0; i<obs; ++i) s += d[i];
 	mean_d_1nn = s / (double) obs;
 
-	stringstream ss;
-	ss << "Euclidean points stats:" << endl;
-	ss << "  min_d_1nn: " << min_d_1nn << endl;
-	ss << "  max_d_1nn: " << max_d_1nn << endl;
-	ss << "  median_d_1nn: " << median_d_1nn << endl;
-	ss << "  mean_d_1nn: " << mean_d_1nn << endl;
+    std::stringstream ss;
+	ss << "Euclidean points stats:" << std::endl;
+	ss << "  min_d_1nn: " << min_d_1nn << std::endl;
+	ss << "  max_d_1nn: " << max_d_1nn << std::endl;
+	ss << "  median_d_1nn: " << median_d_1nn << std::endl;
+	ss << "  mean_d_1nn: " << mean_d_1nn << std::endl;
 	ss << "  running time in ms: " << sw.Time();
 }
 
@@ -958,7 +958,7 @@ void SpatialIndAlgs::get_pt_rtree_stats(const rtree_pt_3d_t& rtree,
 	wxStopWatch sw;
 	using namespace GenGeomAlgs;
 	size_t obs = rtree.size();
-	vector<double> d(obs);
+    std::vector<double> d(obs);
 	for (rtree_pt_3d_t::const_query_iterator it =
 			 rtree.qbegin(boost::geometry::index::intersects(rtree.bounds()));
 		 it != rtree.qend() ; ++it)
@@ -984,24 +984,24 @@ void SpatialIndAlgs::get_pt_rtree_stats(const rtree_pt_3d_t& rtree,
 	for (size_t i=0; i<obs; ++i) s += d[i];
 	mean_d_1nn = s / (double) obs;
 
-	stringstream ss;
-	ss << "Long / Lat points stats:" << endl;
+    std::stringstream ss;
+	ss << "Long / Lat points stats:" << std::endl;
 	ss << "  min_d_1nn: " << min_d_1nn << " rad, "
 	   << RadToDeg(min_d_1nn) << " deg, "
 	   << EarthRadToKm(min_d_1nn) << " km, "
-	   << EarthRadToMi(min_d_1nn) << " mi" << endl;
+	   << EarthRadToMi(min_d_1nn) << " mi" << std::endl;
 	ss << "  max_d_1nn: " << max_d_1nn << " rad, "
 	   << RadToDeg(max_d_1nn) << " deg, "
 	   << EarthRadToKm(max_d_1nn) << " km, "
-	   << EarthRadToMi(max_d_1nn) << " mi" << endl;
+	   << EarthRadToMi(max_d_1nn) << " mi" << std::endl;
 	ss << "  median_d_1nn: " << median_d_1nn << " rad, "
 	   << RadToDeg(median_d_1nn) << " deg, "
 	   << EarthRadToKm(median_d_1nn) << " km, "
-	   << EarthRadToMi(median_d_1nn) << " mi" << endl;
+	   << EarthRadToMi(median_d_1nn) << " mi" << std::endl;
 	ss << "  mean_d_1nn: " << mean_d_1nn << " rad, "
 	   << RadToDeg(mean_d_1nn) << " deg, "
 	   << EarthRadToKm(mean_d_1nn) << " km, "
-	   << EarthRadToMi(mean_d_1nn) << " mi" << endl;
+	   << EarthRadToMi(mean_d_1nn) << " mi" << std::endl;
 	ss << "  running time in ms: " << sw.Time();
 }
 
@@ -1063,9 +1063,9 @@ bool SpatialIndAlgs::write_gwt(const GwtWeight* W,
     wxString gwt_ofn(gwtfn.GetFullPath());
 
 #ifdef __WIN32__
-	std:ofstream out(gwt_ofn.wc_str());
+	std::ofstream out(gwt_ofn.wc_str());
 #else
-	std:ofstream out;
+	std::ofstream out;
 	out.open(GET_ENCODED_FILENAME(gwt_ofn));
 #endif
     
@@ -1081,14 +1081,14 @@ bool SpatialIndAlgs::write_gwt(const GwtWeight* W,
     }
     
     out << "0" << " " << num_obs << " " << layer_name;
-    out << " " << vname.mb_str() << endl;
+    out << " " << vname.mb_str() << std::endl;
     
     for (size_t i=0; i<num_obs; ++i) {
         for (long nbr=0, sz=g[i].Size(); nbr<sz; ++nbr) {
             GwtNeighbor current=g[i].elt(nbr);
             double w = current.weight;
             out << id_vec[i] << ' ' << id_vec[current.nbx];
-			out << ' ' << setprecision(9) << w << endl;
+			out << ' ' << std::setprecision(9) << w << std::endl;
         }
     }
     return true;
@@ -1099,7 +1099,7 @@ void SpatialIndAlgs::fill_pt_rtree(rtree_pt_2d_t& rtree,
 {
 	size_t obs = pts.size();
 	for (size_t i=0; i<obs; ++i) {
-		rtree.insert(make_pair(pts[i], i));
+		rtree.insert(std::make_pair(pts[i], i));
 	}
 }
 
@@ -1108,7 +1108,7 @@ void SpatialIndAlgs::fill_pt_rtree(rtree_pt_lonlat_t& rtree,
 {
 	size_t obs = pts.size();
 	for (size_t i=0; i<obs; ++i) {
-		rtree.insert(make_pair(pts[i], i));
+		rtree.insert(std::make_pair(pts[i], i));
 	}
 }
 
@@ -1117,7 +1117,7 @@ void SpatialIndAlgs::fill_pt_rtree(rtree_pt_3d_t& rtree,
 {
 	size_t obs = pts.size();
 	for (size_t i=0; i<obs; ++i) {
-		rtree.insert(make_pair(pts[i], i));
+		rtree.insert(std::make_pair(pts[i], i));
 	}
 }
 

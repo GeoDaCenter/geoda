@@ -61,7 +61,6 @@ GdaFVSmtPtr GdaParser::expression()
 
 GdaFVSmtPtr GdaParser::logical_xor_expr()
 {
-	using namespace std;
 	GdaFVSmtPtr left = logical_or_expr();
 	
 	for (;;) {
@@ -77,7 +76,6 @@ GdaFVSmtPtr GdaParser::logical_xor_expr()
 
 GdaFVSmtPtr GdaParser::logical_or_expr()
 {
-	using namespace std;
 	GdaFVSmtPtr left = logical_and_expr();
 	
 	for (;;) {
@@ -93,7 +91,6 @@ GdaFVSmtPtr GdaParser::logical_or_expr()
 
 GdaFVSmtPtr GdaParser::logical_and_expr()
 {
-	using namespace std;
 	GdaFVSmtPtr left = logical_not_expr();
 	
 	for (;;) {
@@ -155,7 +152,6 @@ GdaFVSmtPtr GdaParser::comp_expr()
 
 GdaFVSmtPtr GdaParser::add_expr()
 {
-	using namespace std;
 	GdaFVSmtPtr left = mult_expr();
 	
 	for (;;) {

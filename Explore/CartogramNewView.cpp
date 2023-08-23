@@ -43,13 +43,11 @@
 #include "CartogramNewView.h"
 #include "MapLayoutView.h"
 
-using namespace std;
-
 DorlingCartWorkerThread::DorlingCartWorkerThread(int iters_s,
 								DorlingCartogram* cart_s,
 								wxMutex* worker_list_mutex_s,
 								wxCondition* worker_list_empty_cond_s,
-								list<wxThread*> *worker_list_s,
+							    std::list<wxThread*> *worker_list_s,
 								int thread_id_s)
 : wxThread(),
 iters(iters_s), cart(cart_s),
@@ -97,8 +95,8 @@ CartogramNewCanvas::
 CartogramNewCanvas(wxWindow *parent,
                    TemplateFrame* t_frame,
                    Project* project_s,
-                   const vector<GdaVarTools::VarInfo>& v_info,
-                   const vector<int>& col_ids,
+                   const std::vector<GdaVarTools::VarInfo>& v_info,
+                   const std::vector<int>& col_ids,
                    const wxPoint& pos, const wxSize& size)
 :TemplateCanvas(parent, t_frame, project_s, project_s->GetHighlightState(),
                 pos, size, true, true),
@@ -137,8 +135,8 @@ improve_table(6), realtime_updates(false), all_init(false)
 		}
 	}
 		
-	vector<double> orig_x(num_obs);
-	vector<double> orig_y(num_obs);
+    std::vector<double> orig_x(num_obs);
+    std::vector<double> orig_y(num_obs);
 	project->GetCentroids(orig_x, orig_y);
 	
 	cart_nbr_info = new CartNbrInfo(project->GetVoronoiRookNeighborGal(),
@@ -148,7 +146,7 @@ improve_table(6), realtime_updates(false), all_init(false)
 	carts.resize(num_cart_times);
 	num_improvement_iters.resize(num_cart_times);
     
-    vector<vector<double>> orig_data(num_cart_times);
+    std::vector<std::vector<double>> orig_data(num_cart_times);
     for (int t=0; t<num_cart_times; t++) {
         orig_data[t].resize(num_obs);
     }
@@ -343,7 +341,7 @@ void CartogramNewCanvas::SetCheckMarks(wxMenu* menu)
     GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_MAPANALYSIS_UNIQUE_VALUES"),
 								  GetCcType() == CatClassification::unique_values);
 	
-	vector<wxString> txt(6);
+    std::vector<wxString> txt(6);
 	for (size_t i=0; i<txt.size(); i++) {
 		int seconds = (int) improve_table[i].first;
 		txt[i] << improve_table[i].second << " more iterations, ~";
@@ -432,7 +430,7 @@ void CartogramNewCanvas::OnSaveCategories()
 	wxString title;
 	title << "Save " << label;
     
-    vector<bool> undefs(num_obs, false);
+    std::vector<bool> undefs(num_obs, false);
     
     for (size_t i=0; i<var_undefs.size(); i++) {
         for (size_t j=0; j<var_undefs[i].size(); j++) {
@@ -451,7 +449,7 @@ void CartogramNewCanvas::NewCustomCatClassif()
 		int tht = var_info[THM_VAR].time;
 		CatClassification::ChangeNumCats(cat_classif_def.num_cats,
 										 cat_classif_def);
-		vector<wxString> temp_cat_labels; // will be ignored
+	    std::vector<wxString> temp_cat_labels; // will be ignored
 		CatClassification::SetBreakPoints(cat_classif_def.breaks,
 										  temp_cat_labels,
 										  cat_var_sorted[tht],
@@ -843,7 +841,7 @@ void CartogramNewCanvas::ImproveAll(double max_seconds, int max_iters)
 			
 				// List of all the threads currently alive.  As soon as the
 				// thread terminates, it removes itself from the list.
-				list<wxThread*> worker_list;
+			    std::list<wxThread*> worker_list;
 				int thread_id = 0;
 				for (int t=crt_min_tm; t<crt_min_tm+num_in_batch; t++) {
 					
@@ -864,7 +862,7 @@ void CartogramNewCanvas::ImproveAll(double max_seconds, int max_iters)
 					num_improvement_iters[t] += iters;
 				}
 			
-				list<wxThread*>::iterator it;
+			    std::list<wxThread*>::iterator it;
 				for (it = worker_list.begin(); it != worker_list.end(); it++) {
 					(*it)->Run();
 				}
@@ -995,8 +993,8 @@ BEGIN_EVENT_TABLE(CartogramNewFrame, TemplateFrame)
 END_EVENT_TABLE()
 
 CartogramNewFrame::CartogramNewFrame(wxFrame *parent, Project* project,
-									 const vector<GdaVarTools::VarInfo>& var_info,
-									 const vector<int>& col_ids,
+									 const std::vector<GdaVarTools::VarInfo>& var_info,
+									 const std::vector<int>& col_ids,
 									 const wxString& title, const wxPoint& pos,
 									 const wxSize& size, const long style)
 : TemplateFrame(parent, project, title, pos, size, style)

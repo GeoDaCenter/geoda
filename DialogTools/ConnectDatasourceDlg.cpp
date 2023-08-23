@@ -55,8 +55,6 @@
 #include "../rc/GeoDaIcon-16x16.xpm"
 #include "ConnectDatasourceDlg.h"
 
-using namespace std;
-
 DnDFile::DnDFile(ConnectDatasourceDlg *pOwner)
 {
     m_pOwner = pOwner;

@@ -40,9 +40,8 @@
 #include "maxp.h"
 
 using namespace boost;
-using namespace std;
 
-Maxp::Maxp(const GalElement* _w,  const vector<vector<double> >& _z, double _floor, double* _floor_variable, int _initial, vector<wxInt64> _seeds, int _method, int _tabu_length, double _cool_rate,int _rnd_seed, char _dist,  bool _test )
+Maxp::Maxp(const GalElement* _w,  const std::vector<std::vector<double> >& _z, double _floor, double* _floor_variable, int _initial, std::vector<wxInt64> _seeds, int _method, int _tabu_length, double _cool_rate,int _rnd_seed, char _dist,  bool _test )
 : w(_w), z(_z), floor(_floor), floor_variable(_floor_variable), initial(_initial),  LARGE(1000000), MAX_ATTEMPTS(100), rnd_seed(_rnd_seed), test(_test), initial_wss(_initial), regions_group(_initial), area2region_group(_initial), p_group(_initial), dist(_dist), best_ss(DBL_MAX), method(_method), tabu_length(_tabu_length), cooling_rate(_cool_rate)
 {
     num_obs = z.size();
@@ -67,19 +66,19 @@ Maxp::Maxp(const GalElement* _w,  const vector<vector<double> >& _z, double _flo
     if (_seeds.empty()) {
         init_solution(-1);
     } else {
-        map<int, vector<int> > region_dict;
+        std::map<int, std::vector<int> > region_dict;
         for (int i=0; i< _seeds.size(); i++) {
             int rgn = _seeds[i];
             this->area2region[i] = rgn;
             if (region_dict.find(rgn) == region_dict.end()) {
-                vector<int> ids;
+                std::vector<int> ids;
                 ids.push_back(i);
                 region_dict[rgn] = ids;
             } else {
                 region_dict[rgn].push_back(i);
             }
         }
-        map<int, vector<int> >::iterator it;
+        std::map<int, std::vector<int> >::iterator it;
         for (it = region_dict.begin(); it!= region_dict.end(); it++) {
             this->regions.push_back(it->second);
         }
@@ -94,7 +93,7 @@ Maxp::Maxp(const GalElement* _w,  const vector<vector<double> >& _z, double _flo
         feasible = true;
         
         best_ss = objective_function();
-        vector<vector<int> > best_regions;
+        std::vector<std::vector<int> > best_regions;
         boost::unordered_map<int, int> best_area2region;
 
         int attemps = 0;
@@ -104,7 +103,7 @@ Maxp::Maxp(const GalElement* _w,  const vector<vector<double> >& _z, double _flo
         //run_threaded();
         
         for (int i=0; i<initial; i++) {
-            vector<vector<int> >& current_regions = regions_group[i];
+            std::vector<std::vector<int> >& current_regions = regions_group[i];
             boost::unordered_map<int, int>& current_area2region = area2region_group[i];
             
             //print_regions(current_regions);
@@ -135,7 +134,7 @@ Maxp::~Maxp()
     
 }
 
-wxString Maxp::print_regions(vector<vector<int> >& _regions)
+wxString Maxp::print_regions(std::vector<std::vector<int> >& _regions)
 {
     wxString txt;
     txt << "regions:\n";
@@ -182,7 +181,7 @@ void Maxp::run_threaded()
     threadPool.join_all();
 }
 
-vector<vector<int> >& Maxp::GetRegions()
+std::vector<std::vector<int> >& Maxp::GetRegions()
 {
     return regions;
 }
@@ -194,17 +193,17 @@ void Maxp::init_solution(int solution_idx)
     bool solving = true;
     int attempts = 0;
     
-    vector<vector<int> > _regions;
+    std::vector<std::vector<int> > _regions;
     boost::unordered_map<int, int> _area2region;
     
     while (solving && attempts <= MAX_ATTEMPTS) {
-        vector<vector<int> > regn;
-        list<int> enclaves;
-        list<int> candidates;
+        std::vector<std::vector<int> > regn;
+        std::list<int> enclaves;
+        std::list<int> candidates;
         boost::unordered_map<int, bool> candidates_dict;
 
         if (seeds.empty()) {
-            vector<int> _candidates(num_obs);
+            std::vector<int> _candidates(num_obs);
             for (int i=0; i<num_obs;i++) _candidates[i] = i;
 
             //random_shuffle (_candidates.begin(), _candidates.end());
@@ -234,15 +233,15 @@ void Maxp::init_solution(int solution_idx)
             }
         }
         
-        list<int>::iterator iter;
-        vector<int>::iterator vector_iter;
+        std::list<int>::iterator iter;
+        std::vector<int>::iterator vector_iter;
 
         while (!candidates.empty()) {
             int seed = candidates.front();
             candidates.pop_front();
 
             // try to grow it till threshold constraint is satisfied
-            vector<int> region;
+            std::vector<int> region;
             region.push_back(seed);
             boost::unordered_map<int, bool> region_dict;
             region_dict[seed] = true;
@@ -271,7 +270,7 @@ void Maxp::init_solution(int solution_idx)
             }
             if (is_floor) {
                 boost::unordered_map<int, bool>::iterator rit;
-                vector<int> _region;
+                std::vector<int> _region;
                 for (rit=region_dict.begin(); rit!=region_dict.end();rit++) {
                     if (rit->second)
                         _region.push_back(rit->first);
@@ -308,7 +307,7 @@ void Maxp::init_solution(int solution_idx)
             int enclave = enclaves.front();
             enclaves.pop_front();
             // find regions that close to this enclaved region
-            set<int> _cand;
+            std::set<int> _cand;
             
             for ( int n=0; n<w[enclave].Size(); n++) {
                 int nbr = w[enclave][n];
@@ -398,7 +397,7 @@ void Maxp::init_solution(int solution_idx)
     }
 }
 
-void Maxp::shuffle(vector<int>& arry, uint64_t& seed)
+void Maxp::shuffle(std::vector<int>& arry, uint64_t& seed)
 {
     //random_shuffle
     for (int i=arry.size()-1; i>=1; --i) {
@@ -409,14 +408,14 @@ void Maxp::shuffle(vector<int>& arry, uint64_t& seed)
 }
 
 
-void Maxp::simulated_annealing(vector<vector<int> >& init_regions, boost::unordered_map<int, int>& init_area2region, double alpha, double temperature, uint64_t seed_local)
+void Maxp::simulated_annealing(std::vector<std::vector<int> >& init_regions, boost::unordered_map<int, int>& init_area2region, double alpha, double temperature, uint64_t seed_local)
 {
-    vector<vector<int> > local_best_solution;
+    std::vector<std::vector<int> > local_best_solution;
     boost::unordered_map<int, int> local_best_area2region;
     double local_best_ssd = 1;
     
     int nr = init_regions.size();
-    vector<int> changed_regions(nr, 1);
+    std::vector<int> changed_regions(nr, 1);
    
     bool use_sa = false;
     double T = 1; // temperature
@@ -430,11 +429,11 @@ void Maxp::simulated_annealing(vector<vector<int> >& init_regions, boost::unorde
         bool swapping = true;
         int total_move = 0;
         int nr = init_regions.size();
-        vector<int>::iterator iter;
-        vector<int> changed_regions(nr, 1);
+        std::vector<int>::iterator iter;
+        std::vector<int> changed_regions(nr, 1);
         while (swapping) {
             int moves_made = 0;
-            vector<int> regionIds;
+            std::vector<int> regionIds;
             for (int r=0; r<nr; r++) {
                 //if (changed_regions[r] >0) {
                 regionIds.push_back(r);
@@ -461,10 +460,10 @@ void Maxp::simulated_annealing(vector<vector<int> >& init_regions, boost::unorde
                 int m_size = member_dict.size();
                 int n_size = neighbors_dict.size();
                 
-                vector<int> candidates;
+                std::vector<int> candidates;
                 for (n_it=neighbors_dict.begin(); n_it!=neighbors_dict.end(); n_it++) {
                     int nbr = n_it->first;
-                    vector<int>& block = init_regions[ init_area2region[ nbr ] ];
+                    std::vector<int>& block = init_regions[ init_area2region[ nbr ] ];
                     if (check_floor(block, nbr)) {
                         if (check_contiguity(w, block, nbr)) {
                             candidates.push_back(nbr);
@@ -479,8 +478,8 @@ void Maxp::simulated_annealing(vector<vector<int> >& init_regions, boost::unorde
                     bool best_found = false;
                     for (int j=0; j<candidates.size() && best_found == false; j++) {
                         int area = candidates[j];
-                        vector<int>& current_internal = init_regions[seed];
-                        vector<int>& current_outter = init_regions[init_area2region[area]];
+                        std::vector<int>& current_internal = init_regions[seed];
+                        std::vector<int>& current_outter = init_regions[init_area2region[area]];
                         double change = objective_function_change(area, current_internal, current_outter);
                         change = -change / (local_best_ssd * T);
                         if (exp(change) > Gda::ThomasWangHashDouble(seed_local++)) {
@@ -493,7 +492,7 @@ void Maxp::simulated_annealing(vector<vector<int> >& init_regions, boost::unorde
                         // make the move
                         int area = best;
                         int old_region = init_area2region[area];
-                        vector<int>& rgn = init_regions[old_region];
+                        std::vector<int>& rgn = init_regions[old_region];
                         rgn.erase(remove(rgn.begin(),rgn.end(), area), rgn.end());
                         
                         init_area2region[area] = seed;
@@ -510,8 +509,8 @@ void Maxp::simulated_annealing(vector<vector<int> >& init_regions, boost::unorde
                         bool best_found = false;
                         for (int j=0; j<candidates.size(); j++) {
                             int area = candidates[j];
-                            vector<int>& current_internal = init_regions[seed];
-                            vector<int>& current_outter = init_regions[init_area2region[area]];
+                            std::vector<int>& current_internal = init_regions[seed];
+                            std::vector<int>& current_outter = init_regions[init_area2region[area]];
                             double change = objective_function_change(area, current_internal, current_outter);
                             if (change <= cv) {
                                 best = area;
@@ -524,7 +523,7 @@ void Maxp::simulated_annealing(vector<vector<int> >& init_regions, boost::unorde
                             // make the move
                             int area = best;
                             int old_region = init_area2region[area];
-                            vector<int>& rgn = init_regions[old_region];
+                            std::vector<int>& rgn = init_regions[old_region];
                             rgn.erase(remove(rgn.begin(),rgn.end(), area), rgn.end());
                             
                             init_area2region[area] = seed;
@@ -540,7 +539,7 @@ void Maxp::simulated_annealing(vector<vector<int> >& init_regions, boost::unorde
                             for (int k=0; k<w[area].Size(); k++) {
                                 int nbr = w[area][k];
                                 if (member_dict[nbr] || neighbors_dict[nbr]) continue;
-                                vector<int>& block = init_regions[ init_area2region[ nbr ] ];
+                                std::vector<int>& block = init_regions[ init_area2region[ nbr ] ];
                                 if (check_floor(block, nbr)) {
                                     if (check_contiguity(w, block, nbr)) {
                                         candidates.push_back(nbr);
@@ -594,26 +593,26 @@ void Maxp::simulated_annealing(vector<vector<int> >& init_regions, boost::unorde
     }
 }
 
-void Maxp::tabu_search(vector<vector<int> >& init_regions, boost::unordered_map<int, int>& init_area2region, int tabuLength, uint64_t seed_local)
+void Maxp::tabu_search(std::vector<std::vector<int> >& init_regions, boost::unordered_map<int, int>& init_area2region, int tabuLength, uint64_t seed_local)
 {
-    vector<vector<int> > local_best_solution;
+    std::vector<std::vector<int> > local_best_solution;
     boost::unordered_map<int, int> local_best_area2region;
     double local_best_ssd = 0;
     
     int nr = init_regions.size();
     
-    vector<int> changed_regions(nr, 1);
+    std::vector<int> changed_regions(nr, 1);
     // tabuLength: Number of times a reverse move is prohibited. Default value tabuLength = 85.
     int convTabu = 230 * sqrt((double)nr);
     // convTabu=230*numpy.sqrt(maxP)
-    vector<TabuMove> tabuList;
+    std::vector<TabuMove> tabuList;
     
     bool use_tabu = false;
     int c = 0;
     
     while ( c<convTabu ) {
         int num_move = 0;
-        vector<int> regionIds;
+        std::vector<int> regionIds;
         for (int r=0; r<nr; r++) {
             //if (changed_regions[r] >0 || use_tabu) {
                 regionIds.push_back(r);
@@ -640,10 +639,10 @@ void Maxp::tabu_search(vector<vector<int> >& init_regions, boost::unordered_map<
                         neighbors_dict[cand] = true;
                 }
             }
-            vector<int> candidates;
+            std::vector<int> candidates;
             for (n_it=neighbors_dict.begin(); n_it!=neighbors_dict.end(); n_it++) {
                 int nbr = n_it->first;
-                vector<int>& block = init_regions[ init_area2region[ nbr ] ];
+                std::vector<int>& block = init_regions[ init_area2region[ nbr ] ];
                 if (check_floor(block, nbr)) {
                     if (check_contiguity(w, block, nbr)) {
                         candidates.push_back(nbr);
@@ -657,8 +656,8 @@ void Maxp::tabu_search(vector<vector<int> >& init_regions, boost::unordered_map<
                 bool best_found = false;
                 for (int j=0; j<candidates.size(); j++) {
                     int area = candidates[j];
-                    vector<int>& current_internal = init_regions[seed];
-                    vector<int>& current_outter = init_regions[init_area2region[area]];
+                    std::vector<int>& current_internal = init_regions[seed];
+                    std::vector<int>& current_outter = init_regions[init_area2region[area]];
                     if (!tabuList.empty()) {
                         TabuMove tabu(area, init_area2region[area], seed);
                         if ( find(tabuList.begin(), tabuList.end(), tabu) != tabuList.end() )
@@ -689,8 +688,8 @@ void Maxp::tabu_search(vector<vector<int> >& init_regions, boost::unordered_map<
                 bool best_found = false;
                 for (int j=0; j<candidates.size(); j++) {
                     int area = candidates[j];
-                    vector<int>& current_internal = init_regions[seed];
-                    vector<int>& current_outter = init_regions[init_area2region[area]];
+                    std::vector<int>& current_internal = init_regions[seed];
+                    std::vector<int>& current_outter = init_regions[init_area2region[area]];
                     // prohibit tabu
                     TabuMove tabu(area, init_area2region[area], seed);
                     if ( find(tabuList.begin(), tabuList.end(), tabu) != tabuList.end() )
@@ -753,18 +752,18 @@ void Maxp::tabu_search(vector<vector<int> >& init_regions, boost::unordered_map<
 }
 
 
-void Maxp::move(int area, int from_region, int to_region, vector<vector<int> >& _regions, boost::unordered_map<int, int>& _area2region)
+void Maxp::move(int area, int from_region, int to_region, std::vector<std::vector<int> >& _regions, boost::unordered_map<int, int>& _area2region)
 {
-    vector<int>& rgn = _regions[from_region];
+    std::vector<int>& rgn = _regions[from_region];
     rgn.erase(remove(rgn.begin(),rgn.end(), area), rgn.end());
     
     _area2region[area] = to_region;
     _regions[to_region].push_back(area);
 }
 
-void Maxp::move(int area, int from_region, int to_region, vector<vector<int> >& _regions, boost::unordered_map<int, int>& _area2region, vector<TabuMove>& tabu_list, int max_labu_length)
+void Maxp::move(int area, int from_region, int to_region, std::vector<std::vector<int> >& _regions, boost::unordered_map<int, int>& _area2region, std::vector<TabuMove>& tabu_list, int max_labu_length)
 {
-    vector<int>& rgn = _regions[from_region];
+    std::vector<int>& rgn = _regions[from_region];
     rgn.erase(remove(rgn.begin(),rgn.end(), area), rgn.end());
     
     _area2region[area] = to_region;
@@ -780,7 +779,7 @@ void Maxp::move(int area, int from_region, int to_region, vector<vector<int> >& 
     }
 }
 
-void Maxp::swap(vector<vector<int> >& init_regions, boost::unordered_map<int, int>& init_area2region, uint64_t seed_local)
+void Maxp::swap(std::vector<std::vector<int> >& init_regions, boost::unordered_map<int, int>& init_area2region, uint64_t seed_local)
 {
     // local search AZP
     
@@ -789,8 +788,8 @@ void Maxp::swap(vector<vector<int> >& init_regions, boost::unordered_map<int, in
     int total_move = 0;
     int nr = init_regions.size();
     
-    vector<int>::iterator iter;
-    vector<int> changed_regions(nr, 1);
+    std::vector<int>::iterator iter;
+    std::vector<int> changed_regions(nr, 1);
     
     // nr = range(k)
     //while (swapping ) {
@@ -800,7 +799,7 @@ void Maxp::swap(vector<vector<int> >& init_regions, boost::unordered_map<int, in
         //selects a neighbouring solution at random
         // regionIds = [r for r in nr if changed_regions[r]]
         
-        vector<int> regionIds;
+        std::vector<int> regionIds;
         for (int r=0; r<nr; r++) {
             //if (changed_regions[r] >0) {
                 regionIds.push_back(r);
@@ -838,10 +837,10 @@ void Maxp::swap(vector<vector<int> >& init_regions, boost::unordered_map<int, in
             int m_size = member_dict.size();
             int n_size = neighbors_dict.size();
             
-            vector<int> candidates;
+            std::vector<int> candidates;
             for (n_it=neighbors_dict.begin(); n_it!=neighbors_dict.end(); n_it++) {
                 int nbr = n_it->first;
-                vector<int>& block = init_regions[ init_area2region[ nbr ] ];
+                std::vector<int>& block = init_regions[ init_area2region[ nbr ] ];
                 if (check_floor(block, nbr)) {
                     if (check_contiguity(w, block, nbr)) {
                         candidates.push_back(nbr);
@@ -855,8 +854,8 @@ void Maxp::swap(vector<vector<int> >& init_regions, boost::unordered_map<int, in
                 bool best_found = false;
                 for (int j=0; j<candidates.size(); j++) {
                     int area = candidates[j];
-                    vector<int>& current_internal = init_regions[seed];
-                    vector<int>& current_outter = init_regions[init_area2region[area]];
+                    std::vector<int>& current_internal = init_regions[seed];
+                    std::vector<int>& current_outter = init_regions[init_area2region[area]];
                     double change = objective_function_change(area, current_internal, current_outter);
                     if (change <= cv) {
                         //if (check_contiguity(w, current_internal, area)) {
@@ -871,7 +870,7 @@ void Maxp::swap(vector<vector<int> >& init_regions, boost::unordered_map<int, in
                     // make the move
                     int area = best;
                     int old_region = init_area2region[area];
-                    vector<int>& rgn = init_regions[old_region];
+                    std::vector<int>& rgn = init_regions[old_region];
                     rgn.erase(remove(rgn.begin(),rgn.end(), area), rgn.end());
                     
                     init_area2region[area] = seed;
@@ -888,7 +887,7 @@ void Maxp::swap(vector<vector<int> >& init_regions, boost::unordered_map<int, in
                     for (int k=0; k<w[area].Size(); k++) {
                         int nbr = w[area][k];
                         if (member_dict[nbr] || neighbors_dict[nbr]) continue;
-                        vector<int>& block = init_regions[ init_area2region[ nbr ] ];
+                        std::vector<int>& block = init_regions[ init_area2region[ nbr ] ];
                         if (check_floor(block, nbr)) {
                             if (check_contiguity(w, block, nbr)) {
                                 candidates.push_back(nbr);
@@ -908,7 +907,7 @@ void Maxp::swap(vector<vector<int> >& init_regions, boost::unordered_map<int, in
     }
 }
 
-bool Maxp::check_floor(const vector<int>& region, int leaver)
+bool Maxp::check_floor(const std::vector<int>& region, int leaver)
 {
     // selectionIDs = [self.w.id_order.index(i) for i in region]
     double cv = 0;
@@ -923,7 +922,7 @@ bool Maxp::check_floor(const vector<int>& region, int leaver)
         return false;
 }
 
-bool Maxp::check_floor(const vector<int>& region)
+bool Maxp::check_floor(const std::vector<int>& region)
 {
     // selectionIDs = [self.w.id_order.index(i) for i in region]
     double cv = 0;
@@ -943,7 +942,7 @@ double Maxp::objective_function()
     return objective_function(regions);
 }
 
-double Maxp::objective_function(vector<int>& solution)
+double Maxp::objective_function(std::vector<int>& solution)
 {
     //if (objval_dict.find(solution) != objval_dict.end()) {
     //    return objval_dict[solution];
@@ -957,7 +956,7 @@ double Maxp::objective_function(vector<int>& solution)
     // for every variable, calc the variance using selected neighbors
     for (int m=0; m<num_vars; m++) {
         
-        vector<double> selected_z(n_size);
+        std::vector<double> selected_z(n_size);
         
         for (int i=0; i<solution.size(); i++ ) {
             int selectionID = solution[i];
@@ -972,7 +971,7 @@ double Maxp::objective_function(vector<int>& solution)
     return wss;
 }
 
-double Maxp::objective_function(vector<int>& region1, int leaver, vector<int>& region2, int comer )
+double Maxp::objective_function(std::vector<int>& region1, int leaver, std::vector<int>& region2, int comer )
 {
     // solution is a list of region ids [1,7,2]
     double wss = 0;
@@ -980,7 +979,7 @@ double Maxp::objective_function(vector<int>& region1, int leaver, vector<int>& r
     int n_size = region1.size();
     // for every variable, calc the variance using selected neighbors
     for (int m=0; m<num_vars; m++) {
-        vector<double> selected_z(n_size-1);
+        std::vector<double> selected_z(n_size-1);
         j = 0;
         for (int i=0; i<n_size; i++ ) {
             if (region1[i] == leaver) continue;
@@ -994,7 +993,7 @@ double Maxp::objective_function(vector<int>& region1, int leaver, vector<int>& r
     n_size = region2.size();
     // for every variable, calc the variance using selected neighbors
     for (int m=0; m<num_vars; m++) {
-        vector<double> selected_z(n_size+1);
+        std::vector<double> selected_z(n_size+1);
         for (int i=0; i<n_size; i++ ) {
             int selectionID = region2[i];
             selected_z[i] =  z[selectionID][m];
@@ -1006,7 +1005,7 @@ double Maxp::objective_function(vector<int>& region1, int leaver, vector<int>& r
     return wss;
 }
 
-double Maxp::objective_function(vector<vector<int> >& solution)
+double Maxp::objective_function(std::vector<std::vector<int> >& solution)
 {
     // solution is a list of lists of region ids [[1,7,2],[0,4,3],...] such
     // that the first region has areas 1,7,2 the second region 0,4,3 and so
@@ -1018,7 +1017,7 @@ double Maxp::objective_function(vector<vector<int> >& solution)
     
     
     for (int i=0; i<solution.size(); i++ ) {
-        vector<vector<double> > selected_z(num_vars);
+        std::vector<std::vector<double> > selected_z(num_vars);
         for (int j=0; j<solution[i].size(); j++) {
             int selectionID = solution[i][j];
             for (int m=0; m<num_vars; m++) {
@@ -1036,9 +1035,9 @@ double Maxp::objective_function(vector<vector<int> >& solution)
     return wss;
 }
 
-double Maxp::objective_function(vector<int>& current_internal, vector<int>& current_outter)
+double Maxp::objective_function(std::vector<int>& current_internal, std::vector<int>& current_outter)
 {
-    vector<vector<int> > composed_region;
+    std::vector<std::vector<int> > composed_region;
     composed_region.push_back(current_internal);
     composed_region.push_back(current_outter);
     
@@ -1046,7 +1045,7 @@ double Maxp::objective_function(vector<int>& current_internal, vector<int>& curr
 }
 
 
-double Maxp::objective_function_change(int area, vector<int>& current_internal, vector<int>& current_outter)
+double Maxp::objective_function_change(int area, std::vector<int>& current_internal, std::vector<int>& current_outter)
 {
     double current = objective_function(current_internal) + objective_function(current_outter);
     double new_val = objective_function(current_outter, area, current_internal, area);
@@ -1054,12 +1053,12 @@ double Maxp::objective_function_change(int area, vector<int>& current_internal, 
     return change;
 }
 
-bool Maxp::check_contiguity(const GalElement* w, vector<int>& ids, int leaver)
+bool Maxp::check_contiguity(const GalElement* w, std::vector<int>& ids, int leaver)
 {
     //vector<int> ids = neighbors;
     //ids.erase(remove(ids.begin(),ids.end(), leaver), ids.end());
     //return is_component(w, ids);
-    list<int> q;
+    std::list<int> q;
     boost::unordered_map<int, bool> marks;
     for (int i=0; i<ids.size(); i++) {
         if (ids[i]!=leaver) {

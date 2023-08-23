@@ -47,7 +47,6 @@
 #include "../ShapeOperations/OGRDataAdapter.h"
 #include "Basemap.h"
 
-using namespace std;
 using namespace Gda;
 
 BasemapItem Gda::GetBasemapSelection(int idx, wxString basemap_sources)
@@ -59,7 +58,7 @@ BasemapItem Gda::GetBasemapSelection(int idx, wxString basemap_sources)
     if (encoded_str.IsEmpty() == false) {
         basemap_sources = encoded_str;
     }
-    vector<wxString> keys;
+    std::vector<wxString> keys;
     wxString newline;
     if (basemap_sources.Find("\r\n") != wxNOT_FOUND) {
         newline = "\r\n";
@@ -96,15 +95,15 @@ BasemapItem Gda::GetBasemapSelection(int idx, wxString basemap_sources)
     return basemap_item;
 }
 
-vector<BasemapGroup> Gda::ExtractBasemapResources(wxString basemap_sources) {
-    vector<wxString> group_names;
-    map<wxString, BasemapGroup> group_dict;
+std::vector<BasemapGroup> Gda::ExtractBasemapResources(wxString basemap_sources) {
+    std::vector<wxString> group_names;
+    std::map<wxString, BasemapGroup> group_dict;
     
     wxString encoded_str= wxString::FromUTF8((const char*)basemap_sources.mb_str());
     if (encoded_str.IsEmpty() == false) {
         basemap_sources = encoded_str;
     }
-    vector<wxString> keys;
+    std::vector<wxString> keys;
     wxString newline;
     if (basemap_sources.Find("\r\n") != wxNOT_FOUND) {
         newline = "\r\n";
@@ -143,7 +142,7 @@ vector<BasemapGroup> Gda::ExtractBasemapResources(wxString basemap_sources) {
             }
         }
     }
-    vector<BasemapGroup> groups;
+    std::vector<BasemapGroup> groups;
     for (int i=0; i<group_names.size(); i++) {
         groups.push_back( group_dict[group_names[i]] );
     }
@@ -251,7 +250,7 @@ void Basemap::SetupMapType(BasemapItem& _basemap_item)
     }
     
     // get a latest HERE account
-    vector<wxString> nokia_user = OGRDataAdapter::GetInstance().GetHistory("nokia_user");
+    std::vector<wxString> nokia_user = OGRDataAdapter::GetInstance().GetHistory("nokia_user");
     if (!nokia_user.empty()) {
         wxString user = nokia_user[0];
         if (!user.empty()) {
@@ -259,7 +258,7 @@ void Basemap::SetupMapType(BasemapItem& _basemap_item)
         }
     }
     
-    vector<wxString> nokia_key = OGRDataAdapter::GetInstance().GetHistory("nokia_key");
+    std::vector<wxString> nokia_key = OGRDataAdapter::GetInstance().GetHistory("nokia_key");
     if (!nokia_key.empty()) {
         wxString key = nokia_key[0];
         if (!key.empty()) {
@@ -439,7 +438,7 @@ int Basemap::GetOptimalZoomLevel(double paddingFactor)
     double zoomFactorPowered = viewHeightHalf / (40.7436654315252*(vy1-vy0));
     double resolutionVertical = 360.0 / (zoomFactorPowered * 256);
     
-    double resolution = max(resolutionHorizontal, resolutionVertical) * paddingFactor;
+    double resolution = std::max(resolutionHorizontal, resolutionVertical) * paddingFactor;
     
     zoom = log2(360.0 / (resolution * 256));
     
@@ -455,7 +454,7 @@ int Basemap::GetEasyZoomLevel()
     double zoomV = (int)ceil(log2(degreeRatio * screen->height / 256.0));
     
     if (zoomH > 0 && zoomV > 0) {
-        zoom = min(zoomH, zoomV);
+        zoom = std::min(zoomH, zoomV);
     } else {
         if (zoomH > 0)
             zoom = zoomH;

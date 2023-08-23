@@ -30,5 +30,10 @@
     "string": "cpp",
     "string_view": "cpp",
     "alignedvector3": "cpp"
-  }
+  },
+  "[python]": {
+    "editor.defaultFormatter": "ms-python.autopep8"
+  },
+  "python.formatting.provider": "none",
+  "activestate.promptRuntimeCreation": false
 }

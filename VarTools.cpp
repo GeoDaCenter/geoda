@@ -190,9 +190,8 @@ void Manager::SetFixedScale(int var, bool fixed)
 
 double Manager::GetMinOverAllTms(int var)
 {
-	using namespace std;
 	if (var < 0 || var >= vars.size()) return NaN;
-	vector<double>::iterator i = min_element(vars[var].min_vals.begin(),
+    std::vector<double>::iterator i = min_element(vars[var].min_vals.begin(),
                                              vars[var].min_vals.end());
 	if (i == vars[var].min_vals.end()) return NaN;
 	return (*i);
@@ -200,9 +199,8 @@ double Manager::GetMinOverAllTms(int var)
 
 double Manager::GetMaxOverAllTms(int var)
 {
-	using namespace std;
 	if (var < 0 || var >= vars.size()) return NaN;
-	vector<double>::iterator i = max_element(vars[var].max_vals.begin(),
+	std::vector<double>::iterator i = max_element(vars[var].max_vals.begin(),
                                              vars[var].max_vals.end());
 	if (i == vars[var].max_vals.end()) return NaN;
 	return (*i);
@@ -210,12 +208,11 @@ double Manager::GetMaxOverAllTms(int var)
 
 double Manager::GetMinWithinPossibleTms(int var)
 {
-	using namespace std;
 	if (var < 0 || var >= vars.size()) return NaN;
 	if (!IsSyncWithGlobalTm(var)) return vars[var].min_vals[vars[var].time];
 	int min_tm = OffsetFromMinSyncedTm(var);
 	int max_tm = min_tm + CurPossibleSynchedTmRange();
-	vector<double>::iterator i = min_element(vars[var].min_vals.begin()+min_tm,
+	std::vector<double>::iterator i = min_element(vars[var].min_vals.begin()+min_tm,
                                              vars[var].min_vals.begin()+max_tm+1);
 	if (i == vars[var].min_vals.end()) return NaN;
 	return (*i);
@@ -223,13 +220,12 @@ double Manager::GetMinWithinPossibleTms(int var)
 
 double Manager::GetMaxWithinPossibleTms(int var)
 {
-	using namespace std;
 	if (var < 0 || var >= vars.size()) return NaN;
 	if (!IsSyncWithGlobalTm(var)) return vars[var].max_vals[vars[var].time];
 	int min_tm = OffsetFromMinSyncedTm(var);
 	int max_tm = min_tm + CurPossibleSynchedTmRange();
     
-	vector<double>::iterator i = max_element(vars[var].max_vals.begin()+min_tm,
+	std::vector<double>::iterator i = max_element(vars[var].max_vals.begin()+min_tm,
                                              vars[var].max_vals.begin()+max_tm+1);
 	if (i == vars[var].max_vals.end()) return NaN;
 	return (*i);
@@ -237,14 +233,12 @@ double Manager::GetMaxWithinPossibleTms(int var)
 
 double Manager::GetMinCurTm(int var)
 {
-	using namespace std;
 	if (var < 0 || var >= vars.size()) return NaN;
 	return vars[var].min_vals[vars[var].time];
 }
 
 double Manager::GetMaxCurTm(int var)
 {
-	using namespace std;
 	if (var < 0 || var >= vars.size()) return NaN;
 	return vars[var].max_vals[vars[var].time];
 }

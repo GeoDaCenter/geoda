@@ -24,15 +24,13 @@
 #include "../Project.h"
 #include "ProjectInfoDlg.h"
 
-using namespace std;
-
 ProjectInfoDlg::ProjectInfoDlg(Project* project)
 : wxDialog(NULL, wxID_ANY, _("Project Information"), wxDefaultPosition,
            wxSize(250, 150), wxDEFAULT_DIALOG_STYLE|wxRESIZE_BORDER)
 {
     wxLogMessage("Open ProjectInfoDlg.");
-	vector<wxString> key;
-	vector<wxString> val;
+    std::vector<wxString> key;
+    std::vector<wxString> val;
 	key.push_back("Project Title");
 	val.push_back(project->GetProjectTitle());
 	

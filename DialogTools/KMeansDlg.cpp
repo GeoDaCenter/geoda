@@ -213,14 +213,14 @@ void MakeSpatialDlg::OnSelClusterIndicator(wxCommandEvent& event)
     std::vector<wxInt64> clusters(rows, 0);
     table_int->GetColData(col, tm, clusters);
     
-    map<wxInt64, vector<int> > cluster_dict;
+    std::map<wxInt64, std::vector<int> > cluster_dict;
     for (int i = 0; i < rows; ++i) {
         cluster_dict[clusters[i]].push_back(i);
     }
 
     // sort result
     std::vector<std::vector<int> > cluster_ids;
-    map<wxInt64, vector<int> >::iterator it;
+    std::map<wxInt64, std::vector<int> >::iterator it;
     for (it = cluster_dict.begin(); it != cluster_dict.end(); ++it) {
         cluster_ids.push_back(it->second);
     }
@@ -336,16 +336,16 @@ void MakeSpatialDlg::OnOK(wxCommandEvent& event )
     std::vector<wxInt64> clusters(rows, 0);
     table_int->GetColData(col, tm, clusters);
     
-    vector<bool> clusters_undef(rows, false);
+    std::vector<bool> clusters_undef(rows, false);
     
-    map<wxInt64, vector<int> > cluster_dict;
+    std::map<wxInt64, std::vector<int> > cluster_dict;
     for (int i = 0; i < rows; ++i) {
         cluster_dict[clusters[i]].push_back(i);
     }
 
     // sort result
     std::vector<std::vector<int> > cluster_ids;
-    map<wxInt64, vector<int> >::iterator it;
+    std::map<wxInt64, std::vector<int> >::iterator it;
     for (it = cluster_dict.begin(); it != cluster_dict.end(); ++it) {
         cluster_ids.push_back(it->second);
     }
@@ -583,7 +583,7 @@ void KClusterDlg::CreateControls()
     m_distance->Bind(wxEVT_CHOICE, &KClusterDlg::OnDistanceChoice, this);
 }
 
-vector<vector<double> > KClusterDlg::_getMeanCenters(const vector<vector<int> >& solution)
+std::vector<std::vector<double> > KClusterDlg::_getMeanCenters(const std::vector<std::vector<int> >& solution)
 {
     return AbstractClusterDlg::_getMeanCenters(solution);
 }
@@ -764,7 +764,7 @@ bool KClusterDlg::CheckAllInputs()
     return true;
 }
 
-bool KClusterDlg::Run(vector<wxInt64>& clusters)
+bool KClusterDlg::Run(std::vector<wxInt64>& clusters)
 {
     if (GdaConst::use_gda_user_seed) {
         setrandomstate((int)GdaConst::gda_user_seed);
@@ -785,7 +785,7 @@ bool KClusterDlg::Run(vector<wxInt64>& clusters)
     int remainder = n_pass % nCPUs;
     int tot_threads = (quotient > 0) ? nCPUs : remainder;
     
-    map<double, vector<wxInt64> >::iterator it;
+    std::map<double, std::vector<wxInt64> >::iterator it;
     for (it=sub_clusters.begin(); it!=sub_clusters.end(); it++) {
         it->second.clear();
     }
@@ -832,7 +832,7 @@ bool KClusterDlg::Run(vector<wxInt64>& clusters)
 
     for (it=sub_clusters.begin(); it!=sub_clusters.end(); it++) {
         double error = it->first;
-        vector<wxInt64>& clst = it->second;
+        std::vector<wxInt64>& clst = it->second;
         if (start == false ) {
             min_error = error;
             clusters = clst;
@@ -860,7 +860,7 @@ void KClusterDlg::OnOK(wxCommandEvent& event )
     }
     if (CheckAllInputs() == false) return;
 
-    vector<wxInt64> clusters;
+    std::vector<wxInt64> clusters;
     if (Run(clusters) == false) return;
     
     // sort result
@@ -904,7 +904,7 @@ void KClusterDlg::OnOK(wxCommandEvent& event )
     }
     
     if (col > 0) {
-        vector<bool> clusters_undef(rows, false);
+        std::vector<bool> clusters_undef(rows, false);
         table_int->SetColData(col, time, clusters);
         table_int->SetColUndefined(col, time, clusters_undef);
     }
@@ -978,7 +978,7 @@ void KMeansDlg::doRun(int s1,int ncluster, int npass, int n_maxiter, int meth_se
     int s2 = s1==0 ? 0 : s1 + npass;
     kcluster(ncluster, rows, columns, input_data, mask, weight, transpose, npass, n_maxiter, method, dist, clusterid, &error, &ifound, bound_vals, min_bound, s1, s2);
     
-    vector<wxInt64> clusters;
+    std::vector<wxInt64> clusters;
     for (int i=0; i<rows; i++) {
         clusters.push_back(clusterid[i] + 1);
     }
@@ -1029,7 +1029,7 @@ void KMediansDlg::doRun(int s1,int ncluster, int npass, int n_maxiter, int meth_
     int s2 = s1==0 ? 0 : s1 + npass;
     kcluster(ncluster, rows, columns, input_data, mask, weight, transpose, npass, n_maxiter, method, dist, clusterid, &error, &ifound, bound_vals, min_bound, s1, s2);
     
-    vector<wxInt64> clusters;
+    std::vector<wxInt64> clusters;
     for (int i=0; i<rows; i++) {
         clusters.push_back(clusterid[i] + 1);
     }
@@ -1038,10 +1038,10 @@ void KMediansDlg::doRun(int s1,int ncluster, int npass, int n_maxiter, int meth_
     delete[] clusterid;
 }
 
-vector<vector<double> > KMediansDlg::_getMeanCenters(const vector<vector<int> >& solutions)
+std::vector<std::vector<double> > KMediansDlg::_getMeanCenters(const std::vector<std::vector<int> >& solutions)
 {
     int n_clusters = (int)solutions.size();
-    vector<vector<double> > result(n_clusters);
+    std::vector<std::vector<double> > result(n_clusters);
     
     if (columns <= 0 || rows <= 0) return result;
 
@@ -1070,7 +1070,7 @@ vector<vector<double> > KMediansDlg::_getMeanCenters(const vector<vector<int> >&
 
     //int start = IsUseCentroids() ? 2 : 0;
     for (int i=0; i<solutions.size(); i++ ) {
-        vector<double> medians;
+        std::vector<double> medians;
         int end = columns;
         if (IsUseCentroids()) {
             end = columns - 2;
@@ -1100,7 +1100,7 @@ vector<vector<double> > KMediansDlg::_getMeanCenters(const vector<vector<int> >&
     return result;
 }
 
-double KMediansDlg::_calcSumOfSquaresMedian(const vector<int>& cluster_ids)
+double KMediansDlg::_calcSumOfSquaresMedian(const std::vector<int>& cluster_ids)
 {
     if (cluster_ids.empty() || input_data==NULL || mask == NULL)
         return 0;
@@ -1111,7 +1111,7 @@ double KMediansDlg::_calcSumOfSquaresMedian(const vector<int>& cluster_ids)
         if (col_names[i] == "CENTX" || col_names[i] == "CENTY") {
             continue;
         }
-        vector<double> vals;
+        std::vector<double> vals;
         for (int j=0; j<cluster_ids.size(); j++) {
             int r = cluster_ids[j];
             if (mask[r][i] == 1)
@@ -1124,7 +1124,7 @@ double KMediansDlg::_calcSumOfSquaresMedian(const vector<int>& cluster_ids)
     return ssq;
 }
 
-double KMediansDlg::_calcSumOfManhattanMedian(const vector<int>& cluster_ids)
+double KMediansDlg::_calcSumOfManhattanMedian(const std::vector<int>& cluster_ids)
 {
     if (cluster_ids.empty() || input_data==NULL || mask == NULL)
         return 0;
@@ -1135,7 +1135,7 @@ double KMediansDlg::_calcSumOfManhattanMedian(const vector<int>& cluster_ids)
         if (col_names[i] == "CENTX" || col_names[i] == "CENTY") {
             continue;
         }
-        vector<double> vals;
+        std::vector<double> vals;
         for (int j=0; j<cluster_ids.size(); j++) {
             int r = cluster_ids[j];
             if (mask[r][i] == 1)
@@ -1148,7 +1148,7 @@ double KMediansDlg::_calcSumOfManhattanMedian(const vector<int>& cluster_ids)
     return ssq;
 }
 
-wxString KMediansDlg::_additionalSummary(const vector<vector<int> >& solution,
+wxString KMediansDlg::_additionalSummary(const std::vector<std::vector<int> >& solution,
                                          double& additional_ratio)
 {
     // computing Sum of Square Differences from Medoids
@@ -1157,7 +1157,7 @@ wxString KMediansDlg::_additionalSummary(const vector<vector<int> >& solution,
     int dist_sel = m_distance->GetSelection();
     
     double totss = 0, totwithiness, betweenss, ratio;
-    vector<double> withinss, avgs;
+    std::vector<double> withinss, avgs;
     
     wxString summary;
     
@@ -1168,7 +1168,7 @@ wxString KMediansDlg::_additionalSummary(const vector<vector<int> >& solution,
         for (int i=0; i<columns; i++) {
             if (col_names[i] == "CENTX" || col_names[i] == "CENTY")
                 continue;
-            vector<double> vals;
+            std::vector<double> vals;
             for (int j=0; j<rows; j++) {
                 if (mask[j][i] == 1)
                     vals.push_back(input_data[j][i]);
@@ -1194,7 +1194,7 @@ wxString KMediansDlg::_additionalSummary(const vector<vector<int> >& solution,
         for (int i=0; i<columns; i++) {
             if (col_names[i] == "CENTX" || col_names[i] == "CENTY")
                 continue;
-            vector<double> vals;
+            std::vector<double> vals;
             for (int j=0; j<rows; j++) {
                 if (mask[j][i] == 1)
                     vals.push_back(input_data[j][i]);
@@ -1548,7 +1548,7 @@ int KMedoidsDlg::GetFirstMedoid(double** distmatrix)
     return n;
 }
 
-bool KMedoidsDlg::Run(vector<wxInt64>& clusters)
+bool KMedoidsDlg::Run(std::vector<wxInt64>& clusters)
 {
     if (GdaConst::use_gda_user_seed) {
         setrandomstate((int)GdaConst::gda_user_seed);
@@ -1647,12 +1647,12 @@ void KMedoidsDlg::doRun(int s1,int ncluster, int npass, int n_maxiter, int meth_
     // do nothing
 }
 
-vector<vector<double> > KMedoidsDlg::_getMeanCenters(
-                                        const vector<vector<int> >& solutions)
+std::vector<std::vector<double> > KMedoidsDlg::_getMeanCenters(
+                                        const std::vector<std::vector<int> >& solutions)
 {
     // Using medoids instead of mean centers
     int n_clusters = (int)solutions.size();
-    vector<vector<double> > result(n_clusters);
+    std::vector<std::vector<double> > result(n_clusters);
 
     // update order of medoids using solutions
     boost::unordered_map<int, int> medoids_dict;
@@ -1696,7 +1696,7 @@ vector<vector<double> > KMedoidsDlg::_getMeanCenters(
     }
 
     for (int i=0; i<solutions.size(); i++ ) {
-        vector<double> means;
+        std::vector<double> means;
         int end = columns;
         if (IsUseCentroids()) {
             end = columns - 2;
@@ -1763,7 +1763,7 @@ wxString KMedoidsDlg::_printConfiguration()
     return txt;
 }
 
-double KMedoidsDlg::_calcSumOfSquaresMedoid(const vector<int>& cluster_ids, int medoid_idx)
+double KMedoidsDlg::_calcSumOfSquaresMedoid(const std::vector<int>& cluster_ids, int medoid_idx)
 {
     if (cluster_ids.empty() || input_data==NULL || mask == NULL)
         return 0;
@@ -1774,7 +1774,7 @@ double KMedoidsDlg::_calcSumOfSquaresMedoid(const vector<int>& cluster_ids, int 
         if (col_names[i] == "CENTX" || col_names[i] == "CENTY") {
             continue;
         }
-        vector<double> vals;
+        std::vector<double> vals;
         for (int j=0; j<cluster_ids.size(); j++) {
             int r = cluster_ids[j];
             if (mask[r][i] == 1)
@@ -1787,7 +1787,7 @@ double KMedoidsDlg::_calcSumOfSquaresMedoid(const vector<int>& cluster_ids, int 
     return ssq;
 }
 
-double KMedoidsDlg::_calcSumOfManhattanMedoid(const vector<int>& cluster_ids, int medoid_idx)
+double KMedoidsDlg::_calcSumOfManhattanMedoid(const std::vector<int>& cluster_ids, int medoid_idx)
 {
     if (cluster_ids.empty() || input_data==NULL || mask == NULL)
         return 0;
@@ -1798,7 +1798,7 @@ double KMedoidsDlg::_calcSumOfManhattanMedoid(const vector<int>& cluster_ids, in
         if (col_names[i] == "CENTX" || col_names[i] == "CENTY") {
             continue;
         }
-        vector<double> vals;
+        std::vector<double> vals;
         for (int j=0; j<cluster_ids.size(); j++) {
             int r = cluster_ids[j];
             if (mask[r][i] == 1)
@@ -1811,7 +1811,7 @@ double KMedoidsDlg::_calcSumOfManhattanMedoid(const vector<int>& cluster_ids, in
     return ssq;
 }
 
-wxString KMedoidsDlg::_additionalSummary(const vector<vector<int> >& solution,
+wxString KMedoidsDlg::_additionalSummary(const std::vector<std::vector<int> >& solution,
                                          double& additional_ratio)
 {
     // computing Sum of Square Differences from Medoids
@@ -1820,7 +1820,7 @@ wxString KMedoidsDlg::_additionalSummary(const vector<vector<int> >& solution,
     int dist_sel = m_distance->GetSelection();
     
     double totss = 0, totwithiness, betweenss, ratio;
-    vector<double> withinss, avgs;
+    std::vector<double> withinss, avgs;
     
     wxString summary;
     
@@ -1831,7 +1831,7 @@ wxString KMedoidsDlg::_additionalSummary(const vector<vector<int> >& solution,
         for (int i=0; i<columns; i++) {
             if (col_names[i] == "CENTX" || col_names[i] == "CENTY")
                 continue;
-            vector<double> vals;
+            std::vector<double> vals;
             for (int j=0; j<rows; j++) {
                 if (mask[j][i] == 1)
                     vals.push_back(input_data[j][i]);
@@ -1857,7 +1857,7 @@ wxString KMedoidsDlg::_additionalSummary(const vector<vector<int> >& solution,
         for (int i=0; i<columns; i++) {
             if (col_names[i] == "CENTX" || col_names[i] == "CENTY")
                 continue;
-            vector<double> vals;
+            std::vector<double> vals;
             for (int j=0; j<rows; j++) {
                 if (mask[j][i] == 1)
                     vals.push_back(input_data[j][i]);
@@ -1926,7 +1926,7 @@ void SpatialKMeansDlg::doRun(int s1,int ncluster, int npass, int n_maxiter, int 
     int s2 = s1==0 ? 0 : s1 + npass;
     kcluster(ncluster, rows, columns, input_data, mask, weight, transpose, npass, n_maxiter, method, dist, clusterid, &error, &ifound, bound_vals, min_bound, s1, s2);
     
-    vector<wxInt64> clusters;
+    std::vector<wxInt64> clusters;
     for (int i=0; i<rows; i++) {
         clusters.push_back(clusterid[i] + 1);
     }
@@ -1961,7 +1961,7 @@ void SpatialKMeansDlg::OnOK(wxCommandEvent& event )
         dlg.ShowModal();
     }
     
-    vector<wxInt64> clusters;
+    std::vector<wxInt64> clusters;
     if (Run(clusters) == false) return;
     
     // sort result
@@ -2012,7 +2012,7 @@ void SpatialKMeansDlg::OnOK(wxCommandEvent& event )
     }
     
     if (col > 0) {
-        vector<bool> clusters_undef(rows, false);
+        std::vector<bool> clusters_undef(rows, false);
         table_int->SetColData(col, time, clusters);
         table_int->SetColUndefined(col, time, clusters_undef);
     }

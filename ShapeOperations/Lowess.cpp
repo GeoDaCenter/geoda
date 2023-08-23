@@ -15,8 +15,6 @@
 #include <stdexcept>
 #include "Lowess.h"
 
-using namespace std;
-
 #define imin2(a,b) std::min(a,b)
 #define imax2(a,b) std::max(a,b)
 #define fmax2(a,b) std::max(a,b)

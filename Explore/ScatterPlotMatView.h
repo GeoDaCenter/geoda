@@ -130,7 +130,7 @@ public:
    
     void OnSaveScreen(wxCommandEvent& event);
     
-	void GetVizInfo(vector<wxString>& vars);
+	void GetVizInfo(std::vector<wxString>& vars);
 	
 protected:
 	void SetupPanelForNumVariables(int num_vars);

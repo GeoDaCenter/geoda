@@ -61,7 +61,7 @@ public:
     virtual wxString _printConfiguration();
 
 protected:
-    virtual bool Run(vector<wxInt64>& clusters);
+    virtual bool Run(std::vector<wxInt64>& clusters);
     virtual bool CheckAllInputs();
     void UpdateGaussian(wxCommandEvent& event);
 

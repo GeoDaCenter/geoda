@@ -33,9 +33,6 @@
 #include "../GenUtils.h"
 #include "../GeneralWxUtils.h"
 
-using namespace std;
-
-
 OGRDatasourceProxy::OGRDatasourceProxy(GDALDataset* _ds, wxString _ds_name)
 : ds(_ds), ds_name(_ds_name)
 {
@@ -117,7 +114,7 @@ OGRDatasourceProxy::OGRDatasourceProxy(wxString format, wxString dest_datasource
 : ds_name(dest_datasource)
 {
 	// create a OGRDatasourceProxy with a geometry layer
-	ostringstream error_message;
+    std::ostringstream error_message;
 	const char* pszFormat = format.c_str();
 	const char* pszDestDataSource = GET_ENCODED_FILENAME(ds_name);
     
@@ -159,7 +156,7 @@ OGRDatasourceProxy::OGRDatasourceProxy(wxString format, wxString dest_datasource
 OGRDatasourceProxy::~OGRDatasourceProxy()
 {
 	// clean map of layer_pool
-	map<wxString, OGRLayerProxy*>::iterator it;
+    std::map<wxString, OGRLayerProxy*>::iterator it;
 	for (it=layer_pool.begin(); it!=layer_pool.end(); it++) {
 		if (it->second)
             delete it->second;
@@ -176,7 +173,7 @@ OGRDatasourceProxy::GetGdaDataSourceType(GDALDriver *poDriver)
     if (poDriver == NULL) return GdaConst::ds_unknown;
     
     const char* drv_name = GDALGetDriverShortName(poDriver);
-    string ogr_ds_type(drv_name);
+    std::string ogr_ds_type(drv_name);
     
     if (ogr_ds_type.find("Carto") != std::string::npos) {
        return GdaConst::datasrc_str_to_type["Carto"];
@@ -189,7 +186,7 @@ OGRDatasourceProxy::GetGdaDataSourceType(GDALDriver *poDriver)
 	}
 }
 
-vector<wxString> OGRDatasourceProxy::GetLayerNames()
+std::vector<wxString> OGRDatasourceProxy::GetLayerNames()
 {
 	// GetLayerNames can happen before actually read data from layer
 	// , so this provide us a chance to store all OGRLayer instance
@@ -266,7 +263,7 @@ bool OGRDatasourceProxy::DeleteLayer(wxString layer_name)
 		wxString tmp_layer_name(layer->GetName());
         if ( tmp_layer_name.compare(layer_name) == 0) {
             if ( ds->DeleteLayer(i) == OGRERR_NONE ) {
-                map<wxString, OGRLayerProxy*>::iterator it =
+                std::map<wxString, OGRLayerProxy*>::iterator it =
                     layer_pool.find(layer_name);
                 if ( it != layer_pool.end()) {
                     layer_pool.erase(it);
@@ -347,9 +344,9 @@ void OGRDatasourceProxy::CreateDataSource(wxString format,
 OGRLayerProxy*
 OGRDatasourceProxy::CreateLayer(wxString layer_name,
                                 OGRwkbGeometryType eGType,
-                                vector<OGRGeometry*>& geometries,
+                                std::vector<OGRGeometry*>& geometries,
                                 TableInterface* table,
-                                vector<int>& selected_rows,
+                                std::vector<int>& selected_rows,
                                 OGRSpatialReference* spatial_ref,
                                 wxString cpg_encode)
 {
@@ -396,7 +393,7 @@ OGRDatasourceProxy::CreateLayer(wxString layer_name,
 		throw GdaException(error_message.mb_str());
     }
     OGRFeatureDefn* poFeatDef = poDstLayer->GetLayerDefn();
-    map<wxString, pair<int, int> >::iterator field_it;
+    std::map<wxString, std::pair<int, int> >::iterator field_it;
     // create fields using TableInterface:table
     if ( table != NULL ) {
         std::vector<int> col_id_map; // using orders in wxGrid

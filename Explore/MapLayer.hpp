@@ -15,13 +15,11 @@
 #include "../GdaShape.h"
 #include "../ShapeOperations/OGRLayerProxy.h"
 
-using namespace std;
-
 class MapCanvas;
 class AssociateLayerInt;
 
 // my_key, key from other layer
-typedef pair<wxString, wxString> Association;
+typedef std::pair<wxString, wxString> Association;
 
 // Interfaces for map layer setting highlight association to any other map layer
 // It is implemented by: BackgroundMapLayer and MapCanvas
@@ -33,8 +31,8 @@ protected:
 
 public:
     // primary key : AssociateLayer
-    map<AssociateLayerInt*, Association> associated_layers;
-    map<AssociateLayerInt*, bool> associated_lines;
+    std::map<AssociateLayerInt*, Association> associated_layers;
+    std::map<AssociateLayerInt*, bool> associated_lines;
     
     AssociateLayerInt() : associate_pencolor(wxColour(50, 50, 50)) {}
     virtual ~AssociateLayerInt() {}
@@ -43,9 +41,9 @@ public:
     virtual wxString GetName() = 0;
     virtual int  GetNumRecords() = 0;
     
-    virtual vector<wxString> GetKeyNames() = 0;
-    virtual bool GetKeyColumnData(wxString col_name, vector<wxString>& data) = 0;
-    //virtual bool GetColumnData(wxString col_name, vector<double>& data) = 0;
+    virtual std::vector<wxString> GetKeyNames() = 0;
+    virtual bool GetKeyColumnData(wxString col_name, std::vector<wxString>& data) = 0;
+    //virtual bool GetColumnData(wxString col_name, std::vector<double>& data) = 0;
     
     virtual void ResetHighlight() = 0;
     virtual void SetHighlight(int idx) = 0;
@@ -53,7 +51,7 @@ public:
     virtual int GetHighlightRecords() = 0;
     
     virtual GdaShape* GetShape(int i) = 0;
-    //virtual vector<GdaShape*> GetShapes() = 0;
+    //virtual std::vector<GdaShape*> GetShapes() = 0;
     virtual void GetExtent(double &minx, double &miny, double &maxx,
                            double &maxy) = 0;
     virtual void GetExtentOfSelected(double &minx, double &miny, double &maxx,
@@ -86,9 +84,9 @@ class BackgroundMapLayer : public AssociateLayerInt
 {
     int num_obs;
     Shapefile::ShapeType shape_type;
-    vector<wxString> field_names;
-    vector<wxString> num_field_names;
-    vector<wxString> key_names;
+    std::vector<wxString> field_names;
+    std::vector<wxString> num_field_names;
+    std::vector<wxString> key_names;
     
     bool show_connect_line;
     wxString layer_name;
@@ -106,9 +104,9 @@ class BackgroundMapLayer : public AssociateLayerInt
 public:
     OGRLayerProxy* layer_proxy;
     GdaPolygon* map_boundary;
-    vector<GdaShape*> shapes;
-    vector<OGRGeometry*> geoms;
-    vector<bool> highlight_flags;
+    std::vector<GdaShape*> shapes;
+    std::vector<OGRGeometry*> geoms;
+    std::vector<bool> highlight_flags;
     
     BackgroundMapLayer();
     BackgroundMapLayer(wxString name, OGRLayerProxy* layer_proxy, OGRSpatialReference* sr);
@@ -116,7 +114,7 @@ public:
     
     virtual bool IsCurrentMap();
     virtual int  GetNumRecords();
-    virtual bool GetKeyColumnData(wxString field_name, vector<wxString>& data);
+    virtual bool GetKeyColumnData(wxString field_name, std::vector<wxString>& data);
     virtual void SetHighlight(int idx);
     virtual void SetUnHighlight(int idx);
     virtual void ResetHighlight();
@@ -134,7 +132,7 @@ public:
     // so that different map window can configure the multi-layers
     BackgroundMapLayer* Clone(bool clone_style=false);
     
-    vector<GdaShape*>& GetShapes();
+    std::vector<GdaShape*>& GetShapes();
     virtual GdaShape* GetShape(int idx);
     
     void CleanMemory();
@@ -165,16 +163,16 @@ public:
     bool IsShowBoundary();
     void SetShowBoundary(bool flag);
     
-    void SetKeyNames(vector<wxString>& names);
-    vector<wxString> GetKeyNames();
+    void SetKeyNames(std::vector<wxString>& names);
+    std::vector<wxString> GetKeyNames();
 
-    void SetNumericFieldNames(vector<wxString>& names);
-    vector<wxString> GetNumericFieldNames();
-    bool GetDoubleColumnData(wxString field_name, vector<double>& data);
+    void SetNumericFieldNames(std::vector<wxString>& names);
+    std::vector<wxString> GetNumericFieldNames();
+    bool GetDoubleColumnData(wxString field_name, std::vector<double>& data);
 
-    void SetFieldNames(vector<wxString>& names);
-    vector<wxString> GetIntegerFieldNames();
-    bool GetIntegerColumnData(wxString field_name, vector<wxInt64>& data);
+    void SetFieldNames(std::vector<wxString>& names);
+    std::vector<wxString> GetIntegerFieldNames();
+    bool GetIntegerColumnData(wxString field_name, std::vector<wxInt64>& data);
     
     void drawLegend(wxDC& dc, int x, int y, int w, int h);
 };

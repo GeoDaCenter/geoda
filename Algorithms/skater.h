@@ -13,7 +13,6 @@
 #include <boost/heap/priority_queue.hpp>
 
 
-using namespace std;
 using namespace boost;
 
 typedef std::pair<int, int> E;
@@ -21,7 +20,7 @@ typedef std::pair<int, int> E;
 struct CompareCluster
 {
 public:
-    bool operator() (const pair<double, vector<E> > & lhs, const pair<double, vector<E> > & rhs) const
+    bool operator() (const std::pair<double, std::vector<E> > & lhs, const std::pair<double, std::vector<E> > & rhs) const
     {
         return lhs.first < rhs.first;
     }
@@ -42,11 +41,11 @@ typedef heap::priority_queue<ClusterEl, heap::compare<CompareCluster> > Priority
 class Skater {
 public:
     Skater(int num_obs, int num_vars, int num_clusters, double** _data,
-           vector<vector<double> >& dist_matrix,
+           std::vector<std::vector<double> >& dist_matrix,
            bool check_floor, double floor, double* floor_variable);
     ~Skater();
     
-    vector<vector<int> > GetRegions();
+    std::vector<std::vector<int> > GetRegions();
     
 protected:
     int num_obs;
@@ -56,7 +55,7 @@ protected:
     bool check_floor;
     double floor;
     double* floor_variable;
-    vector<E> mst_edges;
+    std::vector<E> mst_edges;
     
     heap::priority_queue<ClusterEl, heap::compare<CompareCluster> > solution;
     
@@ -64,17 +63,17 @@ protected:
     
     void run();
     
-    void run_threads(vector<E> tree, vector<double>& scores, vector<vector<set<int> > >& cids, vector<ClusterPair>& candidates);
+    void run_threads(std::vector<E> tree, std::vector<double>& scores, std::vector<std::vector<std::set<int> > >& cids, std::vector<ClusterPair>& candidates);
    
-    void prunecost(vector<E> tree, int start, int end, vector<double>& scores, vector<vector<set<int> > >& cids, vector<ClusterPair>& candidates);
+    void prunecost(std::vector<E> tree, int start, int end, std::vector<double>& scores, std::vector<std::vector<std::set<int> > >& cids, std::vector<ClusterPair>& candidates);
     
-    void prunemst(vector<E>& edges, set<int>& vex1, set<int>& vex2, vector<E>& part1, vector<E>& part2);
+    void prunemst(std::vector<E>& edges, std::set<int>& vex1, std::set<int>& vex2, std::vector<E>& part1, std::vector<E>& part2);
    
-    double ssw(vector<E>& cluster);
+    double ssw(std::vector<E>& cluster);
     
-    double ssw(set<int>& ids);
+    double ssw(std::set<int>& ids);
     
-    bool bound_check(set<int>& cluster);
+    bool bound_check(std::set<int>& cluster);
 };
 
 #endif

@@ -720,7 +720,7 @@ void GdaFrame::UpdateToolbarAndMenus()
             sm->Delete(items[i]);
         }
         if (project_p) {
-            vector<wxString> titles;
+            std::vector<wxString> titles;
             CatClassifManager* ccm = project_p->GetCatClassifManager();
             ccm->GetTitles(titles);
             
@@ -1137,7 +1137,7 @@ void GdaFrame::OnCustomCategoryClick(wxCommandEvent& event)
     if (project_p) {
         CatClassifManager* ccm = project_p->GetCatClassifManager();
         if (!ccm) return;
-        vector<wxString> titles;
+        std::vector<wxString> titles;
         ccm->GetTitles(titles);
        
         int idx = xrc_id - GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A0;
@@ -1176,7 +1176,7 @@ void GdaFrame::OnEmptyCustomCategoryClick(wxCommandEvent& event)
     if (project_p) {
         CatClassifManager* ccm = project_p->GetCatClassifManager();
         if (!ccm) return;
-        vector<wxString> titles;
+        std::vector<wxString> titles;
         ccm->GetTitles(titles);
 
         int idx = xrc_id - GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A0;
@@ -2328,7 +2328,7 @@ void GdaFrame::OnMapChoices(wxCommandEvent& event)
                 for (int i=0; i<items.size(); i++) {
                     sm->Delete(items[i]);
                 }
-                vector<wxString> titles;
+                std::vector<wxString> titles;
                 CatClassifManager* ccm = project_p->GetCatClassifManager();
                 ccm->GetTitles(titles);
                
@@ -2805,7 +2805,7 @@ void GdaFrame::OnExportSelectedToOGR(wxCommandEvent& event)
 {
 	if (!project_p || !project_p->GetTableInt()) return;
     
-    vector<int> selected_rows;
+    std::vector<int> selected_rows;
     project_p->GetSelectedRows(selected_rows);
     if ( selected_rows.empty() ) {
         wxMessageDialog dlg (this,
@@ -4359,7 +4359,7 @@ void GdaFrame::OnOpenBivariateLJC(wxCommandEvent& event)
     {
         int num_obs = p->GetNumRecords();
 
-        vector<bool> undefs;
+        std::vector<bool> undefs;
         for (int i=0; i<num_obs; i++){
             bool is_undef = undef_data1[i] || undef_data2[i];
             undefs.push_back(is_undef);
@@ -4447,7 +4447,7 @@ void GdaFrame::OnOpenMultiLJC(wxCommandEvent& event)
         int t = 0;
         int num_obs = p->GetNumRecords();
         if (p->GetTimeState()) t = p->GetTimeState()->GetCurrTime();
-        vector<int> local_t;
+        std::vector<int> local_t;
         for (int v=0; v<num_vars; v++) {
             if (data[v].size()==1) {
                 local_t.push_back(0);
@@ -4455,7 +4455,7 @@ void GdaFrame::OnOpenMultiLJC(wxCommandEvent& event)
                 local_t.push_back(t);
             }
         }
-        vector<bool> undefs;
+        std::vector<bool> undefs;
         for (int i=0; i<num_obs; i++){
             bool is_undef = false;
             for (int v=0; v<undef_data.size(); v++) {
@@ -4697,7 +4697,7 @@ void GdaFrame::OnCustomCategoryClick_B(wxCommandEvent& event)
     if (project_p) {
         CatClassifManager* ccm = project_p->GetCatClassifManager();
         if (!ccm) return;
-        vector<wxString> titles;
+        std::vector<wxString> titles;
         ccm->GetTitles(titles);
         
         int idx = xrc_id - GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_B0;
@@ -4714,7 +4714,7 @@ void GdaFrame::OnCustomCategoryClick_C(wxCommandEvent& event)
     if (project_p) {
         CatClassifManager* ccm = project_p->GetCatClassifManager();
         if (!ccm) return;
-        vector<wxString> titles;
+        std::vector<wxString> titles;
         ccm->GetTitles(titles);
         
         int idx = xrc_id - GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_C0;

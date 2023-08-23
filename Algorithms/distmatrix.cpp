@@ -18,8 +18,6 @@ float* gpu_distmatrix(const char* cl_path, int rows, int columns, double** data,
 
 #define MAX_SOURCE_SIZE (0x100000)
 
-using namespace std;
-
 float* gpu_distmatrix(const char* cl_path, int rows, int columns, double** data, int start, int end)
 {
     unsigned long long _rows = rows;

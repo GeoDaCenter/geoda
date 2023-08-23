@@ -57,7 +57,6 @@
 #include "../logger.h"
 #include "ReportBugDlg.h"
 
-using namespace std;
 using namespace GdaJson;
 
 
@@ -148,11 +147,11 @@ ReportResultDlg::~ReportResultDlg()
 
 
 size_t write_to_string_(void *ptr, size_t size, size_t count, void *stream) {
-	((string*)stream)->append((char*)ptr, 0, size*count);
+	((std::string*)stream)->append((char*)ptr, 0, size*count);
 	return size*count;
 }
 
-string CreateIssueOnGithub(wxString& post_data)
+std::string CreateIssueOnGithub(wxString& post_data)
 {
 	std::vector<wxString> tester_ids = OGRDataAdapter::GetInstance().GetHistory("tester_id");
 	if (tester_ids.empty()) return "";
@@ -162,7 +161,7 @@ string CreateIssueOnGithub(wxString& post_data)
 	wxString header_auth = "Authorization: token " + tester_id;
 	wxString header_user_agent = "User-Agent: GeoDaTester";
 
-	string response;
+    std::string response;
 	CURL* curl = curl_easy_init();
 	CURLcode res;
 	if (curl) {
@@ -364,7 +363,7 @@ bool ReportBugDlg::CreateIssue(wxString title, wxString body)
 	json_msg << labels;
 	json_msg << "}";
 
-    string result = CreateIssueOnGithub(json_msg);
+    std::string result = CreateIssueOnGithub(json_msg);
 	// parse results
 	if (!result.empty()) {
 		json_spirit::Value v;

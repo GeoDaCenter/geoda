@@ -244,12 +244,12 @@ void PCASettingsDlg::OnOK(wxCommandEvent& event )
         dlg.ShowModal();
         return;
     }
-    vector<float> sd = pca.sd();
-    vector<float> prop_of_var = pca.prop_of_var();
-    vector<float> cum_prop = pca.cum_prop();
+    std::vector<float> sd = pca.sd();
+    std::vector<float> prop_of_var = pca.prop_of_var();
+    std::vector<float> cum_prop = pca.cum_prop();
     scores = pca.scores();
     
-    vector<unsigned int> el_cols = pca.eliminated_columns();
+    std::vector<unsigned int> el_cols = pca.eliminated_columns();
     
     float kaiser = pca.kaiser();
     thresh95 = pca.thresh95();
@@ -353,7 +353,7 @@ void PCASettingsDlg::OnOK(wxCommandEvent& event )
     pca_log << _("\n\nSquared correlations:\n");
     
     int num_pc = col_lim;
-    vector<vector<double> > pc_data(num_pc);
+    std::vector<std::vector<double> > pc_data(num_pc);
     for (unsigned int i=0; i<col_lim; i++ ) {
         pc_data[i].resize(row_lim);
         for (unsigned int j=0; j<row_lim; j++ ) {
@@ -361,11 +361,11 @@ void PCASettingsDlg::OnOK(wxCommandEvent& event )
         }
     }
     
-    vector<int> col_size(num_pc, 0);
-    vector<vector<wxString> > corr_matrix(columns);
+    std::vector<int> col_size(num_pc, 0);
+    std::vector<std::vector<wxString> > corr_matrix(columns);
     double corr, corr_sqr;
     for (int i=0; i<columns; i++) {
-        vector<double> col_data;
+        std::vector<double> col_data;
         for (int j=0; j<rows; j++) col_data.push_back(input_data[j][i]);
         corr_matrix[i].resize(num_pc);
         for (int j=0; j<num_pc; j++) {

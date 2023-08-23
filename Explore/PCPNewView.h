@@ -187,8 +187,8 @@ public:
     virtual void OnCustomCategoryClick(wxCommandEvent& event);
     void AppendCustomCategories(wxMenu* menu, CatClassifManager* ccm);
     
-    vector<GdaVarTools::VarInfo> var_info;
-    vector<int> col_ids;
+    std::vector<GdaVarTools::VarInfo> var_info;
+    std::vector<int> col_ids;
 	
 protected:
 	void ChangeThemeType(CatClassification::CatClassifType new_theme,

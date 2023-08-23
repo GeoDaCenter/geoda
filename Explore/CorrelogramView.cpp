@@ -220,7 +220,7 @@ void CorrelogramFrame::OnSaveResult(wxCommandEvent& event)
     wxTextOutputStream txt_out( output_stream );
     txt_out << "";
     
-    vector<wxString> lbls;
+    std::vector<wxString> lbls;
     lbls.push_back(_("Autocorr."));
     lbls.push_back(_("Min"));
     lbls.push_back(_("Max"));
@@ -621,7 +621,7 @@ void CorrelogramFrame::SetupPanelForNumVariables(int num_vars)
 				v_axs.tics[i] = v_axs.data_min + d*v_axs.tic_inc;
 				std::stringstream s;
 				// round to nearest whole number for frequency?
-				s << setprecision(0) << fixed << v_axs.tics[i];
+				s << std::setprecision(0) << std::fixed << v_axs.tics[i];
 				v_axs.tics_str[i] = s.str();
 				v_axs.tics_str_show[i] = true;
 			}
@@ -764,17 +764,17 @@ void CorrelogramFrame::SetupPanelForNumVariables(int num_vars)
 
 	panel_v_szr->Add(bag_szr, 1, wxALL | wxEXPAND);
 
-    vector<wxString> lbls;
+    std::vector<wxString> lbls;
     lbls.push_back(_("Autocorr."));
     lbls.push_back(_("Min"));
     lbls.push_back(_("Max"));
     lbls.push_back(_("# Pairs"));
-    vector<vector<double> > vals;
-    vector<double> stats;
+    std::vector<std::vector<double> > vals;
+    std::vector<double> stats;
     
     int sum_pairs = 0;
     for (size_t i=0; i<cbins.size(); ++i) {
-        vector<double> sub_vals;
+        std::vector<double> sub_vals;
         sub_vals.push_back(cbins[i].corr_avg);
         sub_vals.push_back(cbins[i].dist_min);
         sub_vals.push_back(cbins[i].dist_max);
@@ -912,15 +912,14 @@ void CorrelogramFrame::UpdateMessageWin()
  in var_man. */
 void CorrelogramFrame::UpdateDataMapFromVarMan()
 {
-	using namespace std;
 	// get set of var_man names
-	set<wxString> vm_nms;
+    std::set<wxString> vm_nms;
 	for (int i=0; i<var_man.GetVarsCount(); ++i) {
 		vm_nms.insert(var_man.GetName(i));
 	}
 	
 	// remove items from data_map not in vm_nms
-	set<wxString> to_remove;
+    std::set<wxString> to_remove;
 	for (data_map_type::iterator i=data_map.begin(); i!=data_map.end(); ++i) {
 		wxString nm(i->first);
 		if (vm_nms.find(nm) != vm_nms.end())
@@ -928,14 +927,14 @@ void CorrelogramFrame::UpdateDataMapFromVarMan()
 		to_remove.insert(nm);
 	}
 	
-	for (set<wxString>::iterator i=to_remove.begin(); i!=to_remove.end(); ++i) {
+	for (std::set<wxString>::iterator i=to_remove.begin(); i!=to_remove.end(); ++i) {
 		data_map.erase(*i);
         data_undef_map.erase(*i);
 	}
 	
 	// add items to data_map that are in vm_nms, but not currently in data_map
-	set<wxString> to_add;
-	for (set<wxString>::iterator i=vm_nms.begin(); i!=vm_nms.end(); ++i) {
+    std::set<wxString> to_add;
+	for (std::set<wxString>::iterator i=vm_nms.begin(); i!=vm_nms.end(); ++i) {
 		wxString nm(*i);
 		if (data_map.find(nm) != data_map.end())
             continue;
@@ -943,7 +942,7 @@ void CorrelogramFrame::UpdateDataMapFromVarMan()
 	}
 	
 	TableInterface* table_int = project->GetTableInt();
-	for (set<wxString>::iterator i=to_add.begin(); i!=to_add.end(); ++i) {
+	for (std::set<wxString>::iterator i=to_add.begin(); i!=to_add.end(); ++i) {
 		wxString nm = (*i);
 		int c_id = table_int->FindColId(nm);
 		if (c_id < 0) {
@@ -957,10 +956,10 @@ void CorrelogramFrame::UpdateDataMapFromVarMan()
 			table_int->GetColData(c_id, t, vec_vec_data[t]);
 			table_int->GetColUndefined(c_id, t, vec_vec_undef[t]);
 		}
-		pair<wxString, vec_vec_dbl_type> p(nm, vec_vec_data);
+        std::pair<wxString, vec_vec_dbl_type> p(nm, vec_vec_data);
 		data_map.insert(p);
         
-		pair<wxString, vec_vec_bool_type> p_undef(nm, vec_vec_undef);
+        std::pair<wxString, vec_vec_bool_type> p_undef(nm, vec_vec_undef);
 		data_undef_map.insert(p_undef);
 	}
 }

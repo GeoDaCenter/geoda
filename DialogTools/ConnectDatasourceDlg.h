@@ -34,8 +34,6 @@
 #include "DatasourceDlg.h"
 #include "DatasourceDlg.h"
 
-using namespace std;
-
 //
 // Class RecentDatasource
 //
@@ -59,7 +57,7 @@ public:
     wxString GetLastLayerName();
     wxString GetLastDSName();
     void UpdateLastThumb(wxString ds_thumb);
-    vector<wxString> GetList();
+    std::vector<wxString> GetList();
    
     IDataSource* GetDatasource(wxString ds_name);
     wxString GetLayerName(wxString ds_name);
@@ -69,15 +67,15 @@ public:
     wxString GetDSThumbnail(int idx) {return ds_thumbnails[idx];}
 protected:
     static const int N_MAX_ITEMS;
-    static const string KEY_NAME_IN_GDA_HISTORY;
+    static const std::string KEY_NAME_IN_GDA_HISTORY;
     
     int n_ds;
     wxString ds_json_str;
    
-    vector<wxString> ds_names;
-    vector<wxString> ds_layernames;
-    vector<wxString> ds_confs;
-    vector<wxString> ds_thumbnails;
+    std::vector<wxString> ds_names;
+    std::vector<wxString> ds_layernames;
+    std::vector<wxString> ds_confs;
+    std::vector<wxString> ds_thumbnails;
     
     void Init(wxString json_str);
 };

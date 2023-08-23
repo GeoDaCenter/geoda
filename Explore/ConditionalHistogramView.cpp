@@ -385,8 +385,8 @@ void ConditionalHistogramCanvas::ResizeSelectableShps(int virtual_scrn_w,
 	double bg_ymax = scn_h-marg_top;
     int n_rows = is_vert_number ? vert_num_cats-1 : vert_num_cats;
     int n_cols = is_horz_number ? horiz_num_cats-1 : horiz_num_cats;
-    vector<wxRealPoint> v_brk_ref(n_rows);
-    vector<wxRealPoint> h_brk_ref(n_cols);
+    std::vector<wxRealPoint> v_brk_ref(n_rows);
+    std::vector<wxRealPoint> h_brk_ref(n_cols);
 	
 	for (int row=0; row<n_rows; row++) {
         double bin_height = bin_extents[row][0].lower_left.y -bin_extents[row][0].upper_right.y;

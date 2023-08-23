@@ -236,11 +236,11 @@ void WebViewExampleDlg::parseHighlightStateNotify(const json_spirit::Value& v)
 		}
 		std::vector<int> new_hl_vec;
 		if (!GdaJson::arrayToVec(new_hl.get_array(), new_hl_vec)) {
-			throw std::runtime_error("could not convert Array to vector<int>");
+			throw std::runtime_error("could not convert Array to std::vector<int>");
 		}
 		std::vector<int> new_uhl_vec;
 		if (!GdaJson::arrayToVec(new_uhl.get_array(), new_uhl_vec)) {
-			throw std::runtime_error("could not convert Array to vector<int>");
+			throw std::runtime_error("could not convert Array to std::vector<int>");
 		}
 		LOG(new_hl_vec.size());
 		LOG(new_uhl_vec.size());
@@ -448,7 +448,6 @@ void WebViewExampleDlg::promptVarSettings(const json_spirit::Object& req,
 {
 	using namespace json_spirit;
 	using namespace GdaJson;
-	using namespace std;
 	
 	VariableSettingsDlg::VarType arity = VariableSettingsDlg::univariate;
 	wxString arity_str = getStrValFromObj(req, "arity");
@@ -493,13 +492,13 @@ void WebViewExampleDlg::promptVarSettings(const json_spirit::Object& req,
 	
 	Object response_obj;
 	
-	vector<string> var_nms;
+    std::vector<std::string> var_nms;
 	var_nms.push_back("var1");
 	var_nms.push_back("var2");
 	var_nms.push_back("var3");
 	var_nms.push_back("var4");
 	
-	vector<wxString> tm_strs;
+    std::vector<wxString> tm_strs;
 	table_int->GetTimeStrings(tm_strs);
 	Value tm_strs_val;
 	toValue(tm_strs_val, tm_strs);
@@ -520,7 +519,7 @@ void WebViewExampleDlg::promptVarSettings(const json_spirit::Object& req,
 		Value data;
 		b_array_type undefined;
 		table_int->GetColUndefined(col, undefined);
-		vector<GdaConst::FieldType> f_types = table_int->GetColTypes(col);
+	    std::vector<GdaConst::FieldType> f_types = table_int->GetColTypes(col);
 		if (ft == GdaConst::double_type) {
 			d_array_type d;
 			table_int->GetColData(col, d);

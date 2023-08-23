@@ -58,7 +58,7 @@ SparseMatrix::SparseMatrix(const GalElement *my_gal, int obs)
 void SparseMatrix::createGAL(const GalElement* my_gal, int obs)  
 {	// get the weights from GAL file
     int dim = obs;
-    typedef pair<int, int>	Map;
+    typedef std::pair<int, int>	Map;
 
     Map	* key = new Map [ dim ];
 
@@ -200,9 +200,8 @@ void SparseMatrix::IminusRhoThis( const double rho, const DenseVector &column,
 
 void SparseMatrix::WtTimesColumn(DenseVector &wtx, const DenseVector &x)
 {
-	using namespace std;
 	MakeTranspose();
-	typedef list< pair<int,double> >::iterator l_itr_t;
+	typedef list< std::pair<int,double> >::iterator l_itr_t;
 	
 	for (int i=0; i<size; i++) {
 		double s = 0.0;
@@ -221,7 +220,6 @@ void SparseMatrix::WtTimesColumn(DenseVector &wtx, const DenseVector &x)
  the index of the non-zero element and the value (weight) */
 void SparseMatrix::MakeTranspose()
 {
-	using namespace std;
 	if (transpose.size() != 0) return;
 	transpose.resize(size);
 	for (int i=0; i<size; i++) {
@@ -229,7 +227,7 @@ void SparseMatrix::MakeTranspose()
 		for (int nz_cnt=0, nz_sz=getRow(i).getSize(); nz_cnt<nz_sz; nz_cnt++) {
 			int j = L[nz_cnt].getIx();
 			double w_ij = L[nz_cnt].getWeight();
-			transpose[j].push_back(make_pair(i, w_ij));
+			transpose[j].push_back(std::make_pair(i, w_ij));
 		}
 	}
 }

@@ -44,7 +44,7 @@ public:
     void OnSave(wxCommandEvent& event );
 
 protected:
-    virtual bool Run(vector<wxInt64>& clusters);
+    virtual bool Run(std::vector<wxInt64>& clusters);
 
     void CutTree(int rows, GdaNode* htree, int n_cluster, std::vector<wxInt64>& clusters);
 
