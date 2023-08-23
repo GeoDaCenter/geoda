@@ -21,14 +21,19 @@
 #define __GEODA_CENTER_WEBGL_MAP_VIEW_H__
 
 #include <ogrsf_frmts.h>
+#include <wx/frame.h>
 #include <wx/webview.h>
 #include <wx/wx.h>
+
 #include <vector>
 
-class WebGLMapFrame : public wxFrame {
-  DECLARE_CLASS(WebGLMapFrame)
+#include "../TemplateFrame.h"
+
+class WebGLMapFrame : public TemplateFrame {
  public:
-  explicit WebGLMapFrame(const std::vector<OGRFeature*>& features, const wxString& title = _("WebGL Map"));
+  explicit WebGLMapFrame(wxFrame* parent, Project* project, const std::vector<OGRFeature*>& features,
+                         const wxString& title = _("WebGL Map"), const wxPoint& pos = wxDefaultPosition,
+                         const wxSize& size = wxDefaultSize, const int style = wxDEFAULT_FRAME_STYLE);
   virtual ~WebGLMapFrame();
 
  private:
@@ -37,6 +42,7 @@ class WebGLMapFrame : public wxFrame {
   void OnIdle(wxIdleEvent& WXUNUSED(evt));
   void CreateMemoryFiles(const std::vector<OGRFeature*>& features);
 
+  DECLARE_CLASS(WebGLMapFrame)
   DECLARE_EVENT_TABLE()
 };
 #endif

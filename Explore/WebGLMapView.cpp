@@ -34,25 +34,28 @@
 #if wxUSE_WEBVIEW_EDGE
 #include <wx/msw/webview_edge.h>
 #endif
+#include <wx/event.h>
 #include <wx/ffile.h>
+#include <wx/frame.h>
 #include <wx/fs_mem.h>
 #include <wx/stdpaths.h>
 #include <wx/textfile.h>
 #include <wx/webviewarchivehandler.h>
 #include <wx/webviewfshandler.h>
 
-#include "./WebGLMapView.h"
+#include "WebGLMapView.h"
 
-IMPLEMENT_CLASS(WebGLMapFrame, wxFrame)
-BEGIN_EVENT_TABLE(WebGLMapFrame, wxFrame)
+IMPLEMENT_CLASS(WebGLMapFrame, TemplateFrame)
+BEGIN_EVENT_TABLE(WebGLMapFrame, TemplateFrame)
 END_EVENT_TABLE()
 
-WebGLMapFrame::WebGLMapFrame(const std::vector<OGRFeature*>& features, const wxString& title)
-    : wxFrame(NULL, wxID_ANY, title) {
+WebGLMapFrame::WebGLMapFrame(wxFrame* parent, Project* project, const std::vector<OGRFeature*>& features,
+                             const wxString& title, const wxPoint& pos, const wxSize& size, const int style)
+    : TemplateFrame(parent, project, title, pos, size, style) {
   wxBoxSizer* topsizer = new wxBoxSizer(wxVERTICAL);
 
   // Create a log window
-  new wxLogWindow(this, _("Logging"), true, false);
+  new wxLogWindow(NULL, _("Logging"), true, false);
 
 #if wxUSE_WEBVIEW_EDGE
   // Check if a fixed version of edge is present in
@@ -102,12 +105,17 @@ WebGLMapFrame::WebGLMapFrame(const std::vector<OGRFeature*>& features, const wxS
 
   m_browser->LoadURL("memory:index.html");
   m_browser->SetFocus();
-
+  m_browser->EnableAccessToDevTools(true);
   // Connect the idle events
   Bind(wxEVT_IDLE, &WebGLMapFrame::OnIdle, this);
 }
 
-WebGLMapFrame::~WebGLMapFrame() {}
+WebGLMapFrame::~WebGLMapFrame() {
+  wxMemoryFSHandler::RemoveFile("data.csv");
+  wxMemoryFSHandler::RemoveFile("bundle.js");
+  wxMemoryFSHandler::RemoveFile("index.html");
+  DeregisterAsActive();
+}
 
 void WebGLMapFrame::CreateMemoryFiles(const std::vector<OGRFeature*>& features) {
   wxString exe_path = wxStandardPaths::Get().GetExecutablePath();
@@ -118,21 +126,19 @@ void WebGLMapFrame::CreateMemoryFiles(const std::vector<OGRFeature*>& features) 
   pathlist.Add(exe_dir + "../Resources");
 
   // Create data.csv by passing in OGRLayer with only geometries and selected variables
-  const wxString csv_filename = "data.csv";
-  const wxString mem_csv_filename = "memory:" + csv_filename;
-  wxMemoryFSHandler::AddFile(csv_filename, wxEmptyString);
-  wxTextFile csv_file(mem_csv_filename);
-  const wxString first_line = "id, geom";
-  csv_file.AddLine(first_line);
+  wxString csv_filecontent;
+  const wxString first_line = "id,geom\n";
+  csv_filecontent << first_line;
   for (size_t i = 0; i < features.size(); ++i) {
     const OGRFeature* feat = features[i];
     const OGRGeometry* geom = feat->GetGeometryRef();
     wxString wkt = geom->exportToWkt();
-    wxString line = wxString::Format(_("%zd,\"%s\""), i, wkt);
-    csv_file.AddLine(line);
+    wxString line = wxString::Format(_("%zd,\"%s\"\n"), i, wkt);
+    csv_filecontent << line;
   }
-    csv_file.Write();
-    csv_file.Close();
+  const wxString csv_filename = "data.csv";
+  const wxString mem_csv_filename = "memory:" + csv_filename;
+  wxMemoryFSHandler::AddFile(csv_filename, csv_filecontent);
 
   // Create bundle.js
   wxString bundle_path = wxFileName(pathlist.FindValidPath("bundle.js")).GetAbsolutePath();
@@ -140,6 +146,7 @@ void WebGLMapFrame::CreateMemoryFiles(const std::vector<OGRFeature*>& features) 
   wxString bundle_content;
   bundle_file.ReadAll(&bundle_content);
 
+  bundle_content.Replace("data.csv", "memory:data.csv");
   wxMemoryFSHandler::AddFile("bundle.js", bundle_content);
 
   // Create index.html
@@ -150,7 +157,6 @@ void WebGLMapFrame::CreateMemoryFiles(const std::vector<OGRFeature*>& features) 
 
   // replace relative urls in index.html with "memory:bundle.js"
   index_content.Replace("bundle.js", "memory:bundle.js");
-  index_content.Replace("data.csv", "memory:data.csv");
 
   wxMemoryFSHandler::AddFile("index.html", index_content);
 }

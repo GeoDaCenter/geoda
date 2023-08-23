@@ -1503,7 +1503,7 @@ void GdaFrame::InitWithProject(wxString gda_file_path)
         
         const OGRLayerProxy* ogr_layer = project_p->GetOGRLayerProxy();
         if (ogr_layer) {
-            WebGLMapFrame *glMap = new WebGLMapFrame(ogr_layer->data);
+            WebGLMapFrame *glMap = new WebGLMapFrame(this, project_p, ogr_layer->data);
             glMap->Show();
         }
     }

@@ -48,6 +48,8 @@ BuildTools/node_modules
 
 build/
 
+BuildTools/node_modules
+
 *.dmg
 *.mode1v3
 *.pbxuser
