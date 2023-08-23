@@ -81,6 +81,9 @@ build-geoda:
 	cp $(GeoDa_ROOT)/rc/GeoDa.icns build/Resources
 	cp $(GeoDa_ROOT)/rc/menus.xrc build/Resources
 	cp $(GeoDa_ROOT)/rc/toolbar.xrc build/Resources
+	cp $(GEODA_HOME)/../CommonDistFiles/index.html build/index.html
+	cp $(GEODA_HOME)/../CommonDistFiles/bundle.js build/bundle.js
+	cp $(GEODA_HOME)/../CommonDistFiles/bundle.js.map build/bundle.js.map
 	cp $(GEODA_HOME)/../CommonDistFiles/cache.sqlite build/cache.sqlite
 	cp $(GEODA_HOME)/../CommonDistFiles/geoda_prefs.sqlite build/geoda_prefs.sqlite
 	cp $(GEODA_HOME)/../CommonDistFiles/geoda_prefs.json build/geoda_prefs.json

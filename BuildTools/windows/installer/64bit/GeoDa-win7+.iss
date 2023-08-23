@@ -58,6 +58,9 @@ Source: "..\..\..\CommonDistFiles\geoda_prefs.sqlite"; DestDir: "{app}"
 Source: "..\..\..\CommonDistFiles\geoda_prefs.json"; DestDir: "{app}"
 Source: "..\..\..\CommonDistFiles\web_plugins\*"; DestDir: "{app}\web_plugins"; Flags: recursesubdirs
 Source: "..\..\..\CommonDistFiles\proj\*"; DestDir: "{app}\proj"; Flags: recursesubdirs
+Source: "..\..\..\CommonDistFiles\index.html"; DestDir: "{app}"
+Source: "..\..\..\CommonDistFiles\bundle.js"; DestDir: "{app}"
+Source: "..\..\..\CommonDistFiles\bundle.js.map"; DestDir: "{app}"
 
 Source: "VC_redist.x64.exe"; DestDir: "{app}"
 Source: "..\..\temp\OpenCL\sdk\bin\x64\OpenCL.dll"; DestDir: "{app}"
