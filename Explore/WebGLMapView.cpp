@@ -148,7 +148,6 @@ void WebGLMapFrame::CreateMemoryFiles(const std::vector<OGRFeature*>& features) 
   wxString bundle_content;
   bundle_file.ReadAll(&bundle_content);
 
-  bundle_content.Replace("data.csv", "memory:data.csv");
   wxMemoryFSHandler::AddFile("bundle.js", bundle_content);
 
   // Create index.html
@@ -159,6 +158,7 @@ void WebGLMapFrame::CreateMemoryFiles(const std::vector<OGRFeature*>& features) 
 
   // replace relative urls in index.html with "memory:bundle.js"
   index_content.Replace("bundle.js", "memory:bundle.js");
+  index_content.Replace("data.csv", "memory:data.csv");
 
   wxMemoryFSHandler::AddFile("index.html", index_content);
 }
