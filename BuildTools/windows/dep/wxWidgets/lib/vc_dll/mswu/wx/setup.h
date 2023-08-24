@@ -765,7 +765,7 @@
 // Default is 0 because WebView2 is not always available, set it to 1 if you do have it.
 //
 // Recommended setting: 1 when building for Windows with WebView2 SDK
-#define wxUSE_WEBVIEW_EDGE 0
+#define wxUSE_WEBVIEW_EDGE 1
 
 // Use the WebKit wxWebView backend
 //
