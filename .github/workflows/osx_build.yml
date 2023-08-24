@@ -70,7 +70,6 @@ jobs:
         run: |
           mkdir -p o
           cd BuildTools
-          ./build_reactgeoda.sh
           cd macosx
           export GEODA_HOME=$PWD
           cp ../../GeoDamake.macosx.opt ../../GeoDamake.opt

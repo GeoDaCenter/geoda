@@ -132,7 +132,9 @@ void WebGLMapFrame::CreateMemoryFiles(const std::vector<OGRFeature*>& features) 
   for (size_t i = 0; i < features.size(); ++i) {
     const OGRFeature* feat = features[i];
     const OGRGeometry* geom = feat->GetGeometryRef();
-    wxString wkt = geom->exportToWkt();
+    char* pszWKT = NULL;
+    geom->exportToWkt(&pszWKT);
+    wxString wkt = pszWKT;
     wxString line = wxString::Format(_("%zd,\"%s\"\n"), i, wkt);
     csv_filecontent << line;
   }
