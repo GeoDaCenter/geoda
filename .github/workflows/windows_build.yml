@@ -144,7 +144,7 @@ jobs:
           #
           if(-Not (Test-Path -Path microsoft.web.webview2.1.0.1901.177.nupkg)) { Invoke-WebRequest "https://globalcdn.nuget.org/packages/microsoft.web.webview2.1.0.1901.177.nupkg" -OutFile "microsoft.web.webview2.1.0.1901.177.nupkg" }
           mkdir ..\dep\wxWidgets\3rdparty\webview2
-          7z x microsoft.web.webview2.1.0.1901.177.nupkg -o..\dep\wxWidgets\3rdparty\webview2
+          7z x microsoft.web.webview2.1.0.1901.177.nupkg -o"..\dep\wxWidgets\3rdparty\webview2"
           if(-Not (Test-Path -Path wxWidgets.zip)) { Invoke-WebRequest "https://github.com/wxWidgets/wxWidgets/releases/download/v3.2.2.1/wxWidgets-3.2.2.1.zip" -OutFile "wxWidgets.zip" }
           7z x wxWidgets.zip -owxWidgets
           cd wxWidgets

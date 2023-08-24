@@ -1256,6 +1256,7 @@
 #define wxUSE_DIRDLG 1
 
 // TODO: setting to choose the generic or native one
+#define wxUSE_SPELLCHECK 1
 
 // Use file open/save dialogs.
 //
