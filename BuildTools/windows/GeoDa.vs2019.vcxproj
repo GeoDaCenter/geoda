@@ -669,6 +669,7 @@
     <ClInclude Include="..\..\Explore\MapNewView.h" />
     <ClInclude Include="..\..\Explore\PCPNewView.h" />
     <ClInclude Include="..\..\Explore\ScatterNewPlotView.h" />
+    <ClInclude Include="..\..\Explore\WebGLMapView.h" />
     <ClInclude Include="..\..\DataViewer\DataViewerAddColDlg.h" />
     <ClInclude Include="..\..\DataViewer\DataViewerDeleteColDlg.h" />
     <ClInclude Include="..\..\DataViewer\DataViewerEditFieldPropertiesDlg.h" />
@@ -803,6 +804,7 @@
     <ClCompile Include="..\..\Explore\MapNewView.cpp" />
     <ClCompile Include="..\..\Explore\PCPNewView.cpp" />
     <ClCompile Include="..\..\Explore\ScatterNewPlotView.cpp" />
+    <ClCompile Include="..\..\Explore\WebGLMapView.cpp" />
     <ClCompile Include="..\..\DataViewer\DataViewerAddColDlg.cpp" />
     <ClCompile Include="..\..\DataViewer\DataViewerDeleteColDlg.cpp" />
     <ClCompile Include="..\..\DataViewer\DataViewerEditFieldPropertiesDlg.cpp" />
