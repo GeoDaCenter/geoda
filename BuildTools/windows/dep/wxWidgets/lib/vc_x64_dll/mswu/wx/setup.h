@@ -744,7 +744,7 @@
 // Default is 1
 //
 // Recommended setting: 1 (required by XRC)
-#define wxUSE_XML       wxUSE_XML
+#define wxUSE_XML       1
 
 // Use wxWidget's AUI docking system
 //
