@@ -45,9 +45,9 @@ Source: "..\..\..\CommonDistFiles\geoda_prefs.sqlite"; DestDir: "{app}"
 Source: "..\..\..\CommonDistFiles\geoda_prefs.json"; DestDir: "{app}"
 Source: "..\..\..\CommonDistFiles\web_plugins\*"; DestDir: "{app}\web_plugins"; Flags: recursesubdirs
 Source: "..\..\..\CommonDistFiles\proj\*"; DestDir: "{app}\proj"; Flags: recursesubdirs
-Source: "..\..\..\CommonDistFiles\index.html"; DestDir: "{app}"
-Source: "..\..\..\CommonDistFiles\bundle.js"; DestDir: "{app}"
-Source: "..\..\..\CommonDistFiles\bundle.js.map"; DestDir: "{app}"
+Source: "..\..\..\CommonDistFiles\index.html"; DestDir: "{app}\web_plugins"
+Source: "..\..\..\CommonDistFiles\bundle.js"; DestDir: "{app}\web_plugins"
+Source: "..\..\..\CommonDistFiles\bundle.js.map"; DestDir: "{app}\web_plugins"
 
 
 Source: "VC_redist.x86.exe"; DestDir: "{app}"

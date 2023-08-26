@@ -43,6 +43,7 @@
 #include <wx/webviewarchivehandler.h>
 #include <wx/webviewfshandler.h>
 
+#include "../GenUtils.h"
 #include "WebGLMapView.h"
 
 IMPLEMENT_CLASS(WebGLMapFrame, TemplateFrame)
@@ -118,12 +119,11 @@ WebGLMapFrame::~WebGLMapFrame() {
 }
 
 void WebGLMapFrame::CreateMemoryFiles(const std::vector<OGRFeature*>& features) {
-  wxString exe_path = wxStandardPaths::Get().GetExecutablePath();
-  wxFileName exe_file(exe_path);
-  wxString exe_dir = exe_file.GetPathWithSep();
+  // load web pages under web_plugins/
+  wxString web_file_path = GenUtils::GetSamplesDir();
 
   wxPathList pathlist;
-  pathlist.Add(exe_dir + "../Resources");
+  pathlist.Add(web_file_path);
 
   // Create data.csv by passing in OGRLayer with only geometries and selected variables
   wxString csv_filecontent;

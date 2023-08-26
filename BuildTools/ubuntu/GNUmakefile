@@ -88,6 +88,9 @@ build-geoda:
 	cp $(GEODA_HOME)/../CommonDistFiles/geoda_prefs.sqlite build/geoda_prefs.sqlite
 	cp $(GEODA_HOME)/../CommonDistFiles/geoda_prefs.json build/geoda_prefs.json
 	cp -rf $(GEODA_HOME)/../CommonDistFiles/web_plugins/* build/web_plugins
+	cp $(GeoDa_ROOT)/BuildTools/CommonDistFiles/index.html build/web_plugins/index.html
+	cp $(GeoDa_ROOT)/BuildTools/CommonDistFiles/bundle.js build/web_plugins/bundle.js
+	cp $(GeoDa_ROOT)/BuildTools/CommonDistFiles/bundle.js.map build//web_plugins/bundle.js.map
 	cp -rf $(GeoDa_ROOT)/internationalization/lang build/
 	if [ -d "/usr/share/gdal/2.2" ]; then cp /usr/share/gdal/2.2/* build/gdaldata; fi
 	if [ -f "/usr/share/gdal/header.dxf" ]; then cp /usr/share/gdal/* build/gdaldata; fi
