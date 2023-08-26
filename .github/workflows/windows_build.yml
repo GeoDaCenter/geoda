@@ -89,6 +89,7 @@ jobs:
           path: |
             BuildTools/windows/libraries
             BuildTools/windows/temp
+            BuildTools/windows/dep
           key: ${{ runner.os }}-${{ matrix.platform }}-deps-cache-${{ hashFiles('BuildTools/windows/deps.md') }}
 
       # Create Deps
