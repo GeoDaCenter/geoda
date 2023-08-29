@@ -70,13 +70,17 @@ WebGLMapFrame::WebGLMapFrame(wxFrame* parent, Project* project, const std::vecto
   }
 #endif
 
+  // Required for virtual file system archive and memory support
+  wxFileSystem::AddHandler(new wxMemoryFSHandler);
+
+  // Create the memory files
+  CreateMemoryFiles(features);
+
   // Create the webview
   m_browser = wxWebView::New();
 
-#ifdef __WXMAC__
   // With WKWebView handlers need to be registered before creation
   m_browser->RegisterHandler(wxSharedPtr<wxWebViewHandler>(new wxWebViewFSHandler("memory")));
-#endif
 
   m_browser->Create(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize);
   topsizer->Add(m_browser, wxSizerFlags().Expand().Proportion(1));
@@ -86,11 +90,6 @@ WebGLMapFrame::WebGLMapFrame(wxFrame* parent, Project* project, const std::vecto
                wxWebView::GetBackendVersionInfo().ToString());
   wxLogMessage("User Agent: %s", m_browser->GetUserAgent());
 
-#ifndef __WXMAC__
-  // register the memory: file system
-  m_browser->RegisterHandler(wxSharedPtr<wxWebViewHandler>(new wxWebViewFSHandler("memory")));
-#endif
-
   if (!m_browser->AddScriptMessageHandler("wx")) wxLogError("Could not add script message handler");
 
   SetSizer(topsizer);
@@ -98,13 +97,7 @@ WebGLMapFrame::WebGLMapFrame(wxFrame* parent, Project* project, const std::vecto
   // Set a more sensible size for web browsing
   SetSize(FromDIP(wxSize(800, 600)));
 
-  // Required for virtual file system archive and memory support
-  wxFileSystem::AddHandler(new wxMemoryFSHandler);
-
-  // Create the memory files
-  CreateMemoryFiles(features);
-
-  m_browser->LoadURL("memory:index.html");
+  m_browser->LoadURL("http://memory.wxsite/index.html");
   m_browser->SetFocus();
   m_browser->EnableAccessToDevTools(true);
   // Connect the idle events
@@ -157,8 +150,8 @@ void WebGLMapFrame::CreateMemoryFiles(const std::vector<OGRFeature*>& features) 
   index_file.ReadAll(&index_content);
 
   // replace relative urls in index.html with "memory:bundle.js"
-  index_content.Replace("bundle.js", "memory:bundle.js");
-  index_content.Replace("data.csv", "memory:data.csv");
+  index_content.Replace("bundle.js", "http://memory.wxsite/bundle.js");
+  index_content.Replace("data.csv", "http://memory.wxsite/data.csv");
 
   wxMemoryFSHandler::AddFile("index.html", index_content);
 }
