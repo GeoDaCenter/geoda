@@ -38,6 +38,7 @@ class WebGLMapFrame : public TemplateFrame {
 
  private:
   wxWebView* m_browser;
+  wxString custom_scheme;
 
   void OnIdle(wxIdleEvent& WXUNUSED(evt));
   void CreateMemoryFiles(const std::vector<OGRFeature*>& features);

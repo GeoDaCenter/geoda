@@ -29,7 +29,11 @@
     "array": "cpp",
     "string": "cpp",
     "string_view": "cpp",
-    "alignedvector3": "cpp"
+    "alignedvector3": "cpp",
+    "iosfwd": "cpp",
+    "filesystem": "cpp",
+    "__config": "cpp",
+    "__nullptr": "cpp"
   },
   "[python]": {
     "editor.defaultFormatter": "ms-python.autopep8"

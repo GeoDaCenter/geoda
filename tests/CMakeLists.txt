@@ -24,3 +24,4 @@ target_link_libraries(runUnitTests
     gtest_main)
 
 add_test(runUnitTests runUnitTests)
+file(COPY data DESTINATION ${CMAKE_CURRENT_BINARY_DIR})

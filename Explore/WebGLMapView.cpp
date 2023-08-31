@@ -58,7 +58,10 @@ WebGLMapFrame::WebGLMapFrame(wxFrame* parent, Project* project, const std::vecto
   // Create a log window
   new wxLogWindow(NULL, _("Logging"), true, false);
 
+  custom_scheme = "memory:";
+
 #if wxUSE_WEBVIEW_EDGE
+  custom_scheme = "http://memory.wxsite/";
   // Check if a fixed version of edge is present in
   // $executable_path/edge_fixed and use it
   wxFileName edgeFixedDir(wxStandardPaths::Get().GetExecutablePath());
@@ -97,7 +100,7 @@ WebGLMapFrame::WebGLMapFrame(wxFrame* parent, Project* project, const std::vecto
   // Set a more sensible size for web browsing
   SetSize(FromDIP(wxSize(800, 600)));
 
-  m_browser->LoadURL("http://memory.wxsite/index.html");
+  m_browser->LoadURL(custom_scheme + "index.html");
   m_browser->SetFocus();
   m_browser->EnableAccessToDevTools(true);
   // Connect the idle events
@@ -109,6 +112,17 @@ WebGLMapFrame::~WebGLMapFrame() {
   wxMemoryFSHandler::RemoveFile("bundle.js");
   wxMemoryFSHandler::RemoveFile("index.html");
   DeregisterAsActive();
+}
+
+std::string bytes_to_hex(const unsigned char* bytes, size_t n_bytes) {
+  static const char* hex_digits = "0123456789ABCDEF";
+  std::string hex_string;
+  for (size_t i = 0; i < n_bytes; ++i) {
+    const unsigned char c = bytes[i];
+    hex_string.push_back(hex_digits[c >> 4]);
+    hex_string.push_back(hex_digits[c & 15]);
+  }
+  return hex_string;
 }
 
 void WebGLMapFrame::CreateMemoryFiles(const std::vector<OGRFeature*>& features) {
@@ -125,16 +139,25 @@ void WebGLMapFrame::CreateMemoryFiles(const std::vector<OGRFeature*>& features) 
   for (size_t i = 0; i < features.size(); ++i) {
     const OGRFeature* feat = features[i];
     const OGRGeometry* geom = feat->GetGeometryRef();
-    char* pszWKT = NULL;
-    geom->exportToWkt(&pszWKT);
-    wxString wkt = pszWKT;
-    wxString line = wxString::Format(_("%zd,\"%s\"\n"), i, wkt);
+    int nBLOBLen = geom->WkbSize();
+    GByte* pabyGeomBLOB = reinterpret_cast<GByte*>(VSIMalloc(nBLOBLen));
+    geom->exportToWkb(wkbNDR, pabyGeomBLOB);
+    // hex-encoded WKB strings
+    wxString wkb(bytes_to_hex(pabyGeomBLOB, nBLOBLen));
+    wxString line = wxString::Format(_("%zd,\"%s\"\n"), i, wkb);
+//      char* pszWKT = NULL;
+//          geom->exportToWkt(&pszWKT);
+//          wxString wkt = pszWKT;
+//          wxString line = wxString::Format(_("%zd,\"%s\"\n"), i, wkt);
     csv_filecontent << line;
   }
   const wxString csv_filename = "data.csv";
-  const wxString mem_csv_filename = "memory:" + csv_filename;
   wxMemoryFSHandler::AddFile(csv_filename, csv_filecontent);
 
+  wxFile file("/Users/xun/Downloads/wkb.csv", wxFile::write);
+  file.Write(csv_filecontent);
+  file.Close();
+  
   // Create bundle.js
   wxString bundle_path = wxFileName(pathlist.FindValidPath("bundle.js")).GetAbsolutePath();
   wxFFile bundle_file(bundle_path);
@@ -150,8 +173,8 @@ void WebGLMapFrame::CreateMemoryFiles(const std::vector<OGRFeature*>& features) 
   index_file.ReadAll(&index_content);
 
   // replace relative urls in index.html with "memory:bundle.js"
-  index_content.Replace("bundle.js", "http://memory.wxsite/bundle.js");
-  index_content.Replace("data.csv", "http://memory.wxsite/data.csv");
+  index_content.Replace("bundle.js", custom_scheme + "bundle.js");
+  index_content.Replace("data.csv", custom_scheme + "data.csv");
 
   wxMemoryFSHandler::AddFile("index.html", index_content);
 }
