@@ -100,8 +100,6 @@ BEGIN_EVENT_TABLE( VarGroupingEditorDlg, wxDialog )
            VarGroupingEditorDlg::OnLoadFromGda )
 END_EVENT_TABLE()
 
-using namespace std;
-
 VarGroupingEditorDlg::VarGroupingEditorDlg(Project* project_p,
 										   wxWindow* parent,
 										   const wxString& title,
@@ -548,8 +546,8 @@ void VarGroupingEditorDlg::OnUngroupClick( wxCommandEvent& event )
 		
 	int tms = table_int->GetColTimeSteps(col);
 
-	set<wxString> col_nms_set;
-	vector<wxString> col_nms(tms);
+    std::set<wxString> col_nms_set;
+    std::vector<wxString> col_nms(tms);
 	for (int t=0; t<tms; ++t) {
 		wxString nm = table_int->GetColName(col, t);
 		if (nm.IsEmpty())
@@ -601,21 +599,21 @@ void VarGroupingEditorDlg::OnMoveUpClick( wxCommandEvent& event )
 	int item_cnt = include_list->GetItemCount();
 	int sel_count = include_list->GetSelectedItemCount();
 	if (sel_count == 0) return;
-	list<int> sel_pos = GetListSel(include_list);
+    std::list<int> sel_pos = GetListSel(include_list);
 	if (sel_pos.front() == 0) return;
-	set<int> sel_pos_set;
+    std::set<int> sel_pos_set;
 	BOOST_FOREACH(int i, sel_pos) sel_pos_set.insert(i);
-	list<int> unsel_pos;
+    std::list<int> unsel_pos;
 	for (int i=0; i<item_cnt; ++i) {
 		if (sel_pos_set.find(i) == sel_pos_set.end()) {
 			unsel_pos.push_back(i);
 
 		}
 	}
-	vector<wxString> orig(item_cnt);
+    std::vector<wxString> orig(item_cnt);
 	for (int i=0; i<item_cnt; i++) orig[i] = include_list->GetItemText(i, 1);
 	UnselectAll(include_list);
-	set<int> new_pos_set;
+    std::set<int> new_pos_set;
 	BOOST_FOREACH(int i, sel_pos) {
 		include_list->SetItem(i-1, 1, orig[i]);
 		SelectItem(include_list, i-1);
@@ -639,23 +637,23 @@ void VarGroupingEditorDlg::OnMoveDownClick( wxCommandEvent& event )
 	int item_cnt = include_list->GetItemCount();
 	int sel_count = include_list->GetSelectedItemCount();
 	if (sel_count == 0) return;
-	list<int> sel_pos = GetListSel(include_list);
+    std::list<int> sel_pos = GetListSel(include_list);
 	if (sel_pos.back() == item_cnt-1) return;
-	set<int> sel_pos_set;
+    std::set<int> sel_pos_set;
 	BOOST_FOREACH(int i, sel_pos) sel_pos_set.insert(i);
-	list<int> unsel_pos;
+    std::list<int> unsel_pos;
 	for (int i=0; i<item_cnt; ++i) {
 		if (sel_pos_set.find(i) == sel_pos_set.end()) {
 			unsel_pos.push_back(i);
 
 		}
 	}
-	vector<wxString> orig(item_cnt);
+    std::vector<wxString> orig(item_cnt);
 	for (int i=0; i<item_cnt; i++)
         orig[i] = include_list->GetItemText(i, 1);
     
 	UnselectAll(include_list);
-	set<int> new_pos_set;
+    std::set<int> new_pos_set;
 	BOOST_FOREACH(int i, sel_pos) {
 		include_list->SetItem(i+1, 1, orig[i]);
 		SelectItem(include_list, i+1);
@@ -674,10 +672,10 @@ void VarGroupingEditorDlg::sortColumn(int col, bool asc)
 {
     if (!all_init) return;
     
-    list<wxString> all_str = GetListAllStrs(include_list, col);
-    list<int> nm_locs;
-    vector<wxString> sorted_nms;
-    set<wxString> sel_nms;
+    std::list<wxString> all_str = GetListAllStrs(include_list, col);
+    std::list<int> nm_locs;
+    std::vector<wxString> sorted_nms;
+    std::set<wxString> sel_nms;
     int loc=0;
     BOOST_FOREACH(const wxString& s, all_str) {
         if (!s.IsEmpty() && s != GdaConst::placeholder_str) {
@@ -695,11 +693,11 @@ void VarGroupingEditorDlg::sortColumn(int col, bool asc)
     sort_asc = !sort_asc;
     
     if (asc)
-        sort(sorted_nms.begin(), sorted_nms.end());
+        std::sort(sorted_nms.begin(), sorted_nms.end());
     else
-        sort(sorted_nms.begin(), sorted_nms.end(), greater<wxString>());
+        std::sort(sorted_nms.begin(), sorted_nms.end(), std::greater<wxString>());
     
-    list<int>::iterator pos = nm_locs.begin();
+    std::list<int>::iterator pos = nm_locs.begin();
     BOOST_FOREACH(const wxString& s, sorted_nms) {
         include_list->SetItem(*pos, col, s);
         if (sel_nms.find(s) != sel_nms.end())
@@ -717,10 +715,10 @@ void VarGroupingEditorDlg::OnSortClick( wxCommandEvent& event )
 	wxLogMessage("In VarGroupingEditorDlg::OnSortClick");
 	if (!all_init) return;
 	
-	list<wxString> all_str = GetListAllStrs(include_list, 1);
-	list<int> nm_locs;
-	vector<wxString> sorted_nms;
-	set<wxString> sel_nms;
+    std::list<wxString> all_str = GetListAllStrs(include_list, 1);
+    std::list<int> nm_locs;
+    std::vector<wxString> sorted_nms;
+    std::set<wxString> sel_nms;
 	int loc=0;
 	BOOST_FOREACH(const wxString& s, all_str) {
 		if (!s.IsEmpty() && s != GdaConst::placeholder_str) {
@@ -735,7 +733,7 @@ void VarGroupingEditorDlg::OnSortClick( wxCommandEvent& event )
 	}
 	
 	sort(sorted_nms.begin(), sorted_nms.end());
-	list<int>::iterator pos = nm_locs.begin();
+    std::list<int>::iterator pos = nm_locs.begin();
 	BOOST_FOREACH(const wxString& s, sorted_nms) {
 		include_list->SetItem(*pos, 1, s);
 		if (sel_nms.find(s) != sel_nms.end())
@@ -782,8 +780,8 @@ void VarGroupingEditorDlg::OnAddToListClick( wxCommandEvent& event )
 	int sel_cnt = ungrouped_list->GetSelectedItemCount();
 	if (sel_cnt == 0) return;
 	
-	list<wxString> typs = GetListSelStrs(ungrouped_list, 1);
-	set<wxString> pool;
+    std::list<wxString> typs = GetListSelStrs(ungrouped_list, 1);
+    std::set<wxString> pool;
 	BOOST_FOREACH(const wxString& s, typs) pool.insert(s);
 	if (pool.size() != 1) return;
 	
@@ -812,7 +810,7 @@ void VarGroupingEditorDlg::OnAddToListClick( wxCommandEvent& event )
             overwrite_plhdr = true;
 	}
 	
-	list<int> inc_list_sel = GetListSel(include_list);
+    std::list<int> inc_list_sel = GetListSel(include_list);
 	int last_inc_list_sel = 0;
 	if (inc_list_sel.size() > 0)
         last_inc_list_sel = inc_list_sel.back();
@@ -846,7 +844,7 @@ void VarGroupingEditorDlg::OnAddToListClick( wxCommandEvent& event )
         }
     }
 	
-	list<wxString> ung_sel_strs = GetListSelStrs(ungrouped_list, 0);
+    std::list<wxString> ung_sel_strs = GetListSelStrs(ungrouped_list, 0);
 	
 	int insert_pos = 0;
 	if (!fill_from_top) insert_pos = last_inc_list_sel;
@@ -860,9 +858,9 @@ void VarGroupingEditorDlg::OnAddToListClick( wxCommandEvent& event )
 	}
 	
 	// Remove added items from ungrouped_list
-	set<wxString> add_nms;
+    std::set<wxString> add_nms;
 	BOOST_FOREACH(const wxString& s, ung_sel_strs) add_nms.insert(s);
-    list<wxString> inc_nms;
+    std::list<wxString> inc_nms;
     inc_nms = GetListAllStrs(include_list, 1);
     BOOST_FOREACH(const wxString& s, inc_nms) add_nms.insert(s);
 
@@ -872,7 +870,7 @@ void VarGroupingEditorDlg::OnAddToListClick( wxCommandEvent& event )
 	UpdateTimeStepsTxt();
 	
 	if (new_group_name_txt_ctrl->GetValue().IsEmpty() || inc_list_cnt > 1) {
-		vector<wxString> names(inc_list_cnt);
+	    std::vector<wxString> names(inc_list_cnt);
 		for (int i=0; i<inc_list_cnt; ++i) {
 			names[i] = include_list->GetItemText(i, 1);
 		}
@@ -949,8 +947,8 @@ void VarGroupingEditorDlg::includeListDeleteTime()
         }
     }
 
-    list<wxString> inc_strs = GetListAllStrs(include_list, 1);
-    set<wxString> excl;
+    std::list<wxString> inc_strs = GetListAllStrs(include_list, 1);
+    std::set<wxString> excl;
     BOOST_FOREACH(const wxString& s, inc_strs) if (s!="") excl.insert(s);
     InitUngroupedList(excl);
     
@@ -959,7 +957,7 @@ void VarGroupingEditorDlg::includeListDeleteTime()
 
 void VarGroupingEditorDlg::OnIncludeListDblClicked( wxMouseEvent& event)
 {
-    list<int> inc_sel_pos = GetListSel(include_list);
+    std::list<int> inc_sel_pos = GetListSel(include_list);
     BOOST_FOREACH(int i, inc_sel_pos) {
         include_list->EditLabel(i);
         break;
@@ -995,7 +993,7 @@ void VarGroupingEditorDlg::OnRemoveFrListClick( wxCommandEvent& event )
 	wxLogMessage("In VarGroupingEditorDlg::OnRemoveFrListClick");
 	if (!all_init) return;
 	
-	list<int> inc_sel_pos = GetListSel(include_list);
+    std::list<int> inc_sel_pos = GetListSel(include_list);
 	BOOST_FOREACH(int i, inc_sel_pos) {
 		include_list->SetItem(i, 1, "");
 		include_list->SetItemState(i, 1, wxLIST_STATE_SELECTED);
@@ -1014,8 +1012,8 @@ void VarGroupingEditorDlg::OnRemoveFrListClick( wxCommandEvent& event )
 		}
 	}
 	
-	list<wxString> inc_strs = GetListAllStrs(include_list, 1);
-	set<wxString> excl;
+    std::list<wxString> inc_strs = GetListAllStrs(include_list, 1);
+    std::set<wxString> excl;
 	BOOST_FOREACH(const wxString& s, inc_strs) if (s!="") excl.insert(s);
 	InitUngroupedList(excl);
 	
@@ -1174,11 +1172,10 @@ void VarGroupingEditorDlg::UpdateAddToListButton()
 
 void VarGroupingEditorDlg::UpdateButtons()
 {
-	using namespace std;
-	list<wxString> sel_strs = GetListSelStrs(include_list, 1);
+    std::list<wxString> sel_strs = GetListSelStrs(include_list, 1);
 	int non_empty_cnt = 0;
 	BOOST_FOREACH(const wxString& s, sel_strs) if (s != "") ++non_empty_cnt;
-	list<int> sel_pos = GetListSel(include_list);
+    std::list<int> sel_pos = GetListSel(include_list);
 	int sel_first = -1;
 	int sel_last = -1;
 	if (sel_pos.size() > 0) {

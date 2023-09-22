@@ -1122,13 +1122,13 @@ void LineChartFrame::SaveDataAndResults(bool save_weights, bool save_did,
                 GalWeight* gw = wmi->GetGal(default_wid);
                 wxString id_field = gw->id_field;
                 
-                vector<wxString> id_vec;
+                std::vector<wxString> id_vec;
                 int c_id = table_int->FindColId(id_field);
                 if (c_id > 0) {
                     table_int->GetColData(c_id, 1, id_vec); // 1 time step
                     
                     
-                    vector<wxString> new_id_vec;
+                    std::vector<wxString> new_id_vec;
                     for (int ii=0; ii<n; ii++) {
                         if (undefs[ii % n_obs])
                             continue;
@@ -1999,15 +1999,14 @@ void LineChartFrame::UpdateTitleWin()
  in var_man. */
 void LineChartFrame::UpdateDataMapFromVarMan()
 {
-	using namespace std;
 	// get set of var_man names
-	set<wxString> vm_nms;
+    std::set<wxString> vm_nms;
 	for (int i=0; i<var_man.GetVarsCount(); ++i) {
 		vm_nms.insert(var_man.GetName(i));
 	}
 	
 	// remove items from data_map not in vm_nms
-	set<wxString> to_remove;
+    std::set<wxString> to_remove;
 	for (data_map_type::iterator i=data_map.begin(); i!=data_map.end(); ++i) {
 		wxString nm(i->first);
 		if (vm_nms.find(nm) != vm_nms.end())
@@ -2015,14 +2014,14 @@ void LineChartFrame::UpdateDataMapFromVarMan()
 		to_remove.insert(nm);
 	}
 	
-	for (set<wxString>::iterator i=to_remove.begin(); i!=to_remove.end(); ++i) {
+	for (std::set<wxString>::iterator i=to_remove.begin(); i!=to_remove.end(); ++i) {
 		data_map.erase(*i);
         data_map_undef.erase(*i);
 	}
 	
 	// add items to data_map that are in vm_nms, but not currently in data_map
-	set<wxString> to_add;
-	for (set<wxString>::iterator i=vm_nms.begin(); i!=vm_nms.end(); ++i) {
+    std::set<wxString> to_add;
+	for (std::set<wxString>::iterator i=vm_nms.begin(); i!=vm_nms.end(); ++i) {
 		wxString nm(*i);
         if (data_map.find(nm) != data_map.end()) {
             continue;
@@ -2033,14 +2032,14 @@ void LineChartFrame::UpdateDataMapFromVarMan()
 	TableInterface* table_int = project->GetTableInt();
     int num_obs = table_int->GetNumberRows();
     
-	for (set<wxString>::iterator i=to_add.begin(); i!=to_add.end(); ++i) {
+	for (std::set<wxString>::iterator i=to_add.begin(); i!=to_add.end(); ++i) {
 		wxString nm = (*i);
 		int c_id = table_int->FindColId(nm);
 		if (c_id < 0) {
 			continue;
 		}
 		int tms = table_int->GetColTimeSteps(c_id);
-		pair<wxString, vec_vec_dbl_type> p(nm, vec_vec_dbl_type(tms));
+        std::pair<wxString, vec_vec_dbl_type> p(nm, vec_vec_dbl_type(tms));
 		data_map.insert(p);
 		data_map_type::iterator e = data_map.find(nm);
 		if (e == data_map.end()) {
@@ -2110,7 +2109,7 @@ void LineChartFrame::UpdateStatsWinContent(int var)
 		tm2_clr << "\"" << GdaColorUtils::ToHexColorStr(c) << "\"";
 	}
 	
-    stringstream _s;
+    std::stringstream _s;
     _s << std::fixed << std::setprecision(def_y_precision);
 	wxString td_s0_mean;
     
@@ -2347,7 +2346,7 @@ void LineChartFrame::UpdateStatsWinContent(int var)
         s<< "<td bgcolor=\"#CCCCCC\" align=\"center\">";
         s<< _("D.F.");
         s<< "&nbsp;</td>";
-        stringstream _s;
+        std::stringstream _s;
         if (choice_groups->GetSelection() == 0)
             _s << (int)lcs.deg_free -1;
         else
@@ -2379,7 +2378,7 @@ void LineChartFrame::UpdateStatsWinContent(int var)
         s<< "<table>";
         s<< "<tr>";
         s<< "<td bgcolor=\"#CCCCCC\" align=\"center\">D.F.&nbsp;</td>";
-        stringstream _s;
+        std::stringstream _s;
         if (choice_group1->GetSelection() == 0) {
             _s << (int)lcs.deg_free_c[1] * 2;
         } else {

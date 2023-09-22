@@ -2439,7 +2439,6 @@ void GdaShapeTable::Offset(int dx, int dy)
 
 void GdaShapeTable::paintSelf(wxDC& dc)
 {
-	using namespace std;
 	//LOG_MSG("Entering GdaShapeTable::paintSelf");
 	if (hidden || vals.size() == 0 || rows*cols != vals.size()) return;
 	dc.SetPen(getPen());
@@ -2450,9 +2449,9 @@ void GdaShapeTable::paintSelf(wxDC& dc)
 	// we know that rows>0 and cols>0 and that rows*cols == vals.size()
 	// let's find the max vertical extent and the max horizontal
 	// extent for each row and each column
-	vector<int> row_h(rows, 0);
-	vector<int> col_w(cols, 0);
-	vector<wxSize> extents(rows*cols); 
+    std::vector<int> row_h(rows, 0);
+    std::vector<int> col_w(cols, 0);
+    std::vector<wxSize> extents(rows*cols); 
 	for (int i=0; i<rows; i++) {
 		for (int j=0; j<cols; j++) {
 			int ij = i*cols+j;
@@ -2481,7 +2480,7 @@ void GdaShapeTable::paintSelf(wxDC& dc)
 	//	LOG_MSG(msg);		
 	//}
 	
-	vector<wxPoint> d(rows*cols);
+    std::vector<wxPoint> d(rows*cols);
 	for (int i=0; i<rows; i++) {
 		for (int j=0; j<cols; j++) {
 			int ij = i*cols+j;
@@ -2505,7 +2504,7 @@ void GdaShapeTable::paintSelf(wxDC& dc)
 			//LOG_MSG(msg);			
 		}
 	}
-	vector<wxPoint> pos(rows*cols);
+    std::vector<wxPoint> pos(rows*cols);
 	int y_offset = 0;
 	for (int i=0; i<rows; i++) {
 		int x_offset = 0;
@@ -2566,14 +2565,13 @@ void GdaShapeTable::paintSelf(wxGraphicsContext* gc)
 
 void GdaShapeTable::GetSize(wxDC& dc, int& w, int& h)
 {
-	using namespace std;
 	if (hidden || vals.size() == 0 || rows*cols != vals.size()) return;
 	dc.SetPen(getPen());
 	dc.SetFont(font);
 	
-	vector<int> row_h(rows, 0);
-	vector<int> col_w(cols, 0);
-	vector<wxSize> extents(rows*cols); 
+    std::vector<int> row_h(rows, 0);
+    std::vector<int> col_w(cols, 0);
+    std::vector<wxSize> extents(rows*cols); 
 	for (int i=0; i<rows; i++) {
 		for (int j=0; j<cols; j++) {
 			int ij = i*cols+j;

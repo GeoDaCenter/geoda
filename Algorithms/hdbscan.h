@@ -13,8 +13,6 @@
 
 #include "../kNN/ANN/ANN.h"
 
-using namespace std;
-
 class RawDistMatrix;
 
 namespace Gda {
@@ -96,15 +94,15 @@ namespace Gda {
     class TreeUnionFind
     {
     public:
-        vector<bool> is_component;
-        vector<pair<int, int> > _data;
+        std::vector<bool> is_component;
+        std::vector<std::pair<int, int> > _data;
         
         TreeUnionFind(int size) {
             _data.resize(size);
             is_component.resize(size);
             for (int i=0; i<size; i++) {
                 is_component[i] = true;
-                _data[i] = make_pair(i, 0);
+                _data[i] = std::make_pair(i, 0);
             }
         }
         
@@ -130,8 +128,8 @@ namespace Gda {
             return _data[x].first;
         }
         
-        vector<int> components() {
-            vector<int> c;
+        std::vector<int> components() {
+            std::vector<int> c;
             for (int i=0; i<is_component.size(); i++) {
                 if (is_component[i]) {
                     c.push_back(i);
@@ -183,14 +181,14 @@ namespace Gda {
         int cols;
         
         double** single_linkage_tree;
-        vector<SimpleEdge*> mst_edges;
-        vector<CondensedTree*> condensed_tree;
-        vector<double> core_dist;
-        vector<int> labels;
-        vector<double> probabilities;
-        vector<double> stabilities;
-        vector<double> outliers;
-        set<int> clusters;
+        std::vector<SimpleEdge*> mst_edges;
+        std::vector<CondensedTree*> condensed_tree;
+        std::vector<double> core_dist;
+        std::vector<int> labels;
+        std::vector<double> probabilities;
+        std::vector<double> stabilities;
+        std::vector<double> outliers;
+        std::set<int> clusters;
         boost::unordered_map<int, int> cluster_map, reverse_cluster_map;
         
         HDBScan(int min_points,
@@ -200,78 +198,78 @@ namespace Gda {
                 bool allow_single_cluster,
                 int rows, int cols,
                 RawDistMatrix* raw_dist,
-                vector<double> core_dist,
-                const vector<bool>& undefs
+                std::vector<double> core_dist,
+                const std::vector<bool>& undefs
                 //GalElement * w,
                 //double* controls,
                 //double control_thres
         );
         virtual ~HDBScan();
 
-        static vector<double> ComputeCoreDistance(double** input_data, int n_pts,
+        static std::vector<double> ComputeCoreDistance(double** input_data, int n_pts,
                                               int n_dim, int min_samples,
                                               char dist);
-        static vector<SimpleEdge*> mst_linkage_core_vector(int num_features,
-                                                    vector<double>& core_distances,
+        static std::vector<SimpleEdge*> mst_linkage_core_vector(int num_features,
+                                                    std::vector<double>& core_distances,
                                                     RawDistMatrix* dist_metric,
                                                     double alpha);
         
         void Run();
         
-        vector<vector<int> > GetRegions();
+        std::vector<std::vector<int> > GetRegions();
         
-        vector<double> outlier_scores(vector<CondensedTree*>& tree);
+        std::vector<double> outlier_scores(std::vector<CondensedTree*>& tree);
         
         boost::unordered_map<int, double> compute_stability(
-                                        vector<CondensedTree*>& condensed_tree);
+                                        std::vector<CondensedTree*>& condensed_tree);
         
         void condense_tree(double** hierarchy, int N, int min_cluster_size=10);
         
-        vector<double> max_lambdas(vector<CondensedTree*>& tree);
+        std::vector<double> max_lambdas(std::vector<CondensedTree*>& tree);
         
-        vector<int> do_labelling(vector<CondensedTree*>& tree,
-                            set<int>& clusters,
+        std::vector<int> do_labelling(std::vector<CondensedTree*>& tree,
+                            std::set<int>& clusters,
                             boost::unordered_map<int, int>& cluster_label_map,
                             bool allow_single_cluster = false,
                             bool match_reference_implementation = false);
         
-        vector<double> get_probabilities(vector<CondensedTree*>& tree,
+        std::vector<double> get_probabilities(std::vector<CondensedTree*>& tree,
                             boost::unordered_map<int, int>& reverse_cluster_map,
-                            vector<int>& labels);
+                            std::vector<int>& labels);
         
-        vector<double> get_stability_scores(vector<int>& labels,
-                                set<int>& clusters,
+        std::vector<double> get_stability_scores(std::vector<int>& labels,
+                                std::set<int>& clusters,
                                 boost::unordered_map<int, double>& stability,
                                 double max_lambda);
         
-        void get_clusters(vector<CondensedTree*>& tree,
+        void get_clusters(std::vector<CondensedTree*>& tree,
                           boost::unordered_map<int, double>& stability,
-                          vector<int>& out_labels,
-                          vector<double>& out_probs,
-                          vector<double>& out_stabilities,
+                          std::vector<int>& out_labels,
+                          std::vector<double>& out_probs,
+                          std::vector<double>& out_stabilities,
                           int cluster_selection_method=0,
                           bool allow_single_cluster= false,
                           bool match_reference_implementation=false);
         
-        vector<int> get_cluster_tree_leaves(vector<CondensedTree*>& cluster_tree);
+        std::vector<int> get_cluster_tree_leaves(std::vector<CondensedTree*>& cluster_tree);
         
-        vector<int> recurse_leaf_dfs(vector<CondensedTree*>& cluster_tree,
+        std::vector<int> recurse_leaf_dfs(std::vector<CondensedTree*>& cluster_tree,
                                      int current_node);
         
-        vector<int> bfs_from_hierarchy(double** hierarchy, int dim, int bfs_root)
+        std::vector<int> bfs_from_hierarchy(double** hierarchy, int dim, int bfs_root)
         {
             int max_node = 2* dim;
             int num_points = max_node - dim + 1;
             
-            vector<int> to_process;
+            std::vector<int> to_process;
             to_process.push_back(bfs_root);
             
-            vector<int> result;
+            std::vector<int> result;
             while (!to_process.empty()) {
                 for (int i=0; i<to_process.size(); i++) {
                     result.push_back(to_process[i]);
                 }
-                vector<int> tmp;
+                std::vector<int> tmp;
                 for (int i=0; i<to_process.size(); i++) {
                     if (to_process[i] >= num_points) {
                         int x = to_process[i] - num_points;
@@ -289,11 +287,11 @@ namespace Gda {
             return result;
         }
         
-        vector<int> bfs_from_cluster_tree(vector<CondensedTree*>& tree, int bfs_root)
+        std::vector<int> bfs_from_cluster_tree(std::vector<CondensedTree*>& tree, int bfs_root)
         {
-            vector<int> result;
-            set<int> to_process;
-            set<int>::iterator it;
+            std::vector<int> result;
+            std::set<int> to_process;
+            std::set<int>::iterator it;
             
             to_process.insert(bfs_root);
             
@@ -301,7 +299,7 @@ namespace Gda {
                 for (it = to_process.begin(); it != to_process.end(); it++) {
                     result.push_back(*it);
                 }
-                set<int> tmp;
+                std::set<int> tmp;
                 for (int i=0; i<tree.size(); i++) {
                     if (to_process.find( tree[i]->parent) != to_process.end() ) {
                         tmp.insert( tree[i]->child);

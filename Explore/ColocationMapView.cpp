@@ -45,8 +45,6 @@
 #include "MapNewView.h"
 #include "ColocationMapView.h"
 
-using namespace std;
-
 BEGIN_EVENT_TABLE( ColocationSelectDlg, wxDialog )
 EVT_CLOSE( ColocationSelectDlg::OnClose )
 END_EVENT_TABLE()
@@ -307,7 +305,7 @@ void ColocationSelectDlg::OnVarSelect( wxCommandEvent& event)
     
     clear_colo_control();
    
-    vector<int> tms;
+    std::vector<int> tms;
     
     combo_var->GetSelections(var_selections);
     size_t num_var = var_selections.size();
@@ -348,8 +346,8 @@ void ColocationSelectDlg::OnVarSelect( wxCommandEvent& event)
             table_int->GetColUndefined(col_ids[i], data_undef[i]);
         }
         
-        vector<set<wxInt64> > same_val_counts(rows);
-        vector<bool> same_undef(rows, false);
+        std::vector<std::set<wxInt64> > same_val_counts(rows);
+        std::vector<bool> same_undef(rows, false);
         for (int i=0; i<data.size(); i++ ){ // col
             int j = tms[i];
             //for (int j=0; j<data[i].size(); j++) // time
@@ -483,10 +481,10 @@ void ColocationSelectDlg::OnOK( wxCommandEvent& event)
     
     int n_co = co_boxes.size();
     
-    vector<wxString> sel_vals;
-    vector<wxColour> sel_clrs;
-    vector<wxString> sel_lbls;
-    vector<vector<int> > sel_ids;
+    std::vector<wxString> sel_vals;
+    std::vector<wxColour> sel_clrs;
+    std::vector<wxString> sel_lbls;
+    std::vector<std::vector<int> > sel_ids;
     
     for (int i=0; i<n_co; i++) {
         if (co_boxes[i] && co_bitmaps[i]) {
@@ -560,8 +558,8 @@ BEGIN_EVENT_TABLE(ColocationMapCanvas, MapCanvas)
 	EVT_MOUSE_CAPTURE_LOST(TemplateCanvas::OnMouseCaptureLostEvent)
 END_EVENT_TABLE()
 
-ColocationMapCanvas::ColocationMapCanvas(wxWindow *parent, TemplateFrame* t_frame, Project* project, vector<wxString>& _select_vars,vector<wxString>& _co_vals, vector<wxColour>& _co_clrs, vector<wxString>& _co_lbls, vector<vector<int> >& _co_ids, CatClassification::CatClassifType theme_type_s, boost::uuids::uuid weights_id_s, const wxPoint& pos, const wxSize& size)
-:MapCanvas(parent, t_frame, project, vector<GdaVarTools::VarInfo>(0), vector<int>(0), CatClassification::no_theme, no_smoothing, 1, weights_id_s, pos, size),
+ColocationMapCanvas::ColocationMapCanvas(wxWindow *parent, TemplateFrame* t_frame, Project* project, std::vector<wxString>& _select_vars,std::vector<wxString>& _co_vals, std::vector<wxColour>& _co_clrs, std::vector<wxString>& _co_lbls, std::vector<std::vector<int> >& _co_ids, CatClassification::CatClassifType theme_type_s, boost::uuids::uuid weights_id_s, const wxPoint& pos, const wxSize& size)
+:MapCanvas(parent, t_frame, project, std::vector<GdaVarTools::VarInfo>(0), std::vector<int>(0), CatClassification::no_theme, no_smoothing, 1, weights_id_s, pos, size),
 select_vars(_select_vars), co_vals(_co_vals), co_clrs(_co_clrs), co_ids(_co_ids), co_lbls(_co_lbls)
 {
 	wxLogMessage("Entering ColocationMapCanvas::ColocationMapCanvas");
@@ -649,7 +647,7 @@ void ColocationMapCanvas::CreateAndUpdateCategories()
     
     cat_data.CreateCategoriesAtCanvasTm(num_cats, t);
     
-    map<int, bool> sig_dict;
+    std::map<int, bool> sig_dict;
     for (int i=0; i<num_obs; i++) {
         sig_dict[i] = false;
     }
@@ -727,7 +725,7 @@ IMPLEMENT_CLASS(ColocationMapFrame, MapFrame)
 	EVT_ACTIVATE(ColocationMapFrame::OnActivate)
 END_EVENT_TABLE()
 
-ColocationMapFrame::ColocationMapFrame(wxFrame *parent, Project* project, vector<wxString>& select_vars, vector<wxString>& co_vals, vector<wxColour>& co_clrs, vector<wxString>& co_lbls, vector<vector<int> >& co_ids, boost::uuids::uuid weights_id_s, const wxString title, const wxPoint& pos, const wxSize& size, const long style)
+ColocationMapFrame::ColocationMapFrame(wxFrame *parent, Project* project, std::vector<wxString>& select_vars, std::vector<wxString>& co_vals, std::vector<wxColour>& co_clrs, std::vector<wxString>& co_lbls, std::vector<std::vector<int> >& co_ids, boost::uuids::uuid weights_id_s, const wxString title, const wxPoint& pos, const wxSize& size, const long style)
 : MapFrame(parent, project, pos, size, style)
 {
 	wxLogMessage("Entering ColocationMapFrame::ColocationMapFrame");

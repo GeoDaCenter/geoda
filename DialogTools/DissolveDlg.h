@@ -106,12 +106,12 @@ private:
 	//std::vector<int> col_id_map;
     
     bool CheckKeys(wxString key_name, std::vector<wxString>& key_vec,
-                   std::map<int, vector<int> >& key_map);
+                   std::map<int, std::vector<int> >& key_map);
     
     OGRColumn* CreateNewOGRColumn(int new_rows, int col_id, int tm_id,
-                                  std::map<wxString, vector<int> >& key_map);
+                                  std::map<wxString, std::vector<int> >& key_map);
     
-    double ComputeAgg(vector<double>& vals, vector<bool>& undefs, vector<int>& ids);
+    double ComputeAgg(std::vector<double>& vals, std::vector<bool>& undefs, std::vector<int>& ids);
     
 	DECLARE_EVENT_TABLE()
 };

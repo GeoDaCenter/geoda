@@ -68,7 +68,7 @@ OGRTableOpDeleteColumn::OGRTableOpDeleteColumn(OGRColumn* col)
 
 OGRTableOpDeleteColumn::~OGRTableOpDeleteColumn()
 {
-    // When OGRColumn was erased from vector<OGRColumn>, the actual memory of
+    // When OGRColumn was erased from std::vector<OGRColumn>, the actual memory of
     // erased OGRColumn is still there for future committing/rollingback. Once
     // the operation is done, we need to clean this piece of memory.
     if (ogr_col!= NULL) {
@@ -89,7 +89,7 @@ void OGRTableOpDeleteColumn::Rollback()
     // add the deteled column back to OGRTable
     if (ogr_col->IsNewColumn()) {
         // just mark deletion back, and add column back to
-        // vector<OGRColumn*>
+        // std::vector<OGRColumn*>
         ogr_col->SetDeletion(false);
     } else {
         // append deleted column back to table
@@ -102,15 +102,15 @@ void OGRTableOpDeleteColumn::Rollback()
         GdaConst::FieldType type = ogr_col->GetType();
         int n_rows = ogr_col->GetNumRows();
         if ( type == GdaConst::long64_type){
-            vector<wxInt64> col_data;
-            vector<bool> undefs;
+            std::vector<wxInt64> col_data;
+            std::vector<bool> undefs;
             ogr_col->FillData(col_data, undefs);
             for (int i=0; i<n_rows; i++) {
                 ogr_layer->SetValueAt(i, pos, (GIntBig)col_data[i]);
             }
         } else if ( type == GdaConst::double_type){
-            vector<double> col_data;
-            vector<bool> undefs;
+            std::vector<double> col_data;
+            std::vector<bool> undefs;
             ogr_col->FillData(col_data, undefs);
             for (int i=0; i<n_rows; i++) {
                 ogr_layer->SetValueAt(i, pos, col_data[i]);
@@ -119,8 +119,8 @@ void OGRTableOpDeleteColumn::Rollback()
                    type == GdaConst::time_type ||
                    type == GdaConst::datetime_type ){
             
-            vector<wxInt64> col_data;
-            vector<bool> undefs;
+            std::vector<wxInt64> col_data;
+            std::vector<bool> undefs;
             ogr_col->FillData(col_data, undefs);
             for (int i=0; i<n_rows; i++) {
                 wxInt64 val = col_data[i];
@@ -138,8 +138,8 @@ void OGRTableOpDeleteColumn::Rollback()
                 ogr_layer->SetValueAt(i, pos, year, month, day, hour, minute, second);
             }
         } else {
-            vector<wxString> col_data;
-            vector<bool> undefs;
+            std::vector<wxString> col_data;
+            std::vector<bool> undefs;
             ogr_col->FillData(col_data, undefs);
             for (int i=0; i<n_rows; i++) {
                 ogr_layer->SetValueAt(i, pos, col_data[i].mb_str());

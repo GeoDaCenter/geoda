@@ -36,7 +36,6 @@
 #include "OGRLayerProxy.h"
 #include "OGRFieldProxy.h"
 
-using namespace std;
 using namespace boost;
 namespace bt = boost::posix_time;
 
@@ -168,18 +167,18 @@ bool OGRLayerProxy::ReadFieldInfo()
 	return true;
 }
 
-vector<GdaConst::FieldType> OGRLayerProxy::GetFieldTypes()
+std::vector<GdaConst::FieldType> OGRLayerProxy::GetFieldTypes()
 {
-    vector<GdaConst::FieldType> field_types;
+    std::vector<GdaConst::FieldType> field_types;
 	for( int i=0; i< n_cols; i++) {
 		field_types.push_back(fields[i]->GetType());
 	}
     return field_types;
 }
 
-vector<wxString> OGRLayerProxy::GetFieldNames()
+std::vector<wxString> OGRLayerProxy::GetFieldNames()
 {
-    vector<wxString> field_names;
+    std::vector<wxString> field_names;
     for( int i=0; i< n_cols; i++) {
         wxString var = fields[i]->GetName();
         field_names.push_back(var);
@@ -360,7 +359,7 @@ bool OGRLayerProxy::IsFieldExisted(const wxString& field_name)
 {
 	// check if field existed by given field name
     bool case_sensitive = IsFieldCaseSensitive(ds_type);
-	vector<OGRFieldProxy*>::iterator it;
+    std::vector<OGRFieldProxy*>::iterator it;
 	for (it = fields.begin(); it!=fields.end(); it++){
         wxString name = (*it)->GetName();
 		if (field_name.IsSameAs(name)){
@@ -465,7 +464,7 @@ bool OGRLayerProxy::UpdateOGRFeature(OGRFeature* feature)
     return false;
 }
 
-bool OGRLayerProxy::AppendOGRFeature(vector<wxString>& content)
+bool OGRLayerProxy::AppendOGRFeature(std::vector<wxString>& content)
 {
 	OGRFeature *feature = OGRFeature::CreateFeature(layer->GetLayerDefn());
 	feature->SetFrom( data[0]);
@@ -485,7 +484,7 @@ bool OGRLayerProxy::CallCartoDBAPI(wxString url)
     return true;
 }
 
-bool OGRLayerProxy::UpdateColumn(int col_idx, vector<double> &vals)
+bool OGRLayerProxy::UpdateColumn(int col_idx, std::vector<double> &vals)
 {
     for (int rid=0; rid < n_rows; rid++) {
         SetValueAt(rid, col_idx, vals[rid]);
@@ -493,7 +492,7 @@ bool OGRLayerProxy::UpdateColumn(int col_idx, vector<double> &vals)
 	return true;
     
 }
-bool OGRLayerProxy::UpdateColumn(int col_idx, vector<wxInt64> &vals)
+bool OGRLayerProxy::UpdateColumn(int col_idx, std::vector<wxInt64> &vals)
 {
     for (int rid=0; rid < n_rows; rid++) {
         SetValueAt(rid, col_idx, (GIntBig)vals[rid]);
@@ -501,7 +500,7 @@ bool OGRLayerProxy::UpdateColumn(int col_idx, vector<wxInt64> &vals)
 	return true;
 }
 
-bool OGRLayerProxy::UpdateColumn(int col_idx, vector<wxString> &vals)
+bool OGRLayerProxy::UpdateColumn(int col_idx, std::vector<wxString> &vals)
 {
     for (int rid=0; rid < n_rows; rid++) {
         SetValueAt(rid, col_idx, vals[rid].mb_str());
@@ -509,9 +508,9 @@ bool OGRLayerProxy::UpdateColumn(int col_idx, vector<wxString> &vals)
 	return true;
 }
 
-vector<wxString> OGRLayerProxy::GetIntegerFieldNames()
+std::vector<wxString> OGRLayerProxy::GetIntegerFieldNames()
 {
-    vector<wxString> names;
+    std::vector<wxString> names;
     for (int i=0; i<fields.size(); i++) {
         if (GdaConst::long64_type == fields[i]->GetType()) {
             names.push_back(GetFieldName(i));
@@ -520,9 +519,9 @@ vector<wxString> OGRLayerProxy::GetIntegerFieldNames()
     return names;
 }
 
-vector<wxString> OGRLayerProxy::GetNumericFieldNames()
+std::vector<wxString> OGRLayerProxy::GetNumericFieldNames()
 {
-    vector<wxString> names;
+    std::vector<wxString> names;
     for (int i=0; i<fields.size(); i++) {
         if (GdaConst::long64_type == fields[i]->GetType() ||
             GdaConst::double_type == fields[i]->GetType()) {
@@ -532,9 +531,9 @@ vector<wxString> OGRLayerProxy::GetNumericFieldNames()
     return names;
 }
 
-vector<wxString> OGRLayerProxy::GetIntegerAndStringFieldNames()
+std::vector<wxString> OGRLayerProxy::GetIntegerAndStringFieldNames()
 {
-    vector<wxString> names;
+    std::vector<wxString> names;
     for (int i=0; i<fields.size(); i++) {
         if (GdaConst::long64_type == fields[i]->GetType() ||
             GdaConst::string_type == fields[i]->GetType()) {
@@ -544,7 +543,7 @@ vector<wxString> OGRLayerProxy::GetIntegerAndStringFieldNames()
     return names;
 }
 
-Shapefile::ShapeType OGRLayerProxy::GetOGRGeometries(vector<OGRGeometry*>& geoms,
+Shapefile::ShapeType OGRLayerProxy::GetOGRGeometries(std::vector<OGRGeometry*>& geoms,
                                                 OGRSpatialReference* dest_sr)
 {
     OGRCoordinateTransformation *poCT = NULL;
@@ -584,7 +583,7 @@ Shapefile::ShapeType OGRLayerProxy::GetOGRGeometries(vector<OGRGeometry*>& geoms
     return shape_type;
 }
 
-Shapefile::ShapeType OGRLayerProxy::GetGdaGeometries(vector<GdaShape*>& geoms,
+Shapefile::ShapeType OGRLayerProxy::GetGdaGeometries(std::vector<GdaShape*>& geoms,
                                                 OGRSpatialReference* dest_sr)
 {
     bool is_geoms_init = !geoms.empty();
@@ -757,9 +756,9 @@ Shapefile::ShapeType OGRLayerProxy::GetGdaGeometries(vector<GdaShape*>& geoms,
 }
 
 void
-OGRLayerProxy::AddFeatures(vector<OGRGeometry*>& geometries,
+OGRLayerProxy::AddFeatures(std::vector<OGRGeometry*>& geometries,
                            TableInterface* table,
-                           vector<int>& selected_rows)
+                           std::vector<int>& selected_rows)
 {
     export_progress = 0;
     stop_exporting = false;
@@ -796,9 +795,9 @@ OGRLayerProxy::AddFeatures(vector<OGRGeometry*>& geometries,
 				export_progress = -1;
 				return;
 			}
-            vector<bool> undefs;
+            std::vector<bool> undefs;
             if ( ftype == GdaConst::long64_type) {
-                vector<wxInt64> col_data;
+                std::vector<wxInt64> col_data;
                 table->GetDirectColData(col_pos, col_data);
                 table->GetDirectColUndefined(col_pos, undefs);
                 
@@ -814,7 +813,7 @@ OGRLayerProxy::AddFeatures(vector<OGRGeometry*>& geometries,
                 }
                 
             } else if (ftype == GdaConst::double_type) {
-                vector<double> col_data;
+                std::vector<double> col_data;
                 table->GetDirectColData(col_pos, col_data);
                 table->GetDirectColUndefined(col_pos, undefs);
                 
@@ -832,7 +831,7 @@ OGRLayerProxy::AddFeatures(vector<OGRGeometry*>& geometries,
                        ftype == GdaConst::time_type ||
                        ftype == GdaConst::datetime_type ) {
                 
-                vector<unsigned long long> col_data;
+                std::vector<unsigned long long> col_data;
                 table->GetDirectColData(col_pos, col_data);
                 table->GetDirectColUndefined(col_pos, undefs);
                
@@ -862,7 +861,7 @@ OGRLayerProxy::AddFeatures(vector<OGRGeometry*>& geometries,
             } else {
                 // others are treated as string_type
                 // XXX encodings
-                vector<wxString> col_data;
+                std::vector<wxString> col_data;
                 table->GetDirectColData(col_pos, col_data);
                 table->GetDirectColUndefined(col_pos, undefs);
 
@@ -1084,7 +1083,7 @@ bool OGRLayerProxy::AddGeometries(Shapefile::Main& p_main)
     if (n_geom < n_rows)
         return false;
     
-    vector<GdaShape*> geometries;
+    std::vector<GdaShape*> geometries;
     Shapefile::ShapeType shape_type = Shapefile::NULL_SHAPE;
     int num_geometries = p_main.records.size();
     if ( p_main.header.shape_type == Shapefile::POINT_TYP) {
@@ -1150,7 +1149,7 @@ bool OGRLayerProxy::AddGeometries(Shapefile::Main& p_main)
                     for ( int num_part = 0; num_part < numParts; num_part++ ) {
                         OGRPolygon polygon;
                         OGRLinearRing ring;
-                        vector<wxInt32> startIndexes = poly->pc->parts;
+                        std::vector<wxInt32> startIndexes = poly->pc->parts;
                         startIndexes.push_back(numPoints);
                         for ( int j = startIndexes[num_part];
                              j < startIndexes[num_part+1]; j++ ) {
@@ -1209,7 +1208,7 @@ bool OGRLayerProxy::GetExtent(double& minx, double& miny,
     return true;
 }
 
-void OGRLayerProxy::GetCentroids(vector<GdaPoint*>& centroids)
+void OGRLayerProxy::GetCentroids(std::vector<GdaPoint*>& centroids)
 {
     if (centroids.size() == 0 && n_rows > 0) {
         // if centroids is empty
@@ -1237,7 +1236,7 @@ OGRGeometry* OGRLayerProxy::GetGeometry(int idx)
     return geometry;
 }
 
-GdaPolygon* OGRLayerProxy::DissolvePolygons(vector<OGRGeometry*>& geoms)
+GdaPolygon* OGRLayerProxy::DissolvePolygons(std::vector<OGRGeometry*>& geoms)
 {
     OGRMultiPolygon geocol;
     for (size_t i=0; i < geoms.size(); i++ ) {
@@ -1602,7 +1601,7 @@ bool OGRLayerProxy::ReadGeometries(Shapefile::Main& p_main)
 			p_main.records[feature_counter++].contents_p = pc;
             
         } else {
-            string open_err_msg = "GeoDa does not support datasource with line data at this time.  Please choose a datasource with either point or polygon data.";
+            std::string open_err_msg = "GeoDa does not support datasource with line data at this time.  Please choose a datasource with either point or polygon data.";
             throw GdaException(open_err_msg.c_str());
         }
 	}

@@ -240,6 +240,19 @@ public:
     static const wxString gda_lbl_1sigma_2sigma;
     static const wxString gda_lbl_2sigma;
     
+    // Projection
+    static const wxString gda_projection_UNIT;
+    static const wxString gda_projection_metre;
+    static const wxString gda_projection_meter;
+    
+    // Languages
+    static const wxString gda_lang_english;
+    static const wxString gda_lang_chinese;
+    static const wxString gda_lang_french;
+    static const wxString gda_lang_portuguese;
+    static const wxString gda_lang_russian;
+    static const wxString gda_lang_spanish;
+    
 	// Preferences
     static double gda_autoweight_stop;
     static bool gda_draw_map_labels;
@@ -286,6 +299,11 @@ public:
 	static const int map_default_outline_width = 1;
 	static const wxColour map_default_highlight_colour;
     static wxColour map_undefined_colour;
+    const static wxColour map_dark_gray;
+    const static wxColour map_white;
+    static wxString map_undefined_category;
+    const static wxString map_undefined_label;
+    const static wxString map_unmatched_label;
     
 	// Connectivity Map
 	static const wxSize conn_map_default_size;
@@ -381,6 +399,7 @@ public:
 
 	// Category Classification
 	static const wxSize cat_classif_default_size;
+    static const int categorical_display_precision = 3;
 
 	// Weights Manager Dialog
 	static const wxSize weights_man_dlg_default_size;
@@ -394,6 +413,12 @@ public:
 	static const int ShpHeaderSize = 50; // size of the header record in Shapefile
 	static const int ShpObjIdLen = 20;    // length of the ID of shape object
 
+    // Basemap
+    static const wxString gda_basemap_osm_useragent;
+    static const wxString gda_basemap_win_useragent;
+    static const wxString gda_basemap_mac_useragent;
+    static const wxString gda_basemap_linux_useragent;
+    
     static wxCursor zoomInCursor;
     static wxCursor zoomOutCursor;
 
@@ -401,10 +426,10 @@ public:
 	static const char* raw_zoom_in[65];
 	static const char* delete_icon_xpm[48];
     
-	static const char* sample_names[255];
-	static const char* sample_layer_names[255];
-	static const char* sample_datasources[255];
-	static const char* sample_meta_urls[255];
+	static const std::vector<wxString> sample_names;
+	static const std::vector<wxString> sample_layer_names;
+	static const std::vector<wxString> sample_datasources;
+	static const std::vector<wxString> sample_meta_urls;
 };
 
 #endif

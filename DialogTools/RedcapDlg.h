@@ -30,8 +30,6 @@
 #include "AbstractClusterDlg.h"
 #include "../Algorithms/redcap.h"
 
-using namespace std;
-
 class Project;
 class TableInterface;
 	

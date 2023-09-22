@@ -76,9 +76,9 @@ void Bnd2ShpDlg::OnCreateClick( wxCommandEvent& event )
 	wxString m_iASC = m_inputfile->GetValue();
 
 #ifdef __WIN32__
-	std:ifstream ias(m_iASC.wc_str());
+	std::ifstream ias(m_iASC.wc_str());
 #else
-	std:ifstream ias;
+	std::ifstream ias;
 	ias.open(GET_ENCODED_FILENAME(m_iASC));
 #endif
 
@@ -113,8 +113,8 @@ void Bnd2ShpDlg::OnCreateClick( wxCommandEvent& event )
 	}
    
     int nPoint, ID;
-    vector<int> IDs;
-	vector<GdaShape*> polys;
+    std::vector<int> IDs;
+    std::vector<GdaShape*> polys;
     
 	for (long row = nRows; row >= 1; row--)
 	{

@@ -31,8 +31,6 @@
 #include "../VarTools.h"
 #include "AbstractClusterDlg.h"
 
-using namespace std;
-
 class Project;
 class TableInterface;
 
@@ -85,14 +83,14 @@ public:
 
     virtual void ComputeDistMatrix(int dist_sel);
     virtual wxString _printConfiguration();
-    virtual vector<vector<double> > _getMeanCenters(const vector<vector<int> >& solution);
+    virtual std::vector<std::vector<double> > _getMeanCenters(const std::vector<std::vector<int> >& solution);
     virtual void doRun(int s1, int ncluster, int npass, int n_maxiter, int meth_sel, int dist_sel, double min_bound, double* bound_vals)=0;
     
     //std::vector<GdaVarTools::VarInfo> var_info;
     //std::vector<int> col_ids;
 
 protected:
-    virtual bool Run(vector<wxInt64>& clusters);
+    virtual bool Run(std::vector<wxInt64>& clusters);
     virtual bool CheckAllInputs();
 
     int n_cluster;
@@ -125,7 +123,7 @@ protected:
     int max_n_clusters;
     double** distmatrix;
     
-    map<double, vector<wxInt64> > sub_clusters;
+    std::map<double, std::vector<wxInt64> > sub_clusters;
     
     DECLARE_EVENT_TABLE()
 };
@@ -175,16 +173,16 @@ public:
     virtual ~KMediansDlg();
     
     virtual void doRun(int s1, int ncluster, int npass, int n_maxiter, int meth_sel, int dist_sel, double min_bound, double* bound_vals);
-    virtual vector<vector<double> > _getMeanCenters(const vector<vector<int> >& solution);
+    virtual std::vector<std::vector<double> > _getMeanCenters(const std::vector<std::vector<int> >& solution);
     
 protected:
     // get addtional content for summary,e.g. medoids (within distance to median)
-    virtual wxString _additionalSummary(const vector<vector<int> >& solution,
+    virtual wxString _additionalSummary(const std::vector<std::vector<int> >& solution,
                                         double& additional_ratio);
 
-    double _calcSumOfSquaresMedian(const vector<int>& cluster_ids);
+    double _calcSumOfSquaresMedian(const std::vector<int>& cluster_ids);
     
-    double _calcSumOfManhattanMedian(const vector<int>& cluster_ids);
+    double _calcSumOfManhattanMedian(const std::vector<int>& cluster_ids);
 };
 
 ////////////////////////////////////////////////////////////////////////
@@ -201,23 +199,23 @@ public:
 
     virtual void ComputeDistMatrix(int dist_sel);
     virtual void doRun(int s1, int ncluster, int npass, int n_maxiter, int meth_sel, int dist_sel, double min_bound, double* bound_vals);
-    virtual vector<vector<double> > _getMeanCenters(const vector<vector<int> >& solution);
+    virtual std::vector<std::vector<double> > _getMeanCenters(const std::vector<std::vector<int> >& solution);
     virtual wxString _printConfiguration();
     void OnMethodChoice(wxCommandEvent& evt);
 
 protected:
-    virtual bool Run(vector<wxInt64>& clusters);
+    virtual bool Run(std::vector<wxInt64>& clusters);
     virtual bool CheckAllInputs();
     
     // get addtional content for summary,e.g. medoids (within distance to median)
-    virtual wxString _additionalSummary(const vector<vector<int> >& solution,
+    virtual wxString _additionalSummary(const std::vector<std::vector<int> >& solution,
                                         double& additional_ratio);
 
     int GetFirstMedoid(double** distmatrix);
     
-    double _calcSumOfSquaresMedoid(const vector<int>& cluster_ids, int medoid_idx);
+    double _calcSumOfSquaresMedoid(const std::vector<int>& cluster_ids, int medoid_idx);
     
-    double _calcSumOfManhattanMedoid(const vector<int>& cluster_ids, int medoid_idx);
+    double _calcSumOfManhattanMedoid(const std::vector<int>& cluster_ids, int medoid_idx);
         
     wxStaticText* txt_iterations;
     wxStaticText* txt_initmethod;

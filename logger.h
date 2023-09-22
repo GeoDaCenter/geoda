@@ -34,7 +34,6 @@ extern logger_t & logger();
 //<< name << std::endl;} }while(false)
 
 #define LOG_MSG(name)do {if (logger().is_activated ){\
-std::time_t now = std::time(0);\
 *logger().outstream << "[line " << __LINE__ << "] : " << name << std::endl;} }while(false)
 
 //#define LOG_MSG(name)do {if (logger().is_activated ){\

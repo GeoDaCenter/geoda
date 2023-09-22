@@ -94,7 +94,7 @@ HClusterDlg::~HClusterDlg()
 
 void HClusterDlg::Highlight(int id)
 {
-    vector<bool>& hs = highlight_state->GetHighlight();
+    std::vector<bool>& hs = highlight_state->GetHighlight();
     
     for (int i=0; i<hs.size(); i++) hs[i] = false;
     hs[id] = true;
@@ -103,9 +103,9 @@ void HClusterDlg::Highlight(int id)
     highlight_state->notifyObservers(this);
 }
 
-void HClusterDlg::Highlight(vector<int>& ids)
+void HClusterDlg::Highlight(std::vector<int>& ids)
 {
-    vector<bool>& hs = highlight_state->GetHighlight();
+    std::vector<bool>& hs = highlight_state->GetHighlight();
     
     for (int i=0; i<hs.size(); i++) hs[i] = false;
     for (int i=0; i<ids.size(); i++) hs[ids[i]] = true;
@@ -281,7 +281,7 @@ void HClusterDlg::OnSave(wxCommandEvent& event )
     }
     
     if (col > 0) {
-        vector<bool> clusters_undef(rows, false);
+        std::vector<bool> clusters_undef(rows, false);
         table_int->SetColData(col, time, clusters);
         table_int->SetColUndefined(col, time, clusters_undef);
     }
@@ -473,7 +473,7 @@ bool HClusterDlg::CheckAllInputs()
     return true;
 }
 
-bool HClusterDlg::Run(vector<wxInt64>& clusters)
+bool HClusterDlg::Run(std::vector<wxInt64>& clusters)
 {
     // NOTE input_data should be retrieved first!!
     // get input: weights (auto)
@@ -1099,7 +1099,7 @@ int DendrogramPanel::countLevels(int node_idx, int cur_lvl)
     int left = countLevels(root[-node_idx-1].left, cur_lvl+1);
     int right = countLevels(root[-node_idx-1].right, cur_lvl+1);
     
-    int lvl =  1 + max(left, right);
+    int lvl =  1 + std::max(left, right);
     
     return lvl;
 }
@@ -1150,5 +1150,5 @@ int DendrogramPanel::countLevels(GdaNode* node)
         return 1 + countLevels(&root[-node->left-1]);
     }
     
-    return 1 + max(countLevels(&root[-node->left-1]), countLevels(&root[-node->right-1]));
+    return 1 + std::max(countLevels(&root[-node->left-1]), countLevels(&root[-node->right-1]));
 }

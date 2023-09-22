@@ -49,8 +49,6 @@ BEGIN_EVENT_TABLE(LocalGearyMapCanvas, MapCanvas)
 	EVT_MOUSE_CAPTURE_LOST(TemplateCanvas::OnMouseCaptureLostEvent)
 END_EVENT_TABLE()
 
-using namespace std;
-
 LocalGearyMapCanvas::LocalGearyMapCanvas(wxWindow *parent, TemplateFrame* t_frame,
                              Project* project,
                              LocalGearyCoordinator* local_geary_coordinator,
@@ -58,7 +56,7 @@ LocalGearyMapCanvas::LocalGearyMapCanvas(wxWindow *parent, TemplateFrame* t_fram
                              bool isBivariate, bool isEBRate,
                              const wxPoint& pos, const wxSize& size)
 :MapCanvas(parent, t_frame, project,
-           vector<GdaVarTools::VarInfo>(0), vector<int>(0),
+           std::vector<GdaVarTools::VarInfo>(0), std::vector<int>(0),
            CatClassification::no_theme,
            no_smoothing, 1, boost::uuids::nil_uuid(), pos, size),
 local_geary_coord(local_geary_coordinator),

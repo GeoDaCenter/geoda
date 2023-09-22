@@ -48,8 +48,6 @@ BEGIN_EVENT_TABLE(LisaMapCanvas, AbstractMapCanvas)
 	EVT_MOUSE_CAPTURE_LOST(TemplateCanvas::OnMouseCaptureLostEvent)
 END_EVENT_TABLE()
 
-using namespace std;
-
 LisaMapCanvas::LisaMapCanvas(wxWindow *parent, TemplateFrame* t_frame,
                              Project* project,
                              LisaCoordinator* lisa_coordinator,

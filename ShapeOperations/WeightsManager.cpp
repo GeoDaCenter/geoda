@@ -304,7 +304,6 @@ void WeightsNewManager::GetNbrsExclCores(boost::uuids::uuid w_uuid,
 										 const std::set<long>& cores,
 										 std::set<long>& nbrs)
 {
-	using namespace std;
 	nbrs.clear();
 	GalWeight* gw = GetGal(w_uuid);
 	if (!gw || !gw->gal) return;

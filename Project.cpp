@@ -211,7 +211,7 @@ Project::~Project()
 	}
 	
     // clean multi-layers, the actual memory
-    map<wxString, BackgroundMapLayer*>::iterator it;
+    std::map<wxString, BackgroundMapLayer*>::iterator it;
     for (it=bg_maps.begin(); it!=bg_maps.end(); it++) {
         BackgroundMapLayer* ml = it->second;
         ml->CleanMemory();
@@ -343,7 +343,7 @@ Shapefile::ShapeType Project::GetShapefileType()
     return shape_type;
 }
 
-Shapefile::ShapeType Project::GetGdaGeometries(vector<GdaShape*>& geometries)
+Shapefile::ShapeType Project::GetGdaGeometries(std::vector<GdaShape*>& geometries)
 {
 	wxLogMessage("Project::GetGdaGeometries()");
 	Shapefile::ShapeType shape_type = Shapefile::NULL_SHAPE;
@@ -427,7 +427,6 @@ rtree_box_2d_t& Project::GetBBoxRtree()
 void Project::CalcEucPlaneRtreeStats()
 {
     wxLogMessage("Project::CalcEucPlaneRtreeStats()");
-    using namespace std;
     
     GetCentroids();
     size_t num_obs = centroids.size();
@@ -451,7 +450,6 @@ void Project::CalcEucPlaneRtreeStats()
 void Project::CalcUnitSphereRtreeStats()
 {
 	wxLogMessage("Project::CalcUnitSphereRtreeStats()");
-	using namespace std;
 	GetCentroids();
 	size_t num_obs = centroids.size();
 	std::vector<pt_lonlat> pts_ll(num_obs);
@@ -614,7 +612,7 @@ void Project::SaveDataSourceAs(const wxString& new_ds_name, bool is_update)
 	wxLogMessage("Entering Project::SaveDataSourceAs");
 	wxLogMessage("New Datasource Name:" + new_ds_name);
    
-	vector<GdaShape*> geometries;
+    std::vector<GdaShape*> geometries;
 	try {
 		// SaveAs only to same datasource
 		GdaConst::DataSourceType ds_type = datasource->GetType();
@@ -639,13 +637,13 @@ void Project::SaveDataSourceAs(const wxString& new_ds_name, bool is_update)
 		Shapefile::ShapeType shape_type = GetGdaGeometries(geometries);
 		
 		// Get default selected rows: all records should be saved or saveas
-		vector<int> selected_rows;
+	    std::vector<int> selected_rows;
 		for (size_t i=0; i<table_int->GetNumberRows(); i++) {
 			selected_rows.push_back(i);
 		}
 	
         // Create in-memory OGR geometries
-		vector<OGRGeometry*> ogr_geometries;
+	    std::vector<OGRGeometry*> ogr_geometries;
         OGRwkbGeometryType geom_type;
         geom_type = ogr_adapter.MakeOGRGeometries(geometries, shape_type,
                                                   ogr_geometries, selected_rows);
@@ -992,10 +990,9 @@ CovSpHLStateProxy* Project::GetPairsHLState()
 
 TableBase* Project::FindTableBase()
 {
-	using namespace std;
 	if (frames_manager == NULL) return NULL;
-	list<FramesManagerObserver*> observers(frames_manager->getCopyObservers());
-	list<FramesManagerObserver*>::iterator it;
+	std::list<FramesManagerObserver*> observers(frames_manager->getCopyObservers());
+	std::list<FramesManagerObserver*>::iterator it;
 	for (it=observers.begin(); it != observers.end(); ++it) {
 		if (TableFrame* w = dynamic_cast<TableFrame*>(*it)) {
 			return w->GetTableBase();
@@ -1004,11 +1001,11 @@ TableBase* Project::FindTableBase()
 	return NULL;
 }
 
-void Project::GetSelectedRows(vector<int>& rowids)
+void Project::GetSelectedRows(std::vector<int>& rowids)
 {
 	rowids.clear();
 	int n_rows = GetNumRecords();
-	vector<bool>& hs = highlight_state->GetHighlight();
+    std::vector<bool>& hs = highlight_state->GetHighlight();
 	for ( int i=0; i<n_rows; i++ ) {
 		if (hs[i] ) rowids.push_back(i);
 	}
@@ -1518,7 +1515,10 @@ bool Project::CommonProjectInit()
     // convert projection to WGS84 by default if there is projection
     sourceSR = GetSpatialReference();
     if (sourceSR ) {
-        project_unit = sourceSR->GetAttrValue("UNIT");
+        project_unit = sourceSR->GetAttrValue(GdaConst::gda_projection_UNIT);
+        if (project_unit.CmpNoCase(GdaConst::gda_projection_metre) == 0) {
+            project_unit = GdaConst::gda_projection_meter;
+        }
     }
     // configurations for save gda project file
     LayerConfiguration* layer_conf = project_conf->GetLayerConfiguration();
@@ -1772,30 +1772,30 @@ int Project::GetMapLayerCount()
     return bg_maps.size() + fg_maps.size();
 }
 
-map<wxString, BackgroundMapLayer*> Project::GetBackgroundMayLayers()
+std::map<wxString, BackgroundMapLayer*> Project::GetBackgroundMayLayers()
 {
     return bg_maps;
 }
 
-void Project::SetBackgroundMayLayers(map<wxString, BackgroundMapLayer*>& val)
+void Project::SetBackgroundMayLayers(std::map<wxString, BackgroundMapLayer*>& val)
 {
     bg_maps = val;
 }
 
-map<wxString, BackgroundMapLayer*> Project::GetForegroundMayLayers()
+std::map<wxString, BackgroundMapLayer*> Project::GetForegroundMayLayers()
 {
     return fg_maps;
 }
 
-void Project::SetForegroundMayLayers(map<wxString, BackgroundMapLayer*>& val)
+void Project::SetForegroundMayLayers(std::map<wxString, BackgroundMapLayer*>& val)
 {
     fg_maps = val;
 }
 
-vector<BackgroundMapLayer*> Project::CloneBackgroundMaps(bool clone_style)
+std::vector<BackgroundMapLayer*> Project::CloneBackgroundMaps(bool clone_style)
 {
-    vector<BackgroundMapLayer*> copy_bg_maps;
-    map<wxString, BackgroundMapLayer*>::iterator it;
+    std::vector<BackgroundMapLayer*> copy_bg_maps;
+    std::map<wxString, BackgroundMapLayer*>::iterator it;
     for (it=bg_maps.begin(); it!=bg_maps.end(); it++) {
         wxString name = it->first;
         BackgroundMapLayer* ml = it->second;
@@ -1805,10 +1805,10 @@ vector<BackgroundMapLayer*> Project::CloneBackgroundMaps(bool clone_style)
     return copy_bg_maps;
 }
 
-map<wxString, BackgroundMapLayer*> Project::CloneForegroundMaps(bool clone_style)
+std::map<wxString, BackgroundMapLayer*> Project::CloneForegroundMaps(bool clone_style)
 {
-    map<wxString, BackgroundMapLayer*> copy_fg_maps;
-    map<wxString, BackgroundMapLayer*>::iterator it;
+    std::map<wxString, BackgroundMapLayer*> copy_fg_maps;
+    std::map<wxString, BackgroundMapLayer*>::iterator it;
     for (it=fg_maps.begin(); it!=fg_maps.end(); it++) {
         wxString name = it->first;
         BackgroundMapLayer* ml = it->second;
@@ -1829,10 +1829,10 @@ BackgroundMapLayer* Project::GetMapLayer(wxString map_name)
     return ml;
 }
 
-vector<wxString> Project::GetLayerNames()
+std::vector<wxString> Project::GetLayerNames()
 {
-    vector<wxString> names;
-    map<wxString, BackgroundMapLayer*>::iterator it;
+    std::vector<wxString> names;
+    std::map<wxString, BackgroundMapLayer*>::iterator it;
     for (it=fg_maps.begin(); it!=fg_maps.end(); it++) {
         wxString name = it->first;
         names.push_back(name);
@@ -1861,7 +1861,7 @@ void Project::RemoveLayer(wxString name)
     }
 }
 
-bool Project::GetStringColumnData(wxString field_name, vector<wxString>& data)
+bool Project::GetStringColumnData(wxString field_name, std::vector<wxString>& data)
 {
     if (data.empty()) {
         data.resize(num_records);
@@ -1882,7 +1882,7 @@ bool Project::GetStringColumnData(wxString field_name, vector<wxString>& data)
     return false;
 }
 
-vector<wxString> Project::GetIntegerAndStringFieldNames()
+std::vector<wxString> Project::GetIntegerAndStringFieldNames()
 {
     return layer_proxy->GetIntegerAndStringFieldNames();
 }

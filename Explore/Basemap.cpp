@@ -22,7 +22,9 @@
 #include <algorithm>
 #include <stdio.h>
 #include <stdlib.h>
-#include <boost/bind.hpp>
+
+#define BOOST_PHOENIX_STL_TUPLE_H_
+#include <boost/bind/bind.hpp>
 #include <boost/make_shared.hpp>
 #include <boost/asio.hpp>
 #include <boost/thread.hpp>
@@ -40,10 +42,11 @@
 #include <ogr_spatialref.h>
 
 #include <curl/curl.h>
+#include "../GdaConst.h"
+#include "../GeneralWxUtils.h"
 #include "../ShapeOperations/OGRDataAdapter.h"
 #include "Basemap.h"
 
-using namespace std;
 using namespace Gda;
 
 BasemapItem Gda::GetBasemapSelection(int idx, wxString basemap_sources)
@@ -55,7 +58,7 @@ BasemapItem Gda::GetBasemapSelection(int idx, wxString basemap_sources)
     if (encoded_str.IsEmpty() == false) {
         basemap_sources = encoded_str;
     }
-    vector<wxString> keys;
+    std::vector<wxString> keys;
     wxString newline;
     if (basemap_sources.Find("\r\n") != wxNOT_FOUND) {
         newline = "\r\n";
@@ -92,15 +95,15 @@ BasemapItem Gda::GetBasemapSelection(int idx, wxString basemap_sources)
     return basemap_item;
 }
 
-vector<BasemapGroup> Gda::ExtractBasemapResources(wxString basemap_sources) {
-    vector<wxString> group_names;
-    map<wxString, BasemapGroup> group_dict;
+std::vector<BasemapGroup> Gda::ExtractBasemapResources(wxString basemap_sources) {
+    std::vector<wxString> group_names;
+    std::map<wxString, BasemapGroup> group_dict;
     
     wxString encoded_str= wxString::FromUTF8((const char*)basemap_sources.mb_str());
     if (encoded_str.IsEmpty() == false) {
         basemap_sources = encoded_str;
     }
-    vector<wxString> keys;
+    std::vector<wxString> keys;
     wxString newline;
     if (basemap_sources.Find("\r\n") != wxNOT_FOUND) {
         newline = "\r\n";
@@ -139,7 +142,7 @@ vector<BasemapGroup> Gda::ExtractBasemapResources(wxString basemap_sources) {
             }
         }
     }
-    vector<BasemapGroup> groups;
+    std::vector<BasemapGroup> groups;
     for (int i=0; i<group_names.size(); i++) {
         groups.push_back( group_dict[group_names[i]] );
     }
@@ -153,8 +156,6 @@ XYFraction::XYFraction(double _x, double _y)
     xfrac = modf(_x, &xint);
     yfrac = modf(_y, &yint);
 }
-
-const char *Basemap::USER_AGENT = "GeoDa 1.14 contact spatial@uchiago.edu";
 
 Basemap::Basemap(BasemapItem& _basemap_item,
                  Screen* _screen,
@@ -249,7 +250,7 @@ void Basemap::SetupMapType(BasemapItem& _basemap_item)
     }
     
     // get a latest HERE account
-    vector<wxString> nokia_user = OGRDataAdapter::GetInstance().GetHistory("nokia_user");
+    std::vector<wxString> nokia_user = OGRDataAdapter::GetInstance().GetHistory("nokia_user");
     if (!nokia_user.empty()) {
         wxString user = nokia_user[0];
         if (!user.empty()) {
@@ -257,7 +258,7 @@ void Basemap::SetupMapType(BasemapItem& _basemap_item)
         }
     }
     
-    vector<wxString> nokia_key = OGRDataAdapter::GetInstance().GetHistory("nokia_key");
+    std::vector<wxString> nokia_key = OGRDataAdapter::GetInstance().GetHistory("nokia_key");
     if (!nokia_key.empty()) {
         wxString key = nokia_key[0];
         if (!key.empty()) {
@@ -437,7 +438,7 @@ int Basemap::GetOptimalZoomLevel(double paddingFactor)
     double zoomFactorPowered = viewHeightHalf / (40.7436654315252*(vy1-vy0));
     double resolutionVertical = 360.0 / (zoomFactorPowered * 256);
     
-    double resolution = max(resolutionHorizontal, resolutionVertical) * paddingFactor;
+    double resolution = std::max(resolutionHorizontal, resolutionVertical) * paddingFactor;
     
     zoom = log2(360.0 / (resolution * 256));
     
@@ -453,7 +454,7 @@ int Basemap::GetEasyZoomLevel()
     double zoomV = (int)ceil(log2(degreeRatio * screen->height / 256.0));
     
     if (zoomH > 0 && zoomV > 0) {
-        zoom = min(zoomH, zoomV);
+        zoom = std::min(zoomH, zoomV);
     } else {
         if (zoomH > 0)
             zoom = zoomH;
@@ -610,6 +611,21 @@ size_t curlCallback(void *ptr, size_t size, size_t nmemb, void* userdata)
     return written;
 }
 
+wxString Basemap::GetUserAgent(const wxString& url)
+{
+    if (url.Find("openstreetmap") != wxNOT_FOUND) {
+        return GdaConst::gda_basemap_osm_useragent;
+    }
+    if (GeneralWxUtils::isWindows()) {
+        return GdaConst::gda_basemap_win_useragent;
+    } else if (GeneralWxUtils::isMac()) {
+        return GdaConst::gda_basemap_mac_useragent;
+    } else {
+        return GdaConst::gda_basemap_linux_useragent;
+    }
+    
+}
+
 wxString Basemap::GetContentType()
 {
     wxString url = GetTileUrl(16, 11); // guerry
@@ -619,7 +635,8 @@ wxString Basemap::GetContentType()
     if(curl) {
         curl_easy_setopt(curl, CURLOPT_URL, url.ToUTF8().data());
         curl_easy_setopt(curl, CURLOPT_SSLVERSION, CURL_SSLVERSION_TLSv1_2);
-        curl_easy_setopt(curl, CURLOPT_USERAGENT, Basemap::USER_AGENT);
+        curl_easy_setopt(curl, CURLOPT_USERAGENT, GetUserAgent(url).ToUTF8().data());
+        curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1);
         curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 0);
         curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0);
         curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT, 1L);
@@ -668,10 +685,10 @@ void Basemap::DownloadTile(int x, int y)
             if (fp) {
                 curl_easy_setopt(image, CURLOPT_URL, url.ToUTF8().data());
                 curl_easy_setopt(image, CURLOPT_SSLVERSION, CURL_SSLVERSION_TLSv1_2);
-                curl_easy_setopt(image, CURLOPT_USERAGENT, Basemap::USER_AGENT);
+                curl_easy_setopt(image, CURLOPT_USERAGENT, GetUserAgent(url).ToUTF8().data());
                 curl_easy_setopt(image, CURLOPT_WRITEFUNCTION, curlCallback);
                 curl_easy_setopt(image, CURLOPT_WRITEDATA, fp);
-                //curl_easy_setopt(image, CURLOPT_FOLLOWLOCATION, 1);
+                curl_easy_setopt(image, CURLOPT_FOLLOWLOCATION, 1);
                 curl_easy_setopt(image, CURLOPT_SSL_VERIFYHOST, 0);
                 curl_easy_setopt(image, CURLOPT_SSL_VERIFYPEER, 0);
                 curl_easy_setopt(image, CURLOPT_CONNECTTIMEOUT, 1L);

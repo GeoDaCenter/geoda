@@ -30,11 +30,7 @@
 
 #include "../Algorithms/threadpool.h"
 
-using namespace std;
-
 namespace Gda {
-
-
     /**
      * BasemapItem is for "Basemap Source Configuration" dialog
      * Each basemap source can be represented in the form of:
@@ -102,7 +98,7 @@ namespace Gda {
             items.push_back(item);
         }
         wxString name;
-        vector<BasemapItem> items;
+        std::vector<BasemapItem> items;
     };
 
     // Return an instance of BasemapItem based on the basemap_source, which is
@@ -112,7 +108,7 @@ namespace Gda {
     // Construct a std::vector of BasemapGroup (which is a collection of
     // BasemapItems) using basemap_sources (e.g. GdaConst::gda_basemap_sources
     // or the value in "Basemap Sources:" TextCtrl in Basemap Configuration Dialog
-    vector<BasemapGroup> ExtractBasemapResources(wxString basemap_sources) ;
+    std::vector<BasemapGroup> ExtractBasemapResources(wxString basemap_sources) ;
 
     // inline function return separator for local file path
     inline char separator() {
@@ -235,11 +231,11 @@ namespace Gda {
                     east = _e;
                     south = _s;
                 }
-                OGRSpatialReference* s1 = poCT->GetTargetCS();
-                OGRSpatialReference* s2 = poCT->GetSourceCS();
+                const OGRSpatialReference* s1 = poCT->GetTargetCS();
+                const OGRSpatialReference* s2 = poCT->GetSourceCS();
 #ifdef __PROJ6__
-                s1->SetAxisMappingStrategy(OAMS_TRADITIONAL_GIS_ORDER);
-                s2->SetAxisMappingStrategy(OAMS_TRADITIONAL_GIS_ORDER);
+                const_cast<OGRSpatialReference*>(s1)->SetAxisMappingStrategy(OAMS_TRADITIONAL_GIS_ORDER);
+                const_cast<OGRSpatialReference*>(s2)->SetAxisMappingStrategy(OAMS_TRADITIONAL_GIS_ORDER);
 #endif
                 poCT_rev = OGRCreateCoordinateTransformation(s1, s2);
             }
@@ -327,20 +323,20 @@ namespace Gda {
             poCT_rev = NULL;
             if (other) {
                 if (other->poCT) {
-                    OGRSpatialReference* s1 = other->poCT->GetSourceCS();
-                    OGRSpatialReference* s2 = other->poCT->GetTargetCS();
+                    const OGRSpatialReference* s1 = other->poCT->GetSourceCS();
+                    const OGRSpatialReference* s2 = other->poCT->GetTargetCS();
 #ifdef __PROJ6__
-                    s1->SetAxisMappingStrategy(OAMS_TRADITIONAL_GIS_ORDER);
-                    s2->SetAxisMappingStrategy(OAMS_TRADITIONAL_GIS_ORDER);
+                    const_cast<OGRSpatialReference*>(s1)->SetAxisMappingStrategy(OAMS_TRADITIONAL_GIS_ORDER);
+                    const_cast<OGRSpatialReference*>(s2)->SetAxisMappingStrategy(OAMS_TRADITIONAL_GIS_ORDER);
 #endif
                     poCT = OGRCreateCoordinateTransformation(s1, s2);
                 }
                 if (other->poCT_rev) {
-                    OGRSpatialReference* s1 = other->poCT_rev->GetSourceCS();
-                    OGRSpatialReference* s2 = other->poCT_rev->GetTargetCS();
+                    const OGRSpatialReference* s1 = other->poCT_rev->GetSourceCS();
+                    const OGRSpatialReference* s2 = other->poCT_rev->GetTargetCS();
 #ifdef __PROJ6__
-                    s1->SetAxisMappingStrategy(OAMS_TRADITIONAL_GIS_ORDER);
-                    s2->SetAxisMappingStrategy(OAMS_TRADITIONAL_GIS_ORDER);
+                    const_cast<OGRSpatialReference*>(s1)->SetAxisMappingStrategy(OAMS_TRADITIONAL_GIS_ORDER);
+                    const_cast<OGRSpatialReference*>(s2)->SetAxisMappingStrategy(OAMS_TRADITIONAL_GIS_ORDER);
 #endif
                     poCT_rev = OGRCreateCoordinateTransformation(s1, s2);
                 }
@@ -377,7 +373,6 @@ namespace Gda {
                 double scale_factor = 1.0);
         ~Basemap();
 
-        static const char* USER_AGENT;
         OGRCoordinateTransformation *poCT;
         BasemapItem basemap_item;
         wxString basemapName;
@@ -439,6 +434,7 @@ namespace Gda {
         
         void CleanCache();
         wxString GetContentType();
+        wxString GetUserAgent(const wxString& url);
     };
     
 }

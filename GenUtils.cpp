@@ -34,9 +34,7 @@
 #include "GenUtils.h"
 #include "Explore/CatClassification.h"
 
-using namespace std;
-
-int StringUtils::utf8_strlen(const string& str)
+int StringUtils::utf8_strlen(const std::string& str)
 {
     int c,i,q;
     for (q=0, i=0; i < str.length(); i++, q++)
@@ -155,7 +153,7 @@ wxString DbfFileUtils::GetMinIntString(int length)
         return "-9223372036854775808"; // min value of int64
 }
 
-wxString Gda::DetectDateFormat(wxString s, vector<wxString>& date_items)
+wxString Gda::DetectDateFormat(wxString s, std::vector<wxString>& date_items)
 {
     // input s could be sth. like: %Y-%m-%d %H:%M:%S
     // 2015-1-11 13:57:24 %Y-%m-%d %H:%M:%S
@@ -212,7 +210,7 @@ wxString Gda::DetectDateFormat(wxString s, vector<wxString>& date_items)
 
 // wxRegEx regex
 // regex.Compile(pattern);
-unsigned long long Gda::DateToNumber(wxString s_date, wxRegEx& regex, vector<wxString>& date_items)
+unsigned long long Gda::DateToNumber(wxString s_date, wxRegEx& regex, std::vector<wxString>& date_items)
 {
     unsigned long long val = 0;
         
@@ -907,17 +905,17 @@ CalculateFromSample(const std::vector<Gda::dbl_int_pair_type>& data_,
 	}
 }
 
-string SampleStatistics::ToString()
+std::string SampleStatistics::ToString()
 {
-	ostringstream ss;
-	ss << "sample_size = " << sample_size << endl;
-	ss << "min = " << min << endl;
-	ss << "max = " << max << endl;
-	ss << "mean = " << mean << endl;
-	ss << "var_with_bessel = " << var_with_bessel << endl;
-	ss << "var_without_bessel = " << var_without_bessel << endl;
-	ss << "sd_with_bessel = " << sd_with_bessel << endl;
-	ss << "sd_without_bessel = " << sd_without_bessel << endl;
+    std::ostringstream ss;
+	ss << "sample_size = " << sample_size << std::endl;
+	ss << "min = " << min << std::endl;
+	ss << "max = " << max << std::endl;
+	ss << "mean = " << mean << std::endl;
+	ss << "var_with_bessel = " << var_with_bessel << std::endl;
+	ss << "var_without_bessel = " << var_without_bessel << std::endl;
+	ss << "sd_with_bessel = " << sd_with_bessel << std::endl;
+	ss << "sd_without_bessel = " << sd_without_bessel << std::endl;
 	return ss.str();
 }
 
@@ -1093,18 +1091,18 @@ double SimpleLinearRegression::TScoreTo2SidedPValue(double tscore, int df)
 
 }
 
-string SimpleLinearRegression::ToString()
+std::string SimpleLinearRegression::ToString()
 {
-	ostringstream ss;
-	ss << "covariance = " << covariance << endl;
-	ss << "correlation = " << correlation << endl;
-	ss << "alpha = " << alpha << endl;
-	ss << "beta = " << beta << endl;
-	ss << "r_squared = " << r_squared << endl;
-	ss << "valid = " << (valid ? "true" : "false") << endl;
+    std::ostringstream ss;
+	ss << "covariance = " << covariance << std::endl;
+	ss << "correlation = " << correlation << std::endl;
+	ss << "alpha = " << alpha << std::endl;
+	ss << "beta = " << beta << std::endl;
+	ss << "r_squared = " << r_squared << std::endl;
+	ss << "valid = " << (valid ? "true" : "false") << std::endl;
 	ss << "valid_correlation = " << (valid_correlation ? "true" : "false")
-		<< endl;
-	ss << "error_sum_squares = " << error_sum_squares << endl;
+		<< std::endl;
+	ss << "error_sum_squares = " << error_sum_squares << std::endl;
 	return ss.str();
 }
 
@@ -1211,21 +1209,21 @@ void AxisScale::ShowAllTics()
 	for (int i=0; i<tics_str_show.size(); i++) tics_str_show[i] = true;
 }
 
-string AxisScale::ToString()
+std::string AxisScale::ToString()
 {
-	ostringstream ss;
-	ss << "data_min = " << data_min << endl;
-	ss << "data_max = " << data_max << endl;
-	ss << "scale_min = " << scale_min << endl;
-	ss << "scale_max = " << scale_max << endl;
-	ss << "scale_range = " << scale_range << endl;
-	ss << "p = " << p << endl;
-	ss << "tic_inc = " << tic_inc << endl;
+    std::ostringstream ss;
+	ss << "data_min = " << data_min << std::endl;
+	ss << "data_max = " << data_max << std::endl;
+	ss << "scale_min = " << scale_min << std::endl;
+	ss << "scale_max = " << scale_max << std::endl;
+	ss << "scale_range = " << scale_range << std::endl;
+	ss << "p = " << p << std::endl;
+	ss << "tic_inc = " << tic_inc << std::endl;
 	for (int i=0; i<tics.size(); i++) {
 		ss << "tics[" << i << "] = " << tics[i];
-		ss << ",  tics_str[" << i << "] = " << tics_str[i] << endl;
+		ss << ",  tics_str[" << i << "] = " << tics_str[i] << std::endl;
 	}
-	ss << "Exiting AxisScale::CalculateScale" << endl;
+	ss << "Exiting AxisScale::CalculateScale" << std::endl;
 	return ss.str();
 }
 
@@ -1624,7 +1622,7 @@ void GenUtils::rankify_fast(const std::vector<double>& x,
     }
 }
 
-std::vector<double> GenUtils::rankify(const vector<double>& x)
+std::vector<double> GenUtils::rankify(const std::vector<double>& x)
 {
     size_t N = x.size();
     // Rank Vector
@@ -1656,10 +1654,10 @@ std::vector<double> GenUtils::rankify(const vector<double>& x)
     return Rank_X;
 }
 
-double GenUtils::RankCorrelation(vector<double>& x, vector<double>& y)
+double GenUtils::RankCorrelation(std::vector<double>& x, std::vector<double>& y)
 {
     // Get ranks of vector X y
-    vector<double> rank_x(x.size(), 0),  rank_y(y.size(), 0);
+    std::vector<double> rank_x(x.size(), 0),  rank_y(y.size(), 0);
     boost::thread_group threadPool;
     threadPool.add_thread(new boost::thread(&GenUtils::rankify_fast, x, boost::ref(rank_x)));
     threadPool.add_thread(new boost::thread(&GenUtils::rankify_fast, y, boost::ref(rank_y)));
@@ -2272,10 +2270,9 @@ bool GenUtils::ExistsShpShxDbf(const wxFileName& fname, bool* shp_found,
 wxString GenUtils::FindLongestSubString(const std::vector<wxString> strings,
 										bool cs)
 {
-	using namespace std;
 	int n  = (int)strings.size();
 	if (n == 0) return "";
-	vector<wxString> strs(strings);
+	std::vector<wxString> strs(strings);
 	if (!cs) for (int i=0; i<n; i++) strs[i].MakeLower();
 	wxString ref_str = strs[0];
 	for (int i=0; i<n; ++i) {
@@ -2367,7 +2364,7 @@ wxString GenUtils::GetResourceDir()
 wxString GenUtils::GetSamplesDir()
 {
 #ifdef __WXOSX__
-    return GetResourceDir();
+    return GetResourceDir() + "web_plugins/";
 #else
     return GetWebPluginsDir();
 #endif

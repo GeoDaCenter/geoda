@@ -55,8 +55,6 @@
 #include "../rc/GeoDaIcon-16x16.xpm"
 #include "ConnectDatasourceDlg.h"
 
-using namespace std;
-
 DnDFile::DnDFile(ConnectDatasourceDlg *pOwner)
 {
     m_pOwner = pOwner;
@@ -1042,14 +1040,13 @@ void ConnectDatasourceDlg::InitSamplePanel()
     {
         wxBoxSizer* sizer;
         sizer = new wxBoxSizer( wxVERTICAL );
-        int n = 11; // number of sample dataset
-        for (int i=0; i<n; i++) {
+        for (size_t i=0; i < GdaConst::sample_names.size(); i++) {
             wxString sample_name = GdaConst::sample_names[i];
             wxString sample_meta_url = GdaConst::sample_meta_urls[i];
             wxString ds_layername = GdaConst::sample_layer_names[i];
             wxString ds_thumb = GdaConst::sample_layer_names[i];
             AddSampleItem(sizer, sample_scrl, sample_name, sample_meta_url,
-                          ds_layername, ds_thumb, base_xrcid_sample_thumb+i);
+                          ds_layername, ds_thumb, base_xrcid_sample_thumb + (int)i);
         }
         sample_scrl->SetSizer( sizer );
         sample_scrl->Layout();

@@ -25,8 +25,9 @@
  * OR PERFORMANCE OF THIS SOFTWARE.
  * 
  */
+#define BOOST_PHOENIX_STL_TUPLE_H_
 #include <boost/thread.hpp>
-#include <boost/bind.hpp>
+#include <boost/bind/bind.hpp>
 
 #include <time.h>
 #include <stdlib.h>

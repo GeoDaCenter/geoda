@@ -35,7 +35,6 @@
 #include "../DataViewer/VarOrderMapper.h"
 #include "../ShapeOperations/OGRLayerProxy.h"
 
-using namespace std;
 namespace bt = boost::posix_time;
 
 class OGRTable : public TableInterface, TableStateObserver
@@ -52,14 +51,14 @@ public:
 private:
     GdaConst::DataSourceType datasource_type;
     OGRLayerProxy* ogr_layer;
-    vector<OGRColumn*> columns;
+    std::vector<OGRColumn*> columns;
 	VarOrderMapper var_order;
     // may contains duplicated variable names e.g. in csv file
-    vector<wxString> org_var_names;
+    std::vector<wxString> org_var_names;
 
     // queues of table operations
-    queue<OGRTableOperation*> operations_queue;
-    stack<OGRTableOperation*> completed_stack;
+    std::queue<OGRTableOperation*> operations_queue;
+    std::stack<OGRTableOperation*> completed_stack;
 	
 	void AddTimeIDs(int n);
 	int  FindOGRColId(int wxgrid_col_pos, int time);
@@ -183,7 +182,7 @@ public:
 						   int field_len=-1, int decimals=-1);
 	virtual bool DeleteCol(int pos);
 	virtual void UngroupCol(int col);
-	virtual void GroupCols(const vector<int>& cols,
+	virtual void GroupCols(const std::vector<int>& cols,
 						   const wxString& name, int pos=0);
 	virtual void InsertTimeStep(int time, const wxString& name);
 	virtual void RemoveTimeStep(int time);

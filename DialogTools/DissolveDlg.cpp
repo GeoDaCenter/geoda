@@ -54,8 +54,6 @@ BEGIN_EVENT_TABLE( DissolveDlg, wxDialog )
     EVT_CLOSE( DissolveDlg::OnClose )
 END_EVENT_TABLE()
 
-using namespace std;
-
 DissolveDlg::DissolveDlg(wxWindow* parent, Project* _project_s, const wxPoint& pos)
 : project_s(_project_s), export_dlg(NULL)
 {
@@ -220,7 +218,7 @@ void DissolveDlg::OnExclListDClick( wxCommandEvent& ev)
 }
 
 bool DissolveDlg::CheckKeys(wxString key_name, std::vector<wxString>& key_vec,
-                            std::map<int, vector<int> >& key_map)
+                            std::map<int, std::vector<int> >& key_map)
 {
     std::map<wxString, std::vector<int> > dup_dict; // value:[]
     std::vector<wxString> uniq_fnames;
@@ -360,8 +358,8 @@ void DissolveDlg::OnOKClick( wxCommandEvent& ev )
 	ev.Skip();
 }
 
-double DissolveDlg::ComputeAgg(vector<double>& vals, vector<bool>& undefs,
-                               vector<int>& ids)
+double DissolveDlg::ComputeAgg(std::vector<double>& vals, std::vector<bool>& undefs,
+                               std::vector<int>& ids)
 {
     if (m_sum->GetValue()) {
         double v_sum = 0;
@@ -412,7 +410,7 @@ double DissolveDlg::ComputeAgg(vector<double>& vals, vector<bool>& undefs,
 }
 
 OGRColumn* DissolveDlg::CreateNewOGRColumn(int new_rows, int col_id, int tm_id,
-                                           std::map<wxString, vector<int> >& key_map)
+                                           std::map<wxString, std::vector<int> >& key_map)
 {
     int f_length = table_int->GetColLength(col_id, tm_id);
     int f_decimal = table_int->GetColDecimals(col_id, tm_id);
@@ -453,7 +451,7 @@ OGRColumn* DissolveDlg::CreateNewOGRColumn(int new_rows, int col_id, int tm_id,
         cnt = 0;
         table_int->GetColData(col_id, tm_id, vals, undefs);
         for (it = key_map.begin(); it != key_map.end(); ++it) {
-            vector<int>& ids = it->second;
+            std::vector<int>& ids = it->second;
             double v = ComputeAgg(vals, undefs, ids);
             _col->SetValueAt(cnt, v);
             cnt += 1;

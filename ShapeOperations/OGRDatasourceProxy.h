@@ -30,8 +30,6 @@
 #include "../GdaShape.h"
 #include "../DataViewer/TableInterface.h"
 
-using namespace std;
-
 /**
  * A proxy class for OGR data source. It will parallel run threaded 
  * OGRLayerProxy instances to fetch data from different data resources 
@@ -69,9 +67,9 @@ public:
     
     size_t layer_count;	//!< number of layer in this data source
     
-	map<wxString, OGRLayerProxy*> layer_pool; //!< dict for all opened layers
+    std::map<wxString, OGRLayerProxy*> layer_pool; //!< dict for all opened layers
     
-	vector<wxString> layer_names;
+    std::vector<wxString> layer_names;
     
 	/**
 	 * This function clean the memory (geometies and table) of contained layers
@@ -95,7 +93,7 @@ public:
 	 * Return the number of layers, in case there is no layer in datasource.
 	 * (e.g. an empty spatialite file db).
 	 */
-	vector<wxString> GetLayerNames();
+    std::vector<wxString> GetLayerNames();
 	
 	/**
 	 * Return layer proxy according to the layer_name
@@ -113,9 +111,9 @@ public:
 
     OGRLayerProxy* CreateLayer(wxString layer_name,
                                OGRwkbGeometryType eGType,
-                               vector<OGRGeometry*>& geometries,
+                               std::vector<OGRGeometry*>& geometries,
                                TableInterface* table,
-                               vector<int>& selected_rows,
+                               std::vector<int>& selected_rows,
                                OGRSpatialReference* spatial_ref,
                                wxString cpg_encode = wxEmptyString);
 

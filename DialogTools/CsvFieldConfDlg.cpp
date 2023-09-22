@@ -55,9 +55,6 @@
 #include "LocaleSetupDlg.h"
 #include "CsvFieldConfDlg.h"
 
-using namespace std;
-
-
 CsvFieldConfDlg::CsvFieldConfDlg(wxWindow* parent,
                                  wxString _filepath,
                                   wxCSConv* encoding,

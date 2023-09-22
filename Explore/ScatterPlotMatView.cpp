@@ -34,8 +34,6 @@
 #include "SimpleHistCanvas.h"
 #include "ScatterPlotMatView.h"
 
-using namespace std;
-
 BEGIN_EVENT_TABLE(ScatterPlotMatFrame, TemplateFrame)
 	EVT_MOUSE_EVENTS(ScatterPlotMatFrame::OnMouseEvent)
 	EVT_ACTIVATE(ScatterPlotMatFrame::OnActivate)
@@ -60,7 +58,7 @@ axis_display_precision(1), axis_display_fixed_point(false)
     
 	supports_timeline_changes = true;
 	{
-		vector<wxString> tm_strs;
+	    std::vector<wxString> tm_strs;
 		project->GetTableInt()->GetTimeStrings(tm_strs);
 		var_man.ClearAndInit(tm_strs);
 	}
@@ -518,8 +516,8 @@ void ScatterPlotMatFrame::SetupPanelForNumVariables(int num_vars)
                 row_tm = 0;
             
             wxString row_title(var_man.GetNameWithTime(row));
-			const vector<double>& Y(data_map[row_nm][row_tm]);
-            vector<bool> XY_undef(data_undef_map[row_nm][row_tm]);
+			const std::vector<double>& Y(data_map[row_nm][row_tm]);
+            std::vector<bool> XY_undef(data_undef_map[row_nm][row_tm]);
             
             // get XY_undef
             for (int col=0; col<num_vars; ++col) {
@@ -531,7 +529,7 @@ void ScatterPlotMatFrame::SetupPanelForNumVariables(int num_vars)
                 if (var_man.IsTimeVariant(col)) {
                     col_tm = var_man.GetTime(col);
                 }
-                const vector<bool>& X_undef = data_undef_map[col_nm][col_tm];
+                const std::vector<bool>& X_undef = data_undef_map[col_nm][col_tm];
                 for (size_t ii=0; ii<X_undef.size(); ii++) {
                     XY_undef[ii] = XY_undef[ii] || X_undef[ii];
                 }
@@ -602,7 +600,7 @@ void ScatterPlotMatFrame::SetupPanelForNumVariables(int num_vars)
                 
 				wxString col_title(var_man.GetNameWithTime(col));
                 
-				const vector<double>& X(data_map[col_nm][col_tm]);
+				const std::vector<double>& X(data_map[col_nm][col_tm]);
                 double col_min = 0;
                 double col_max = 0;
                 bool has_init = false;
@@ -621,8 +619,8 @@ void ScatterPlotMatFrame::SetupPanelForNumVariables(int num_vars)
                     if (X[i] > col_max)
                         col_max = X[i];
                 }
-                const vector<bool>& X_undef = data_undef_map[row_nm][row_tm];
-                const vector<bool>& Y_undef = data_undef_map[col_nm][col_tm];
+                const std::vector<bool>& X_undef = data_undef_map[row_nm][row_tm];
+                const std::vector<bool>& Y_undef = data_undef_map[col_nm][col_tm];
                 wxString xrcid_scatter_menu = "ID_SCATTER_PLOT_MAT_MENU_OPTIONS";
 				SimpleScatterPlotCanvas* sp_can = 0;
                 sp_can = new SimpleScatterPlotCanvas(panel, this, project,
@@ -721,33 +719,33 @@ void ScatterPlotMatFrame::UpdateMessageWin()
 void ScatterPlotMatFrame::UpdateDataMapFromVarMan()
 {
 	// get set of var_man names
-	set<wxString> vm_nms;
+    std::set<wxString> vm_nms;
 	for (int i=0; i<var_man.GetVarsCount(); ++i) {
 		vm_nms.insert(var_man.GetName(i));
 	}
 	
 	// remove items from data_map not in vm_nms
-	set<wxString> to_remove;
+    std::set<wxString> to_remove;
 	for (data_map_type::iterator i=data_map.begin(); i!=data_map.end(); ++i) {
 		wxString nm(i->first);
 		if (vm_nms.find(nm) != vm_nms.end()) continue;
 		to_remove.insert(nm);
 	}
 	
-	for (set<wxString>::iterator i=to_remove.begin(); i!=to_remove.end(); ++i) {
+	for (std::set<wxString>::iterator i=to_remove.begin(); i!=to_remove.end(); ++i) {
 		data_map.erase(*i);
 	}
 	
 	// add items to data_map that are in vm_nms, but not currently in data_map
-	set<wxString> to_add;
-	for (set<wxString>::iterator i=vm_nms.begin(); i!=vm_nms.end(); ++i) {
+    std::set<wxString> to_add;
+	for (std::set<wxString>::iterator i=vm_nms.begin(); i!=vm_nms.end(); ++i) {
 		wxString nm(*i);
 		if (data_map.find(nm) != data_map.end()) continue;
 		to_add.insert(nm);
 	}
 	
 	TableInterface* table_int = project->GetTableInt();
-	for (set<wxString>::iterator i=to_add.begin(); i!=to_add.end(); ++i) {
+	for (std::set<wxString>::iterator i=to_add.begin(); i!=to_add.end(); ++i) {
 		wxString nm = (*i);
         wxString group_name = nm;
 		int c_id = table_int->FindColId(nm);
@@ -804,7 +802,7 @@ wxString ScatterPlotMatFrame::GetHelpHtml()
 	return s;	
 }
 
-void ScatterPlotMatFrame::GetVizInfo(vector<wxString>& vars)
+void ScatterPlotMatFrame::GetVizInfo(std::vector<wxString>& vars)
 {
 	for (int i=0; i<var_man.GetVarsCount(); ++i) {
 		vars.push_back(var_man.GetName(i));

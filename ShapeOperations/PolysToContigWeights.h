@@ -52,7 +52,7 @@ class BasePartition  {
         // if (where < -1 || where > cells || incl < 0 || incl >= elements)
         //     cout << " BasePartition: incl= " << incl << " location= "
         //          << where << " els= " << elements << " cells= "
-        //          << cells << endl;
+        //          << cells << std::endl;
         if (where < 0) where= 0;
         else if (where >= cells) where= cells-1;
         next [ incl ] = cell [ where ];
@@ -81,7 +81,7 @@ class PartitionP : public BasePartition  {
     void initIx(const int incl, const double range)  {
         int cl= (int) floor(range / step);
         // if (cl < -1 || cl > cells || incl < 0 || incl >= elements)
-        //     cout << "PartitionP: incl= " << incl << " at " << cl << endl;
+        //     cout << "PartitionP: incl= " << incl << " at " << cl << std::endl;
         if (cl < 0) cl= 0;
         else if (cl >= cells) cl= cells-1;
         cellIndex[ incl ] = cl;

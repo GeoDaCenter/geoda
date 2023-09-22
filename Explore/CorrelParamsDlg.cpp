@@ -478,8 +478,8 @@ void CorrelParamsFrame::OnApplyBtn(wxCommandEvent& ev)
             var_man.SetCurTime(0,v1_time);
             double mean = 0;
             double var = 0;
-            vector<double> vals;
-            vector<bool> vals_undef;
+            std::vector<double> vals;
+            std::vector<bool> vals_undef;
             table_int->GetColData(col_id, v1_time, vals);
             table_int->GetColUndefined(col_id, v1_time, vals_undef);
             CorrelogramAlgs::GetSampMeanAndVar(vals, vals_undef, mean, var);

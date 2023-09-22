@@ -26,8 +26,6 @@
 
 namespace bt = boost::posix_time;
 
-using namespace std;
-
 /**
  * OGRTableOperation
  *   OGRTableOpInsertColumn
@@ -121,17 +119,17 @@ class OGRTableOpUpdateColumn : public OGRTableOperation
 private:
     int n_rows;
     
-    vector<bool> undef_old_data, undef_new_data;
-    vector<double> d_old_data, d_new_data;
-    vector<wxInt64> l_old_data, l_new_data;
-    vector<wxString> s_old_data, s_new_data;
-    vector<unsigned long long> t_old_data, t_new_data;
+    std::vector<bool> undef_old_data, undef_new_data;
+    std::vector<double> d_old_data, d_new_data;
+    std::vector<wxInt64> l_old_data, l_new_data;
+    std::vector<wxString> s_old_data, s_new_data;
+    std::vector<unsigned long long> t_old_data, t_new_data;
     
 public:
-    OGRTableOpUpdateColumn(OGRColumn* col, const vector<double>& new_data);
-    OGRTableOpUpdateColumn(OGRColumn* col, const vector<wxInt64>& new_data);
-    OGRTableOpUpdateColumn(OGRColumn* col, const vector<wxString>& new_data);
-    OGRTableOpUpdateColumn(OGRColumn* col, const vector<unsigned long long>& new_data);
+    OGRTableOpUpdateColumn(OGRColumn* col, const std::vector<double>& new_data);
+    OGRTableOpUpdateColumn(OGRColumn* col, const std::vector<wxInt64>& new_data);
+    OGRTableOpUpdateColumn(OGRColumn* col, const std::vector<wxString>& new_data);
+    OGRTableOpUpdateColumn(OGRColumn* col, const std::vector<unsigned long long>& new_data);
     ~OGRTableOpUpdateColumn(){}
     
     virtual void Commit();

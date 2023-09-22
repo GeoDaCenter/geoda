@@ -48,8 +48,6 @@
 #include "SaveToTableDlg.h"
 #include "CatClassifDlg.h"
 
-using namespace std;
-
 BEGIN_EVENT_TABLE(CatClassifHistCanvas, TemplateCanvas)
 	EVT_PAINT(TemplateCanvas::OnPaint)
 	EVT_ERASE_BACKGROUND(TemplateCanvas::OnEraseBackground)
@@ -815,15 +813,15 @@ has_custom_color(false)
 	for (wxWindowList::iterator it = win_list.begin(); it != win_list.end();
 		 it++) {
 		if ((*it)->GetId() == XRCID("ID_CAT_BUT")) {
-			cat_color_button_srt_vec.push_back(make_pair((*it)->GetPosition().y, (*it)));
+			cat_color_button_srt_vec.push_back(std::make_pair((*it)->GetPosition().y, (*it)));
 		} else if ((*it)->GetId() == XRCID("ID_CAT_TXT")) {
-			cat_title_txt_srt_vec.push_back(make_pair((*it)->GetPosition().y, (*it)));
+			cat_title_txt_srt_vec.push_back(std::make_pair((*it)->GetPosition().y, (*it)));
 		} else if ((*it)->GetId() == XRCID("ID_BRK_RAD")) {
-			brk_rad_srt_vec.push_back(make_pair((*it)->GetPosition().y, (*it)));
+			brk_rad_srt_vec.push_back(std::make_pair((*it)->GetPosition().y, (*it)));
 		} else if ((*it)->GetId() == XRCID("ID_BRK_LBL")) {
-			brk_lbl_srt_vec.push_back(make_pair((*it)->GetPosition().y, (*it)));
+			brk_lbl_srt_vec.push_back(std::make_pair((*it)->GetPosition().y, (*it)));
 		} else if ((*it)->GetId() == XRCID("ID_BRK_TXT")) {
-			brk_txt_srt_vec.push_back(make_pair((*it)->GetPosition().y, (*it)));
+			brk_txt_srt_vec.push_back(std::make_pair((*it)->GetPosition().y, (*it)));
 		}
 	}
 		
@@ -2589,7 +2587,7 @@ void CatClassifPanel::UpdateCCState()
                 for (int i=0; i<items.size(); i++) {
                     sm->Delete(items[i]);
                 }
-                vector<wxString> titles;
+                std::vector<wxString> titles;
                 CatClassifManager* ccm = project->GetCatClassifManager();
                 ccm->GetTitles(titles);
                 sm->Append(XRCID("ID_NEW_CUSTOM_CAT_CLASSIF_A"),

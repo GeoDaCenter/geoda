@@ -21,37 +21,39 @@
 #include "GeneralWxUtils.h"
 #include "GenUtils.h"
 #include <wx/mstream.h>
+#include <wx/tokenzr.h>
 
-// 10 local + 29 http
-const char* GdaConst::sample_names[] = {
+const std::vector<wxString> GdaConst::sample_names({
+    "Chicago Community Areas",
+    "Chicago Carjackings",
+    "Chicago SDOH",
+    "Ceara Zika",
+    "Oaxaca Development",
+    "Italy Community Banks",
+    "Spirals",
     "Moral Statistics of France (1833)",
     "US County Homicides",
     "House Prices Baltimore",
     "House Prices Boston",
-    "Columbus Crime",
-    "NC SIDS",
-    "Nepal Aid",
-    "NYC Data",
-    "Malaria Colombia Cities",
-    "Phoenix ACS",
-    "San Francisco Crime"
-};
+    "NYC Data"
+});
 
-const char* GdaConst::sample_layer_names[] = {
+const std::vector<wxString> GdaConst::sample_layer_names({
+    "Chicago Community Areas",
+    "Chicago Carjackings",
+    "Chicago SDOH",
+    "Ceara Zika",
+    "Oaxaca Development",
+    "Italy Community Banks",
+    "Spirals",
     "Guerry",
     "US Homicides",
     "Baltimore Home Sales",
     "Boston Home Sales",
-    "Columbus Crime",
-    "SIDS NC",
-    "Nepal Aid",
-    "NYC Data",
-    "Colombia Malaria",
-    "Phoenix ACS",
-    "SanFran Crime"
-};
+    "NYC Data"
+});
 
-const char* GdaConst::sample_datasources[] = {
+const std::vector<wxString> GdaConst::sample_datasources({
     "samples.sqlite",
 	"samples.sqlite",
 	"samples.sqlite",
@@ -62,22 +64,24 @@ const char* GdaConst::sample_datasources[] = {
 	"samples.sqlite",
 	"samples.sqlite",
 	"samples.sqlite",
+    "samples.sqlite",
 	"samples.sqlite"
-};
+});
 
-const char* GdaConst::sample_meta_urls[] = {
+const std::vector<wxString> GdaConst::sample_meta_urls({
+    "https://geodacenter.github.io/data-and-lab/Chi-CCA/",
+    "https://geodacenter.github.io/data-and-lab/Chi-Carjackings/",
+    "https://geodacenter.github.io/data-and-lab/Chi-SDOH/",
+    "https://geodacenter.github.io/data-and-lab/Ceara-Zika/",
+    "https://geodacenter.github.io/data-and-lab/Oaxaca-Development/",
+    "https://geodacenter.github.io/data-and-lab/Italy-Community-Banks/",
+    "https://geodacenter.github.io/data-and-lab/Spirals/",
     "https://geodacenter.github.io/data-and-lab/Guerry/",
     "https://geodacenter.github.io/data-and-lab/ncovr/",
     "https://geodacenter.github.io/data-and-lab/baltim/",
     "https://geodacenter.github.io/data-and-lab/boston-housing/",
-    "https://geodacenter.github.io/data-and-lab/columbus/",
-    "https://geodacenter.github.io/data-and-lab/sids2/",
-    "https://geodacenter.github.io/data-and-lab/nepal/",
-    "https://geodacenter.github.io/data-and-lab/nyc/",
-    "https://geodacenter.github.io/data-and-lab/colomb_malaria/",
-    "https://geodacenter.github.io/data-and-lab/phx/",
-    "https://geodacenter.github.io/data-and-lab/SFcrimes_vars/"
-};
+    "https://geodacenter.github.io/data-and-lab/nyc/"
+});
 
 const char* GdaConst::raw_zoom_in[] = {
 
@@ -359,8 +363,18 @@ int GdaConst::gda_ogr_csv_header = 1;
 wxString GdaConst::gda_ogr_csv_x_name = "";
 wxString GdaConst::gda_ogr_csv_y_name = "";
 wxString GdaConst::gda_display_datetime_format = "";
-std::vector<wxString> GdaConst::gda_datetime_formats(10);
-wxString GdaConst::gda_datetime_formats_str =  "%Y-%m-%d %H:%M:%S,%Y/%m/%d %H:%M:%S,%d.%m.%Y %H:%M:%S,%m/%d/%Y %H:%M:%S,%Y-%m-%d,%m/%d/%Y,%Y/%m/%d,%H:%M:%S,%H:%M,%Y/%m/%d %H:%M %p";
+std::vector<wxString> GdaConst::gda_datetime_formats;
+wxString GdaConst::gda_datetime_formats_str = "%Y-%m-%d %H:%M:%S,"
+    "%Y/%m/%d %H:%M:%S,"
+    "%d.%m.%Y %H:%M:%S,"
+    "%m/%d/%Y %H:%M:%S,"
+    "%Y-%m-%d,"
+    "%m/%d/%Y,"
+    "%Y/%m/%d,"
+    "%H:%M:%S,"
+    "%H:%M,"
+    "%Y/%m/%d %H:%M %p,"
+    "%m/%d/%Y %I:%M:%S %p";
 wxString GdaConst::gda_basemap_sources =
 "Carto.Light,https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}@2x.png"
 "\nCarto.Dark,https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}@2x.png"
@@ -381,6 +395,10 @@ wxString GdaConst::gda_basemap_sources =
 "\nOther (China).GaoDe,http://webst{s}.is.autonavi.com/appmaptile?style=8&x={x}&y={y}&z={z}"
 "\nOther (China).GaoDe(Satellite),http://webst{s}.is.autonavi.com/appmaptile?style=6&x={x}&y={y}&z={z}"
 ;
+const wxString GdaConst::gda_basemap_osm_useragent = "GeoDa 1.14 contact spatial@uchiago.edu";
+const wxString GdaConst::gda_basemap_win_useragent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36";
+const wxString GdaConst::gda_basemap_mac_useragent = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36";
+const wxString GdaConst::gda_basemap_linux_useragent = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36";
 
 const wxString GdaConst::gda_lbl_not_sig = _("Not Significant");
 const wxString GdaConst::gda_lbl_undefined = _("Undefined");
@@ -410,9 +428,19 @@ const wxString GdaConst::gda_lbl_n1sigma = "[-1Std, Mean)";
 const wxString GdaConst::gda_lbl_1sigma = "(Mean, 1Std]";
 const wxString GdaConst::gda_lbl_1sigma_2sigma = "(1Std, 2Std]";
 const wxString GdaConst::gda_lbl_2sigma = "> 2Std";
+const wxString GdaConst::gda_projection_UNIT = "UNIT";
+const wxString GdaConst::gda_projection_metre = "metre";
+const wxString GdaConst::gda_projection_meter = "meter";
 
 const wxPen* GdaConst::default_myshape_pen=0;
 const wxBrush* GdaConst::default_myshape_brush=0;
+
+const wxString GdaConst::gda_lang_english = "English";
+const wxString GdaConst::gda_lang_chinese = "Chinese (Simplified)";
+const wxString GdaConst::gda_lang_french = "French";
+const wxString GdaConst::gda_lang_portuguese = "Portuguese";
+const wxString GdaConst::gda_lang_russian = "Russian";
+const wxString GdaConst::gda_lang_spanish = "Spanish";
 
 //background color -- this is light gray
 const wxColour GdaConst::backColor(192, 192, 192);
@@ -438,7 +466,12 @@ const int GdaConst::map_default_legend_width = 150;
 const wxColour GdaConst::map_default_fill_colour(49, 163, 84);
 const wxColour GdaConst::map_default_outline_colour(0, 0, 0);
 const wxColour GdaConst::map_default_highlight_colour(255, 255, 0); // yellow
-wxColour GdaConst::map_undefined_colour(70, 70, 70); // dark gray
+const wxColour GdaConst::map_dark_gray(70, 70, 70);
+const wxColour GdaConst::map_white(255, 255, 255);
+wxColour GdaConst::map_undefined_colour(GdaConst::map_dark_gray);
+const wxString GdaConst::map_undefined_label(_("undefined"));
+const wxString GdaConst::map_unmatched_label(_("unmatched"));
+wxString GdaConst::map_undefined_category(GdaConst::map_undefined_label);
 
 // Connectivity Map
 const wxSize GdaConst::conn_map_default_size(480, 350);
@@ -585,16 +618,13 @@ void GdaConst::init()
                              wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL, false,
                              wxEmptyString, wxFONTENCODING_DEFAULT);
 
-    GdaConst::gda_datetime_formats[0] = "%Y-%m-%d %H:%M:%S";
-    GdaConst::gda_datetime_formats[1] = "%Y/%m/%d %H:%M:%S";
-    GdaConst::gda_datetime_formats[2] = "%d.%m.%Y %H:%M:%S";
-    GdaConst::gda_datetime_formats[3] = "%m/%d/%Y %H:%M:%S";
-    GdaConst::gda_datetime_formats[4] = "%Y-%m-%d";
-    GdaConst::gda_datetime_formats[5] = "%m/%d/%Y";
-    GdaConst::gda_datetime_formats[6] = "%Y/%m/%d";
-    GdaConst::gda_datetime_formats[7] = "%H:%M:%S";
-    GdaConst::gda_datetime_formats[8] = "%H:%M";
-    GdaConst::gda_datetime_formats[9] = "%Y/%m/%d %H:%M %p";
+    wxStringTokenizer tokenizer(GdaConst::gda_datetime_formats_str, ",");
+    while (tokenizer.HasMoreTokens())
+    {
+        wxString token = tokenizer.GetNextToken();
+        // process token here
+        GdaConst::gda_datetime_formats.push_back(token);
+    }
     
 	// GdaShape resources
 	default_myshape_pen = wxBLACK_PEN;

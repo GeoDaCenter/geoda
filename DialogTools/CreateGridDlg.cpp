@@ -198,7 +198,7 @@ void CreateGridDlg::OnCReferencefileClick( wxCommandEvent& event )
                 if (pos >= 0)
                     fn = fn.Left(pos);
 
-		ifstream ifl(GET_ENCODED_FILENAME(m_path), ios::in);
+		std::ifstream ifl(GET_ENCODED_FILENAME(m_path), std::ios::in);
 		if (ifl.fail())  {
 			wxMessageBox(_("File doesn't exist!"));
 			return;
@@ -425,7 +425,7 @@ bool CreateGridDlg::CreateGrid()
 	y[m_nRows] = m_yTop;
 	for (i = 1;i < m_nRows; i++) y[i] = y[i-1] + d_y;
 
-	vector<GdaShape*> grids;
+    std::vector<GdaShape*> grids;
     int n_pts = 5;
     int n_polygons = m_nRows * m_nCols;
     

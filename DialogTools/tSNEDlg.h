@@ -24,8 +24,10 @@
 #include <vector>
 #include <wx/dialog.h>
 #include <wx/listbox.h>
+
+#define BOOST_PHOENIX_STL_TUPLE_H_
 #include <boost/thread.hpp>
-#include <boost/bind.hpp>
+#include <boost/bind/bind.hpp>
 #include <boost/lockfree/queue.hpp>
 
 #include "../VarTools.h"

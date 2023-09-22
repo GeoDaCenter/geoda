@@ -94,7 +94,7 @@ wxString BackgroundMapLayer::GetAssociationText()
 void BackgroundMapLayer::RemoveAssociatedLayer(AssociateLayerInt* layer)
 {
     AssociateLayerInt* del_key = NULL;
-    map<AssociateLayerInt*, Association>::iterator it;
+    std::map<AssociateLayerInt*, Association>::iterator it;
     for (it=associated_layers.begin(); it!=associated_layers.end();it++) {
         AssociateLayerInt* asso_layer = it->first;
         if (layer->GetName() == asso_layer->GetName()) {
@@ -108,13 +108,13 @@ void BackgroundMapLayer::RemoveAssociatedLayer(AssociateLayerInt* layer)
 
 void BackgroundMapLayer::SetLayerAssociation(wxString my_key, AssociateLayerInt* layer, wxString key, bool show_connline)
 {
-    associated_layers[layer] = make_pair(my_key, key);
+    associated_layers[layer] = std::make_pair(my_key, key);
     associated_lines[layer] = show_connline;
 }
 
 bool BackgroundMapLayer::IsAssociatedWith(AssociateLayerInt* layer)
 {
-    map<AssociateLayerInt*, Association>::iterator it;
+    std::map<AssociateLayerInt*, Association>::iterator it;
     for (it=associated_layers.begin(); it!=associated_layers.end();it++) {
         AssociateLayerInt* asso_layer = it->first;
         if (layer->GetName() == asso_layer->GetName()) {
@@ -197,14 +197,14 @@ int BackgroundMapLayer::GetHighlightRecords()
 void BackgroundMapLayer::DrawHighlight(wxMemoryDC& dc, MapCanvas* map_canvas)
 {
     // draw any connected layers
-    map<AssociateLayerInt*, Association>::iterator it;
+    std::map<AssociateLayerInt*, Association>::iterator it;
     for (it=associated_layers.begin(); it!=associated_layers.end();it++) {
         AssociateLayerInt* associated_layer = it->first;
         Association& al = it->second;
         wxString primary_key = al.first;
         wxString associated_key = al.second;
         
-        vector<wxString> pid(shapes.size());  // e.g. 1 2 3 4 5
+        std::vector<wxString> pid(shapes.size());  // e.g. 1 2 3 4 5
         if (primary_key.IsEmpty() == false) {
             GetKeyColumnData(primary_key, pid);
         } else {
@@ -212,11 +212,11 @@ void BackgroundMapLayer::DrawHighlight(wxMemoryDC& dc, MapCanvas* map_canvas)
                 pid[i] << i;
             }
         }
-        vector<wxString> fid; // e.g. 2 2 1 1 3 5 4 4
+        std::vector<wxString> fid; // e.g. 2 2 1 1 3 5 4 4
         associated_layer->GetKeyColumnData(associated_key, fid);
         associated_layer->ResetHighlight();
 
-        map<wxString, vector<wxInt64> > aid_idx;
+        std::map<wxString, std::vector<wxInt64> > aid_idx;
         for (int i=0; i<fid.size(); i++) {
             aid_idx[fid[i]].push_back(i);
         }
@@ -229,7 +229,7 @@ void BackgroundMapLayer::DrawHighlight(wxMemoryDC& dc, MapCanvas* map_canvas)
             if (aid_idx.find(aid) == aid_idx.end()) {
                 continue;
             }
-            vector<wxInt64>& ids = aid_idx[aid];
+            std::vector<wxInt64>& ids = aid_idx[aid];
             for (int j=0; j<ids.size(); j++) {
                 associated_layer->SetHighlight( ids[j] );
             }
@@ -246,7 +246,7 @@ void BackgroundMapLayer::DrawHighlight(wxMemoryDC& dc, MapCanvas* map_canvas)
             if (aid_idx.find(aid) == aid_idx.end()) {
                 continue;
             }
-            vector<wxInt64>& ids = aid_idx[aid];
+            std::vector<wxInt64>& ids = aid_idx[aid];
             for (int j=0; j<ids.size(); j++) {
                 if (associated_lines[associated_layer] && !associated_layer->IsHide()) {
                     dc.DrawLine(shapes[i]->center, associated_layer->GetShape(ids[j])->center);
@@ -340,7 +340,7 @@ int BackgroundMapLayer::GetNumRecords()
 }
 
 bool BackgroundMapLayer::GetDoubleColumnData(wxString field_name,
-                                             vector<double>& data)
+                                             std::vector<double>& data)
 {
     if (field_name.empty()) return false;
     
@@ -360,7 +360,7 @@ bool BackgroundMapLayer::GetDoubleColumnData(wxString field_name,
     return false;
 }
 
-bool BackgroundMapLayer::GetIntegerColumnData(wxString field_name, vector<wxInt64>& data)
+bool BackgroundMapLayer::GetIntegerColumnData(wxString field_name, std::vector<wxInt64>& data)
 {
     if (data.empty()) {
         data.resize(shapes.size());
@@ -381,7 +381,7 @@ bool BackgroundMapLayer::GetIntegerColumnData(wxString field_name, vector<wxInt6
     return false;
 }
 
-bool BackgroundMapLayer::GetKeyColumnData(wxString field_name, vector<wxString>& data)
+bool BackgroundMapLayer::GetKeyColumnData(wxString field_name, std::vector<wxString>& data)
 {
     if (data.empty()) {
         data.resize(shapes.size());
@@ -412,32 +412,32 @@ bool BackgroundMapLayer::GetKeyColumnData(wxString field_name, vector<wxString>&
     return false;
 }
 
-vector<wxString> BackgroundMapLayer::GetIntegerFieldNames()
+std::vector<wxString> BackgroundMapLayer::GetIntegerFieldNames()
 {
     return field_names;
 }
 
-vector<wxString> BackgroundMapLayer::GetNumericFieldNames()
+std::vector<wxString> BackgroundMapLayer::GetNumericFieldNames()
 {
     return num_field_names;
 }
 
-void BackgroundMapLayer::SetNumericFieldNames(vector<wxString>& names)
+void BackgroundMapLayer::SetNumericFieldNames(std::vector<wxString>& names)
 {
     num_field_names = names;
 }
 
-vector<wxString> BackgroundMapLayer::GetKeyNames()
+std::vector<wxString> BackgroundMapLayer::GetKeyNames()
 {
     return key_names;
 }
 
-void BackgroundMapLayer::SetKeyNames(vector<wxString>& names)
+void BackgroundMapLayer::SetKeyNames(std::vector<wxString>& names)
 {
     key_names = names;
 }
 
-void BackgroundMapLayer::SetFieldNames(vector<wxString>& names)
+void BackgroundMapLayer::SetFieldNames(std::vector<wxString>& names)
 {
     field_names = names;
 }
@@ -534,7 +534,7 @@ int BackgroundMapLayer::GetPointRadius()
     return point_radius;
 }
 
-vector<GdaShape*>& BackgroundMapLayer::GetShapes()
+std::vector<GdaShape*>& BackgroundMapLayer::GetShapes()
 {
     return shapes;
 }

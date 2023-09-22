@@ -44,7 +44,7 @@ OGRDataAdapter::OGRDataAdapter()
 void OGRDataAdapter::Close()
 {
 	// clean ogr_ds_pool
-	map<wxString, OGRDatasourceProxy*>::iterator it;
+    std::map<wxString, OGRDatasourceProxy*>::iterator it;
 	for(it=ogr_ds_pool.begin(); it!=ogr_ds_pool.end(); it++) {
         OGRDatasourceProxy* ds = it->second;
 		if (ds) {
@@ -107,7 +107,7 @@ void OGRDataAdapter::CleanHistory()
 	gda_cache->CleanHistory();
 }
 
-GdaConst::DataSourceType OGRDataAdapter::GetLayerNames(const wxString& ds_name, GdaConst::DataSourceType& ds_type, vector<wxString>& layer_names)
+GdaConst::DataSourceType OGRDataAdapter::GetLayerNames(const wxString& ds_name, GdaConst::DataSourceType& ds_type, std::vector<wxString>& layer_names)
 {	
 	OGRDatasourceProxy* ds_proxy = GetDatasourceProxy(ds_name, ds_type);
     ds_type = ds_proxy->ds_type;
@@ -167,10 +167,10 @@ void OGRDataAdapter::CancelExport(OGRLayerProxy* layer)
 }
 
 OGRwkbGeometryType
-OGRDataAdapter::MakeOGRGeometries(vector<GdaShape*>& geometries, 
+OGRDataAdapter::MakeOGRGeometries(std::vector<GdaShape*>& geometries, 
 								  Shapefile::ShapeType shape_type,
-								  vector<OGRGeometry*>& ogr_geometries,
-								  vector<int>& selected_rows)
+								  std::vector<OGRGeometry*>& ogr_geometries,
+								  std::vector<int>& selected_rows)
 {
 	OGRwkbGeometryType eGType = wkbNone;
     int n = selected_rows.size();
@@ -257,7 +257,7 @@ OGRDataAdapter::MakeOGRGeometries(vector<GdaShape*>& geometries,
                     for ( int num_part = 0; num_part < numParts; num_part++ ) {
     					OGRPolygon* polygon = (OGRPolygon*)OGRGeometryFactory::createGeometry(wkbPolygon);
                         OGRLinearRing* ring = (OGRLinearRing*)OGRGeometryFactory::createGeometry(wkbLinearRing);
-                        vector<wxInt32> startIndexes = poly->pc->parts;
+                        std::vector<wxInt32> startIndexes = poly->pc->parts;
                         startIndexes.push_back(numPoints);
                         for ( size_t j = startIndexes[num_part];
                               j < startIndexes[num_part+1]; j++ )
@@ -284,9 +284,9 @@ OGRDataAdapter::ExportDataSource(const wxString& o_ds_format,
 								 const wxString& o_ds_name,
                                  const wxString& o_layer_name,
                                  OGRwkbGeometryType geom_type,
-                                 vector<OGRGeometry*> ogr_geometries,
+                                 std::vector<OGRGeometry*> ogr_geometries,
                                  TableInterface* table,
-								 vector<int>& selected_rows,
+								 std::vector<int>& selected_rows,
                                  OGRSpatialReference* spatial_ref,
 								 bool is_update,
                                  wxString cpg_encode)
@@ -296,13 +296,13 @@ OGRDataAdapter::ExportDataSource(const wxString& o_ds_format,
     
     // field identifier: a pair value <column pos, time step> to indicate how to
     // retreive real field name and cell value for time-enabled table
-    typedef pair<int, int> field_idn;
-    vector<field_idn> field_idn_s;
-    vector<wxString> field_name_s;
+    typedef std::pair<int, int> field_idn;
+    std::vector<field_idn> field_idn_s;
+    std::vector<wxString> field_name_s;
     // check field names first
     if ( table != NULL ) {
         // get all field names for FieldNameCorrectionDlg
-        vector<wxString> all_fnames;
+        std::vector<wxString> all_fnames;
         int time_steps = table->GetTimeSteps();
         for ( int id=0; id < table->GetNumberCols(); id++ ) {
             if (table->IsColTimeVariant(id)) {
@@ -315,7 +315,7 @@ OGRDataAdapter::ExportDataSource(const wxString& o_ds_format,
                                            GdaException::FIELD_NAME_EMPTY);
                     }
                     all_fnames.push_back(fname);
-                    field_idn_s.push_back(make_pair(id, t));
+                    field_idn_s.push_back(std::make_pair(id, t));
                     field_name_s.push_back(fname);
                 }
             } else {
@@ -327,7 +327,7 @@ OGRDataAdapter::ExportDataSource(const wxString& o_ds_format,
                                        GdaException::FIELD_NAME_EMPTY);
                 }
                 all_fnames.push_back(fname);
-                field_idn_s.push_back(make_pair(id, 0));
+                field_idn_s.push_back(std::make_pair(id, 0));
                 field_name_s.push_back(fname);
             }
         }
@@ -339,7 +339,7 @@ OGRDataAdapter::ExportDataSource(const wxString& o_ds_format,
                 // cancel at Field Name Correction
                 return NULL;
             }
-            vector<wxString> new_field_name_s = fname_correct_dlg.GetNewFieldNames();
+            std::vector<wxString> new_field_name_s = fname_correct_dlg.GetNewFieldNames();
             
             for (size_t i=0; i<new_field_name_s.size(); i++) {
                 wxString new_fname = new_field_name_s[i];

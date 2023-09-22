@@ -37,9 +37,6 @@
 #include "../GenUtils.h"
 #include "PolysToContigWeights.h"
 
-using namespace std;
-
-
 /*
  BasePartition
  */
@@ -114,7 +111,7 @@ PartitionP::~PartitionP()
 void PartitionP::include(const int incl)  {
 	int where = cellIndex [ incl ];
 	//        if (where < 0 || where >= cells || incl < 0 || incl >= elements)
-	//          cout << "including " << incl << " at " << where << endl;
+	//          std::cout << "including " << incl << " at " << where << std::endl;
 	int old= cell [ where ];
 	cell [ where ] = incl;
 	if (old != GdaConst::EMPTY)
@@ -452,7 +449,7 @@ GalElement* PolysToContigWeights(Shapefile::Main& main, bool is_queen,
     
     if (!gl) return NULL;
     GeoDaSet   Neighbors(gRecords), Related(gRecords);
-    //  cout << "total steps= " << gMinX.Cells() << endl;
+    //  cout << "total steps= " << gMinX.Cells() << std::endl;
     
     for (int step= 0; step < gMinX.Cells(); ++step) {
         // include all elements from xmin[step]
@@ -489,7 +486,7 @@ GalElement* PolysToContigWeights(Shapefile::Main& main, bool is_queen,
                 if (ply->intersect(nbr_ply)) {
                     
                     PolygonPartition nbrPoly(nbr_ply);
-                    //shp.seekg(gOffset[nbr]+12, ios::beg);
+                    //shp.seekg(gOffset[nbr]+12, std::ios::beg);
                     //nbrPoly.ReadShape(shp);
                     
                     //if (curr == 0 && nbr == 0) {
@@ -518,7 +515,7 @@ GalElement* PolysToContigWeights(Shapefile::Main& main, bool is_queen,
 	if (gOffset) delete [] gOffset; gOffset = 0;
 
 	//MakeFull(gl, gRecords);
-    vector<set<long> > G(gRecords);
+    std::vector<std::set<long> > G(gRecords);
     for (size_t i=0; i<gRecords; ++i) {
         for (size_t j=0, sz=gl[i].Size(); j<sz; ++j) {
             G[i].insert(gl[i][j]);
@@ -529,7 +526,7 @@ GalElement* PolysToContigWeights(Shapefile::Main& main, bool is_queen,
         if (gl[i].Size() == G[i].size()) continue;
         gl[i].SetSizeNbrs(G[i].size());
         size_t cnt = 0;
-        for (set<long>::iterator it=G[i].begin(); it!=G[i].end(); ++it) {
+        for (std::set<long>::iterator it=G[i].begin(); it!=G[i].end(); ++it) {
             gl[i].SetNbr(cnt++, *it);
         }
         gl[i].SortNbrs();
@@ -566,7 +563,7 @@ GalElement* PolysToContigWeights(OGRLayer* layer, bool is_queen,
     gMaxX.alloc(gRecords, gx, shp_x_len);
     
     OGRFeature* feature = NULL;
-    vector<OGRFeature*> features;
+    std::vector<OGRFeature*> features;
     layer->ResetReading();
     while ((feature = layer->GetNextFeature()) != NULL) {
         features.push_back(feature);
@@ -613,7 +610,7 @@ GalElement* PolysToContigWeights(OGRLayer* layer, bool is_queen,
     
     int curr;
     GeoDaSet Neighbors(gRecords), Related(gRecords);
-    //  cout << "total steps= " << gMinX.Cells() << endl;
+    //  cout << "total steps= " << gMinX.Cells() << std::endl;
     for (int step= 0; step < gMinX.Cells(); ++step) {
         // include all elements from xmin[step]
         for (curr= gMinX.first(step); curr != GdaConst::EMPTY;
@@ -678,7 +675,7 @@ GalElement* PolysToContigWeights(OGRLayer* layer, bool is_queen,
     if (gY) delete gY; gY = 0;
 
     //MakeFull(gl, gRecords);
-    vector<set<long> > G(gRecords);
+    std::vector<std::set<long> > G(gRecords);
     for (size_t i=0; i<gRecords; ++i) {
         for (size_t j=0, sz=gl[i].Size(); j<sz; ++j) {
             G[i].insert(gl[i][j]);
@@ -689,7 +686,7 @@ GalElement* PolysToContigWeights(OGRLayer* layer, bool is_queen,
         if (gl[i].Size() == G[i].size()) continue;
         gl[i].SetSizeNbrs(G[i].size());
         size_t cnt = 0;
-        for (set<long>::iterator it=G[i].begin(); it!=G[i].end(); ++it) {
+        for (std::set<long>::iterator it=G[i].begin(); it!=G[i].end(); ++it) {
             gl[i].SetNbr(cnt++, *it);
         }
         gl[i].SortNbrs();
