@@ -114,3 +114,4 @@ internationalization/.vscode/settings.json
 internationalization/~$zh_CN.xlsx
 
 GeoDamake.opt
+build/
