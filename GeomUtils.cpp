@@ -1,0 +1,179 @@
+/**
+ * GeoDa TM, Copyright (C) 2011-2015 by Luc Anselin - all rights reserved
+ *
+ * This file is part of GeoDa.
+ *
+ * GeoDa is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * GeoDa is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+#include "GeomUtils.h"
+
+// read vector file using OGR
+std::vector<OGRFeature*> read_vector_file(const std::string& filename) {
+  std::vector<OGRFeature*> data;
+  GDALAllRegister();
+  GDALDataset* ds = GDALDataset::Open(filename.c_str(), GDAL_OF_VECTOR);
+  if (ds == nullptr) {
+    return data;
+  }
+  OGRLayer* layer = ds->GetLayer(0);
+  if (layer == nullptr) {
+    return data;
+  }
+  layer->ResetReading();
+  OGRFeature* feat = nullptr;
+  while ((feat = layer->GetNextFeature()) != nullptr) {
+    data.push_back(feat);
+  }
+  return data;
+}
+
+// convert bytes to hex string
+std::string bytes_to_hex(const unsigned char* bytes, size_t n_bytes) {
+  static const char* hex_digits = "0123456789ABCDEF";
+  std::string hex_string;
+  for (size_t i = 0; i < n_bytes; ++i) {
+    const unsigned char c = bytes[i];
+    hex_string.push_back(hex_digits[c >> 4]);
+    hex_string.push_back(hex_digits[c & 15]);
+  }
+  return hex_string;
+}
+
+// convert hex to bytes
+const size_t hex_to_bytes(const std::string& hex_string, unsigned char** bytes) {
+  const size_t n_bytes = hex_string.size() / 2;
+  *bytes = new unsigned char[n_bytes];
+  for (size_t i = 0; i < n_bytes; ++i) {
+    char c1 = hex_string[2 * i];
+    char c2 = hex_string[2 * i + 1];
+    c1 = c1 >= 'A' ? c1 - 'A' + 10 : c1 - '0';
+    c2 = c2 >= 'A' ? c2 - 'A' + 10 : c2 - '0';
+    (*bytes)[i] = (c1 << 4) | c2;
+  }
+  return n_bytes;
+}
+
+// check if hexewkb string is valid
+bool valid_hexewkb(const std::string& hexewkb) {
+  unsigned char* bytes;
+  const size_t n_bytes = hex_to_bytes(hexewkb, &bytes);
+  OGRGeometry* geom = nullptr;
+  OGRErr err = OGRGeometryFactory::createFromWkb(bytes, nullptr, &geom, n_bytes);
+  delete[] bytes;
+  if (err != OGRERR_NONE) {
+    return false;
+  }
+  delete geom;
+  return true;
+}
+
+// convert geometry to hexewkb string
+std::string geometry_to_hexewkb(const OGRGeometry* geom) {
+  int nBLOBLen = geom->WkbSize();
+  GByte* pabyGeomBLOB = reinterpret_cast<GByte*>(VSIMalloc(nBLOBLen));
+  geom->exportToWkb(wkbNDR, pabyGeomBLOB);
+  // hex-encoded WKB strings
+  return bytes_to_hex(pabyGeomBLOB, nBLOBLen);
+}
+
+// create OGRGeometry from hexewkb string
+OGRGeometry* hexewkb_to_geometry(const std::string& hexewkb) {
+  unsigned char* bytes;
+  const size_t n_bytes = hex_to_bytes(hexewkb, &bytes);
+  OGRGeometry* geom = nullptr;
+  OGRGeometryFactory::createFromWkb(bytes, nullptr, &geom, n_bytes);
+  delete[] bytes;
+  return geom;
+}
+
+// create OGRFeature from latitude and longitude
+OGRFeature* create_ogrfeature_from_latlong(double lat, double lng) {
+  // create OGRFeatureDefn for point
+  OGRFeatureDefn* feat_defn = new OGRFeatureDefn("point");
+  OGRFeature* feat = OGRFeature::CreateFeature(feat_defn);
+  OGRPoint* point = new OGRPoint(lng, lat);
+  feat->SetGeometryDirectly(point);
+  return feat;
+}
+
+// write OGRLayer to Arrow file
+void save_ogrlayer(OGRLayer* layer, const std::string& filename, const std::string& driver_name, char** options) {
+  GDALAllRegister();
+  GDALDriver* driver = GetGDALDriverManager()->GetDriverByName(driver_name.c_str());
+  if (driver == nullptr) {
+    return;
+  }
+  GDALDataset* ds = driver->Create(filename.c_str(), 0, 0, 0, GDT_Unknown, nullptr);
+  if (ds == nullptr) {
+    return;
+  }
+  OGRLayer* new_layer = ds->CreateLayer(layer->GetName(), layer->GetSpatialRef(), layer->GetGeomType(), options);
+  if (new_layer == nullptr) {
+    return;
+  }
+
+  // iterate over fields in layer
+  for (unsigned int i = 0; i < layer->GetLayerDefn()->GetFieldCount(); ++i) {
+    OGRFieldDefn* field = layer->GetLayerDefn()->GetFieldDefn(i);
+    new_layer->CreateField(field);
+  }
+
+  layer->ResetReading();
+  OGRFeature* feat = nullptr;
+  while ((feat = layer->GetNextFeature()) != nullptr) {
+    if (new_layer->CreateFeature(feat) != OGRERR_NONE) {
+      return;
+    }
+  }
+  ds->FlushCache();
+  GDALClose(ds);
+}
+
+// convert to Arrow file
+void vector_to_arrow(const std::string& geojson_filename, const std::string& arrow_filename) {
+  GDALAllRegister();
+  GDALDataset* ds = GDALDataset::Open(geojson_filename.c_str(), GDAL_OF_VECTOR);
+  if (ds == nullptr) {
+    return;
+  }
+  OGRLayer* layer = ds->GetLayer(0);
+  if (layer == nullptr) {
+    return;
+  }
+  char** options = nullptr;
+  options = CSLSetNameValue(options, "COMPRESSION", "NONE");
+  options = CSLSetNameValue(options, "GEOMETRY_ENCODING", "WKB");
+
+  save_ogrlayer(layer, arrow_filename, "Arrow", options);
+  CSLDestroy(options);
+}
+
+// convert to CSV file
+void vector_to_csv(const std::string& geojson_filename, const std::string& csv_filename) {
+  GDALAllRegister();
+  GDALDataset* ds = GDALDataset::Open(geojson_filename.c_str(), GDAL_OF_VECTOR);
+  if (ds == nullptr) {
+    return;
+  }
+  OGRLayer* layer = ds->GetLayer(0);
+  if (layer == nullptr) {
+    return;
+  }
+  char** options = nullptr;
+  options = CSLSetNameValue(options, "GEOMETRY", "AS_WKT");
+
+  save_ogrlayer(layer, csv_filename, "CSV", options);
+
+  CSLDestroy(options);
+}

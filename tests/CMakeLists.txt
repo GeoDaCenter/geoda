@@ -3,6 +3,7 @@ include_directories(${gtest_SOURCE_DIR}/include ${gtest_SOURCE_DIR})
 # Add test cpp file
 set(TEST_SOURCE_FILES
     ${GEODA_SOURCE_FILES}
+    test-geom-utils.cpp
     test-webgl-map.cpp)
 
 add_executable(runUnitTests ${TEST_SOURCE_FILES})
