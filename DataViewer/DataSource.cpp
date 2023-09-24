@@ -50,6 +50,7 @@ bool IDataSource::IsWritable(GdaConst::DataSourceType ds_type)
         ds_type == GdaConst::ds_gpkg ||
         ds_type == GdaConst::ds_mysql ||
         ds_type == GdaConst::ds_oci ||
+        ds_type == GdaConst::ds_parquet ||
         ds_type == GdaConst::ds_postgresql )
         return true;
     return false;
@@ -141,6 +142,8 @@ wxString IDataSource::GetDataTypeNameByExt(wxString ext)
         ds_format = "Idrisi";
     else if(ext.CmpNoCase("ods")==0)
         ds_format = "ODS";
+    else if(ext.CmpNoCase("parquet")==0)
+        ds_format = "Parquet";
 
     //else
     //    ds_format = "Unknown";
@@ -192,6 +195,7 @@ IDataSource* IDataSource::CreateDataSource(wxString data_type_name,
         type == GdaConst::ds_gpkg ||
         type == GdaConst::ds_xls ||
         type == GdaConst::ds_xlsx ||
+        type == GdaConst::ds_parquet ||
         type == GdaConst::ds_geo_json )
     {
         // using <file>xxx</file> to create DataSource instance
@@ -249,6 +253,7 @@ IDataSource* IDataSource::CreateDataSource(wxString ds_json)
                 type == GdaConst::ds_gpkg ||
                 type == GdaConst::ds_xls ||
                 type == GdaConst::ds_xlsx ||
+                type == GdaConst::ds_parquet ||
                 type == GdaConst::ds_geo_json )
             {
                 json_spirit::Value json_ds_path;
