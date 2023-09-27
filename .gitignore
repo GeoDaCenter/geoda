@@ -7,6 +7,7 @@
 
 o/
 deps/
+build/
 
 swig/*.gwt
 swig/_geoda.so
@@ -46,6 +47,8 @@ BuildTools/reactgeoda
 BuildTools/node_modules
 
 build/
+
+BuildTools/node_modules
 
 *.dmg
 *.mode1v3
@@ -120,3 +123,4 @@ internationalization/~$zh_CN.xlsx
 GeoDamake.opt
 internationalization/credentials.json
 internationalization/token.json
+build/

@@ -28,6 +28,7 @@
 		A14735BA21A65F1800CA69B2 /* perf.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A14735B121A65F1700CA69B2 /* perf.cpp */; };
 		A14735BB21A65F1800CA69B2 /* bd_pr_search.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A14735B221A65F1700CA69B2 /* bd_pr_search.cpp */; };
 		A14735BC21A65F1800CA69B2 /* brute.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A14735B321A65F1700CA69B2 /* brute.cpp */; };
+		A14744D02AC241D50054D653 /* GeomUtils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A14744CE2AC241660054D653 /* GeomUtils.cpp */; };
 		A14C496F1D76174000D9831C /* CsvFieldConfDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A14C496D1D76174000D9831C /* CsvFieldConfDlg.cpp */; };
 		A1648F2526AA000E00D0E191 /* joincount_ratio.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A1648F2326AA000E00D0E191 /* joincount_ratio.cpp */; };
 		A16BA470183D626200D3B7DA /* DatasourceDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A16BA46E183D626200D3B7DA /* DatasourceDlg.cpp */; };
@@ -62,6 +63,7 @@
 		A1C9F3ED18B55EE000E14394 /* FieldNameCorrectionDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A1C9F3EC18B55EE000E14394 /* FieldNameCorrectionDlg.cpp */; };
 		A1CE3D331C1A427A0010F170 /* PublishDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A1CE3D311C1A427A0010F170 /* PublishDlg.cpp */; };
 		A1D0081A26CF0ADB0058E3C7 /* spatial_validation.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A1D0081826CF0ADB0058E3C7 /* spatial_validation.cpp */; };
+		A1D309542A68AAD4006ABEB1 /* WebGLMapView.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A1D309522A68AAD4006ABEB1 /* WebGLMapView.cpp */; };
 		A1D82DEF174D3EB6003DE20A /* ConnectDatasourceDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A1D82DEE174D3EB6003DE20A /* ConnectDatasourceDlg.cpp */; };
 		A1DA623A17BCBC070070CAAB /* AutoCompTextCtrl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A1DA623817BCBC070070CAAB /* AutoCompTextCtrl.cpp */; };
 		A1DDBC41262A87E400116D5B /* localjc_kernel.cl in Resources */ = {isa = PBXBuildFile; fileRef = A4E00F0F20FD8ECC0038BA80 /* localjc_kernel.cl */; };
@@ -358,6 +360,8 @@
 		A14735B221A65F1700CA69B2 /* bd_pr_search.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = bd_pr_search.cpp; sourceTree = "<group>"; };
 		A14735B321A65F1700CA69B2 /* brute.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = brute.cpp; sourceTree = "<group>"; };
 		A14735B421A65F1700CA69B2 /* bd_tree.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = bd_tree.h; sourceTree = "<group>"; };
+		A14744CE2AC241660054D653 /* GeomUtils.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GeomUtils.cpp; sourceTree = "<group>"; };
+		A14744CF2AC241660054D653 /* GeomUtils.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GeomUtils.h; sourceTree = "<group>"; };
 		A14C496D1D76174000D9831C /* CsvFieldConfDlg.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CsvFieldConfDlg.cpp; sourceTree = "<group>"; };
 		A14C496E1D76174000D9831C /* CsvFieldConfDlg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CsvFieldConfDlg.h; sourceTree = "<group>"; };
 		A1648F2326AA000E00D0E191 /* joincount_ratio.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = joincount_ratio.cpp; path = Algorithms/joincount_ratio.cpp; sourceTree = "<group>"; };
@@ -431,6 +435,8 @@
 		A1CE6938261B7BC3006027BA /* GeoDaDebug.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; name = GeoDaDebug.entitlements; path = BuildTools/macosx/GeoDaDebug.entitlements; sourceTree = "<group>"; };
 		A1D0081826CF0ADB0058E3C7 /* spatial_validation.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = spatial_validation.cpp; path = Algorithms/spatial_validation.cpp; sourceTree = "<group>"; };
 		A1D0081926CF0ADB0058E3C7 /* spatial_validation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = spatial_validation.h; path = Algorithms/spatial_validation.h; sourceTree = "<group>"; };
+		A1D309522A68AAD4006ABEB1 /* WebGLMapView.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = WebGLMapView.cpp; sourceTree = "<group>"; };
+		A1D309532A68AAD4006ABEB1 /* WebGLMapView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WebGLMapView.h; sourceTree = "<group>"; };
 		A1D82DED174D3EB6003DE20A /* ConnectDatasourceDlg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ConnectDatasourceDlg.h; sourceTree = "<group>"; };
 		A1D82DEE174D3EB6003DE20A /* ConnectDatasourceDlg.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ConnectDatasourceDlg.cpp; sourceTree = "<group>"; };
 		A1DA623817BCBC070070CAAB /* AutoCompTextCtrl.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AutoCompTextCtrl.cpp; sourceTree = "<group>"; };
@@ -1218,6 +1224,8 @@
 				A19F514D1756A11E006E31B4 /* plugins */,
 				A41C2BB92404470C00C341A2 /* GenColor.h */,
 				A41C2BBA2404471D00C341A2 /* GenColor.cpp */,
+				A14744CE2AC241660054D653 /* GeomUtils.cpp */,
+				A14744CF2AC241660054D653 /* GeomUtils.h */,
 				DD3BA4471871EE9A00CA4152 /* DefaultVarsPtree.h */,
 				DD3BA4461871EE9A00CA4152 /* DefaultVarsPtree.cpp */,
 				DD9C1B361910267900C0A427 /* GdaConst.h */,
@@ -1447,6 +1455,8 @@
 		DD7975B70F1D2A9000496A84 /* Explore */ = {
 			isa = PBXGroup;
 			children = (
+				A1D309522A68AAD4006ABEB1 /* WebGLMapView.cpp */,
+				A1D309532A68AAD4006ABEB1 /* WebGLMapView.h */,
 				A185D12E261FFD8000A62EAC /* ClusterMatchMapView.cpp */,
 				A185D12F261FFD8000A62EAC /* ClusterMatchMapView.h */,
 				A4502B3324E1F66F001D378F /* MapViewHelper.cpp */,
@@ -1847,7 +1857,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "# Type a script or drag a script file from your workspace to insert its path.\n#python3 install_name.py $TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/Frameworks\nif [ \"${CONFIGURATION}\" = \"Debug\" ]; then\n    codesign -f -s \"Apple Development: xunli@uchicago.edu (AN5USPSZF6)\" /opt/homebrew/opt/gdal/lib/libgdal.32.dylib\n    codesign -f -s \"Apple Development: xunli@uchicago.edu (AN5USPSZF6)\" /opt/homebrew/Cellar/openssl@1.1/1.1.1o/lib/libcrypto.1.1.dylib\n    codesign -f -s \"Apple Development: xunli@uchicago.edu (AN5USPSZF6)\" /Users/xun/github/geoda/BuildTools/macosx/libraries/lib/libwx_osx_cocoau-3.1.4.0.0.dylib\n    codesign -f -s \"Apple Development: xunli@uchicago.edu (AN5USPSZF6)\" /Users/xun/github/geoda/BuildTools/macosx/libraries/lib/libwx_osx_cocoau_gl-3.1.4.0.0.dylib\n    #install_name_tool -change \"@rpath/libgeos.3.10.1.dylib\" \"/opt/homebrew/opt/geos/lib/libgeos.3.10.1.dylib\" /opt/homebrew/Cellar/geos/3.10.1/lib/libgeos_c.1.16.0.dylib\n    #codesign -f -s \"Apple Development: xunli@uchicago.edu (AN5USPSZF6)\" /opt/homebrew/Cellar/geos/3.10.1/lib/libgeos_c.1.16.0.dylib\nelse\n    mkdir $TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/Frameworks\n    cp /Users/xun/github/geoda/BuildTools/macosx/libraries/lib/libwx_osx_cocoau-3.1.4.0.0.dylib $TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/Frameworks/libwx_osx_cocoau-3.1.dylib\n    cp /Users/xun/github/geoda/BuildTools/macosx/libraries/lib/libwx_osx_cocoau_gl-3.1.4.0.0.dylib $TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/Frameworks/libwx_osx_cocoau_gl-3.1.dylib\n    cp /usr/local/opt/gdal/lib/libgdal.29.dylib $TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/Frameworks/libgdal.29.dylib\n    install_name_tool -id \"GeoDa\" $TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/MacOS/GeoDa\n    install_name_tool -change \"/Users/xun/github/geoda/BuildTools/macosx/libraries/lib/libwx_osx_cocoau_gl-3.1.dylib\" \"@executable_path/../Frameworks/libwx_osx_cocoau_gl-3.1.dylib\" $TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/MacOS/GeoDa\n    install_name_tool -change \"/Users/xun/github/geoda/BuildTools/macosx/libraries/lib/libwx_osx_cocoau-3.1.dylib\" \"@executable_path/../Frameworks/libwx_osx_cocoau-3.1.dylib\" $TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/MacOS/GeoDa\n    install_name_tool -change \"/usr/local/opt/gdal/lib/libgdal.29.dylib\" \"@executable_path/../Frameworks/libgdal.29.dylib\" $TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/MacOS/GeoDa\n    install_name_tool -change \"/opt/homebrew/opt/gdal/lib/libgdal.29.dylib\" \"@executable_path/../Frameworks/libgdal.29.dylib\" $TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/MacOS/GeoDa\n    python3 install_name.py $TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/Frameworks \"0046C0AE0D6933F7CD8A67875F820AF13CD63439\"\n    codesign -f --timestamp -o runtime -s \"0046C0AE0D6933F7CD8A67875F820AF13CD63439\" $TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/MacOS/GeoDa\n    codesign -f --timestamp -o runtime -s \"0046C0AE0D6933F7CD8A67875F820AF13CD63439\" $TARGET_BUILD_DIR/$PRODUCT_NAME.app\nfi\n";
+			shellScript = "# Type a script or drag a script file from your workspace to insert its path.\n#python3 install_name.py $TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/Frameworks\nif [ \"${CONFIGURATION}\" = \"Debug\" ]; then\n    codesign -f -s \"Apple Development: xunli@uchicago.edu (AN5USPSZF6)\" /opt/homebrew/opt/gdal/lib/libgdal.32.dylib\n    codesign -f -s \"Apple Development: xunli@uchicago.edu (AN5USPSZF6)\" /opt/homebrew/Cellar/openssl@1.1/1.1.1o/lib/libcrypto.1.1.dylib\n    codesign -f -s \"Apple Development: xunli@uchicago.edu (AN5USPSZF6)\" /Users/xun/github/geoda/BuildTools/macosx/libraries/lib/libwx_osx_cocoau-3.1.4.0.0.dylib\n    codesign -f -s \"Apple Development: xunli@uchicago.edu (AN5USPSZF6)\" /Users/xun/github/geoda/BuildTools/macosx/libraries/lib/libwx_osx_cocoau_gl-3.1.4.0.0.dylib\n    #install_name_tool -change \"@rpath/libgeos.3.10.1.dylib\" \"/opt/homebrew/opt/geos/lib/libgeos.3.10.1.dylib\" /opt/homebrew/Cellar/geos/3.10.1/lib/libgeos_c.1.16.0.dylib\n    #codesign -f -s \"Apple Development: xunli@uchicago.edu (AN5USPSZF6)\" /opt/homebrew/Cellar/geos/3.10.1/lib/libgeos_c.1.16.0.dylib \nfi\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -1856,6 +1866,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A14744D02AC241D50054D653 /* GeomUtils.cpp in Sources */,
 				A4502B3824E1F67C001D378F /* SCHCDlg.cpp in Sources */,
 				DD7974C80F1D250A00496A84 /* TemplateCanvas.cpp in Sources */,
 				A4ED7D5B209A6B81008685D6 /* HDBScanDlg.cpp in Sources */,
@@ -1907,6 +1918,7 @@
 				A4A591F424A515DA00BEA1FF /* ConditionalBoxPlotView.cpp in Sources */,
 				DD7976C40F1D2CA800496A84 /* SparseVector.cpp in Sources */,
 				DD7976C50F1D2CA800496A84 /* Weights.cpp in Sources */,
+				A1D309542A68AAD4006ABEB1 /* WebGLMapView.cpp in Sources */,
 				A4BBABA12444D82B00BD4E57 /* smacof.c in Sources */,
 				DD7976F30F1D2D3100496A84 /* Randik.cpp in Sources */,
 				A46099A62416E41B000A53E2 /* loessf.c in Sources */,
@@ -2262,8 +2274,8 @@
 					"-I/opt/homebrew/opt/boost/include",
 					"-I/opt/homebrew/opt/gdal/include",
 					"-I/usr/include",
-					"-I./libraries/lib/wx/include/osx_cocoa-unicode-3.1",
-					"-I./libraries/include/wx-3.1/",
+					"-I./libraries/lib/wx/include/osx_cocoa-unicode-3.2",
+					"-I./libraries/include/wx-3.2/",
 					"-I./temp/boost",
 					"-I./libraries/include",
 					"-I./temp/eigen3",
@@ -2286,8 +2298,8 @@
 					"-L/opt/homebrew/opt/gdal/lib",
 					"-lgdal",
 					"-L$(SRCROOT)/libraries/lib",
-					"-lwx_osx_cocoau-3.1",
-					"-lwx_osx_cocoau_gl-3.1",
+					"-lwx_osx_cocoau-3.2",
+					"-lwx_osx_cocoau_gl-3.2",
 					"-framework",
 					OpenCL,
 					"-framework",
@@ -2354,11 +2366,11 @@
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_CPLUSPLUSFLAGS = (
 					"$(OTHER_CFLAGS)",
-					"-I/opt/homebrew/include",
+					"-I/opt/homebrew/opt/gdal/include",
 					"-I/usr/include",
-					"-I./libraries/lib/wx/include/osx_cocoa-unicode-3.1",
-					"-I./libraries/include/wx-3.1/",
-					"-I./temp/boost",
+					"-I./libraries/lib/wx/include/osx_cocoa-unicode-3.2",
+					"-I./libraries/include/wx-3.2/",
+					"-I/opt/homebrew/opt/boost/include",
 					"-I./libraries/include",
 					"-I./temp/eigen3",
 					"-I./temp/spectra/include",
@@ -2378,8 +2390,8 @@
 					"-L/opt/homebrew/opt/gdal/lib",
 					"-lgdal",
 					"-L$(SRCROOT)/libraries/lib",
-					"-lwx_osx_cocoau-3.1",
-					"-lwx_osx_cocoau_gl-3.1",
+					"-lwx_osx_cocoau-3.2",
+					"-lwx_osx_cocoau_gl-3.2",
 					"-framework",
 					OpenCL,
 					"-framework",
