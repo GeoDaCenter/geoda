@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
+#include <string>
 #include <wx/wxprec.h>
 
 #ifndef WX_PRECOMP
@@ -44,14 +44,15 @@
 #include <wx/webviewfshandler.h>
 
 #include "../GenUtils.h"
+#include "../GeomUtils.h"
 #include "WebGLMapView.h"
 
 IMPLEMENT_CLASS(WebGLMapFrame, TemplateFrame)
 BEGIN_EVENT_TABLE(WebGLMapFrame, TemplateFrame)
 END_EVENT_TABLE()
 
-WebGLMapFrame::WebGLMapFrame(wxFrame* parent, Project* project, const std::vector<OGRFeature*>& features,
-                             const wxString& title, const wxPoint& pos, const wxSize& size, const int style)
+WebGLMapFrame::WebGLMapFrame(wxFrame* parent, Project* project, OGRLayer* layer, const wxString& title,
+                             const wxPoint& pos, const wxSize& size, const int style)
     : TemplateFrame(parent, project, title, pos, size, style) {
   wxBoxSizer* topsizer = new wxBoxSizer(wxVERTICAL);
 
@@ -77,7 +78,7 @@ WebGLMapFrame::WebGLMapFrame(wxFrame* parent, Project* project, const std::vecto
   wxFileSystem::AddHandler(new wxMemoryFSHandler);
 
   // Create the memory files
-  CreateMemoryFiles(features);
+  CreateMemoryFiles(layer);
 
   // Create the webview
   m_browser = wxWebView::New();
@@ -108,24 +109,14 @@ WebGLMapFrame::WebGLMapFrame(wxFrame* parent, Project* project, const std::vecto
 }
 
 WebGLMapFrame::~WebGLMapFrame() {
-  wxMemoryFSHandler::RemoveFile("data.csv");
+  wxMemoryFSHandler::RemoveFile("data.arrow");
   wxMemoryFSHandler::RemoveFile("bundle.js");
   wxMemoryFSHandler::RemoveFile("index.html");
   DeregisterAsActive();
 }
 
-std::string bytes_to_hex(const unsigned char* bytes, size_t n_bytes) {
-  static const char* hex_digits = "0123456789ABCDEF";
-  std::string hex_string;
-  for (size_t i = 0; i < n_bytes; ++i) {
-    const unsigned char c = bytes[i];
-    hex_string.push_back(hex_digits[c >> 4]);
-    hex_string.push_back(hex_digits[c & 15]);
-  }
-  return hex_string;
-}
-
-void WebGLMapFrame::CreateMemoryFiles(const std::vector<OGRFeature*>& features) {
+void WebGLMapFrame::CreateMemoryFiles(OGRLayer* layer) {
+  wxStopWatch sw;
   // load web pages under web_plugins/
   wxString web_file_path = GenUtils::GetSamplesDir();
 
@@ -133,31 +124,24 @@ void WebGLMapFrame::CreateMemoryFiles(const std::vector<OGRFeature*>& features) 
   pathlist.Add(web_file_path);
 
   // Create data.csv by passing in OGRLayer with only geometries and selected variables
-  wxString csv_filecontent;
-  const wxString first_line = "id,geom\n";
-  csv_filecontent << first_line;
-  for (size_t i = 0; i < features.size(); ++i) {
-    const OGRFeature* feat = features[i];
-    const OGRGeometry* geom = feat->GetGeometryRef();
-    int nBLOBLen = geom->WkbSize();
-    GByte* pabyGeomBLOB = reinterpret_cast<GByte*>(VSIMalloc(nBLOBLen));
-    geom->exportToWkb(wkbNDR, pabyGeomBLOB);
-    // hex-encoded WKB strings
-    wxString wkb(bytes_to_hex(pabyGeomBLOB, nBLOBLen));
-    wxString line = wxString::Format(_("%zd,\"%s\"\n"), i, wkb);
-//      char* pszWKT = NULL;
-//          geom->exportToWkt(&pszWKT);
-//          wxString wkt = pszWKT;
-//          wxString line = wxString::Format(_("%zd,\"%s\"\n"), i, wkt);
-    csv_filecontent << line;
-  }
-  const wxString csv_filename = "data.csv";
-  wxMemoryFSHandler::AddFile(csv_filename, csv_filecontent);
+  const std::string ogr_filename = "/vsimem/data.arrow";
 
-  wxFile file("/Users/xun/Downloads/wkb.csv", wxFile::write);
-  file.Write(csv_filecontent);
-  file.Close();
-  
+  const std::string driver_name = "Arrow";
+  char** options = nullptr;
+  options = CSLSetNameValue(options, "COMPRESSION", "NONE");
+  save_ogrlayer(layer, ogr_filename, driver_name, options);
+  CSLDestroy(options);
+  // save_ogrlayer(layer, ogr_filename, "GeoJSON");
+  // read vsimem file in char* buffer
+  VSILFILE* fp = VSIFOpenL(ogr_filename.c_str(), "rb");
+  VSIFSeekL(fp, 0, SEEK_END);
+  const size_t size = VSIFTellL(fp);
+  VSIFSeekL(fp, 0, SEEK_SET);
+  char* buffer = new char[size];
+  VSIFReadL(buffer, 1, size, fp);
+  VSIFCloseL(fp);
+  wxMemoryFSHandler::AddFileWithMimeType("data.arrow", buffer, size, "");
+
   // Create bundle.js
   wxString bundle_path = wxFileName(pathlist.FindValidPath("bundle.js")).GetAbsolutePath();
   wxFFile bundle_file(bundle_path);
@@ -174,9 +158,11 @@ void WebGLMapFrame::CreateMemoryFiles(const std::vector<OGRFeature*>& features) 
 
   // replace relative urls in index.html with "memory:bundle.js"
   index_content.Replace("bundle.js", custom_scheme + "bundle.js");
-  index_content.Replace("data.csv", custom_scheme + "data.csv");
+  index_content.Replace("data.arrow", custom_scheme + "data.arrow");
 
   wxMemoryFSHandler::AddFile("index.html", index_content);
+
+  std::cout << "Create Memory File:" << sw.Time() << std::endl;
 }
 
 void WebGLMapFrame::OnIdle(wxIdleEvent& WXUNUSED(evt)) {

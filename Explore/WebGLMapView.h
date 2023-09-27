@@ -31,9 +31,9 @@
 
 class WebGLMapFrame : public TemplateFrame {
  public:
-  explicit WebGLMapFrame(wxFrame* parent, Project* project, const std::vector<OGRFeature*>& features,
-                         const wxString& title = _("WebGL Map"), const wxPoint& pos = wxDefaultPosition,
-                         const wxSize& size = wxDefaultSize, const int style = wxDEFAULT_FRAME_STYLE);
+  explicit WebGLMapFrame(wxFrame* parent, Project* project, OGRLayer* layer, const wxString& title = _("WebGL Map"),
+                         const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxDefaultSize,
+                         const int style = wxDEFAULT_FRAME_STYLE);
   virtual ~WebGLMapFrame();
 
  private:
@@ -41,7 +41,7 @@ class WebGLMapFrame : public TemplateFrame {
   wxString custom_scheme;
 
   void OnIdle(wxIdleEvent& WXUNUSED(evt));
-  void CreateMemoryFiles(const std::vector<OGRFeature*>& features);
+  void CreateMemoryFiles(OGRLayer* layer);
 
   DECLARE_CLASS(WebGLMapFrame)
   DECLARE_EVENT_TABLE()

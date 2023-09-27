@@ -53,4 +53,10 @@ void vector_to_arrow(const std::string& geojson_filename, const std::string& arr
 // convert Geojson to CSV file
 void vector_to_csv(const std::string& geojson_filename, const std::string& csv_filename);
 
+// compute mean center of geometry
+void mean_center(const OGRGeometry* geom, OGRPoint* point);
+
+// compute center of mass or center of gravity of geometry
+void center_of_mass(const OGRGeometry* geom, OGRPoint* point);
+
 #endif

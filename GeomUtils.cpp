@@ -18,6 +18,8 @@
  */
 #include "GeomUtils.h"
 
+#include <iostream>
+
 // read vector file using OGR
 std::vector<OGRFeature*> read_vector_file(const std::string& filename) {
   std::vector<OGRFeature*> data;
@@ -176,4 +178,120 @@ void vector_to_csv(const std::string& geojson_filename, const std::string& csv_f
   save_ogrlayer(layer, csv_filename, "CSV", options);
 
   CSLDestroy(options);
+}
+
+// compute mean center of geometry
+void mean_center(const OGRGeometry* geom, OGRPoint* point) {
+  double x = 0;
+  double y = 0;
+  double n = 0;
+  // get geometry type
+  const OGRwkbGeometryType geom_type = geom->getGeometryType();
+  if (geom_type == wkbPoint) {
+    const OGRPoint* pt = dynamic_cast<const OGRPoint*>(geom);
+    x = pt->getX();
+    y = pt->getY();
+    ++n;
+  } else if (geom_type == wkbMultiPoint) {
+    const OGRMultiPoint* input_multipoint = dynamic_cast<const OGRMultiPoint*>(geom);
+    for (int i = 0; i < input_multipoint->getNumGeometries(); ++i) {
+      const OGRPoint* pt = dynamic_cast<const OGRPoint*>(input_multipoint->getGeometryRef(i));
+      x += pt->getX();
+      y += pt->getY();
+      ++n;
+    }
+  } else if (geom_type == wkbPolygon) {
+    const OGRPolygon* input_polygon = dynamic_cast<const OGRPolygon*>(geom);
+    for (int i = 0; i < input_polygon->getNumInteriorRings() + 1; ++i) {
+      const OGRLinearRing* input_ring =
+          i == 0 ? input_polygon->getExteriorRing() : input_polygon->getInteriorRing(i - 1);
+      const auto& pt_it = input_ring->getPointIterator();
+      OGRPoint pt;
+      while (pt_it->getNextPoint(&pt)) {
+        x += pt.getX();
+        y += pt.getY();
+        ++n;
+      }
+    }
+  } else if (geom_type == wkbMultiPolygon) {
+    const OGRMultiPolygon* input_multipolygon = dynamic_cast<const OGRMultiPolygon*>(geom);
+    for (int i = 0; i < input_multipolygon->getNumGeometries(); ++i) {
+      const OGRPolygon* input_polygon = dynamic_cast<const OGRPolygon*>(input_multipolygon->getGeometryRef(i));
+      for (int j = 0; j < input_polygon->getNumInteriorRings() + 1; ++j) {
+        const OGRLinearRing* input_ring =
+            j == 0 ? input_polygon->getExteriorRing() : input_polygon->getInteriorRing(j - 1);
+        const auto& pt_it = input_ring->getPointIterator();
+        OGRPoint pt;
+        while (pt_it->getNextPoint(&pt)) {
+          x += pt.getX();
+          y += pt.getY();
+          ++n;
+        }
+      }
+    }
+  } else {
+    // print error message
+    std::cout << "Error: invalid geometry type" << std::endl;
+  }
+  point->setX(x / n);
+  point->setY(y / n);
+}
+
+// compute center of mass or center of gravity of geometry
+void center_of_mass(const OGRGeometry* geom, OGRPoint* point) {
+  const OGRwkbGeometryType geom_type = geom->getGeometryType();
+
+  if (geom_type == wkbPoint) {
+    const OGRPoint* pt = dynamic_cast<const OGRPoint*>(geom);
+    point->setX(pt->getX());
+    point->setY(pt->getY());
+  } else if (geom->getGeometryType() == wkbPolygon) {
+    std::vector<OGRPoint*> neutralized_points;
+
+    OGRPoint translation;
+    mean_center(geom, &translation);
+
+    const OGRPolygon* input_polygon = dynamic_cast<const OGRPolygon*>(geom);
+    for (int i = 0; i < input_polygon->getNumInteriorRings() + 1; ++i) {
+      const OGRLinearRing* input_ring =
+          i == 0 ? input_polygon->getExteriorRing() : input_polygon->getInteriorRing(i - 1);
+      const auto& pt_it = input_ring->getPointIterator();
+      OGRPoint *pt = new OGRPoint();
+      while (pt_it->getNextPoint(pt)) {
+        pt->setX(pt->getX() - translation.getX());
+        pt->setY(pt->getY() - translation.getY());
+        neutralized_points.push_back(pt);
+      }
+    }
+
+    double sx = 0;
+    double sy = 0;
+    double s_area = 0;
+
+    for (size_t i = 0; i < neutralized_points.size(); ++i) {
+      const OGRPoint* pt = neutralized_points[i];
+      const OGRPoint* next_pt = neutralized_points[(i + 1) % neutralized_points.size()];
+      const double area = pt->getX() * next_pt->getY() - next_pt->getX() * pt->getY();
+      sx += (pt->getX() + next_pt->getX()) * area;
+      sy += (pt->getY() + next_pt->getY()) * area;
+      s_area += area;
+    }
+
+    if (s_area == 0) {
+      point->setX(translation.getX());
+      point->setY(translation.getY());
+    } else {
+      point->setX(sx / (3 * s_area) + translation.getX());
+      point->setY(sy / (3 * s_area) + translation.getY());
+    }
+  } else {
+    OGRGeometry* convex_hull = geom->ConvexHull();
+
+    if (convex_hull) {
+      center_of_mass(convex_hull, point);
+      delete convex_hull;
+    } else {
+      mean_center(geom, point);
+    }
+  }
 }

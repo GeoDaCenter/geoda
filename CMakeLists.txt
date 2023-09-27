@@ -65,8 +65,6 @@ FetchContent_Declare(
 #set(JSON_SPIRIT_VALUE_ENABLED)
 FetchContent_MakeAvailable(json_spirit)
 
-message(aaa"${GDAL_LIBRARIES}")
-
 set(CMAKE_CXX_STANDARD 17)
 # options
 option(UNITTEST "Unit test" ON)
