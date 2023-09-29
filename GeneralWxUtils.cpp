@@ -448,7 +448,12 @@ bool GeneralWxUtils::CheckMenuItem(wxMenu* menu, int id, bool check)
 	wxMenuItem* mItem =	menu->FindItem(id);
 	if (!mItem) return false;
 	if (!mItem->IsCheckable()) return false;
-	mItem->Check(check);
+    try {
+        mItem->Check(check);
+    } catch (wxString& error) {
+        // prevent showing wxdebug dialog if check menu failed
+        return false;
+    }
 	return true;
 }
 

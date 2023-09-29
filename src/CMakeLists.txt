@@ -1,0 +1,7 @@
+set (GEODA_SOURCE_FILES
+    ${CMAKE_SOURCE_DIR}/GeomUtils.cpp
+    PARENT_SCOPE)
+
+set (GEODA_HEADER_FILES
+    ${CMAKE_SOURCE_DIR}/GeomUtils.h
+    PARENT_SCOPE)

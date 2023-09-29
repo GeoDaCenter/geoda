@@ -45,12 +45,14 @@ Source: "..\..\..\CommonDistFiles\geoda_prefs.sqlite"; DestDir: "{app}"
 Source: "..\..\..\CommonDistFiles\geoda_prefs.json"; DestDir: "{app}"
 Source: "..\..\..\CommonDistFiles\web_plugins\*"; DestDir: "{app}\web_plugins"; Flags: recursesubdirs
 Source: "..\..\..\CommonDistFiles\proj\*"; DestDir: "{app}\proj"; Flags: recursesubdirs
-
+Source: "..\..\..\CommonDistFiles\index.html"; DestDir: "{app}\web_plugins"
+Source: "..\..\..\CommonDistFiles\bundle.js"; DestDir: "{app}\web_plugins"
+Source: "..\..\..\CommonDistFiles\bundle.js.map"; DestDir: "{app}\web_plugins"
 
 Source: "VC_redist.x86.exe"; DestDir: "{app}"
 Source: "..\..\temp\OpenCL\sdk\bin\x86\OpenCL.dll"; DestDir: "{app}"
-Source: "..\..\temp\wxWidgets\lib\vc_dll\wxmsw314u_vc_custom.dll"; DestDir: "{app}"
-Source: "..\..\temp\wxWidgets\lib\vc_dll\wxmsw314u_gl_vc_custom.dll"; DestDir: "{app}"
+Source: "..\..\temp\wxWidgets\lib\vc_dll\wxmsw*.dll"; DestDir: "{app}"
+Source: "..\..\dep\wxWidgets\3rdparty\webview2\build\native\x86\WebView2Loader.dll"; DestDir: "{app}"
 Source: "..\..\libraries\bin\expat.dll"; DestDir: "{app}"
 Source: "..\..\libraries\bin\freexl.dll"; DestDir: "{app}"
 Source: "..\..\libraries\bin\gdal302.dll"; DestDir: "{app}"
