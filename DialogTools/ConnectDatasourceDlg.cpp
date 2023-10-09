@@ -374,10 +374,10 @@ ConnectDatasourceDlg::ConnectDatasourceDlg(wxWindow* parent, const wxPoint& pos,
   CreateControls();
   SetPosition(pos);
 
-  if (dialogType == 1) {
+  if (m_encodings && m_encoding_lbl) {
     // in case of Merge, show encoding choice ctrl
-    m_encodings->Show();
-    m_encoding_lbl->Show();
+    m_encodings->Show(dialogType == 1);
+    m_encoding_lbl->Show(dialogType == 1);
   }
 
   if (showRecentPanel) {
@@ -595,7 +595,8 @@ void ConnectDatasourceDlg::CreateControls() {
     recent_nb->SetSelection(1);
     recent_panel = XRCCTRL(*this, "dsRecentListSizer", wxPanel);
     smaples_panel = XRCCTRL(*this, "dsSampleList", wxPanel);
-
+    m_encodings = NULL;
+    m_encoding_lbl = NULL;
   } else {
     wxXmlResource::Get()->LoadDialog(this, GetParent(), "IDD_CONNECT_DATASOURCE_SIMPLE");
     m_encodings = XRCCTRL(*this, "IDC_CDS_ENCODING_CHOICE", wxChoice);
