@@ -22,5 +22,10 @@
     "editor.defaultFormatter": "ms-python.autopep8"
   },
   "python.formatting.provider": "none",
-  "activestate.promptRuntimeCreation": false
+  "activestate.promptRuntimeCreation": false,
+  "files.associations": {
+    "cmath": "cpp",
+    "typeindex": "cpp",
+    "typeinfo": "cpp"
+  }
 }

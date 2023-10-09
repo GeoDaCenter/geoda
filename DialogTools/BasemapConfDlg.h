@@ -19,40 +19,38 @@
 #ifndef __GEODA_CENTER_BASEMAP_CONF_DLG_H__
 #define __GEODA_CENTER_BASEMAP_CONF_DLG_H__
 
+#include <wx/bmpbuttn.h>
+#include <wx/checkbox.h>
+#include <wx/choice.h>
+#include <wx/dialog.h>
+#include <wx/sizer.h>
+#include <wx/textctrl.h>
 
 #include <vector>
-#include <wx/dialog.h>
-#include <wx/bmpbuttn.h>
-#include <wx/choice.h>
-#include <wx/textctrl.h>
-#include <wx/sizer.h>
-#include <wx/checkbox.h>
 
 #include "../Project.h"
 
 class Project;
 
-class BasemapConfDlg: public wxDialog
-{
-public:
-    BasemapConfDlg(wxWindow* parent, Project* p,
-               wxWindowID id = wxID_ANY,
-               const wxString& title = _("Basemap Configuration Dialog"),
-               const wxPoint& pos = wxDefaultPosition,
-               const wxSize& size = wxDefaultSize );
-    
-private:
-    Project* p;
-    wxString basemap_resources;
-    
-    wxTextCtrl* m_txt_nokia_uname;
-    wxTextCtrl* m_txt_nokia_key;
-    wxTextCtrl* m_txt_basemap;
-    
-    void OnOkClick( wxCommandEvent& event );
-    void OnResetClick( wxCommandEvent& event );
-    
-    DECLARE_EVENT_TABLE()
+class BasemapConfDlg : public wxDialog {
+ public:
+  BasemapConfDlg(wxWindow* parent, Project* p, wxWindowID id = wxID_ANY,
+                 const wxString& title = _("Basemap Configuration Dialog"), const wxPoint& pos = wxDefaultPosition,
+                 const wxSize& size = wxDefaultSize);
+
+ private:
+  Project* p;
+  wxString basemap_resources;
+
+  wxTextCtrl* m_txt_stadia_key;
+  wxTextCtrl* m_txt_nokia_uname;
+  wxTextCtrl* m_txt_nokia_key;
+  wxTextCtrl* m_txt_basemap;
+
+  void OnOkClick(wxCommandEvent& event);
+  void OnResetClick(wxCommandEvent& event);
+
+  DECLARE_EVENT_TABLE()
 };
 
 #endif

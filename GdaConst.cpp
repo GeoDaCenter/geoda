@@ -389,9 +389,9 @@ wxString GdaConst::gda_basemap_sources =
 "\nHERE.Hybrid,http://{s}.aerial.maps.api.here.com/maptile/2.1/maptile/newest/hybrid.day/{z}/{x}/{y}/256/png8?app_id=HERE_APP_ID&app_code=HERE_APP_CODE"
 "\nHERE.Satellite,http://{s}.aerial.maps.api.here.com/maptile/2.1/maptile/newest/satellite.day/{z}/{x}/{y}/256/png8?app_id=HERE_APP_ID&app_code=HERE_APP_CODE"
 "\nOpenStreetMap.Mapnik,https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-"\nStamen.Toner,https://stamen-tiles-{s}.a.ssl.fastly.net/toner/{z}/{x}/{y}@2x.png"
-"\nStamen.TonerLite,https://stamen-tiles-{s}.a.ssl.fastly.net/toner-lite/{z}/{x}/{y}@2x.png"
-"\nStamen.Watercolor,https://stamen-tiles-{s}.a.ssl.fastly.net/watercolor/{z}/{x}/{y}.jpg"
+"\nStamen.Toner,https://tiles.stadiamaps.com/tiles/stamen_toner/{z}/{x}/{y}@2x.png?api_key=STADIA_KEY"
+"\nStamen.TonerLite,https://tiles.stadiamaps.com/tiles/stamen_toner_lite/{z}/{x}/{y}@2x.png?api_key=STADIA_KEY"
+"\nStamen.Watercolor,https://tiles.stadiamaps.com/tiles/stamen_watercolor/{z}/{x}/{y}.jpg?api_key=STADIA_KEY"
 "\nOther (China).GaoDe,http://webst{s}.is.autonavi.com/appmaptile?style=8&x={x}&y={y}&z={z}"
 "\nOther (China).GaoDe(Satellite),http://webst{s}.is.autonavi.com/appmaptile?style=6&x={x}&y={y}&z={z}"
 ;
