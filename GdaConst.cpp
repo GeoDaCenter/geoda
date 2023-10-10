@@ -345,6 +345,8 @@ bool GdaConst::enable_high_dpi_support = true;
 bool GdaConst::enable_high_dpi_support = false;
 #endif
 
+const char GdaConst::gda_config_true[] = "1";
+const char GdaConst::gda_config_false[] = "0";
 bool GdaConst::show_csv_configure_in_merge = true;
 bool GdaConst::show_recent_sample_connect_ds_dialog = true;
 bool GdaConst::use_cross_hatching = false;

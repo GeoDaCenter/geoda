@@ -3,11 +3,12 @@ import os
 import sys
 import re
 from shutil import copyfile
+from pathlib import Path
 
 processed_items = {}
 
 
-def ProcessDependency(dylib_path, cid):
+def ProcessDependency(dylib_path, cid, current_item=None):
     if dylib_path in processed_items:
         return
     else:
@@ -64,6 +65,10 @@ def ProcessDependency(dylib_path, cid):
     m = re.search('@rpath/(libabsl.*)', dylib_path)
     if m:
         dylib_path = '/usr/local/opt/abseil/lib/' + m.group(1)
+    elif dylib_path.startswith('@rpath'):
+        item_filename = os.path.basename(dylib_path)
+        copy_dir = str(Path(current_item).parent)
+        dylib_path = f'{copy_dir}/{item_filename}'
 
     m = re.search('@rpath/(libaws.*)', dylib_path)
     if m:
@@ -72,6 +77,18 @@ def ProcessDependency(dylib_path, cid):
     m = re.search('@loader_path/../../../../(opt*)', dylib_path)
     if m:
         dylib_path = '/usr/local/' + m.group(1)
+
+    if dylib_path.startswith('@loader_path'):
+        item_filename = os.path.basename(dylib_path)
+        upper_levels = dylib_path.count('../')
+        copy_dir = str(Path(current_item).parent)
+        if upper_levels - 1 >= 0:
+            current_dir = Path(current_item).parents[upper_levels - 1]
+            copy_dir = str(current_dir)
+            item_filename = dylib_path[dylib_path.rindex('../') + 3:]
+            dylib_path = f'{copy_dir}/{item_filename}'
+        elif upper_levels == 0:
+            dylib_path = f'{copy_dir}/{item_filename}'
 
     print("Process:", dylib_path)
     # cmd = "codesign -f -s - "
@@ -85,10 +102,11 @@ def ProcessDependency(dylib_path, cid):
         item = item.strip().split(" ")[0]
         if item.startswith('/usr/lib') == False and item.startswith('/System') == False:
             # process item
-            ProcessDependency(item, cid)
+            ProcessDependency(item, cid, dylib_path)
 
 
 # e.g.
 # python3 code_sign.py /opt/homebrew/opt/gdal/lib/libgdal.29.dylib "Apple Development: xunli@uchicago.edu (AN5USPSZF6)"
 # python3 code_sign.py /opt/homebrew/opt/gdal/lib/libgdal.32.dylib "Apple Development: xunli@uchicago.edu (AN5USPSZF6)"
-ProcessDependency(sys.argv[1], sys.argv[2])
+# ProcessDependency(sys.argv[1], sys.argv[2])
+# ProcessDependency('/opt/homebrew/Cellar/gdal/3.7.2/lib/libgdal.33.3.7.2.dylib', "Apple Development: xunli@uchicago.edu (AN5USPSZF6)")
