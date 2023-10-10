@@ -51,6 +51,10 @@
 #include "../ShapeOperations/OGRDataAdapter.h"
 #include "Basemap.h"
 
+#ifdef _WIN32
+#define NOMINMAX
+#endif  // _WIN32
+
 using namespace Gda;
 
 BasemapItem Gda::GetBasemapSelection(int idx, wxString basemap_sources) {
