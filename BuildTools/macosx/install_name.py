@@ -89,19 +89,19 @@ def process_dependency(framework_path, dylib_name):
         if item == '@rpath/libabsl_base.2301.0.0.dylib':
             copyitem = '/usr/local/opt/abseil/lib/libabsl_base.2301.0.0.dylib'
 
-        m = re.search('@rpath/libIlmThread-(*).dylib', item)
+        m = re.search('@rpath/libIlmThread-(.*).dylib', item)
         if m:
             copyitem = '/usr/local/opt/openexr/lib/libIlmThread-' + \
                 m.group(1) + '.dylib'
-        m = re.search('@rpath/libIex-(*).dylib', item)
+        m = re.search('@rpath/libIex-(.*).dylib', item)
         if m:
             copyitem = '/usr/local/opt/openexr/lib/libIex-' + \
                 m.group(1) + '.dylib'
-        m = re.search('@rpath/libOpenEXR-(*).dylib', item)
+        m = re.search('@rpath/libOpenEXR-(.*).dylib', item)
         if m:
             copyitem = '/usr/local/opt/openexr/lib/libOpenEXR-' + \
                 m.group(1) + '.dylib'
-        m = re.search('@rpath/libOpenEXRCore-(*).dylib', item)
+        m = re.search('@rpath/libOpenEXRCore-(.*).dylib', item)
         if m:
             copyitem = '/usr/local/opt/openexr/lib/libOpenEXRCore-' + \
                 m.group(1) + '.dylib'

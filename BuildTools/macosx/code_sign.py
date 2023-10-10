@@ -45,19 +45,19 @@ def ProcessDependency(dylib_path, cid, current_item=None):
     if dylib_path == '@loader_path/libkmldom.1.dylib':
         dylib_path = '/opt/homebrew/opt/libkml/lib/libkmldom.1.dylib'
 
-    m = re.search('@rpath/libIlmThread-(*).dylib', dylib_path)
+    m = re.search('@rpath/libIlmThread-(.*).dylib', dylib_path)
     if m:
         dylib_path = '/usr/local/opt/openexr/lib/libIlmThread-' + \
             m.group(1) + '.dylib'
-    m = re.search('@rpath/libIex-(*).dylib', dylib_path)
+    m = re.search('@rpath/libIex-(.*).dylib', dylib_path)
     if m:
         dylib_path = '/usr/local/opt/openexr/lib/libIex-' + \
             m.group(1) + '.dylib'
-    m = re.search('@rpath/libOpenEXR-(*).dylib', dylib_path)
+    m = re.search('@rpath/libOpenEXR-(.*).dylib', dylib_path)
     if m:
         dylib_path = '/usr/local/opt/openexr/lib/libOpenEXR-' + \
             m.group(1) + '.dylib'
-    m = re.search('@rpath/libOpenEXRCore-(*).dylib', dylib_path)
+    m = re.search('@rpath/libOpenEXRCore-(.*).dylib', dylib_path)
     if m:
         dylib_path = '/usr/local/opt/openexr/lib/libOpenEXRCore-' + \
             m.group(1) + '.dylib'
