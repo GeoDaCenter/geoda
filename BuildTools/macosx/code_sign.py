@@ -45,14 +45,22 @@ def ProcessDependency(dylib_path, cid, current_item=None):
     if dylib_path == '@loader_path/libkmldom.1.dylib':
         dylib_path = '/opt/homebrew/opt/libkml/lib/libkmldom.1.dylib'
 
-    if dylib_path == '@rpath/libIlmThread-3_1.30.dylib':
-        dylib_path = '/usr/local/opt/openexr/lib/libIlmThread-3_1.30.dylib'
-    if dylib_path == '@rpath/libIex-3_1.30.dylib':
-        dylib_path = '/usr/local/opt/openexr/lib/libIex-3_1.30.dylib'
-    if dylib_path == '@rpath/libOpenEXR-3_1.30.dylib':
-        dylib_path = '/usr/local/opt/openexr/lib/libOpenEXR-3_1.30.dylib'
-    if dylib_path == '@rpath/libOpenEXRCore-3_1.30.dylib':
-        dylib_path = '/usr/local/opt/openexr/lib/libOpenEXRCore-3_1.30.dylib'
+    m = re.search('@rpath/libIlmThread-(.*).dylib', dylib_path)
+    if m:
+        dylib_path = '/usr/local/opt/openexr/lib/libIlmThread-' + \
+            m.group(1) + '.dylib'
+    m = re.search('@rpath/libIex-(.*).dylib', dylib_path)
+    if m:
+        dylib_path = '/usr/local/opt/openexr/lib/libIex-' + \
+            m.group(1) + '.dylib'
+    m = re.search('@rpath/libOpenEXR-(.*).dylib', dylib_path)
+    if m:
+        dylib_path = '/usr/local/opt/openexr/lib/libOpenEXR-' + \
+            m.group(1) + '.dylib'
+    m = re.search('@rpath/libOpenEXRCore-(.*).dylib', dylib_path)
+    if m:
+        dylib_path = '/usr/local/opt/openexr/lib/libOpenEXRCore-' + \
+            m.group(1) + '.dylib'
 
     m = re.search('@rpath/(libabsl.*)', dylib_path)
     if m:

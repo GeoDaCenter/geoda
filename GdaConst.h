@@ -255,6 +255,8 @@ public:
     static const wxString gda_lang_spanish;
     
 	// Preferences
+    static const char gda_config_true[];
+    static const char gda_config_false[];
     static double gda_autoweight_stop;
     static bool gda_draw_map_labels;
     static int gda_map_label_font_size;
