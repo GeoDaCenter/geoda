@@ -71,6 +71,7 @@ def process_dependency(framework_path, dylib_name):
             copyitem = '/usr/local/opt/icu4c/lib/libicudata.73.dylib'
         if item == '@loader_path/libbrotlicommon.1.dylib':
             copyitem = '/usr/local/opt/brotli/lib/libbrotlicommon.1.dylib'
+
         if item == '@rpath/libIlmThread-3_1.30.dylib':
             copyitem = '/usr/local/opt/openexr/lib/libIlmThread-3_1.30.dylib'
         if item == '@rpath/libIex-3_1.30.dylib':
@@ -87,6 +88,23 @@ def process_dependency(framework_path, dylib_name):
             copyitem = '/usr/local/opt/abseil/lib/libabsl_log_severity.2301.0.0.dylib'
         if item == '@rpath/libabsl_base.2301.0.0.dylib':
             copyitem = '/usr/local/opt/abseil/lib/libabsl_base.2301.0.0.dylib'
+
+        m = re.search('@rpath/libIlmThread-(*).dylib', item)
+        if m:
+            copyitem = '/usr/local/opt/openexr/lib/libIlmThread-' + \
+                m.group(1) + '.dylib'
+        m = re.search('@rpath/libIex-(*).dylib', item)
+        if m:
+            copyitem = '/usr/local/opt/openexr/lib/libIex-' + \
+                m.group(1) + '.dylib'
+        m = re.search('@rpath/libOpenEXR-(*).dylib', item)
+        if m:
+            copyitem = '/usr/local/opt/openexr/lib/libOpenEXR-' + \
+                m.group(1) + '.dylib'
+        m = re.search('@rpath/libOpenEXRCore-(*).dylib', item)
+        if m:
+            copyitem = '/usr/local/opt/openexr/lib/libOpenEXRCore-' + \
+                m.group(1) + '.dylib'
 
         name_matches = re.search('@rpath/(libabsl.*)', item)
         if name_matches:
