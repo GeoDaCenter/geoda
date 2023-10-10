@@ -116,8 +116,7 @@ internationalization/.vscode/launch.json
 internationalization/pofiles/new_zh_CN.mo
 internationalization/.vscode/settings.json
 internationalization/~$zh_CN.xlsx
-
-GeoDamake.opt
 internationalization/credentials.json
 internationalization/token.json
+
 build/
