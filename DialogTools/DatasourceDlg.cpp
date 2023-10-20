@@ -54,6 +54,7 @@ void DatasourceDlg::Init()
     // create file type dataset pop-up menu dynamically
     ds_names.Add("GeoParquet (*.parquet)|*.parquet");
 	ds_names.Add("ESRI Shapefile (*.shp)|*.shp");
+    ds_names.Add("GeoArrow (*.arrow)|*.arrow");
     ds_names.Add("ESRI File Geodatabase (*.gdb)|*.gdb");
     ds_names.Add("GeoJSON (*.geojson;*.json)|*.geojson;*.json");
     ds_names.Add("GeoPackage (*.gpkg)|*.gpkg");
