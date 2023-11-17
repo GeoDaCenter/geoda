@@ -27,18 +27,23 @@
 
 #include <vector>
 
+#include "../HighlightStateObserver.h"
+#include "../Project.h"
 #include "../TemplateFrame.h"
 
-class WebGLMapFrame : public TemplateFrame {
+class WebGLMapFrame : public TemplateFrame, public HighlightStateObserver {
  public:
   explicit WebGLMapFrame(wxFrame* parent, Project* project, OGRLayer* layer, const wxString& title = _("WebGL Map"),
                          const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxDefaultSize,
                          const int style = wxDEFAULT_FRAME_STYLE);
   virtual ~WebGLMapFrame();
 
+  virtual void update(HLStateInt* o);
+
  private:
   wxWebView* m_browser;
   wxString custom_scheme;
+  HLStateInt* highlight_state;
 
   // constant string for in-memory file name
   static const wxString memory_arrow_file_name;
@@ -51,11 +56,12 @@ class WebGLMapFrame : public TemplateFrame {
 
   // constant string for index.html
   static const wxString index_html_file_name;
-  
+
   // constant string for default custom schema
   static const wxString default_custom_schema;
 
   void OnIdle(wxIdleEvent& WXUNUSED(evt));
+  void OnHandleWebMessage(const wxWebViewEvent& event);
   void CreateMemoryFiles(OGRLayer* layer);
 
   DECLARE_CLASS(WebGLMapFrame)

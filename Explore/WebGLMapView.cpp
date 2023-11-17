@@ -72,6 +72,9 @@ WebGLMapFrame::WebGLMapFrame(wxFrame* parent, Project* project, OGRLayer* layer,
     : TemplateFrame(parent, project, title, pos, size, style) {
   wxBoxSizer* topsizer = new wxBoxSizer(wxVERTICAL);
 
+  highlight_state = project->GetHighlightState();
+  highlight_state->registerObserver(this);
+
   // Create a log window
   new wxLogWindow(NULL, _("Logging"), true, false);
 
@@ -110,7 +113,7 @@ WebGLMapFrame::WebGLMapFrame(wxFrame* parent, Project* project, OGRLayer* layer,
                wxWebView::GetBackendVersionInfo().ToString());
   wxLogMessage("User Agent: %s", m_browser->GetUserAgent());
 
-  if (!m_browser->AddScriptMessageHandler("wx")) wxLogError("Could not add script message handler");
+  // if (!m_browser->AddScriptMessageHandler("wx")) wxLogError("Could not add script message handler");
 
   SetSizer(topsizer);
 
@@ -120,6 +123,11 @@ WebGLMapFrame::WebGLMapFrame(wxFrame* parent, Project* project, OGRLayer* layer,
   m_browser->LoadURL(custom_scheme + WebGLMapFrame::index_html_file_name);
   m_browser->SetFocus();
   m_browser->EnableAccessToDevTools(true);
+
+  // Install message handler with the name wx_msg
+  m_browser->AddScriptMessageHandler("wx_msg");
+  m_browser->Bind(wxEVT_WEBVIEW_SCRIPT_MESSAGE_RECEIVED, &WebGLMapFrame::OnHandleWebMessage, this);
+
   // Connect the idle events
   Bind(wxEVT_IDLE, &WebGLMapFrame::OnIdle, this);
 }
@@ -129,6 +137,61 @@ WebGLMapFrame::~WebGLMapFrame() {
   wxMemoryFSHandler::RemoveFile(WebGLMapFrame::bundle_js_file_name);
   wxMemoryFSHandler::RemoveFile(WebGLMapFrame::index_html_file_name);
   DeregisterAsActive();
+}
+
+void WebGLMapFrame::update(HLStateInt* o) {
+  std::vector<bool>& hs = o->GetHighlight();
+  std::vector<int> hl_ids;
+  for (int i = 0; i < hs.size(); ++i) {
+    if (hs[i]) {
+      hl_ids.push_back(i);
+    }
+  }
+  // concat the std::vector<int> into a string separated by comma
+  wxString hl_ids_str;
+  for (int i = 0; i < hl_ids.size(); ++i) {
+    hl_ids_str += wxString::Format("%d", hl_ids[i]);
+    if (i != hl_ids.size() - 1) {
+      hl_ids_str += ",";
+    }
+  }
+
+  // call javascript function to highlight
+  wxString js_template = "window.store.dispatch({type : '%s', payload : %s}).then();";
+  wxString map_id = "kepler_map";
+  wxString action_type = "SET_FILTER_INDEXES";
+  wxString payload = "{dataLabel: 'memory:data', filteredIndex: [%s]}";
+  payload = wxString::Format(payload, hl_ids_str);
+  wxString js = wxString::Format(js_template, action_type, payload);
+
+  m_browser->RunScript(js);
+}
+
+void WebGLMapFrame::OnHandleWebMessage(const wxWebViewEvent& event) {
+  std::vector<bool>& highlight_flags = this->highlight_state->GetHighlight();
+  wxString json_msg = event.GetString();
+  // create regex "buffer": "(.*)"
+  wxRegEx buffer_regex("\"data\":\\[(.*)\\]");
+  if (buffer_regex.IsValid()) {
+    if (buffer_regex.Matches(json_msg)) {
+      // reset highlight_flags
+      std::fill(highlight_flags.begin(), highlight_flags.end(), false);
+      wxString result = buffer_regex.GetMatch(json_msg, 1);
+      wxStringTokenizer tokenizer(result, ",");
+      while (tokenizer.HasMoreTokens()) {
+        wxString token = tokenizer.GetNextToken();
+        int64_t value;
+        if (token.ToLongLong(&value)) {
+          if (value >= 0) {
+            highlight_flags[value] = true;
+          }
+        }
+      }
+    }
+  }
+
+  highlight_state->SetEventType(HLStateInt::delta);
+  highlight_state->notifyObservers(this);
 }
 
 void WebGLMapFrame::CreateMemoryFiles(OGRLayer* layer) {
@@ -145,8 +208,9 @@ void WebGLMapFrame::CreateMemoryFiles(OGRLayer* layer) {
   const std::string driver_name = "Arrow";
   char** options = nullptr;
   options = CSLSetNameValue(options, "COMPRESSION", "NONE");
+  // save_ogrlayer(layer, "/Users/xun/Downloads/data.arrow", driver_name, options);
   save_ogrlayer(layer, ogr_filename, driver_name, options);
-  save_ogrlayer(layer, "/Users/xun/Downloads/output.arrow", driver_name, options);
+  // save_ogrlayer(layer, "/Users/xun/Downloads/output.arrow", driver_name, options);
   CSLDestroy(options);
 
   // copy in-memory vsimem file into char* buffer, so that we can create a memory file for browser

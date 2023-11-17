@@ -120,7 +120,22 @@ void save_ogrlayer(OGRLayer* layer, const std::string& filename, const std::stri
   if (ds == nullptr) {
     return;
   }
-  OGRLayer* new_layer = ds->CreateLayer(layer->GetName(), layer->GetSpatialRef(), layer->GetGeomType(), options);
+  // validate geometry type by looping over features in layer
+  OGRwkbGeometryType geom_type = layer->GetGeomType();
+  // layer->ResetReading();
+  OGRFeature* feat = nullptr;
+  // while ((feat = layer->GetNextFeature()) != nullptr) {
+  //   const OGRGeometry* geom = feat->GetGeometryRef();
+  //   if (geom != nullptr) {
+  //     OGRwkbGeometryType feat_geom_type = geom->getGeometryType();
+  //     if (feat_geom_type == wkbMultiPoint || feat_geom_type == wkbMultiPolygon ||
+  //         feat_geom_type == wkbMultiLineString) {
+  //       geom_type = feat_geom_type;
+  //       break;
+  //     }
+  //   }
+  // }
+  OGRLayer* new_layer = ds->CreateLayer(layer->GetName(), layer->GetSpatialRef(), geom_type, options);
   if (new_layer == nullptr) {
     return;
   }
@@ -132,8 +147,23 @@ void save_ogrlayer(OGRLayer* layer, const std::string& filename, const std::stri
   }
 
   layer->ResetReading();
-  OGRFeature* feat = nullptr;
   while ((feat = layer->GetNextFeature()) != nullptr) {
+    // const OGRGeometry* geom = feat->GetGeometryRef();
+    // if (geom != nullptr) {
+    //   if (geom->getGeometryType() == wkbPolygon && geom_type == wkbMultiPolygon) {
+    //     OGRMultiPolygon* multigeom = new OGRMultiPolygon();
+    //     multigeom->addGeometry(geom);
+    //     feat->SetGeometryDirectly(multigeom);
+    //   } else if (geom->getGeometryType() == wkbLineString && geom_type == wkbMultiLineString) {
+    //     OGRMultiLineString* multigeom = new OGRMultiLineString();
+    //     multigeom->addGeometry(geom);
+    //     feat->SetGeometryDirectly(multigeom);
+    //   } else if (geom->getGeometryType() == wkbPoint && geom_type == wkbMultiPoint) {
+    //     OGRMultiPoint* multigeom = new OGRMultiPoint();
+    //     multigeom->addGeometry(geom);
+    //     feat->SetGeometryDirectly(multigeom);
+    //   }
+    // }
     if (new_layer->CreateFeature(feat) != OGRERR_NONE) {
       return;
     }
@@ -173,7 +203,7 @@ void vector_to_csv(const std::string& geojson_filename, const std::string& csv_f
     return;
   }
   char** options = nullptr;
-  options = CSLSetNameValue(options, "GEOMETRY", "AS_WKT");
+  options = CSLSetNameValue(options, "GEOMETRY", "AS_WKB");
 
   save_ogrlayer(layer, csv_filename, "CSV", options);
 
@@ -256,7 +286,7 @@ void center_of_mass(const OGRGeometry* geom, OGRPoint* point) {
       const OGRLinearRing* input_ring =
           i == 0 ? input_polygon->getExteriorRing() : input_polygon->getInteriorRing(i - 1);
       const auto& pt_it = input_ring->getPointIterator();
-      OGRPoint *pt = new OGRPoint();
+      OGRPoint* pt = new OGRPoint();
       while (pt_it->getNextPoint(pt)) {
         pt->setX(pt->getX() - translation.getX());
         pt->setY(pt->getY() - translation.getY());
