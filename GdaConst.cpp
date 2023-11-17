@@ -782,6 +782,17 @@ void GdaConst::init()
     datasrc_field_illegal_regex[ds_parquet] = db_field_name_illegal_regex;
     datasrc_field_casesensitive[ds_parquet] = false;
     
+    datasrc_str_to_type["Arrow"] = ds_arrow;
+    datasrc_type_to_prefix[ds_arrow] = "";
+    datasrc_type_to_fullname[ds_arrow] = "Arrow";
+    // share the same with DBF
+    datasrc_table_lens[ds_arrow] = 128;
+    datasrc_field_lens[ds_arrow] = 10;
+    datasrc_field_warning[ds_arrow] = default_field_warning;
+    datasrc_field_regex[ds_arrow] = db_field_name_regex;
+    datasrc_field_illegal_regex[ds_arrow] = db_field_name_illegal_regex;
+    datasrc_field_casesensitive[ds_arrow] = false;
+    
 	datasrc_str_to_type["ESRI Shapefile"] = ds_shapefile;
 	datasrc_type_to_prefix[ds_shapefile] = "";
 	datasrc_type_to_fullname[ds_shapefile] = "ESRI Shapefile";

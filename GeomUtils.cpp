@@ -155,7 +155,7 @@ void vector_to_arrow(const std::string& geojson_filename, const std::string& arr
   }
   char** options = nullptr;
   options = CSLSetNameValue(options, "COMPRESSION", "NONE");
-  options = CSLSetNameValue(options, "GEOMETRY_ENCODING", "WKB");
+  // options = CSLSetNameValue(options, "GEOMETRY_ENCODING", "WKB");
 
   save_ogrlayer(layer, arrow_filename, "Arrow", options);
   CSLDestroy(options);

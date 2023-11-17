@@ -16,8 +16,9 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include <string>
 #include <wx/wxprec.h>
+
+#include <string>
 
 #ifndef WX_PRECOMP
 #include <wx/wx.h>
@@ -51,6 +52,21 @@ IMPLEMENT_CLASS(WebGLMapFrame, TemplateFrame)
 BEGIN_EVENT_TABLE(WebGLMapFrame, TemplateFrame)
 END_EVENT_TABLE()
 
+// define in-memory file name memoryArrowFileName with value "/vsimem/data.arrow"
+const wxString WebGLMapFrame::memory_arrow_file_name = "/vsimem/data.arrow";
+
+// define arrow file name arrowFileName with value "data.arrow"
+const wxString WebGLMapFrame::arrow_file_name = "data.arrow";
+
+// define bundle.js file name bundleJsFileName with value "bundle.js"
+const wxString WebGLMapFrame::bundle_js_file_name = "bundle.js";
+
+// define index.html file name indexHtmlFileName with value "index.html"
+const wxString WebGLMapFrame::index_html_file_name = "index.html";
+
+// define default custom schema defaultCustomSchema with value "memory:"
+const wxString WebGLMapFrame::default_custom_schema = "memory:";
+
 WebGLMapFrame::WebGLMapFrame(wxFrame* parent, Project* project, OGRLayer* layer, const wxString& title,
                              const wxPoint& pos, const wxSize& size, const int style)
     : TemplateFrame(parent, project, title, pos, size, style) {
@@ -59,7 +75,7 @@ WebGLMapFrame::WebGLMapFrame(wxFrame* parent, Project* project, OGRLayer* layer,
   // Create a log window
   new wxLogWindow(NULL, _("Logging"), true, false);
 
-  custom_scheme = "memory:";
+  custom_scheme = WebGLMapFrame::default_custom_schema;
 
 #if wxUSE_WEBVIEW_EDGE
   custom_scheme = "http://memory.wxsite/";
@@ -101,7 +117,7 @@ WebGLMapFrame::WebGLMapFrame(wxFrame* parent, Project* project, OGRLayer* layer,
   // Set a more sensible size for web browsing
   SetSize(FromDIP(wxSize(800, 600)));
 
-  m_browser->LoadURL(custom_scheme + "index.html");
+  m_browser->LoadURL(custom_scheme + WebGLMapFrame::index_html_file_name);
   m_browser->SetFocus();
   m_browser->EnableAccessToDevTools(true);
   // Connect the idle events
@@ -109,9 +125,9 @@ WebGLMapFrame::WebGLMapFrame(wxFrame* parent, Project* project, OGRLayer* layer,
 }
 
 WebGLMapFrame::~WebGLMapFrame() {
-  wxMemoryFSHandler::RemoveFile("data.arrow");
-  wxMemoryFSHandler::RemoveFile("bundle.js");
-  wxMemoryFSHandler::RemoveFile("index.html");
+  wxMemoryFSHandler::RemoveFile(WebGLMapFrame::arrow_file_name);
+  wxMemoryFSHandler::RemoveFile(WebGLMapFrame::bundle_js_file_name);
+  wxMemoryFSHandler::RemoveFile(WebGLMapFrame::index_html_file_name);
   DeregisterAsActive();
 }
 
@@ -123,16 +139,17 @@ void WebGLMapFrame::CreateMemoryFiles(OGRLayer* layer) {
   wxPathList pathlist;
   pathlist.Add(web_file_path);
 
-  // Create data.csv by passing in OGRLayer with only geometries and selected variables
-  const std::string ogr_filename = "/vsimem/data.arrow";
+  // Create an in-memory arrow data using the OGRLayer with only geometries and selected variables
+  const std::string ogr_filename = WebGLMapFrame::memory_arrow_file_name.ToStdString();
 
   const std::string driver_name = "Arrow";
   char** options = nullptr;
   options = CSLSetNameValue(options, "COMPRESSION", "NONE");
   save_ogrlayer(layer, ogr_filename, driver_name, options);
+  save_ogrlayer(layer, "/Users/xun/Downloads/output.arrow", driver_name, options);
   CSLDestroy(options);
-  // save_ogrlayer(layer, ogr_filename, "GeoJSON");
-  // read vsimem file in char* buffer
+
+  // copy in-memory vsimem file into char* buffer, so that we can create a memory file for browser
   VSILFILE* fp = VSIFOpenL(ogr_filename.c_str(), "rb");
   VSIFSeekL(fp, 0, SEEK_END);
   const size_t size = VSIFTellL(fp);
@@ -140,27 +157,27 @@ void WebGLMapFrame::CreateMemoryFiles(OGRLayer* layer) {
   char* buffer = new char[size];
   VSIFReadL(buffer, 1, size, fp);
   VSIFCloseL(fp);
-  wxMemoryFSHandler::AddFileWithMimeType("data.arrow", buffer, size, "");
+  wxMemoryFSHandler::AddFileWithMimeType(WebGLMapFrame::arrow_file_name, buffer, size, "");
 
   // Create bundle.js
-  wxString bundle_path = wxFileName(pathlist.FindValidPath("bundle.js")).GetAbsolutePath();
+  wxString bundle_path = wxFileName(pathlist.FindValidPath(WebGLMapFrame::bundle_js_file_name)).GetAbsolutePath();
   wxFFile bundle_file(bundle_path);
   wxString bundle_content;
   bundle_file.ReadAll(&bundle_content);
 
-  wxMemoryFSHandler::AddFile("bundle.js", bundle_content);
+  wxMemoryFSHandler::AddFile(WebGLMapFrame::bundle_js_file_name, bundle_content);
 
   // Create index.html
-  wxString index_path = wxFileName(pathlist.FindValidPath("index.html")).GetAbsolutePath();
+  wxString index_path = wxFileName(pathlist.FindValidPath(WebGLMapFrame::index_html_file_name)).GetAbsolutePath();
   wxFFile index_file(index_path);
   wxString index_content;
   index_file.ReadAll(&index_content);
 
   // replace relative urls in index.html with "memory:bundle.js"
-  index_content.Replace("bundle.js", custom_scheme + "bundle.js");
-  index_content.Replace("data.arrow", custom_scheme + "data.arrow");
+  index_content.Replace(WebGLMapFrame::bundle_js_file_name, custom_scheme + WebGLMapFrame::bundle_js_file_name);
+  index_content.Replace(WebGLMapFrame::arrow_file_name, custom_scheme + WebGLMapFrame::arrow_file_name);
 
-  wxMemoryFSHandler::AddFile("index.html", index_content);
+  wxMemoryFSHandler::AddFile(WebGLMapFrame::index_html_file_name, index_content);
 
   std::cout << "Create Memory File:" << sw.Time() << std::endl;
 }

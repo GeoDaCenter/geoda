@@ -366,6 +366,7 @@ OGRDatasourceProxy::CreateLayer(wxString layer_name,
     char** papszLCO = NULL;
     papszLCO = CSLAddString(papszLCO, "OVERWRITE=yes");
     papszLCO = CSLAddString(papszLCO, "LAUNDER=no");
+    papszLCO = CSLAddString(papszLCO, "COMPRESSION=NONE");
 
     OGRSpatialReference *poOutputSRS = spatial_ref;
     if (ds_type == GdaConst::ds_mysql || ds_type == GdaConst::ds_postgresql ||

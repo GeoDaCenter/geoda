@@ -40,6 +40,21 @@ class WebGLMapFrame : public TemplateFrame {
   wxWebView* m_browser;
   wxString custom_scheme;
 
+  // constant string for in-memory file name
+  static const wxString memory_arrow_file_name;
+
+  // constant string for arrow file name
+  static const wxString arrow_file_name;
+
+  // constant string for javascript bundle.js
+  static const wxString bundle_js_file_name;
+
+  // constant string for index.html
+  static const wxString index_html_file_name;
+  
+  // constant string for default custom schema
+  static const wxString default_custom_schema;
+
   void OnIdle(wxIdleEvent& WXUNUSED(evt));
   void CreateMemoryFiles(OGRLayer* layer);
 
