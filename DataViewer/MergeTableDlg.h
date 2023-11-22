@@ -115,16 +115,16 @@ private:
     bool CheckKeys(wxString key_name, std::vector<wxString>& key_vec,
                    std::map<wxString, int>& key_map);
     
-    vector<wxString> GetSelectedFieldNames(map<wxString,wxString>& merged_fnames_dict);
+    std::vector<wxString> GetSelectedFieldNames(std::map<wxString,wxString>& merged_fnames_dict);
     
     void AppendNewField(wxString field_name, wxString real_field_name,
                         int n_rows, std::map<int,int>& rowid_map);
     
-    OGRColumn* CreateNewOGRColumn(int new_rows, TableInterface* table_int, vector<bool>& undefs, int idx, int t=0);
+    OGRColumn* CreateNewOGRColumn(int new_rows, TableInterface* table_int, std::vector<bool>& undefs, int idx, int t=0);
    
-    OGRColumn* CreateNewOGRColumn(int new_rows, OGRLayerProxy* layer_proxy, vector<bool>& undefs, wxString col_name, map<int, int>& idx2_dict);
+    OGRColumn* CreateNewOGRColumn(int new_rows, OGRLayerProxy* layer_proxy, std::vector<bool>& undefs, wxString col_name, std::map<int, int>& idx2_dict);
    
-    void UpdateOGRColumn(OGRColumn* _col, OGRLayerProxy* layer_proxy, wxString f_name, map<int, int>& idx2_dict);
+    void UpdateOGRColumn(OGRColumn* _col, OGRLayerProxy* layer_proxy, wxString f_name, std::map<int, int>& idx2_dict);
     
 	DECLARE_EVENT_TABLE()
 };

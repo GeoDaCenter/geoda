@@ -255,7 +255,7 @@ INDEX LevelStructure(Iterator<WMap> mt, INDEX &start, INDEX &Contig,
   order[init]= 0;               // mark the last element
   if (pieces == 1)  {           // find element with min degree
     init= Dim1;
-//    cout << "ordering " << setw(4) << mt.count() << "  elts,  conty: " << setw(4) << conty << "  has " << last-first << endl;
+//    cout << "ordering " << std::setw(4) << mt.count() << "  elts,  conty: " << std::setw(4) << conty << "  has " << last-first << std::endl;
     for (current= first; current < last; ++current)  {
       INDEX cnt= mt[*current].count();
       if (cnt < init)  { init= cnt;  next= current;  };
@@ -571,7 +571,7 @@ void PolyOrganize(const WVector * First, const INDEX Precision, Iterator<WVector
     };
 
     while (Border && (*Border).count() < SL_Max_Precision)  {
-//      cout << " org: " << (*Border).count() << " + " << (*Poly).count() << endl;
+//      std::cout << " org: " << (*Border).count() << " + " << (*Poly).count() << std::endl;
       PolyProduct(*Border, (*Poly)());
       (*Poly).destroy();
       (*Poly).Swap(*Border);
@@ -580,7 +580,7 @@ void PolyOrganize(const WVector * First, const INDEX Precision, Iterator<WVector
     ++Poly;
   };
   for ( ; Border; ++Border, ++Poly)  {
-//    cout << " org, copy: " << (*Border).count() << endl;
+//    cout << " org, copy: " << (*Border).count() << std::endl;
     *Poly = *Border;
   };
   return;
@@ -599,7 +599,7 @@ INDEX SplitSparse(Iterator<WMap> mt, INDEX Pseudo,  INDEX & Second, INDEX & Pseu
      LevelStructure(mt, Pseudo, localLevel, perm(), order.first());
   }
   while (oldPseudo == 0);
-//   cout << "  psF: " << Pseudo << "  levelF: " << Level << endl;
+//   cout << "  psF: " << Pseudo << "  levelF: " << Level << std::endl;
 
   VALUE             OpBest= dim * geoda_sqr((double) dim), OpLevel;
   for (INDEX lev= 1; lev < localLevel-1; ++lev)  {
@@ -828,7 +828,7 @@ VALUE OnePoly(Iterator<WVector> Poly, const VALUE Val, const INDEX Prec, INDEX P
        S += *itr * *Po;
      if (S < 1.0e-16)  { 
          if (first)  {
-//            cout << " S is small= " << S << "  val: " << Val << endl;
+//            std::cout << " S is small= " << S << "  val: " << Val << std::endl;
             first= false;
          };
          S= 1.0e-16;

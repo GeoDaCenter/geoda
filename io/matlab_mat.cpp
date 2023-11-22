@@ -8,8 +8,6 @@
 #include "weights_interface.h"
 #include "matlab_mat.h"
 
-using namespace std;
-
 wxString ReadIdFieldFromMat(const wxString& fname)
 {
     return "ogc_fid";
@@ -18,11 +16,11 @@ wxString ReadIdFieldFromMat(const wxString& fname)
 GalElement* ReadMatAsGal(const wxString& fname, TableInterface* table_int)
 {
 #ifdef __WIN32__
-    ifstream istream;
-    istream.open(fname.wc_str(), ios::binary|ios::in);
+    std::ifstream istream;
+    istream.open(fname.wc_str(), std::ios::binary|std::ios::in);
 #else
-    ifstream istream;
-    istream.open(GET_ENCODED_FILENAME(fname), ios::binary|ios::in);  // a text file
+    std::ifstream istream;
+    istream.open(GET_ENCODED_FILENAME(fname), std::ios::binary|std::ios::in);  // a text file
 #endif
     
     if (!(istream.is_open() && istream.good())) {
@@ -30,16 +28,16 @@ GalElement* ReadMatAsGal(const wxString& fname, TableInterface* table_int)
     }
     MatfileReader mmr(istream);
     mmr.parseHeader();
-    //cout << mmr.descriptiveText() << endl;
-    //cout << mmr.subsysDataOffset() << endl;
-    //cout << mmr.version() << endl;
-    //cout << mmr.endianIndicator() << endl;
+    //cout << mmr.descriptiveText() << std::endl;
+    //cout << mmr.subsysDataOffset() << std::endl;
+    //cout << mmr.version() << std::endl;
+    //cout << mmr.endianIndicator() << std::endl;
     mmr.gotoData();
     if (mmr.parseDataElement()  ==  false) {
         throw WeightsNotValidException();
     }
-    vector<DataElement*> des = mmr.dataElements();
-    // cout << des[0]->dataType() << endl;
+    std::vector<DataElement*> des = mmr.dataElements();
+    // cout << des[0]->dataType() << std::endl;
     DataElement* de = des[0];
     CompressedDataElement* cde;
     if (des[0]->dataType() == miCOMPRESSED) {
@@ -54,7 +52,7 @@ GalElement* ReadMatAsGal(const wxString& fname, TableInterface* table_int)
     // get row & col #
     MatrixDataElement* mde = (MatrixDataElement*)de;
     DimensionsArray* da = mde->dimensionsArray();
-    vector<int32_t>& dim = da->dimensions();
+    std::vector<int32_t>& dim = da->dimensions();
     if (dim.size() != 2) {
         throw WeightsNotValidException();
     }
@@ -73,28 +71,28 @@ GalElement* ReadMatAsGal(const wxString& fname, TableInterface* table_int)
     GalElement* gal = new GalElement[num_obs];
 
     // get weights matrix
-    vector<double> data(num_obs * num_obs);
+    std::vector<double> data(num_obs * num_obs);
     NumericArray<double>* sde = (NumericArray<double>*)mde;
     DataElement* real = sde->real();
     EDataType dt = real->dataType();
     if (dt == miSINGLE) {
         // float
         FlatDataElement<float>* flatdata = ( FlatDataElement<float>*)real;
-        vector<float>& _data = flatdata->data();
+        std::vector<float>& _data = flatdata->data();
         for (int i=0; i< data.size(); i++) {
             data[i] = _data[i];
         }
     } else if (dt == miDOUBLE) {
         // double
         FlatDataElement<double>* flatdata = ( FlatDataElement<double>*)real;
-        vector<double>& _data = flatdata->data();
+        std::vector<double>& _data = flatdata->data();
         for (int i=0; i< data.size(); i++) {
             data[i] = _data[i];
         }
     } else {
         // INT8 UINT8 INT16 UINT16 INT32 UINT32
         FlatDataElement<uint8_t>* flatdata = ( FlatDataElement<uint8_t>*)real;
-        vector<uint8_t>& _data = flatdata->data();
+        std::vector<uint8_t>& _data = flatdata->data();
         for (int i=0; i< data.size(); i++) {
             data[i] = _data[i];
         }

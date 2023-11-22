@@ -3,7 +3,6 @@
 #include <cstdlib>
 #include <cstring>
 #include <iostream>
-using namespace std;
 #include <zlib.h>
 #include "MatfileReader.h"
 
@@ -30,7 +29,7 @@ inline void endianSwap(uint64_t& x) {
 }
 
 //=========================================
-pair<EDataType, EMatrixClass> classify(char* data, bool endianSwap) {
+std::pair<EDataType, EMatrixClass> classify(char* data, bool endianSwap) {
     uint32_t dataType;
     bool isSmallDataElement = (data[2] & 0xFF) || (data[3] & 0xFF);
     if (isSmallDataElement)
@@ -38,7 +37,7 @@ pair<EDataType, EMatrixClass> classify(char* data, bool endianSwap) {
     else
         dataType = *(reinterpret_cast<uint32_t*>(data));
     if (static_cast<EDataType>(dataType) != miMATRIX)
-        return make_pair(static_cast<EDataType>(dataType), mxINVALID);
+        return std::make_pair(static_cast<EDataType>(dataType), mxINVALID);
     // miMATRIX must not be small element
     //assert(!isSmallDataElement);
 
@@ -46,13 +45,13 @@ pair<EDataType, EMatrixClass> classify(char* data, bool endianSwap) {
 
     EMatrixClass matrixClass;
     matrixClass = af->klass();
-    return make_pair(static_cast<EDataType>(dataType), matrixClass);
+    return std::make_pair(static_cast<EDataType>(dataType), matrixClass);
 }
 
 DataElement* parse(char* data, bool endianSwap) {
     DataElement* de = NULL;
     // dispatch
-    pair<EDataType, EMatrixClass> kind = classify(data, endianSwap);
+    std::pair<EDataType, EMatrixClass> kind = classify(data, endianSwap);
     EDataType dataType = kind.first;
     EMatrixClass matrixClass = kind.second;
     switch (dataType) {
@@ -146,14 +145,14 @@ DataElement* parse(char* data, bool endianSwap) {
             de = new NumericArray<uint8_t>(data, endianSwap);
             break;
         default:
-            cerr << "invalid EMatrixClass!\n";
+            std::cerr << "invalid EMatrixClass!\n";
         }
         break;
     default:
-        cerr << "invalid EDataType!\n";
+        std::cerr << "invalid EDataType!\n";
     }
     if (!de) {
-        cerr << "failed to parse!\n";
+        std::cerr << "failed to parse!\n";
     }
     return de;
 }
@@ -185,8 +184,8 @@ FlatDataElement<T>::FlatDataElement(char* data, bool endianSwap) : DataElement(e
 
 FieldNames::FieldNames(char* data, bool endianSwap, int32_t fieldNameLength) :
     FlatDataElement<int8_t>(data, endianSwap), _fieldNameLength(fieldNameLength), _fieldNames() {
-    string name;
-    for (vector<int8_t>::iterator iter = _data.begin();
+    std::string name;
+    for (std::vector<int8_t>::iterator iter = _data.begin();
          iter + _fieldNameLength <= _data.end();
          iter += _fieldNameLength) {
         name.assign(iter, iter+_fieldNameLength);
@@ -212,13 +211,13 @@ CompressedDataElement::CompressedDataElement(char* data, bool endianSwap) :
             size *= 2;
             _decompressedData = new char[size];
             if (!_decompressedData) {
-                cerr << "FlatDataElement::parseData new failed!\n";
+                std::cerr << "FlatDataElement::parseData new failed!\n";
             }
             rsize = size;
             res = uncompress(reinterpret_cast<unsigned char*>(_decompressedData), &size,
                              reinterpret_cast<unsigned char*>(data), _numberOfBytes);
         } else {
-            cerr << "FlatDataElement::parseData uncompress failed!\n";
+            std::cerr << "FlatDataElement::parseData uncompress failed!\n";
         }
     }
     _decompressedSize = static_cast<uint32_t>(rsize);
@@ -370,7 +369,7 @@ MatfileReader::MatfileReader(std::ifstream& inputStream)
       _version(0), _endianIndicator(), _endianSwap(false) {
     //_inputStream.open(_matfile.c_str(), ios_base::in | ios_base::binary);
     if(!_inputStream.is_open()) {
-        cerr << "open " << _matfile.c_str() << " error!\n";
+        std::cerr << "open " << _matfile.c_str() << " error!\n";
     }
 }
 

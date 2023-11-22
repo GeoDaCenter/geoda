@@ -79,7 +79,7 @@ HDBScanDlg::~HDBScanDlg()
 
 void HDBScanDlg::Highlight(int id)
 {
-    vector<bool>& hs = highlight_state->GetHighlight();
+    std::vector<bool>& hs = highlight_state->GetHighlight();
     
     for (int i=0; i<hs.size(); i++) hs[i] = false;
     hs[id] = true;
@@ -88,9 +88,9 @@ void HDBScanDlg::Highlight(int id)
     highlight_state->notifyObservers(this);
 }
 
-void HDBScanDlg::Highlight(vector<int>& ids)
+void HDBScanDlg::Highlight(std::vector<int>& ids)
 {
-    vector<bool>& hs = highlight_state->GetHighlight();
+    std::vector<bool>& hs = highlight_state->GetHighlight();
     
     for (int i=0; i<hs.size(); i++) hs[i] = false;
     for (int i=0; i<ids.size(); i++) hs[ids[i]] = true;
@@ -271,7 +271,7 @@ void HDBScanDlg::OnSave(wxCommandEvent& event )
     
     std::vector<SaveToTableEntry> new_data(new_col);
 
-    vector<bool> undefs(rows, false);
+    std::vector<bool> undefs(rows, false);
 
     new_data[0].d_val = &core_dist;
     new_data[0].label = "Core Dist";
@@ -462,7 +462,7 @@ bool HDBScanDlg::CheckAllInputs()
     return true;
 }
 
-bool HDBScanDlg::Run(vector<wxInt64>& clusters)
+bool HDBScanDlg::Run(std::vector<wxInt64>& clusters)
 {
     cluster_ids.clear();
     clusters.clear();
@@ -614,7 +614,7 @@ void HDBScanDlg::OnOKClick(wxCommandEvent& event )
     }
     
     if (col > 0) {
-        vector<bool> clusters_undef(rows, false);
+        std::vector<bool> clusters_undef(rows, false);
         table_int->SetColData(col, time, clusters);
         table_int->SetColUndefined(col, time, clusters_undef);
     }

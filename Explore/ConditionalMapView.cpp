@@ -40,8 +40,6 @@
 
 #include "ConditionalMapView.h"
 
-using namespace std;
-
 IMPLEMENT_CLASS(ConditionalMapCanvas, ConditionalNewCanvas)
 BEGIN_EVENT_TABLE(ConditionalMapCanvas, ConditionalNewCanvas)
 	EVT_PAINT(TemplateCanvas::OnPaint)
@@ -56,8 +54,8 @@ ConditionalMapCanvas::
 ConditionalMapCanvas(wxWindow *parent,
                      TemplateFrame* t_frame,
                      Project* project_s,
-                     const vector<GdaVarTools::VarInfo>& v_info,
-                     const vector<int>& col_ids,
+                     const std::vector<GdaVarTools::VarInfo>& v_info,
+                     const std::vector<int>& col_ids,
                      const wxPoint& pos, const wxSize& size)
 : ConditionalNewCanvas(parent, t_frame, project_s, v_info, col_ids,
 					   true, true, pos, size),
@@ -139,9 +137,9 @@ void ConditionalMapCanvas::AppendCustomCategories(wxMenu* menu, CatClassifManage
 {
     // search for ID_CAT_CLASSIF_A(B,C)_MENU submenus
     const int num_sub_menus=3;
-    vector<int> menu_id(num_sub_menus);
-    vector<int> sub_menu_id(num_sub_menus);
-    vector<int> base_id(num_sub_menus);
+    std::vector<int> menu_id(num_sub_menus);
+    std::vector<int> sub_menu_id(num_sub_menus);
+    std::vector<int> base_id(num_sub_menus);
     menu_id[0] = XRCID("ID_NEW_CUSTOM_CAT_CLASSIF_A");
     menu_id[1] = XRCID("ID_NEW_CUSTOM_CAT_CLASSIF_B"); // conditional horizontal menu
     menu_id[2] = XRCID("ID_NEW_CUSTOM_CAT_CLASSIF_C"); // conditional verticle menu
@@ -171,7 +169,7 @@ void ConditionalMapCanvas::AppendCustomCategories(wxMenu* menu, CatClassifManage
                    _("Create new custom categories classification."));
         sm->AppendSeparator();
         
-        vector<wxString> titles;
+        std::vector<wxString> titles;
         ccm->GetTitles(titles);
         for (size_t j=0; j<titles.size(); j++) {
             wxMenuItem* mi = sm->Append(base_id[i]+j, titles[j]);
@@ -209,7 +207,7 @@ void ConditionalMapCanvas::OnCustomCategoryClick(wxCommandEvent& event)
     int xrc_id = event.GetId();
     CatClassifManager* ccm = project->GetCatClassifManager();
     if (!ccm) return;
-    vector<wxString> titles;
+    std::vector<wxString> titles;
     ccm->GetTitles(titles);
     int idx = xrc_id - GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A0;
     if (idx < 0 || idx >= titles.size()) return;
@@ -318,7 +316,7 @@ void ConditionalMapCanvas::OnSaveCategories()
 	wxString title;
 	title << "Save " << label;
     
-    vector<bool> undefs(num_obs, false);
+    std::vector<bool> undefs(num_obs, false);
     
     for (size_t i=0; i<cat_var_undef.size(); i++) {
         for (size_t j=0; j<cat_var_undef[i].size(); j++) {
@@ -339,7 +337,7 @@ void ConditionalMapCanvas::NewCustomCatClassifMap()
 	if (cat_classif_def_map.cat_classif_type != CatClassification::custom) {
 		CatClassification::ChangeNumCats(cat_classif_def_map.num_cats,
 										 cat_classif_def_map);
-		vector<wxString> temp_cat_labels; // will be ignored
+	    std::vector<wxString> temp_cat_labels; // will be ignored
 		CatClassification::SetBreakPoints(cat_classif_def_map.breaks,
 										  temp_cat_labels,
 										  cat_var_sorted[var_info[CAT_VAR].time],
@@ -593,8 +591,8 @@ void ConditionalMapCanvas::ResizeSelectableShps(int virtual_scrn_w,
 	double bg_ymax = scn_h-marg_top;
     int n_rows = is_vert_number ? vert_num_cats-1 : vert_num_cats;
     int n_cols = is_horz_number ? horiz_num_cats-1 : horiz_num_cats;
-    vector<wxRealPoint> v_brk_ref(n_rows);
-    vector<wxRealPoint> h_brk_ref(n_cols);
+    std::vector<wxRealPoint> v_brk_ref(n_rows);
+    std::vector<wxRealPoint> h_brk_ref(n_cols);
 	
 	for (int row=0; row<n_rows; row++) {
         double bin_height = bin_extents[row][0].lower_left.y -bin_extents[row][0].upper_right.y;
@@ -929,7 +927,7 @@ void ConditionalMapCanvas::UpdateStatusBar()
     
     int t = var_info[CAT_VAR].time;
     
-    const vector<bool>& hl = highlight_state->GetHighlight();
+    const std::vector<bool>& hl = highlight_state->GetHighlight();
     wxString s;
     if (highlight_state->GetTotalHighlighted()> 0) {
         int n_total_hl = highlight_state->GetTotalHighlighted();
@@ -987,7 +985,7 @@ BEGIN_EVENT_TABLE(ConditionalMapFrame, ConditionalNewFrame)
 	EVT_ACTIVATE(ConditionalMapFrame::OnActivate)	
 END_EVENT_TABLE()
 
-ConditionalMapFrame::ConditionalMapFrame(wxFrame *parent, Project* project, const vector<GdaVarTools::VarInfo>& var_info, const vector<int>& col_ids, const wxString& title, const wxPoint& pos, const wxSize& size, const long style)
+ConditionalMapFrame::ConditionalMapFrame(wxFrame *parent, Project* project, const std::vector<GdaVarTools::VarInfo>& var_info, const std::vector<int>& col_ids, const wxString& title, const wxPoint& pos, const wxSize& size, const long style)
 : ConditionalNewFrame(parent, project, var_info, col_ids, title, pos, size, style)
 {
     

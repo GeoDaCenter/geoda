@@ -13,14 +13,14 @@
 #include "../GdaConst.h"
 #include "../ShapeOperations/GeodaWeight.h"
 #include "spatial_validation.h"
-
+#define BOOST_PHOENIX_STL_TUPLE_H_
 namespace bg = boost::geometry;
 
 #ifndef __NO_THREAD__
     #ifndef __USE_PTHREAD__
         #include <boost/system/config.hpp>
         #include <boost/thread.hpp>
-        #include <boost/bind.hpp>
+        #include <boost/bind/bind.hpp>
     #else
         #include <pthread.h>
 
@@ -389,7 +389,7 @@ Fragmentation SpatialValidationCluster::ComputeFragmentation()
 
 Compactness SpatialValidationCluster::ComputeCompactness()
 {
-    // isoperimeter quotient (IPC)
+    // isoperimetric quotient (IPQ)
     // only implement for spatially constrained result
     Compactness comp;
     

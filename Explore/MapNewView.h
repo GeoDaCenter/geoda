@@ -442,7 +442,6 @@ public:
         template_legend->Recreate();
     }
     void AppendCustomCategories(wxMenu* menu, CatClassifManager* ccm);
-    
 	
     std::vector<GdaVarTools::VarInfo> var_info;
     std::vector<int> col_ids;

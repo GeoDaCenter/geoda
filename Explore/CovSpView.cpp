@@ -38,8 +38,6 @@ EVT_MOUSE_EVENTS(CovSpFrame::OnMouseEvent)
 EVT_ACTIVATE(CovSpFrame::OnActivate)
 END_EVENT_TABLE()
 
-using namespace std;
-
 CovSpFrame::CovSpFrame(wxFrame *parent, Project* project,
                        const GdaVarTools::Manager& var_man_,
                        WeightsMetaInfo::DistanceMetricEnum dist_metric_,
@@ -189,7 +187,7 @@ void CovSpFrame::UpdateTitle()
 	SetTitle(s);
 }
 
-wxString CovSpFrame::GetUpdateStatusBarString(const vector<int>& hover_obs,
+wxString CovSpFrame::GetUpdateStatusBarString(const std::vector<int>& hover_obs,
                                               int total_hover_obs)
 {
 	wxString s;
@@ -259,7 +257,7 @@ void CovSpFrame::OnShowVarsChooser(wxCommandEvent& event)
 	VariableSettingsDlg VS(project, VariableSettingsDlg::univariate, false, true, _("Variable Choice"), _("Variable"));
 	if (VS.ShowModal() != wxID_OK) return;
 	GdaVarTools::VarInfo& v = VS.var_info[0];
-	vector<wxString> tm_strs;
+    std::vector<wxString> tm_strs;
 	project->GetTableInt()->GetTimeStrings(tm_strs);
 	GdaVarTools::Manager t_var_man(tm_strs);
 	t_var_man.AppendVar(v.name, v.min, v.max, v.time, v.sync_with_global_time, v.fixed_scale);
@@ -646,8 +644,8 @@ void CovSpFrame::UpdateDataFromVarMan()
 		} else {
             
 			Z_error_msg[t] = "";
-			Zprod_min[t] = numeric_limits<double>::max();
-			Zprod_max[t] = numeric_limits<double>::min();
+			Zprod_min[t] = std::numeric_limits<double>::max();
+			Zprod_max[t] = std::numeric_limits<double>::min();
             
 			for (pairs_bimap_type::const_iterator e=bimap.begin();
                  e!=bimap.end(); ++e)

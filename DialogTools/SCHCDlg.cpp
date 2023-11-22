@@ -19,6 +19,7 @@
 
 #include <vector>
 #include <map>
+#include <algorithm>
 
 #include <wx/wx.h>
 #include <boost/unordered_map.hpp>
@@ -76,7 +77,7 @@ void SCHCDlg::OnSave(wxCommandEvent& event )
     }
 }
 
-bool SCHCDlg::Run(vector<wxInt64>& clusters)
+bool SCHCDlg::Run(std::vector<wxInt64>& clusters)
 {
     // NOTE input_data should be retrieved first!!
     // get input: weights (auto)

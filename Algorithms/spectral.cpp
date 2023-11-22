@@ -23,7 +23,6 @@
 #include "DataUtils.h"
 
 using namespace Eigen;
-using namespace std;
 using namespace Spectra;
 
 Spectral::~Spectral()
@@ -250,7 +249,7 @@ bool Spectral::call_symeigshiftssolver(MatrixXd& L)
     return false;
 }
 
-static bool inline eigen_greater(const pair<double,VectorXd>& a, const pair<double,VectorXd>& b)
+static bool inline eigen_greater(const std::pair<double,VectorXd>& a, const std::pair<double,VectorXd>& b)
 {
     return a.first > b.first;
 }
@@ -285,14 +284,14 @@ void Spectral::eigendecomposition(bool raw_matrix)
     eigenvectors = edecomp.eigenvectors().real();
 
     cumulative.resize(eigenvalues.rows());
-    vector<pair<double,VectorXd> > eigen_pairs;
+    std::vector<std::pair<double,VectorXd> > eigen_pairs;
     double c = 0.0;
     for(unsigned int i = 0; i < eigenvectors.cols(); i++){
         if(normalise){
             double norm = eigenvectors.col(i).norm();
             eigenvectors.col(i) /= norm;
         }
-        eigen_pairs.push_back(make_pair(eigenvalues(i),eigenvectors.col(i)));
+        eigen_pairs.push_back(std::make_pair(eigenvalues(i),eigenvectors.col(i)));
     }
     // http://stackoverflow.com/questions/5122804/sorting-with-lambda
     sort(eigen_pairs.begin(),eigen_pairs.end(), eigen_greater);

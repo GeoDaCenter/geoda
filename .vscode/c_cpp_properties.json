@@ -1,0 +1,74 @@
+{
+  "configurations": [
+    {
+      "name": "Mac",
+      "includePath": [
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include",
+        "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/14.0.3/include",
+        "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include/c++/v1",
+        "${workspaceFolder}",
+        "/usr/local/include",
+        "/usr/local/opt/boost/include",
+        "/usr/local/opt/gdal/include",
+        "/usr/local/opt/boost/include",
+        "${workspaceFolder}/BuildTools/macosx/libraries/include",
+        "${workspaceFolder}/BuildTools/macosx/libraries/include/wx-3.2",
+        "${workspaceFolder}/BuildTools/macosx/libraries/lib/wx/include/osx_cocoa-unicode-3.2"
+      ],
+      "defines": ["__WXMAC__"],
+      "macFrameworkPath": [
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks"
+      ],
+      "cStandard": "c17",
+      "cppStandard": "c++17",
+      "intelliSenseMode": "macos-clang-arm64",
+      "compilerPath": "/usr/bin/gcc"
+    },
+    {
+      "name": "Linux",
+      "includePath": [
+        "${workspaceFolder}/**",
+        "${workspaceFolder}/BuildTools/ubuntu/libraries/lib/wx/include/gtk3-unicode-static-3.1",
+        "${workspaceFolder}/BuildTools/ubuntu/libraries/include",
+        "${workspaceFolder}/BuildTools/ubuntu/libraries/include/wx-3.1",
+        "${workspaceFolder}/BuildTools/ubuntu/temp/boost",
+        "/usr/include/gdal",
+        "/usr/include",
+        "/usr/include/c++/11",
+        "/usr/include/x86_64-linux-gnu/c++/11",
+        "${workspaceFolder}/BuildTools/ubuntu/temp/eigen3",
+        "${workspaceFolder}/BuildTools/ubuntu/temp/spectra/include"
+      ],
+      "defines": [],
+      "compilerPath": "/usr/bin/gcc",
+      "intelliSenseMode": "linux-gcc-x64",
+      "compilerArgs": [
+        "-D_FILE_OFFSET_BITS=64",
+        "-DwxDEBUG_LEVEL=0",
+        "-D__WXGTK__",
+        "-D__PROJ6__",
+        "-std=gnu++14"
+      ],
+      "cppStandard": "c++17",
+      "cStandard": "c11",
+      "mergeConfigurations": false,
+      "browse": {
+        "path": [
+          "${workspaceFolder}/**",
+          "${workspaceFolder}/BuildTools/ubuntu/libraries/lib/wx/include/gtk3-unicode-static-3.1",
+          "${workspaceFolder}/BuildTools/ubuntu/libraries/include",
+          "${workspaceFolder}/BuildTools/ubuntu/libraries/include/wx-3.1",
+          "${workspaceFolder}/BuildTools/ubuntu/temp/boost",
+          "/usr/include/gdal",
+          "/usr/include",
+          "/usr/include/c++/11",
+          "${workspaceFolder}/BuildTools/ubuntu/temp/eigen3",
+          "${workspaceFolder}/BuildTools/ubuntu/temp/spectra/include",
+          "${workspaceFolder}"
+        ],
+        "limitSymbolsToIncludedHeaders": true
+      }
+    }
+  ],
+  "version": 4
+}

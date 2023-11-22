@@ -2409,7 +2409,7 @@ GdaShape* MapCanvas::GetShape(int i)
 void MapCanvas::SetLayerAssociation(wxString my_key, AssociateLayerInt* layer,
                                     wxString key, bool show_connline)
 {
-    associated_layers[layer] = make_pair(my_key, key);
+    associated_layers[layer] = std::make_pair(my_key, key);
     associated_lines[layer] = show_connline;
 }
 

@@ -42,8 +42,6 @@
 #include "../ShapeOperations/WeightsManager.h"
 #include "GroupingMapView.h"
 
-using namespace std;
-
 HierachicalMapSelectDlg::HierachicalMapSelectDlg(wxFrame* parent_s, Project* project_s)
 : wxDialog(parent_s, wxID_ANY, _("Hierarchical Cluster Map"), wxDefaultPosition,
            wxSize(350, 250))
@@ -159,7 +157,7 @@ void HierachicalMapSelectDlg::OnOK( wxCommandEvent& event)
     col_ids[1] = col2;
     
     // create a weights
-    vector<wxInt64> vals, root_ids;
+    std::vector<wxInt64> vals, root_ids;
     table_int->GetColData(col1, time1, vals);
     if (vals.empty()) return;
     table_int->GetColData(col2, time2, root_ids);
@@ -294,8 +292,8 @@ void HierachicalMapCanvas::CreateConnectivityGraph()
     // use centroids to draw graph
     WeightsManInterface* w_man_int = project->GetWManInt();
     GalWeight* gal_weights = w_man_int->GetGal(weights_id);
-    const vector<GdaPoint*>& c = project->GetCentroids();
-    vector<bool>& hs = highlight_state->GetHighlight();
+    const std::vector<GdaPoint*>& c = project->GetCentroids();
+    std::vector<bool>& hs = highlight_state->GetHighlight();
     GdaPolyLine* edge;
     std::set<int> w_nodes;
     wxPen pen(graph_color, weights_graph_thickness);

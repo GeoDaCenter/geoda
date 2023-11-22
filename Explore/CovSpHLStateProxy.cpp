@@ -91,7 +91,6 @@ void CovSpHLStateProxy::notifyObservers()
 	//LOG_MSG("In CovSpHLStateProxy::notifyObservers");
 	//LOG(observers.size());
 	// See section 18.4.4.2 of Stroustrup
-	using namespace std;
 	//for_each(observers.begin(), observers.end(),
 	//				 bind2nd(mem_fn(&HighlightStateObserver::update), this));
 	notifyHighlightState();
@@ -151,7 +150,6 @@ void CovSpHLStateProxy::update(HLStateInt* o)
 		}
 	}
 	if (event_type != HLStateInt::empty) {
-		using namespace std;
 		//for_each(observers.begin(), observers.end(),
 		//				 bind2nd(mem_fn(&HighlightStateObserver::update), this));
 	}
@@ -160,8 +158,7 @@ void CovSpHLStateProxy::update(HLStateInt* o)
 /** Translate notify event to HighlightState */
 void CovSpHLStateProxy::notifyHighlightState()
 {
-	using namespace std;
-	vector<bool> hs(highlight_state->GetHighlight()); // make a copy
+    std::vector<bool> hs(highlight_state->GetHighlight()); // make a copy
     bool selection_changed = false;
     
 	highlight_state->SetEventType(HLStateInt::empty);
@@ -174,7 +171,7 @@ void CovSpHLStateProxy::notifyHighlightState()
 		// We will the following logic: For observation i, if any of i
 		// are selected in the (n-1) pairs, then i is considered selected.
 		// otherwise, i is considered unselected.
-		vector<bool> any_hl(hs.size(), false);
+	    std::vector<bool> any_hl(hs.size(), false);
 		for (pairs_bimap_type::const_iterator iter = pbm.begin(), iend = pbm.end();
 				 iter != iend; ++iter)
 		{

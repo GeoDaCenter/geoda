@@ -67,13 +67,13 @@ public:
     
     void UpdateClusterChoice(int n, std::vector<wxInt64>& clusters);
     void Highlight(int id);
-    void Highlight(vector<int>& ids);
+    void Highlight(std::vector<int>& ids);
 
 protected:
-    virtual bool Run(vector<wxInt64>& clusters);
+    virtual bool Run(std::vector<wxInt64>& clusters);
     virtual bool RunStar();
     virtual bool CheckAllInputs();
-    virtual void GetClusterFromDendrogram(vector<wxInt64>& clusters);
+    virtual void GetClusterFromDendrogram(std::vector<wxInt64>& clusters);
     
 protected:
     char     dist;
@@ -81,10 +81,10 @@ protected:
     int      m_min_pts;
     double   eps;
     
-    vector<vector<int> > cluster_ids;
+    std::vector<std::vector<int> > cluster_ids;
         
     double cutoffDistance;
-    vector<wxInt64> clusters;
+    std::vector<wxInt64> clusters;
     
     wxChoice* combo_n;
     wxChoice* combo_cov;

@@ -17,12 +17,12 @@ AbstractMDS::~AbstractMDS()
 {
 }
 
-vector<vector<double> >& AbstractMDS::GetResult()
+std::vector<std::vector<double> >& AbstractMDS::GetResult()
 {
     return result;
 }
 
-void AbstractMDS::fullmds(vector<vector<double> >& d, int dim, int maxiter)
+void AbstractMDS::fullmds(std::vector<std::vector<double> >& d, int dim, int maxiter)
 {
     int k = d.size();
     int n = d[0].size();
@@ -32,7 +32,7 @@ void AbstractMDS::fullmds(vector<vector<double> >& d, int dim, int maxiter)
     DataUtils::multiply(d, -0.5);
     
     DataUtils::randomize(result);
-    vector<double> evals(dim);
+    std::vector<double> evals(dim);
     
     DataUtils::eigen(d, result, evals, maxiter);
     for (int i = 0; i < dim; i++) {
@@ -43,7 +43,7 @@ void AbstractMDS::fullmds(vector<vector<double> >& d, int dim, int maxiter)
     }
 }
 
-vector<double> AbstractMDS::pivotmds(vector<vector<double> >& input, vector<vector<double> >& result)
+std::vector<double> AbstractMDS::pivotmds(std::vector<std::vector<double> >& input, std::vector<std::vector<double> >& result)
 {
     int k = input.size();
     int n = input[0].size();
@@ -52,7 +52,7 @@ vector<double> AbstractMDS::pivotmds(vector<vector<double> >& input, vector<vect
     result.resize(k);
     for (int i=0; i<k; i++) result.resize(n);
     
-    vector<double> evals(k);
+    std::vector<double> evals(k);
     DataUtils::doubleCenter(input);
     DataUtils::multiply(input, -0.5);
     DataUtils::svd(input, result, evals);
@@ -64,7 +64,7 @@ vector<double> AbstractMDS::pivotmds(vector<vector<double> >& input, vector<vect
     return evals;
 }
 
-FastMDS::FastMDS(vector<vector<double> >& distances, int dim, int maxiter)
+FastMDS::FastMDS(std::vector<std::vector<double> >& distances, int dim, int maxiter)
 : AbstractMDS(distances.size(), dim)
 {
     int k = distances.size();
@@ -78,12 +78,12 @@ FastMDS::~FastMDS()
 {
 }
 
-vector<vector<double> > FastMDS::classicalScaling(vector<vector<double> >& d, int dim, int maxiter)
+std::vector<std::vector<double> > FastMDS::classicalScaling(std::vector<std::vector<double> >& d, int dim, int maxiter)
 {
-    vector<vector<double> > dist = d; // deep copy
+    std::vector<std::vector<double> > dist = d; // deep copy
     int n = d[0].size();
     /*
-    vector<vector<double> > dist(d.size());
+    std::vector<std::vector<double> > dist(d.size());
     for(int i=0; i<d.size(); i++) dist[i].resize(n);
     for (int i = 0; i < d.size(); i++) {
         for (int j = 0; j < d[0].size(); j++) {
@@ -91,20 +91,20 @@ vector<vector<double> > FastMDS::classicalScaling(vector<vector<double> >& d, in
         }
     }*/
     
-    vector<vector<double> > result(dim);
+    std::vector<std::vector<double> > result(dim);
     for (int i=0; i<dim; i++) result[i].resize(n);
     DataUtils::randomize(result);
     
-    vector<double> lambds = lmds(dist, result, maxiter);
+    std::vector<double> lambds = lmds(dist, result, maxiter);
     return result;
 }
 
-vector<double> FastMDS::lmds(vector<vector<double> >& P, vector<vector<double> >& result, int maxiter)
+std::vector<double> FastMDS::lmds(std::vector<std::vector<double> >& P, std::vector<std::vector<double> >& result, int maxiter)
 {
     
-    vector<vector<double> > distances = P; // deep copy
+    std::vector<std::vector<double> > distances = P; // deep copy
     /*
-    vector<vector<double> > distances(P.size());
+    std::vector<std::vector<double> > distances(P.size());
     for (int i=0; i<P.size(); i++) distances[i].resize(P[0].size());
     
     for (int i = 0; i < distances.size(); i++) {
@@ -118,22 +118,22 @@ vector<double> FastMDS::lmds(vector<vector<double> >& P, vector<vector<double> >
     int n = distances[0].size();
     int d = result.size();
     
-    vector<double> mean(n);
+    std::vector<double> mean(n);
     for (int i = 0; i < n; i++)
         for (int j = 0; j < k; j++) mean[i] += distances[j][i];
     for (int i = 0; i < n; i++)  mean[i] /= k;
     
-    vector<double> lambda(d);
-    vector<vector<double> > temp(d);
+    std::vector<double> lambda(d);
+    std::vector<std::vector<double> > temp(d);
     for (int i=0; i<d; i++) temp[i].resize(k);
     DataUtils::randomize(temp);
     
-    vector<vector<double> > K = DataUtils::landmarkMatrix(P);
+    std::vector<std::vector<double> > K = DataUtils::landmarkMatrix(P);
     //DataUtils::squareEntries(K);
     DataUtils::doubleCenter(K);
     DataUtils::multiply(K, -0.5);
     
-    vector<vector<double> > E = K;
+    std::vector<std::vector<double> > E = K;
     
     DataUtils::eigen(K, temp, lambda, maxiter);
     for (int i = 0; i < temp.size(); i++) {
@@ -152,48 +152,48 @@ vector<double> FastMDS::lmds(vector<vector<double> >& P, vector<vector<double> >
 }
 
 /*
-vector<vector<double> > classicalScaling(vector<vector<double> > d, int dim)
+std::vector<std::vector<double> > classicalScaling(std::vector<std::vector<double> > d, int dim)
 {
     int n = d[0].size();
-    vector<vector<double> > dist = new double[d.size()][d[0].size()];
+    std::vector<std::vector<double> > dist = new double[d.size()][d[0].size()];
     for (int i = 0; i < d.size(); i++) {
         for (int j = 0; j < d[0].size(); j++) {
             dist[i][j] = d[i][j];
         }
     }
-    vector<vector<double> > result = new double[dim][n];
+    std::vector<std::vector<double> > result = new double[dim][n];
     DataUtils::randomize(result);
     ClassicalScaling.lmds(dist, result);
     return result;
 }
 
-vector<vector<double> > classicalScaling(vector<vector<double> > d)
+std::vector<std::vector<double> > classicalScaling(std::vector<std::vector<double> > d)
 {
     return classicalScaling(d, 2);
 }
 
-vector<vector<double> > stressMinimization(vector<vector<double> > d, vector<vector<double> > w)
+std::vector<std::vector<double> > stressMinimization(std::vector<std::vector<double> > d, std::vector<std::vector<double> > w)
 {
     return stressMinimization(d, w, 2);
 }
 
-vector<vector<double> > stressMinimization(vector<vector<double> > d, int dim)
+std::vector<std::vector<double> > stressMinimization(std::vector<std::vector<double> > d, int dim)
 {
-    vector<vector<double> > x = classicalScaling(d, dim);
+    std::vector<std::vector<double> > x = classicalScaling(d, dim);
     StressMinimization sm = new StressMinimization(d, x);
     sm.iterate(0, 0, 5);
     return x;
 }
 
-vector<vector<double> > stressMinimization(vector<vector<double> > d, vector<vector<double> > w, int dim)
+std::vector<std::vector<double> > stressMinimization(std::vector<std::vector<double> > d, std::vector<std::vector<double> > w, int dim)
 {
-    vector<vector<double> > x = classicalScaling(d, dim);
+    std::vector<std::vector<double> > x = classicalScaling(d, dim);
     StressMinimization sm = new StressMinimization(d, x, w);
     sm.iterate(0, 0, 3);
     return x;
 }
 
-vector<vector<double> > stressMinimization(vector<vector<double> > d)
+std::vector<std::vector<double> > stressMinimization(std::vector<std::vector<double> > d)
 {
     return stressMinimization(d, 2);
 }

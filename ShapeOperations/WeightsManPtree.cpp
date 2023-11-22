@@ -69,7 +69,6 @@ void WeightsManPtree::ReadPtree(const boost::property_tree::ptree& pt,
 								const wxString& proj_path)
 {
 	using boost::property_tree::ptree;
-	using namespace std;
 	weights_list.clear();
 	try {
 		try {
@@ -308,7 +307,6 @@ void WeightsManPtree::WritePtree(boost::property_tree::ptree& pt,
 								 const wxString& proj_path)
 {
 	using boost::property_tree::ptree;
-	using namespace std;
 	try {
 		ptree& sub = pt.put("weights_entries", "");
 

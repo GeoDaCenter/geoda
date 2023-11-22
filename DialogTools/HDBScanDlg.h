@@ -1380,16 +1380,16 @@ class HDBScanDlg : public AbstractClusterDlg, public HighlightStateObserver
     int      m_cluster_selection_method;
     bool     m_allow_single_cluster;
 
-    vector<double> core_dist;
-    vector<double> probabilities;
-    vector<double> outliers;
-    vector<int> hdbscan_clusters;
-    vector<vector<int> > cluster_ids;
+    std::vector<double> core_dist;
+    std::vector<double> probabilities;
+    std::vector<double> outliers;
+    std::vector<int> hdbscan_clusters;
+    std::vector<std::vector<int> > cluster_ids;
     
     int max_n_clusters;
 
     double cutoffDistance;
-    vector<wxInt64> clusters;
+    std::vector<wxInt64> clusters;
 
     wxButton *saveButton;
     wxChoice* combo_n;
@@ -1429,10 +1429,10 @@ public:
     
     void UpdateClusterChoice(int n, std::vector<wxInt64>& clusters);
     void Highlight(int id);
-    void Highlight(vector<int>& ids);
+    void Highlight(std::vector<int>& ids);
 
 protected:
-    virtual bool Run(vector<wxInt64>& clusters);
+    virtual bool Run(std::vector<wxInt64>& clusters);
     virtual bool CheckAllInputs();
 
     DECLARE_EVENT_TABLE()

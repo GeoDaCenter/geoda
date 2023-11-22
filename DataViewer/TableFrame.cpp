@@ -226,7 +226,7 @@ void TableFrame::DisplayPopupMenu( wxGridEvent& ev )
 	popup_col = ev.GetCol();
 	
 	// Set Group item
-	vector<int> sel_cols;
+    std::vector<int> sel_cols;
 	table_base->GetSelectedCols(sel_cols);
 	bool any_sel_time_variant = false;
 	for (int i=0; i<sel_cols.size(); i++) {
@@ -373,7 +373,6 @@ void TableFrame::OnColMoveEvent( wxGridEvent& ev )
 void TableFrame::OnLabelLeftClickEvent( wxGridEvent& ev )
 {
     wxLogMessage("In TableFrame::OnLabelLeftClickEvent()");
-	using namespace std;
 	int row = ev.GetRow();
 	int col = ev.GetCol();
 	TableInterface* table_int = project->GetTableInt();
@@ -437,8 +436,8 @@ void TableFrame::OnLabelLeftClickEvent( wxGridEvent& ev )
 			// shift down.  For columns, we need to work with displayed
 			// order.  So, need to get a translation from displayed col to col
 			// and col to displayed col.
-			vector<int> col_to_dispc(cols);
-			vector<int> dispc_to_col(cols);
+		    std::vector<int> col_to_dispc(cols);
+		    std::vector<int> dispc_to_col(cols);
 			for (int i=0; i<cols; i++) col_to_dispc[i] = grid->GetColPos(i);
 			for (int i=0; i<cols; i++) dispc_to_col[i] = grid->GetColAt(i);
 			bool sel_found = false;
@@ -574,11 +573,10 @@ public:
 
 void TableFrame::OnGroupVariables( wxCommandEvent& event)
 {
-	using namespace std;
 	TableInterface* ti = table_base->GetTableInt();
-    vector<int> sel_cols;
+    std::vector<int> sel_cols;
 	table_base->GetSelectedCols(sel_cols);
-	vector<cid_to_pos_pair> cid_to_disp(sel_cols.size());
+    std::vector<cid_to_pos_pair> cid_to_disp(sel_cols.size());
 	for (int i=0; i<sel_cols.size(); i++) {
 		cid_to_pos_pair p;
 		p.cid = sel_cols[i];
@@ -590,7 +588,7 @@ void TableFrame::OnGroupVariables( wxCommandEvent& event)
 		sel_cols[i] = cid_to_disp[i].cid;
 	}
 	
-	vector<wxString> names(sel_cols.size());
+    std::vector<wxString> names(sel_cols.size());
 	for (int i=0; i<sel_cols.size(); ++i) names[i]=ti->GetColName(sel_cols[i]);
 	wxString grp_nm = ti->SuggestGroupName(names);
     if (sel_cols.size() > 0) {

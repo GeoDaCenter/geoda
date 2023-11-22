@@ -46,14 +46,13 @@
 #include "../GdaJson.h"
 #include "DatasourceDlg.h"
 
-using namespace std;
-
 void DatasourceDlg::Init()
 {
     m_ds_menu = NULL;
 	ds_file_path = wxFileName("");
     
     // create file type dataset pop-up menu dynamically
+    ds_names.Add("GeoParquet (*.parquet)|*.parquet");
 	ds_names.Add("ESRI Shapefile (*.shp)|*.shp");
     ds_names.Add("ESRI File Geodatabase (*.gdb)|*.gdb");
     ds_names.Add("GeoJSON (*.geojson;*.json)|*.geojson;*.json");
@@ -116,13 +115,13 @@ void DatasourceDlg::CreateControls()
     m_database_type->SetSelection(0);
     
     // for autocompletion of input boxes in Database Tab
-	vector<wxString> host_cands =
+    std::vector<wxString> host_cands =
 		OGRDataAdapter::GetInstance().GetHistory("db_host");
-	vector<wxString> port_cands =
+    std::vector<wxString> port_cands =
         OGRDataAdapter::GetInstance().GetHistory("db_port");
-	vector<wxString> uname_cands =
+    std::vector<wxString> uname_cands =
         OGRDataAdapter::GetInstance().GetHistory("db_user");
-	vector<wxString> name_cands =
+    std::vector<wxString> name_cands =
         OGRDataAdapter::GetInstance().GetHistory("db_name");
 
 	m_database_host->SetAutoList(host_cands);
@@ -131,14 +130,14 @@ void DatasourceDlg::CreateControls()
 	m_database_name->SetAutoList(name_cands);
     
     // get a latest input DB information
-    vector<wxString> db_infos = OGRDataAdapter::GetInstance().GetHistory("db_info");
+    std::vector<wxString> db_infos = OGRDataAdapter::GetInstance().GetHistory("db_info");
     if (db_infos.size() > 0) {
         wxString db_info = db_infos[0];
         json_spirit::Value v;
         // try to parse as JSON
         try {
             if (!json_spirit::read(db_info.ToStdString(), v)) {
-                throw runtime_error("Could not parse title as JSON");
+                throw std::runtime_error("Could not parse title as JSON");
             }
             json_spirit::Value json_db_type;
             if (GdaJson::findValue(v, json_db_type, "db_type")) {
@@ -215,7 +214,7 @@ void DatasourceDlg::PromptDSLayers(IDataSource* datasource)
 		throw GdaException(msg.mb_str());
 	}
     
-    vector<wxString> table_names;
+    std::vector<wxString> table_names;
     ds_type = OGRDataAdapter::GetInstance().GetLayerNames(ds_name, ds_type, table_names);
     
     datasource->UpdateDataSource(ds_type);

@@ -517,7 +517,7 @@ wxString UniqueValuesSettingDlg::PrintResult(const std::vector<JoinCountRatio>& 
         t.add(std::to_string(jcr[i].totalNeighbors));
         t.add(std::to_string(jcr[i].totalJoinCount));
         
-        stringstream ss;
+        std::stringstream ss;
         ss.str("");
         ss << jcr[i].ratio;
         t.add(ss.str());
@@ -531,13 +531,13 @@ wxString UniqueValuesSettingDlg::PrintResult(const std::vector<JoinCountRatio>& 
     t.add(std::to_string(all.totalNeighbors));
     t.add(std::to_string(all.totalJoinCount));
     
-    stringstream ss;
+    std::stringstream ss;
     ss.str("");
     ss << all.ratio;
     t.add(ss.str());
     t.endOfRow();
     
-    stringstream ss1;
+    std::stringstream ss1;
     ss1 << t;
     txt << ss1.str();
     txt << "\n";
@@ -811,7 +811,7 @@ wxString ValidationSettingDlg::PrintResult(const std::vector<JoinCountRatio>& jc
         t.add(GenUtils::DblToStr(frag.simpson, 4).ToStdString());
         t.add(GenUtils::DblToStr(frag.std_simpson, 4).ToStdString());
         t.endOfRow();
-        stringstream ss1;
+        std::stringstream ss1;
         ss1 << t;
         txt << ss1.str();
         txt << "\n";
@@ -848,7 +848,7 @@ wxString ValidationSettingDlg::PrintResult(const std::vector<JoinCountRatio>& jc
             t.add(GenUtils::DblToStr(frags[i].mean_cluster_size, 4).ToStdString());
             t.endOfRow();
         }
-        stringstream ss1;
+        std::stringstream ss1;
         ss1 << t;
         txt << ss1.str();
         txt << "\n";
@@ -881,7 +881,7 @@ wxString ValidationSettingDlg::PrintResult(const std::vector<JoinCountRatio>& jc
         t.add(GenUtils::DblToStr(all.ratio, 4).ToStdString());
         t.endOfRow();
     
-        stringstream ss1;
+        std::stringstream ss1;
         ss1 << t;
         txt << ss1.str();
         txt << "\n";
@@ -895,7 +895,7 @@ wxString ValidationSettingDlg::PrintResult(const std::vector<JoinCountRatio>& jc
         t.add("Cluster");
         t.add("Area");
         t.add("Perimeter");
-        t.add("IPC");
+        t.add("IPQ");
         t.endOfRow();
         for (int i = 0; i < (int)comps.size(); ++i) {
             t.add(jcr[i].cluster.c_str());
@@ -904,7 +904,7 @@ wxString ValidationSettingDlg::PrintResult(const std::vector<JoinCountRatio>& jc
             t.add(std::to_string(comps[i].isoperimeter_quotient));
             t.endOfRow();
         }
-        stringstream ss1;
+        std::stringstream ss1;
         ss1 << t;
         txt << ss1.str();
         txt << "\n";
@@ -925,7 +925,7 @@ wxString ValidationSettingDlg::PrintResult(const std::vector<JoinCountRatio>& jc
             t.add(std::to_string(diams[i].ratio));
             t.endOfRow();
         }
-        stringstream ss1;
+        std::stringstream ss1;
         ss1 << t;
         txt << ss1.str();
         txt << "\n";

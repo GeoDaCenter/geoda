@@ -65,7 +65,6 @@ void ExportCsvDlg::CreateControls()
 void ExportCsvDlg::OnOkClick( wxCommandEvent& event )
 {
     wxLogMessage("In ExportCsvDlg::OnOkClick()");
-	using namespace std;
 	if (!all_init) return;
 	
 	bool inc_var_names = (include_var_names_cb->GetValue() == 1);
@@ -120,14 +119,14 @@ void ExportCsvDlg::OnOkClick( wxCommandEvent& event )
 		return;
 	}
 		
-	vector<int> col_map;
+    std::vector<int> col_map;
 	table_int->FillColIdMap(col_map);
 	
 	int tot_cols = 0;
 	
 	int rows = table_int->GetNumberRows();
 	int cols = table_int->GetNumberCols();
-	vector<string> v;
+    std::vector<std::string> v;
 	
 	
 	// This will export with the group name and time period rather
@@ -138,7 +137,7 @@ void ExportCsvDlg::OnOkClick( wxCommandEvent& event )
 			for (int t=0; t<table_int->GetColTimeSteps(cid); t++) {
 				if (table_int->GetColType(cid, t)
 					== GdaConst::placeholder_type) continue;
-				ostringstream ss;
+			    std::ostringstream ss;
 				ss << table_int->GetColName(cid).ToStdString();
 				if (table_int->GetColTimeSteps(cid) > 1) {
 					ss << "_" << project->GetTableInt()->GetTimeString(t);
@@ -147,7 +146,7 @@ void ExportCsvDlg::OnOkClick( wxCommandEvent& event )
 				++tot_cols;
 			}
 		}
-		string record;
+	    std::string record;
 		Gda::StringsToCsvRecord(v, record);
 		out_file << record << "\n";
 	}
@@ -162,7 +161,7 @@ void ExportCsvDlg::OnOkClick( wxCommandEvent& event )
 				v[v_ind++] = table_int->GetCellString(row,col,t).ToStdString();
 			}
 		}
-		string record;
+	    std::string record;
 		Gda::StringsToCsvRecord(v, record);
 		out_file << record << "\n";
 	}

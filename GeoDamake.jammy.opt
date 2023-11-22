@@ -18,13 +18,13 @@ LIBS = $(WXLIBS) \
         $(GEODA_HOME)/temp/boost/stage/lib/libboost_thread.a \
         $(GEODA_HOME)/temp/boost/stage/lib/libboost_system.a \
         $(GEODA_HOME)/libraries/lib/libjson_spirit.a \
-        -L$(GEODA_HOME)/libraries/lib -lgdal -lcurl -L/usr/lib/x86_64-linux-gnu -lz -lwebkit2gtk-4.0 -lEGL
+        -L$(GEODA_HOME)/libraries/lib -lgdal -lcurl -L/usr/lib/x86_64-linux-gnu -lz -lwebkit2gtk-4.0 -lEGL -ljavascriptcoregtk-4.0
 # Note: Library -lrtmp causes a missing library problem at runtime on
 #       Ubuntu 14.10 and later.
 
-BOOST_HEADER = -I$(GEODA_HOME)/libraries/include/boost 
+BOOST_HEADER = -I$(GEODA_HOME)/temp/boost 
 
-EIGEN_HEADER = -I$(GEODA_HOME)/libraries/include/eigen3 -I$(GEODA_HOME)/temp/spectra/include
+EIGEN_HEADER = -I$(GEODA_HOME)/temp/eigen3 -I$(GEODA_HOME)/temp/spectra/include
 
 GDAL_HEADER = -I/usr/include/gdal -D__PROJ6__
 

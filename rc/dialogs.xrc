@@ -9387,7 +9387,7 @@
           <orient>wxVERTICAL</orient>
           <object class="sizeritem">
               <object class="wxPanel" name="">
-                  <size>660,440</size>
+                  <size>660,480</size>
                   <object class="wxBoxSizer">
                       <orient>wxVERTICAL</orient>
                       <object class="sizeritem">
@@ -9423,6 +9423,19 @@
                       <object class="sizeritem">
                           <object class="wxFlexGridSizer">
                               <object class="sizeritem">
+                                  <object class="wxStaticText" name="IDC_STATIC_STADIA">
+                                      <label>Stadia Maps Key</label>
+                                  </object>
+                              </object>
+                              <object class="sizeritem">
+                                  <object class="wxTextCtrl" name="IDC_STADIA_KEY">
+                                      <size>130,-1d</size>
+                                  </object>
+                              </object>
+                              <object class="sizeritem">
+                                  <object class="wxStaticText"/>
+                              </object>
+                              <object class="sizeritem">
                                   <object class="wxStaticText" name="ID_STATICTEXT">
                                       <label>HERE App ID</label>
                                   </object>
@@ -9452,7 +9465,7 @@
                                   <object class="wxStaticText"/>
                               </object>
                               <cols>3</cols>
-                              <rows>2</rows>
+                              <rows>3</rows>
                               <vgap>2</vgap>
                               <hgap>10</hgap>
                           </object>

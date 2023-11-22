@@ -13,27 +13,25 @@
 
 #include "MapLayer.hpp"
 
-using namespace std;
-
 class MapCanvas;
 
 // Highlight association dialog
 class SetAssociationDlg : public wxDialog
 {
     static wxString LAYER_LIST_ID;
-    vector<wxChoice*> layer_list;
-    vector<wxChoice*> field_list;
-    vector<wxChoice*> my_field_list;
-    vector<wxCheckBox*> conn_list;
+    std::vector<wxChoice*> layer_list;
+    std::vector<wxChoice*> field_list;
+    std::vector<wxChoice*> my_field_list;
+    std::vector<wxCheckBox*> conn_list;
     AssociateLayerInt* current_ml;
-    vector<AssociateLayerInt*> all_layers;
+    std::vector<AssociateLayerInt*> all_layers;
     
     int GetSelectRow(wxCommandEvent& e);
     bool CheckLayerValid(int row, wxString layer_name);
 public:
     SetAssociationDlg(wxWindow* parent,
                       AssociateLayerInt* ml,
-                      vector<AssociateLayerInt*>& _all_layers,
+                      std::vector<AssociateLayerInt*>& _all_layers,
                       const wxString& title = _("Set Association Dialog"),
                      const wxPoint& pos = wxDefaultPosition,
                      const wxSize& size = wxSize(480,300));
@@ -69,11 +67,11 @@ class MapTree: public wxWindow
     int opt_menu_cat; // last category added to Legend menu
     
     wxString current_map_title;
-    vector<wxString> map_titles;
+    std::vector<wxString> map_titles;
     
     MapCanvas* canvas;
-    vector<BackgroundMapLayer*> bg_maps;
-    vector<BackgroundMapLayer*> fg_maps;
+    std::vector<BackgroundMapLayer*> bg_maps;
+    std::vector<BackgroundMapLayer*> fg_maps;
     
     bool recreate_labels;
     std::vector<int> new_order;

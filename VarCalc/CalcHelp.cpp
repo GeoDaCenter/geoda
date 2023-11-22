@@ -28,7 +28,6 @@ std::map<wxString, CalcHelpEntry> CalcHelp::dict;
 
 void CalcHelp::init()
 {
-	using namespace std;
 	typedef CalcHelpEntry::StrPair CSP;
 	typedef CalcHelpEntry::ArgPair ARG;
 	ARG bool_arg("boolean");

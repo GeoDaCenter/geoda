@@ -269,10 +269,10 @@ public:
     
     void UpdateClusterChoice(int n, std::vector<wxInt64>& clusters);
     void Highlight(int id);
-    void Highlight(vector<int>& ids);
+    void Highlight(std::vector<int>& ids);
     
 protected:
-    virtual bool Run(vector<wxInt64>& clusters);
+    virtual bool Run(std::vector<wxInt64>& clusters);
     virtual bool CheckAllInputs();
 
     GdaNode* htree;
@@ -281,7 +281,7 @@ protected:
     char method;
 
     double cutoffDistance;
-    vector<wxInt64> clusters;
+    std::vector<wxInt64> clusters;
     bool show_centroids;
     bool show_weights;
     

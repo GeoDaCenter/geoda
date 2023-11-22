@@ -21,37 +21,39 @@
 #include "GeneralWxUtils.h"
 #include "GenUtils.h"
 #include <wx/mstream.h>
+#include <wx/tokenzr.h>
 
-// 10 local + 29 http
-const char* GdaConst::sample_names[] = {
+const std::vector<wxString> GdaConst::sample_names({
+    "Chicago Community Areas",
+    "Chicago Carjackings",
+    "Chicago SDOH",
+    "Ceara Zika",
+    "Oaxaca Development",
+    "Italy Community Banks",
+    "Spirals",
     "Moral Statistics of France (1833)",
     "US County Homicides",
     "House Prices Baltimore",
     "House Prices Boston",
-    "Columbus Crime",
-    "NC SIDS",
-    "Nepal Aid",
-    "NYC Data",
-    "Malaria Colombia Cities",
-    "Phoenix ACS",
-    "San Francisco Crime"
-};
+    "NYC Data"
+});
 
-const char* GdaConst::sample_layer_names[] = {
+const std::vector<wxString> GdaConst::sample_layer_names({
+    "Chicago Community Areas",
+    "Chicago Carjackings",
+    "Chicago SDOH",
+    "Ceara Zika",
+    "Oaxaca Development",
+    "Italy Community Banks",
+    "Spirals",
     "Guerry",
     "US Homicides",
     "Baltimore Home Sales",
     "Boston Home Sales",
-    "Columbus Crime",
-    "SIDS NC",
-    "Nepal Aid",
-    "NYC Data",
-    "Colombia Malaria",
-    "Phoenix ACS",
-    "SanFran Crime"
-};
+    "NYC Data"
+});
 
-const char* GdaConst::sample_datasources[] = {
+const std::vector<wxString> GdaConst::sample_datasources({
     "samples.sqlite",
 	"samples.sqlite",
 	"samples.sqlite",
@@ -62,22 +64,24 @@ const char* GdaConst::sample_datasources[] = {
 	"samples.sqlite",
 	"samples.sqlite",
 	"samples.sqlite",
+    "samples.sqlite",
 	"samples.sqlite"
-};
+});
 
-const char* GdaConst::sample_meta_urls[] = {
+const std::vector<wxString> GdaConst::sample_meta_urls({
+    "https://geodacenter.github.io/data-and-lab/Chi-CCA/",
+    "https://geodacenter.github.io/data-and-lab/Chi-Carjackings/",
+    "https://geodacenter.github.io/data-and-lab/Chi-SDOH/",
+    "https://geodacenter.github.io/data-and-lab/Ceara-Zika/",
+    "https://geodacenter.github.io/data-and-lab/Oaxaca-Development/",
+    "https://geodacenter.github.io/data-and-lab/Italy-Community-Banks/",
+    "https://geodacenter.github.io/data-and-lab/Spirals/",
     "https://geodacenter.github.io/data-and-lab/Guerry/",
     "https://geodacenter.github.io/data-and-lab/ncovr/",
     "https://geodacenter.github.io/data-and-lab/baltim/",
     "https://geodacenter.github.io/data-and-lab/boston-housing/",
-    "https://geodacenter.github.io/data-and-lab/columbus/",
-    "https://geodacenter.github.io/data-and-lab/sids2/",
-    "https://geodacenter.github.io/data-and-lab/nepal/",
-    "https://geodacenter.github.io/data-and-lab/nyc/",
-    "https://geodacenter.github.io/data-and-lab/colomb_malaria/",
-    "https://geodacenter.github.io/data-and-lab/phx/",
-    "https://geodacenter.github.io/data-and-lab/SFcrimes_vars/"
-};
+    "https://geodacenter.github.io/data-and-lab/nyc/"
+});
 
 const char* GdaConst::raw_zoom_in[] = {
 
@@ -341,6 +345,8 @@ bool GdaConst::enable_high_dpi_support = true;
 bool GdaConst::enable_high_dpi_support = false;
 #endif
 
+const char GdaConst::gda_config_true[] = "1";
+const char GdaConst::gda_config_false[] = "0";
 bool GdaConst::show_csv_configure_in_merge = true;
 bool GdaConst::show_recent_sample_connect_ds_dialog = true;
 bool GdaConst::use_cross_hatching = false;
@@ -359,8 +365,18 @@ int GdaConst::gda_ogr_csv_header = 1;
 wxString GdaConst::gda_ogr_csv_x_name = "";
 wxString GdaConst::gda_ogr_csv_y_name = "";
 wxString GdaConst::gda_display_datetime_format = "";
-std::vector<wxString> GdaConst::gda_datetime_formats(10);
-wxString GdaConst::gda_datetime_formats_str =  "%Y-%m-%d %H:%M:%S,%Y/%m/%d %H:%M:%S,%d.%m.%Y %H:%M:%S,%m/%d/%Y %H:%M:%S,%Y-%m-%d,%m/%d/%Y,%Y/%m/%d,%H:%M:%S,%H:%M,%Y/%m/%d %H:%M %p";
+std::vector<wxString> GdaConst::gda_datetime_formats;
+wxString GdaConst::gda_datetime_formats_str = "%Y-%m-%d %H:%M:%S,"
+    "%Y/%m/%d %H:%M:%S,"
+    "%d.%m.%Y %H:%M:%S,"
+    "%m/%d/%Y %H:%M:%S,"
+    "%Y-%m-%d,"
+    "%m/%d/%Y,"
+    "%Y/%m/%d,"
+    "%H:%M:%S,"
+    "%H:%M,"
+    "%Y/%m/%d %H:%M %p,"
+    "%m/%d/%Y %I:%M:%S %p";
 wxString GdaConst::gda_basemap_sources =
 "Carto.Light,https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}@2x.png"
 "\nCarto.Dark,https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}@2x.png"
@@ -375,12 +391,16 @@ wxString GdaConst::gda_basemap_sources =
 "\nHERE.Hybrid,http://{s}.aerial.maps.api.here.com/maptile/2.1/maptile/newest/hybrid.day/{z}/{x}/{y}/256/png8?app_id=HERE_APP_ID&app_code=HERE_APP_CODE"
 "\nHERE.Satellite,http://{s}.aerial.maps.api.here.com/maptile/2.1/maptile/newest/satellite.day/{z}/{x}/{y}/256/png8?app_id=HERE_APP_ID&app_code=HERE_APP_CODE"
 "\nOpenStreetMap.Mapnik,https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-"\nStamen.Toner,https://stamen-tiles-{s}.a.ssl.fastly.net/toner/{z}/{x}/{y}@2x.png"
-"\nStamen.TonerLite,https://stamen-tiles-{s}.a.ssl.fastly.net/toner-lite/{z}/{x}/{y}@2x.png"
-"\nStamen.Watercolor,https://stamen-tiles-{s}.a.ssl.fastly.net/watercolor/{z}/{x}/{y}.jpg"
+"\nStamen.Toner,https://tiles.stadiamaps.com/tiles/stamen_toner/{z}/{x}/{y}@2x.png?api_key=STADIA_KEY"
+"\nStamen.TonerLite,https://tiles.stadiamaps.com/tiles/stamen_toner_lite/{z}/{x}/{y}@2x.png?api_key=STADIA_KEY"
+"\nStamen.Watercolor,https://tiles.stadiamaps.com/tiles/stamen_watercolor/{z}/{x}/{y}.jpg?api_key=STADIA_KEY"
 "\nOther (China).GaoDe,http://webst{s}.is.autonavi.com/appmaptile?style=8&x={x}&y={y}&z={z}"
 "\nOther (China).GaoDe(Satellite),http://webst{s}.is.autonavi.com/appmaptile?style=6&x={x}&y={y}&z={z}"
 ;
+const wxString GdaConst::gda_basemap_osm_useragent = "GeoDa 1.14 contact spatial@uchiago.edu";
+const wxString GdaConst::gda_basemap_win_useragent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36";
+const wxString GdaConst::gda_basemap_mac_useragent = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36";
+const wxString GdaConst::gda_basemap_linux_useragent = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36";
 
 const wxString GdaConst::gda_lbl_not_sig = _("Not Significant");
 const wxString GdaConst::gda_lbl_undefined = _("Undefined");
@@ -410,9 +430,19 @@ const wxString GdaConst::gda_lbl_n1sigma = "[-1Std, Mean)";
 const wxString GdaConst::gda_lbl_1sigma = "(Mean, 1Std]";
 const wxString GdaConst::gda_lbl_1sigma_2sigma = "(1Std, 2Std]";
 const wxString GdaConst::gda_lbl_2sigma = "> 2Std";
+const wxString GdaConst::gda_projection_UNIT = "UNIT";
+const wxString GdaConst::gda_projection_metre = "metre";
+const wxString GdaConst::gda_projection_meter = "meter";
 
 const wxPen* GdaConst::default_myshape_pen=0;
 const wxBrush* GdaConst::default_myshape_brush=0;
+
+const wxString GdaConst::gda_lang_english = "English";
+const wxString GdaConst::gda_lang_chinese = "Chinese (Simplified)";
+const wxString GdaConst::gda_lang_french = "French";
+const wxString GdaConst::gda_lang_portuguese = "Portuguese";
+const wxString GdaConst::gda_lang_russian = "Russian";
+const wxString GdaConst::gda_lang_spanish = "Spanish";
 
 //background color -- this is light gray
 const wxColour GdaConst::backColor(192, 192, 192);
@@ -438,7 +468,12 @@ const int GdaConst::map_default_legend_width = 150;
 const wxColour GdaConst::map_default_fill_colour(49, 163, 84);
 const wxColour GdaConst::map_default_outline_colour(0, 0, 0);
 const wxColour GdaConst::map_default_highlight_colour(255, 255, 0); // yellow
-wxColour GdaConst::map_undefined_colour(70, 70, 70); // dark gray
+const wxColour GdaConst::map_dark_gray(70, 70, 70);
+const wxColour GdaConst::map_white(255, 255, 255);
+wxColour GdaConst::map_undefined_colour(GdaConst::map_dark_gray);
+const wxString GdaConst::map_undefined_label(_("undefined"));
+const wxString GdaConst::map_unmatched_label(_("unmatched"));
+wxString GdaConst::map_undefined_category(GdaConst::map_undefined_label);
 
 // Connectivity Map
 const wxSize GdaConst::conn_map_default_size(480, 350);
@@ -585,16 +620,13 @@ void GdaConst::init()
                              wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL, false,
                              wxEmptyString, wxFONTENCODING_DEFAULT);
 
-    GdaConst::gda_datetime_formats[0] = "%Y-%m-%d %H:%M:%S";
-    GdaConst::gda_datetime_formats[1] = "%Y/%m/%d %H:%M:%S";
-    GdaConst::gda_datetime_formats[2] = "%d.%m.%Y %H:%M:%S";
-    GdaConst::gda_datetime_formats[3] = "%m/%d/%Y %H:%M:%S";
-    GdaConst::gda_datetime_formats[4] = "%Y-%m-%d";
-    GdaConst::gda_datetime_formats[5] = "%m/%d/%Y";
-    GdaConst::gda_datetime_formats[6] = "%Y/%m/%d";
-    GdaConst::gda_datetime_formats[7] = "%H:%M:%S";
-    GdaConst::gda_datetime_formats[8] = "%H:%M";
-    GdaConst::gda_datetime_formats[9] = "%Y/%m/%d %H:%M %p";
+    wxStringTokenizer tokenizer(GdaConst::gda_datetime_formats_str, ",");
+    while (tokenizer.HasMoreTokens())
+    {
+        wxString token = tokenizer.GetNextToken();
+        // process token here
+        GdaConst::gda_datetime_formats.push_back(token);
+    }
     
 	// GdaShape resources
 	default_myshape_pen = wxBLACK_PEN;
@@ -741,6 +773,17 @@ void GdaConst::init()
 	datasrc_field_illegal_regex[ds_dbf] = db_field_name_illegal_regex;
 	datasrc_field_casesensitive[ds_dbf] = false;
 	
+    datasrc_str_to_type["Parquet"] = ds_parquet;
+    datasrc_type_to_prefix[ds_parquet] = "";
+    datasrc_type_to_fullname[ds_parquet] = "Parquet";
+    // share the same with DBF
+    datasrc_table_lens[ds_parquet] = 128;
+    datasrc_field_lens[ds_parquet] = 10;
+    datasrc_field_warning[ds_parquet] = default_field_warning;
+    datasrc_field_regex[ds_parquet] = db_field_name_regex;
+    datasrc_field_illegal_regex[ds_parquet] = db_field_name_illegal_regex;
+    datasrc_field_casesensitive[ds_parquet] = false;
+    
 	datasrc_str_to_type["ESRI Shapefile"] = ds_shapefile;
 	datasrc_type_to_prefix[ds_shapefile] = "";
 	datasrc_type_to_fullname[ds_shapefile] = "ESRI Shapefile";

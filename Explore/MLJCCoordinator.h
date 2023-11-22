@@ -127,11 +127,11 @@ public:
 	virtual int numMustCloseToRemove(boost::uuids::uuid id) const;
 	virtual void closeObserver(boost::uuids::uuid id);
 	
-    vector<vector<double*> > data_vecs;
-    vector<vector<bool> > undef_tms;
-    vector<int*> zz_vecs;
-    vector<double*> local_jc_vecs;
-    vector<double*> sig_local_jc_vecs;
+    std::vector<std::vector<double*> > data_vecs;
+    std::vector<std::vector<bool> > undef_tms;
+    std::vector<int*> zz_vecs;
+    std::vector<double*> local_jc_vecs;
+    std::vector<double*> sig_local_jc_vecs;
     std::vector<std::vector<wxInt64> > num_neighbors;
 
     std::vector<GalWeight*> Gal_vecs;

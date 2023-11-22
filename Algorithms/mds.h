@@ -12,25 +12,25 @@ public:
     AbstractMDS(int n, int dim);
     ~AbstractMDS();
     
-    virtual void fullmds(vector<vector<double> >& d, int dim, int maxiter=100);
-    virtual vector<double> pivotmds(vector<vector<double> >& input, vector<vector<double> >& result);
-    virtual vector<vector<double> >& GetResult();
+    virtual void fullmds(std::vector<std::vector<double> >& d, int dim, int maxiter=100);
+    virtual std::vector<double> pivotmds(std::vector<std::vector<double> >& input, std::vector<std::vector<double> >& result);
+    virtual std::vector<std::vector<double> >& GetResult();
     
 protected:
     int n;
     int dim;
-    vector<vector<double> > result;
+    std::vector<std::vector<double> > result;
 };
 
 class FastMDS : public AbstractMDS {
 public:
-    FastMDS(vector<vector<double> >& distances, int dim, int maxiter);
+    FastMDS(std::vector<std::vector<double> >& distances, int dim, int maxiter);
     virtual ~FastMDS();
    
     
 protected:
-    vector<vector<double> > classicalScaling(vector<vector<double> >& d, int dim, int maxiter);
-    vector<double> lmds(vector<vector<double> >& P, vector<vector<double> >& result, int maxiter);
+    std::vector<std::vector<double> > classicalScaling(std::vector<std::vector<double> >& d, int dim, int maxiter);
+    std::vector<double> lmds(std::vector<std::vector<double> >& P, std::vector<std::vector<double> >& result, int maxiter);
 };
 
 /*

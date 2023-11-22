@@ -5,7 +5,7 @@ AppPublisherURL=https://spatial.uchicago.edu/
 AppSupportURL=https://spatial.uchicago.edu/
 AppUpdatesURL=https://spatial.uchicago.edu/
 AppSupportPhone=(480)965-7533
-AppVersion=1.20
+AppVersion=1.22
 DefaultDirName={pf}\GeoDa
 DefaultGroupName=GeoDa Software
 ; Since no icons will be created in "{group}", we don't need the wizard
@@ -15,7 +15,7 @@ UninstallDisplayIcon={app}\GeoDa.exe
 Compression=lzma2
 SolidCompression=yes
 OutputDir=..\..
-OutputBaseFilename=GeoDa_1.20_win7+x86_Setup
+OutputBaseFilename=GeoDa_1.22_win7+x86_Setup
 ;OutputDir=userdocs:Inno Setup Examples Output
 
 ChangesAssociations=yes
@@ -27,6 +27,7 @@ Name: "en"; MessagesFile: "compiler:Default.isl"
 Name: "spanish"; MessagesFile: "compiler:Languages\Spanish.isl"
 Name: "russian"; MessagesFile: "compiler:Languages\Russian.isl"
 Name: "portuguese"; MessagesFile: "compiler:Languages\Portuguese.isl"
+Name: "french"; MessagesFile: "compiler:Languages\French.isl"
 
 [dirs]
 Name: "{app}"; Check: InitializeSetup
@@ -202,6 +203,10 @@ begin
     begin
       langCode := '153';  // Portuguese
     end;
+    5:
+    begin
+      langCode := '79';  // French
+    end;
   end;
 end;
 
@@ -228,6 +233,7 @@ begin
   ComboBox.Items.Add('Spanish');
   ComboBox.Items.Add('Russian');
   ComboBox.Items.Add('Portuguese');
+  ComboBox.Items.Add('French');
   ComboBox.ItemIndex := 0;
   ComboBox.OnChange := @ComboBoxChange;
   langCode := '58';

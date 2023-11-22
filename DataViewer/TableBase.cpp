@@ -876,7 +876,6 @@ void TableBase::update(HLStateInt* o)
 
 void TableBase::update(TableState* o)
 {
-	using namespace std;
 	if (!GetView()) return;
 	
 	if (o->GetEventType() == TableState::cols_delta) {
