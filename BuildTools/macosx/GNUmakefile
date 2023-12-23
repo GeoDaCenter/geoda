@@ -95,12 +95,12 @@ build-geoda-mac:
 	cp /usr/local/opt/gdal/share/gdal/* build/GeoDa.app/Contents/Resources/gdaldata
 	cp libraries/lib/libwx_osx_cocoau-3.1.4.0.0.dylib build/GeoDa.app/Contents/Frameworks/libwx_osx_cocoau-3.1.dylib
 	cp libraries/lib/libwx_osx_cocoau_gl-3.1.4.0.0.dylib build/GeoDa.app/Contents/Frameworks/libwx_osx_cocoau_gl-3.1.dylib
-	cp /usr/local/opt/gdal/lib/libgdal.33.dylib build/GeoDa.app/Contents/Frameworks
+	cp /usr/local/opt/gdal/lib/libgdal.34.dylib build/GeoDa.app/Contents/Frameworks
 	install_name_tool -id "GeoDa" build/GeoDa.app/Contents/MacOS/GeoDa
 	install_name_tool -change "$(GEODA_HOME)/libraries/lib/libwx_osx_cocoau_gl-3.1.dylib" "@executable_path/../Frameworks/libwx_osx_cocoau_gl-3.1.dylib" build/GeoDa.app/Contents/MacOS/GeoDa
 	install_name_tool -change "$(GEODA_HOME)/libraries/lib/libwx_osx_cocoau-3.1.dylib" "@executable_path/../Frameworks/libwx_osx_cocoau-3.1.dylib" build/GeoDa.app/Contents/MacOS/GeoDa
-	install_name_tool -change "/usr/local/opt/gdal/lib/libgdal.33.dylib" "@executable_path/../Frameworks/libgdal.33.dylib" build/GeoDa.app/Contents/MacOS/GeoDa
-	install_name_tool -change "/opt/homebrew/opt/gdal/lib/libgdal.33.dylib" "@executable_path/../Frameworks/libgdal.33.dylib" build/GeoDa.app/Contents/MacOS/GeoDa
+	install_name_tool -change "/usr/local/opt/gdal/lib/libgdal.34.dylib" "@executable_path/../Frameworks/libgdal.34.dylib" build/GeoDa.app/Contents/MacOS/GeoDa
+	install_name_tool -change "/opt/homebrew/opt/gdal/lib/libgdal.34.dylib" "@executable_path/../Frameworks/libgdal.34.dylib" build/GeoDa.app/Contents/MacOS/GeoDa
 	python3 install_name.py $(GEODA_HOME)/build/GeoDa.app/Contents/Frameworks "Developer ID Application: Geodapress LLC (26M5NG43GP)"
 	install_name_tool -change "@executable_path/../Frameworks/libwx_osx_cocoau-3.1.4.0.0.dylib" "@executable_path/../Frameworks/libwx_osx_cocoau-3.1.dylib" build/GeoDa.app/Contents/Frameworks/libwx_osx_cocoau_gl-3.1.dylib
 	codesign -f --timestamp -o runtime -s "Developer ID Application: Geodapress LLC (26M5NG43GP)" build/GeoDa.app/Contents/Frameworks/libwx_osx_cocoau_gl-3.1.dylib
