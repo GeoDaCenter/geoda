@@ -41,66 +41,53 @@ def process_dependency(framework_path, dylib_name):
         # e.g. '@loader_path/../../../../opt/libarchive/lib/libarchive.13.dylib (compatibility version 20.0.0, current version 20.2.0)'
         item = item.strip().split(" ")[0]
 
-        # workaround for gdal 3.3.3 that @rpath/libgeos.3.10.2.dylib was used instead of dir path
         copyitem = item
-        if item == '@rpath/libgeos.3.10.2.dylib':
+        # workaround for gdal 3.3.3 that @rpath/libgeos.3.10.2.dylib was used instead of dir path
+        # '@rpath/libgeos.3.12.1.dylib':
+        m = re.search('@rpath/libgeos(.*).dylib', item)
+        if m:
             copyitem = '/usr/local/opt/geos/lib/libgeos.dylib'
-        if item == '@rpath/libgeos.3.11.0.dylib':
-            copyitem = '/usr/local/opt/geos/lib/libgeos.dylib'
-        if item == '@rpath/libgeos.3.12.0.dylib':
-            copyitem = '/usr/local/opt/geos/lib/libgeos.dylib'
-        if item == '@rpath/libgeos.3.11.1.dylib':
-            copyitem = '/usr/local/opt/geos/lib/libgeos.dylib'
-        if item == '@rpath/libgeos.3.11.2.dylib':
-            copyitem = '/usr/local/opt/geos/lib/libgeos.dylib'
-        if item == '@loader_path/libicuuc.70.dylib':
-            copyitem = '/usr/local/opt/icu4c/lib/libicuuc.70.dylib'
-        if item == '@loader_path/libicuuc.71.dylib':
-            copyitem = '/usr/local/opt/icu4c/lib/libicuuc.71.dylib'
-        if item == '@loader_path/libicuuc.72.dylib':
-            copyitem = '/usr/local/opt/icu4c/lib/libicuuc.72.dylib'
-        if item == '@loader_path/libicuuc.73.dylib':
-            copyitem = '/usr/local/opt/icu4c/lib/libicuuc.73.dylib'
-        if item == '@loader_path/libicudata.70.dylib':
-            copyitem = '/usr/local/opt/icu4c/lib/libicudata.70.dylib'
-        if item == '@loader_path/libicudata.71.dylib':
-            copyitem = '/usr/local/opt/icu4c/lib/libicudata.71.dylib'
-        if item == '@loader_path/libicudata.72.dylib':
-            copyitem = '/usr/local/opt/icu4c/lib/libicudata.72.dylib'
-        if item == '@loader_path/libicudata.73.dylib':
-            copyitem = '/usr/local/opt/icu4c/lib/libicudata.73.dylib'
-        if item == '@loader_path/libbrotlicommon.1.dylib':
-            copyitem = '/usr/local/opt/brotli/lib/libbrotlicommon.1.dylib'
 
-        if item == '@rpath/libIlmThread-3_1.30.dylib':
-            copyitem = '/usr/local/opt/openexr/lib/libIlmThread-3_1.30.dylib'
-        if item == '@rpath/libIex-3_1.30.dylib':
-            copyitem = '/usr/local/opt/openexr/lib/libIex-3_1.30.dylib'
-        if item == '@rpath/libOpenEXR-3_1.30.dylib':
-            copyitem = '/usr/local/opt/openexr/lib/libOpenEXR-3_1.30.dylib'
-        if item == '@rpath/libOpenEXRCore-3_1.30.dylib':
-            copyitem = '/usr/local/opt/openexr/lib/libOpenEXRCore-3_1.30.dylib'
-        if item == '@rpath/libabsl_log_internal_conditions.2301.0.0.dylib':
-            copyitem = '/usr/local/opt/abseil/lib/libabsl_log_internal_conditions.2301.0.0.dylib'
-        if item == '@rpath/libabsl_raw_logging_internal.2301.0.0.dylib':
-            copyitem = '/usr/local/opt/abseil/lib/libabsl_raw_logging_internal.2301.0.0.dylib'
-        if item == '@rpath/libabsl_log_severity.2301.0.0.dylib':
-            copyitem = '/usr/local/opt/abseil/lib/libabsl_log_severity.2301.0.0.dylib'
-        if item == '@rpath/libabsl_base.2301.0.0.dylib':
-            copyitem = '/usr/local/opt/abseil/lib/libabsl_base.2301.0.0.dylib'
+        # '@loader_path/libicuuc.73.dylib':
+        # name_matches = re.search('@loader_path/(libicuuc.*)', item)
+        # if name_matches:
+        #     copyitem = '/usr/local/opt/icu4c/lib/' + name_matches.group(1)
 
+        # '@loader_path/libicudata.70.dylib':
+        # name_matches = re.search('@loader_path/(libicudata.*)', item)
+        # if name_matches:
+        #     copyitem = '/usr/local/opt/icu4c/lib/' + name_matches.group(1)
+
+        # if item == '@loader_path/libbrotlicommon.1.dylib':
+        #     copyitem = '/usr/local/opt/brotli/lib/libbrotlicommon.1.dylib'
+
+        # @rpath/libabsl_log_internal_conditions.2301.0.0.dylib
+        # @rpath/libabsl_raw_logging_internal.2301.0.0.dylib'
+        # @rpath/libabsl_log_severity.2301.0.0.dylib
+        # @rpath/libabsl_base.2301.0.0.dylib
+        name_matches = re.search('@rpath/(libabsl_.*)', item)
+        if name_matches:
+            copyitem = '/usr/local/opt/abseil/lib/' + name_matches.group(1)
+
+        # @rpath/libIlmThread-3_1.30.dylib
         m = re.search('@rpath/libIlmThread-(.*).dylib', item)
         if m:
             copyitem = '/usr/local/opt/openexr/lib/libIlmThread-' + \
                 m.group(1) + '.dylib'
+
+        # @rpath/libIex-3_1.30.dylib
         m = re.search('@rpath/libIex-(.*).dylib', item)
         if m:
             copyitem = '/usr/local/opt/openexr/lib/libIex-' + \
                 m.group(1) + '.dylib'
+
+        # @rpath/libOpenEXR-3_1.30.dylib
         m = re.search('@rpath/libOpenEXR-(.*).dylib', item)
         if m:
             copyitem = '/usr/local/opt/openexr/lib/libOpenEXR-' + \
                 m.group(1) + '.dylib'
+
+        # @rpath/libOpenEXRCore-3_1.30.dylib
         m = re.search('@rpath/libOpenEXRCore-(.*).dylib', item)
         if m:
             copyitem = '/usr/local/opt/openexr/lib/libOpenEXRCore-' + \
