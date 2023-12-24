@@ -197,7 +197,8 @@ echo "Done fixing permissions."
 
 # make the top window open itself on mount:
 echo "Blessing started"
-bless --folder "${MOUNT_DIR}" --openfolder "${MOUNT_DIR}"
+# bless --folder "${MOUNT_DIR}" --openfolder "${MOUNT_DIR}"
+bless --folder "${MOUNT_DIR}"
 echo "Blessing finished"
 
 if ! test -z "$VOLUME_ICON_FILE"; then
