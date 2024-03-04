@@ -74,7 +74,7 @@ public:
 		ds_csv, ds_dbf, ds_geo_json, ds_gml, ds_kml,
 		ds_mapinfo, ds_mysql, ds_ms_sql, ds_oci, ds_odbc, ds_postgresql,
 		ds_shapefile, ds_sqlite, ds_gpkg, ds_wfs, ds_xls, ds_xlsx, ds_osm,
-        ds_ods, ds_cartodb, ds_parquet, ds_unknown };
+        ds_ods, ds_cartodb, ds_parquet, ds_arrow, ds_unknown };
 	
 	static std::map<std::string, DataSourceType> datasrc_str_to_type;
 	static std::map<DataSourceType, std::string> datasrc_type_to_str;
