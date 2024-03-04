@@ -4,65 +4,35 @@ code sign geoda dependent dylibs inplace
 import subprocess
 import os
 import re
+import sys
 from pathlib import Path
 
 processed_items = {}
 
 
 def ProcessDependency(dylib_path, cid, current_item=None):
+    print("ProcessDependency:", dylib_path, cid, current_item)
     if dylib_path in processed_items:
         return
     else:
         processed_items[dylib_path] = True
 
-    m = re.search('@rpath/(libgeos.*)', dylib_path)
-    if m:
-        dylib_path = '/usr/local/opt/geos/lib/' + m.group(1)
-
-    m = re.search('@rpath/(libsharpyuv.*)', dylib_path)
-    if m:
-        dylib_path = '/usr/local/opt/webp/lib/' + m.group(1)
-
-    m = re.search('@rpath/libIlmThread-(.*).dylib', dylib_path)
-    if m:
-        dylib_path = '/usr/local/opt/openexr/lib/libIlmThread-' + \
-            m.group(1) + '.dylib'
-
-    m = re.search('@rpath/libIex-(.*).dylib', dylib_path)
-    if m:
-        dylib_path = '/usr/local/opt/openexr/lib/libIex-' + \
-            m.group(1) + '.dylib'
-
-    m = re.search('@rpath/libOpenEXR-(.*).dylib', dylib_path)
-    if m:
-        dylib_path = '/usr/local/opt/openexr/lib/libOpenEXR-' + \
-            m.group(1) + '.dylib'
-
-    m = re.search('@rpath/libOpenEXRCore-(.*).dylib', dylib_path)
-    if m:
-        dylib_path = '/usr/local/opt/openexr/lib/libOpenEXRCore-' + \
-            m.group(1) + '.dylib'
-
-    m = re.search('@rpath/(libabsl.*)', dylib_path)
-    if m:
-        dylib_path = '/usr/local/opt/abseil/lib/' + m.group(1)
-    # elif dylib_path.startswith('@rpath'):
-    #     item_filename = os.path.basename(dylib_path)
-    #     copy_dir = str(Path(current_item).parent)
-    #     dylib_path = f'{copy_dir}/{item_filename}'
-
-    m = re.search('@rpath/(libaws.*)', dylib_path)
-    if m:
-        dylib_path = '/usr/local/opt/aws-sdk-cpp/lib/' + m.group(1)
-
-    m = re.search('@loader_path/../../../../(opt*)', dylib_path)
-    if m:
-        dylib_path = '/usr/local/' + m.group(1)
+    if dylib_path.startswith('@rpath'):
+        print('@rpath: before', dylib_path)
+        item_filename = os.path.basename(dylib_path)
+        copy_dir = str(Path(current_item).parent)
+        dylib_path = f'{copy_dir}/{item_filename}'
+        print('@rpath: after', dylib_path)
+    # m = re.search('@loader_path/../../../../(opt*)', dylib_path)
+    # if m:
+    #     dylib_path = '/usr/local/' + m.group(1)
 
     if dylib_path.startswith('@loader_path'):
         item_filename = os.path.basename(dylib_path)
         upper_levels = dylib_path.count('../')
         copy_dir = str(Path(current_item).parent)
+        print('upper_levels:', upper_levels, 'copy_dir:',
+              copy_dir, 'item_filename:', item_filename)
         if upper_levels - 1 >= 0:
             current_dir = Path(current_item).parents[upper_levels - 1]
             copy_dir = str(current_dir)
@@ -88,5 +58,4 @@ def ProcessDependency(dylib_path, cid, current_item=None):
 
 # e.g.
 # python3 code_sign.py /opt/homebrew/opt/gdal/lib/libgdal.34.dylib "Apple Development: xunli@uchicago.edu (AN5USPSZF6)"
-# ProcessDependency(sys.argv[1], sys.argv[2])
-# ProcessDependency('/opt/homebrew/Cellar/gdal/3.7.2/lib/libgdal.34.3.7.2.dylib', "Apple Development: xunli@uchicago.edu (AN5USPSZF6)")
+ProcessDependency(sys.argv[1], sys.argv[2])
