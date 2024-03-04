@@ -34,14 +34,14 @@ cd temp
 # cd ..
 # cd ..
 
-# Build wxWidgets 3.1.4
-if ! [ -f "wxWidgets-3.1.4.tar.bz2" ]; then
-    curl -L -O https://github.com/wxWidgets/wxWidgets/releases/download/v3.1.4/wxWidgets-3.1.4.tar.bz2
-    tar -xf wxWidgets-3.1.4.tar.bz2
+# Build wxWidgets 3.2.4
+if ! [ -f "wxWidgets-3.2.4.tar.bz2" ]; then
+    curl -L -O https://github.com/wxWidgets/wxWidgets/releases/download/v3.2.4/wxWidgets-3.2.4.tar.bz2
+    tar -xf wxWidgets-3.2.4.tar.bz2
 fi
 if ! [ -f "../libraries/bin/wx-config" ]; then
-    cd wxWidgets-3.1.4
-    ./configure --with-cocoa --with-opengl --enable-postscript --enable-textfile --without-liblzma --enable-webview --enable-cxx11 --enable-webview --disable-mediactrl --enable-webviewwebkit --enable-monolithic --with-libtiff=builtin --with-libpng=builtin --with-libjpeg=builtin --prefix=$GEODA_HOME/libraries
+    cd wxWidgets-3.2.4
+    ./configure --with-cocoa --with-opengl --enable-postscript --enable-textfile --without-liblzma --enable-webview --enable-cxx11 --disable-mediactrl --enable-webviewwebkit --enable-monolithic --with-libtiff=builtin --with-libpng=builtin --with-libjpeg=builtin --prefix=$GEODA_HOME/libraries
     make -j $CPUS
     make install
     cd ..
