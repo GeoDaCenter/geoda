@@ -87,7 +87,6 @@ def ProcessDependency(dylib_path, cid, current_item=None):
 
 
 # e.g.
-# python3 code_sign.py /opt/homebrew/opt/gdal/lib/libgdal.29.dylib "Apple Development: xunli@uchicago.edu (AN5USPSZF6)"
-# python3 code_sign.py /opt/homebrew/opt/gdal/lib/libgdal.32.dylib "Apple Development: xunli@uchicago.edu (AN5USPSZF6)"
+# python3 code_sign.py /opt/homebrew/opt/gdal/lib/libgdal.34.dylib "Apple Development: xunli@uchicago.edu (AN5USPSZF6)"
 # ProcessDependency(sys.argv[1], sys.argv[2])
 # ProcessDependency('/opt/homebrew/Cellar/gdal/3.7.2/lib/libgdal.34.3.7.2.dylib', "Apple Development: xunli@uchicago.edu (AN5USPSZF6)")

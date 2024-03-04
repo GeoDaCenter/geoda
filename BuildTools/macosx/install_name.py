@@ -34,7 +34,7 @@ def process_dependency(framework_path, dylib_name):
     dep_libs = subprocess.check_output(
         ['otool', '-L', dylib_path]).decode('utf-8')
     all_items = dep_libs.split('\n')
-    # e.g. '\t/opt/homebrew/opt/gdal/lib/libgdal.34.dylib (compatibility version 33.0.0, current version 33.3.7)'
+    # e.g. '\t/opt/homebrew/opt/gdal/lib/libgdal.33.dylib (compatibility version 33.0.0, current version 33.3.7)'
     current_item = all_items[1].strip().split(" ")[0]
     items = all_items[2:-1]
     for item in items:
@@ -132,6 +132,6 @@ def process_dependency(framework_path, dylib_name):
     os.system(cmd)
 
 
-process_dependency(FRAMEWORK_PATH, "libwx_osx_cocoau_gl-3.1.dylib")
-process_dependency(FRAMEWORK_PATH, "libwx_osx_cocoau-3.1.dylib")
+process_dependency(FRAMEWORK_PATH, "libwx_osx_cocoau_gl-3.2.dylib")
+process_dependency(FRAMEWORK_PATH, "libwx_osx_cocoau-3.2.dylib")
 process_dependency(FRAMEWORK_PATH, "libgdal.34.dylib")
