@@ -29,13 +29,13 @@ jobs:
       fail-fast: true
       matrix:
         distro:
-          - 'ubuntu-24.04'
           - 'ubuntu-22.04'
+          - 'ubuntu-20.04'
         include:
-          - distro: 'ubuntu-24.04'
-            pre: 'noble'
           - distro: 'ubuntu-22.04'
             pre: 'jammy'
+          - distro: 'ubuntu-20.04'
+            pre: 'focal'
 
     env:
       platform: ${{ matrix.distro }}
