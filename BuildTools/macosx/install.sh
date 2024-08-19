@@ -45,6 +45,7 @@ if ! [ -f "../libraries/lib/libboost_thread.a" ]; then
     cp -R stage/lib/* ../../libraries/lib/.
     cp -R boost ../../libraries/include/.
     cd ..
+    ln -s /usr/local/opt/boost@1.76 ../libraries/include/boost
 fi
 
 # Build wxWidgets 3.2.4
@@ -70,7 +71,7 @@ if ! [ -f "../libraries/lib/libjson_spirit.a" ]; then
     cp ../../dep/json_spirit/CMakeLists.txt .
     mkdir -p bld
     cd bld
-    cmake -DBoost_NO_BOOST_CMAKE=TRUE -DBOOST_ROOT:PATHNAME=../../libraries/include ..
+    cmake -DBoost_NO_BOOST_CMAKE=TRUE -DBOOST_ROOT:PATHNAME=/usr/local/opt ..
     make -j $CPUS
     cp -R ../json_spirit ../../../libraries/include/.
     cp json_spirit/libjson_spirit.a ../../../libraries/lib/.
