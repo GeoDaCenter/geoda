@@ -21,7 +21,7 @@ on:
 jobs:
   # This workflow contains a single job called "build"
   osx_build:
-    # The type of runner that the job will run on
+    # The type of runner that the job will run on, macos-13 is x86_64
     runs-on: macos-13
     if: ${{ !contains(github.event.head_commit.message, '[ci skip]') && !contains(github.event.head_commit.message, '[skip ci]') }}
 
@@ -44,6 +44,8 @@ jobs:
 
       - name: Setup Brew
         run: |
+          brew update
+          rm '/usr/local/bin/2to3'
           brew install gdal
 
       - uses: actions/cache@v3
