@@ -46,7 +46,7 @@ jobs:
         run: |
           brew uninstall --ignore-dependencies python@3.12
           rm /usr/local/bin/2to3
-          brew install gdal
+          brew install gdal --quiet
 
       - uses: actions/cache@v3
         id: cache
