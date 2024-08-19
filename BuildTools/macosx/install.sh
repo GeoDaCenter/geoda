@@ -45,7 +45,7 @@ if ! [ -f "../libraries/lib/libboost_thread.a" ]; then
     cp -R stage/lib/* ../../libraries/lib/.
     cp -R boost ../../libraries/include/.
     cd ..
-    ln -s /usr/local/opt/boost@1.76 ../libraries/include/boost
+    ln -s ../libraries/include/boost /usr/local/opt/boost
 fi
 
 # Build wxWidgets 3.2.4
