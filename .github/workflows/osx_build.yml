@@ -22,7 +22,7 @@ jobs:
   # This workflow contains a single job called "build"
   osx_build:
     # The type of runner that the job will run on
-    runs-on: macos-latest
+    runs-on: macos-13
     if: ${{ !contains(github.event.head_commit.message, '[ci skip]') && !contains(github.event.head_commit.message, '[skip ci]') }}
 
     env:
