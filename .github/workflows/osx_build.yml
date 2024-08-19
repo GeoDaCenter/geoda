@@ -44,8 +44,7 @@ jobs:
 
       - name: Setup Brew
         run: |
-          brew install boost@1.76
-          ln -s /usr/local/opt/boost@1.76 /usr/local/opt/boost
+          brew install boost
           brew install gdal
 
       - uses: actions/cache@v3
