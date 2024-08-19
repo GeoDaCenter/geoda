@@ -17,13 +17,13 @@ LIBS	=	$(WXLIBS) \
             -L/usr/lib -liconv -lcurl -lz -lpthread \
 			-framework OpenCL \
             -L/usr/local/opt/gdal/lib -lgdal \
-            /usr/local/opt/boost/lib/libboost_date_time-mt.a \
-            /usr/local/opt/boost/lib/libboost_thread-mt.a \
-            /usr/local/opt/boost/lib/libboost_system-mt.a \
+            $(GEODA_HOME)/lib/libboost_date_time-mt.a \
+            $(GEODA_HOME)/lib/libboost_thread-mt.a \
+            $(GEODA_HOME)/lib/libboost_system-mt.a \
 	    	$(GEODA_HOME)/libraries/lib/libjson_spirit.a
 
 USER_DEFS = -I$(GEODA_HOME)/libraries/include
-BOOST_HEADER = -I/usr/local/opt/boost/include
+BOOST_HEADER = -I$(GEODA_HOME)/libraries/include
 GDAL_HEADER = -I/usr/loca/opt/gdal/include -D__PROJ6__
 EIGEN_HEADER = -I$(GEODA_HOME)/temp/eigen3 -I$(GEODA_HOME)/temp/spectra/include
 

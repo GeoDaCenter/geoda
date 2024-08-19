@@ -33,6 +33,19 @@ cd temp
 # make install
 # cd ..
 # cd ..
+# Build Boost 1.76
+if ! [ -f "boost_1_76_0.tar.bz2" ]; then
+    curl -L -O https://archives.boost.io/release/1.76.0/source/boost_1_76_0.tar.gz
+    tar -xf boost_1_76_0.tar.gz
+fi
+if ! [ -f "../libraries/lib/libboost_thread.a" ]; then
+    cd boost_1_76_0
+    ./bootstrap.sh
+    ./b2 --with-thread --with-date_time --with-chrono --with-system link=static threading=multi stage
+    cp -R stage/lib/* ../../libraries/lib/.
+    cp -R boost ../../libraries/include/.
+    cd ..
+fi
 
 # Build wxWidgets 3.2.4
 if ! [ -f "wxWidgets-3.2.4.tar.bz2" ]; then
