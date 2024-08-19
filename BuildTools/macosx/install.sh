@@ -70,7 +70,7 @@ if ! [ -f "../libraries/lib/libjson_spirit.a" ]; then
     cp ../../dep/json_spirit/CMakeLists.txt .
     mkdir -p bld
     cd bld
-    cmake -DBoost_NO_BOOST_CMAKE=TRUE -DBOOST_ROOT:PATHNAME=/usr/local/opt ..
+    cmake -DBoost_NO_BOOST_CMAKE=TRUE -DBOOST_ROOT:PATHNAME=../../libraries/include ..
     make -j $CPUS
     cp -R ../json_spirit ../../../libraries/include/.
     cp json_spirit/libjson_spirit.a ../../../libraries/lib/.
