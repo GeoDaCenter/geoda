@@ -73,7 +73,6 @@ jobs:
 
       - if: steps.cache.outputs.cache-hit != 'true'
         name: Build Dependencies
-        shell: zsh
         run: |
           cd BuildTools/macosx
           export GEODA_HOME=$PWD
@@ -81,7 +80,6 @@ jobs:
           ./install.sh
 
       - name: Build GeoDa
-        shell: zsh
         run: |
           mkdir -p o
           cd BuildTools/macosx
