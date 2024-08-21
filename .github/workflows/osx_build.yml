@@ -25,8 +25,20 @@ jobs:
     runs-on: macos-13
     if: ${{ !contains(github.event.head_commit.message, '[ci skip]') && !contains(github.event.head_commit.message, '[skip ci]') }}
 
+    strategy:
+      fail-fast: true
+      matrix:
+        distro:
+          - 'macos-13'
+          - 'macos-14'
+        include:
+          - distro: 'macos-13'
+            pre: 'x86_64'
+          - distro: 'macos-14'
+            pre: 'arm64'
     env:
       GEODA_VER: '1.22.0'
+      GEODA_ARCH: ${{ matrix.pre }}
 
     # Steps represent a sequence of tasks that will be executed as part of the job
 
@@ -59,7 +71,7 @@ jobs:
         run: |
           cd BuildTools/macosx
           export GEODA_HOME=$PWD
-          export GEODA_ARCH=x86_64
+          export GEODA_ARCH=${{ env.GEODA_ARCH }}
           ./install.sh
 
       - name: Build GeoDa
@@ -67,6 +79,7 @@ jobs:
           mkdir -p o
           cd BuildTools/macosx
           export GEODA_HOME=$PWD
+          export GEODA_ARCH=${{ env.GEODA_ARCH }}
           cp ../../GeoDamake.macosx.opt ../../GeoDamake.opt
           echo "find identity"
           security find-identity -v
