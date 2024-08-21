@@ -35,15 +35,19 @@ jobs:
         include:
           - distro: 'ubuntu-24.04'
             pre: 'noble'
+            ldflags: '-lgdal -lcurl -L/usr/lib/x86_64-linux-gnu -lz -lwebkit2gtk-4.1 -lEGL -ljavascriptcoregtk-4.1'
           - distro: 'ubuntu-22.04'
             pre: 'jammy'
+            ldflags: '-lgdal -lcurl -L/usr/lib/x86_64-linux-gnu -lz -lwebkit2gtk-4.0 -lEGL -ljavascriptcoregtk-4.0'
           - distro: 'ubuntu-20.04'
             pre: 'focal'
+            ldflags: '-lgdal -lcurl -L/usr/lib/x86_64-linux-gnu -lz -lwebkit2gtk-4.0 -lEGL -ljavascriptcoregtk-4.0'
 
     env:
       platform: ${{ matrix.distro }}
       GEODA_VER: '1.22.0'
       TARGET_OS: ${{ matrix.pre }}
+      EXTRA_GEODA_LD_FLAGS: ${{ matrix.ldflags }}
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
@@ -83,6 +87,7 @@ jobs:
           export WORK_DIR=$PWD
           export OS=${{ env.TARGET_OS }}
           export VER=${{ env.GEODA_VER }}
+          export EXTRA_GEODA_LD_FLAGS=${{ env.EXTRA_GEODA_LD_FLAGS }}
           export APT="sudo apt-get"
           cd BuildTools/ubuntu
           ./install.sh

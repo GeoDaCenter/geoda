@@ -1,0 +1,78 @@
+GeoDa_ROOT	=	$(GEODA_HOME)/../..
+
+TARGET      = GeoDa
+
+CC	=   /usr/bin/gcc
+CXX =	/usr/bin/g++
+LD	=	/usr/bin/g++
+RM	=	/bin/rm -f
+
+WXLIBS  = $(shell $(GEODA_HOME)/libraries/bin/wx-config --libs xrc,stc,richtext,ribbon,propgrid,aui,gl,html,webview,qa,adv,core,xml,net,base)
+WX_HEADER = $(shell $(GEODA_HOME)/libraries/bin/wx-config --cppflags)
+
+LIBS = $(WXLIBS) \
+        $(GEODA_HOME)/temp/CLAPACK-3.2.1/lapack.a \
+        $(GEODA_HOME)/temp/CLAPACK-3.2.1/libf2c.a \
+        $(GEODA_HOME)/temp/CLAPACK-3.2.1/blas.a \
+        $(GEODA_HOME)/temp/boost/stage/lib/libboost_date_time.a \
+        $(GEODA_HOME)/temp/boost/stage/lib/libboost_thread.a \
+        $(GEODA_HOME)/temp/boost/stage/lib/libboost_system.a \
+        $(GEODA_HOME)/libraries/lib/libjson_spirit.a \
+        -L$(GEODA_HOME)/libraries/lib $(EXTRA_GEODA_LD_FLAGS)
+# Note: Library -lrtmp causes a missing library problem at runtime on
+#       Ubuntu 14.10 and later.
+
+BOOST_HEADER = -I$(GEODA_HOME)/temp/boost 
+
+EIGEN_HEADER = -I$(GEODA_HOME)/temp/eigen3 -I$(GEODA_HOME)/temp/spectra/include
+
+GDAL_HEADER = -I/usr/include/gdal -D__PROJ6__
+
+USER_DEFS = -I$(GEODA_HOME)/libraries/include
+
+CPPFLAGS	=  -std=gnu++14 -I$(GeoDa_ROOT) 
+CFLAGS		=  -O2 -Wdeclaration-after-statement $(USER_DEFS) $(GDAL_HEADER) $(EIGEN_HEADER)
+CXXFLAGS	=  -std=gnu++14 -O2 $(USER_DEFS) $(WX_HEADER) $(BOOST_HEADER) $(GDAL_HEADER) $(EIGEN_HEADER)
+LDFLAGS     = 
+
+OBJ_EXT     = o
+
+#
+# generic library rules
+#
+
+#
+# gdal and ogr low level drivers use the following default rules in order to
+# populate the ../o/ directory with all object and library object files
+#
+
+O_OBJ =	$(foreach file,$(OBJ),../o/$(file))
+T_OBJ =	$(foreach file,$(OBJ),o/$(file))
+
+../o/%.$(OBJ_EXT):	%.c
+	$(CC) $(CFLAGS) -c -o $@ $<
+
+../o/%.$(OBJ_EXT):	%.cpp
+	$(CXX) $(CXXFLAGS) $(CPPFLAGS) -c -o $@ $<
+
+o/%.$(OBJ_EXT):	%.c
+	$(CC) $(CFLAGS) -c -o $@ $<
+
+o/%.$(OBJ_EXT):	%.cpp
+	$(CXX) $(CXXFLAGS) $(CPPFLAGS) -c -o $@ $<
+
+%.$(OBJ_EXT):	%.c
+	$(CC) $(CFLAGS) -c -o $@ $<
+
+%.$(OBJ_EXT):	%.cpp
+	$(CXX) $(CXXFLAGS) $(CPPFLAGS) -c -o $@ $< 
+
+#
+# default rules for handling subdirectories
+#
+
+%-target:
+	$(MAKE) -C $*
+
+%-clean:
+	$(MAKE) -C $* clean
