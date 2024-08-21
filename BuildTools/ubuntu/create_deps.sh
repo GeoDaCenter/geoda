@@ -34,7 +34,7 @@ if  [ $OS = 'jammy' ] ; then
     $APT install -y libwebkit2gtk-4.0-dev
 elif  [ $OS = 'focal' ] ; then
     $APT install -y libwebkit2gtk-4.0-dev
-elif  [ $OS = 'nobel' ] ; then
+elif  [ $OS = 'noble' ] ; then
     $APT install -y libwebkit2gtk-4.0-dev
 else
     $APT install -y libwebkitgtk-3.0-dev 
