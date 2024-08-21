@@ -87,7 +87,7 @@ jobs:
           export WORK_DIR=$PWD
           export OS=${{ env.TARGET_OS }}
           export VER=${{ env.GEODA_VER }}
-          export EXTRA_GEODA_LD_FLAGS=${{ env.EXTRA_GEODA_LD_FLAGS }}
+          export EXTRA_GEODA_LD_FLAGS='${{ env.EXTRA_GEODA_LD_FLAGS }}'
           export APT="sudo apt-get"
           cd BuildTools/ubuntu
           ./install.sh
