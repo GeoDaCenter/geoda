@@ -44,7 +44,7 @@ jobs:
 
       - name: Setup Brew
         run: |
-          brew install gdal --quiet
+          brew install --force --overwrite --quiet gdal
 
       - uses: actions/cache@v3
         id: cache
