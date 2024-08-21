@@ -20,7 +20,6 @@ include $(TOPDIR)/make.inc
 # compile, then strip unnecessary symbols
 .c.o:
 	$(CC) -m64 -c -DSkip_f2c_Undefs $(CFLAGS) $*.c
-	#ld  -arch x86_64 -macosx_version_min 10.6 -syslibroot $GDA_WITH_SYSROOT -r -x -o $*.xxx $*.o
 	ld  -arch $(GEODA_ARCH)  -r -x -o $*.xxx $*.o
 	mv $*.xxx $*.o
 ## Under Solaris (and other systems that do not understand ld -x),

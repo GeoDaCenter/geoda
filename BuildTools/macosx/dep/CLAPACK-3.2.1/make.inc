@@ -24,8 +24,8 @@ PLAT =
 CC        = gcc
 # if no wrapping of the blas library is needed, uncomment next line
 #CC        = gcc -DNO_BLAS_WRAP
-CFLAGS    = -O3 -m64 -isysroot $GDA_WITH_SYSROOT -mmacosx-version-min=10.10 -I$(GEODA_HOME)/temp/CLAPACK-3.2.1/INCLUDE -I$(GEODA_HOME)/temp/CLAPACK-3.2.1/
-CFLAGS    = -O3 -m64 -I$(GEODA_HOME)/temp/CLAPACK-3.2.1/INCLUDE -I$(GEODA_HOME)/temp/CLAPACK-3.2.1/
+CFLAGS    = -O3 -march=armv8-a -m64 -isysroot $GDA_WITH_SYSROOT -mmacosx-version-min=10.10 -I$(GEODA_HOME)/temp/CLAPACK-3.2.1/INCLUDE -I$(GEODA_HOME)/temp/CLAPACK-3.2.1/
+CFLAGS    = -O3 -march=armv8-a -m64 -I$(GEODA_HOME)/temp/CLAPACK-3.2.1/INCLUDE -I$(GEODA_HOME)/temp/CLAPACK-3.2.1/
 LOADER    =  gcc
 LOADOPTS  =  -m64 -arch $(GEODA_ARCH) -isysroot $GDA_WITH_SYSROOT -mmacosx-version-min=10.10
 LOADOPTS  =  -m64 -arch $(GEODA_ARCH) 

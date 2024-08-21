@@ -5,6 +5,7 @@ set -e
 
 export GEODA_HOME=$PWD
 echo $GEODA_HOME
+echo $GEODA_ARCH
 CPUS=`sysctl -n hw.ncpu`
 
 # Install boost 1.75
