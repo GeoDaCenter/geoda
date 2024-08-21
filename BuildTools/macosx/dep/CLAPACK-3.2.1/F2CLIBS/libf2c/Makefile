@@ -19,7 +19,7 @@ include $(TOPDIR)/make.inc
 
 # compile, then strip unnecessary symbols
 .c.o:
-	$(CC) -m64 -c -DSkip_f2c_Undefs $(CFLAGS) $*.c
+	$(CC) -m64 -arch $(GEODA_ARCH) -c -DSkip_f2c_Undefs $(CFLAGS) $*.c
 	ld  -arch $(GEODA_ARCH)  -r -x -o $*.xxx $*.o
 	mv $*.xxx $*.o
 ## Under Solaris (and other systems that do not understand ld -x),
