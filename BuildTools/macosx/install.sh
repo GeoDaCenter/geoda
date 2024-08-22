@@ -27,6 +27,26 @@ mkdir -p ../../o
 
 cd temp
 
+# Build CLAPACK
+if ! [ -f "clapack.tgz" ]; then
+    curl -L -O https://github.com/GeoDaCenter/software/releases/download/v2000/clapack.tgz
+    tar -xf clapack.tgz
+fi
+if ! [ -f "CLAPACK-3.2.1/libf2c.a" ]; then
+    cp -rf ../dep/CLAPACK-3.2.1 .
+    cd CLAPACK-3.2.1
+    make f2clib
+    make blaslib
+    cd INSTALL
+    make
+    cd ..
+    cd SRC
+    make
+    cd ..
+    cp F2CLIBS/libf2c.a .
+    cd ..
+fi
+
 # Build Boost 1.76
 if ! [ -f "boost_1_76_0.tar.bz2" ]; then
     curl -L -O https://archives.boost.io/release/1.76.0/source/boost_1_76_0.tar.gz
@@ -69,26 +89,6 @@ if ! [ -f "../libraries/lib/libjson_spirit.a" ]; then
     cp -R ../json_spirit ../../../libraries/include/.
     cp json_spirit/libjson_spirit.a ../../../libraries/lib/.
     cd ../..
-fi
-
-# Build CLAPACK
-if ! [ -f "clapack.tgz" ]; then
-    curl -L -O https://github.com/GeoDaCenter/software/releases/download/v2000/clapack.tgz
-    tar -xf clapack.tgz
-fi
-if ! [ -f "CLAPACK-3.2.1/libf2c.a" ]; then
-    cp -rf ../dep/CLAPACK-3.2.1 .
-    cd CLAPACK-3.2.1
-    make -j $CPUS f2clib
-    make -j $CPUS blaslib
-    cd INSTALL
-    make -j $CPUS
-    cd ..
-    cd SRC
-    make -j $CPUS
-    cd ..
-    cp F2CLIBS/libf2c.a .
-    cd ..
 fi
 
 # Build Eigen3 and Spectra
