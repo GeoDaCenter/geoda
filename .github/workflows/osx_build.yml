@@ -74,11 +74,11 @@ jobs:
       - if: steps.cache.outputs.cache-hit != 'true'
         name: Build Dependencies
         run: |
+          /bin/zsh
           cd BuildTools/macosx
           export GEODA_HOME=$PWD
           export GEODA_ARCH=${{ env.GEODA_ARCH }}
           ./install.sh
-        shell: /bin/zsh
 
       - name: Build GeoDa
         run: |
