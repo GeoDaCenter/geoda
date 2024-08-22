@@ -6,14 +6,17 @@ set -e
 export GEODA_HOME=$PWD
 echo $GEODA_HOME
 echo $GEODA_ARCH
+# check if $GEODA_HOME and $GEODA_ARCH are set
+if [ -z "$GEODA_HOME" ]; then
+    echo "Please set GEODA_HOME environment variable"
+    exit
+fi
+if [ -z "$GEODA_ARCH" ]; then
+    echo "Please set GEODA_ARCH environment variable"
+    exit
+fi
+
 CPUS=`sysctl -n hw.ncpu`
-
-# Install boost 1.75
-#brew install boost@1.76
-#ln -s /usr/local/opt/boost@1.76 /usr/local/opt/boost
-
-# Install libgdal 3.6
-#brew install gdal
 
 cd $GEODA_HOME
 mkdir -p temp
@@ -24,16 +27,6 @@ mkdir -p ../../o
 
 cd temp
 
-# FIX for libgdal on Monterey using sqlite 3.30.1
-# cd temp
-# curl -L -O https://sqlite.org/2019/sqlite-autoconf-3300100.tar.gz
-# tar -xvf sqlite-autoconf-3300100.tar.gz
-# cd sqlite-autoconf-3300100
-# ./configure --enable-readline CPPFLAGS="-DSQLITE_ENABLE_COLUMN_METADATA=1" --prefix=/usr/local/opt/sqlite
-# make
-# make install
-# cd ..
-# cd ..
 # Build Boost 1.76
 if ! [ -f "boost_1_76_0.tar.bz2" ]; then
     curl -L -O https://archives.boost.io/release/1.76.0/source/boost_1_76_0.tar.gz
@@ -110,18 +103,3 @@ if ! [ -f "v0.8.0.zip" ]; then
 fi
 
 cd ..
-# Build GeoDa
-# cp ../../GeoDamake.macosx.opt ../../GeoDamake.opt
-# make -j $CPUS
-# make app
-
-# # Create dmg
-# VER_MAJOR=$(grep version_major $GEODA_HOME/../../version.h | sed -e 's/^[[:space:]][[:alpha:]|[:space:]|_|=]*//g' | sed -e 's/;//g')
-# VER_MINOR=$(grep version_minor $GEODA_HOME/../../version.h | sed -e 's/^[[:space:]][[:alpha:]|[:space:]|_|=]*//g' | sed -e 's/;//g')
-# VER_BUILD=$(grep version_build $GEODA_HOME/../../version.h | sed -e 's/^[[:space:]][[:alpha:]|[:space:]|_|=]*//g' | sed -e 's/;//g')
-# GEODA_VERSION=$VER_MAJOR.$VER_MINOR.$VER_BUILD
-# echo $GEODA_VERSION
-
-# cd create-dmg
-# ./geoda.sh $GEODA_VERSION
-# codesign --timestamp -s "Developer ID Application: Geodapress LLC (26M5NG43GP)" -i edu.uchicago.spatial GeoDa$GEODA_VERSION-Installer.dmg

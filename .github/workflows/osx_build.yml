@@ -78,6 +78,7 @@ jobs:
           export GEODA_HOME=$PWD
           export GEODA_ARCH=${{ env.GEODA_ARCH }}
           ./install.sh
+        shell: /bin/zsh
 
       - name: Build GeoDa
         run: |
