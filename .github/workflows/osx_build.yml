@@ -62,15 +62,14 @@ jobs:
           rm /usr/local/bin/pydoc3 || true
           rm /usr/local/bin/python3 || true
           rm /usr/local/bin/python3-config || true
-          which brew
           brew install --force --overwrite --quiet gdal || true
 
       - name: Install GDAL using Brew Arm64
         if: ${{ matrix.pre == 'arm64' }}
         run: |
           arch
-          rm -rf /opt/homebrew/Library/Homebrew/vendor/portable-ruby
           brew install gdal
+          ln -s /opt/homebrew/opt/gdal /usr/local/opt/gdal
 
       - uses: actions/cache@v3
         id: cache
@@ -90,7 +89,6 @@ jobs:
 
       - name: Build GeoDa
         run: |
-          ls /usr/loca/opt/gdal
           ls /opt/homebrew/opt/gdal
           mkdir -p o
           cd BuildTools/macosx
