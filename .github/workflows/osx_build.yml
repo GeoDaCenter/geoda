@@ -71,28 +71,6 @@ jobs:
             BuildTools/macosx/temp
           key: ${{ runner.os }}-deps-cache-${{ hashFiles('BuildTools/macosx/install.sh') }}
 
-      - name: Test CLAPACK
-        run: |
-          cd BuildTools/macosx
-          export GEODA_HOME=$PWD
-          export GEODA_ARCH=${{ env.GEODA_ARCH }}
-          mkdir -p temp
-          cd temp
-          curl -L -O https://github.com/GeoDaCenter/software/releases/download/v2000/clapack.tgz
-          tar -xf clapack.tgz
-          cp -rf ../dep/CLAPACK-3.2.1 .
-          cd CLAPACK-3.2.1
-          make f2clib
-          make blaslib
-          cd INSTALL
-          make
-          cd ..
-          cd SRC
-          make
-          cd ..
-          cp F2CLIBS/libf2c.a .
-          cd ..
-
       - if: steps.cache.outputs.cache-hit != 'true'
         name: Build Dependencies
         run: |
