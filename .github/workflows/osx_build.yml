@@ -71,7 +71,7 @@ jobs:
           HOMEBREW_PREFIX="/opt/homebrew"
           HOMEBREW_REPOSITORY="${HOMEBREW_PREFIX}"
           which brew
-          brew install gdal
+          /opt/homebrew/bin/brew install gdal
 
       - uses: actions/cache@v3
         id: cache
