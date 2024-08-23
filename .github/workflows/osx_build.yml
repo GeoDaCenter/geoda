@@ -69,7 +69,7 @@ jobs:
         run: |
           arch
           brew install gdal
-          ln -s /opt/homebrew/opt/gdal /usr/local/opt/gdal
+          sudo ln -s /opt/homebrew/opt/gdal /usr/local/opt/gdal
 
       - uses: actions/cache@v3
         id: cache
