@@ -68,10 +68,8 @@ jobs:
       - name: Install GDAL using Brew Arm64
         if: ${{ matrix.pre == 'arm64' }}
         run: |
-          HOMEBREW_PREFIX="/opt/homebrew"
-          HOMEBREW_REPOSITORY="${HOMEBREW_PREFIX}"
-          which brew
-          /opt/homebrew/bin/brew install gdal
+          rm -rf /opt/homebrew/Library/Homebrew/vendor/portable-ruby
+          arch -arm64 brew install gdal
 
       - uses: actions/cache@v3
         id: cache
