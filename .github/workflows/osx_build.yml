@@ -61,7 +61,7 @@ jobs:
           rm /usr/local/bin/pydoc3 || true
           rm /usr/local/bin/python3 || true
           rm /usr/local/bin/python3-config || true
-          brew install --force --overwrite --quiet gdal || true
+          arch -${{ env.GEODA_ARCH }} brew install --force --overwrite --quiet gdal || true
 
       - uses: actions/cache@v3
         id: cache
