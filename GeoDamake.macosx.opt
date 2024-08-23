@@ -17,9 +17,9 @@ LIBS	=	$(WXLIBS) \
             -L/usr/lib -liconv -lcurl -lz -lpthread \
 			-framework OpenCL \
             -L/usr/local/opt/gdal/lib -lgdal \
-            $(GEODA_HOME)/lib/libboost_date_time.a \
-            $(GEODA_HOME)/lib/libboost_thread.a \
-            $(GEODA_HOME)/lib/libboost_system.a \
+            $(GEODA_HOME)/libraries/lib/libboost_date_time.a \
+            $(GEODA_HOME)/libraries/lib/libboost_thread.a \
+            $(GEODA_HOME)/libraries/lib/libboost_system.a \
 	    	$(GEODA_HOME)/libraries/lib/libjson_spirit.a
 
 USER_DEFS = -I$(GEODA_HOME)/libraries/include
