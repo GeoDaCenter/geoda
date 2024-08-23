@@ -54,14 +54,24 @@ jobs:
           p12-file-base64: ${{ secrets.MACOS_CERTIFICATE }}
           p12-password: ${{ secrets.MACOS_CERTIFICATE_PWD }}
 
-      - name: Setup Brew
+      - name: Install GDAL using Brew x86_64
+        if: ${{ matrix.pre == 'x86_64' }}
         run: |
           rm /usr/local/bin/2to3 || true
           rm /usr/local/bin/idle3 || true
           rm /usr/local/bin/pydoc3 || true
           rm /usr/local/bin/python3 || true
           rm /usr/local/bin/python3-config || true
-          arch -${{ env.GEODA_ARCH }} brew install --force --overwrite --quiet gdal || true
+          which brew
+          brew install --force --overwrite --quiet gdal || true
+
+      - name: Install GDAL using Brew Arm64
+        if: ${{ matrix.pre == 'arm64' }}
+        run: |
+          HOMEBREW_PREFIX="/opt/homebrew"
+          HOMEBREW_REPOSITORY="${HOMEBREW_PREFIX}"
+          which brew
+          brew install gdal
 
       - uses: actions/cache@v3
         id: cache
