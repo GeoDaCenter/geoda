@@ -89,7 +89,6 @@ jobs:
 
       - name: Build GeoDa
         run: |
-          ls /opt/homebrew/opt/gdal
           mkdir -p o
           cd BuildTools/macosx
           export GEODA_HOME=$PWD

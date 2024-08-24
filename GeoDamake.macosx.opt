@@ -24,7 +24,7 @@ LIBS	=	$(WXLIBS) \
 
 USER_DEFS = -I$(GEODA_HOME)/libraries/include
 BOOST_HEADER = -I$(GEODA_HOME)/libraries/include
-GDAL_HEADER = -I/usr/loca/opt/gdal/include -D__PROJ6__
+GDAL_HEADER = -I/usr/local/opt/gdal/include -D__PROJ6__
 EIGEN_HEADER = -I$(GEODA_HOME)/temp/eigen3 -I$(GEODA_HOME)/temp/spectra/include
 
 CPPFLAGS	=  -std=c++14 -I$(GeoDa_ROOT) $(USER_LOG)
