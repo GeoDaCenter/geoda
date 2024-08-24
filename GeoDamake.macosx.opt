@@ -27,9 +27,9 @@ BOOST_HEADER = -I$(GEODA_HOME)/libraries/include
 GDAL_HEADER = -I/usr/local/opt/gdal/include -D__PROJ6__
 EIGEN_HEADER = -I$(GEODA_HOME)/temp/eigen3 -I$(GEODA_HOME)/temp/spectra/include
 
-CPPFLAGS	=  -std=c++14 -I$(GeoDa_ROOT) $(USER_LOG)
-CFLAGS		=  -std=gnu99 -O3 -Wall -Wdeclaration-after-statement $(USER_DEFS) $(GDAL_HEADER) $(EIGEN_HEADER)
-CXXFLAGS	=  -std=c++14 -O3 -Wall $(USER_DEFS) $(WX_HEADER) $(BOOST_HEADER) $(GDAL_HEADER) $(EIGEN_HEADER)
+CPPFLAGS	=  -std=c++14 -Wno-enum-constexpr-conversion -I$(GeoDa_ROOT) $(USER_LOG)
+CFLAGS		=  -std=gnu99 -O3 -Wall -Wdeclaration-after-statement -Wno-enum-constexpr-conversion $(USER_DEFS) $(GDAL_HEADER) $(EIGEN_HEADER)
+CXXFLAGS	=  -std=c++14 -O3 -Wall -Wno-enum-constexpr-conversion $(USER_DEFS) $(WX_HEADER) $(BOOST_HEADER) $(GDAL_HEADER) $(EIGEN_HEADER)
 LDFLAGS     = -arch $(GEODA_ARCH)
 
 OBJ_EXT     = o
