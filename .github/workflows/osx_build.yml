@@ -29,11 +29,11 @@ jobs:
       fail-fast: true
       matrix:
         distro:
-          - 'macos-13'
+          # - 'macos-13'
           - 'macos-14'
         include:
-          - distro: 'macos-13'
-            pre: 'x86_64'
+          # - distro: 'macos-13'
+          #   pre: 'x86_64'
           - distro: 'macos-14'
             pre: 'arm64'
     env:
