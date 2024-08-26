@@ -29,5 +29,17 @@
     "typeinfo": "cpp",
     "algorithm": "cpp"
   },
-  "C_Cpp.default.compilerPath": "/usr/bin/clang++"
+  "C_Cpp.default.compilerPath": "/usr/bin/clang++",
+  "files.exclude": {
+    "**/.git": true,
+    "**/.svn": true,
+    "**/.hg": true,
+    "**/CVS": true,
+    "**/.DS_Store": true,
+    "**/Thumbs.db": true,
+    "**/temp": true,
+    "**/build": true,
+    "**/debug": true,
+    "**/libraries": true
+  }
 }

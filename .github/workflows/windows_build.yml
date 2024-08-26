@@ -89,9 +89,15 @@ jobs:
             BuildTools/windows/temp
           key: ${{ runner.os }}-${{ matrix.platform }}-deps-cache-${{ hashFiles('BuildTools/windows/deps.md') }}
 
+      # Install innosetup
+      - name: Install innosetup
+        uses: crazy-max/ghaction-chocolatey@v3
+        with:
+          args: install innosetup --no-progress
+
       # Create Deps
       - if: steps.cache.outputs.cache-hit != 'true'
-        name: Create Dependencies 
+        name: Create Dependencies
         shell: pwsh
         run: |
           $ErrorActionPreference = 'continue'
@@ -250,13 +256,6 @@ jobs:
           {
             msbuild.exe GeoDa.vs2019.sln /t:GeoDa /property:Configuration="Release" /m /p:Platform="x64"  
           }
-          #
-          # InnoSetup
-          #
-          Choco-Install -PackageName innosetup
-          #
-          # Binary
-          #
           if($env:platform -eq "x86")
           {
             ISCC.exe /q installer\32bit\GeoDa.iss

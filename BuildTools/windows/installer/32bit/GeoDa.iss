@@ -112,21 +112,6 @@ Root: "HKLM"; Subkey: "SOFTWARE\Microsoft\Internet Explorer\MAIN\FeatureControl\
 ;Root: "HKLM"; Subkey: "SOFTWARE\Microsoft\Windows NT\CurrentVersion\AppCompatFlags\Layers\"; ValueType: String; ValueName: "{app}\GeoDa.exe"; ValueData: "RUNASADMIN"; Flags: uninsdeletekeyifempty uninsdeletevalue; MinVersion: 0,6.1
 
 [Code]
-function IsX64: Boolean;
-begin
-  Result := Is64BitInstallMode and (ProcessorArchitecture = paX64);
-end;
-
-function IsIA64: Boolean;
-begin
-  Result := Is64BitInstallMode and (ProcessorArchitecture = paIA64);
-end;
-
-function IsOtherArch: Boolean;
-begin
-  Result := not IsX64 and not IsIA64;
-end;
-
 function VCRedistNeedsInstall: Boolean;
 begin
   Result := not RegKeyExists(HKLM,'SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{03d1453c-7d5c-479c-afea-8482f406e036}');

@@ -1,6 +1,5 @@
 #!/bin/bash
 
-
 if ! [ -d build ]; then
     echo "Please run build.sh to build GeoDa executable file first."
     exit
@@ -19,7 +18,7 @@ if [[ $MACHINE_TYPE != 'x86_64' ]]; then
 fi
 
 if [[ $# -ne 2 ]]; then
-    echo "create_deb.sh focal|jammy 1.22"
+    echo "create_deb.sh focal|jammy|noble 1.22"
     exit
 fi
 
