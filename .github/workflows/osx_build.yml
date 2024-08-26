@@ -110,5 +110,5 @@ jobs:
       # Upload artifact
       - uses: actions/upload-artifact@v3
         with:
-          name: GeoDa-${{ env.GEODA_VER }}-MacOS
-          path: ${{ github.workspace }}/BuildTools/macosx/create-dmg/GeoDa${{ env.GEODA_VER }}-Installer.dmg
+          name: GeoDa-${{ env.GEODA_VER }}-${{ env.GEODA_ARCH }}-MacOS
+          path: ${{ github.workspace }}/BuildTools/macosx/create-dmg/GeoDa${{ env.GEODA_VER }}-${{ env.GEODA_ARCH }}-Installer.dmg
