@@ -76,6 +76,7 @@ jobs:
             sudo apt-get install -y libgtk-4-dev libwebkit2gtk-4.1-dev
           else
             sudo apt-get install -y libwebkitgtk-3.0-dev
+          fi
 
       - uses: actions/cache@v3
         id: cache
