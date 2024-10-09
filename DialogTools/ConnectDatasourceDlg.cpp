@@ -976,9 +976,9 @@ void ConnectDatasourceDlg::InitSamplePanel() {
       AddSampleItem(sample_sizer, sample_scrl, sample_name, sample_meta_url, ds_layername, ds_thumb,
                     base_xrcid_sample_thumb + static_cast<int>(i));
     }
-    sample_scrl->SetSizer(sizer);
+    sample_scrl->SetSizer(sample_sizer);
     sample_scrl->Layout();
-    sizer->Fit(sample_scrl);
+    sample_sizer->Fit(sample_scrl);
   }
 
   sizer->Add(sample_scrl, 1, wxEXPAND | wxRIGHT, 5);
