@@ -966,19 +966,19 @@ void ConnectDatasourceDlg::InitSamplePanel() {
   sample_scrl->SetBackgroundColour(*wxWHITE);
 #endif
   {
-    wxBoxSizer* sizer;
-    sizer = new wxBoxSizer(wxVERTICAL);
+    wxBoxSizer* sample_sizer;
+    sample_sizer = new wxBoxSizer(wxVERTICAL);
     for (size_t i = 0; i < GdaConst::sample_names.size(); i++) {
       wxString sample_name = GdaConst::sample_names[i];
       wxString sample_meta_url = GdaConst::sample_meta_urls[i];
       wxString ds_layername = GdaConst::sample_layer_names[i];
       wxString ds_thumb = GdaConst::sample_layer_names[i];
-      AddSampleItem(sizer, sample_scrl, sample_name, sample_meta_url, ds_layername, ds_thumb,
+      AddSampleItem(sample_sizer, sample_scrl, sample_name, sample_meta_url, ds_layername, ds_thumb,
                     base_xrcid_sample_thumb + static_cast<int>(i));
     }
-    sample_scrl->SetSizer(sizer);
+    sample_scrl->SetSizer(sample_sizer);
     sample_scrl->Layout();
-    sizer->Fit(sample_scrl);
+    sample_sizer->Fit(sample_scrl);
   }
 
   sizer->Add(sample_scrl, 1, wxEXPAND | wxRIGHT, 5);
