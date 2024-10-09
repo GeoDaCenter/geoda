@@ -71,6 +71,7 @@ jobs:
           brew install gdal
           sudo ln -s /opt/homebrew/opt/gdal /usr/local/opt/gdal
           sudo ln -s /opt/homebrew/opt/proj /usr/local/opt/proj
+          ls -lrt /usr/local/opt/proj/share/proj
 
       - uses: actions/cache@v3
         id: cache
