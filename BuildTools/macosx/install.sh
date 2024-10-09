@@ -61,13 +61,13 @@ if ! [ -f "../libraries/lib/libboost_thread.a" ]; then
     cd ..
 fi
 
-# Build wxWidgets 3.2.4
-if ! [ -f "wxWidgets-3.2.4.tar.bz2" ]; then
-    curl -L -O https://github.com/wxWidgets/wxWidgets/releases/download/v3.2.4/wxWidgets-3.2.4.tar.bz2
-    tar -xf wxWidgets-3.2.4.tar.bz2
+# Build wxWidgets 3.2.6
+if ! [ -f "wxWidgets-3.2.6.tar.bz2" ]; then
+    curl -L -O https://github.com/wxWidgets/wxWidgets/releases/download/v3.2.6/wxWidgets-3.2.6.tar.bz2
+    tar -xf wxWidgets-3.2.6.tar.bz2
 fi
 if ! [ -f "../libraries/bin/wx-config" ]; then
-    cd wxWidgets-3.2.4
+    cd wxWidgets-3.2.6
     ./configure --with-cocoa --with-opengl --enable-postscript --enable-textfile --without-liblzma --enable-webview --enable-cxx11 --disable-mediactrl --enable-webviewwebkit --enable-monolithic --with-libtiff=builtin --with-libpng=builtin --with-libjpeg=builtin --prefix=$GEODA_HOME/libraries
     make -j $CPUS
     make install
