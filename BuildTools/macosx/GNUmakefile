@@ -107,7 +107,7 @@ build-geoda-mac:
 	cp /usr/local/opt/proj/share/proj/NKG build/GeoDa.app/Contents/Resources/proj
 	cp /usr/local/opt/proj/share/proj/other.extra build/GeoDa.app/Contents/Resources/proj
 	cp /usr/local/opt/proj/share/proj/proj.db build/GeoDa.app/Contents/Resources/proj
-	cp /usr/local/opt/proj/share/proj/proj.init build/GeoDa.app/Contents/Resources/proj
+	cp /usr/local/opt/proj/share/proj/proj.ini build/GeoDa.app/Contents/Resources/proj
 	cp /usr/local/opt/proj/share/proj/projjson.schema.json build/GeoDa.app/Contents/Resources/proj
 	cp /usr/local/opt/proj/share/proj/deformation_model.schema.json build/GeoDa.app/Contents/Resources/proj
 	cp /usr/local/opt/proj/share/proj/triangulation.schema.json build/GeoDa.app/Contents/Resources/proj
