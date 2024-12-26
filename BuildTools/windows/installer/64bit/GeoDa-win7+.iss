@@ -132,16 +132,6 @@ begin
   Result := Is64BitInstallMode and (ProcessorArchitecture = paX64);
 end;
 
-function IsIA64: Boolean;
-begin
-  Result := Is64BitInstallMode and (ProcessorArchitecture = paIA64);
-end;
-
-function IsOtherArch: Boolean;
-begin
-  Result := not IsX64 and not IsIA64;
-end;
-
 function VCRedistNeedsInstall: Boolean;
 begin
   Result := not RegKeyExists(HKLM,'SOFTWARE\WOW6432Node\Microsoft\VisualStudio\14.0\VC\Runtimes\X64');

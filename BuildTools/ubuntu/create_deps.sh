@@ -34,6 +34,8 @@ if  [ $OS = 'jammy' ] ; then
     $APT install -y libwebkit2gtk-4.0-dev
 elif  [ $OS = 'focal' ] ; then
     $APT install -y libwebkit2gtk-4.0-dev
+elif  [ $OS = 'noble' ] ; then
+    $APT install -y libgtk-4-dev libwebkit2gtk-4.1-dev
 else
     $APT install -y libwebkitgtk-3.0-dev 
 fi
@@ -100,14 +102,14 @@ if ! [ -f "v0.8.0.zip" ] ; then
     mv spectra-0.8.0 spectra
 fi
 
-# Build wxWidgets 3.1.4
-if ! [ -f "wxWidgets-3.1.4.tar.bz2" ] ; then
-    curl -L -O https://github.com/wxWidgets/wxWidgets/releases/download/v3.1.4/wxWidgets-3.1.4.tar.bz2
+# Build wxWidgets 3.2.4
+if ! [ -f "wxWidgets-3.2.4.tar.bz2" ] ; then
+    curl -L -O https://github.com/wxWidgets/wxWidgets/releases/download/v3.2.4/wxWidgets-3.2.4.tar.bz2
 fi
-if ! [ -d "wxWidgets-3.1.4" ] ; then 
-    tar -xf wxWidgets-3.1.4.tar.bz2
+if ! [ -d "wxWidgets-3.2.4" ] ; then 
+    tar -xf wxWidgets-3.2.4.tar.bz2
 fi
-cd wxWidgets-3.1.4
+cd wxWidgets-3.2.4
 chmod +x configure
 ./configure --with-gtk=3 --disable-shared --enable-monolithic --with-opengl --enable-postscript --without-libtiff --disable-debug --enable-webview --prefix=$GEODA_HOME/libraries
 make -j$(nproc)

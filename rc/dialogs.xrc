@@ -8038,6 +8038,7 @@
                                               </object>
                                           </object>
                                       </object>
+                                      <flag>wxALL|wxALIGN_CENTRE_HORIZONTAL</flag>
                                   </object>
                                   <object class="spacer">
                                       <size>0,40</size>
@@ -8064,8 +8065,8 @@
                                               </object>
                                           </object>
                                       </object>
+                                      <flag>wxALL|wxALIGN_CENTRE_HORIZONTAL</flag>
                                   </object>
-
                               </object>
                           </object>
                           <label>File</label>
@@ -8230,16 +8231,17 @@
                                           <vgap>0</vgap>
                                           <hgap>0</hgap>
                                       </object>
-                                      <flag>wxTOP</flag>
+                                      <flag>wxALL|wxALIGN_CENTRE_HORIZONTAL</flag>
                                   </object>
                               </object>
                           </object>
                           <label>Web</label>
                       </object>
                       <size>560,340</size>
+                      <flag>wxALL|wxEXPAND</flag>
                   </object>
-                  <option>0</option>
-                  <flag>wxALL</flag>
+                  <option>1</option>
+                  <flag>wxALL|wxEXPAND</flag>
                   <border>5</border>
               </object>
             
@@ -8262,10 +8264,11 @@
                   </object>
                   <flag>wxALL|wxEXPAND</flag>
                   <border>5</border>
-                  <option>1</option>
+                  <option>0</option>
               </object>
-              <flag></flag>
+              <orient>wxHORIZONTAL</orient>
           </object>
+          <flag>wxALL|wxEXPAND</flag>
       </object>
       
       <object class="sizeritem">
@@ -8375,6 +8378,7 @@
                                                   </object>
                                               </object>
                                           </object>
+                                          <flag>wxALL|wxALIGN_CENTRE_HORIZONTAL</flag>
                                       </object>
                                       <object class="spacer">
                                           <size>2,30</size>
@@ -8401,6 +8405,7 @@
                                                   </object>
                                               </object>
                                           </object>
+                                          <flag>wxALL|wxALIGN_CENTRE_HORIZONTAL</flag>
                                       </object>
                                       <object class="sizeritem">
                                           <object class="wxBoxSizer">
@@ -8447,6 +8452,7 @@
                                                   </object>
                                               </object>
                                           </object>
+                                          <flag>wxALL|wxALIGN_CENTRE_HORIZONTAL</flag>
                                       </object>
                                   </object>
                               </object>
@@ -8612,19 +8618,21 @@
                                               <vgap>0</vgap>
                                               <hgap>0</hgap>
                                           </object>
-                                          <flag>wxTOP</flag>
+                                          <flag>wxALL|wxALIGN_CENTRE_HORIZONTAL</flag>
                                       </object>
                                   </object>
                               </object>
                               <label>Web</label>
                           </object>
                           <size>560,340</size>
+                          <flag>wxALL|wxEXPAND</flag>
                       </object>
-                      <option>0</option>
-                      <flag>wxALL</flag>
+                      <option>1</option>
+                      <flag>wxALL|wxEXPAND</flag>
                       <border>5</border>
                   </object>
               </object>
+              <flag>wxALL|wxEXPAND</flag>
           </object>
           
           <object class="sizeritem">
@@ -9043,7 +9051,7 @@
     </object>
     <title>Save As</title>
     <centered>1</centered>
-    <style>wxCAPTION|wxSYSTEM_MENU|wxCLOSE_BOX</style>
+    <style>wxCAPTION|wxSYSTEM_MENU|wxRESIZE_BORDER|wxCLOSE_BOX</style>
   </object>
   <object class="wxDialog" name="IDD_SAVE_AS_DLG" subclass="SaveAsDlg">
     <object class="wxBoxSizer">

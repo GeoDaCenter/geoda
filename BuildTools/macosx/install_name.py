@@ -79,4 +79,4 @@ def process_dependency(framework_path, dylib_name):
 
 process_dependency(FRAMEWORK_PATH, "libwx_osx_cocoau_gl-3.2.dylib")
 process_dependency(FRAMEWORK_PATH, "libwx_osx_cocoau-3.2.dylib")
-process_dependency(FRAMEWORK_PATH, "libgdal.34.dylib")
+process_dependency(FRAMEWORK_PATH, "libgdal.35.dylib")
