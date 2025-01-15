@@ -208,7 +208,24 @@ fi
 
 # unmount
 echo "Unmounting disk image..."
-hdiutil detach "${DEV_NAME}"
+# Add retry logic for unmounting
+MAX_ATTEMPTS=5
+ATTEMPT=1
+while [ $ATTEMPT -le $MAX_ATTEMPTS ]; do
+    if hdiutil detach "${DEV_NAME}" 2>/dev/null; then
+        echo "Disk image successfully unmounted"
+        break
+    else
+        echo "Attempt $ATTEMPT of $MAX_ATTEMPTS: Failed to unmount disk image, retrying in 2 seconds..."
+        sleep 2
+        ATTEMPT=$((ATTEMPT + 1))
+    fi
+done
+
+if [ $ATTEMPT -gt $MAX_ATTEMPTS ]; then
+    echo "Failed to unmount disk image after $MAX_ATTEMPTS attempts"
+    exit 1
+fi
 
 # compress image
 echo "Compressing disk image..."
