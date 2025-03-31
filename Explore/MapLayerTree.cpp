@@ -4,6 +4,7 @@
 //
 //  Created by Xun Li on 8/24/18.
 //
+#define wxUSE_GENERIC_DIALOGS 1
 
 #include <vector>
 
@@ -505,11 +506,19 @@ void MapTree::OnChangeFillColor(wxCommandEvent& event)
     wxString map_name = map_titles[new_order[select_id]];
     BackgroundMapLayer* ml = GetMapLayer(map_name);
     if (ml) {
-        wxColour clr;
-        clr = wxGetColourFromUser(this, ml->GetBrushColour());
-        ml->SetBrushColour(clr);
-        Refresh();
-        canvas->RedrawMap();
+        wxColourData clr_data;
+        clr_data.SetColour(ml->GetBrushColour());
+        clr_data.SetChooseFull(true);
+        clr_data.SetChooseAlpha(true);
+        
+        wxColourDialog dialog(this, &clr_data);
+        dialog.SetTitle(_("Choose Fill Color"));
+        if (dialog.ShowModal() == wxID_OK) {
+            wxColourData retData = dialog.GetColourData();
+            ml->SetBrushColour(retData.GetColour());
+            Refresh();
+            canvas->RedrawMap();
+        }
     }
 }
 
