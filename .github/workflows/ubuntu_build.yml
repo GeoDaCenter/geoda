@@ -111,7 +111,7 @@ jobs:
           ./install.sh
 
       # Upload artifact
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: GeoDa-${{ env.GEODA_VER }}-${{ env.TARGET_OS }}
           path: ${{ github.workspace }}/BuildTools/ubuntu/geoda_${{ env.GEODA_VER }}-1${{ env.TARGET_OS }}1_amd64.deb
