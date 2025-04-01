@@ -49,7 +49,7 @@ jobs:
 
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       # Set environment
       - name: Set environment
@@ -81,7 +81,7 @@ jobs:
           echo ::set-env name=LIB::%LIB%
           echo ::set-env name=LIBPATH::%LIBPATH%
 
-      - uses: actions/cache@v3
+      - uses: actions/cache@v4
         id: cache
         with:
           path: |
@@ -268,12 +268,12 @@ jobs:
           } 
           dir
 
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: GeoDa-Windows-${{ env.platform }}-installer
           path: ${{ github.workspace }}\BuildTools\windows\GeoDa_1.22_${{ env.platform }}_Setup.exe
 
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: GeoDa-Windows7+-${{ env.platform }}-installer
           path: ${{ github.workspace }}\BuildTools\windows\GeoDa_1.22_win7+${{ env.platform }}_Setup.exe
