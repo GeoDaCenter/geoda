@@ -224,7 +224,7 @@ void TemplateLegend::OnEvent(wxMouseEvent& event)
         wxMenu* optMenu = wxXmlResource::Get()->LoadMenu("ID_MAP_VIEW_MENU_LEGEND");
 		AddCategoryColorToMenu(optMenu, cat_clicked);
     	wxMenuItem* mi = optMenu->FindItem(XRCID("ID_LEGEND_USE_SCI_NOTATION"));
-    	if (mi && mi->IsCheckable()) {
+    	if (mi && mi->IsCheckable() && mi->GetMenu()) {
             mi->Check(template_canvas->useScientificNotation);
         }
         PopupMenu(optMenu, event.GetPosition());
