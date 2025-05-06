@@ -52,7 +52,7 @@ jobs:
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Prepare on ${{ matrix.distro }}
         run: |
@@ -78,7 +78,7 @@ jobs:
             sudo apt-get install -y libwebkitgtk-3.0-dev
           fi
 
-      - uses: actions/cache@v3
+      - uses: actions/cache@v4
         id: cache
         with:
           path: |
