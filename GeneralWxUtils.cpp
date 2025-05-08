@@ -447,7 +447,7 @@ bool GeneralWxUtils::CheckMenuItem(wxMenu* menu, int id, bool check)
 	if (!menu) return false;
 	wxMenuItem* mItem =	menu->FindItem(id);
 	if (!mItem) return false;
-	if (!mItem->IsCheckable()) return false;
+	if (!mItem->IsCheckable() && mItem->GetMenu()) return false;
 	mItem->Check(check);
 	return true;
 }
