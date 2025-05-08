@@ -31,16 +31,12 @@ jobs:
         distro:
           - 'ubuntu-24.04'
           - 'ubuntu-22.04'
-          - 'ubuntu-20.04'
         include:
           - distro: 'ubuntu-24.04'
             pre: 'noble'
             ldflags: '-lgdal -lcurl -L/usr/lib/x86_64-linux-gnu -lz -lwebkit2gtk-4.1 -lEGL -ljavascriptcoregtk-4.1'
           - distro: 'ubuntu-22.04'
             pre: 'jammy'
-            ldflags: '-lgdal -lcurl -L/usr/lib/x86_64-linux-gnu -lz -lwebkit2gtk-4.0 -lEGL -ljavascriptcoregtk-4.0'
-          - distro: 'ubuntu-20.04'
-            pre: 'focal'
             ldflags: '-lgdal -lcurl -L/usr/lib/x86_64-linux-gnu -lz -lwebkit2gtk-4.0 -lEGL -ljavascriptcoregtk-4.0'
 
     env:
