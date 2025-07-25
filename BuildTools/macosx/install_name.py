@@ -18,11 +18,13 @@ def get_gdal_dylib_name():
                                                stderr=subprocess.STDOUT,
                                                universal_newlines=True).strip()
 
-        # Extract major version (e.g., "3.7.4" -> "7", "3.11.3" -> "11")
-        major_version = gdal_version.split('.')[1]
+        # Extract major version (e.g., "3.7.4" -> "3", "3.11.3" -> "3")
+        major_version = gdal_version.split('.')[0]
+        # Extract minor version (e.g., "3.7.4" -> "7", "3.11.3" -> "11")
+        minor_version = gdal_version.split('.')[1]
 
         # Always use the standard naming pattern based on major version
-        standard_name = f"libgdal.{major_version}.dylib"
+        standard_name = f"libgdal.{major_version}{minor_version}.dylib"
 
         # Check if the standard dylib exists
         possible_paths = [
