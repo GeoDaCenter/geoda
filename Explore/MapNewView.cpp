@@ -1457,7 +1457,7 @@ void MapCanvas::AddTimeVariantOptionsToMenu(wxMenu* menu)
                                           var_info[i].name);
             wxMenuItem* mi;
             mi = menu1->AppendCheckItem(GdaConst::ID_TIME_SYNC_VAR1+i, s, s);
-            if (mi && mi->IsCheckable()) mi->Check(var_info[i].sync_with_global_time);
+            if (mi && mi->IsCheckable() && mi->GetMenu()) mi->Check(var_info[i].sync_with_global_time);
 		}
 	}
     menu->AppendSeparator();
@@ -3722,16 +3722,16 @@ void MapFrame::OnMapBasemap(wxCommandEvent& e)
                                                 items[j].name);
                 wxMenuItem* menu = popupMenu->FindItem(XRCID(xid));
                 if (current_item == items[j]) {
-                    if (menu && menu->IsCheckable()) menu->Check(true);
+                    if (menu && menu->IsCheckable() && menu->GetMenu()) menu->Check(true);
                     no_basemap = false;
                 } else {
-                    if (menu && menu->IsCheckable()) menu->Check(false);
+                    if (menu && menu->IsCheckable() && menu->GetMenu()) menu->Check(false);
                 }
             }
         }
         if (no_basemap) {
             wxMenuItem* menu = popupMenu->FindItem(XRCID("ID_NO_BASEMAP"));
-            if (menu && menu->IsCheckable()) menu->Check();
+            if (menu && menu->IsCheckable() && menu->GetMenu()) menu->Check();
         }
         PopupMenu(popupMenu, wxDefaultPosition);
     }

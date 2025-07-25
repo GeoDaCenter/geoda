@@ -22,19 +22,19 @@ jobs:
   # This workflow contains a single job called "build"
   windows_build:
     # The type of runner that the job will run on
-    runs-on: windows-2019
+    runs-on: windows-2022
     if: ${{ !contains(github.event.head_commit.message, '[ci skip]') && !contains(github.event.head_commit.message, '[skip ci]') }}
 
     strategy:
       matrix:
         include:
-          - VS_VERSION: Visual Studio 16
-            VS_VER: 2019
-            MSVC_VER: 1920
+          - VS_VERSION: Visual Studio 17
+            VS_VER: 2022
+            MSVC_VER: 1930
             platform: x64
-          - VS_VERSION: Visual Studio 16
-            VS_VER: 2019
-            MSVC_VER: 1920
+          - VS_VERSION: Visual Studio 17
+            VS_VER: 2022
+            MSVC_VER: 1930
             platform: x86
 
     env:
@@ -49,7 +49,7 @@ jobs:
 
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       # Set environment
       - name: Set environment
@@ -75,13 +75,13 @@ jobs:
       - name: Set compiler environment
         shell: cmd
         run: |
-          if "%VS_VER%" == "2019" CALL "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\Common7\Tools\VsDevCmd.bat" -arch=%ARCHITECTURE%
+          if "%VS_VER%" == "2022" CALL "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\Common7\Tools\VsDevCmd.bat" -arch=%ARCHITECTURE%
           echo ::set-env name=PATH::%PATH%
           echo ::set-env name=INCLUDE::%INCLUDE%
           echo ::set-env name=LIB::%LIB%
           echo ::set-env name=LIBPATH::%LIBPATH%
 
-      - uses: actions/cache@v3
+      - uses: actions/cache@v4
         id: cache
         with:
           path: |
@@ -113,7 +113,7 @@ jobs:
           # install pscx powershell and vSSetup
           Install-Module Pscx -AllowClobber
           Install-Module VSSetup -Scope CurrentUser
-          if($env:VS_VER -eq "2019")
+          if($env:VS_VER -eq "2022")
           {
           }
           else
@@ -238,7 +238,7 @@ jobs:
           # install pscx powershell and vSSetup
           Install-Module Pscx -AllowClobber
           Install-Module VSSetup -Scope CurrentUser
-          if($env:VS_VER -eq "2019")
+          if($env:VS_VER -eq "2022")
           {
           }
           else
@@ -268,12 +268,12 @@ jobs:
           } 
           dir
 
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: GeoDa-Windows-${{ env.platform }}-installer
           path: ${{ github.workspace }}\BuildTools\windows\GeoDa_1.22_${{ env.platform }}_Setup.exe
 
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: GeoDa-Windows7+-${{ env.platform }}-installer
           path: ${{ github.workspace }}\BuildTools\windows\GeoDa_1.22_win7+${{ env.platform }}_Setup.exe
