@@ -8,8 +8,8 @@ if [ -z "$GDAL_VERSION" ]; then
     exit 1
 fi
 
-# Extract major version (e.g., "3.7.4" -> "37")
-MAJOR_VERSION=$(echo $GDAL_VERSION | cut -d. -f1,2 | tr -d .)
+# Extract major version (e.g., "3.7.4" -> "7", "3.11.3" -> "11")
+MAJOR_VERSION=$(echo $GDAL_VERSION | cut -d. -f2)
 
 # Always use the standard naming pattern based on major version
 DYLIB_NAME="libgdal.${MAJOR_VERSION}.dylib"
@@ -20,21 +20,7 @@ if [ -f "/usr/local/opt/gdal/lib/$DYLIB_NAME" ]; then
 elif [ -f "/opt/homebrew/opt/gdal/lib/$DYLIB_NAME" ]; then
     DYLIB_PATH="/opt/homebrew/opt/gdal/lib/$DYLIB_NAME"
 else
-    # If standard dylib doesn't exist, try to find any libgdal.*.dylib file
-    if command -v find >/dev/null 2>&1; then
-        FOUND_DYLIB=$(find /usr/local/opt/gdal/lib /opt/homebrew/opt/gdal/lib -name "libgdal.*.dylib" 2>/dev/null | head -1)
-        if [ -n "$FOUND_DYLIB" ]; then
-            DYLIB_PATH="$FOUND_DYLIB"
-            # Still use the standard name for consistency
-            DYLIB_NAME="libgdal.${MAJOR_VERSION}.dylib"
-        else
-            echo "Error: Could not find libgdal dylib file" >&2
-            exit 1
-        fi
-    else
-        echo "Error: Could not find libgdal dylib file" >&2
-        exit 1
-    fi
+    echo "Error: Could not find libgdal dylib file" >&2
 fi
 
 # Output the results
