@@ -297,7 +297,7 @@ void HistogramCanvas::AddTimeVariantOptionsToMenu(wxMenu* menu)
 		s << "Synchronize " << var_info[0].name << " with Time Control";
 		wxMenuItem* mi =
 		menu1->AppendCheckItem(GdaConst::ID_TIME_SYNC_VAR1+0, s, s);
-        if (mi && mi->IsCheckable()) mi->Check(var_info[0].sync_with_global_time);
+        if (mi && mi->IsCheckable() && mi->GetMenu()) mi->Check(var_info[0].sync_with_global_time);
 	}
     menu->AppendSeparator();
     menu->Append(wxID_ANY, _("Time Variable Options"),

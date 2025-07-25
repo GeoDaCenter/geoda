@@ -31,16 +31,12 @@ jobs:
         distro:
           - 'ubuntu-24.04'
           - 'ubuntu-22.04'
-          - 'ubuntu-20.04'
         include:
           - distro: 'ubuntu-24.04'
             pre: 'noble'
             ldflags: '-lgdal -lcurl -L/usr/lib/x86_64-linux-gnu -lz -lwebkit2gtk-4.1 -lEGL -ljavascriptcoregtk-4.1'
           - distro: 'ubuntu-22.04'
             pre: 'jammy'
-            ldflags: '-lgdal -lcurl -L/usr/lib/x86_64-linux-gnu -lz -lwebkit2gtk-4.0 -lEGL -ljavascriptcoregtk-4.0'
-          - distro: 'ubuntu-20.04'
-            pre: 'focal'
             ldflags: '-lgdal -lcurl -L/usr/lib/x86_64-linux-gnu -lz -lwebkit2gtk-4.0 -lEGL -ljavascriptcoregtk-4.0'
 
     env:
@@ -52,7 +48,7 @@ jobs:
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Prepare on ${{ matrix.distro }}
         run: |
@@ -78,7 +74,7 @@ jobs:
             sudo apt-get install -y libwebkitgtk-3.0-dev
           fi
 
-      - uses: actions/cache@v3
+      - uses: actions/cache@v4
         id: cache
         with:
           path: |
@@ -111,7 +107,7 @@ jobs:
           ./install.sh
 
       # Upload artifact
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: GeoDa-${{ env.GEODA_VER }}-${{ env.TARGET_OS }}
           path: ${{ github.workspace }}/BuildTools/ubuntu/geoda_${{ env.GEODA_VER }}-1${{ env.TARGET_OS }}1_amd64.deb
