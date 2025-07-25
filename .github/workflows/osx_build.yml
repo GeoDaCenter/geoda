@@ -69,6 +69,7 @@ jobs:
         run: |
           arch
           brew install gdal
+          sudo mkdir -p /usr/local/opt
           sudo ln -s /opt/homebrew/opt/gdal /usr/local/opt/gdal
           sudo ln -s /opt/homebrew/opt/proj /usr/local/opt/proj
 
