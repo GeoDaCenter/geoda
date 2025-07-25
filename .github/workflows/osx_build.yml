@@ -63,6 +63,12 @@ jobs:
           rm /usr/local/bin/python3 || true
           rm /usr/local/bin/python3-config || true
           brew install --force --overwrite --quiet gdal || true
+          # Get GDAL version for later use
+          GDAL_VERSION=$(gdal-config --version)
+          GDAL_MAJOR_VERSION=$(echo $GDAL_VERSION | cut -d. -f1,2 | tr -d .)
+          echo "GDAL_VERSION=$GDAL_VERSION" >> $GITHUB_ENV
+          echo "GDAL_MAJOR_VERSION=$GDAL_MAJOR_VERSION" >> $GITHUB_ENV
+          echo "GDAL_DYLIB_NAME=libgdal.${GDAL_MAJOR_VERSION}.dylib" >> $GITHUB_ENV
 
       - name: Install GDAL using Brew Arm64
         if: ${{ matrix.pre == 'arm64' }}
@@ -72,6 +78,12 @@ jobs:
           sudo mkdir -p /usr/local/opt
           sudo ln -s /opt/homebrew/opt/gdal /usr/local/opt/gdal
           sudo ln -s /opt/homebrew/opt/proj /usr/local/opt/proj
+          # Get GDAL version for later use
+          GDAL_VERSION=$(gdal-config --version)
+          GDAL_MAJOR_VERSION=$(echo $GDAL_VERSION | cut -d. -f1,2 | tr -d .)
+          echo "GDAL_VERSION=$GDAL_VERSION" >> $GITHUB_ENV
+          echo "GDAL_MAJOR_VERSION=$GDAL_MAJOR_VERSION" >> $GITHUB_ENV
+          echo "GDAL_DYLIB_NAME=libgdal.${GDAL_MAJOR_VERSION}.dylib" >> $GITHUB_ENV
 
       - uses: actions/cache@v4
         id: cache

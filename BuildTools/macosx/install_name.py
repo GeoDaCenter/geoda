@@ -77,6 +77,47 @@ def process_dependency(framework_path, dylib_name):
     os.system(cmd)
 
 
+def get_gdal_dylib_name():
+    """Get the GDAL dylib name dynamically"""
+    try:
+        # Get GDAL version from gdal-config
+        gdal_version = subprocess.check_output(['gdal-config', '--version'],
+                                               stderr=subprocess.STDOUT,
+                                               universal_newlines=True).strip()
+
+        # Extract major version (e.g., "3.7.4" -> "37")
+        major_version = ''.join(gdal_version.split('.')[:2])
+
+        # Always use the standard naming pattern based on major version
+        standard_name = f"libgdal.{major_version}.dylib"
+
+        # Check if the standard dylib exists
+        possible_paths = [
+            f"/usr/local/opt/gdal/lib/{standard_name}",
+            f"/opt/homebrew/opt/gdal/lib/{standard_name}"
+        ]
+
+        for path in possible_paths:
+            if os.path.exists(path):
+                return standard_name
+
+        # If standard dylib doesn't exist, check if any libgdal.*.dylib file exists
+        # but still return the standard name for consistency
+        for base_path in ["/usr/local/opt/gdal/lib", "/opt/homebrew/opt/gdal/lib"]:
+            if os.path.exists(base_path):
+                for file in os.listdir(base_path):
+                    if file.startswith("libgdal.") and file.endswith(".dylib"):
+                        # Found a dylib file, but return the standard name
+                        return standard_name
+
+        # If all else fails, return the standard name
+        return standard_name
+
+    except (subprocess.CalledProcessError, FileNotFoundError):
+        # Fallback to default if gdal-config is not available
+        return "libgdal.37.dylib"
+
+
 process_dependency(FRAMEWORK_PATH, "libwx_osx_cocoau_gl-3.2.dylib")
 process_dependency(FRAMEWORK_PATH, "libwx_osx_cocoau-3.2.dylib")
-process_dependency(FRAMEWORK_PATH, "libgdal.36.dylib")
+process_dependency(FRAMEWORK_PATH, get_gdal_dylib_name())
