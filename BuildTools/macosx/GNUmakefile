@@ -115,16 +115,15 @@ build-geoda-mac:
 	cp libraries/lib/libwx_osx_cocoau-3.2.0.3.0.dylib build/GeoDa.app/Contents/Frameworks/libwx_osx_cocoau-3.2.dylib
 	cp libraries/lib/libwx_osx_cocoau_gl-3.2.0.3.0.dylib build/GeoDa.app/Contents/Frameworks/libwx_osx_cocoau_gl-3.2.dylib
 	# Get GDAL version dynamically
-	$(eval GDAL_INFO := $(shell ./get_gdal_version.sh))
-	$(eval GDAL_DYLIB_NAME := $(shell echo "$(GDAL_INFO)" | grep "DYLIB_NAME=" | cut -d= -f2))
-	$(eval GDAL_DYLIB_PATH := $(shell echo "$(GDAL_INFO)" | grep "DYLIB_PATH=" | cut -d= -f2))
-	cp $(GDAL_DYLIB_PATH) build/GeoDa.app/Contents/Frameworks
+	$(eval GDAL_DYLIB_NAME := $(shell ./get_gdal_version.sh | grep "DYLIB_NAME=" | cut -d= -f2))
+	$(eval GDAL_DYLIB_PATH := $(shell ./get_gdal_version.sh | grep "DYLIB_PATH=" | cut -d= -f2))
+	cp $(GDAL_DYLIB_PATH) build/GeoDa.app/Contents/Frameworks/$(GDAL_DYLIB_NAME)
 	install_name_tool -id "GeoDa" build/GeoDa.app/Contents/MacOS/GeoDa
 	install_name_tool -change "$(GEODA_HOME)/libraries/lib/libwx_osx_cocoau_gl-3.2.0.3.0.dylib" "@executable_path/../Frameworks/libwx_osx_cocoau_gl-3.2.dylib" build/GeoDa.app/Contents/MacOS/GeoDa
 	install_name_tool -change "$(GEODA_HOME)/libraries/lib/libwx_osx_cocoau-3.2.0.3.0.dylib" "@executable_path/../Frameworks/libwx_osx_cocoau-3.2.dylib" build/GeoDa.app/Contents/MacOS/GeoDa
 	install_name_tool -change "/usr/local/opt/gdal/lib/$(GDAL_DYLIB_NAME)" "@executable_path/../Frameworks/$(GDAL_DYLIB_NAME)" build/GeoDa.app/Contents/MacOS/GeoDa
 	install_name_tool -change "/opt/homebrew/opt/gdal/lib/$(GDAL_DYLIB_NAME)" "@executable_path/../Frameworks/$(GDAL_DYLIB_NAME)" build/GeoDa.app/Contents/MacOS/GeoDa
-	python3 install_name.py $(GEODA_HOME)/build/GeoDa.app/Contents/Frameworks "Developer ID Application: Geodapress LLC (26M5NG43GP)"
+	python3 install_name.py $(GEODA_HOME)/build/GeoDa.app/Contents/Frameworks "Developer ID Application: Geodapress LLC (26M5NG43GP)" $(GDAL_DYLIB_NAME)
 	install_name_tool -change "@executable_path/../Frameworks/libwx_osx_cocoau-3.2.0.3.0.dylib" "@executable_path/../Frameworks/libwx_osx_cocoau-3.2.dylib" build/GeoDa.app/Contents/Frameworks/libwx_osx_cocoau_gl-3.2.dylib
 	codesign -f --timestamp -o runtime -s "Developer ID Application: Geodapress LLC (26M5NG43GP)" build/GeoDa.app/Contents/Frameworks/libwx_osx_cocoau_gl-3.2.dylib
 	codesign -f --timestamp -o runtime -s "Developer ID Application: Geodapress LLC (26M5NG43GP)" build/GeoDa.app/Contents/Frameworks/libwx_osx_cocoau-3.2.0.3.0.dylib
