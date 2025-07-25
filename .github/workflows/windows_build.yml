@@ -28,13 +28,13 @@ jobs:
     strategy:
       matrix:
         include:
-          - VS_VERSION: Visual Studio 16
-            VS_VER: 2019
-            MSVC_VER: 1920
+          - VS_VERSION: Visual Studio 17 2022
+            VS_VER: 2022
+            MSVC_VER: v143
             platform: x64
-          - VS_VERSION: Visual Studio 16
-            VS_VER: 2019
-            MSVC_VER: 1920
+          - VS_VERSION: Visual Studio 17 2022
+            VS_VER: 2022
+            MSVC_VER: v143
             platform: x86
 
     env:
