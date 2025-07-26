@@ -114,7 +114,7 @@ Root: "HKLM"; Subkey: "SOFTWARE\Microsoft\Internet Explorer\MAIN\FeatureControl\
 [Code]
 function VCRedistNeedsInstall: Boolean;
 begin
-  Result := not RegKeyExists(HKLM,'SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{03d1453c-7d5c-479c-afea-8482f406e036}');
+  Result := not RegKeyExists(HKLM,'SOFTWARE\Microsoft\VisualStudio\14.0\VC\Runtimes\X86');
 end;
 
 function GetUninstallString: string;
