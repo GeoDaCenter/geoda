@@ -270,8 +270,7 @@ jobs:
           {
             ISCC.exe /q installer\64bit\GeoDa.iss
             ISCC.exe /q installer\64bit\GeoDa-win7+.iss
-          } 
-          dir
+          }
 
       - uses: actions/upload-artifact@v4
         with:

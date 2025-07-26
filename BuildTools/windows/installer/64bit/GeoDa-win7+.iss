@@ -15,7 +15,7 @@ UninstallDisplayIcon={app}\GeoDa.exe
 Compression=lzma2
 SolidCompression=yes
 OutputDir=..\..
-OutputBaseFilename=GeoDa_1.22.0.18_win7+x64_Setup
+OutputBaseFilename=GeoDa_1.22_win7+x64_Setup
 ;OutputDir=userdocs:Inno Setup Examples Output
 
 ; "ArchitecturesAllowed=x64" specifies that Setup cannot run on
@@ -150,31 +150,110 @@ begin
   Result := sUnInstallString;
 end;
 
+function GetUninstallString2: string;
+var
+  sUnInstPath: string;
+  sUnInstallString: String;
+begin
+  Result := '';
+  sUnInstPath := ExpandConstant('Software\Microsoft\Windows\CurrentVersion\Uninstall\GeoDa_is2'); //Alternative App GUID/ID
+  sUnInstallString := '';
+  if not RegQueryStringValue(HKLM, sUnInstPath, 'UninstallString', sUnInstallString) then
+    RegQueryStringValue(HKCU, sUnInstPath, 'UninstallString', sUnInstallString);
+  Result := sUnInstallString;
+end;
+
 function IsUpgrade: Boolean;
 begin
-  Result := (GetUninstallString() <> '');
+  Result := (GetUninstallString() <> '') or (GetUninstallString2() <> '');
+end;
+
+function IsGeoDaInstalled: Boolean;
+begin
+  Result := RegValueExists(HKEY_LOCAL_MACHINE,'Software\Microsoft\Windows\CurrentVersion\Uninstall\GeoDa_is1', 'UninstallString') or
+            RegValueExists(HKEY_LOCAL_MACHINE,'Software\Microsoft\Windows\CurrentVersion\Uninstall\GeoDa_is2', 'UninstallString') or
+            RegValueExists(HKEY_CURRENT_USER,'Software\Microsoft\Windows\CurrentVersion\Uninstall\GeoDa_is1', 'UninstallString') or
+            RegValueExists(HKEY_CURRENT_USER,'Software\Microsoft\Windows\CurrentVersion\Uninstall\GeoDa_is2', 'UninstallString');
+end;
+
+function UninstallExistingGeoDa: Boolean;
+var
+  iResultCode: Integer;
+  sUnInstallString: string;
+  UninstallSuccess: Boolean;
+begin
+  Result := True;
+  UninstallSuccess := False;
+  
+  // Try first uninstall string
+  sUnInstallString := GetUninstallString();
+  if sUnInstallString <> '' then
+  begin
+    sUnInstallString := RemoveQuotes(sUnInstallString);
+    if Exec(ExpandConstant(sUnInstallString), '/SILENT', '', SW_HIDE, ewWaitUntilTerminated, iResultCode) then
+    begin
+      UninstallSuccess := True;
+    end;
+  end;
+  
+  // Try second uninstall string if first failed
+  if not UninstallSuccess then
+  begin
+    sUnInstallString := GetUninstallString2();
+    if sUnInstallString <> '' then
+    begin
+      sUnInstallString := RemoveQuotes(sUnInstallString);
+      if Exec(ExpandConstant(sUnInstallString), '/SILENT', '', SW_HIDE, ewWaitUntilTerminated, iResultCode) then
+      begin
+        UninstallSuccess := True;
+      end;
+    end;
+  end;
+  
+  // Wait a moment for uninstall to complete
+  if UninstallSuccess then
+  begin
+    Sleep(2000);
+  end;
 end;
 
 function InitializeSetup: Boolean;
 var
   V: Integer;
-  iResultCode: Integer;
-  sUnInstallString: string;
+  UninstallAttempted: Boolean;
 begin
   Result := True; // in case when no previous version is found
-  if RegValueExists(HKEY_LOCAL_MACHINE,'Software\Microsoft\Windows\CurrentVersion\Uninstall\GeoDa_is1', 'UninstallString') then  //Your App GUID/ID
+  UninstallAttempted := False;
+  
+  if IsGeoDaInstalled then
   begin
-    V := MsgBox(ExpandConstant('An old version of GeoDa was detected. Please uninstall it before continuing.'), mbInformation, MB_YESNO); //Custom Message if App installed
+    V := MsgBox('An existing version of GeoDa was detected. Would you like to automatically uninstall it before installing the new version?' + #13#10 + #13#10 + 
+                'Click Yes to automatically uninstall the existing version.' + #13#10 +
+                'Click No to cancel the installation.', mbInformation, MB_YESNO);
     if V = IDYES then
     begin
-      sUnInstallString := GetUninstallString();
-      sUnInstallString :=  RemoveQuotes(sUnInstallString);
-      Exec(ExpandConstant(sUnInstallString), '', '', SW_SHOW, ewWaitUntilTerminated, iResultCode);
-      Result := True; //if you want to proceed after uninstall
-      //Exit; //if you want to quit after uninstall
+      UninstallAttempted := True;
+      if UninstallExistingGeoDa() then
+      begin
+        // Check if uninstall was successful
+        if IsGeoDaInstalled then
+        begin
+          V := MsgBox('The automatic uninstall may not have completed successfully. Would you like to continue with the installation anyway?' + #13#10 + #13#10 +
+                      'Note: This may cause conflicts with the existing installation.', mbConfirmation, MB_YESNO);
+          if V = IDNO then
+            Result := False;
+        end;
+      end
+      else
+      begin
+        V := MsgBox('Failed to automatically uninstall the existing version. Would you like to continue with the installation anyway?' + #13#10 + #13#10 +
+                    'Note: This may cause conflicts with the existing installation.', mbConfirmation, MB_YESNO);
+        if V = IDNO then
+          Result := False;
+      end;
     end
     else
-      Result := False; //when older version present and not uninstalled
+      Result := False; //when older version present and user chose not to uninstall
   end;
 end;
 
@@ -253,4 +332,3 @@ Filename: "{userappdata}\GeoDa\lang\config.ini"; Section: "Translation"; Key: "L
 
 [Run]
 Filename: {app}\VC_redist.x64.exe; StatusMsg: Installing Visual C++ Redistributable for Visual Studio 2019 (14.28.29913.0)...; Check: VCRedistNeedsInstall
-
