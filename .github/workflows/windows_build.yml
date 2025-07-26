@@ -271,7 +271,18 @@ jobs:
             ISCC.exe /q installer\64bit\GeoDa.iss
             ISCC.exe /q installer\64bit\GeoDa-win7+.iss
           } 
+
+          echo "=== Current directory contents ==="
           dir
+          echo "=== Parent directory contents ==="
+          dir ..
+          echo "=== Grandparent directory contents ==="
+          dir ..\..
+          echo "=== Looking for installer files ==="
+          Get-ChildItem -Path . -Recurse -Filter "*.exe" | Where-Object {$_.Name -like "*GeoDa*Setup*"} | Select-Object FullName, Name, Length
+          echo "=== Looking in parent directories ==="
+          Get-ChildItem -Path .. -Filter "*.exe" | Where-Object {$_.Name -like "*GeoDa*Setup*"} | Select-Object FullName, Name, Length
+          Get-ChildItem -Path ..\.. -Filter "*.exe" | Where-Object {$_.Name -like "*GeoDa*Setup*"} | Select-Object FullName, Name, Length
 
       - uses: actions/upload-artifact@v4
         with:
