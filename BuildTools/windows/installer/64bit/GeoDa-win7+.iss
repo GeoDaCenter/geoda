@@ -5,7 +5,7 @@ AppPublisherURL=https://spatial.uchicago.edu/
 AppSupportURL=https://spatial.uchicago.edu/
 AppUpdatesURL=https://spatial.uchicago.edu/
 AppSupportPhone=(480)965-7533
-AppVersion=1.22
+AppVersion=1.22.0.18
 DefaultDirName={pf}\GeoDa Software
 DefaultGroupName=GeoDa Software
 ; Since no icons will be created in "{group}", we don't need the wizard
@@ -15,7 +15,7 @@ UninstallDisplayIcon={app}\GeoDa.exe
 Compression=lzma2
 SolidCompression=yes
 OutputDir=..\..
-OutputBaseFilename=GeoDa_1.22_win7+x64_Setup
+OutputBaseFilename=GeoDa_1.22.0.18_win7+x64_Setup
 ;OutputDir=userdocs:Inno Setup Examples Output
 
 ; "ArchitecturesAllowed=x64" specifies that Setup cannot run on
@@ -332,4 +332,3 @@ Filename: "{userappdata}\GeoDa\lang\config.ini"; Section: "Translation"; Key: "L
 
 [Run]
 Filename: {app}\VC_redist.x64.exe; StatusMsg: Installing Visual C++ Redistributable for Visual Studio 2019 (14.28.29913.0)...; Check: VCRedistNeedsInstall
-

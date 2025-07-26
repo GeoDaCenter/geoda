@@ -256,6 +256,11 @@ jobs:
           {
             msbuild.exe GeoDa.vs2019.sln /t:GeoDa /property:Configuration="Release" /m /p:Platform="x64"  
           }
+          # update installer version numbers in iss files
+          python update_installer_version.py
+          if ($LASTEXITCODE -ne 0) {
+            Write-Warning "Failed to update installer version numbers, continuing with build..."
+          }
           if($env:platform -eq "x86")
           {
             ISCC.exe /q installer\32bit\GeoDa.iss
