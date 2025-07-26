@@ -220,7 +220,7 @@ begin
         if IsGeoDaInstalled then
         begin
           V := MsgBox('The automatic uninstall may not have completed successfully. Would you like to continue with the installation anyway?' + #13#10 + #13#10 +
-                      'Note: This may cause conflicts with the existing installation.', mbWarning, MB_YESNO);
+                      'Note: This may cause conflicts with the existing installation.', mbConfirmation, MB_YESNO);
           if V = IDNO then
             Result := False;
         end;
@@ -228,7 +228,7 @@ begin
       else
       begin
         V := MsgBox('Failed to automatically uninstall the existing version. Would you like to continue with the installation anyway?' + #13#10 + #13#10 +
-                    'Note: This may cause conflicts with the existing installation.', mbWarning, MB_YESNO);
+                    'Note: This may cause conflicts with the existing installation.', mbConfirmation, MB_YESNO);
         if V = IDNO then
           Result := False;
       end;
