@@ -15,7 +15,7 @@ UninstallDisplayIcon={app}\GeoDa.exe
 Compression=lzma2
 SolidCompression=yes
 OutputDir=..\..
-OutputBaseFilename=GeoDa_1.22.0.18_win7+x86_Setup
+OutputBaseFilename=GeoDa_1.22_win7+x86_Setup
 ;OutputDir=userdocs:Inno Setup Examples Output
 
 ChangesAssociations=yes
