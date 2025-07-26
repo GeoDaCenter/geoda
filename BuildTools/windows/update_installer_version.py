@@ -56,15 +56,14 @@ def update_installer_file(iss_file_path, full_version):
         old_pattern = r'(AppVersion=)1\.\d+(\.\d+)*'
         new_content = re.sub(old_pattern, f'\\g<1>{full_version}', content)
 
-        # Also update OutputBaseFilename to use full version for internal versioning
-        old_filename_pattern = r'(OutputBaseFilename=GeoDa_)1\.\d+(\.\d+)*'
-        new_content = re.sub(old_filename_pattern,
-                             f'\\g<1>{full_version}', new_content)
+        # Keep OutputBaseFilename unchanged - only update AppVersion
+        # This ensures the filename pattern remains as expected in the workflow
 
         if new_content != content:
             with open(iss_file_path, 'w') as f:
                 f.write(new_content)
-            print(f"Updated {iss_file_path} with version {full_version}")
+            print(
+                f"Updated {iss_file_path} with version {full_version} (AppVersion only)")
             return True
         else:
             print(f"No changes needed for {iss_file_path}")
