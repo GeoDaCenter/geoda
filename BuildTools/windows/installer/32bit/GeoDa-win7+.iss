@@ -157,21 +157,71 @@ begin
             RegValueExists(HKEY_CURRENT_USER,'Software\Microsoft\Windows\CurrentVersion\Uninstall\GeoDa_is2', 'UninstallString');
 end;
 
+function GetUninstallParameters: string;
+var
+  UninstallParams: string;
+  i: Integer;
+  HasSilentMode: Boolean;
+  HasSuppressMsgBox: Boolean;
+begin
+  UninstallParams := '';
+  HasSilentMode := False;
+  HasSuppressMsgBox := False;
+  
+  // Check all parameters for silent mode and suppress message box flags
+  for i := 1 to ParamCount do
+  begin
+    if ParamStr(i) = '/VERYSILENT' then
+    begin
+      UninstallParams := '/VERYSILENT';
+      HasSilentMode := True;
+    end
+    else if ParamStr(i) = '/SILENT' then
+    begin
+      if not HasSilentMode then
+      begin
+        UninstallParams := '/SILENT';
+        HasSilentMode := True;
+      end;
+    end
+    else if ParamStr(i) = '/SUPPRESSMSGBOXES' then
+    begin
+      HasSuppressMsgBox := True;
+    end;
+  end;
+  
+  // If no silent mode was found, default to /SILENT for interactive mode
+  if not HasSilentMode then
+  begin
+    UninstallParams := '/SILENT';
+  end;
+  
+  // Add /SUPPRESSMSGBOXES if it was found
+  if HasSuppressMsgBox then
+  begin
+    UninstallParams := UninstallParams + ' /SUPPRESSMSGBOXES';
+  end;
+  
+  Result := UninstallParams;
+end;
+
 function UninstallExistingGeoDa: Boolean;
 var
   iResultCode: Integer;
   sUnInstallString: string;
   UninstallSuccess: Boolean;
+  UninstallParams: string;
 begin
   Result := True;
   UninstallSuccess := False;
+  UninstallParams := GetUninstallParameters();
   
   // Try first uninstall string
   sUnInstallString := GetUninstallString();
   if sUnInstallString <> '' then
   begin
     sUnInstallString := RemoveQuotes(sUnInstallString);
-    if Exec(ExpandConstant(sUnInstallString), '/SILENT', '', SW_HIDE, ewWaitUntilTerminated, iResultCode) then
+    if Exec(ExpandConstant(sUnInstallString), UninstallParams, '', SW_HIDE, ewWaitUntilTerminated, iResultCode) then
     begin
       UninstallSuccess := True;
     end;
@@ -184,7 +234,7 @@ begin
     if sUnInstallString <> '' then
     begin
       sUnInstallString := RemoveQuotes(sUnInstallString);
-      if Exec(ExpandConstant(sUnInstallString), '/SILENT', '', SW_HIDE, ewWaitUntilTerminated, iResultCode) then
+      if Exec(ExpandConstant(sUnInstallString), UninstallParams, '', SW_HIDE, ewWaitUntilTerminated, iResultCode) then
       begin
         UninstallSuccess := True;
       end;
