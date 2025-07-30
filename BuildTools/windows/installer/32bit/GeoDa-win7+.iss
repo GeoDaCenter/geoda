@@ -208,33 +208,57 @@ begin
   
   if IsGeoDaInstalled then
   begin
-    V := MsgBox('An existing version of GeoDa was detected. Would you like to automatically uninstall it before installing the new version?' + #13#10 + #13#10 + 
-                'Click Yes to automatically uninstall the existing version.' + #13#10 +
-                'Click No to cancel the installation.', mbInformation, MB_YESNO);
-    if V = IDYES then
+    // Check if installer is running in silent mode
+    if WizardSilent() then
     begin
+      // In silent mode, automatically uninstall existing version
       UninstallAttempted := True;
       if UninstallExistingGeoDa() then
       begin
         // Check if uninstall was successful
         if IsGeoDaInstalled then
         begin
-          V := MsgBox('The automatic uninstall may not have completed successfully. Would you like to continue with the installation anyway?' + #13#10 + #13#10 +
+          // In silent mode, continue anyway to avoid blocking
+          Log('Warning: Automatic uninstall may not have completed successfully, but continuing with installation in silent mode.');
+        end;
+      end
+      else
+      begin
+        // In silent mode, continue anyway to avoid blocking
+        Log('Warning: Failed to automatically uninstall existing version, but continuing with installation in silent mode.');
+      end;
+    end
+    else
+    begin
+      // Interactive mode - show message box
+      V := MsgBox('An existing version of GeoDa was detected. Would you like to automatically uninstall it before installing the new version?' + #13#10 + #13#10 + 
+                  'Click Yes to automatically uninstall the existing version.' + #13#10 +
+                  'Click No to cancel the installation.', mbInformation, MB_YESNO);
+      if V = IDYES then
+      begin
+        UninstallAttempted := True;
+        if UninstallExistingGeoDa() then
+        begin
+          // Check if uninstall was successful
+          if IsGeoDaInstalled then
+          begin
+            V := MsgBox('The automatic uninstall may not have completed successfully. Would you like to continue with the installation anyway?' + #13#10 + #13#10 +
+                        'Note: This may cause conflicts with the existing installation.', mbConfirmation, MB_YESNO);
+            if V = IDNO then
+              Result := False;
+          end;
+        end
+        else
+        begin
+          V := MsgBox('Failed to automatically uninstall the existing version. Would you like to continue with the installation anyway?' + #13#10 + #13#10 +
                       'Note: This may cause conflicts with the existing installation.', mbConfirmation, MB_YESNO);
           if V = IDNO then
             Result := False;
         end;
       end
       else
-      begin
-        V := MsgBox('Failed to automatically uninstall the existing version. Would you like to continue with the installation anyway?' + #13#10 + #13#10 +
-                    'Note: This may cause conflicts with the existing installation.', mbConfirmation, MB_YESNO);
-        if V = IDNO then
-          Result := False;
-      end;
-    end
-    else
-      Result := False; //when older version present and user chose not to uninstall
+        Result := False; //when older version present and user chose not to uninstall
+    end;
   end;
 end;
 
