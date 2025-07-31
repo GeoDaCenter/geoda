@@ -123,6 +123,30 @@ jobs:
           ./geoda.sh $GEODA_VERSION
           codesign --timestamp -s "Developer ID Application: Geodapress LLC (26M5NG43GP)" -i edu.uchicago.spatial GeoDa$GEODA_VERSION-Installer.dmg
 
+      - name: Notarize DMG
+        run: |
+          cd BuildTools/macosx/create-dmg
+          DMG_FILE="GeoDa${{ env.GEODA_VER }}-${{ env.GEODA_ARCH }}-Installer.dmg"
+
+          # Check if Apple ID credentials are available
+          if [ -z "${{ secrets.APPLE_ID_USERNAME }}" ] || [ -z "${{ secrets.APPLE_ID_APP_SPECIFIC_PASSWORD }}" ] || [ -z "${{ secrets.APPLE_TEAM_ID }}" ]; then
+            echo "Apple ID credentials not available, skipping notarization"
+            exit 0
+          fi
+
+          echo "Submitting DMG for notarization..."
+          xcrun notarytool submit "$DMG_FILE" \
+            --apple-id "${{ secrets.APPLE_ID_USERNAME }}" \
+            --password "${{ secrets.APPLE_ID_APP_SPECIFIC_PASSWORD }}" \
+            --team-id "${{ secrets.APPLE_TEAM_ID }}" \
+            --wait
+
+          echo "Stapling notarization ticket to DMG..."
+          xcrun stapler staple "$DMG_FILE"
+
+          echo "Verifying notarization..."
+          xcrun stapler validate "$DMG_FILE"
+
       # Upload artifact
       - uses: actions/upload-artifact@v4
         with:
