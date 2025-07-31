@@ -7,6 +7,7 @@ on:
   # Triggers the workflow on push or pull request events but only for the master branch
   push:
     branches: [master]
+    tags: ['v*']
     paths-ignore:
       - '**/README.md'
   # Stop checking osx build on pull request, one has to check is manually
