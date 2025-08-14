@@ -475,6 +475,7 @@ wxMenu* GeneralWxUtils::FindMenu(wxMenuBar* mb,	const wxString& menuTitle)
 wxColour GeneralWxUtils::PickColor(wxWindow *parent, wxColour& col)
 {
     wxColourData data;
+    data.SetChooseAlpha(true);
     data.SetColour(col);
     data.SetChooseFull(true);
     int ki;
