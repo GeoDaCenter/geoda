@@ -225,6 +225,7 @@ void HistogramCanvas::OnSetUniqueValue(wxCommandEvent& event)
     int col_time_steps = table_int->GetColTimeSteps(col_id);
 
     if (set_uniquevalue) {
+        is_custom_category = false;
         for (int t=0; t<col_time_steps; t++) {
             IS_VAR_STRING[t] = true;
 
@@ -233,13 +234,13 @@ void HistogramCanvas::OnSetUniqueValue(wxCommandEvent& event)
             s_data_sorted[t].resize(num_obs);
             std::map<wxString, int> unique_dict;
             // data_sorted is a pair value {string value: index}
-            VAR_STRING[t].resize(num_obs);
+            VAR_STRING[t].clear();
             for (int i=0; i<num_obs; i++) {
                 s_data_sorted[t][i].first = sel_data[i];
                 s_data_sorted[t][i].second = i;
                 if (unique_dict.find(sel_data[i]) == unique_dict.end()) {
                     unique_dict[sel_data[i]] = 0;
-                    VAR_STRING[t][i]  = sel_data[i];
+                    VAR_STRING[t].push_back(sel_data[i]);
                 }
                 unique_dict[sel_data[i]] += 1;
             }
