@@ -5,7 +5,7 @@ AppPublisherURL=https://spatial.uchicago.edu/
 AppSupportURL=https://spatial.uchicago.edu/
 AppUpdatesURL=https://spatial.uchicago.edu/
 AppSupportPhone=(480)965-7533
-AppVersion=1.22
+AppVersion=1.22.0.18
 DefaultDirName={pf}\GeoDa
 DefaultGroupName=GeoDa Software
 ; Since no icons will be created in "{group}", we don't need the wizard
@@ -131,31 +131,184 @@ begin
   Result := sUnInstallString;
 end;
 
+function GetUninstallString2: string;
+var
+  sUnInstPath: string;
+  sUnInstallString: String;
+begin
+  Result := '';
+  sUnInstPath := ExpandConstant('Software\Microsoft\Windows\CurrentVersion\Uninstall\GeoDa_is2'); //Alternative App GUID/ID
+  sUnInstallString := '';
+  if not RegQueryStringValue(HKLM, sUnInstPath, 'UninstallString', sUnInstallString) then
+    RegQueryStringValue(HKCU, sUnInstPath, 'UninstallString', sUnInstallString);
+  Result := sUnInstallString;
+end;
+
 function IsUpgrade: Boolean;
 begin
-  Result := (GetUninstallString() <> '');
+  Result := (GetUninstallString() <> '') or (GetUninstallString2() <> '');
+end;
+
+function IsGeoDaInstalled: Boolean;
+begin
+  Result := RegValueExists(HKEY_LOCAL_MACHINE,'Software\Microsoft\Windows\CurrentVersion\Uninstall\GeoDa_is1', 'UninstallString') or
+            RegValueExists(HKEY_LOCAL_MACHINE,'Software\Microsoft\Windows\CurrentVersion\Uninstall\GeoDa_is2', 'UninstallString') or
+            RegValueExists(HKEY_CURRENT_USER,'Software\Microsoft\Windows\CurrentVersion\Uninstall\GeoDa_is1', 'UninstallString') or
+            RegValueExists(HKEY_CURRENT_USER,'Software\Microsoft\Windows\CurrentVersion\Uninstall\GeoDa_is2', 'UninstallString');
+end;
+
+function GetUninstallParameters: string;
+var
+  UninstallParams: string;
+  i: Integer;
+  HasSilentMode: Boolean;
+  HasSuppressMsgBox: Boolean;
+begin
+  UninstallParams := '';
+  HasSilentMode := False;
+  HasSuppressMsgBox := False;
+  
+  // Check all parameters for silent mode and suppress message box flags
+  for i := 1 to ParamCount do
+  begin
+    if ParamStr(i) = '/VERYSILENT' then
+    begin
+      UninstallParams := '/VERYSILENT';
+      HasSilentMode := True;
+    end
+    else if ParamStr(i) = '/SILENT' then
+    begin
+      if not HasSilentMode then
+      begin
+        UninstallParams := '/SILENT';
+        HasSilentMode := True;
+      end;
+    end
+    else if ParamStr(i) = '/SUPPRESSMSGBOXES' then
+    begin
+      HasSuppressMsgBox := True;
+    end;
+  end;
+  
+  // If no silent mode was found, default to /SILENT for interactive mode
+  if not HasSilentMode then
+  begin
+    UninstallParams := '/SILENT';
+  end;
+  
+  // Add /SUPPRESSMSGBOXES if it was found
+  if HasSuppressMsgBox then
+  begin
+    UninstallParams := UninstallParams + ' /SUPPRESSMSGBOXES';
+  end;
+  
+  Result := UninstallParams;
+end;
+
+function UninstallExistingGeoDa: Boolean;
+var
+  iResultCode: Integer;
+  sUnInstallString: string;
+  UninstallSuccess: Boolean;
+  UninstallParams: string;
+begin
+  Result := True;
+  UninstallSuccess := False;
+  UninstallParams := GetUninstallParameters();
+  
+  // Try first uninstall string
+  sUnInstallString := GetUninstallString();
+  if sUnInstallString <> '' then
+  begin
+    sUnInstallString := RemoveQuotes(sUnInstallString);
+    if Exec(ExpandConstant(sUnInstallString), UninstallParams, '', SW_HIDE, ewWaitUntilTerminated, iResultCode) then
+    begin
+      UninstallSuccess := True;
+    end;
+  end;
+  
+  // Try second uninstall string if first failed
+  if not UninstallSuccess then
+  begin
+    sUnInstallString := GetUninstallString2();
+    if sUnInstallString <> '' then
+    begin
+      sUnInstallString := RemoveQuotes(sUnInstallString);
+      if Exec(ExpandConstant(sUnInstallString), UninstallParams, '', SW_HIDE, ewWaitUntilTerminated, iResultCode) then
+      begin
+        UninstallSuccess := True;
+      end;
+    end;
+  end;
+  
+  // Wait a moment for uninstall to complete
+  if UninstallSuccess then
+  begin
+    Sleep(2000);
+  end;
 end;
 
 function InitializeSetup: Boolean;
 var
   V: Integer;
-  iResultCode: Integer;
-  sUnInstallString: string;
+  UninstallAttempted: Boolean;
 begin
   Result := True; // in case when no previous version is found
-  if RegValueExists(HKEY_LOCAL_MACHINE,'Software\Microsoft\Windows\CurrentVersion\Uninstall\GeoDa_is1', 'UninstallString') then  //Your App GUID/ID
+  UninstallAttempted := False;
+  
+  if IsGeoDaInstalled then
   begin
-    V := MsgBox(ExpandConstant('An old version of GeoDa was detected. Please uninstall it before continuing.'), mbInformation, MB_YESNO); //Custom Message if App installed
-    if V = IDYES then
+    // Check if installer is running in silent mode
+    if WizardSilent() then
     begin
-      sUnInstallString := GetUninstallString();
-      sUnInstallString :=  RemoveQuotes(sUnInstallString);
-      Exec(ExpandConstant(sUnInstallString), '', '', SW_SHOW, ewWaitUntilTerminated, iResultCode);
-      Result := True; //if you want to proceed after uninstall
-      //Exit; //if you want to quit after uninstall
+      // In silent mode, automatically uninstall existing version
+      UninstallAttempted := True;
+      if UninstallExistingGeoDa() then
+      begin
+        // Check if uninstall was successful
+        if IsGeoDaInstalled then
+        begin
+          // In silent mode, continue anyway to avoid blocking
+          Log('Warning: Automatic uninstall may not have completed successfully, but continuing with installation in silent mode.');
+        end;
+      end
+      else
+      begin
+        // In silent mode, continue anyway to avoid blocking
+        Log('Warning: Failed to automatically uninstall existing version, but continuing with installation in silent mode.');
+      end;
     end
     else
-      Result := False; //when older version present and not uninstalled
+    begin
+      // Interactive mode - show message box
+      V := MsgBox('An existing version of GeoDa was detected. Would you like to automatically uninstall it before installing the new version?' + #13#10 + #13#10 + 
+                  'Click Yes to automatically uninstall the existing version.' + #13#10 +
+                  'Click No to cancel the installation.', mbInformation, MB_YESNO);
+      if V = IDYES then
+      begin
+        UninstallAttempted := True;
+        if UninstallExistingGeoDa() then
+        begin
+          // Check if uninstall was successful
+          if IsGeoDaInstalled then
+          begin
+            V := MsgBox('The automatic uninstall may not have completed successfully. Would you like to continue with the installation anyway?' + #13#10 + #13#10 +
+                        'Note: This may cause conflicts with the existing installation.', mbConfirmation, MB_YESNO);
+            if V = IDNO then
+              Result := False;
+          end;
+        end
+        else
+        begin
+          V := MsgBox('Failed to automatically uninstall the existing version. Would you like to continue with the installation anyway?' + #13#10 + #13#10 +
+                      'Note: This may cause conflicts with the existing installation.', mbConfirmation, MB_YESNO);
+          if V = IDNO then
+            Result := False;
+        end;
+      end
+      else
+        Result := False; //when older version present and user chose not to uninstall
+    end;
   end;
 end;
 

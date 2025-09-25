@@ -292,7 +292,7 @@ void CartogramNewCanvas::AddTimeVariantOptionsToMenu(wxMenu* menu)
 			s << "Synchronize " << var_info[i].name << " with Time Control";
 			wxMenuItem* mi =
 				menu1->AppendCheckItem(GdaConst::ID_TIME_SYNC_VAR1+i, s, s);
-            if (mi && mi->IsCheckable()) mi->Check(var_info[i].sync_with_global_time);
+            if (mi && mi->IsCheckable() && mi->GetMenu()) mi->Check(var_info[i].sync_with_global_time);
 		}
 	}
 
