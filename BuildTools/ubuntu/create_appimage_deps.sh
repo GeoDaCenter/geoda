@@ -89,28 +89,40 @@ make install
 cd ..
 
 # Build CLAPACK for static linking
-if ! [ -f "clapack-3.2.1-CMAKE.tgz" ] ; then
-    curl -L -O http://www.netlib.org/clapack/clapack-3.2.1-CMAKE.tgz
+if ! [ -f "clapack.tgz" ] ; then
+    curl -L -O https://s3.us-east-2.amazonaws.com/geodabuild/clapack.tgz
 fi
 if ! [ -d "CLAPACK-3.2.1" ] ; then 
-    tar -xf clapack-3.2.1-CMAKE.tgz
+    tar -xf clapack.tgz
+    # Copy the patch files from the dep directory
+    cp -rf $GEODA_HOME/dep/CLAPACK-3.2.1/* CLAPACK-3.2.1/ 2>/dev/null || true
 fi
 cd CLAPACK-3.2.1
-mkdir -p build
-cd build
-cmake .. -DCMAKE_INSTALL_PREFIX=$GEODA_HOME/libraries -DBUILD_SHARED_LIBS=OFF
-make -j$(nproc)
-make install
-cd ../..
+if ! [ -f "libf2c.a" ] || ! [ -f "blas.a" ] || ! [ -f "lapack.a" ]; then
+    cp make.inc.example make.inc
+    make f2clib
+    cp F2CLIBS/libf2c.a .
+    make blaslib
+    cd INSTALL
+    make
+    cd ..
+    cd SRC
+    make
+    mv -f lapack_LINUX.a lapack.a
+    mv -f tmglib_LINUX.a tmglib.a
+    cd ..
+fi
+# The libraries are already in the temp directory and will be used by the makefile
+cd ..
 
 # Build JSON Spirit
 if ! [ -f "json_spirit_v4.08.zip" ] ; then
-    curl -L -O https://github.com/codeproject/json_spirit/archive/json_spirit_v4.08.zip
+    curl -L -O https://s3.us-east-2.amazonaws.com/geodabuild/json_spirit_v4.08.zip
 fi
-if ! [ -d "json_spirit-json_spirit_v4.08" ] ; then 
+if ! [ -d "json_spirit_v4.08" ] ; then 
     unzip json_spirit_v4.08.zip
 fi
-cd json_spirit-json_spirit_v4.08
+cd json_spirit_v4.08
 # Use the CMakeLists.txt from GeoDa's dep directory if available
 if [ -f "$GEODA_HOME/dep/json_spirit/CMakeLists.txt" ] ; then
     cp $GEODA_HOME/dep/json_spirit/CMakeLists.txt .
@@ -123,7 +135,7 @@ make -j$(nproc)
 mkdir -p $GEODA_HOME/libraries/include/json_spirit
 mkdir -p $GEODA_HOME/libraries/lib
 cp -R ../json_spirit $GEODA_HOME/libraries/include/
-cp *.a $GEODA_HOME/libraries/lib/ 2>/dev/null || true
+cp json_spirit/libjson_spirit.a $GEODA_HOME/libraries/lib/ 2>/dev/null || cp *.a $GEODA_HOME/libraries/lib/ 2>/dev/null || true
 cd ../..
 
 cd ..

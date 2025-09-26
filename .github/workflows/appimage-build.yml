@@ -57,11 +57,13 @@ jobs:
           sudo apt-get install -y libwebkit2gtk-4.0-dev
           # Install AppImage tools
           sudo apt-get install -y fuse libfuse2
-          # Download AppImageTool
-          wget https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage
+          # Download AppImageTools with retry logic
+          wget -O appimagetool-x86_64.AppImage https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage || \
+          wget -O appimagetool-x86_64.AppImage https://github.com/AppImage/AppImageKit/releases/download/13/appimagetool-x86_64.AppImage
           chmod +x appimagetool-x86_64.AppImage
           # Download linuxdeploy for easier AppImage creation
-          wget https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage
+          wget -O linuxdeploy-x86_64.AppImage https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage || \
+          wget -O linuxdeploy-x86_64.AppImage https://github.com/linuxdeploy/linuxdeploy/releases/download/1-alpha-20220822-1/linuxdeploy-x86_64.AppImage
           chmod +x linuxdeploy-x86_64.AppImage
 
       - uses: actions/cache@v4
@@ -101,6 +103,15 @@ jobs:
         run: |
           export GEODA_VER=${{ env.GEODA_VER }}
           
+          echo "Creating AppImage for GeoDa version $GEODA_VER"
+          
+          # Verify GeoDa executable exists
+          if [ ! -f "BuildTools/ubuntu/build/GeoDa" ]; then
+            echo "ERROR: GeoDa executable not found!"
+            exit 1
+          fi
+          echo "GeoDa executable found: $(ls -la BuildTools/ubuntu/build/GeoDa)"
+          
           # Create AppDir structure
           mkdir -p GeoDa.AppDir/usr/bin
           mkdir -p GeoDa.AppDir/usr/lib
@@ -109,6 +120,7 @@ jobs:
           
           # Copy GeoDa executable
           cp BuildTools/ubuntu/build/GeoDa GeoDa.AppDir/usr/bin/
+          chmod +x GeoDa.AppDir/usr/bin/GeoDa
           
           # Copy existing desktop file and modify for AppImage
           cp BuildTools/ubuntu/package/usr/share/applications/GeoDa.desktop GeoDa.AppDir/usr/share/applications/geoda.desktop
@@ -146,11 +158,34 @@ jobs:
           EOF
           chmod +x GeoDa.AppDir/AppRun
           
-          # Use linuxdeploy to bundle dependencies
-          ./linuxdeploy-x86_64.AppImage --appdir GeoDa.AppDir --executable GeoDa.AppDir/usr/bin/GeoDa --desktop-file GeoDa.AppDir/geoda.desktop --icon-file GeoDa.AppDir/geoda.png --output appimage
+          echo "AppDir structure created, attempting to create AppImage..."
           
-          # Rename the generated AppImage
-          mv GeoDa-*.AppImage GeoDa-${GEODA_VER}-x86_64.AppImage
+          # Show AppDir structure for debugging
+          echo "AppDir contents:"
+          find GeoDa.AppDir -type f | head -20
+          
+          # Use linuxdeploy to bundle dependencies
+          echo "Trying linuxdeploy..."
+          ./linuxdeploy-x86_64.AppImage --appdir GeoDa.AppDir --executable GeoDa.AppDir/usr/bin/GeoDa --desktop-file GeoDa.AppDir/geoda.desktop --icon-file GeoDa.AppDir/geoda.png --output appimage || {
+            echo "linuxdeploy failed, trying alternative approach with appimagetool directly"
+            # Try using appimagetool directly if linuxdeploy fails
+            echo "Using appimagetool directly..."
+            ./appimagetool-x86_64.AppImage GeoDa.AppDir GeoDa-${GEODA_VER}-x86_64.AppImage
+          }
+          
+          # Rename the generated AppImage (if created by linuxdeploy)
+          if [ -f GeoDa-*.AppImage ] && [ ! -f GeoDa-${GEODA_VER}-x86_64.AppImage ]; then
+            mv GeoDa-*.AppImage GeoDa-${GEODA_VER}-x86_64.AppImage
+          fi
+          
+          # Verify the AppImage was created
+          if [ -f GeoDa-${GEODA_VER}-x86_64.AppImage ]; then
+            echo "AppImage created successfully: $(ls -la GeoDa-${GEODA_VER}-x86_64.AppImage)"
+            chmod +x GeoDa-${GEODA_VER}-x86_64.AppImage
+          else
+            echo "ERROR: AppImage creation failed!"
+            exit 1
+          fi
 
       # Upload artifact
       - uses: actions/upload-artifact@v4
