@@ -90,7 +90,8 @@ cd ..
 
 # Build CLAPACK for static linking
 if ! [ -f "clapack.tgz" ] ; then
-    curl -L -O https://s3.us-east-2.amazonaws.com/geodabuild/clapack.tgz
+    curl -L -O https://s3.us-east-2.amazonaws.com/geodabuild/clapack.tgz || \
+    curl -L -O http://www.netlib.org/clapack/clapack-3.2.1-CMAKE.tgz && mv clapack-3.2.1-CMAKE.tgz clapack.tgz
 fi
 if ! [ -d "CLAPACK-3.2.1" ] ; then 
     tar -xf clapack.tgz
@@ -117,10 +118,15 @@ cd ..
 
 # Build JSON Spirit
 if ! [ -f "json_spirit_v4.08.zip" ] ; then
-    curl -L -O https://s3.us-east-2.amazonaws.com/geodabuild/json_spirit_v4.08.zip
+    curl -L -O https://s3.us-east-2.amazonaws.com/geodabuild/json_spirit_v4.08.zip || \
+    curl -L -O https://github.com/codeproject/json_spirit/archive/refs/heads/master.zip && mv master.zip json_spirit_v4.08.zip
 fi
 if ! [ -d "json_spirit_v4.08" ] ; then 
     unzip json_spirit_v4.08.zip
+    # Handle different directory names based on download source
+    if [ -d "json_spirit-master" ] ; then
+        mv json_spirit-master json_spirit_v4.08
+    fi
 fi
 cd json_spirit_v4.08
 # Use the CMakeLists.txt from GeoDa's dep directory if available
