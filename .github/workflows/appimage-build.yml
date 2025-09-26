@@ -1,0 +1,194 @@
+# GitHub Actions workflow for creating AppImage builds of GeoDa
+# This workflow embeds all dependencies (libgdal, etc.) inside the AppImage
+# making it larger but fully portable across Linux distributions
+
+name: AppImage builds
+
+# Controls when the action will run.
+on:
+  # Triggers the workflow on push only for the master branch
+  push:
+    branches: [master]
+    tags: ['v*']
+    paths-ignore:
+      - '**/README.md'
+  pull_request:
+    branches: [master]
+    paths-ignore:
+      - '**/README.md'
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # This workflow contains a single job called "appimage_build"
+  appimage_build:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-22.04
+    if: ${{ !contains(github.event.head_commit.message, '[ci skip]') && !contains(github.event.head_commit.message, '[skip ci]') }}
+
+    env:
+      GEODA_VER: '1.22.0'
+      TARGET_OS: 'jammy'
+      # Use static linking flags to embed dependencies
+      EXTRA_GEODA_LD_FLAGS: '-static-libgcc -static-libstdc++'
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v4
+
+      - name: Prepare build environment
+        run: |
+          chmod +x BuildTools/ubuntu/create_deps.sh
+          chmod +x BuildTools/ubuntu/create_appimage_deps.sh
+          chmod +x BuildTools/ubuntu/install.sh
+          chmod +x BuildTools/ubuntu/install_appimage.sh
+          echo ${{ env.TARGET_OS }}
+          export DEBIAN_FRONTEND=noninteractive
+          sudo apt-get update -y
+          sudo apt-get install -y ca-certificates libgnutls30
+          echo '-k' > ~/.curlrc
+          sudo apt-get install -y libpq-dev
+          sudo apt-get install -y gdal-bin 
+          sudo apt-get install -y libgdal-dev
+          sudo apt-get install -y unzip cmake dh-autoreconf libgtk-3-dev libgl1-mesa-dev libglu1-mesa-dev
+          sudo apt-get install -y libwebkit2gtk-4.0-dev
+          # Install AppImage tools
+          sudo apt-get install -y fuse libfuse2
+          # Download AppImageTools with retry logic
+          wget -O appimagetool-x86_64.AppImage https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage || \
+          wget -O appimagetool-x86_64.AppImage https://github.com/AppImage/AppImageKit/releases/download/13/appimagetool-x86_64.AppImage
+          chmod +x appimagetool-x86_64.AppImage
+          # Download linuxdeploy for easier AppImage creation
+          wget -O linuxdeploy-x86_64.AppImage https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage || \
+          wget -O linuxdeploy-x86_64.AppImage https://github.com/linuxdeploy/linuxdeploy/releases/download/1-alpha-20220822-1/linuxdeploy-x86_64.AppImage
+          chmod +x linuxdeploy-x86_64.AppImage
+
+      - uses: actions/cache@v4
+        id: cache
+        with:
+          path: |
+            BuildTools/ubuntu/libraries
+            BuildTools/ubuntu/temp
+          key: ${{ runner.os }}-${{ env.TARGET_OS }}-appimage-deps-cache-${{ hashFiles('BuildTools/ubuntu/create_appimage_deps.sh') }}
+
+      # Create Deps - modified for static linking
+      - if: steps.cache.outputs.cache-hit != 'true'
+        name: Create Dependencies for AppImage
+        run: |
+          export WORK_DIR=$PWD
+          export OS=${{ env.TARGET_OS }}
+          export VER=${{ env.GEODA_VER }}
+          export APT="sudo apt-get"
+          cd BuildTools/ubuntu
+          ./create_appimage_deps.sh
+
+      # Build GeoDa
+      - name: Build GeoDa for AppImage
+        run: |
+          mkdir -p o
+          chmod 755 o
+          export WORK_DIR=$PWD
+          export OS=${{ env.TARGET_OS }}
+          export VER=${{ env.GEODA_VER }}
+          export EXTRA_GEODA_LD_FLAGS='${{ env.EXTRA_GEODA_LD_FLAGS }}'
+          export APT="sudo apt-get"
+          cd BuildTools/ubuntu
+          ./install_appimage.sh
+
+      # Create AppImage
+      - name: Create AppImage
+        run: |
+          export GEODA_VER=${{ env.GEODA_VER }}
+          
+          echo "Creating AppImage for GeoDa version $GEODA_VER"
+          
+          # Verify GeoDa executable exists
+          if [ ! -f "BuildTools/ubuntu/build/GeoDa" ]; then
+            echo "ERROR: GeoDa executable not found!"
+            exit 1
+          fi
+          echo "GeoDa executable found: $(ls -la BuildTools/ubuntu/build/GeoDa)"
+          
+          # Create AppDir structure
+          mkdir -p GeoDa.AppDir/usr/bin
+          mkdir -p GeoDa.AppDir/usr/lib
+          mkdir -p GeoDa.AppDir/usr/share/applications
+          mkdir -p GeoDa.AppDir/usr/share/icons/hicolor/128x128/apps
+          
+          # Copy GeoDa executable
+          cp BuildTools/ubuntu/build/GeoDa GeoDa.AppDir/usr/bin/
+          chmod +x GeoDa.AppDir/usr/bin/GeoDa
+          
+          # Copy existing desktop file and modify for AppImage
+          cp BuildTools/ubuntu/package/usr/share/applications/GeoDa.desktop GeoDa.AppDir/usr/share/applications/geoda.desktop
+          
+          # Modify desktop file for AppImage use
+          cat > GeoDa.AppDir/usr/share/applications/geoda.desktop << EOF
+          [Desktop Entry]
+          Version=1.22
+          Type=Application
+          Name=GeoDa
+          GenericName=GeoDa Software
+          Comment=GeoDa Software for Geospatial Analysis and Computation
+          Exec=GeoDa
+          Icon=geoda
+          Categories=Education;Science;Geography;
+          Terminal=false
+          EOF
+          
+          # Copy existing GeoDa icon (128x128 should be good for AppImage)
+          cp BuildTools/ubuntu/package/usr/share/icons/hicolor/128x128/apps/geoda.png GeoDa.AppDir/usr/share/icons/hicolor/128x128/apps/
+          
+          # Copy desktop file and icon to AppDir root (required for AppImage)
+          cp GeoDa.AppDir/usr/share/applications/geoda.desktop GeoDa.AppDir/
+          cp BuildTools/ubuntu/package/usr/share/icons/hicolor/128x128/apps/geoda.png GeoDa.AppDir/
+          
+          # Create AppRun script
+          cat > GeoDa.AppDir/AppRun << 'EOF'
+          #!/bin/bash
+          HERE="$(dirname "$(readlink -f "${0}")")"
+          export LD_LIBRARY_PATH="${HERE}/usr/lib:${LD_LIBRARY_PATH}"
+          export PATH="${HERE}/usr/bin:${PATH}"
+          # Set GDAL data directory if needed
+          export GDAL_DATA="${HERE}/usr/share/gdal"
+          exec "${HERE}/usr/bin/GeoDa" "$@"
+          EOF
+          chmod +x GeoDa.AppDir/AppRun
+          
+          echo "AppDir structure created, attempting to create AppImage..."
+          
+          # Show AppDir structure for debugging
+          echo "AppDir contents:"
+          find GeoDa.AppDir -type f | head -20
+          
+          # Use linuxdeploy to bundle dependencies
+          echo "Trying linuxdeploy..."
+          ./linuxdeploy-x86_64.AppImage --appdir GeoDa.AppDir --executable GeoDa.AppDir/usr/bin/GeoDa --desktop-file GeoDa.AppDir/geoda.desktop --icon-file GeoDa.AppDir/geoda.png --output appimage || {
+            echo "linuxdeploy failed, trying alternative approach with appimagetool directly"
+            # Try using appimagetool directly if linuxdeploy fails
+            echo "Using appimagetool directly..."
+            ./appimagetool-x86_64.AppImage GeoDa.AppDir GeoDa-${GEODA_VER}-x86_64.AppImage
+          }
+          
+          # Rename the generated AppImage (if created by linuxdeploy)
+          if [ -f GeoDa-*.AppImage ] && [ ! -f GeoDa-${GEODA_VER}-x86_64.AppImage ]; then
+            mv GeoDa-*.AppImage GeoDa-${GEODA_VER}-x86_64.AppImage
+          fi
+          
+          # Verify the AppImage was created
+          if [ -f GeoDa-${GEODA_VER}-x86_64.AppImage ]; then
+            echo "AppImage created successfully: $(ls -la GeoDa-${GEODA_VER}-x86_64.AppImage)"
+            chmod +x GeoDa-${GEODA_VER}-x86_64.AppImage
+          else
+            echo "ERROR: AppImage creation failed!"
+            exit 1
+          fi
+
+      # Upload artifact
+      - uses: actions/upload-artifact@v4
+        with:
+          name: GeoDa-${{ env.GEODA_VER }}-AppImage
+          path: ${{ github.workspace }}/GeoDa-${{ env.GEODA_VER }}-x86_64.AppImage
