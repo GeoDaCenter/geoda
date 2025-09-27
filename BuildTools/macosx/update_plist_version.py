@@ -3,6 +3,13 @@
 Script to update version information in GeoDa macOS Info.plist based on version.h
 This script reads the version information from version.h and updates
 CFBundleVersion and CFBundleShortVersionString in GeoDa-GDAL-Info.plist
+
+This script is automatically run during the macOS build process in the GitHub Actions
+workflow (osx_build.yml) before 'make app' to ensure the Info.plist version matches
+the actual build version from version.h.
+
+Fixes issue where Munki and other package managers couldn't detect version updates
+due to hardcoded version numbers in the Info.plist file.
 """
 
 import os
