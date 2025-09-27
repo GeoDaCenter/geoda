@@ -46,16 +46,9 @@ jobs:
           chmod +x BuildTools/ubuntu/install.sh
           chmod +x BuildTools/ubuntu/install_appimage.sh
           echo ${{ env.TARGET_OS }}
+          # Install AppImage tools
           export DEBIAN_FRONTEND=noninteractive
           sudo apt-get update -y
-          sudo apt-get install -y ca-certificates libgnutls30
-          echo '-k' > ~/.curlrc
-          sudo apt-get install -y libpq-dev
-          sudo apt-get install -y gdal-bin 
-          sudo apt-get install -y libgdal-dev
-          sudo apt-get install -y unzip cmake dh-autoreconf libgtk-3-dev libgl1-mesa-dev libglu1-mesa-dev
-          sudo apt-get install -y libwebkit2gtk-4.0-dev
-          # Install AppImage tools
           sudo apt-get install -y fuse libfuse2
           # Download AppImageTools with retry logic
           wget -O appimagetool-x86_64.AppImage https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage || \
@@ -72,9 +65,9 @@ jobs:
           path: |
             BuildTools/ubuntu/libraries
             BuildTools/ubuntu/temp
-          key: ${{ runner.os }}-${{ env.TARGET_OS }}-appimage-deps-cache-${{ hashFiles('BuildTools/ubuntu/create_appimage_deps.sh') }}
+          key: ${{ runner.os }}-${{ env.TARGET_OS }}-appimage-deps-cache-${{ hashFiles('BuildTools/ubuntu/create_deps.sh') }}
 
-      # Create Deps - modified for static linking
+      # Create Deps - reuse create_deps.sh with AppImage modifications
       - if: steps.cache.outputs.cache-hit != 'true'
         name: Create Dependencies for AppImage
         run: |
@@ -82,10 +75,14 @@ jobs:
           export OS=${{ env.TARGET_OS }}
           export VER=${{ env.GEODA_VER }}
           export APT="sudo apt-get"
+          # Set AppImage-specific environment variables for static linking
+          export APPIMAGE_BUILD=true
+          export EXTRA_GEODA_LD_FLAGS='${{ env.EXTRA_GEODA_LD_FLAGS }}'
           cd BuildTools/ubuntu
-          ./create_appimage_deps.sh
+          # Use create_deps.sh but with AppImage-specific modifications
+          ./create_deps.sh
 
-      # Build GeoDa
+      # Build GeoDa - reuse install.sh with AppImage modifications
       - name: Build GeoDa for AppImage
         run: |
           mkdir -p o
@@ -93,10 +90,13 @@ jobs:
           export WORK_DIR=$PWD
           export OS=${{ env.TARGET_OS }}
           export VER=${{ env.GEODA_VER }}
-          export EXTRA_GEODA_LD_FLAGS='${{ env.EXTRA_GEODA_LD_FLAGS }}'
           export APT="sudo apt-get"
+          # Set AppImage-specific environment variables for static linking
+          export APPIMAGE_BUILD=true
+          export EXTRA_GEODA_LD_FLAGS='${{ env.EXTRA_GEODA_LD_FLAGS }}'
           cd BuildTools/ubuntu
-          ./install_appimage.sh
+          # Use install.sh but with AppImage-specific modifications
+          ./install.sh
 
       # Create AppImage
       - name: Create AppImage
