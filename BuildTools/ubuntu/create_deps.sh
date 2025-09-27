@@ -50,12 +50,7 @@ if ! [ -d "boost" ] ; then
 fi
 cd boost
 ./bootstrap.sh
-# Use static linking for AppImage builds
-if [ "$APPIMAGE_BUILD" = "true" ] ; then
-    ./b2 --with-thread --with-date_time --with-chrono --with-system link=static threading=multi stage
-else
-    ./b2 --with-thread --with-date_time --with-chrono --with-system link=shared threading=multi stage
-fi
+./b2 --with-thread --with-date_time --with-chrono --with-system link=static threading=multi stage
 cd ..
 
 # Build JSON Spirit v4.08
@@ -116,14 +111,7 @@ if ! [ -d "wxWidgets-3.2.4" ] ; then
 fi
 cd wxWidgets-3.2.4
 chmod +x configure
-# Configure wxWidgets based on build type
-if [ "$APPIMAGE_BUILD" = "true" ] ; then
-    # Static build for AppImage
-    ./configure --with-gtk=3 --disable-shared --enable-monolithic --with-opengl --enable-postscript --without-libtiff --disable-debug --enable-webview --prefix=$GEODA_HOME/libraries
-else
-    # Shared build for regular packages
-    ./configure --with-gtk=3 --enable-shared --enable-monolithic --with-opengl --enable-postscript --without-libtiff --disable-debug --enable-webview --prefix=$GEODA_HOME/libraries
-fi
+./configure --with-gtk=3 --disable-shared --enable-monolithic --with-opengl --enable-postscript --without-libtiff --disable-debug --enable-webview --prefix=$GEODA_HOME/libraries
 make -j$(nproc)
 make install
 cd ..

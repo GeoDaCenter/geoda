@@ -13,18 +13,8 @@ echo $GEODA_HOME
 
 # Build GeoDa
 cp ../../GeoDamake.ubuntu.opt ../../GeoDamake.opt
-
-# Add AppImage-specific static linking flags if needed
-if [ "$APPIMAGE_BUILD" = "true" ] ; then
-    echo "Building GeoDa for AppImage with static linking"
-    # The EXTRA_GEODA_LD_FLAGS should already be set by the calling workflow
-    echo "Using EXTRA_GEODA_LD_FLAGS: $EXTRA_GEODA_LD_FLAGS"
-fi
-
 make -j$(nproc)
 make app
 
-# Create deb (skip for AppImage builds)
-if [ "$APPIMAGE_BUILD" != "true" ] ; then
-    ./create_deb.sh $OS $VER
-fi
+# Create deb#
+./create_deb.sh $OS $VER
