@@ -137,14 +137,14 @@ jobs:
           # Modify desktop file for AppImage use
           cat > GeoDa.AppDir/usr/share/applications/geoda.desktop << EOF
           [Desktop Entry]
-          Version=1.22
+          Version=1.0
           Type=Application
           Name=GeoDa
           GenericName=GeoDa Software
           Comment=GeoDa Software for Geospatial Analysis and Computation
           Exec=GeoDa
           Icon=geoda
-          Categories=Education;Science;Geography;
+          Categories=Education;Geography;
           Terminal=false
           EOF
 
@@ -154,6 +154,11 @@ jobs:
           # Copy desktop file and icon to AppDir root (required for AppImage)
           cp GeoDa.AppDir/usr/share/applications/geoda.desktop GeoDa.AppDir/
           cp BuildTools/ubuntu/package/usr/share/icons/hicolor/128x128/apps/geoda.png GeoDa.AppDir/
+
+          # Pre-bundle libraries built in our deps tree (if present)
+          if [ -d BuildTools/ubuntu/libraries/lib ]; then
+            cp -a BuildTools/ubuntu/libraries/lib/* GeoDa.AppDir/usr/lib/ || true
+          fi
 
           # Create AppRun script
           cat > GeoDa.AppDir/AppRun << 'EOF'
@@ -180,9 +185,10 @@ jobs:
           ./linuxdeploy-x86_64.AppImage \
             --appdir GeoDa.AppDir \
             --executable GeoDa.AppDir/usr/bin/GeoDa \
-            --desktop-file GeoDa.AppDir/geoda.desktop \
-            --icon-file GeoDa.AppDir/geoda.png \
-            --library-dir BuildTools/ubuntu/libraries/lib \
+            --desktop-file GeoDa.AppDir/usr/share/applications/geoda.desktop \
+            --icon-file GeoDa.AppDir/usr/share/icons/hicolor/128x128/apps/geoda.png \
+            --deploy-deps-only=GeoDa.AppDir/usr/bin/GeoDa \
+            --deploy-deps-only=GeoDa.AppDir/usr/lib \
             --output appimage || {
             echo "linuxdeploy failed, trying alternative approach with appimagetool directly"
             # Try using appimagetool directly if linuxdeploy fails
