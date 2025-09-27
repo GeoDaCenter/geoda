@@ -17,4 +17,4 @@ make -j$(nproc)
 make app
 
 # Create deb#
-./create_deb.sh $OS $VER
+#./create_deb.sh $OS $VER

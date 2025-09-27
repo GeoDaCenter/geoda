@@ -42,9 +42,7 @@ jobs:
       - name: Prepare build environment
         run: |
           chmod +x BuildTools/ubuntu/create_deps.sh
-          chmod +x BuildTools/ubuntu/create_appimage_deps.sh
           chmod +x BuildTools/ubuntu/install.sh
-          chmod +x BuildTools/ubuntu/install_appimage.sh
           echo ${{ env.TARGET_OS }}
           # Install AppImage tools
           export DEBIAN_FRONTEND=noninteractive
@@ -58,6 +56,23 @@ jobs:
           wget -O linuxdeploy-x86_64.AppImage https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage || \
           wget -O linuxdeploy-x86_64.AppImage https://github.com/linuxdeploy/linuxdeploy/releases/download/1-alpha-20220822-1/linuxdeploy-x86_64.AppImage
           chmod +x linuxdeploy-x86_64.AppImage
+          # Download for geoda dependencies
+                    sudo apt-get install -y ca-certificates libgnutls30
+          echo '-k' > ~/.curlrc
+          sudo apt-get install -y libpq-dev
+          sudo apt-get install -y gdal-bin 
+          sudo apt-get install -y libgdal-dev
+          sudo apt-get install -y unzip cmake dh-autoreconf libgtk-3-dev libgl1-mesa-dev libglu1-mesa-dev
+          export OS=${{ env.TARGET_OS }}
+          if  [ $OS = 'jammy' ] ; then
+            sudo apt-get install -y libwebkit2gtk-4.0-dev
+          elif  [ $OS = 'focal' ] ; then
+            sudo apt-get install -y libwebkit2gtk-4.0-dev
+          elif  [ $OS = 'noble' ] ; then
+            sudo apt-get install -y libgtk-4-dev libwebkit2gtk-4.1-dev
+          else
+            sudo apt-get install -y libwebkitgtk-3.0-dev
+          fi
 
       - uses: actions/cache@v4
         id: cache
@@ -95,29 +110,29 @@ jobs:
       - name: Create AppImage
         run: |
           export GEODA_VER=${{ env.GEODA_VER }}
-          
+
           echo "Creating AppImage for GeoDa version $GEODA_VER"
-          
+
           # Verify GeoDa executable exists
           if [ ! -f "BuildTools/ubuntu/build/GeoDa" ]; then
             echo "ERROR: GeoDa executable not found!"
             exit 1
           fi
           echo "GeoDa executable found: $(ls -la BuildTools/ubuntu/build/GeoDa)"
-          
+
           # Create AppDir structure
           mkdir -p GeoDa.AppDir/usr/bin
           mkdir -p GeoDa.AppDir/usr/lib
           mkdir -p GeoDa.AppDir/usr/share/applications
           mkdir -p GeoDa.AppDir/usr/share/icons/hicolor/128x128/apps
-          
+
           # Copy GeoDa executable
           cp BuildTools/ubuntu/build/GeoDa GeoDa.AppDir/usr/bin/
           chmod +x GeoDa.AppDir/usr/bin/GeoDa
-          
+
           # Copy existing desktop file and modify for AppImage
           cp BuildTools/ubuntu/package/usr/share/applications/GeoDa.desktop GeoDa.AppDir/usr/share/applications/geoda.desktop
-          
+
           # Modify desktop file for AppImage use
           cat > GeoDa.AppDir/usr/share/applications/geoda.desktop << EOF
           [Desktop Entry]
@@ -131,14 +146,14 @@ jobs:
           Categories=Education;Science;Geography;
           Terminal=false
           EOF
-          
+
           # Copy existing GeoDa icon (128x128 should be good for AppImage)
           cp BuildTools/ubuntu/package/usr/share/icons/hicolor/128x128/apps/geoda.png GeoDa.AppDir/usr/share/icons/hicolor/128x128/apps/
-          
+
           # Copy desktop file and icon to AppDir root (required for AppImage)
           cp GeoDa.AppDir/usr/share/applications/geoda.desktop GeoDa.AppDir/
           cp BuildTools/ubuntu/package/usr/share/icons/hicolor/128x128/apps/geoda.png GeoDa.AppDir/
-          
+
           # Create AppRun script
           cat > GeoDa.AppDir/AppRun << 'EOF'
           #!/bin/bash
@@ -152,13 +167,13 @@ jobs:
           exec "${HERE}/usr/bin/GeoDa" "$@"
           EOF
           chmod +x GeoDa.AppDir/AppRun
-          
+
           echo "AppDir structure created, attempting to create AppImage..."
-          
+
           # Show AppDir structure for debugging
           echo "AppDir contents:"
           find GeoDa.AppDir -type f | head -20
-          
+
           # Use linuxdeploy to bundle dependencies automatically
           echo "Using linuxdeploy to bundle dynamic libraries..."
           ./linuxdeploy-x86_64.AppImage \
@@ -173,12 +188,12 @@ jobs:
             echo "Using appimagetool directly..."
             ./appimagetool-x86_64.AppImage GeoDa.AppDir GeoDa-${GEODA_VER}-x86_64.AppImage
           }
-          
+
           # Rename the generated AppImage (if created by linuxdeploy)
           if [ -f GeoDa-*.AppImage ] && [ ! -f GeoDa-${GEODA_VER}-x86_64.AppImage ]; then
             mv GeoDa-*.AppImage GeoDa-${GEODA_VER}-x86_64.AppImage
           fi
-          
+
           # Verify the AppImage was created
           if [ -f GeoDa-${GEODA_VER}-x86_64.AppImage ]; then
             echo "AppImage created successfully: $(ls -la GeoDa-${GEODA_VER}-x86_64.AppImage)"

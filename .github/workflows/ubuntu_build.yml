@@ -106,6 +106,7 @@ jobs:
           export APT="sudo apt-get"
           cd BuildTools/ubuntu
           ./install.sh
+          ./create_deb.sh $OS $VER
 
       # Upload artifact
       - uses: actions/upload-artifact@v4
