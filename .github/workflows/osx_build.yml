@@ -115,10 +115,15 @@ jobs:
           security find-identity -v
           # Update Info.plist version to match version.h
           echo "Updating Info.plist version..."
-          python3 update_plist_version.py
           VER_MAJOR=$(grep "const int version_major" $GEODA_HOME/../../version.h | sed -e 's/.*const int version_major = \([0-9]*\);.*/\1/')
           VER_MINOR=$(grep "const int version_minor" $GEODA_HOME/../../version.h | sed -e 's/.*const int version_minor = \([0-9]*\);.*/\1/')
           VER_BUILD=$(grep "const int version_build" $GEODA_HOME/../../version.h | sed -e 's/.*const int version_build = \([0-9]*\);.*/\1/')
+          VER_STR="${VER_MAJOR}.${VER_MINOR}.${VER_BUILD}"
+          # Update version in plist files
+          /usr/libexec/PlistBuddy -c "Set :CFBundleVersion $VER_STR" GeoDa-GDAL-Info.plist
+          /usr/libexec/PlistBuddy -c "Set :CFBundleShortVersionString $VER_STR" GeoDa-GDAL-Info.plist
+          /usr/libexec/PlistBuddy -c "Set :CFBundleVersion $VER_STR" GeoDa-Xcode-Info.plist
+          /usr/libexec/PlistBuddy -c "Set :CFBundleShortVersionString $VER_STR" GeoDa-Xcode-Info.plist
           GEODA_VERSION=$VER_MAJOR.$VER_MINOR.$VER_BUILD-$GEODA_ARCH
           echo $GEODA_VERSION
           make -j$(sysctl -n hw.ncpu)
