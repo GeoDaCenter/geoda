@@ -131,6 +131,44 @@ jobs:
           cp BuildTools/ubuntu/build/GeoDa GeoDa.AppDir/usr/bin/
           chmod +x GeoDa.AppDir/usr/bin/GeoDa
 
+          # Bundle template cache.sqlite next to the executable for first-run copy
+          if [ -f "BuildTools/CommonDistFiles/cache.sqlite" ]; then
+            cp BuildTools/CommonDistFiles/cache.sqlite GeoDa.AppDir/usr/bin/cache.sqlite
+          fi
+
+          # Bundle geoda_prefs files used by the application
+          if [ -f "BuildTools/CommonDistFiles/geoda_prefs.sqlite" ]; then
+            cp BuildTools/CommonDistFiles/geoda_prefs.sqlite GeoDa.AppDir/usr/bin/geoda_prefs.sqlite
+          fi
+          if [ -f "BuildTools/CommonDistFiles/geoda_prefs.json" ]; then
+            cp BuildTools/CommonDistFiles/geoda_prefs.json GeoDa.AppDir/usr/bin/geoda_prefs.json
+          fi
+
+          # Bundle web_plugins (contains samples.sqlite and sample assets)
+          if [ -d "BuildTools/CommonDistFiles/web_plugins" ]; then
+            mkdir -p GeoDa.AppDir/usr/bin/web_plugins
+            cp -a BuildTools/CommonDistFiles/web_plugins/. GeoDa.AppDir/usr/bin/web_plugins/
+          fi
+
+          # Bundle basemap_cache
+          mkdir -p GeoDa.AppDir/usr/bin/basemap_cache
+
+          # Bundle Resources
+          mkdir -p GeoDa.AppDir/usr/bin/Resources
+          cp -a rc/*.xrc GeoDa.AppDir/usr/bin/Resources/
+
+          # Bundle internationalization
+          mkdir -p GeoDa.AppDir/usr/bin/lang
+          cp -rf internationalization/lang/* GeoDa.AppDir/usr/bin/lang/
+
+          # Bundle gdaldata
+          mkdir -p GeoDa.AppDir/usr/bin/gdaldata
+          cp -a /usr/share/gdal/* GeoDa.AppDir/usr/bin/gdaldata/
+
+          # Bundle proj
+          mkdir -p GeoDa.AppDir/usr/bin/proj
+          cp -a /usr/share/proj/* GeoDa.AppDir/usr/bin/proj/
+
           # Copy existing desktop file and modify for AppImage
           cp BuildTools/ubuntu/package/usr/share/applications/GeoDa.desktop GeoDa.AppDir/usr/share/applications/geoda.desktop
 
