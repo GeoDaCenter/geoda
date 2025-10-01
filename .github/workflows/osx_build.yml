@@ -124,9 +124,9 @@ jobs:
           VER_SUB=$(grep "const int version_subbuild" $GEODA_HOME/../../version.h | sed -e 's/.*const int version_subbuild = \([0-9]*\);.*/\1/')
           VER_STR="${VER_MAJOR}.${VER_MINOR}.${VER_BUILD}.${VER_SUB}"
           /usr/libexec/PlistBuddy -c "Set :CFBundleShortVersionString $VER_STR" GeoDa-GDAL-Info.plist
-          /usr/libexec/PlistBuddy -c "Set :CFBundleVersion $VER_SUB" GeoDa-GDAL-Info.plist
+          /usr/libexec/PlistBuddy -c "Set :CFBundleVersion $VER_STR" GeoDa-GDAL-Info.plist
           /usr/libexec/PlistBuddy -c "Set :CFBundleShortVersionString $VER_STR" GeoDa-Xcode-Info.plist
-          /usr/libexec/PlistBuddy -c "Set :CFBundleVersion $VER_SUB" GeoDa-Xcode-Info.plist
+          /usr/libexec/PlistBuddy -c "Set :CFBundleVersion $VER_STR" GeoDa-Xcode-Info.plist
           make -j$(sysctl -n hw.ncpu)
           make app
           cd create-dmg
