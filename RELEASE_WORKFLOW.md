@@ -18,6 +18,7 @@ The release workflow automatically creates a GitHub release with all installer a
    - **Windows**: 32-bit and 64-bit installers (regular and Windows 7+ versions)
    - **macOS**: Intel (x86_64) and Apple Silicon (ARM64) DMG files
    - **Ubuntu**: DEB packages for Ubuntu 20.04, 22.04, and 24.04
+   - **AppImage**: Portable Linux executable with embedded dependencies
 
 3. **Release Creation**: The release workflow:
    - Waits for builds to complete
@@ -81,6 +82,7 @@ The release will include the following installer files:
 - `.github/workflows/windows_build.yml` - Windows build workflow
 - `.github/workflows/osx_build.yml` - macOS build workflow
 - `.github/workflows/ubuntu_build.yml` - Ubuntu build workflow
+- `.github/workflows/appimage-build.yml` - AppImage build workflow (portable Linux)
 
 ## Troubleshooting
 

@@ -2446,7 +2446,9 @@ wxString GenUtils::GetCachePath()
     wxString cachePath = geodaUserDir + wxFileName::GetPathSeparator() + "cache.sqlite";
     if (wxFileExists(cachePath) == false) {
         wxString origCachePath = GetExeDir() + "cache.sqlite";
-        wxCopyFile(origCachePath, cachePath);
+        if (wxFileExists(origCachePath)) {
+            wxCopyFile(origCachePath, cachePath);
+        }
     }
     return cachePath;
 #elif __WXMAC__
@@ -2461,7 +2463,9 @@ wxString GenUtils::GetCachePath()
     wxString cachePath = geodaUserDir + wxFileName::GetPathSeparator() + "cache.sqlite";
     if (wxFileExists(cachePath) == false) {
         wxString origCachePath = GetExeDir() + "cache.sqlite";
-        wxCopyFile(origCachePath, cachePath);
+        if (wxFileExists(origCachePath)) {
+            wxCopyFile(origCachePath, cachePath);
+        }
     }
     return cachePath;
 #endif
