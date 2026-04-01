@@ -70,7 +70,9 @@ void FramesManager::notifyObservers()
 {
 	for (std::list<FramesManagerObserver*>::iterator it=observers.begin();
 		 it != observers.end(); ++it) {
-		(*it)->update(this);
+		if (*it != nullptr) {
+			(*it)->update(this);
+		}
 	}
 }
 
