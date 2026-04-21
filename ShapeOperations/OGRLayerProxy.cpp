@@ -53,7 +53,8 @@ layer(_layer), load_progress(0), stop_reading(false), export_progress(0)
     is_writable = layer->TestCapability(OLCCreateField) != 0;
     
 	eGType = layer->GetGeomType();
-    spatialRef = layer->GetSpatialRef();
+    const OGRSpatialReference* sr = layer->GetSpatialRef();
+    spatialRef = sr ? sr->Clone() : NULL;
     
     // get feature definition
 	featureDefn = layer->GetLayerDefn();
@@ -70,7 +71,7 @@ OGRLayerProxy::OGRLayerProxy(OGRLayer* _layer,
                              int _n_rows)
 : mapContour(0), layer(_layer), name(_layer->GetName()), ds_type(_ds_type),
 n_rows(_n_rows), eGType(_eGType), load_progress(0), stop_reading(false),
-export_progress(0)
+export_progress(0), spatialRef(NULL)
 {
     if (n_rows == 0) {
         // sometimes the OGR returns 0 features (falsely)
@@ -87,6 +88,9 @@ export_progress(0)
 
 OGRLayerProxy::~OGRLayerProxy()
 {
+    if (spatialRef) {
+        spatialRef->Release();
+    }
     if (mapContour) {
         mapContour->empty();
         delete mapContour;
