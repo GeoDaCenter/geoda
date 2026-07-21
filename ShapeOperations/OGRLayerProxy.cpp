@@ -47,13 +47,14 @@ OGRLayerProxy::OGRLayerProxy(wxString layer_name,
                              GdaConst::DataSourceType _ds_type,
                              bool isNew)
 : mapContour(0), n_rows(0), n_cols(0), name(layer_name),ds_type(_ds_type),
-layer(_layer), load_progress(0), stop_reading(false), export_progress(0)
+layer(_layer), spatialRef(NULL), load_progress(0), stop_reading(false), export_progress(0)
 {
     if (!isNew) n_rows = layer->GetFeatureCount(FALSE);
     is_writable = layer->TestCapability(OLCCreateField) != 0;
     
 	eGType = layer->GetGeomType();
-    spatialRef = layer->GetSpatialRef();
+    const OGRSpatialReference* sr = layer->GetSpatialRef();
+    spatialRef = sr ? sr->Clone() : NULL;
     
     // get feature definition
 	featureDefn = layer->GetLayerDefn();
@@ -69,7 +70,7 @@ OGRLayerProxy::OGRLayerProxy(OGRLayer* _layer,
                              OGRwkbGeometryType _eGType,
                              int _n_rows)
 : mapContour(0), layer(_layer), name(_layer->GetName()), ds_type(_ds_type),
-n_rows(_n_rows), eGType(_eGType), load_progress(0), stop_reading(false),
+n_rows(_n_rows), eGType(_eGType), spatialRef(NULL), load_progress(0), stop_reading(false),
 export_progress(0)
 {
     if (n_rows == 0) {
@@ -87,6 +88,9 @@ export_progress(0)
 
 OGRLayerProxy::~OGRLayerProxy()
 {
+    if (spatialRef) {
+        OGRSpatialReference::DestroySpatialReference(spatialRef);
+    }
     if (mapContour) {
         mapContour->empty();
         delete mapContour;
