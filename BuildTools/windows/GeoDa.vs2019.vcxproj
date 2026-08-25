@@ -90,7 +90,7 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>temp\OpenCL\sdk\include;temp\boost;temp\wxWidgets\lib\vc_dll\mswud;temp\wxWidgets\include;temp\json_spirit_v4.08;temp\eigen3;temp\spectra\include;libraries\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;DEBUG;_DEBUG;_WINDOWS;NOMINMAX;__WXMSW__;__WXDEBUG__;WXUSINGDLL;_UNICODE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;DEBUG;_DEBUG;_WINDOWS;NOMINMAX;__WXMSW__;WXUSINGDLL;_UNICODE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>false</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
@@ -122,7 +122,7 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>temp\OpenCL\sdk\include;temp\wxWidgets\lib\vc_dll\mswud;temp\wxWidgets\include;temp\boost\include;temp\json_spirit_v4.08;temp\eigen3;temp\spectra\include;libraries\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;DEBUG;_DEBUG;_WINDOWS;NOMINMAX;__WXMSW__;__WXDEBUG__;WXUSINGDLL;_UNICODE;__PROJ6__%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;DEBUG;_DEBUG;_WINDOWS;NOMINMAX;__WXMSW__;WXUSINGDLL;_UNICODE;__PROJ6__%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>false</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>

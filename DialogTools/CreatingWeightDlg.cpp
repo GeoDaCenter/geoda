@@ -17,6 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <algorithm>
 #include <limits>
 #include <vector>
 #include <set>
@@ -1696,7 +1697,7 @@ void CreatingWeightDlg::CreateWeights()
             double shp_max_y = (double)project->main_data.header.bbox_y_max;
             double shp_x_len = shp_max_x - shp_min_x;
             double shp_y_len = shp_max_y - shp_min_y;
-            double pixel_len = MIN(shp_x_len, shp_y_len) / 4096.0; // 4K LCD
+            double pixel_len = std::min(shp_x_len, shp_y_len) / 4096.0; // 4K LCD
             double suggest_precision = pixel_len * 10E-7;
             // round it to power of 10
             suggest_precision = log10(suggest_precision);

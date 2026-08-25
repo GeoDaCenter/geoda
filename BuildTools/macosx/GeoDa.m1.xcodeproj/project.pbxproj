@@ -2308,9 +2308,9 @@
 					"./temp/CLAPACK-3.2.1/blas.a",
 					"./temp/CLAPACK-3.2.1/F2CLIBS/libf2c.a",
 					"./temp/CLAPACK-3.2.1/lapack.a",
-					"/usr/local/opt/boost/lib/libboost_date_time-mt.a",
-					"/usr/local/opt/boost/lib/libboost_thread-mt.a",
-					"/usr/local/opt/boost/lib/libboost_system-mt.a",
+					./libraries/lib/libboost_date_time.a,
+					./libraries/lib/libboost_thread.a,
+					./libraries/lib/libboost_system.a,
 				);
 				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = NO;
 				PRODUCT_BUNDLE_IDENTIFIER = edu.uchicago.spatial;
@@ -2400,9 +2400,9 @@
 					"./temp/CLAPACK-3.2.1/blas.a",
 					"./temp/CLAPACK-3.2.1/F2CLIBS/libf2c.a",
 					"./temp/CLAPACK-3.2.1/lapack.a",
-					"/usr/local/opt/boost/lib/libboost_date_time-mt.a",
-					"/usr/local/opt/boost/lib/libboost_thread-mt.a",
-					"/usr/local/opt/boost/lib/libboost_system-mt.a",
+					./libraries/lib/libboost_date_time.a,
+					./libraries/lib/libboost_thread.a,
+					./libraries/lib/libboost_system.a,
 				);
 				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = NO;
 				PRODUCT_BUNDLE_IDENTIFIER = edu.uchicago.spatial;

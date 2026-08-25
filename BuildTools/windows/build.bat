@@ -1152,6 +1152,13 @@ if %INNO_EXE% == not_found (
 	goto BUILD_END
 )
 
+REM Update installer version numbers before creating installer
+echo Updating installer version numbers...
+python update_installer_version.py
+if errorlevel 1 (
+    echo Warning: Failed to update installer version numbers, continuing with build...
+)
+
 IF EXIST %BUILD_HOME%\geoda_setup.exe del %BUILD_HOME%\geoda_setup.exe
 if %GDA_BUILD% == BUILD_32 (
 	%INNO_EXE% /q installer\32bit\GeoDa.iss

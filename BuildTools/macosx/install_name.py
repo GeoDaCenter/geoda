@@ -9,10 +9,55 @@ import re
 from pathlib import Path
 from shutil import copyfile
 
+
+def get_gdal_dylib_name():
+    """Get the GDAL dylib name dynamically"""
+    try:
+        # Get GDAL version from gdal-config
+        gdal_version = subprocess.check_output(['gdal-config', '--version'],
+                                               stderr=subprocess.STDOUT,
+                                               universal_newlines=True).strip()
+
+        # Extract major version (e.g., "3.7.4" -> "3", "3.11.3" -> "3")
+        major_version = gdal_version.split('.')[0]
+        # Extract minor version (e.g., "3.7.4" -> "7", "3.11.3" -> "11")
+        minor_version = gdal_version.split('.')[1]
+
+        # Always use the standard naming pattern based on major version
+        standard_name = f"libgdal.{major_version}{minor_version}.dylib"
+
+        # Check if the standard dylib exists
+        possible_paths = [
+            f"/usr/local/opt/gdal/lib/{standard_name}",
+            f"/opt/homebrew/opt/gdal/lib/{standard_name}"
+        ]
+
+        for path in possible_paths:
+            if os.path.exists(path):
+                return standard_name
+
+        # If standard dylib doesn't exist, check if any libgdal.*.dylib file exists
+        # but still return the standard name for consistency
+        for base_path in ["/usr/local/opt/gdal/lib", "/opt/homebrew/opt/gdal/lib"]:
+            if os.path.exists(base_path):
+                for file in os.listdir(base_path):
+                    if file.startswith("libgdal.") and file.endswith(".dylib"):
+                        # Found a dylib file, but return the standard name
+                        return standard_name
+
+        # If all else fails, return the standard name
+        return standard_name
+
+    except (subprocess.CalledProcessError, FileNotFoundError):
+        # Fallback to default if gdal-config is not available
+        return "libgdal.37.dylib"
+
+
 # e.g. '/Users/xun/Github/geoda/BuildTools/macosx/build/GeoDa.app/Contents/Frameworks'
 FRAMEWORK_PATH = sys.argv[1]
 CODESIGN_ID = sys.argv[2]
-CODESIGN_ONLY = bool(sys.argv[3]) if len(sys.argv) > 3 else False
+GDAL_DYLIB_NAME = sys.argv[3] if len(sys.argv) > 3 else get_gdal_dylib_name()
+CODESIGN_ONLY = bool(sys.argv[4]) if len(sys.argv) > 4 else False
 
 print(CODESIGN_ID, CODESIGN_ONLY)
 
@@ -79,4 +124,4 @@ def process_dependency(framework_path, dylib_name):
 
 process_dependency(FRAMEWORK_PATH, "libwx_osx_cocoau_gl-3.2.dylib")
 process_dependency(FRAMEWORK_PATH, "libwx_osx_cocoau-3.2.dylib")
-process_dependency(FRAMEWORK_PATH, "libgdal.35.dylib")
+process_dependency(FRAMEWORK_PATH, GDAL_DYLIB_NAME)

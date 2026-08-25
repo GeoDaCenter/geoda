@@ -281,7 +281,7 @@ void TSNEDlg::CreateControls()
     std::vector<double> X(n, 0), Y(n,0);
     std::vector<bool> X_undef(n, false), Y_undef(n,false);
     int style = AnimatePlotcanvas::DEFAULT_STYLE | AnimatePlotcanvas::show_vert_axis_through_origin | AnimatePlotcanvas::show_data_points | AnimatePlotcanvas::show_horiz_axis_through_origin;
-    m_animate = new AnimatePlotcanvas(this, NULL, project, X, Y, X_undef, Y_undef,
+    m_animate = new AnimatePlotcanvas(panel, NULL, project, X, Y, X_undef, Y_undef,
                                       "", "", style, std::vector<std::vector<int> >(),
                                       "", "", wxDefaultPosition,
                                       wxSize(300, 300));

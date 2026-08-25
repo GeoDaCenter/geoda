@@ -7,6 +7,7 @@ on:
   # Triggers the workflow on push or pull request events but only for the master branch
   push:
     branches: [master]
+    tags: ['v*']
     paths-ignore:
       - '**/README.md'
   # Stop checking osx build on pull request, one has to check is manually
@@ -44,7 +45,7 @@ jobs:
 
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Install application certificate
         uses: apple-actions/import-codesign-certs@v2
@@ -63,16 +64,31 @@ jobs:
           rm /usr/local/bin/python3 || true
           rm /usr/local/bin/python3-config || true
           brew install --force --overwrite --quiet gdal || true
+          # Get GDAL version for later use
+          GDAL_VERSION=$(gdal-config --version)
+          GDAL_MAJOR_VERSION=$(echo $GDAL_VERSION | cut -d. -f1)
+          GDAL_MINOR_VERSION=$(echo $GDAL_VERSION | cut -d. -f2)
+          echo "GDAL_VERSION=$GDAL_VERSION" >> $GITHUB_ENV
+          echo "GDAL_MAJOR_VERSION=$GDAL_MAJOR_VERSION" >> $GITHUB_ENV
+          echo "GDAL_DYLIB_NAME=libgdal.${GDAL_MAJOR_VERSION}${GDAL_MINOR_VERSION}.dylib" >> $GITHUB_ENV
 
       - name: Install GDAL using Brew Arm64
         if: ${{ matrix.pre == 'arm64' }}
         run: |
           arch
           brew install gdal
+          sudo mkdir -p /usr/local/opt
           sudo ln -s /opt/homebrew/opt/gdal /usr/local/opt/gdal
           sudo ln -s /opt/homebrew/opt/proj /usr/local/opt/proj
+          # Get GDAL version for later use
+          GDAL_VERSION=$(gdal-config --version)
+          GDAL_MAJOR_VERSION=$(echo $GDAL_VERSION | cut -d. -f1)
+          GDAL_MINOR_VERSION=$(echo $GDAL_VERSION | cut -d. -f2)
+          echo "GDAL_VERSION=$GDAL_VERSION" >> $GITHUB_ENV
+          echo "GDAL_MAJOR_VERSION=$GDAL_MAJOR_VERSION" >> $GITHUB_ENV
+          echo "GDAL_DYLIB_NAME=libgdal.${GDAL_MAJOR_VERSION}${GDAL_MINOR_VERSION}.dylib" >> $GITHUB_ENV
 
-      - uses: actions/cache@v3
+      - uses: actions/cache@v4
         id: cache
         with:
           path: |
@@ -97,9 +113,9 @@ jobs:
           cp ../../GeoDamake.macosx.opt ../../GeoDamake.opt
           echo "find identity"
           security find-identity -v
-          VER_MAJOR=$(grep version_major $GEODA_HOME/../../version.h | sed -e 's/^[[:space:]][[:alpha:]|[:space:]|_|=]*//g' | sed -e 's/;//g')
-          VER_MINOR=$(grep version_minor $GEODA_HOME/../../version.h | sed -e 's/^[[:space:]][[:alpha:]|[:space:]|_|=]*//g' | sed -e 's/;//g')
-          VER_BUILD=$(grep version_build $GEODA_HOME/../../version.h | sed -e 's/^[[:space:]][[:alpha:]|[:space:]|_|=]*//g' | sed -e 's/;//g')
+          VER_MAJOR=$(grep "const int version_major" $GEODA_HOME/../../version.h | sed -e 's/.*const int version_major = \([0-9]*\);.*/\1/')
+          VER_MINOR=$(grep "const int version_minor" $GEODA_HOME/../../version.h | sed -e 's/.*const int version_minor = \([0-9]*\);.*/\1/')
+          VER_BUILD=$(grep "const int version_build" $GEODA_HOME/../../version.h | sed -e 's/.*const int version_build = \([0-9]*\);.*/\1/')
           GEODA_VERSION=$VER_MAJOR.$VER_MINOR.$VER_BUILD-$GEODA_ARCH
           echo $GEODA_VERSION
           make -j$(sysctl -n hw.ncpu)
@@ -108,8 +124,32 @@ jobs:
           ./geoda.sh $GEODA_VERSION
           codesign --timestamp -s "Developer ID Application: Geodapress LLC (26M5NG43GP)" -i edu.uchicago.spatial GeoDa$GEODA_VERSION-Installer.dmg
 
+      - name: Notarize DMG
+        run: |
+          cd BuildTools/macosx/create-dmg
+          DMG_FILE="GeoDa${{ env.GEODA_VER }}-${{ env.GEODA_ARCH }}-Installer.dmg"
+
+          # Check if Apple ID credentials are available
+          if [ -z "${{ secrets.APPLE_ID_USERNAME }}" ] || [ -z "${{ secrets.APPLE_ID_APP_SPECIFIC_PASSWORD }}" ] || [ -z "${{ secrets.APPLE_TEAM_ID }}" ]; then
+            echo "Apple ID credentials not available, skipping notarization"
+            exit 0
+          fi
+
+          echo "Submitting DMG for notarization..."
+          xcrun notarytool submit "$DMG_FILE" \
+            --apple-id "${{ secrets.APPLE_ID_USERNAME }}" \
+            --password "${{ secrets.APPLE_ID_APP_SPECIFIC_PASSWORD }}" \
+            --team-id "${{ secrets.APPLE_TEAM_ID }}" \
+            --wait
+
+          echo "Stapling notarization ticket to DMG..."
+          xcrun stapler staple "$DMG_FILE"
+
+          echo "Verifying notarization..."
+          xcrun stapler validate "$DMG_FILE"
+
       # Upload artifact
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: GeoDa-${{ env.GEODA_VER }}-${{ env.GEODA_ARCH }}-MacOS
           path: ${{ github.workspace }}/BuildTools/macosx/create-dmg/GeoDa${{ env.GEODA_VER }}-${{ env.GEODA_ARCH }}-Installer.dmg

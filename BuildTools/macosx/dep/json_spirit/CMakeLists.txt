@@ -1,4 +1,5 @@
-CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
+CMAKE_MINIMUM_REQUIRED(VERSION 3.5)
+cmake_policy(VERSION 3.5)
 
 add_definitions(-DJSON_SPIRIT_VALUE_ENABLED)
 SET(CMAKE_INCLUDE_PATH /Users/runner/work/geoda/geoda/BuildTools/macosx/libraries/include/boost ${CMAKE_INCLUDE_PATH})

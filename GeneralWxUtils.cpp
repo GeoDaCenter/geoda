@@ -435,7 +435,7 @@ bool GeneralWxUtils::CheckMenuItem(wxMenuBar* m, int id, bool check)
 {
 	if (!m) return false;
 	wxMenuItem* mi = m->FindItem(id);
-	if (mi && mi->IsCheckable()) {
+	if (mi && mi->IsCheckable() && mi->GetMenu()) {
 		mi->Check(check);
 		return true;
 	}
@@ -446,10 +446,11 @@ bool GeneralWxUtils::CheckMenuItem(wxMenu* menu, int id, bool check)
 {
 	if (!menu) return false;
 	wxMenuItem* mItem =	menu->FindItem(id);
-	if (!mItem) return false;
-	if (!mItem->IsCheckable()) return false;
-	mItem->Check(check);
-	return true;
+    if (mItem && mItem->IsCheckable() && mItem->GetMenu()) {
+        mItem->Check(check);
+        return true;
+    }
+	return false;
 }
 
 bool GeneralWxUtils::SetMenuItemText(wxMenu* menu, int id,
