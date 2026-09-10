@@ -19,9 +19,9 @@ A Python script (`update_installer_version.py`) has been created that automatica
 ### Files affected
 
 - `BuildTools/windows/installer/32bit/GeoDa.iss`
-- `BuildTools/windows/installer/32bit/GeoDa-win7+.iss`
+- `BuildTools/windows/installer/32bit/GeoDa-win8+.iss`
 - `BuildTools/windows/installer/64bit/GeoDa.iss`
-- `BuildTools/windows/installer/64bit/GeoDa-win7+.iss`
+- `BuildTools/windows/installer/64bit/GeoDa-win8+.iss`
 
 ### Integration with build process
 

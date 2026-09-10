@@ -51,6 +51,11 @@ jobs:
       MSVC_VER: ${{ matrix.MSVC_VER }}
       platform: ${{ matrix.platform }}
       APPVEYOR: true # to skip some tests
+      # Pin vcpkg to a specific commit for fully reproducible dependency
+      # builds. To update dependencies, bump this to a newer vcpkg master
+      # commit and re-check the GDAL feature names against ports/gdal/vcpkg.json
+      # in that commit (the valid set changes over time).
+      VCPKG_COMMIT: "127402f1c75bb3d5ff6bce04b285faa4930a5aca"
       ACTIONS_ALLOW_UNSECURE_COMMANDS: true # see https://github.blog/changelog/2020-10-01-github-actions-deprecating-set-env-and-add-path-commands/
 
     # Steps represent a sequence of tasks that will be executed as part of the job
@@ -69,39 +74,53 @@ jobs:
               $env:WIN64_ARG=""
               $env:CMAKE_ARCHITECTURE="Win32"
           }
-          elseif($env:platform -eq "x64")
-          {
-              $env:ARCHITECTURE="amd64"
-              $env:WIN64_ARG="WIN64=YES"
-              $env:CMAKE_ARCHITECTURE="x64"
-          }
           elseif($env:platform -eq "arm64")
           {
               $env:ARCHITECTURE="arm64"
               $env:WIN64_ARG="WIN64=YES"
               $env:CMAKE_ARCHITECTURE="arm64"
           }
-          echo "::set-env name=PATH::$env:PATH"
-          echo "::set-env name=ARCHITECTURE::$env:ARCHITECTURE"
-          echo "::set-env name=WIN64_ARG::$env:WIN64_ARG"
+          else
+          {
+              $env:ARCHITECTURE="amd64"
+              $env:WIN64_ARG="WIN64=YES"
+              $env:CMAKE_ARCHITECTURE="x64"
+          }
+          # Persist across steps via $GITHUB_ENV (the old ::set-env command
+          # was removed from GitHub Actions).
+          "ARCHITECTURE=$env:ARCHITECTURE" | Out-File -FilePath $env:GITHUB_ENV -Append
+          "WIN64_ARG=$env:WIN64_ARG" | Out-File -FilePath $env:GITHUB_ENV -Append
+          "CMAKE_ARCHITECTURE=$env:CMAKE_ARCHITECTURE" | Out-File -FilePath $env:GITHUB_ENV -Append
+          # VCPKG_TRIPLET is consumed by the "Build GeoDa" step, which runs even
+          # when a deps cache hit skips "Create Dependencies", so persist it here
+          # (in a step that always runs) rather than in the gated step.
+          if($env:platform -eq "x86") { $env:VCPKG_TRIPLET="x86-windows" }
+          elseif($env:platform -eq "arm64") { $env:VCPKG_TRIPLET="arm64-windows" }
+          else { $env:VCPKG_TRIPLET="x64-windows" }
+          "VCPKG_TRIPLET=$env:VCPKG_TRIPLET" | Out-File -FilePath $env:GITHUB_ENV -Append
 
       # Set compiler environment
       - name: Set compiler environment
         shell: cmd
         run: |
           if "%VS_VER%" == "2022" CALL "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\Common7\Tools\VsDevCmd.bat" -arch=%ARCHITECTURE%
-          echo ::set-env name=PATH::%PATH%
-          echo ::set-env name=INCLUDE::%INCLUDE%
-          echo ::set-env name=LIB::%LIB%
-          echo ::set-env name=LIBPATH::%LIBPATH%
+          echo PATH=%PATH% >> %GITHUB_ENV%
+          echo INCLUDE=%INCLUDE% >> %GITHUB_ENV%
+          echo LIB=%LIB% >> %GITHUB_ENV%
+          echo LIBPATH=%LIBPATH% >> %GITHUB_ENV%
 
       - uses: actions/cache@v4
         id: cache
         with:
           path: |
-            BuildTools/windows/libraries
             BuildTools/windows/temp
-          key: ${{ runner.os }}-${{ matrix.platform }}-deps-cache-${{ hashFiles('BuildTools/windows/deps.md') }}
+            BuildTools/windows/vcpkg
+            BuildTools/windows/vcpkg-cache
+          # The whole vcpkg dir (vcpkg.exe, toolchain, installed/ tree) must be
+          # restored on a cache hit because "Build GeoDa" references it and the
+          # gated "Create Dependencies" step is skipped on warm runs. VCPKG_COMMIT
+          # is in the key so bumping the pin invalidates the cache.
+          key: ${{ runner.os }}-${{ matrix.platform }}-deps-cache-${{ hashFiles('BuildTools/windows/deps.md') }}-${{ env.VCPKG_COMMIT }}
 
       # Install innosetup
       - name: Install innosetup
@@ -129,108 +148,139 @@ jobs:
           Install-Module VSSetup -Scope CurrentUser
           if($env:VS_VER -eq "2022")
           {
+            # Set up the MSVC build environment directly. Relying on the
+            # GITHUB_ENV propagation from the "Set compiler environment" step
+            # is not reliable for the long LIB/INCLUDE values, and VsDevCmd.bat
+            # emits some Windows Kits paths with doubled separators (e.g.
+            # ...\10\\lib\\10.0.26100.0\\um\\x64) which the MSVC linker rejects
+            # when searching for kernel32.lib. Re-run VsDevCmd here and
+            # normalize the paths before building wxWidgets.
+            cmd /c "call `"C:\Program Files\Microsoft Visual Studio\2022\Enterprise\Common7\Tools\VsDevCmd.bat`" -arch=$env:ARCHITECTURE >nul 2>&1 && set" | ForEach-Object {
+              if ($_ -match '^([^=]+)=(.*)$') {
+                Set-Item -Path "Env:$($matches[1])" -Value $matches[2]
+              }
+            }
           }
           else
           {
               Import-VisualStudioVars -VisualStudioVersion $env:VS_VER -Architecture $env:ARCHITECTURE
           }
+          # Normalize doubled separators in the MSVC env vars (see above).
+          if ($env:LIB) { $env:LIB = $env:LIB -replace '\\\\', '\' }
+          if ($env:INCLUDE) { $env:INCLUDE = $env:INCLUDE -replace '\\\\', '\' }
+          if ($env:PATH) { $env:PATH = $env:PATH -replace '\\\\', '\' }
+          Write-Output "After env setup: LIB=$env:LIB"
+          Write-Output "After env setup: INCLUDE=$env:INCLUDE"
           #
           # prepare
           #
           $env:GDA_PATH="$env:GITHUB_WORKSPACE\BuildTools\windows"
           cd $env:GDA_PATH
           mkdir temp
-          if($env:platform -ne "arm64")
+          #
+          # GDAL / curl / zlib -- built with vcpkg so we get a modern GDAL with
+          # the Parquet and Arrow OGR drivers (x64 only; Apache Arrow C++ does
+          # not build for 32-bit MSVC). The previous gisinternals release-1911
+          # SDK was GDAL 3.0.4 (2019) and shipped no Parquet/Arrow drivers.
+          #
+          # VCPKG_TRIPLET is set in the "Set environment" step above. Only the
+          # GDAL feature list differs per architecture here. ARM64 uses the bare
+          # gdal port (no feature list): Apache Arrow C++ does not build for
+          # ARM64 MSVC, and the reduced x86 feature set is not validated for the
+          # arm64-windows triplet. This matches the proven vcpkg invocation from
+          # the legacy ARM64 build (PR #2587).
+          if($env:platform -eq "x86")
           {
-            #
-            # GDAL # gisinternals SDK version still to 2016
-            #
-            if($env:platform -eq "x86") 
-            {
-              $env:GDAL_SDK_VER="release-1911"
-            }
-            else
-            {
-              $env:GDAL_SDK_VER="release-1911-x64"
-            }
-            cd temp 
-            Invoke-WebRequest "https://github.com/GeoDaCenter/software/releases/download/v2000/$env:GDAL_SDK_VER-dev.zip" -OutFile "$env:GDAL_SDK_VER.zip" 
-            cd ..
-            7z x .\temp\$env:GDAL_SDK_VER.zip
-            dir
-            Rename-Item $env:GDAL_SDK_VER libraries
+            $env:GDAL_FEATURES="recommended-features,mysql-libmariadb,postgresql,libkml,libxml2,netcdf,libspatialite,openjpeg,webp,zstd,lzma,gif"
           }
+          elseif($env:platform -eq "arm64")
+          {
+            $env:GDAL_FEATURES=""
+          }
+          else
+          {
+            $env:GDAL_FEATURES="recommended-features,parquet,arrow,mysql-libmariadb,postgresql,libkml,libxml2,netcdf,libspatialite,openjpeg,webp,zstd,lzma,gif"
+          }
+          # Clone vcpkg (shallow) and bootstrap it. If VCPKG_COMMIT is set, fetch
+          # and check out that exact commit so the dependency tree is pinned.
+          git clone --depth 1 https://github.com/microsoft/vcpkg.git
+          cd vcpkg
+          if($env:VCPKG_COMMIT -and $env:VCPKG_COMMIT -ne "") {
+            git fetch --depth 1 origin $env:VCPKG_COMMIT
+            git checkout $env:VCPKG_COMMIT
+          }
+          .\bootstrap-vcpkg.bat -disableMetrics
+          # Use a vcpkg binary cache (restored by actions/cache) so warm builds
+          # do not rebuild Arrow/GDAL from source, and cap parallelism so the
+          # runner does not run out of memory building the Arrow dependency tree.
+          if(-Not (Test-Path "$env:GDA_PATH\vcpkg-cache")) { New-Item -ItemType Directory -Force "$env:GDA_PATH\vcpkg-cache" | Out-Null }
+          $env:VCPKG_BINARY_SOURCES="files,$env:GDA_PATH\vcpkg-cache,readwrite"
+          $env:VCPKG_MAX_CONCURRENCY=$env:NUMBER_OF_PROCESSORS
+          # --clean-after-build drops buildtrees/packages so the cached vcpkg
+          # dir (restored whole by actions/cache on warm runs) stays small; the
+          # built libs remain in installed/ and the binary cache keeps archives.
+          # ARM64 also installs OpenCL from vcpkg (the prebuilt OpenCL SDK zip
+          # is x86/x64 only).
+          if($env:platform -eq "arm64")
+          {
+            .\vcpkg.exe install --clean-after-build "gdal:$env:VCPKG_TRIPLET" "curl:$env:VCPKG_TRIPLET" "zlib:$env:VCPKG_TRIPLET" "opencl:$env:VCPKG_TRIPLET"
+          }
+          else
+          {
+            .\vcpkg.exe install --clean-after-build "gdal[$env:GDAL_FEATURES]:$env:VCPKG_TRIPLET" "curl:$env:VCPKG_TRIPLET" "zlib:$env:VCPKG_TRIPLET"
+          }
+          cd ..
           cd temp
           #
-          # wxWidgets 3.1.4
+          # wxWidgets 3.1.4 (non-monolithic so FindwxWidgets can resolve components)
           #
           if(-Not (Test-Path -Path wxWidgets.zip)) { Invoke-WebRequest "https://github.com/wxWidgets/wxWidgets/releases/download/v3.1.4/wxWidgets-3.1.4.zip" -OutFile "wxWidgets.zip" }
           7z x wxWidgets.zip -owxWidgets
           cd wxWidgets
           xcopy /E /Y $env:GDA_PATH\dep\wxWidgets .
           cd build\msw
-          if($env:platform -eq "x86") 
+          Write-Output "wxWidgets build env: LIB=$env:LIB"
+          Write-Output "wxWidgets build env: INCLUDE=$env:INCLUDE"
+          if($env:platform -eq "x86")
           {
-            nmake -f makefile.vc UNICODE=1 SHARED=1 RUNTIME_LIBS=dynamic BUILD=release MONOLITHIC=1 USE_OPENGL=1 USE_POSTSCRIPT=1
+            nmake -f makefile.vc UNICODE=1 SHARED=1 RUNTIME_LIBS=dynamic BUILD=release MONOLITHIC=0 USE_OPENGL=1 USE_POSTSCRIPT=1
           }
-          elseif($env:platform -eq "x64") 
+          elseif($env:platform -eq "arm64")
           {
-            nmake -f makefile.vc UNICODE=1 SHARED=1 RUNTIME_LIBS=dynamic BUILD=release MONOLITHIC=1 USE_OPENGL=1 USE_POSTSCRIPT=1 TARGET_CPU=AMD64
-          }
-          elseif($env:platform -eq "arm64") 
-          {
-            nmake -f makefile.vc UNICODE=1 SHARED=1 RUNTIME_LIBS=dynamic BUILD=release MONOLITHIC=1 USE_OPENGL=1 USE_POSTSCRIPT=1 TARGET_CPU=ARM64
-          }
-          cd $env:GDA_PATH\temp
-          if($env:platform -ne "arm64")
-          {
-            #
-            # Boost 1.75
-            #
-            Invoke-WebRequest "https://github.com/lixun910/pygeoda_boost/archive/refs/tags/v1.18.zip" -OutFile "boost.zip"
-            7z x boost.zip
-            Rename-Item pygeoda_boost-1.18 boost
+            nmake -f makefile.vc UNICODE=1 SHARED=1 RUNTIME_LIBS=dynamic BUILD=release MONOLITHIC=0 USE_OPENGL=1 USE_POSTSCRIPT=1 TARGET_CPU=ARM64
           }
           else
           {
-            #
-            # Boost 1.88
-            #
+            nmake -f makefile.vc UNICODE=1 SHARED=1 RUNTIME_LIBS=dynamic BUILD=release MONOLITHIC=0 USE_OPENGL=1 USE_POSTSCRIPT=1 TARGET_CPU=AMD64
+          }
+          cd $env:GDA_PATH\temp
+          #
+          # Boost -- prebuilt 1.75 (-vc142) for x86/x64; built from source for
+          # ARM64 (the prebuilt libs are x86/x64 only). b2 installs headers to
+          # include\boost-1_88\boost and libs to lib\; normalize the include
+          # layout so FindBoost finds include\boost.
+          #
+          if($env:platform -eq "arm64")
+          {
             Invoke-WebRequest "https://archives.boost.io/release/1.88.0/source/boost_1_88_0.zip" -OutFile "boost_1_88_0.zip"
-            7z x boost_1_88_0.zip   
-            dir
+            7z x boost_1_88_0.zip
             Push-Location boost_1_88_0
-              dir
-              cmd /c "bootstrap.bat"
-              cmd /c "b2.exe -j12 toolset=msvc architecture=arm address-model=64 abi=ms pch=off --without-mpi --without-graph_parallel install --prefix=..\boost"
+            cmd /c "bootstrap.bat"
+            cmd /c "b2.exe -j12 toolset=msvc architecture=arm address-model=64 abi=ms pch=off --without-mpi --without-graph_parallel install --prefix=..\boost"
             Pop-Location
             Copy-Item -Path "boost\include\boost-1_88\boost" -Destination "boost\include\boost" -Recurse -Force
             Remove-Item -Path "boost\include\boost-1_88" -Recurse -Force
           }
-          #
-          # JSON Spirit v4.08
-          #
-          if(-Not (Test-Path -Path json_spirit_v4.08.zip )) { Invoke-WebRequest "https://github.com/GeoDaCenter/software/releases/download/v2000/json_spirit_v4.08.zip" -OutFile "json_spirit_v4.08.zip" }
-          if(-Not (Test-Path -Path json_spirit_v4.08)) { 7z x json_spirit_v4.08.zip }
-          cd json_spirit_v4.08
-          xcopy /E /Y $env:GDA_PATH\dep\json_spirit .
-          if($env:platform -eq "x86") 
+          else
           {
-            msbuild.exe json_vs2019.sln /property:Configuration="Release" /p:Platform="Win32"
+            Invoke-WebRequest "https://github.com/lixun910/pygeoda_boost/archive/refs/tags/v1.18.zip" -OutFile "boost.zip"
+            7z x boost.zip
+            Rename-Item pygeoda_boost-1.18 boost
           }
-          elseif($env:platform -eq "x64") 
-          {
-            msbuild.exe json_vs2019.sln /property:Configuration="Release" /p:Platform="x64"
-          }
-          elseif($env:platform -eq "arm64") 
-          {
-            msbuild.exe json_vs2022.sln /property:Configuration="Release" /p:Platform="ARM64"
-          }
-          cd ..
           #
           # CLAPACK 3.1.1
           #
-          Invoke-WebRequest "https://github.com/GeoDaCenter/software/releases/download/v2000/CLAPACK-3.1.1-VisualStudio.zip" -OutFile "CLAPACK-3.1.1-VisualStudio.zip" 
+          Invoke-WebRequest "https://github.com/GeoDaCenter/software/releases/download/v2000/CLAPACK-3.1.1-VisualStudio.zip" -OutFile "CLAPACK-3.1.1-VisualStudio.zip"
           7z x CLAPACK-3.1.1-VisualStudio.zip
           cd CLAPACK-3.1.1-VisualStudio
           xcopy /E /Y $env:GDA_PATH\dep\CLAPACK-3.1.1-VisualStudio .
@@ -240,17 +290,18 @@ jobs:
             msbuild.exe clapack_vs2019.sln /t:BLAS\blas_vs2019 /property:Configuration="ReleaseDLL" /p:Platform="Win32"
             msbuild.exe clapack_vs2019.sln /t:clapack_vs2019 /property:Configuration="ReleaseDLL" /p:Platform="Win32"
           }
-          elseif($env:platform -eq "x64")
+          elseif($env:platform -eq "arm64")
+          {
+            # The vs2022 projects (added for ARM64 support) emit libs to LIB\a64.
+            msbuild.exe clapack_vs2022.sln /t:libf2c_vs2022 /property:Configuration="ReleaseDLL" /p:Platform="ARM64"
+            msbuild.exe clapack_vs2022.sln /t:BLAS\blas_vs2022 /property:Configuration="ReleaseDLL" /p:Platform="ARM64"
+            msbuild.exe clapack_vs2022.sln /t:clapack_vs2022 /property:Configuration="ReleaseDLL" /p:Platform="ARM64"
+          }
+          else
           {
             msbuild.exe clapack_vs2019.sln /t:libf2c_vs2019 /property:Configuration="ReleaseDLL" /p:Platform="x64"
             msbuild.exe clapack_vs2019.sln /t:BLAS\blas_vs2019 /property:Configuration="ReleaseDLL" /p:Platform="x64"
             msbuild.exe clapack_vs2019.sln /t:clapack_vs2019 /property:Configuration="ReleaseDLL" /p:Platform="x64"
-          }
-          elseif($env:platform -eq "arm64")
-          {
-            msbuild.exe clapack_vs2022.sln /t:libf2c_vs2022 /property:Configuration="ReleaseDLL" /p:Platform="ARM64"
-            msbuild.exe clapack_vs2022.sln /t:BLAS\blas_vs2022 /property:Configuration="ReleaseDLL" /p:Platform="ARM64"
-            msbuild.exe clapack_vs2022.sln /t:clapack_vs2022 /property:Configuration="ReleaseDLL" /p:Platform="ARM64"
           }
           cd ..
           #
@@ -259,28 +310,16 @@ jobs:
           Invoke-WebRequest "https://github.com/GeoDaCenter/software/releases/download/v2000/eigen3.zip" -OutFile "eigen3.zip"
           7z x eigen3.zip
           #
-          # Spectra v0.8.0
+          # OpenCL -- prebuilt SDK for x86/x64; ARM64 gets OpenCL from vcpkg
+          # (installed above), so skip the download there.
           #
-          Invoke-WebRequest "https://github.com/yixuan/spectra/archive/refs/tags/v0.8.0.zip" -OutFile "spectra.zip"
-          7z x spectra.zip
-          Rename-Item spectra-0.8.0 spectra
           if($env:platform -ne "arm64")
           {
-            #
-            # OpenCL
-            #
             Invoke-WebRequest "https://github.com/GeoDaCenter/software/releases/download/v2000/OpenCL.zip" -OutFile "OpenCL.zip"
             7z x OpenCL.zip
           }
           dir
           cd ..
-          cd $env:GDA_PATH
-          if($env:platform -eq "arm64")
-          {
-            vcpkg install gdal:arm64-windows opencl:arm64-windows --x-install-root=$env:GDA_PATH
-            Copy-Item -Path "$env:GDA_PATH\arm64-windows" -Destination "$env:GDA_PATH\libraries" -Recurse -Force
-            Remove-Item -Path "$env:GDA_PATH\arm64-windows" -Recurse -Force
-          }
 
       # Build GeoDa
       - name: Build GeoDa
@@ -310,16 +349,104 @@ jobs:
           cd $env:GDA_PATH
           if($env:platform -eq "x86")
           {
-            msbuild.exe GeoDa.vs2019.sln /t:GeoDa /property:Configuration="Release" /m /p:Platform="Win32"
-          }
-          elseif($env:platform -eq "x64")
-          {
-            msbuild.exe GeoDa.vs2019.sln /t:GeoDa /property:Configuration="Release" /m /p:Platform="x64"  
+            $env:OPENCL_LIB="$env:GDA_PATH\temp\OpenCL\sdk\lib\x86\OpenCL.lib"
+            $env:OPENCL_INCLUDE="$env:GDA_PATH\temp\OpenCL\sdk\include"
+            $env:CLAPACK_LIB="$env:GDA_PATH\temp\CLAPACK-3.1.1-VisualStudio\LIB\Win32"
+            $env:BOOST_LIB="$env:GDA_PATH\temp\boost\lib\win32"
+            $env:BOOST_COMPILER="-vc142"
           }
           elseif($env:platform -eq "arm64")
           {
-            msbuild.exe GeoDa.vs2022.sln /t:GeoDa /property:Configuration="Release" /m /p:Platform="ARM64"  
+            # OpenCL comes from vcpkg on ARM64; CLAPACK from the vs2022 projects
+            # (LIB\a64); Boost 1.88 built from source (b2, -vc143, libs in lib\).
+            $env:OPENCL_LIB="$env:GDA_PATH\vcpkg\installed\arm64-windows\lib\OpenCL.lib"
+            $env:OPENCL_INCLUDE="$env:GDA_PATH\vcpkg\installed\arm64-windows\include"
+            $env:CLAPACK_LIB="$env:GDA_PATH\temp\CLAPACK-3.1.1-VisualStudio\LIB\a64"
+            $env:BOOST_LIB="$env:GDA_PATH\temp\boost\lib"
+            $env:BOOST_COMPILER="-vc143"
           }
+          else
+          {
+            $env:OPENCL_LIB="$env:GDA_PATH\temp\OpenCL\sdk\lib\x64\OpenCL.lib"
+            $env:OPENCL_INCLUDE="$env:GDA_PATH\temp\OpenCL\sdk\include"
+            $env:CLAPACK_LIB="$env:GDA_PATH\temp\CLAPACK-3.1.1-VisualStudio\LIB\x64"
+            $env:BOOST_LIB="$env:GDA_PATH\temp\boost\lib\win64"
+            $env:BOOST_COMPILER="-vc142"
+          }
+          # gdal, libcurl and zlib come from the vcpkg-installed GDAL (built in
+          # the "Create Dependencies" step). The vcpkg toolchain makes
+          # find_package(GDAL/CURL/ZLIB) resolve to them; the explicit
+          # *_INCLUDE_DIR/*_LIBRARY hints keep CMake's module-mode finders
+          # deterministic on Windows.
+          #
+          # The vcpkg boost metaport (pulled in transitively by the GDAL libkml
+          # feature) installs share/boost/BoostConfig.cmake plus a
+          # vcpkg-cmake-wrapper.cmake that forces Boost_NO_BOOST_CMAKE=OFF and
+          # routes find_package(Boost) to the vcpkg BoostConfig. That config
+          # does per-component find_package(boost_<comp>) and fails because only
+          # libkml's minimal boost subset is installed (no boost_thread, etc.).
+          # GeoDa links its own static Boost (temp/boost; 1.75 -vc142 on
+          # x86/x64, 1.88 -vc143 built from source on ARM64), so drop the
+          # vcpkg boost config AND headers: with include/boost gone the
+          # toolchain's special Boost branch is skipped and find_package(Boost)
+          # falls through to the classic FindBoost module using
+          # -DBoost_ROOT/-DBoost_LIBRARY_DIR/-DBoost_COMPILER below.
+          # This runs in the always-executed Build GeoDa step (Create
+          # Dependencies is skipped on a deps cache hit).
+          Remove-Item -Recurse -Force "$env:GDA_PATH\vcpkg\installed\$env:VCPKG_TRIPLET\share\boost" -ErrorAction SilentlyContinue
+          Remove-Item -Recurse -Force "$env:GDA_PATH\vcpkg\installed\$env:VCPKG_TRIPLET\include\boost" -ErrorAction SilentlyContinue
+          cmake -S $env:GITHUB_WORKSPACE -B $env:GITHUB_WORKSPACE\build -A $env:CMAKE_ARCHITECTURE `
+            -DCMAKE_BUILD_TYPE=Release `
+            -DCMAKE_TOOLCHAIN_FILE="$env:GDA_PATH\vcpkg\scripts\buildsystems\vcpkg.cmake" `
+            -DVCPKG_TARGET_TRIPLET="$env:VCPKG_TRIPLET" `
+            -DwxWidgets_ROOT_DIR="$env:GDA_PATH\temp\wxWidgets" `
+            -DGEODA_CLAPACK_PATH="$env:CLAPACK_LIB" `
+            -DBoost_ROOT="$env:GDA_PATH\temp\boost" `
+            -DBoost_LIBRARY_DIR="$env:BOOST_LIB" `
+            -DBoost_COMPILER="$env:BOOST_COMPILER" `
+            -DEIGEN3_INCLUDE_DIR="$env:GDA_PATH\temp\eigen3" `
+            -DOpenCL_INCLUDE_DIR="$env:OPENCL_INCLUDE" `
+            -DOpenCL_LIBRARY="$env:OPENCL_LIB" `
+            -DGDAL_INCLUDE_DIR="$env:GDA_PATH\vcpkg\installed\$env:VCPKG_TRIPLET\include" `
+            -DGDAL_LIBRARY="$env:GDA_PATH\vcpkg\installed\$env:VCPKG_TRIPLET\lib\gdal.lib" `
+            -DCURL_INCLUDE_DIR="$env:GDA_PATH\vcpkg\installed\$env:VCPKG_TRIPLET\include" `
+            -DCURL_LIBRARY="$env:GDA_PATH\vcpkg\installed\$env:VCPKG_TRIPLET\lib\libcurl.lib" `
+            -DZLIB_INCLUDE_DIR="$env:GDA_PATH\vcpkg\installed\$env:VCPKG_TRIPLET\include" `
+            -DZLIB_LIBRARY="$env:GDA_PATH\vcpkg\installed\$env:VCPKG_TRIPLET\lib\zlib.lib"
+          cmake --build $env:GITHUB_WORKSPACE\build --config Release
+          # The InnoSetup scripts (installer\{32,64}bit\*.iss) reference the exe
+          # at ..\..\Release\GeoDa.exe (the legacy GNUmake/MSVC output location).
+          # The CMake build emits to build\bin\Release\GeoDa.exe
+          # (CMAKE_RUNTIME_OUTPUT_DIRECTORY=bin + MSVC config subdir), so copy
+          # it to where the installer scripts expect it.
+          New-Item -ItemType Directory -Force -Path "$env:GDA_PATH\Release" | Out-Null
+          Copy-Item "$env:GITHUB_WORKSPACE\build\bin\Release\GeoDa.exe" "$env:GDA_PATH\Release\GeoDa.exe" -Force
+          # Smoke test: launch the built exe and assert it stays alive. The
+          # GitHub Windows runners have an interactive desktop, so GUI apps
+          # start normally. The exe's DLLs live in the deps dirs (not beside
+          # the exe), so put them on PATH first; the runtime data (data/, proj/,
+          # lang/, ...) is already staged next to the exe by the CMake
+          # POST_BUILD step.
+          if($env:platform -eq "x86") {
+            $env:PATH = "$env:GDA_PATH\temp\wxWidgets\lib\vc_dll;$env:GDA_PATH\vcpkg\installed\x86-windows\bin;$env:GDA_PATH\temp\OpenCL\sdk\bin\x86;$env:PATH"
+          } elseif($env:platform -eq "arm64") {
+            $env:PATH = "$env:GDA_PATH\temp\wxWidgets\lib\vc_arm64_dll;$env:GDA_PATH\vcpkg\installed\arm64-windows\bin;$env:PATH"
+          } else {
+            $env:PATH = "$env:GDA_PATH\temp\wxWidgets\lib\vc_x64_dll;$env:GDA_PATH\vcpkg\installed\x64-windows\bin;$env:GDA_PATH\temp\OpenCL\sdk\bin\x64;$env:PATH"
+          }
+          $appExe = "$env:GITHUB_WORKSPACE\build\bin\Release\GeoDa.exe"
+          if (-not (Test-Path $appExe)) { Write-Error "smoke test: exe not found at $appExe"; exit 1 }
+          $p = Start-Process -FilePath $appExe -PassThru -RedirectStandardOutput "$env:GDA_PATH\geoda_smoke.log" -RedirectStandardError "$env:GDA_PATH\geoda_smoke.err.log"
+          Start-Sleep -Seconds 10
+          $p.Refresh()
+          if ($p.HasExited) {
+            Write-Error "GeoDa smoke test FAILED: exited early with code $($p.ExitCode)"
+            Write-Output "--- stdout ---"; Get-Content "$env:GDA_PATH\geoda_smoke.log" -ErrorAction SilentlyContinue
+            Write-Output "--- stderr ---"; Get-Content "$env:GDA_PATH\geoda_smoke.err.log" -ErrorAction SilentlyContinue
+            exit 1
+          }
+          Write-Output "GeoDa smoke test passed: process alive after 10s (pid $($p.Id))"
+          Stop-Process -Id $p.Id -Force -ErrorAction SilentlyContinue
           # update installer version numbers in iss files
           python update_installer_version.py
           if ($LASTEXITCODE -ne 0) {
@@ -328,16 +455,16 @@ jobs:
           if($env:platform -eq "x86")
           {
             ISCC.exe /q installer\32bit\GeoDa.iss
-            ISCC.exe /q installer\32bit\GeoDa-win7+.iss
-          } 
-          elseif($env:platform -eq "x64")
-          {
-            ISCC.exe /q installer\64bit\GeoDa.iss
-            ISCC.exe /q installer\64bit\GeoDa-win7+.iss
+            ISCC.exe /q installer\32bit\GeoDa-win8+.iss
           }
           elseif($env:platform -eq "arm64")
           {
             ISCC.exe /q installer\arm64\GeoDa.iss
+          }
+          else
+          {
+            ISCC.exe /q installer\64bit\GeoDa.iss
+            ISCC.exe /q installer\64bit\GeoDa-win8+.iss
           }
 
       - uses: actions/upload-artifact@v4
@@ -345,8 +472,12 @@ jobs:
           name: GeoDa-Windows-${{ env.platform }}-installer
           path: ${{ github.workspace }}\BuildTools\windows\GeoDa_1.22.1_${{ env.platform }}_Setup.exe
 
+      # "win8+" variant: same app, but the vcpkg-built deps and the VS2022
+      # toolset require Windows 8.1+ (see GeoDa-win8+.iss). ARM64 has no
+      # win8+ variant -- the arm64 installer (installer\arm64\GeoDa.iss) is
+      # the only one, uploaded above as GeoDa-Windows-arm64-installer.
       - uses: actions/upload-artifact@v4
         if: ${{ env.platform != 'arm64' }}
         with:
-          name: GeoDa-Windows7+-${{ env.platform }}-installer
-          path: ${{ github.workspace }}\BuildTools\windows\GeoDa_1.22.1_win7+${{ env.platform }}_Setup.exe
+          name: GeoDa-Windows8+-${{ env.platform }}-installer
+          path: ${{ github.workspace }}\BuildTools\windows\GeoDa_1.22.1_win8+${{ env.platform }}_Setup.exe

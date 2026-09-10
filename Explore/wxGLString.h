@@ -1,13 +1,17 @@
 #ifndef _drawable_
 #define _drawable_
 
+// wx/wx.h must come first on Windows: it pulls in windows.h, which defines
+// WINGDIAPI/APIENTRY that the SDK's GL/gl.h relies on (the newer Windows SDKs
+// no longer include windows.h from gl.h).
+#include "wx/wx.h"
+
 #ifdef __WXMAC__
 #include "OpenGL/gl.h"
 #else
 #include <GL/gl.h>
 #endif
 
-#include "wx/wx.h"
 #include <vector>
 
 class TextTexture;

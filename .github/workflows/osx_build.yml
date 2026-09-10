@@ -41,6 +41,9 @@ jobs:
     env:
       GEODA_VER: '1.22.1'
       GEODA_ARCH: ${{ matrix.pre }}
+      # Exposed via env so it can be tested in step `if` conditions (the
+      # secrets context is not available there). Empty on forks/PRs.
+      MACOS_CERTIFICATE: ${{ secrets.MACOS_CERTIFICATE }}
 
     # Steps represent a sequence of tasks that will be executed as part of the job
 
@@ -49,6 +52,8 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Install application certificate
+        # Skip on forks / PRs where the signing certificate secret is absent.
+        if: ${{ env.MACOS_CERTIFICATE != '' }}
         uses: apple-actions/import-codesign-certs@v2
         with:
           keychain: ${{ github.run_id }}
@@ -56,93 +61,75 @@ jobs:
           p12-file-base64: ${{ secrets.MACOS_CERTIFICATE }}
           p12-password: ${{ secrets.MACOS_CERTIFICATE_PWD }}
 
-      - name: Install GDAL using Brew x86_64
-        if: ${{ matrix.pre == 'x86_64' }}
+      - name: Install dependencies
         run: |
-          rm /usr/local/bin/2to3 || true
-          rm /usr/local/bin/idle3 || true
-          rm /usr/local/bin/pydoc3 || true
-          rm /usr/local/bin/python3 || true
-          rm /usr/local/bin/python3-config || true
-          brew install --force --overwrite --quiet gdal || true
-          # Get GDAL version for later use
-          GDAL_VERSION=$(gdal-config --version)
-          GDAL_MAJOR_VERSION=$(echo $GDAL_VERSION | cut -d. -f1)
-          GDAL_MINOR_VERSION=$(echo $GDAL_VERSION | cut -d. -f2)
-          echo "GDAL_VERSION=$GDAL_VERSION" >> $GITHUB_ENV
-          echo "GDAL_MAJOR_VERSION=$GDAL_MAJOR_VERSION" >> $GITHUB_ENV
-          echo "GDAL_DYLIB_NAME=libgdal.${GDAL_MAJOR_VERSION}${GDAL_MINOR_VERSION}.dylib" >> $GITHUB_ENV
-
-      - name: Install GDAL using Brew Arm64
-        if: ${{ matrix.pre == 'arm64' }}
-        run: |
-          arch
-          brew install gdal
-          sudo mkdir -p /usr/local/opt
-          sudo ln -s /opt/homebrew/opt/gdal /usr/local/opt/gdal
-          sudo ln -s /opt/homebrew/opt/proj /usr/local/opt/proj
-          # Get GDAL version for later use
-          GDAL_VERSION=$(gdal-config --version)
-          GDAL_MAJOR_VERSION=$(echo $GDAL_VERSION | cut -d. -f1)
-          GDAL_MINOR_VERSION=$(echo $GDAL_VERSION | cut -d. -f2)
-          echo "GDAL_VERSION=$GDAL_VERSION" >> $GITHUB_ENV
-          echo "GDAL_MAJOR_VERSION=$GDAL_MAJOR_VERSION" >> $GITHUB_ENV
-          echo "GDAL_DYLIB_NAME=libgdal.${GDAL_MAJOR_VERSION}${GDAL_MINOR_VERSION}.dylib" >> $GITHUB_ENV
-
-      - uses: actions/cache@v4
-        id: cache
-        with:
-          path: |
-            BuildTools/macosx/libraries
-            BuildTools/macosx/temp
-          key: ${{ runner.os }}-${{ matrix.pre }}-deps-cache-${{ hashFiles('BuildTools/macosx/install.sh') }}
-
-      - if: steps.cache.outputs.cache-hit != 'true'
-        name: Build Dependencies
-        run: |
-          cd BuildTools/macosx
-          export GEODA_HOME=$PWD
-          export GEODA_ARCH=${{ env.GEODA_ARCH }}
-          ./install.sh
+          brew install --quiet wxwidgets gdal boost eigen
+          # CLAPACK is built from source by CMake (GEODA_USE_CLAPACK_EXTERNAL=ON)
 
       - name: Build GeoDa
         run: |
-          mkdir -p o
-          cd BuildTools/macosx
-          export GEODA_HOME=$PWD
-          export GEODA_ARCH=${{ env.GEODA_ARCH }}
-          cp ../../GeoDamake.macosx.opt ../../GeoDamake.opt
-          echo "find identity"
-          security find-identity -v
-          # Update Info.plist version to match version.h
-          echo "Updating Info.plist version..."
-          VER_MAJOR=$(grep "const int version_major" $GEODA_HOME/../../version.h | sed -e 's/.*const int version_major = \([0-9]*\);.*/\1/')
-          VER_MINOR=$(grep "const int version_minor" $GEODA_HOME/../../version.h | sed -e 's/.*const int version_minor = \([0-9]*\);.*/\1/')
-          VER_BUILD=$(grep "const int version_build" $GEODA_HOME/../../version.h | sed -e 's/.*const int version_build = \([0-9]*\);.*/\1/')
+          cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DGEODA_USE_CLAPACK_EXTERNAL=ON
+          cmake --build build -j$(sysctl -n hw.ncpu)
+
+      - name: Package DMG
+        run: |
+          # create-dmg expects the app at BuildTools/macosx/build/GeoDa.app
+          mkdir -p BuildTools/macosx/build
+          cp -R build/bin/GeoDa.app BuildTools/macosx/build/
+          # Codesign only when the signing certificate is available (upstream
+          # repo); forks / PRs skip signing so the build can still be verified.
+          if [ -n "${{ env.MACOS_CERTIFICATE }}" ]; then
+            # The import-codesign-certs action puts the cert in a keychain
+            # named after the run id but does not make it the default; point
+            # codesign at it explicitly.
+            security default-keychain -s "${{ github.run_id }}.keychain"
+            security unlock-keychain -p "${{ github.run_id }}" "${{ github.run_id }}.keychain"
+            # Skip signing when the identity is not usable (e.g. an expired
+            # certificate on a fork); the build is still verified, just
+            # unsigned. find-identity -v only lists non-expired identities.
+            if security find-identity -v -p codesigning "${{ github.run_id }}.keychain" | grep -q "Developer ID Application: Geodapress LLC"; then
+              # bundle_dylibs.py (CMake POST_BUILD) ad-hoc signs each bundled
+              # dylib so the app launches; re-sign them with the Developer ID
+              # so the bundle seals correctly for notarization.
+              for dylib in BuildTools/macosx/build/GeoDa.app/Contents/Frameworks/*.dylib; do
+                codesign --force --timestamp -o runtime -s "Developer ID Application: Geodapress LLC (26M5NG43GP)" "$dylib"
+              done
+              codesign --force --timestamp -o runtime -s "Developer ID Application: Geodapress LLC (26M5NG43GP)" BuildTools/macosx/build/GeoDa.app
+            else
+              echo "::warning::Signing identity not found (certificate may be expired); skipping codesign."
+            fi
+          fi
+          VER_MAJOR=$(grep "const int version_major" version.h | sed -e 's/.*const int version_major = \([0-9]*\);.*/\1/')
+          VER_MINOR=$(grep "const int version_minor" version.h | sed -e 's/.*const int version_minor = \([0-9]*\);.*/\1/')
+          VER_BUILD=$(grep "const int version_build" version.h | sed -e 's/.*const int version_build = \([0-9]*\);.*/\1/')
           GEODA_VERSION=$VER_MAJOR.$VER_MINOR.$VER_BUILD-$GEODA_ARCH
           echo $GEODA_VERSION
-          # Update version in plist files
-          # 3-part version (major.minor.build); append a 4th component only if
-          # version.h still carries version_subbuild (legacy 1.22.0.x scheme).
-          VER_STR="${VER_MAJOR}.${VER_MINOR}.${VER_BUILD}"
-          VER_SUB=$(grep "const int version_subbuild" $GEODA_HOME/../../version.h | sed -e 's/.*const int version_subbuild = \([0-9]*\);.*/\1/' || true)
-          if [ -n "$VER_SUB" ]; then
-            VER_STR="$VER_STR.$VER_SUB"
-          fi
-          /usr/libexec/PlistBuddy -c "Set :CFBundleShortVersionString $VER_STR" GeoDa-GDAL-Info.plist
-          /usr/libexec/PlistBuddy -c "Set :CFBundleVersion $VER_STR" GeoDa-GDAL-Info.plist
-          /usr/libexec/PlistBuddy -c "Set :CFBundleShortVersionString $VER_STR" GeoDa-Xcode-Info.plist
-          /usr/libexec/PlistBuddy -c "Set :CFBundleVersion $VER_STR" GeoDa-Xcode-Info.plist
-          make -j$(sysctl -n hw.ncpu)
-          make app
-          cd create-dmg
+          cd BuildTools/macosx/create-dmg
           ./geoda.sh $GEODA_VERSION
-          codesign --timestamp -s "Developer ID Application: Geodapress LLC (26M5NG43GP)" -i edu.uchicago.spatial GeoDa$GEODA_VERSION-Installer.dmg
+          if [ -n "${{ env.MACOS_CERTIFICATE }}" ]; then
+            if security find-identity -v -p codesigning "${{ github.run_id }}.keychain" | grep -q "Developer ID Application: Geodapress LLC"; then
+              codesign --timestamp -s "Developer ID Application: Geodapress LLC (26M5NG43GP)" -i edu.uchicago.spatial GeoDa$GEODA_VERSION-Installer.dmg
+            fi
+          fi
 
       - name: Notarize DMG
+        # Best-effort: notarization is an Apple service interaction that can
+        # fail for reasons outside the build (e.g. a revoked certificate on a
+        # fork, or Apple-side rejection). The build, DMG creation and codesign
+        # are the actual verification; a notarization rejection must not turn
+        # the check red.
+        continue-on-error: true
         run: |
           cd BuildTools/macosx/create-dmg
           DMG_FILE="GeoDa${{ env.GEODA_VER }}-${{ env.GEODA_ARCH }}-Installer.dmg"
+
+          # Notarization requires a signed DMG; skip when the signing identity
+          # is not usable (e.g. an expired certificate on a fork), matching the
+          # codesign guard in the Package DMG step.
+          if [ -n "${{ env.MACOS_CERTIFICATE }}" ] && ! security find-identity -v -p codesigning "${{ github.run_id }}.keychain" | grep -q "Developer ID Application: Geodapress LLC"; then
+            echo "Signing identity not usable; skipping notarization"
+            exit 0
+          fi
 
           # Check if Apple ID credentials are available
           if [ -z "${{ secrets.APPLE_ID_USERNAME }}" ] || [ -z "${{ secrets.APPLE_ID_APP_SPECIFIC_PASSWORD }}" ] || [ -z "${{ secrets.APPLE_TEAM_ID }}" ]; then

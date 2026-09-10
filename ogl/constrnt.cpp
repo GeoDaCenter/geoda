@@ -52,53 +52,53 @@ void OGLInitializeConstraintTypes()
     if (!wxOGLConstraintTypes)
         return;
 
-    wxOGLConstraintTypes = new wxList(wxKEY_INTEGER);
+    wxOGLConstraintTypes = new wxList;
 
-    wxOGLConstraintTypes->Append(gyCONSTRAINT_CENTRED_VERTICALLY,
+    wxOGLConstraintTypes->Append(
         new wxOGLConstraintType(gyCONSTRAINT_CENTRED_VERTICALLY, "Centre vertically", "centred vertically w.r.t."));
 
-    wxOGLConstraintTypes->Append(gyCONSTRAINT_CENTRED_HORIZONTALLY,
+    wxOGLConstraintTypes->Append(
         new wxOGLConstraintType(gyCONSTRAINT_CENTRED_HORIZONTALLY, "Centre horizontally", "centred horizontally w.r.t."));
 
-    wxOGLConstraintTypes->Append(gyCONSTRAINT_CENTRED_BOTH,
+    wxOGLConstraintTypes->Append(
         new wxOGLConstraintType(gyCONSTRAINT_CENTRED_BOTH, "Centre", "centred w.r.t."));
 
-    wxOGLConstraintTypes->Append(gyCONSTRAINT_LEFT_OF,
+    wxOGLConstraintTypes->Append(
         new wxOGLConstraintType(gyCONSTRAINT_LEFT_OF, "Left of", "left of"));
 
-    wxOGLConstraintTypes->Append(gyCONSTRAINT_RIGHT_OF,
+    wxOGLConstraintTypes->Append(
         new wxOGLConstraintType(gyCONSTRAINT_RIGHT_OF, "Right of", "right of"));
 
-    wxOGLConstraintTypes->Append(gyCONSTRAINT_ABOVE,
+    wxOGLConstraintTypes->Append(
         new wxOGLConstraintType(gyCONSTRAINT_ABOVE, "Above", "above"));
 
-    wxOGLConstraintTypes->Append(gyCONSTRAINT_BELOW,
+    wxOGLConstraintTypes->Append(
         new wxOGLConstraintType(gyCONSTRAINT_BELOW, "Below", "below"));
 
     // Alignment
-    wxOGLConstraintTypes->Append(gyCONSTRAINT_ALIGNED_TOP,
+    wxOGLConstraintTypes->Append(
         new wxOGLConstraintType(gyCONSTRAINT_ALIGNED_TOP, "Top-aligned", "aligned to the top of"));
 
-    wxOGLConstraintTypes->Append(gyCONSTRAINT_ALIGNED_BOTTOM,
+    wxOGLConstraintTypes->Append(
         new wxOGLConstraintType(gyCONSTRAINT_ALIGNED_BOTTOM, "Bottom-aligned", "aligned to the bottom of"));
 
-    wxOGLConstraintTypes->Append(gyCONSTRAINT_ALIGNED_LEFT,
+    wxOGLConstraintTypes->Append(
         new wxOGLConstraintType(gyCONSTRAINT_ALIGNED_LEFT, "Left-aligned", "aligned to the left of"));
 
-    wxOGLConstraintTypes->Append(gyCONSTRAINT_ALIGNED_RIGHT,
+    wxOGLConstraintTypes->Append(
         new wxOGLConstraintType(gyCONSTRAINT_ALIGNED_RIGHT, "Right-aligned", "aligned to the right of"));
 
     // Mid-alignment
-    wxOGLConstraintTypes->Append(gyCONSTRAINT_MIDALIGNED_TOP,
+    wxOGLConstraintTypes->Append(
         new wxOGLConstraintType(gyCONSTRAINT_MIDALIGNED_TOP, "Top-midaligned", "centred on the top of"));
 
-    wxOGLConstraintTypes->Append(gyCONSTRAINT_MIDALIGNED_BOTTOM,
+    wxOGLConstraintTypes->Append(
         new wxOGLConstraintType(gyCONSTRAINT_MIDALIGNED_BOTTOM, "Bottom-midaligned", "centred on the bottom of"));
 
-    wxOGLConstraintTypes->Append(gyCONSTRAINT_MIDALIGNED_LEFT,
+    wxOGLConstraintTypes->Append(
         new wxOGLConstraintType(gyCONSTRAINT_MIDALIGNED_LEFT, "Left-midaligned", "centred on the left of"));
 
-    wxOGLConstraintTypes->Append(gyCONSTRAINT_MIDALIGNED_RIGHT,
+    wxOGLConstraintTypes->Append(
         new wxOGLConstraintType(gyCONSTRAINT_MIDALIGNED_RIGHT, "Right-midaligned", "centred on the right of"));
 }
 
@@ -107,7 +107,7 @@ void OGLCleanUpConstraintTypes()
     if (!wxOGLConstraintTypes)
         return;
 
-    wxNode* node = wxOGLConstraintTypes->GetFirst();
+    wxList::compatibility_iterator node = wxOGLConstraintTypes->GetFirst();
     while (node)
     {
         wxOGLConstraintType* ct = (wxOGLConstraintType*) node->GetData();
@@ -136,7 +136,7 @@ wxOGLConstraint::wxOGLConstraint(int type, wxShape *constraining, wxList& constr
   m_constraintId = 0;
   m_constraintName = "noname";
 
-  wxNode *node = constrained.GetFirst();
+  wxList::compatibility_iterator node = constrained.GetFirst();
   while (node)
   {
     m_constrainedObjects.Append(node->GetData());
@@ -174,7 +174,7 @@ bool wxOGLConstraint::Evaluate()
     {
       int n = m_constrainedObjects.GetCount();
       double totalObjectHeight = 0.0;
-      wxNode *node = m_constrainedObjects.GetFirst();
+      wxList::compatibility_iterator node = m_constrainedObjects.GetFirst();
       while (node)
       {
         wxShape *constrainedObject = (wxShape *)node->GetData();
@@ -222,7 +222,7 @@ bool wxOGLConstraint::Evaluate()
     {
       int n = m_constrainedObjects.GetCount();
       double totalObjectWidth = 0.0;
-      wxNode *node = m_constrainedObjects.GetFirst();
+      wxList::compatibility_iterator node = m_constrainedObjects.GetFirst();
       while (node)
       {
         wxShape *constrainedObject = (wxShape *)node->GetData();
@@ -271,7 +271,7 @@ bool wxOGLConstraint::Evaluate()
       int n = m_constrainedObjects.GetCount();
       double totalObjectWidth = 0.0;
       double totalObjectHeight = 0.0;
-      wxNode *node = m_constrainedObjects.GetFirst();
+      wxList::compatibility_iterator node = m_constrainedObjects.GetFirst();
       while (node)
       {
         wxShape *constrainedObject = (wxShape *)node->GetData();
@@ -341,7 +341,7 @@ bool wxOGLConstraint::Evaluate()
     {
       bool changed = false;
 
-      wxNode *node = m_constrainedObjects.GetFirst();
+      wxList::compatibility_iterator node = m_constrainedObjects.GetFirst();
       while (node)
       {
         wxShape *constrainedObject = (wxShape *)node->GetData();
@@ -364,7 +364,7 @@ bool wxOGLConstraint::Evaluate()
     {
       bool changed = false;
 
-      wxNode *node = m_constrainedObjects.GetFirst();
+      wxList::compatibility_iterator node = m_constrainedObjects.GetFirst();
       while (node)
       {
         wxShape *constrainedObject = (wxShape *)node->GetData();
@@ -387,7 +387,7 @@ bool wxOGLConstraint::Evaluate()
     {
       bool changed = false;
 
-      wxNode *node = m_constrainedObjects.GetFirst();
+      wxList::compatibility_iterator node = m_constrainedObjects.GetFirst();
       while (node)
       {
         wxShape *constrainedObject = (wxShape *)node->GetData();
@@ -410,7 +410,7 @@ bool wxOGLConstraint::Evaluate()
     {
       bool changed = false;
 
-      wxNode *node = m_constrainedObjects.GetFirst();
+      wxList::compatibility_iterator node = m_constrainedObjects.GetFirst();
       while (node)
       {
         wxShape *constrainedObject = (wxShape *)node->GetData();
@@ -433,7 +433,7 @@ bool wxOGLConstraint::Evaluate()
     {
       bool changed = false;
 
-      wxNode *node = m_constrainedObjects.GetFirst();
+      wxList::compatibility_iterator node = m_constrainedObjects.GetFirst();
       while (node)
       {
         wxShape *constrainedObject = (wxShape *)node->GetData();
@@ -456,7 +456,7 @@ bool wxOGLConstraint::Evaluate()
     {
       bool changed = false;
 
-      wxNode *node = m_constrainedObjects.GetFirst();
+      wxList::compatibility_iterator node = m_constrainedObjects.GetFirst();
       while (node)
       {
         wxShape *constrainedObject = (wxShape *)node->GetData();
@@ -483,7 +483,7 @@ bool wxOGLConstraint::Evaluate()
     {
       bool changed = false;
 
-      wxNode *node = m_constrainedObjects.GetFirst();
+      wxList::compatibility_iterator node = m_constrainedObjects.GetFirst();
       while (node)
       {
         wxShape *constrainedObject = (wxShape *)node->GetData();
@@ -506,7 +506,7 @@ bool wxOGLConstraint::Evaluate()
     {
       bool changed = false;
 
-      wxNode *node = m_constrainedObjects.GetFirst();
+      wxList::compatibility_iterator node = m_constrainedObjects.GetFirst();
       while (node)
       {
         wxShape *constrainedObject = (wxShape *)node->GetData();
@@ -529,7 +529,7 @@ bool wxOGLConstraint::Evaluate()
     {
       bool changed = false;
 
-      wxNode *node = m_constrainedObjects.GetFirst();
+      wxList::compatibility_iterator node = m_constrainedObjects.GetFirst();
       while (node)
       {
         wxShape *constrainedObject = (wxShape *)node->GetData();
@@ -549,7 +549,7 @@ bool wxOGLConstraint::Evaluate()
     {
       bool changed = false;
 
-      wxNode *node = m_constrainedObjects.GetFirst();
+      wxList::compatibility_iterator node = m_constrainedObjects.GetFirst();
       while (node)
       {
         wxShape *constrainedObject = (wxShape *)node->GetData();
@@ -573,7 +573,7 @@ bool wxOGLConstraint::Evaluate()
     {
       bool changed = false;
 
-      wxNode *node = m_constrainedObjects.GetFirst();
+      wxList::compatibility_iterator node = m_constrainedObjects.GetFirst();
       while (node)
       {
         wxShape *constrainedObject = (wxShape *)node->GetData();
@@ -593,7 +593,7 @@ bool wxOGLConstraint::Evaluate()
     {
       bool changed = false;
 
-      wxNode *node = m_constrainedObjects.GetFirst();
+      wxList::compatibility_iterator node = m_constrainedObjects.GetFirst();
       while (node)
       {
         wxShape *constrainedObject = (wxShape *)node->GetData();

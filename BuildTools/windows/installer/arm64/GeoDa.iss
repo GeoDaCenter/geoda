@@ -45,7 +45,7 @@ Name: "{app}\lang";  Permissions: everyone-full
 Name: "{app}\proj";  Permissions: everyone-full
 
 [Files]
-Source: "..\..\ARM64\Release\GeoDa.exe"; DestDir: "{app}"; DestName: "GeoDa.exe"; Check: IsArm64
+Source: "..\..\Release\GeoDa.exe"; DestDir: "{app}"; DestName: "GeoDa.exe"; Check: IsArm64
 Source: "..\..\..\CommonDistFiles\GeoDa.ico"; DestDir: "{app}"
 Source: "..\..\..\CommonDistFiles\copyright.txt"; DestDir: "{app}"
 Source: "..\..\..\CommonDistFiles\GPLv3.txt"; DestDir: "{app}"
@@ -53,15 +53,19 @@ Source: "..\..\..\CommonDistFiles\cache.sqlite"; DestDir: "{app}"
 Source: "..\..\..\CommonDistFiles\geoda_prefs.sqlite"; DestDir: "{app}"
 Source: "..\..\..\CommonDistFiles\geoda_prefs.json"; DestDir: "{app}"
 Source: "..\..\..\CommonDistFiles\web_plugins\*"; DestDir: "{app}\web_plugins"; Flags: recursesubdirs
-Source: "..\..\libraries\share\proj\*"; DestDir: "{app}\proj"; Flags: recursesubdirs
+Source: "..\..\..\CommonDistFiles\proj\*"; DestDir: "{app}\proj"; Flags: recursesubdirs
 
 Source: "VC_redist.arm64.exe"; DestDir: "{app}"
-Source: "..\..\libraries\bin\*.dll"; DestDir: "{app}"
-Source: "..\..\temp\wxWidgets\lib\vc_arm64_dll\wxmsw314u_vc_custom.dll"; DestDir: "{app}"
-Source: "..\..\temp\wxWidgets\lib\vc_arm64_dll\wxmsw314u_gl_vc_custom.dll"; DestDir: "{app}"
+; wxWidgets is built non-monolithic (MONOLITHIC=0) so CMake's FindwxWidgets can
+; resolve per-component libs; package every split DLL from the build dir.
+Source: "..\..\temp\wxWidgets\lib\vc_arm64_dll\*.dll"; DestDir: "{app}"
+; GDAL and its runtime dependencies (gdal.dll, proj.dll, libcurl.dll, zlib1.dll,
+; ...) come from the vcpkg-installed tree. The wildcard bundles every shared
+; library vcpkg produced for the arm64-windows triplet.
+Source: "..\..\vcpkg\installed\arm64-windows\bin\*.dll"; DestDir: "{app}"
 Source: "..\..\..\..\Algorithms\lisa_kernel.cl"; DestDir: "{app}"
 Source: "..\..\..\..\internationalization\lang\*"; DestDir: "{app}\lang"; Flags: recursesubdirs
-Source: "..\..\libraries\share\gdal\*"; DestDir: "{app}\data"; Flags: recursesubdirs
+Source: "..\..\..\CommonDistFiles\gdaldata\*"; DestDir: "{app}\data"; Flags: recursesubdirs
 
 ;Source: "Readme.txt"; DestDir: "{app}"; Flags: isreadme
 

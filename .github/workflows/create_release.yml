@@ -127,8 +127,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./artifacts/GeoDa-Windows-x86-installer/GeoDa_${{ steps.get_version.outputs.version }}_x86_Setup.exe
-          asset_name: GeoDa_${{ steps.get_version.outputs.version }}_x86_Setup.exe
+          asset_path: ./artifacts/GeoDa-Windows-x86-installer/GeoDa_1.22_x86_Setup.exe
+          asset_name: GeoDa-Windows-x86-installer.zip
           asset_content_type: application/octet-stream
         continue-on-error: true
 
@@ -138,30 +138,30 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./artifacts/GeoDa-Windows-x64-installer/GeoDa_${{ steps.get_version.outputs.version }}_x64_Setup.exe
-          asset_name: GeoDa_${{ steps.get_version.outputs.version }}_x64_Setup.exe
+          asset_path: ./artifacts/GeoDa-Windows-x64-installer/GeoDa_1.22_x64_Setup.exe
+          asset_name: GeoDa-Windows-x64-installer.zip
           asset_content_type: application/octet-stream
         continue-on-error: true
 
-      - name: Upload Windows 7+ 32-bit Installer
+      - name: Upload Windows 8+ 32-bit Installer
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./artifacts/GeoDa-Windows7+-x86-installer/GeoDa_${{ steps.get_version.outputs.version }}_win7+x86_Setup.exe
-          asset_name: GeoDa_${{ steps.get_version.outputs.version }}_win7+x86_Setup.exe
+          asset_path: ./artifacts/GeoDa-Windows8+-x86-installer/GeoDa_${{ steps.get_version.outputs.version }}_win8+x86_Setup.exe
+          asset_name: GeoDa_${{ steps.get_version.outputs.version }}_win8+x86_Setup.exe
           asset_content_type: application/octet-stream
         continue-on-error: true
 
-      - name: Upload Windows 7+ 64-bit Installer
+      - name: Upload Windows 8.1+ 64-bit installer
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./artifacts/GeoDa-Windows7+-x64-installer/GeoDa_${{ steps.get_version.outputs.version }}_win7+x64_Setup.exe
-          asset_name: GeoDa_${{ steps.get_version.outputs.version }}_win7+x64_Setup.exe
+          asset_path: ./artifacts/GeoDa-Windows8+-x64-installer/GeoDa_${{ steps.get_version.outputs.version }}_win8+x64_Setup.exe
+          asset_name: GeoDa_${{ steps.get_version.outputs.version }}_win8+x64_Setup.exe
           asset_content_type: application/octet-stream
         continue-on-error: true
 
@@ -183,7 +183,7 @@ jobs:
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: ./artifacts/GeoDa-${{ steps.get_version.outputs.version }}-x86_64-MacOS/GeoDa${{ steps.get_version.outputs.version }}-x86_64-Installer.dmg
-          asset_name: GeoDa${{ steps.get_version.outputs.version }}-x86_64-Installer.dmg
+          asset_name: GeoDa1.22.0-x86_64-Installer.dmg
           asset_content_type: application/octet-stream
         continue-on-error: true
 
@@ -194,33 +194,11 @@ jobs:
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: ./artifacts/GeoDa-${{ steps.get_version.outputs.version }}-arm64-MacOS/GeoDa${{ steps.get_version.outputs.version }}-arm64-Installer.dmg
-          asset_name: GeoDa${{ steps.get_version.outputs.version }}-arm64-Installer.dmg
+          asset_name: GeoDa1.22.0-arm64-Installer
           asset_content_type: application/octet-stream
         continue-on-error: true
 
-      - name: Upload Ubuntu 22.04 Package
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./artifacts/GeoDa-${{ steps.get_version.outputs.version }}-jammy/geoda_${{ steps.get_version.outputs.version }}-1jammy1_amd64.deb
-          asset_name: geoda_${{ steps.get_version.outputs.version }}-1jammy1_amd64.deb
-          asset_content_type: application/vnd.debian.binary-package
-        continue-on-error: true
-
-      - name: Upload Ubuntu 24.04 Package
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./artifacts/GeoDa-${{ steps.get_version.outputs.version }}-noble/geoda_${{ steps.get_version.outputs.version }}-1noble1_amd64.deb
-          asset_name: geoda_${{ steps.get_version.outputs.version }}-1noble1_amd64.deb
-          asset_content_type: application/vnd.debian.binary-package
-        continue-on-error: true
-
-      - name: Upload AppImage
+      - name: Upload Linux AppImage
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

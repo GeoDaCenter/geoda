@@ -435,7 +435,7 @@ void wxDividedShape::EditRegions()
     styleStrings[j] = NULL;
 
   int i = 0;
-  wxNode *node = GetRegions().GetFirst();
+  wxList::compatibility_iterator node = GetRegions().GetFirst();
   while (node && node->GetNext())
   {
     wxShapeRegion *region = (wxShapeRegion *)node->GetData();

@@ -49,36 +49,17 @@ Source: "..\..\..\CommonDistFiles\proj\*"; DestDir: "{app}\proj"; Flags: recurse
 
 Source: "VC_redist.x86.exe"; DestDir: "{app}"
 Source: "..\..\temp\OpenCL\sdk\bin\x86\OpenCL.dll"; DestDir: "{app}"
-Source: "..\..\temp\wxWidgets\lib\vc_dll\wxmsw314u_vc_custom.dll"; DestDir: "{app}"
-Source: "..\..\temp\wxWidgets\lib\vc_dll\wxmsw314u_gl_vc_custom.dll"; DestDir: "{app}"
-Source: "..\..\libraries\bin\expat.dll"; DestDir: "{app}"
-Source: "..\..\libraries\bin\freexl.dll"; DestDir: "{app}"
-Source: "..\..\libraries\bin\gdal302.dll"; DestDir: "{app}"
-Source: "..\..\libraries\bin\geos.dll"; DestDir: "{app}"
-Source: "..\..\libraries\bin\geos_c.dll"; DestDir: "{app}"
-Source: "..\..\libraries\bin\iconv.dll"; DestDir: "{app}"
-Source: "..\..\libraries\bin\libcrypto-1_1.dll"; DestDir: "{app}"
-Source: "..\..\libraries\bin\libcurl.dll"; DestDir: "{app}"
-Source: "..\..\libraries\bin\libmysql.dll"; DestDir: "{app}"
-Source: "..\..\libraries\bin\libpq.dll"; DestDir: "{app}"
-Source: "..\..\libraries\bin\libssl-1_1.dll"; DestDir: "{app}"
-Source: "..\..\libraries\bin\libxml2.dll"; DestDir: "{app}"
-Source: "..\..\libraries\bin\openjp2.dll"; DestDir: "{app}"
-Source: "..\..\libraries\bin\proj.dll"; DestDir: "{app}"
-Source: "..\..\libraries\bin\proj_6_1.dll"; DestDir: "{app}"
-Source: "..\..\libraries\bin\spatialite.dll"; DestDir: "{app}"
-Source: "..\..\libraries\bin\sqlite3.dll"; DestDir: "{app}"
-Source: "..\..\libraries\bin\xerces-c_3_2.dll"; DestDir: "{app}"
-Source: "..\..\libraries\bin\zlib1.dll"; DestDir: "{app}"
-Source: "..\..\libraries\bin\gdal\plugins\ogr_OCI.dll"; DestDir: "{app}"
-Source: "..\..\libraries\bin\gdal\plugins-optional\ogr_PG.dll"; DestDir: "{app}"
-Source: "..\..\libraries\bin\gdal\plugins-optional\ogr_MSSQLSpatial.dll"; DestDir: "{app}"
-Source: "..\..\libraries\bin\gdal\plugins-external\ogr_FileGDB.dll"; DestDir: "{app}"
+; wxWidgets is built non-monolithic (MONOLITHIC=0) so CMake's FindwxWidgets can
+; resolve per-component libs; package every split DLL from the build dir.
+Source: "..\..\temp\wxWidgets\lib\vc_dll\*.dll"; DestDir: "{app}"
+; GDAL and its runtime dependencies come from the vcpkg-installed tree. (x86 is
+; built without the Arrow/Parquet drivers; see windows_build.yml.)
+Source: "..\..\vcpkg\installed\x86-windows\bin\*.dll"; DestDir: "{app}"
 Source: "..\..\..\..\Algorithms\lisa_kernel.cl"; DestDir: "{app}"
 Source: "..\..\..\..\internationalization\lang\*"; DestDir: "{app}\lang"; Flags: recursesubdirs
 ; Add lang data back to {app} so they can be copied to other new windows users
 Source: "..\..\..\..\internationalization\lang\*"; DestDir: "{app}\lang"; Flags: recursesubdirs
-Source: "..\..\libraries\bin\gdal-data\*"; DestDir: "{app}\data"; Flags: recursesubdirs
+Source: "..\..\..\CommonDistFiles\gdaldata\*"; DestDir: "{app}\data"; Flags: recursesubdirs
 
 ;Source: "Readme.txt"; DestDir: "{app}"; Flags: isreadme
 
