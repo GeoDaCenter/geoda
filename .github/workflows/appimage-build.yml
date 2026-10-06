@@ -49,13 +49,23 @@ jobs:
           export DEBIAN_FRONTEND=noninteractive
           sudo apt-get update -y
           sudo apt-get install -y fuse libfuse2
-          # Download AppImageTools with retry logic
-          wget -O appimagetool-x86_64.AppImage https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage || \
-          wget -O appimagetool-x86_64.AppImage https://github.com/AppImage/AppImageKit/releases/download/13/appimagetool-x86_64.AppImage
+          # Download the AppImage tooling. Both are published as "continuous"
+          # releases, which are rebuilt constantly and which GitHub answers with a
+          # 5xx often enough to have failed this step, so fetch with retries.
+          #
+          # appimagetool comes from AppImage/appimagetool: the AppImageKit tag this
+          # used to fall back to now publishes its appimagetool assets renamed
+          # "obsolete-*", so that URL could only ever 404. Prefer the pinned
+          # release and fall back to the moving tag.
+          fetch() {
+            curl -fL --retry 5 --retry-delay 5 --retry-all-errors -o "$2" "$1"
+          }
+          fetch https://github.com/AppImage/appimagetool/releases/download/1.9.1/appimagetool-x86_64.AppImage appimagetool-x86_64.AppImage || \
+          fetch https://github.com/AppImage/appimagetool/releases/download/continuous/appimagetool-x86_64.AppImage appimagetool-x86_64.AppImage
           chmod +x appimagetool-x86_64.AppImage
           # Download linuxdeploy for easier AppImage creation
-          wget -O linuxdeploy-x86_64.AppImage https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage || \
-          wget -O linuxdeploy-x86_64.AppImage https://github.com/linuxdeploy/linuxdeploy/releases/download/1-alpha-20220822-1/linuxdeploy-x86_64.AppImage
+          fetch https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage linuxdeploy-x86_64.AppImage || \
+          fetch https://github.com/linuxdeploy/linuxdeploy/releases/download/1-alpha-20220822-1/linuxdeploy-x86_64.AppImage linuxdeploy-x86_64.AppImage
           chmod +x linuxdeploy-x86_64.AppImage
           # Download for geoda dependencies
                     sudo apt-get install -y ca-certificates libgnutls30
