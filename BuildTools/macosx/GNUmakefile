@@ -11,17 +11,17 @@ include ../../GeoDamake.opt
 ifneq ($(GEODA_SKIP_CODESIGN),1)
 CODESIGN_CMD = codesign -f --timestamp -o runtime -s "Developer ID Application: Geodapress LLC (26M5NG43GP)"
 CODESIGN_ID = Developer ID Application: Geodapress LLC (26M5NG43GP)
-CODESIGN_BUNDLE_CMD = $(CODESIGN_CMD)
 else
-# No certificate. Still ad-hoc sign the bundle rather than skipping signing
-# entirely: the arm64 linker already ad-hoc signs the executable, and an
-# unsigned bundle wrapped around a signed executable is malformed, which macOS
-# reports as "GeoDa is damaged and can't be opened" -- a dead end for anyone
-# testing a pull request build. An ad-hoc signed bundle verifies cleanly and
-# can be opened once the quarantine flag is cleared (right-click -> Open).
+# No certificate. Sign ad-hoc rather than skipping signing entirely, which
+# would leave a malformed bundle -- the arm64 linker ad-hoc signs the
+# executable by itself, and an unsigned bundle around a signed executable
+# makes macOS report "GeoDa is damaged and can't be opened" instead of the
+# recoverable "unidentified developer" prompt. The bundled dylibs are ad-hoc
+# signed too (see install_name.py), since a bundle cannot be signed while its
+# nested code is unsigned. An ad-hoc signed bundle verifies cleanly and can be
+# opened once the quarantine flag is cleared (right-click -> Open).
 CODESIGN_CMD = codesign -f -s -
 CODESIGN_ID =
-CODESIGN_BUNDLE_CMD = codesign -f --deep -s -
 endif
 
 GeoDa_OBJ = $(wildcard $(GeoDa_ROOT)/o/*.o)
@@ -152,7 +152,7 @@ build-geoda-mac:
 	$(CODESIGN_CMD) build/GeoDa.app/Contents/Frameworks/libwx_osx_cocoau-3.2.dylib
 	$(CODESIGN_CMD) build/GeoDa.app/Contents/MacOS/lisa_kernel.cl
 	$(CODESIGN_CMD) build/GeoDa.app/Contents/MacOS/GeoDa
-	$(CODESIGN_BUNDLE_CMD) build/GeoDa.app
+	$(CODESIGN_CMD) build/GeoDa.app
 
 	
 clean:
