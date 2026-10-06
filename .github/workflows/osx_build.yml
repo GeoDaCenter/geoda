@@ -42,7 +42,7 @@ jobs:
           - distro: 'macos-15'
             pre: 'arm64'
     env:
-      GEODA_VER: '1.22.1'
+      GEODA_VER: '1.22.2'
       GEODA_ARCH: ${{ matrix.pre }}
       # Empty on pull requests from forks (secrets are not passed there);
       # used to skip codesigning so the build still verifies.
