@@ -111,6 +111,19 @@ jobs:
           )
           echo Using Visual Studio at "%VSPATH%"
           CALL "%VSPATH%\Common7\Tools\VsDevCmd.bat" -arch=%ARCHITECTURE%
+          rem VsDevCmd only puts the toolset directory for the *target* on PATH.
+          rem For the arm64 cross build that is ...\bin\HostX86\arm64, which has
+          rem cl.exe and link.exe but not nmake.exe -- nmake lives in the
+          rem toolset directory for the *host*. wxWidgets is built with nmake,
+          rem so without this its build silently produces no libraries and the
+          rem GeoDa link later fails with LNK1181: cannot open 'wxmsw31u.lib'.
+          for /d %%d in ("%VSPATH%\VC\Tools\MSVC\*") do set "VCTOOLS=%%d"
+          if defined VCTOOLS set "PATH=%PATH%;%VCTOOLS%\bin\HostX64\x64;%VCTOOLS%\bin\HostX86\x86"
+          where nmake
+          if errorlevel 1 (
+            echo ERROR: nmake.exe not found on PATH after setting up Visual Studio.
+            exit /b 1
+          )
           echo ::set-env name=PATH::%PATH%
           echo ::set-env name=INCLUDE::%INCLUDE%
           echo ::set-env name=LIB::%LIB%
