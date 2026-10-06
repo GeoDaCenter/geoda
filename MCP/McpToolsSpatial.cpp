@@ -298,6 +298,34 @@ namespace
         return col;
     }
 
+    // Ask the user which variable an analysis should use, when the request did
+    // not say. Only numeric columns are offered -- that is what the analysis
+    // tools accept. Returns an empty string when the client cannot be asked or
+    // the user declined, and the caller then raises the "missing parameter"
+    // error it raised before.
+    wxString AskForColumn(const McpToolContext& ctx, TableInterface* table)
+    {
+        if (!ctx.elicit || !ctx.elicit->Available()) return wxString();
+
+        std::vector<std::string> options;
+        int ncols = table->GetNumberCols();
+        for (int c = 0; c < ncols; ++c) {
+            GdaConst::FieldType type = table->GetColType(c, 0);
+            if (type == GdaConst::double_type ||
+                type == GdaConst::long64_type) {
+                options.push_back(table->GetColName(c).ToStdString());
+            }
+        }
+        if (options.empty()) return wxString();
+
+        std::string answer;
+        if (!ctx.elicit->Ask("Which variable should be used?", "column",
+                             "Variable", options, "", answer)) {
+            return wxString();
+        }
+        return wxString::FromUTF8(answer.c_str());
+    }
+
     // Validate that the given columns' field names can be written to the
     // target format. The GUI export path fixes illegal or duplicated names
     // with a modal FieldNameCorrectionDlg; from a worker thread that dialog
@@ -1659,6 +1687,7 @@ json_spirit::Value McpLisaLocalMoran(const McpToolContext& ctx,
     }
     wxString column = GetStr(params, "column");
     wxString weights = GetStr(params, "weights");
+    if (column.IsEmpty()) column = AskForColumn(ctx, table);
     if (column.IsEmpty() || weights.IsEmpty()) {
         throw McpError(-32602,
             "Missing required parameters: column, weights");
@@ -1730,6 +1759,7 @@ json_spirit::Value McpLisaLocalGeary(const McpToolContext& ctx,
     }
     wxString column = GetStr(params, "column");
     wxString weights = GetStr(params, "weights");
+    if (column.IsEmpty()) column = AskForColumn(ctx, table);
     if (column.IsEmpty() || weights.IsEmpty()) {
         throw McpError(-32602,
             "Missing required parameters: column, weights");
@@ -1804,6 +1834,7 @@ json_spirit::Value McpLisaLocalG(const McpToolContext& ctx,
     }
     wxString column = GetStr(params, "column");
     wxString weights = GetStr(params, "weights");
+    if (column.IsEmpty()) column = AskForColumn(ctx, table);
     if (column.IsEmpty() || weights.IsEmpty()) {
         throw McpError(-32602,
             "Missing required parameters: column, weights");
@@ -1864,6 +1895,7 @@ json_spirit::Value McpGlobalMoran(const McpToolContext& ctx,
     }
     wxString column = GetStr(params, "column");
     wxString weights = GetStr(params, "weights");
+    if (column.IsEmpty()) column = AskForColumn(ctx, table);
     if (column.IsEmpty() || weights.IsEmpty()) {
         throw McpError(-32602,
             "Missing required parameters: column, weights");
@@ -1896,6 +1928,7 @@ json_spirit::Value McpGlobalGeary(const McpToolContext& ctx,
     }
     wxString column = GetStr(params, "column");
     wxString weights = GetStr(params, "weights");
+    if (column.IsEmpty()) column = AskForColumn(ctx, table);
     if (column.IsEmpty() || weights.IsEmpty()) {
         throw McpError(-32602,
             "Missing required parameters: column, weights");
@@ -1928,6 +1961,7 @@ json_spirit::Value McpGlobalGeneralG(const McpToolContext& ctx,
     }
     wxString column = GetStr(params, "column");
     wxString weights = GetStr(params, "weights");
+    if (column.IsEmpty()) column = AskForColumn(ctx, table);
     if (column.IsEmpty() || weights.IsEmpty()) {
         throw McpError(-32602,
             "Missing required parameters: column, weights");

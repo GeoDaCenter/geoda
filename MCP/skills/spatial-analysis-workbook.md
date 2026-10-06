@@ -23,6 +23,12 @@ exactly. Do NOT call `table/*`, `weights/*`, `global/*`, `space/*`,
 `window/*`, or any other tool before you have read this skill. Every workbook
 exercise maps to a numbered step in the sections below.
 
+Some tools ask the user directly. If a required numeric variable is missing from
+a `lisa/*` or `global/*` call, the server raises a question card (MCP
+elicitation) listing the project's numeric columns and continues with whatever
+the user picks — so you do not have to ask first. If you already asked and were
+told, pass the column and no card appears.
+
 ---
 
 ## Thorough univariate spatial analysis workflow

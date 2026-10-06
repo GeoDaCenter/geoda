@@ -28,11 +28,39 @@
 
 class Project;
 
+// Server-initiated elicitation: a tool asks the client to prompt the user and
+// waits for the answer ("elicitation/create", MCP spec 2025-06-18). Claude Code
+// and Codex both render it as a question card. A channel is handed only to
+// tools that run on a worker thread -- asking from the main thread would block
+// the GUI -- and is null when the connected client did not advertise the
+// capability, or when the request was answered with plain JSON instead of a
+// stream. Tools must fall back to their parameter error when it is null or
+// Available() is false.
+class McpElicitChannel
+{
+public:
+    virtual ~McpElicitChannel() {}
+
+    // True when the client can actually be asked.
+    virtual bool Available() const = 0;
+
+    // Ask a single multiple-choice question. `options` are both the accepted
+    // values and the labels shown to the user. Returns true and sets `answer`
+    // when the user accepted; false when the client cannot be asked, the user
+    // declined or cancelled, or the wait timed out.
+    virtual bool Ask(const std::string& message, const std::string& key,
+                     const std::string& title,
+                     const std::vector<std::string>& options,
+                     const std::string& default_value,
+                     std::string& answer) = 0;
+};
+
 // Context passed to every tool handler. project is null when no project is
-// open.
+// open; elicit is null when the client cannot be asked (see above).
 struct McpToolContext
 {
     Project* project;
+    McpElicitChannel* elicit;
 };
 
 // Thrown by tool handlers for expected errors (no project open, unknown
@@ -67,6 +95,8 @@ struct McpTool
     wxString description;
     json_spirit::Value input_schema;  // JSON Schema object
     bool run_on_worker;               // heavy tools run on a worker thread
+    bool may_elicit;                  // asks the user for parameters when they
+                                      // are missing and the client supports it
     McpToolHandler handler;
 };
 
@@ -83,10 +113,12 @@ public:
     json_spirit::Value GetToolsList() const;
 
     // Registration API, used by RegisterCommands (MCP/McpCommands.cpp).
+    // may_elicit marks tools that ask the user for a missing parameter; it
+    // defaults to false so only the tools that do need to opt in.
     void AddTool(const wxString& command_id, const wxString& label,
                  const wxString& menu_path, const wxString& description,
                  const json_spirit::Value& input_schema, bool run_on_worker,
-                 McpToolHandler handler);
+                 McpToolHandler handler, bool may_elicit = false);
 
 private:
     void RegisterTools();
