@@ -86,10 +86,25 @@ jobs:
           echo "::set-env name=WIN64_ARG::$env:WIN64_ARG"
 
       # Set compiler environment
+      #
+      # Locate Visual Studio with vswhere instead of a hardcoded path. At the
+      # end of September 2026 GitHub migrated the windows-11-arm label from a
+      # VS 2022 image ("...\2022\Enterprise") to a VS 2026 one
+      # ("...\18\Enterprise"), which broke the old fixed path. Resolving the
+      # install location keeps this working across that and future changes.
       - name: Set compiler environment
         shell: cmd
         run: |
-          if "%VS_VER%" == "2022" CALL "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\Common7\Tools\VsDevCmd.bat" -arch=%ARCHITECTURE%
+          set "VSWHERE=%ProgramFiles(x86)%\Microsoft Visual Studio\Installer\vswhere.exe"
+          set "VSPATH="
+          for /f "usebackq delims=" %%i in (`"%VSWHERE%" -latest -prerelease -products * -property installationPath 2^>nul`) do set "VSPATH=%%i"
+          if not defined VSPATH if exist "C:\Program Files\Microsoft Visual Studio\2022\Enterprise" set "VSPATH=C:\Program Files\Microsoft Visual Studio\2022\Enterprise"
+          if not defined VSPATH (
+            echo ERROR: could not locate a Visual Studio installation.
+            exit /b 1
+          )
+          echo Using Visual Studio at "%VSPATH%"
+          CALL "%VSPATH%\Common7\Tools\VsDevCmd.bat" -arch=%ARCHITECTURE%
           echo ::set-env name=PATH::%PATH%
           echo ::set-env name=INCLUDE::%INCLUDE%
           echo ::set-env name=LIB::%LIB%
