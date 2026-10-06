@@ -63,6 +63,47 @@ namespace
         return resp;
     }
 
+    // Begin an event stream. The response carries no Content-Length, so the
+    // socket stays open and further messages -- a server-initiated request such
+    // as elicitation/create, then the tool's result -- follow as SSE frames.
+    void SendStreamHeaders(wxSocketBase* sock)
+    {
+        std::string resp;
+        resp += "HTTP/1.1 200 OK\r\n";
+        resp += "Content-Type: text/event-stream\r\n";
+        resp += "Cache-Control: no-cache\r\n";
+        resp += "Connection: close\r\n";
+        resp += "\r\n";
+        sock->Write(resp.c_str(), (wxUint32)resp.size());
+    }
+
+    // One SSE "message" event carrying a JSON-RPC message.
+    void WriteSseFrame(wxSocketBase* sock, const std::string& json)
+    {
+        std::string frame = "event: message\r\ndata: " + json + "\r\n\r\n";
+        sock->Write(frame.c_str(), (wxUint32)frame.size());
+    }
+
+    // 202 for a message that is not a request -- the client answering an
+    // elicitation -- accepted with no body, as the transport requires.
+    void SendAccepted(wxSocketBase* sock)
+    {
+        std::string resp;
+        resp += "HTTP/1.1 202 Accepted\r\n";
+        resp += "Content-Length: 0\r\n";
+        resp += "Connection: close\r\n";
+        resp += "\r\n";
+        sock->Write(resp.c_str(), (wxUint32)resp.size());
+    }
+
+    // EmitFn for McpServerElicitChannel: writes one server->client message on
+    // the stream of the request being handled. Runs on the worker thread that
+    // owns the socket.
+    void EmitToSocket(void* ctx, const std::string& json)
+    {
+        WriteSseFrame((wxSocketBase*) ctx, json);
+    }
+
     // Parse the Content-Length header from a raw header block (before the
     // blank line). Returns -1 if absent or malformed.
     int ParseContentLength(const std::string& headers)
@@ -183,9 +224,34 @@ public:
     virtual void* Entry()
     {
         try {
-            json_spirit::Value response = m_mcp->HandleRequest(m_body);
-            std::string http = BuildHttpResponse(json_spirit::write(response), 200);
-            m_socket->Write(http.c_str(), (wxUint32)http.size());
+            // A tool that may ask the user a question needs an event stream
+            // instead of a single JSON response: the question has to reach the
+            // client while the tool is still running. Everything else keeps the
+            // plain response it had before.
+            json_spirit::Value request;
+            bool streaming = json_spirit::read(m_body, request) &&
+                             m_mcp->ClientSupportsElicitation() &&
+                             m_mcp->IsElicitingTool(request);
+            McpServerElicitChannel* channel = NULL;
+            if (streaming) {
+                // The frames must reach the client before the tool parks
+                // waiting for the answer, so write synchronously from this
+                // thread rather than letting the GUI event loop flush them.
+                m_socket->SetFlags(wxSOCKET_BLOCK);
+                m_socket->SetTimeout(30);
+                SendStreamHeaders(m_socket);
+                channel = new McpServerElicitChannel(*m_mcp, &EmitToSocket,
+                                                     m_socket);
+            }
+            json_spirit::Value response = m_mcp->HandleRequest(m_body, channel);
+            if (streaming) {
+                WriteSseFrame(m_socket, json_spirit::write(response));
+                delete channel;
+            } else {
+                std::string http =
+                    BuildHttpResponse(json_spirit::write(response), 200);
+                m_socket->Write(http.c_str(), (wxUint32)http.size());
+            }
         } catch (...) {
             // Never leak the worker slot: fall through and release it below.
         }
@@ -389,6 +455,17 @@ void McpHttpServer::HandleRequest(wxSocketBase* socket,
     json_spirit::Value request;
     if (!json_spirit::read(body, request)) {
         SendResponse(socket, json_spirit::write(m_mcp->MakeParseError()), 200);
+        socket->Close();
+        socket->Destroy();
+        return;
+    }
+
+    // A response -- the client answering an elicitation -- is not a request.
+    // Hand it to the server so the tool waiting on it wakes up, and
+    // acknowledge with 202 and no body.
+    if (m_mcp->IsResponseMessage(body)) {
+        m_mcp->HandleRequest(body, NULL);
+        SendAccepted(socket);
         socket->Close();
         socket->Destroy();
         return;

@@ -49,7 +49,8 @@ McpTools::~McpTools()
 void McpTools::AddTool(const wxString& command_id, const wxString& label,
                        const wxString& menu_path, const wxString& description,
                        const json_spirit::Value& input_schema,
-                       bool run_on_worker, McpToolHandler handler)
+                       bool run_on_worker, McpToolHandler handler,
+                       bool may_elicit)
 {
     McpTool t;
     t.name = command_id;
@@ -58,6 +59,7 @@ void McpTools::AddTool(const wxString& command_id, const wxString& label,
     t.description = description;
     t.input_schema = input_schema;
     t.run_on_worker = run_on_worker;
+    t.may_elicit = may_elicit;
     t.handler = handler;
     m_tools.push_back(t);
 }

@@ -366,12 +366,14 @@ namespace
     // ---------------------------------------------------------------------
     // Registration helper
     // ---------------------------------------------------------------------
+    // `elicit` marks tools that may ask the user for a parameter the request
+    // left out; it defaults to false so only the tools that do opt in.
     void Add(McpTools& tools, const char* id, const char* label,
              const char* menu, const char* desc,
              const json_spirit::Value& schema, bool worker,
-             McpToolHandler h)
+             McpToolHandler h, bool elicit = false)
     {
-        tools.AddTool(id, label, menu, desc, schema, worker, h);
+        tools.AddTool(id, label, menu, desc, schema, worker, h, elicit);
     }
 }
 
@@ -457,7 +459,7 @@ void RegisterCommands(McpTools& tools)
                    P("weights", StrProp("Weights id (uuid)")),
                    P("permutations", Def(IntProp("Number of permutations"), 999))},
                {"column", "weights"}),
-        true, McpGlobalMoran);
+        true, McpGlobalMoran, true);
 
     Add(tools, "global/geary", "Global Geary's C", "Space",
         "Global Geary's C with pseudo p-value from a permutation test.",
@@ -466,7 +468,7 @@ void RegisterCommands(McpTools& tools)
                    P("weights", StrProp("Weights id (uuid)")),
                    P("permutations", Def(IntProp("Number of permutations"), 999))},
                {"column", "weights"}),
-        true, McpGlobalGeary);
+        true, McpGlobalGeary, true);
 
     Add(tools, "global/general_g", "Global Getis-Ord General G", "Space",
         "Global Getis-Ord General G, a high/low concentration statistic.",
@@ -475,7 +477,7 @@ void RegisterCommands(McpTools& tools)
                    P("weights", StrProp("Weights id (uuid)")),
                    P("permutations", Def(IntProp("Number of permutations"), 999))},
                {"column", "weights"}),
-        true, McpGlobalGeneralG);
+        true, McpGlobalGeneralG, true);
 
     // =====================================================================
     // lisa
@@ -497,7 +499,7 @@ void RegisterCommands(McpTools& tools)
                    P("second_column",
                      StrProp("Second column for bivariate/differential"))},
                {"column", "weights"}),
-        true, McpLisaLocalMoran);
+        true, McpLisaLocalMoran, true);
 
     Add(tools, "lisa/local_geary", "Local Geary", "Space",
         "Local Geary statistic with pseudo p-values and cluster categories.",
@@ -516,7 +518,7 @@ void RegisterCommands(McpTools& tools)
                    P("second_column",
                      StrProp("Second column for bivariate/differential"))},
                {"column", "weights"}),
-        true, McpLisaLocalGeary);
+        true, McpLisaLocalGeary, true);
 
     Add(tools, "lisa/local_g", "Local Getis-Ord G", "Space",
         "Local Getis-Ord G (or G* with gstar=true) with pseudo p-values.",
@@ -528,7 +530,7 @@ void RegisterCommands(McpTools& tools)
                      Def(NumProp("Significance level"), 0.05)),
                    P("gstar", BoolProp("Use G* (include self in neighborhood)"))},
                {"column", "weights"}),
-        true, McpLisaLocalG);
+        true, McpLisaLocalG, true);
 
     // =====================================================================
     // cluster

@@ -42,12 +42,59 @@ namespace
     }
 }
 
-McpServer::McpServer()
+McpServer::McpServer() : m_client_elicits(false), m_next_ask_id(1)
 {
 }
 
 McpServer::~McpServer()
 {
+    // Wake any worker still waiting on an answer so it does not sit until the
+    // timeout. The wait objects are deliberately not freed: a detached worker
+    // may still be inside Ask() holding a pointer to one of them, and this only
+    // runs as the server is being torn down.
+    wxMutexLocker lock(m_asks_mutex);
+    for (std::map<std::string, McpAskWait*>::iterator it = m_asks.begin();
+         it != m_asks.end(); ++it) {
+        wxMutexLocker entry_lock(it->second->mutex);
+        it->second->done = true;
+        it->second->accepted = false;
+        it->second->cond.Signal();
+    }
+}
+
+McpAskWait* McpServer::RegisterAsk(std::string& id)
+{
+    wxMutexLocker lock(m_asks_mutex);
+    McpAskWait* wait = new McpAskWait();
+    id = wxString::Format("geoda-ask-%lld", (long long) m_next_ask_id++).ToStdString();
+    m_asks[id] = wait;
+    return wait;
+}
+
+void McpServer::ResolveAsk(const std::string& id, bool accepted,
+                           const std::string& value)
+{
+    McpAskWait* wait = NULL;
+    {
+        wxMutexLocker lock(m_asks_mutex);
+        std::map<std::string, McpAskWait*>::iterator it = m_asks.find(id);
+        if (it == m_asks.end()) return;
+        wait = it->second;
+    }
+    wxMutexLocker entry_lock(wait->mutex);
+    wait->accepted = accepted;
+    wait->value = value;
+    wait->done = true;
+    wait->cond.Signal();
+}
+
+void McpServer::UnregisterAsk(const std::string& id)
+{
+    wxMutexLocker lock(m_asks_mutex);
+    std::map<std::string, McpAskWait*>::iterator it = m_asks.find(id);
+    if (it == m_asks.end()) return;
+    delete it->second;
+    m_asks.erase(it);
 }
 
 json_spirit::Value McpServer::MakeParseError() const
@@ -76,16 +123,42 @@ bool McpServer::IsHeavyTool(const json_spirit::Value& request) const
     return tool && tool->run_on_worker;
 }
 
-json_spirit::Value McpServer::HandleRequest(const std::string& body)
+json_spirit::Value McpServer::HandleRequest(const std::string& body,
+                                            McpElicitChannel* elicit)
 {
     json_spirit::Value request;
     if (!json_spirit::read(body, request)) {
         return MakeParseError();
     }
-    return Dispatch(request);
+    return Dispatch(request, elicit);
 }
 
-json_spirit::Value McpServer::Dispatch(const json_spirit::Value& request)
+bool McpServer::IsResponseMessage(const std::string& body) const
+{
+    json_spirit::Value request;
+    if (!json_spirit::read(body, request)) return false;
+    if (request.type() != json_spirit::obj_type) return false;
+    const json_spirit::Object& obj = request.get_obj();
+    // An "id" and no "method" is how the client delivers an elicitation answer.
+    return GdaJson::hasName(obj, "id") && !GdaJson::hasName(obj, "method");
+}
+
+bool McpServer::IsElicitingTool(const json_spirit::Value& request) const
+{
+    if (request.type() != json_spirit::obj_type) return false;
+    const json_spirit::Object& obj = request.get_obj();
+    wxString method = GdaJson::getStrValFromObj(obj, "method");
+    if (method != "tools/call") return false;
+    json_spirit::Value params;
+    if (!GdaJson::findValue(request, params, "params")) return false;
+    if (params.type() != json_spirit::obj_type) return false;
+    wxString name = GdaJson::getStrValFromObj(params.get_obj(), "name");
+    const McpTool* tool = m_tools.FindTool(name);
+    return tool && tool->may_elicit;
+}
+
+json_spirit::Value McpServer::Dispatch(const json_spirit::Value& request,
+                                       McpElicitChannel* elicit)
 {
     if (request.type() != json_spirit::obj_type) {
         std::vector<json_spirit::Pair> err;
@@ -103,6 +176,14 @@ json_spirit::Value McpServer::Dispatch(const json_spirit::Value& request)
     bool is_notification = !GdaJson::hasName(obj, "id");
     json_spirit::Value id = GetRequestId(obj);
     wxString method = GdaJson::getStrValFromObj(obj, "method");
+
+    // An "id" with no "method" is a response: the client answering an
+    // elicitation we sent. Wake the tool that asked and send no reply of our
+    // own (the HTTP layer answers 202).
+    if (!is_notification && method.IsEmpty()) {
+        ApplyAskResponse(obj);
+        return json_spirit::Value();
+    }
 
     json_spirit::Value params;
     GdaJson::findValue(request, params, "params");
@@ -126,7 +207,7 @@ json_spirit::Value McpServer::Dispatch(const json_spirit::Value& request)
                method == "resources/read") {
         try {
             if (method == "tools/call") {
-                inner = HandleToolsCall(params_obj);
+                inner = HandleToolsCall(params_obj, elicit);
             } else if (method == "prompts/get") {
                 inner = HandlePromptsGet(params_obj);
             } else {
@@ -170,6 +251,27 @@ json_spirit::Value McpServer::Dispatch(const json_spirit::Value& request)
 
 json_spirit::Value McpServer::HandleInitialize(const json_spirit::Object& params)
 {
+    // Negotiate the protocol revision and remember whether the client can be
+    // asked questions. The revision that introduced elicitation is only used
+    // when the client asked for it or newer -- answering with a revision the
+    // client predates makes it disconnect -- and elicitation is enabled only
+    // when the client also advertised the capability.
+    const wxString kElicitRevision("2025-06-18");
+    wxString requested = GdaJson::getStrValFromObj(params, "protocolVersion");
+    m_client_elicits = false;
+    wxString negotiated("2025-03-26");
+    if (!requested.IsEmpty() && requested >= kElicitRevision) {
+        negotiated = kElicitRevision;
+        json_spirit::Value caps;
+        if (GdaJson::findValue(params, caps, "capabilities") &&
+            caps.type() == json_spirit::obj_type) {
+            json_spirit::Value elicit_cap;
+            if (GdaJson::findValue(caps, elicit_cap, "elicitation")) {
+                m_client_elicits = true;
+            }
+        }
+    }
+
     std::vector<json_spirit::Pair> tools_cap;
     tools_cap.push_back(P("listChanged", json_spirit::Value(false)));
     std::vector<json_spirit::Pair> prompts_cap;
@@ -185,7 +287,8 @@ json_spirit::Value McpServer::HandleInitialize(const json_spirit::Object& params
     server_info.push_back(P("version", json_spirit::Value("1.0.0")));
 
     std::vector<json_spirit::Pair> result;
-    result.push_back(P("protocolVersion", json_spirit::Value("2025-03-26")));
+    result.push_back(P("protocolVersion",
+                       json_spirit::Value(negotiated.ToStdString())));
     result.push_back(P("capabilities", Obj(capabilities)));
     result.push_back(P("serverInfo", Obj(server_info)));
     return Obj(result);
@@ -216,7 +319,8 @@ json_spirit::Value McpServer::HandleResourcesRead(const json_spirit::Object& par
     return m_resources.GetResource(params);
 }
 
-json_spirit::Value McpServer::HandleToolsCall(const json_spirit::Object& params)
+json_spirit::Value McpServer::HandleToolsCall(const json_spirit::Object& params,
+                                              McpElicitChannel* elicit)
 {
     wxString name = GdaJson::getStrValFromObj(params, "name");
     const McpTool* tool = m_tools.FindTool(name);
@@ -226,6 +330,10 @@ json_spirit::Value McpServer::HandleToolsCall(const json_spirit::Object& params)
 
     McpToolContext ctx;
     ctx.project = GdaFrame::GetProject();
+    // Only tools that opted in may ask the user, and only when the client
+    // advertised the capability; every other tool keeps the parameter error it
+    // raised before.
+    ctx.elicit = (tool->may_elicit && m_client_elicits) ? elicit : NULL;
 
     json_spirit::Object args;
     json_spirit::Value args_val;
@@ -264,4 +372,121 @@ json_spirit::Value McpServer::HandleToolsCall(const json_spirit::Object& params)
     std::vector<json_spirit::Pair> call_result;
     call_result.push_back(P("content", json_spirit::Value(content)));
     return Obj(call_result);
+}
+
+// The client answered one of our elicitations: wake the tool that asked.
+void McpServer::ApplyAskResponse(const json_spirit::Object& response)
+{
+    // Ids are strings so the client echoes back exactly what we sent.
+    wxString id = GdaJson::getStrValFromObj(response, "id");
+    if (id.IsEmpty()) return;
+
+    json_spirit::Value result;
+    if (!GdaJson::findValue(response, result, "result")) return;
+    if (result.type() != json_spirit::obj_type) return;
+    const json_spirit::Object& r = result.get_obj();
+
+    wxString action = GdaJson::getStrValFromObj(r, "action");
+    bool accepted = (action == "accept");
+
+    // A form answers one value per requested property; we ask a single
+    // question, so take the only value there is.
+    std::string value;
+    json_spirit::Value content;
+    if (GdaJson::findValue(r, content, "content") &&
+        content.type() == json_spirit::obj_type) {
+        const json_spirit::Object& c = content.get_obj();
+        for (json_spirit::Object::const_iterator it = c.begin();
+             it != c.end(); ++it) {
+            if (it->value_.type() == json_spirit::str_type) {
+                value = it->value_.get_str();
+                break;
+            }
+        }
+    }
+
+    ResolveAsk(id.ToStdString(), accepted, value);
+}
+
+namespace
+{
+    // How long a tool waits for the user to answer before giving up. The card
+    // stays up for this long, so it has to be time enough to read and decide.
+    const unsigned long kAskTimeoutMs = 180000;
+}
+
+McpServerElicitChannel::McpServerElicitChannel(McpServer& server, EmitFn emit,
+                                               void* emit_ctx)
+    : m_server(server), m_emit(emit), m_emit_ctx(emit_ctx)
+{
+}
+
+bool McpServerElicitChannel::Available() const
+{
+    return m_server.ClientSupportsElicitation() && m_emit != NULL;
+}
+
+bool McpServerElicitChannel::Ask(const std::string& message,
+                                 const std::string& key,
+                                 const std::string& title,
+                                 const std::vector<std::string>& options,
+                                 const std::string& default_value,
+                                 std::string& answer)
+{
+    if (!Available() || options.empty()) return false;
+
+    std::string id;
+    McpAskWait* wait = m_server.RegisterAsk(id);
+
+    // Form mode, one property with an enum of the values we accept:
+    //   {"jsonrpc":"2.0","id":"geoda-ask-1","method":"elicitation/create",
+    //    "params":{"message":"...","requestedSchema":{"type":"object", ...}}}
+    std::vector<json_spirit::Value> enum_vals;
+    for (size_t i = 0; i < options.size(); ++i) {
+        enum_vals.push_back(json_spirit::Value(options[i]));
+    }
+    std::vector<json_spirit::Pair> prop;
+    prop.push_back(P("type", json_spirit::Value("string")));
+    prop.push_back(P("title", json_spirit::Value(title)));
+    prop.push_back(P("enum", json_spirit::Value(json_spirit::Array(enum_vals))));
+    if (!default_value.empty()) {
+        prop.push_back(P("default", json_spirit::Value(default_value)));
+    }
+    std::vector<json_spirit::Pair> properties;
+    properties.push_back(json_spirit::Pair(key, Obj(prop)));
+    std::vector<json_spirit::Value> required;
+    required.push_back(json_spirit::Value(key));
+
+    std::vector<json_spirit::Pair> schema;
+    schema.push_back(P("type", json_spirit::Value("object")));
+    schema.push_back(P("properties", Obj(properties)));
+    schema.push_back(P("required",
+                       json_spirit::Value(json_spirit::Array(required))));
+
+    std::vector<json_spirit::Pair> ask_params;
+    ask_params.push_back(P("message", json_spirit::Value(message)));
+    ask_params.push_back(P("requestedSchema", Obj(schema)));
+
+    std::vector<json_spirit::Pair> req;
+    req.push_back(P("jsonrpc", json_spirit::Value("2.0")));
+    req.push_back(P("id", json_spirit::Value(id)));
+    req.push_back(P("method", json_spirit::Value("elicitation/create")));
+    req.push_back(P("params", Obj(ask_params)));
+
+    m_emit(m_emit_ctx, json_spirit::write(Obj(req)));
+
+    // Wait for the client to deliver the answer (McpServer::ResolveAsk) or for
+    // the timeout to fire. The tool thread is parked here, which is why only
+    // worker threads are given a channel.
+    bool ok = false;
+    {
+        wxMutexLocker lock(wait->mutex);
+        while (!wait->done) {
+            if (wait->cond.WaitTimeout(kAskTimeoutMs) == wxCOND_TIMEOUT) break;
+        }
+        ok = wait->done && wait->accepted;
+        if (ok) answer = wait->value;
+    }
+    m_server.UnregisterAsk(id);
+    return ok;
 }
