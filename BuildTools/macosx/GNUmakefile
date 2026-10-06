@@ -7,13 +7,21 @@ include ../../GeoDamake.opt
 
 # Sign the .app bundle with the Developer ID certificate unless
 # GEODA_SKIP_CODESIGN=1. CI sets this on pull requests from forks, where the
-# certificate secret is not available; the bundle is then built unsigned.
+# certificate secret is not available.
 ifneq ($(GEODA_SKIP_CODESIGN),1)
 CODESIGN_CMD = codesign -f --timestamp -o runtime -s "Developer ID Application: Geodapress LLC (26M5NG43GP)"
 CODESIGN_ID = Developer ID Application: Geodapress LLC (26M5NG43GP)
+CODESIGN_BUNDLE_CMD = $(CODESIGN_CMD)
 else
-CODESIGN_CMD = @true
+# No certificate. Still ad-hoc sign the bundle rather than skipping signing
+# entirely: the arm64 linker already ad-hoc signs the executable, and an
+# unsigned bundle wrapped around a signed executable is malformed, which macOS
+# reports as "GeoDa is damaged and can't be opened" -- a dead end for anyone
+# testing a pull request build. An ad-hoc signed bundle verifies cleanly and
+# can be opened once the quarantine flag is cleared (right-click -> Open).
+CODESIGN_CMD = codesign -f -s -
 CODESIGN_ID =
+CODESIGN_BUNDLE_CMD = codesign -f --deep -s -
 endif
 
 GeoDa_OBJ = $(wildcard $(GeoDa_ROOT)/o/*.o)
@@ -144,7 +152,7 @@ build-geoda-mac:
 	$(CODESIGN_CMD) build/GeoDa.app/Contents/Frameworks/libwx_osx_cocoau-3.2.dylib
 	$(CODESIGN_CMD) build/GeoDa.app/Contents/MacOS/lisa_kernel.cl
 	$(CODESIGN_CMD) build/GeoDa.app/Contents/MacOS/GeoDa
-	$(CODESIGN_CMD) build/GeoDa.app
+	$(CODESIGN_BUNDLE_CMD) build/GeoDa.app
 
 	
 clean:
