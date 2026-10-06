@@ -130,12 +130,25 @@ jobs:
             echo ERROR: no MSVC %TARGETDIR% toolset found under "%VSPATH%".
             exit /b 1
           )
-          set "PATH=%TARGETBIN%;%VCTOOLS%\bin\HostX64\x64;%VCTOOLS%\bin\HostX86\x86;%PATH%"
+          rem The Windows SDK ships its tools per host architecture too, and
+          rem VsDevCmd puts the arm64 ones on PATH. An arm64 rc.exe cannot run
+          rem on the x64 runner ("This version of %1 is not compatible with the
+          rem version of Windows you're running"), so prefer the x64 SDK tools --
+          rem they target arm64 just as well, and this is what MSBuild does for
+          rem cross builds.
+          set "SDKBIN="
+          if defined WindowsSdkDir if defined WindowsSDKVersion if exist "%WindowsSdkDir%bin\%WindowsSDKVersion%x64\rc.exe" set "SDKBIN=%WindowsSdkDir%bin\%WindowsSDKVersion%x64"
+          if not defined SDKBIN if defined WindowsSdkDir for /d %%d in ("%WindowsSdkDir%bin\10.*") do set "SDKBIN=%%d\x64"
+          set "PREPEND=%TARGETBIN%;%VCTOOLS%\bin\HostX64\x64;%VCTOOLS%\bin\HostX86\x86"
+          if defined SDKBIN set "PREPEND=%SDKBIN%;%PREPEND%"
+          set "PATH=%PREPEND%;%PATH%"
           where cl
           where link
           where nmake
+          where rc
+          where cl >nul 2>&1 && where link >nul 2>&1 && where nmake >nul 2>&1 && where rc >nul 2>&1
           if errorlevel 1 (
-            echo ERROR: nmake.exe not found on PATH after setting up Visual Studio.
+            echo ERROR: cl.exe, link.exe, nmake.exe or rc.exe is missing from PATH.
             exit /b 1
           )
           echo ::set-env name=PATH::%PATH%
