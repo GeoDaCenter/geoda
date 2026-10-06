@@ -39,11 +39,17 @@ jobs:
             MSVC_VER: 1930
             platform: x86
             runner: windows-2022
+          # arm64 is cross-compiled on the x64 runner. The windows-11-arm
+          # image moved to Visual Studio 2026 (actions/runner-images#14602),
+          # whose toolset Boost 1.88's bootstrap does not recognise ("Unknown
+          # toolset: vcunk"), so the arm64 dependency chain cannot be built
+          # there. windows-2022 still ships VS 2022 (v143) plus the ARM64
+          # build tools, and -arch=arm64 cross-compiles against them.
           - VS_VERSION: Visual Studio 17
             VS_VER: 2022
             MSVC_VER: 1930
             platform: arm64
-            runner: windows-11-arm
+            runner: windows-2022
 
     env:
       VS_VERSION: ${{ matrix.VS_VERSION }}
