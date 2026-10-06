@@ -10,7 +10,7 @@ default:	compile-geoda
 
 app:  build-geoda-mac
 
-compile-geoda:	geoda-target knn-target algorithms-target dataviewer-target dialogtools-target explore-target libgdiam-target regression-target shapeoperations-target resource-target varcalc-target
+compile-geoda:	geoda-target knn-target algorithms-target dataviewer-target dialogtools-target explore-target libgdiam-target regression-target shapeoperations-target resource-target varcalc-target mcp-target
 
 conf = `./libraries/bin/wx-config --libs`
 
@@ -46,6 +46,9 @@ shapeoperations-target:
 
 varcalc-target:
 	(cd $(GeoDa_ROOT)/VarCalc; $(MAKE))
+
+mcp-target:
+	(cd $(GeoDa_ROOT)/MCP; $(MAKE))
 
 geoda-target:
 	(cd $(GeoDa_ROOT); $(MAKE))

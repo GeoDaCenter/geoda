@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="ISO-8859-15"?>
+<?xml version="1.0" encoding="utf-8"?>
 <resource>
   <object class="wxMenuBar" name="ID_SHARED_MAIN_MENU">
     <object class="wxMenu" name="ID_MENU">
@@ -597,6 +597,15 @@
   </object>
   <object class="wxMenu" name="ID_DEFAULT_MENU_OPTIONS">
     <label>Options</label>
+    <object class="wxMenu" name="ID_MCP_MENU">
+      <label>MCP</label>
+      <object class="wxMenuItem" name="ID_MCP_START_SERVER">
+        <label>Start MCP Server…</label>
+      </object>
+      <object class="wxMenuItem" name="ID_MCP_STOP_SERVER">
+        <label>Stop MCP Server</label>
+      </object>
+    </object>
   </object>
   <object class="wxMenu" name="ID_3D_PLOT_VIEW_MENU_OPTIONS">
     <object class="wxMenu" name="ID_MENU">

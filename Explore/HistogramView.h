@@ -97,6 +97,7 @@ public:
     void OnSetUniqueValue(wxCommandEvent& event);
 
 	void HistogramIntervals();
+	void SetNumIntervals(int num_intervals);
 	void InitIntervals();
 	void UpdateIvalSelCnts();
 	

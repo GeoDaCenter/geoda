@@ -122,7 +122,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>temp\OpenCL\sdk\include;temp\boost;temp\wxWidgets\lib\vc_dll\mswud;temp\wxWidgets\include;temp\json_spirit_v4.08;temp\eigen3;temp\spectra\include;libraries\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..;temp\OpenCL\sdk\include;temp\boost;temp\wxWidgets\lib\vc_dll\mswud;temp\wxWidgets\include;temp\json_spirit_v4.08;temp\eigen3;temp\spectra\include;libraries\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;DEBUG;_DEBUG;_WINDOWS;NOMINMAX;__WXMSW__;WXUSINGDLL;_UNICODE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>false</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
@@ -138,7 +138,7 @@
     <ResourceCompile>
       <PreprocessorDefinitions>NOMINMAX;__WXMSW__;_UNICODE;_WINDOWS;NOPCH;WXUSINGDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <Culture>0x0409</Culture>
-      <AdditionalIncludeDirectories>temp\wxWidgets\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..;temp\wxWidgets\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Link>
       <AdditionalDependencies>opencl.lib;zlib.lib;gdal_i.lib;libcurl_imp.lib;libboost_chrono-vc142-mt-x64-1_75.lib;libboost_date_time-vc142-mt-x64-1_75.lib;libboost_system-vc142-mt-x64-1_75.lib;libboost_thread-vc142-mt-x64-1_75.lib;libboost_atomic-vc142-mt-x64-1_75.lib;libboost_regex-vc142-mt-x64-1_75.lib;BLAS.lib;clapack.lib;libf2c.lib;json_spirit_lib.lib;GlU32.lib;OpenGL32.lib;wxmsw31ud.lib;wxmsw31ud_gl.lib;wxtiffd.lib;wxjpegd.lib;wxpngd.lib;wxzlibd.lib;wxregexud.lib;wxexpatd.lib;wsock32.lib;comctl32.lib;winmm.lib;rpcrt4.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -154,7 +154,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>temp\OpenCL\sdk\include;temp\wxWidgets\lib\vc_dll\mswud;temp\wxWidgets\include;temp\boost\include;temp\json_spirit_v4.08;temp\eigen3;temp\spectra\include;libraries\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..;temp\OpenCL\sdk\include;temp\wxWidgets\lib\vc_dll\mswud;temp\wxWidgets\include;temp\boost\include;temp\json_spirit_v4.08;temp\eigen3;temp\spectra\include;libraries\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;DEBUG;_DEBUG;_WINDOWS;NOMINMAX;__WXMSW__;WXUSINGDLL;_UNICODE;__PROJ6__;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>false</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
@@ -174,7 +174,7 @@
     <ResourceCompile>
       <PreprocessorDefinitions>NOMINMAX;__WXMSW__;_UNICODE;_WINDOWS;NOPCH;WXUSINGDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <Culture>0x0409</Culture>
-      <AdditionalIncludeDirectories>temp\wxWidgets\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..;temp\wxWidgets\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Link>
       <AdditionalDependencies>opencl.lib;gdal_i.lib;libcurl_imp.lib;zlib.lib;libboost_chrono-vc142-mt-x64-1_75.lib;libboost_date_time-vc142-mt-gd-x64-1_75.lib;libboost_system-vc142-mt-gd-x64-1_75.lib;libboost_thread-vc142-mt-gd-x64-1_75.lib;libboost_atomic-vc142-mt-gd-x64-1_75.lib;libboost_regex-vc142-mt-gd-x64-1_75.lib;BLAS.lib;clapack.lib;libf2c.lib;json_spirit_lib.lib;GlU32.lib;OpenGL32.lib;wxmsw31ud.lib;wxmsw31ud_gl.lib;wxtiffd.lib;wxjpegd.lib;wxpngd.lib;wxzlibd.lib;wxregexud.lib;wxexpatd.lib;wsock32.lib;comctl32.lib;winmm.lib;rpcrt4.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -193,7 +193,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>temp\wxWidgets\lib\vc_arm64_dll\mswud;temp\wxWidgets\include;temp\boost\include;temp\json_spirit_v4.08;temp\eigen3;temp\spectra\include;libraries\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..;temp\wxWidgets\lib\vc_arm64_dll\mswud;temp\wxWidgets\include;temp\boost\include;temp\json_spirit_v4.08;temp\eigen3;temp\spectra\include;libraries\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;DEBUG;_DEBUG;_WINDOWS;NOMINMAX;__WXMSW__;WXUSINGDLL;_UNICODE;__PROJ6__%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>false</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
@@ -213,7 +213,7 @@
     <ResourceCompile>
       <PreprocessorDefinitions>NOMINMAX;__WXMSW__;_UNICODE;_WINDOWS;NOPCH;WXUSINGDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <Culture>0x0409</Culture>
-      <AdditionalIncludeDirectories>temp\wxWidgets\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..;temp\wxWidgets\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Link>
       <AdditionalDependencies>opencl.lib;gdal.lib;libcurl.lib;z.lib;libboost_chrono-vc143-mt-a64-1_88.lib;libboost_date_time-vc143-mt-gd-a64-1_88.lib;libboost_system-vc143-mt-gd-a64-1_88.lib;libboost_thread-vc143-mt-gd-a64-1_88.lib;libboost_atomic-vc143-mt-gd-a64-1_88.lib;libboost_regex-vc143-mt-gd-a64-1_88.lib;BLAS.lib;clapack.lib;libf2c.lib;json_spirit_lib.lib;GlU32.lib;OpenGL32.lib;wxmsw31ud.lib;wxmsw31ud_gl.lib;wxtiffd.lib;wxjpegd.lib;wxpngd.lib;wxzlibd.lib;wxregexud.lib;wxexpatd.lib;wsock32.lib;comctl32.lib;winmm.lib;rpcrt4.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -231,7 +231,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
-      <AdditionalIncludeDirectories>temp\OpenCL\sdk\include;temp\wxWidgets\lib\vc_dll\mswu;temp\wxWidgets\include;temp\boost\include;temp\json_spirit_v4.08;temp\eigen3;temp\spectra\include;libraries\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..;temp\OpenCL\sdk\include;temp\wxWidgets\lib\vc_dll\mswu;temp\wxWidgets\include;temp\boost\include;temp\json_spirit_v4.08;temp\eigen3;temp\spectra\include;libraries\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_WINDOWS;NOMINMAX;__WXMSW__;__NO_VC_CRTDBG__;WXUSINGDLL;_UNICODE;__PROJ6__;BOOST_BIND_NO_PLACEHOLDERS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <PrecompiledHeader>
@@ -244,7 +244,7 @@
     <ResourceCompile>
       <PreprocessorDefinitions>NOMINMAX;__WXMSW__;_UNICODE;_WINDOWS;NOPCH;WXUSINGDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <Culture>0x0409</Culture>
-      <AdditionalIncludeDirectories>temp\wxWidgets\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..;temp\wxWidgets\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Link>
       <AdditionalDependencies>opencl.lib;zlib.lib;gdal_i.lib;libcurl_imp.lib;libboost_chrono-vc142-mt-x32-1_75.lib;libboost_date_time-vc142-mt-x32-1_75.lib;libboost_system-vc142-mt-x32-1_75.lib;libboost_thread-vc142-mt-x32-1_75.lib;libboost_atomic-vc142-mt-x32-1_75.lib;libboost_regex-vc142-mt-x32-1_75.lib;BLAS.lib;clapack.lib;libf2c.lib;json_spirit_lib.lib;GlU32.lib;OpenGL32.lib;wxmsw31u.lib;wxmsw31u_gl.lib;wxtiff.lib;wxjpeg.lib;wxpng.lib;wxzlib.lib;wxregexu.lib;wxexpat.lib;wsock32.lib;comctl32.lib;winmm.lib;rpcrt4.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -258,7 +258,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>temp\OpenCL\sdk\include;temp\wxWidgets\lib\vc_x64_dll\mswu;temp\wxWidgets\include;temp\boost\include;temp\json_spirit_v4.08;temp\eigen3;temp\spectra\include;libraries\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..;temp\OpenCL\sdk\include;temp\wxWidgets\lib\vc_x64_dll\mswu;temp\wxWidgets\include;temp\boost\include;temp\json_spirit_v4.08;temp\eigen3;temp\spectra\include;libraries\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_WINDOWS;NOMINMAX;__WXMSW__;__NO_VC_CRTDBG__;WXUSINGDLL;_UNICODE;__PROJ6__;BOOST_BIND_NO_PLACEHOLDERS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <PrecompiledHeader>
@@ -272,7 +272,7 @@
     <ResourceCompile>
       <PreprocessorDefinitions>NOMINMAX;__WXMSW__;_UNICODE;_WINDOWS;NOPCH;WXUSINGDLL;UNICODE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <Culture>0x0409</Culture>
-      <AdditionalIncludeDirectories>temp\wxWidgets\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..;temp\wxWidgets\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Link>
       <AdditionalDependencies>opencl.lib;zlib.lib;libcurl_imp.lib;gdal_i.lib;libboost_chrono-vc142-mt-x64-1_75.lib;libboost_date_time-vc142-mt-x64-1_75.lib;libboost_system-vc142-mt-x64-1_75.lib;libboost_thread-vc142-mt-x64-1_75.lib;libboost_atomic-vc142-mt-x64-1_75.lib;libboost_regex-vc142-mt-x64-1_75.lib;BLAS.lib;clapack.lib;libf2c.lib;json_spirit_lib.lib;GlU32.lib;OpenGL32.lib;wxmsw31u.lib;wxmsw31u_gl.lib;wxtiff.lib;wxjpeg.lib;wxpng.lib;wxzlib.lib;wxregexu.lib;wxexpat.lib;wsock32.lib;comctl32.lib;winmm.lib;rpcrt4.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -285,7 +285,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>temp\wxWidgets\lib\vc_arm64_dll\mswu;temp\wxWidgets\include;temp\boost\include;temp\json_spirit_v4.08;temp\eigen3;temp\spectra\include;libraries\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..;temp\wxWidgets\lib\vc_arm64_dll\mswu;temp\wxWidgets\include;temp\boost\include;temp\json_spirit_v4.08;temp\eigen3;temp\spectra\include;libraries\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_WINDOWS;NOMINMAX;__WXMSW__;__NO_VC_CRTDBG__;WXUSINGDLL;_UNICODE;__PROJ6__;BOOST_BIND_NO_PLACEHOLDERS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <PrecompiledHeader>
@@ -299,7 +299,7 @@
     <ResourceCompile>
       <PreprocessorDefinitions>NOMINMAX;__WXMSW__;_UNICODE;_WINDOWS;NOPCH;WXUSINGDLL;UNICODE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <Culture>0x0409</Culture>
-      <AdditionalIncludeDirectories>temp\wxWidgets\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..;temp\wxWidgets\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Link>
       <AdditionalDependencies>opencl.lib;z.lib;libcurl.lib;gdal.lib;libboost_chrono-vc143-mt-a64-1_88.lib;libboost_date_time-vc143-mt-a64-1_88.lib;libboost_system-vc143-mt-a64-1_88.lib;libboost_thread-vc143-mt-a64-1_88.lib;libboost_atomic-vc143-mt-a64-1_88.lib;libboost_regex-vc143-mt-a64-1_88.lib;BLAS.lib;clapack.lib;libf2c.lib;json_spirit_lib.lib;GlU32.lib;OpenGL32.lib;wxmsw31u.lib;wxmsw31u_gl.lib;wxtiff.lib;wxjpeg.lib;wxpng.lib;wxzlib.lib;wxregexu.lib;wxexpat.lib;wsock32.lib;comctl32.lib;winmm.lib;rpcrt4.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -921,6 +921,13 @@
     <ClCompile Include="..\..\TemplateCanvas.cpp" />
     <ClCompile Include="..\..\TemplateFrame.cpp" />
     <ClCompile Include="..\..\TemplateLegend.cpp" />
+    <ClCompile Include="..\..\MCP\McpCommands.cpp" />
+    <ClCompile Include="..\..\MCP\McpHttpServer.cpp" />
+    <ClCompile Include="..\..\MCP\McpPrompts.cpp" />
+    <ClCompile Include="..\..\MCP\McpResources.cpp" />
+    <ClCompile Include="..\..\MCP\McpServer.cpp" />
+    <ClCompile Include="..\..\MCP\McpTools.cpp" />
+    <ClCompile Include="..\..\MCP\McpToolsSpatial.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

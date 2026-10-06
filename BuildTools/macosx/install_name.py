@@ -117,8 +117,16 @@ def process_dependency(framework_path, dylib_name):
                 os.system(cmd)
             # process item
             process_dependency(framework_path, file_name)
-    print("codesign {}", dylib_path)
-    cmd = f'codesign --force --timestamp -o runtime -s "{CODESIGN_ID}" {dylib_path}'
+    # Sign each processed dylib. With no identity (CI on fork pull requests,
+    # where the Developer ID certificate secret is unavailable) fall back to an
+    # ad-hoc signature rather than skipping: the .app bundle cannot be signed
+    # while its nested libraries are unsigned, which fails the build with
+    # "code object is not signed at all / In subcomponent: ...".
+    if CODESIGN_ID:
+        cmd = f'codesign --force --timestamp -o runtime -s "{CODESIGN_ID}" {dylib_path}'
+    else:
+        cmd = f'codesign --force -s - {dylib_path}'
+    print("codesign:", dylib_path)
     os.system(cmd)
 
 

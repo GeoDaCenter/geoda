@@ -43,6 +43,7 @@ BuildTools/macosx/temp/
 BuildTools/macosx/temp1/
 BuildTools/macosx/temp108/
 BuildTools/macosx/build/
+BuildTools/macosx/Resources/
 BuildTools/macosx/GeoDa.xcodeproj/
 BuildTools/macosx/GeoDa.xcodeproj/xcuserdata/
 BuildTools/macosx/GeoDa-leopard.xcodeproj/
@@ -125,3 +126,5 @@ internationalization/token.json
 
 GeoDamake.opt
 build/
+/.idea
+/cmake-build-debug

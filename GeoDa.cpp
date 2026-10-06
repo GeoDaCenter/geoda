@@ -187,6 +187,7 @@
 #include "TemplateFrame.h"
 #include "SaveButtonManager.h"
 #include "GeoDa.h"
+#include "MCP/McpHttpServer.h"
 #include "version.h"
 #include "arizona/viz3/plots/scatterplot.h"
 #include "rc/GeoDaIcon-16x16.xpm"
@@ -201,9 +202,15 @@
 // the application binary.
 extern void GdaInitXmlResource();
 
+// Port the built-in MCP server binds to when the app starts. The app starts
+// the server automatically so an external MCP client can be pointed at a
+// stable URL; if the port is taken it falls back to the next ones (see
+// McpHttpServer::Start).
+#define GEODA_MCP_DEFAULT_PORT 8765
+
 IMPLEMENT_APP(GdaApp)
 
-GdaApp::GdaApp() : checker(0), m_pLogFile(0)
+GdaApp::GdaApp() : checker(0), m_mcp_port(0), m_pLogFile(0)
 {
 	//Don't call wxHandleFatalExceptions so that a core dump file will be
 	//produced for debugging.
@@ -383,7 +390,7 @@ bool GdaApp::OnInit(void)
     frame->SetMinSize(wxSize(640, frameHeight));
     
 	SetTopWindow(GdaFrame::GetGdaFrame());
-	
+
 	if (GeneralWxUtils::isWindows()) {
 		// For XP / Vista / Win 7, the user can select to use font sizes
 		// of %100, %125 or %150.
@@ -425,6 +432,23 @@ bool GdaApp::OnInit(void)
                                            Gda::version_build);
     wxLogMessage(versionlog);
     wxLogMessage("%s", loggerFile);
+
+    // Start the built-in MCP server. It is on by default (port
+    // GEODA_MCP_DEFAULT_PORT, see OnCmdLineParsed) so external MCP clients can
+    // connect as soon as the app is up; --no-mcp / GEODA_MCP_ENABLED=0 turns it
+    // off. This runs *after* the log target is installed on purpose: binding
+    // the socket and writing the discovery file can emit wxLog messages, and
+    // with the default GUI log target still active they would be buffered and
+    // then flushed into a blocking modal dialog while OnInit() is still
+    // running -- which stalls the whole app, MCP included, until dismissed.
+    if (m_mcp_port > 0) {
+        McpHttpServer* mcp_server = new McpHttpServer(m_mcp_port);
+        if (mcp_server->Start()) {
+            GdaFrame::GetGdaFrame()->SetMcpServer(mcp_server);
+        } else {
+            delete mcp_server;
+        }
+    }
     
    
     if (!cmd_line_proj_file_name.IsEmpty()) {
@@ -444,6 +468,30 @@ bool GdaApp::OnInit(void)
 
 bool GdaApp::OnCmdLineParsed(wxCmdLineParser& parser)
 {
+    // The MCP server starts with the app, on a fixed port, so an external
+    // MCP client can be pointed at a stable URL without any manual step.
+    // Override the port with --mcp-port N or GEODA_MCP_PORT; turn the server
+    // off with --no-mcp or GEODA_MCP_ENABLED=0.
+    m_mcp_port = GEODA_MCP_DEFAULT_PORT;
+    wxString mcp_enabled;
+    if ( wxGetEnv("GEODA_MCP_ENABLED", &mcp_enabled) ) {
+        if (mcp_enabled == "0" || mcp_enabled == "false" || mcp_enabled == "no") {
+            m_mcp_port = 0;
+        }
+    }
+    wxString env_mcp_port;
+    long env_port = 0;
+    if ( wxGetEnv("GEODA_MCP_PORT", &env_mcp_port) &&
+        env_mcp_port.ToLong(&env_port) && env_port > 0 && env_port <= 65535 ) {
+        m_mcp_port = (int)env_port;
+    }
+    if ( parser.Found("no-mcp") ) {
+        m_mcp_port = 0;
+    }
+    long mcp_port = 0;
+    if ( parser.Found("mcp-port", &mcp_port) ) {
+        m_mcp_port = (int)mcp_port;
+    }
     if ( parser.GetParamCount() > 0) {
         cmd_line_proj_file_name = parser.GetParam(0);
     }
@@ -455,6 +503,12 @@ const wxCmdLineEntryDesc GdaApp::globalCmdLineDesc [] =
 	{ wxCMD_LINE_SWITCH, "h", "help",
 		"displays help on the command line parameters",
 		wxCMD_LINE_VAL_NONE, wxCMD_LINE_OPTION_HELP },
+	{ wxCMD_LINE_OPTION, "m", "mcp-port",
+		"port for the built-in MCP server (default 8765)",
+		wxCMD_LINE_VAL_NUMBER, wxCMD_LINE_PARAM_OPTIONAL },
+	{ wxCMD_LINE_SWITCH, NULL, "no-mcp",
+		"do not start the built-in MCP server",
+		wxCMD_LINE_VAL_NONE, wxCMD_LINE_PARAM_OPTIONAL },
 	{ wxCMD_LINE_PARAM, NULL, NULL, "project file",
 		wxCMD_LINE_VAL_STRING, wxCMD_LINE_PARAM_OPTIONAL },
 	{ wxCMD_LINE_NONE }
@@ -764,11 +818,16 @@ void GdaFrame::SetMenusToDefault()
 
 GdaFrame::GdaFrame(const wxString& title, const wxPoint& pos,
 				   const wxSize& size, long style)
-: wxFrame(NULL, wxID_ANY, title, pos, size, style)
+: wxFrame(NULL, wxID_ANY, title, pos, size, style), m_mcp_server(NULL)
 {
 	SetBackgroundColour(*wxWHITE);
 	SetIcon(wxIcon(GeoDaIcon_16x16_xpm));
 	SetMenuBar(wxXmlResource::Get()->LoadMenuBar("ID_SHARED_MAIN_MENU"));
+
+    Bind(wxEVT_COMMAND_MENU_SELECTED, &GdaFrame::OnMcpStartServer, this,
+         XRCID("ID_MCP_START_SERVER"));
+    Bind(wxEVT_COMMAND_MENU_SELECTED, &GdaFrame::OnMcpStopServer, this,
+         XRCID("ID_MCP_STOP_SERVER"));
 
 	if (!GetHtmlMenuItems() || htmlMenuItems.size() == 0) {
 	} else {
@@ -807,6 +866,11 @@ GdaFrame::GdaFrame(const wxString& title, const wxPoint& pos,
 
 GdaFrame::~GdaFrame()
 {
+    if (m_mcp_server) {
+        delete m_mcp_server;
+        m_mcp_server = NULL;
+    }
+
 	GdaFrame::gda_frame = 0;
 }
 
@@ -1197,6 +1261,39 @@ void GdaFrame::OnEmptyCustomCategoryClick(wxCommandEvent& event)
                                     GdaConst::map_default_size);
         nf->ChangeMapType(CatClassification::custom, MapCanvas::no_smoothing, 4, boost::uuids::nil_uuid(), true, dlg.var_info, dlg.col_ids, cc_title);
         nf->UpdateTitle();
+    }
+}
+
+void GdaFrame::OnMcpStartServer(wxCommandEvent& event)
+{
+    if (m_mcp_server && m_mcp_server->IsRunning()) {
+        wxMessageBox(_("The MCP server is already running."), _("MCP Server"),
+                     wxOK | wxICON_INFORMATION, this);
+        return;
+    }
+    if (!m_mcp_server) {
+        m_mcp_server = new McpHttpServer(GEODA_MCP_DEFAULT_PORT);
+    }
+    if (!m_mcp_server->Start()) {
+        wxMessageBox(_("Failed to start the MCP server."), _("MCP Server"),
+                     wxOK | wxICON_ERROR, this);
+        return;
+    }
+    wxString url = m_mcp_server->GetUrl();
+    wxTextEntryDialog dlg(this, _("MCP server is running. Copy this URL and "
+                                   "configure it in your MCP client, e.g. in "
+                                   "Claude Code:\n{\"geoda\": {\"type\": "
+                                   "\"http\", \"url\": \"<url>\"}}"),
+                          _("MCP Server"), url);
+    dlg.ShowModal();
+}
+
+void GdaFrame::OnMcpStopServer(wxCommandEvent& event)
+{
+    if (m_mcp_server) {
+        m_mcp_server->Stop();
+        wxMessageBox(_("MCP server stopped."), _("MCP Server"),
+                     wxOK | wxICON_INFORMATION, this);
     }
 }
 

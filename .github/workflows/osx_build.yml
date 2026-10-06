@@ -10,10 +10,13 @@ on:
     tags: ['v*']
     paths-ignore:
       - '**/README.md'
-  # Stop checking osx build on pull request, one has to check is manually
+  # Run on pull requests targeting master so macOS builds are checked
+  # automatically, like the other build workflows. Can still be triggered
+  # manually via workflow_dispatch.
   pull_request:
-    branches-ignore:
-      - master
+    branches: [master]
+    paths-ignore:
+      - '**/README.md'
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
@@ -39,8 +42,11 @@ jobs:
           - distro: 'macos-15'
             pre: 'arm64'
     env:
-      GEODA_VER: '1.22.1'
+      GEODA_VER: '1.22.2'
       GEODA_ARCH: ${{ matrix.pre }}
+      # Empty on pull requests from forks (secrets are not passed there);
+      # used to skip codesigning so the build still verifies.
+      HAS_MACOS_CERT: ${{ secrets.MACOS_CERTIFICATE != '' }}
 
     # Steps represent a sequence of tasks that will be executed as part of the job
 
@@ -49,6 +55,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Install application certificate
+        if: env.HAS_MACOS_CERT == 'true'
         uses: apple-actions/import-codesign-certs@v2
         with:
           keychain: ${{ github.run_id }}
@@ -106,6 +113,10 @@ jobs:
           ./install.sh
 
       - name: Build GeoDa
+        env:
+          # 1 when the signing certificate is unavailable (fork PRs); make app
+          # then builds the bundle unsigned.
+          GEODA_SKIP_CODESIGN: ${{ secrets.MACOS_CERTIFICATE == '' && 1 || 0 }}
         run: |
           mkdir -p o
           cd BuildTools/macosx
@@ -137,7 +148,9 @@ jobs:
           make app
           cd create-dmg
           ./geoda.sh $GEODA_VERSION
-          codesign --timestamp -s "Developer ID Application: Geodapress LLC (26M5NG43GP)" -i edu.uchicago.spatial GeoDa$GEODA_VERSION-Installer.dmg
+          if [ "$GEODA_SKIP_CODESIGN" != "1" ]; then
+            codesign --timestamp -s "Developer ID Application: Geodapress LLC (26M5NG43GP)" -i edu.uchicago.spatial GeoDa$GEODA_VERSION-Installer.dmg
+          fi
 
       - name: Notarize DMG
         run: |

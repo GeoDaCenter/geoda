@@ -1,5 +1,5 @@
 /**
- * GeoDa TM, Copyright (C) 2011-2015 by Luc Anselin - all rights reserved
+ * GeoDa TM, Copyright (C) 2011-2025 by Luc Anselin - all rights reserved
  *
  * This file is part of GeoDa.
  *
@@ -17,18 +17,17 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef GEODA_VERSION_H
-#define GEODA_VERSION_H
+#ifndef __GEODA_CENTER_MCP_COMMANDS_H__
+#define __GEODA_CENTER_MCP_COMMANDS_H__
 
-namespace Gda {
-const int version_major = 1;
-const int version_minor = 22;
-const int version_build = 2;
-const int version_year = 2026;
-const int version_month = 10;
-const int version_day = 6;
-const int version_night = 0;
-const int version_type = 2;  // 0: alpha, 1: beta, 2: release
-}  // namespace Gda
+class McpTools;
 
-#endif  // GEODA_VERSION_H
+// Register every GeoDa command (menu actions and analysis tools) with the
+// MCP tool registry. This is the single source of truth for the app's
+// command surface: each menu item maps to a command with a command id, a
+// human-readable label, a menu grouping, a JSON schema, and a handler that
+// reads its arguments from JSON (no dialogs). Called once from
+// McpTools::RegisterTools(); the registry is read-only afterwards.
+void RegisterCommands(McpTools& tools);
+
+#endif

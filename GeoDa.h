@@ -45,6 +45,7 @@ class GdaApp;
 class GdaFrame;
 class LineChartFrame;
 class wxTranslationHelper;
+class McpHttpServer;
 
 /** Main appilcation class. */
 class GdaApp: public wxApp
@@ -62,6 +63,7 @@ public:
 private:
     wxSingleInstanceChecker* checker;
     wxString cmd_line_proj_file_name;
+    int m_mcp_port;
     wxTranslationHelper* m_TranslationHelper;
     FILE *m_pLogFile;
 };
@@ -620,7 +622,11 @@ public:
     void OnCustomCategoryClick(wxCommandEvent& event);
     void OnCustomCategoryClick_B(wxCommandEvent& event);
     void OnCustomCategoryClick_C(wxCommandEvent& event);
-    
+
+    void OnMcpStartServer(wxCommandEvent& event);
+    void OnMcpStopServer(wxCommandEvent& event);
+    void SetMcpServer(McpHttpServer* server) { m_mcp_server = server; }
+
     void UpdateRecentDatasourceMenu();
 
 	static Project* GetProject() { return projectOpen ? project_p : 0; }
@@ -650,7 +656,9 @@ protected:
 	static Project* project_p;
 	static bool projectOpen;
 	static std::list<wxAuiToolBar*> toolbar_list;
-	
+
+    McpHttpServer* m_mcp_server;
+
 	DECLARE_EVENT_TABLE()
 };
 
