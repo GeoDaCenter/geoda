@@ -12,7 +12,9 @@
 // The only application code it needs is SpregEngine.cpp; the two GenUtils path
 // helpers are stubbed below, so nothing of the rest of GeoDa is linked in.
 
+#include <cmath>
 #include <cstdio>
+#include <map>
 #include <string>
 #include <vector>
 
@@ -23,7 +25,9 @@
 #include <wx/dir.h>
 
 #include "../../Regression/SpregEngine.h"
+#include "../../Regression/SpregJob.h"
 #include "../../GenUtils.h"
+#include "../../ShapeOperations/GalWeight.h"
 
 using namespace SpregEngine;
 
@@ -37,6 +41,20 @@ static wxString g_installed_root;      // the equivalent of Contents/Resources/
 
 wxString GenUtils::GetResourceDir() { return g_installed_root; }
 wxString GenUtils::GetExeDir() { return g_installed_root; }
+
+// and of the two GalElement accessors SpregJob's GalElement overload uses: this
+// harness feeds the writer its CSR arrays directly, as the protocol wants them,
+// so nothing here needs a GeoDa weights object
+const std::vector<long>& GalElement::GetNbrs() const
+{
+	static std::vector<long> empty;
+	return empty;
+}
+const std::vector<double>& GalElement::GetNbrWeights() const
+{
+	static std::vector<double> empty;
+	return empty;
+}
 
 // ---------------------------------------------------------------------------
 
@@ -108,10 +126,114 @@ int main(int argc, char** argv)
 	if (argc < 3) {
 		std::printf("usage: %s <engine-archive.zip> <scratch-dir> [repo-root]\n", argv[0]);
 		std::printf("       %s --download <url> <scratch-dir>\n", argv[0]);
+		std::printf("       %s --job <engine-dir> <scratch-dir> [model-id]\n", argv[0]);
 		return 2;
 	}
 	const wxString archive = wxString::FromUTF8(argv[1]);
 	const wxString scratch = wxString::FromUTF8(argv[2]);
+
+	if (argc >= 4 && wxString(argv[1]) == "--job") {
+		// the C++ half of the protocol: SpregJob::Writer builds the job,
+		// SpregEngine::RunJob runs it, SpregJob::Result reads the answer -
+		// against the same 6x10 grid the solver's own selftest uses
+		const wxString engine_dir = argv[2];
+		const wxString job_dir = (argc > 3 ? wxString(argv[3]) : wxString(".")) + "/job";
+		wxFileName::Mkdir(job_dir, wxS_DIR_DEFAULT, wxPATH_MKDIR_FULL);
+		wxRemoveFile(job_dir + "/data.bin");
+		wxRemoveFile(job_dir + "/result.json");
+
+		const int rows = 6, cols = 10, n = rows * cols;
+		std::vector<double> y(n), x1(n), x2(n);
+		std::vector<std::vector<double> > x(2);
+		x[0].resize(n);
+		x[1].resize(n);
+		unsigned int seed = 20261007u;
+		for (int i = 0; i < n; ++i) {
+			seed = seed * 1103515245u + 12345u;
+			const double u1 = ((seed >> 16) & 0x7fff) / 32768.0 - 0.5;
+			seed = seed * 1103515245u + 12345u;
+			const double u2 = ((seed >> 16) & 0x7fff) / 32768.0 - 0.5;
+			seed = seed * 1103515245u + 12345u;
+			const double e = ((seed >> 16) & 0x7fff) / 32768.0 - 0.5;
+			x[0][i] = u1;
+			x[1][i] = u2;
+			y[i] = 1.5 + 2.0 * u1 - 0.75 * u2 + 0.25 * e;
+		}
+		std::vector<int> indptr(n + 1, 0), indices;
+		std::vector<double> weights;
+		for (int r = 0; r < rows; ++r) {
+			for (int c = 0; c < cols; ++c) {
+				const int i = r * cols + c;
+				const int dr[4] = { -1, 1, 0, 0 };
+				const int dc[4] = { 0, 0, -1, 1 };
+				for (int k = 0; k < 4; ++k) {
+					const int rr = r + dr[k], cc = c + dc[k];
+					if (rr < 0 || rr >= rows || cc < 0 || cc >= cols) continue;
+					indices.push_back(rr * cols + cc);
+					weights.push_back(1.0);
+				}
+				indptr[i + 1] = (int) indices.size();
+			}
+		}
+
+		SpregJob::Writer writer(job_dir);
+		std::vector<wxString> x_names;
+		x_names.push_back("x1");
+		x_names.push_back("x2");
+		wxString job_err;
+		bool ok = writer.AddY(y, job_err) && writer.AddX(x, job_err)
+			&& writer.AddWeights(indptr, indices, weights, n, job_err);
+		std::map<wxString, wxString> options;
+		if (wxString(argc > 4 ? argv[4] : "OLS") == "ML_Lag") options["method"] = "LU";
+		ok = ok && writer.Write(wxString(argc > 4 ? argv[4] : "OLS"), options,
+								"y", x_names, "grid-rook", "", 
+								std::vector<wxString>(), std::vector<wxString>(),
+								job_err);
+		check("the job is written", ok, job_err);
+
+		wxString run_output, run_err;
+		const int code = RunJob(engine_dir, job_dir, run_output, run_err, 300);
+		check("the solver runs it", code == 0, run_err);
+
+		SpregJob::Result result;
+		wxString read_err;
+		const bool read = result.Read(job_dir, read_err);
+		check("the result is read back", read, read_err);
+		check("it is not an error result", result.ok, result.error_message);
+		if (result.ok) {
+			std::printf("     model: %s (%s)\n", (const char*) result.title.utf8_str(),
+						(const char*) result.class_name.utf8_str());
+			for (size_t i = 0; i < result.names.size(); ++i) {
+				std::printf("     %-12s %12.6f %12.6f %12.6f %9.5f  (%s)\n",
+							(const char*) result.names[i].utf8_str(),
+							i < result.estimate.size() ? result.estimate[i] : 0.0,
+							i < result.std_err.size() ? result.std_err[i] : 0.0,
+							i < result.z.size() ? result.z[i] : 0.0,
+							i < result.p.size() ? result.p[i] : 0.0,
+							i < result.roles.size() ? (const char*) result.roles[i].utf8_str() : "");
+			}
+			// the coefficients have to be the least squares ones: 1.5, 2.0, -0.75
+			const double expected[3] = { 1.5, 2.0, -0.75 };
+			bool close = result.estimate.size() >= 3;
+			for (int i = 0; close && i < 3; ++i) {
+				close = std::fabs(result.estimate[i] - expected[i]) < 0.05;
+			}
+			check("the coefficients are the ones the data was built from", close,
+				  wxString::Format("%.4f %.4f %.4f", result.estimate.empty() ? 0 : result.estimate[0],
+								   result.estimate.size() > 1 ? result.estimate[1] : 0.0,
+								   result.estimate.size() > 2 ? result.estimate[2] : 0.0));
+			check("the observations came back",
+				  result.yhat.size() == (size_t) n && result.resid.size() == (size_t) n,
+				  wxString::Format("yhat %d, resid %d", (int) result.yhat.size(),
+								   (int) result.resid.size()));
+			check("fit and diagnostics arrived",
+				  !result.fit.empty() || !result.diagnostics.empty(),
+				  wxString::Format("%d fit entries, %d diagnostics", (int) result.fit.size(),
+								   (int) result.diagnostics.size()));
+		}
+		std::printf("\n%s\n", failures ? "FAILED" : "all checks passed");
+		return failures ? 1 : 0;
+	}
 
 	if (argc >= 3 && wxString(argv[1]) == "--download") {
 		// exercises Download() on its own, including the error messages, and

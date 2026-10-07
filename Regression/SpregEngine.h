@@ -174,6 +174,13 @@ bool Remove(const wxString& engine_dir, wxString& err);
 // ---------------------------------------------------------------------------
 
 /**
+ * Runs the solver with extra arguments and returns what it wrote to --out.
+ * ProbeEngine is one case of it; SpregJob::ListModels is another.
+ */
+bool RunSolverCommand(const wxString& engine_dir, const wxString& args,
+					  wxString& output, wxString& err, int timeout_sec = 120);
+
+/**
  * Runs the solver and returns what it printed. Used to check that an engine
  * works right after installing it; the regression dialog uses RunJob() below
  * in the same way.

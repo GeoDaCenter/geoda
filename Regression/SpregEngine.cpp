@@ -876,8 +876,8 @@ wxString QuoteArg(const wxString& arg)
 	return "\"" + arg + "\"";
 }
 
-bool ProbeEngine(const wxString& engine_dir, wxString& output, wxString& err,
-				 int timeout_ms)
+bool RunSolverCommand(const wxString& engine_dir, const wxString& args,
+					  wxString& output, wxString& err, int timeout_sec)
 {
 	const wxString python = EnginePythonPath(engine_dir);
 	if (python.IsEmpty()) {
@@ -893,13 +893,12 @@ bool ProbeEngine(const wxString& engine_dir, wxString& output, wxString& err,
 
 	// the answer goes to a file: the app waits for the file, not for an exit
 	// code, which is the only thing that works with a blocked event loop
-	const wxString answer = wxFileName::CreateTempFileName("geoda-spreg-probe");
+	const wxString answer = wxFileName::CreateTempFileName("geoda-spreg-answer");
 	wxRemoveFile(answer);
-	const wxString cmd = QuoteArg(python) + " " + QuoteArg(solver)
-		+ " --engine-info --out " + QuoteArg(answer);
+	const wxString cmd = QuoteArg(python) + " " + QuoteArg(solver) + " " + args
+		+ " --out " + QuoteArg(answer);
 
-	const ProcessResult result = RunProcess(cmd, answer,
-											(timeout_ms + 999) / 1000, NULL);
+	const ProcessResult result = RunProcess(cmd, answer, timeout_sec, NULL);
 	if (result.start_failed) {
 		wxRemoveFile(answer);
 		err = _("The engine could not be started.");
@@ -910,7 +909,7 @@ bool ProbeEngine(const wxString& engine_dir, wxString& output, wxString& err,
 		wxString message = result.output;
 		message.Trim();
 		err = wxString::Format(_("The engine did not answer within %d seconds."),
-							   (timeout_ms + 999) / 1000);
+							   timeout_sec);
 		if (!message.IsEmpty()) err += "\n\n" + message.Left(2000);
 		return false;
 	}
@@ -930,6 +929,13 @@ bool ProbeEngine(const wxString& engine_dir, wxString& output, wxString& err,
 	}
 	output = wxString::FromUTF8(text.c_str());
 	return true;
+}
+
+bool ProbeEngine(const wxString& engine_dir, wxString& output, wxString& err,
+				 int timeout_ms)
+{
+	return RunSolverCommand(engine_dir, "--engine-info", output, err,
+							(timeout_ms + 999) / 1000);
 }
 
 int RunJob(const wxString& engine_dir, const wxString& job_dir, wxString& output,
