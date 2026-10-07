@@ -383,6 +383,32 @@ namespace
 void RegisterCommands(McpTools& tools)
 {
     // =====================================================================
+    // file
+    // =====================================================================
+    // Opening creates the table and map frames, so this is a main-thread tool
+    // (run_on_worker == false) like the window tools.
+    Add(tools, "file/open", "Open Data", "File",
+        "Open a data set or a .gda project file from the local disk in the "
+        "running GeoDa, replacing nothing: any project already open must be "
+        "closed with file/close first. Reads the formats GeoDa reads "
+        "(shapefile, GeoJSON, GeoPackage, KML, CSV, ...); a format without "
+        "geometry opens as a table-only project.",
+        Schema(std::vector<json_spirit::Pair>{
+                   P("path", StrProp("Absolute path to the data set or .gda "
+                                     "project file"))},
+               {"path"}),
+        false, McpFileOpen);
+
+    Add(tools, "file/close", "Close Project", "File",
+        "Close the open project and its windows. Refuses when the project has "
+        "unsaved changes unless force is true, since nothing here can save "
+        "them (file/save is a GUI action).",
+        Schema(std::vector<json_spirit::Pair>{
+                   P("force", Def(BoolProp("Discard unsaved changes"), false))},
+               {}),
+        false, McpFileClose);
+
+    // =====================================================================
     // project
     // =====================================================================
     Add(tools, "project/status", "Project Status", "Project",
@@ -1098,20 +1124,12 @@ void RegisterCommands(McpTools& tools)
     // =====================================================================
     // File / Table / Tools / Time / Help menu actions (require the GUI)
     // =====================================================================
-    Add(tools, "file/open", "Open Data", "File",
-        "Open a data set. Requires the GeoDa GUI.",
-        NoParams(), false, McpRequiresGui);
-
     Add(tools, "file/save", "Save Project", "File",
         "Save the current project. Requires the GeoDa GUI.",
         NoParams(), false, McpRequiresGui);
 
     Add(tools, "file/save_as", "Save Project As", "File",
         "Save the current project under a new name. Requires the GeoDa GUI.",
-        NoParams(), false, McpRequiresGui);
-
-    Add(tools, "file/close", "Close Project", "File",
-        "Close the current project. Requires the GeoDa GUI.",
         NoParams(), false, McpRequiresGui);
 
     Add(tools, "file/export", "Export Data", "File",

@@ -39,6 +39,10 @@ json_spirit::Value McpTableUnivariateStats(const McpToolContext& ctx,
                                           const json_spirit::Object& params);
 
 // file
+json_spirit::Value McpFileOpen(const McpToolContext& ctx,
+                               const json_spirit::Object& params);
+json_spirit::Value McpFileClose(const McpToolContext& ctx,
+                                const json_spirit::Object& params);
 json_spirit::Value McpFileExport(const McpToolContext& ctx,
                                  const json_spirit::Object& params);
 json_spirit::Value McpTableExport(const McpToolContext& ctx,

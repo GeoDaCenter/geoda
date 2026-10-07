@@ -96,6 +96,12 @@ public:
 	void OnQuit(wxCommandEvent& WXUNUSED(event));
 	
 	void NewProjectFromFile(const wxString& full_file_path);
+    // Open a data source or .gda project file with no UI at all: nothing is
+    // shown, and a failure comes back through `error` instead of a message
+    // box, so callers that cannot put a dialog on screen (the MCP file/open
+    // tool) can report it. Returns false when no project was opened. Must run
+    // on the main thread: it creates the table and map frames.
+    bool OpenProjectNoUI(const wxString& full_file_path, wxString& error);
 	void OnNewProject(wxCommandEvent& event);
     void ShowOpenDatasourceDlg(wxPoint pos, bool init=false);
 	void OpenProject(const wxString& full_proj_path);
