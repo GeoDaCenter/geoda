@@ -182,6 +182,34 @@ void RegressionDlg::OnReportClose(wxWindowDestroyEvent& event)
     regReportDlg = 0;
 }
 
+namespace {
+
+/**
+ * The sizer that manages a wxStaticBox.
+ *
+ * XRC creates the box as a child of the dialog and the wxStaticBoxSizer as an
+ * item of the dialog's sizer, with the box as its containing window - so
+ * box->GetSizer() is null and the sizer has to be found by walking the dialog's
+ * sizer tree for the one whose static box this window is.
+ */
+wxSizer* FindSizerOfStaticBox(wxSizer* sizer, wxWindow* box)
+{
+	if (!sizer || !box) return NULL;
+	if (wxStaticBoxSizer* sb = wxDynamicCast(sizer, wxStaticBoxSizer)) {
+		if (sb->GetStaticBox() == box) return sb;
+	}
+	for (size_t i = 0; i < sizer->GetItemCount(); ++i) {
+		wxSizer* child = sizer->GetItem(i) ? sizer->GetItem(i)->GetSizer() : NULL;
+		if (child) {
+			wxSizer* found = FindSizerOfStaticBox(child, box);
+			if (found) return found;
+		}
+	}
+	return NULL;
+}
+
+} // namespace
+
 bool RegressionDlg::Create(wxWindow* parent, wxWindowID id,
 							const wxString& caption, const wxPoint& pos,
 							const wxSize& size, long style )
@@ -251,7 +279,10 @@ void RegressionDlg::CreateControls()
 	m_spreg_status = NULL;
 	if (m_radio1 && m_radio1->GetParent()) {
 		wxWindow* models_box = m_radio1->GetParent();
-		wxSizer* box_sizer = models_box->GetSizer();
+		// the box has no sizer of its own when the dialog came from XRC; the
+		// StaticBoxSizer sits in the dialog's sizer tree instead
+		wxSizer* box_sizer = models_box ? models_box->GetSizer() : NULL;
+		if (!box_sizer) box_sizer = FindSizerOfStaticBox(GetSizer(), models_box);
 		m_install_spreg_btn = new wxButton(models_box, wxID_ANY, _("Install Spreg"));
 		m_spreg_status = new wxStaticText(models_box, wxID_ANY, wxEmptyString);
 		wxBoxSizer* row = new wxBoxSizer(wxHORIZONTAL);
@@ -263,6 +294,7 @@ void RegressionDlg::CreateControls()
 		m_install_spreg_btn->Bind(wxEVT_BUTTON, &RegressionDlg::OnInstallSpregClick, this);
 		RefreshSpregState();
 	}
+
 }
 
 void RegressionDlg::RefreshSpregState()
