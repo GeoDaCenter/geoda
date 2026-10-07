@@ -357,6 +357,11 @@ Decisions worth knowing:
   residuals and (where the model reports them) prediction errors, as
   `SPR_PREDIC`, `SPR_RESIDU` and `SPR_PRDERR` - `SPR_` because a shapefile field
   name is ten characters.
+* One build-system wrinkle, for whoever works on the solver: the CMake build
+  copies `solver/` into the application only after the application itself
+  relinks, so an edit to the Python alone does not reach the running
+  application - touch a source file or copy the directory by hand.  The make
+  based release builds always copy.
 * Installing is the only thing the dialog does.  There is no uninstall and no
   install-from-file in the interface: those are administrator jobs, and the
   README describes them - delete `<user data>/GeoDa/engines/spreg-*` to remove
