@@ -179,7 +179,7 @@ bool Remove(const wxString& engine_dir, wxString& err);
  * in the same way.
  */
 bool ProbeEngine(const wxString& engine_dir, wxString& output, wxString& err,
-				 int timeout_ms = 30000);
+				 int timeout_ms = 120000);
 
 /**
  * Runs one job through the solver. job_dir must already contain job.json and

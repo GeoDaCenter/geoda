@@ -44,6 +44,8 @@
 
 #ifndef __WXMSW__
 #include <sys/stat.h>
+#include <sys/wait.h>
+#include <cerrno>
 #endif
 
 namespace {
@@ -131,15 +133,44 @@ long long AsInt(const json_spirit::Value* value, long long fallback)
 // process helpers
 // ---------------------------------------------------------------------------
 
+/**
+ * Has the child finished?  wxProcess::Exists() is not enough on unix: a child
+ * that has exited but has not been reaped is a zombie, and still exists, so an
+ * engine that fails on start would look like one that hangs.  waitpid() answers
+ * the question and reaps it.  On Windows a process that ends stops existing.
+ */
+bool ChildFinished(int pid, int* exit_code)
+{
+#ifdef __WXMSW__
+	if (wxProcess::Exists(pid)) return false;
+	*exit_code = -1;
+	return true;
+#else
+	int status = 0;
+	const pid_t got = waitpid(static_cast<pid_t>(pid), &status, WNOHANG);
+	if (got == static_cast<pid_t>(pid)) {
+		*exit_code = WIFEXITED(status) ? WEXITSTATUS(status)
+									   : -WTERMSIG(status);
+		return true;
+	}
+	if (got < 0 && errno == ECHILD) {
+		*exit_code = -1;        // wx's handler got there first
+		return true;
+	}
+	return false;
+#endif
+}
+
 struct ProcessResult {
 	bool start_failed;
 	bool finished;        // the solver wrote its answer, or the process went away
 	bool timed_out;
 	bool cancelled;
+	int exit_code;        // -1 when it was killed or reaped elsewhere
 	wxString output;
 
 	ProcessResult() : start_failed(false), finished(false), timed_out(false),
-		cancelled(false) {}
+		cancelled(false), exit_code(-1) {}
 };
 
 /**
@@ -190,10 +221,12 @@ ProcessResult RunProcess(const wxString& cmd, const wxString& wait_for_file,
 			result.finished = true;
 			break;
 		}
-		if (!wxProcess::Exists(static_cast<int>(pid))) {
-			// it stopped on its own; anything it had to say is in its output
-			// file, or in the log it keeps next to the job
+		int exit_code = -1;
+		if (ChildFinished(static_cast<int>(pid), &exit_code)) {
+			// it stopped on its own; whatever it had to say is in the file it
+			// was asked to write, or in the log next to the job
 			result.finished = true;
+			result.exit_code = exit_code;
 			break;
 		}
 
@@ -852,8 +885,11 @@ bool ProbeEngine(const wxString& engine_dir, wxString& output, wxString& err,
 	}
 	if (result.timed_out) {
 		wxRemoveFile(answer);
+		wxString message = result.output;
+		message.Trim();
 		err = wxString::Format(_("The engine did not answer within %d seconds."),
 							   (timeout_ms + 999) / 1000);
+		if (!message.IsEmpty()) err += "\n\n" + message.Left(2000);
 		return false;
 	}
 
@@ -866,7 +902,8 @@ bool ProbeEngine(const wxString& engine_dir, wxString& output, wxString& err,
 	if (text.empty()) {
 		wxString message = result.output;
 		message.Trim();
-		err = _("The engine did not run:\n\n") + message.Left(2000);
+		err = wxString::Format(_("The engine did not run (exit code %d):\n\n"),
+							   result.exit_code) + message.Left(2000);
 		return false;
 	}
 	output = wxString::FromUTF8(text.c_str());
@@ -912,8 +949,9 @@ int RunJob(const wxString& engine_dir, const wxString& job_dir, wxString& output
 	if (!wxFileName::FileExists(answer)) {
 		wxString message = output;
 		message.Trim();
-		err = _("The engine stopped without producing a result:\n\n")
-			+ message.Left(2000);
+		err = wxString::Format(
+			_("The engine stopped without producing a result (exit code %d):\n\n"),
+			result.exit_code) + message.Left(2000);
 		return -1;
 	}
 	// the solver's own verdict is in result.json; see PROTOCOL.md
