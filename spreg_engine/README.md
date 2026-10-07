@@ -348,6 +348,11 @@ Decisions worth knowing:
   cache, so the dialog opens in about fifty milliseconds and the list is there
   a moment later; measured: 49 ms to build the dialog, 78 ms to fill the list
   from the cache, against about 1.6 s when it has to ask the engine.
+* The variables some of the engine's models need are collected where they are
+  needed: choosing a model with regimes reveals a picker for the regime
+  variable, and choosing one with endogenous variables reveals the two lists for
+  them and for their instruments.  Which row appears is decided by the model
+  registry, not by a list written here.
 * *Save to Table* works for the engine's models too: predicted values,
   residuals and (where the model reports them) prediction errors, as
   `SPR_PREDIC`, `SPR_RESIDU` and `SPR_PRDERR` - `SPR_` because a shapefile field

@@ -393,13 +393,30 @@ def run_job(jobdir: str, log: Log) -> Tuple[Dict[str, Any], Dict[str, Any]]:
     module_name, _, class_name = entry["class"].partition(":")
     cls = getattr(__import__(module_name, fromlist=[class_name]), class_name)
 
+    # Tell the estimator what the variables are called, so that its own report
+    # and the names on the result rows read like GeoDa's variables rather than
+    # "var_1" and "endogenous_1".  Which of these a class accepts varies, so the
+    # signature decides.
+    import inspect
+
+    parameters = inspect.signature(cls.__init__).parameters
+    if "name_y" in parameters:
+        kwargs["name_y"] = data["y_name"]
+    if "name_x" in parameters and data["x_names"]:
+        kwargs["name_x"] = data["x_names"]
+    if "name_yend" in parameters and data.get("endogenous_names"):
+        kwargs["name_yend"] = data["endogenous_names"]
+    if "name_q" in parameters and data.get("instruments_names"):
+        kwargs["name_q"] = data["instruments_names"]
+
     log("estimating %s%s" % (entry["id"], "" if not kwargs else " with %s" % _short(kwargs)))
     started = time.time()
     with contextlib.redirect_stdout(_Chatter(log)):     # spreg prints the model name
         model = call_estimator(entry, cls, data, kwargs, log)
     log("done in %.2fs" % (time.time() - started))
 
-    ctx = {"x_names": data["x_names"], "y_name": data["y_name"], "n": data["n"]}
+    ctx = {"x_names": data["x_names"], "y_name": data["y_name"], "n": data["n"],
+           "yend_names": data.get("endogenous_names")}
     result = REG.extract_result(model, entry, ctx)
     warnings += result.setdefault("warnings", [])
     result["warnings"] = warnings

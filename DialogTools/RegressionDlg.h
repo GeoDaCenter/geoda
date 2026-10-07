@@ -122,6 +122,20 @@ public:
 	wxButton* m_install_spreg_btn;
 	wxStaticText* m_spreg_status;
 	wxChoice* m_spreg_model_choice;
+	// the extra variables some of the engine's models need, shown only when the
+	// chosen model asks for them: a regime membership column, and the endogenous
+	// variables with the instruments that identify them
+	wxChoice* m_spreg_regime_choice;
+	wxListBox* m_spreg_endog_list;
+	wxListBox* m_spreg_instr_list;
+	wxSizer* m_spreg_regime_row;
+	wxSizer* m_spreg_endog_row;
+	wxSizer* m_spreg_instr_row;
+	void FillSpregVariables(wxWindow* parent);
+	bool GatherSpregExtras(const SpregJob::ModelOption& model, wxString& err,
+						   SpregJob::Writer& writer, wxString& regimes_name,
+						   std::vector<wxString>& yend_names,
+						   std::vector<wxString>& q_names);
 	std::vector<SpregJob::ModelOption> m_spreg_models;
 	wxString m_spreg_model;            // empty: use the models above
 	bool m_spreg_installed;

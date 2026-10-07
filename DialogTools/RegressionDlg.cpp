@@ -233,6 +233,20 @@ bool RegressionDlg::Create(wxWindow* parent, wxWindowID id,
 	m_gauge_text = NULL;
 	m_white_test_cb = NULL;
 
+	// the controls the engine's models bring with them, built in CreateControls
+	m_install_spreg_btn = NULL;
+	m_spreg_status = NULL;
+	m_spreg_model_choice = NULL;
+	m_spreg_regime_choice = NULL;
+	m_spreg_endog_list = NULL;
+	m_spreg_instr_list = NULL;
+	m_spreg_regime_row = NULL;
+	m_spreg_endog_row = NULL;
+	m_spreg_instr_row = NULL;
+	m_spreg_model = wxEmptyString;
+	m_spreg_installed = false;
+	m_has_spreg_result = false;
+
     SetParent(parent);
     CreateControls();
     Centre();
@@ -279,8 +293,6 @@ void RegressionDlg::CreateControls()
 	// control there would mean regenerating rc/GdaAppResources.cpp, and a
 	// different wxrc rewrites thirteen thousand lines of it.  It goes inside
 	// the Models box, where the models it enables will live.
-	m_install_spreg_btn = NULL;
-	m_spreg_status = NULL;
 	if (m_radio1 && m_radio1->GetParent()) {
 		wxWindow* models_box = m_radio1->GetParent();
 		// the box has no sizer of its own when the dialog came from XRC; the
@@ -305,14 +317,50 @@ void RegressionDlg::CreateControls()
 		}
 		m_spreg_model_choice->Bind(wxEVT_CHOICE, &RegressionDlg::OnSpregModelSelected, this);
 
+		// The rows for the extra variables stay hidden until a model that needs
+		// them is chosen; all three draw their names from the variables list
+		// above, so the user picks from what is in the table.
+		m_spreg_regime_choice = new wxChoice(models_box, wxID_ANY);
+		m_spreg_endog_list = new wxListBox(models_box, wxID_ANY, wxDefaultPosition,
+										  wxSize(-1, 60), 0, NULL, wxLB_EXTENDED);
+		m_spreg_instr_list = new wxListBox(models_box, wxID_ANY, wxDefaultPosition,
+										  wxSize(-1, 60), 0, NULL, wxLB_EXTENDED);
+
+		m_spreg_regime_row = new wxBoxSizer(wxHORIZONTAL);
+		wxStaticText* regime_label = new wxStaticText(models_box, wxID_ANY, _("regime variable:"));
+		m_spreg_regime_row->Add(regime_label, 0, wxALIGN_CENTRE_VERTICAL | wxRIGHT, 6);
+		m_spreg_regime_row->Add(m_spreg_regime_choice, 0, wxALIGN_CENTRE_VERTICAL);
+
+		m_spreg_endog_row = new wxBoxSizer(wxHORIZONTAL);
+		wxBoxSizer* endog_col = new wxBoxSizer(wxVERTICAL);
+		endog_col->Add(new wxStaticText(models_box, wxID_ANY, _("endogenous variables:")),
+					   0, wxBOTTOM, 2);
+		wxBoxSizer* endog_lists = new wxBoxSizer(wxHORIZONTAL);
+		endog_lists->Add(m_spreg_endog_list, 1, wxRIGHT, 10);
+		endog_col->Add(endog_lists, 1, wxEXPAND);
+		m_spreg_endog_row->Add(endog_col, 1, wxEXPAND);
+		wxBoxSizer* instr_col = new wxBoxSizer(wxVERTICAL);
+		instr_col->Add(new wxStaticText(models_box, wxID_ANY, _("instruments:")),
+					   0, wxBOTTOM, 2);
+		instr_col->Add(m_spreg_instr_list, 1, wxEXPAND);
+		m_spreg_endog_row->Add(instr_col, 1, wxEXPAND);
+
+		m_spreg_instr_row = NULL;              // the two lists sit on one row
+
+		if (box_sizer) {
+			box_sizer->Add(m_spreg_regime_row, 0, wxTOP | wxALIGN_LEFT, 6);
+			box_sizer->Add(m_spreg_endog_row, 0, wxTOP | wxEXPAND, 6);
+			box_sizer->Show(m_spreg_regime_row, false);
+			box_sizer->Show(m_spreg_endog_row, false);
+		}
+
 		m_install_spreg_btn->Bind(wxEVT_BUTTON, &RegressionDlg::OnInstallSpregClick, this);
 		RefreshSpregState();
 	}
 
 
-	m_spreg_model = wxEmptyString;
-	m_spreg_installed = false;
-	m_has_spreg_result = false;
+
+
 
 }
 
@@ -376,10 +424,15 @@ void RegressionDlg::OnInstallSpregClick(wxCommandEvent& WXUNUSED(event))
 void RegressionDlg::EnableNativeModels(bool enable)
 {
 	// with a spreg model chosen the three radio buttons above no longer decide
-	// anything, so they are greyed rather than left to mislead
-	if (m_radio1) m_radio1->Enable(enable);
-	if (m_radio2) m_radio2->Enable(enable);
-	if (m_radio3) m_radio3->Enable(enable);
+	// anything, so they are greyed rather than left to mislead; when they come
+	// back, the dialog's own rules say which of them are usable
+	if (enable) {
+		EnablingItems();
+		return;
+	}
+	if (m_radio1) m_radio1->Enable(false);
+	if (m_radio2) m_radio2->Enable(false);
+	if (m_radio3) m_radio3->Enable(false);
 }
 
 void RegressionDlg::FillSpregModels(const wxString& engine_dir)
@@ -400,16 +453,14 @@ void RegressionDlg::FillSpregModels(const wxString& engine_dir)
 		return;
 	}
 
-	// Only the models this dialog can feed today are offered.  The ones that
-	// need a regime variable, endogenous variables and instruments, or
-	// coordinates, appear as soon as the controls that collect them exist;
-	// SKATER is left out because it returns regions rather than a regression.
+	// Everything the dialog can collect is offered: the models that want a
+	// regime variable, or endogenous variables with instruments, ask for them
+	// when they are chosen.  The coordinate based model is left out for now
+	// (there is no coordinate picker yet), and SKATER because it returns regions
+	// rather than a regression.
 	for (size_t i = 0; i < offered.size(); ++i) {
 		const SpregJob::ModelOption& model = offered[i];
-		if (model.needs_regimes || model.needs_endog || model.needs_instruments
-			|| model.needs_coords) {
-			continue;
-		}
+		if (model.needs_coords) continue;
 		if (model.family == "skater") continue;
 		m_spreg_models.push_back(model);
 		m_spreg_model_choice->Append(model.label + "  (" + model.id + ")");
@@ -420,6 +471,27 @@ void RegressionDlg::FillSpregModels(const wxString& engine_dir)
 	}
 	m_spreg_model_choice->SetSelection(0);
 	m_spreg_model_choice->Enable(!m_spreg_models.empty());
+}
+
+void RegressionDlg::FillSpregVariables(wxWindow* parent)
+{
+	// the names come from the variables list the dialog already has, so the user
+	// chooses from what is in the table
+	if (m_spreg_regime_choice) {
+		m_spreg_regime_choice->Clear();
+		for (unsigned i = 0; i < m_varlist->GetCount(); ++i) {
+			m_spreg_regime_choice->Append(m_varlist->GetString(i));
+		}
+	}
+	if (m_spreg_endog_list) {
+		m_spreg_endog_list->Clear();
+		m_spreg_instr_list->Clear();
+		for (unsigned i = 0; i < m_varlist->GetCount(); ++i) {
+			m_spreg_endog_list->Append(m_varlist->GetString(i));
+			m_spreg_instr_list->Append(m_varlist->GetString(i));
+		}
+	}
+	(void) parent;
 }
 
 void RegressionDlg::OnSpregModelSelected(wxCommandEvent& WXUNUSED(event))
@@ -440,6 +512,24 @@ void RegressionDlg::OnSpregModelSelected(wxCommandEvent& WXUNUSED(event))
 			m_spreg_status->SetLabel(wxString::Format(_("%s, estimated by spreg"),
 													  model.label));
 		}
+	}
+
+	// the variables this model needs, and only those
+	const bool want_regime = selection > 0
+		&& m_spreg_models[selection - 1].needs_regimes;
+	const bool want_endog = selection > 0
+		&& (m_spreg_models[selection - 1].needs_endog
+			|| m_spreg_models[selection - 1].needs_instruments);
+	wxSizer* box_sizer = m_spreg_model_choice
+		? m_spreg_model_choice->GetParent()->GetSizer() : NULL;
+	if (!box_sizer && m_spreg_model_choice) {
+		box_sizer = FindSizerOfStaticBox(GetSizer(), m_spreg_model_choice->GetParent());
+	}
+	if (box_sizer && m_spreg_regime_row) {
+		box_sizer->Show(m_spreg_regime_row, want_regime);
+	}
+	if (box_sizer && m_spreg_endog_row) {
+		box_sizer->Show(m_spreg_endog_row, want_endog);
 	}
 	Layout();
 }
@@ -592,6 +682,83 @@ bool RegressionDlg::RunSpregModel(wxCommandEvent& WXUNUSED(event))
 	undefs.assign(m_obs, false);
 	for (long i = 0; i < m_obs; ++i) undefs[i] = undefs_local[i];
 
+	// what this model needs beyond the covariates
+	const SpregJob::ModelOption* chosen = NULL;
+	for (size_t i = 0; i < m_spreg_models.size(); ++i) {
+		if (m_spreg_models[i].id == m_spreg_model) chosen = &m_spreg_models[i];
+	}
+	wxString regimes_name;
+	std::vector<wxString> yend_names, q_names;
+	std::vector<std::vector<double> > yend, q;
+	std::vector<int> regimes;
+	if (chosen) {
+		std::vector<double> values;
+		if (chosen->needs_regimes) {
+			const wxString display = m_spreg_regime_choice
+				? m_spreg_regime_choice->GetStringSelection() : wxString();
+			if (display.IsEmpty()) {
+				UpdateMessageBox("");
+				m_gauge->Hide();
+				wxMessageBox(_("This model estimates a different set of coefficients per "
+							   "regime.  Please choose the variable that says which regime "
+							   "each observation belongs to."), _("Error"),
+							 wxOK | wxICON_ERROR, this);
+				return true;
+			}
+			const int col = table_int->FindColId(name_to_nm[display]);
+			table_int->GetColData(col, name_to_tm_id[display], values);
+			regimes.reserve(n_valid);
+			for (int i = 0; i < n_valid; ++i) {
+				regimes.push_back(static_cast<int>(std::floor(values[valid_rows[i]] + 0.5)));
+			}
+			regimes_name = name_to_nm[display];
+		}
+		if (chosen->needs_endog) {
+			wxArrayInt picked;
+			m_spreg_endog_list->GetSelections(picked);
+			if (picked.IsEmpty()) {
+				UpdateMessageBox("");
+				m_gauge->Hide();
+				wxMessageBox(_("This model needs at least one endogenous variable - one that "
+							   "is explained inside the model rather than given."),
+							 _("Error"), wxOK | wxICON_ERROR, this);
+				return true;
+			}
+			for (size_t i = 0; i < picked.GetCount(); ++i) {
+				const wxString& display = m_spreg_endog_list->GetString(picked[i]);
+				yend_names.push_back(name_to_nm[display]);
+				table_int->GetColData(table_int->FindColId(name_to_nm[display]),
+									  name_to_tm_id[display], values);
+				std::vector<double> column;
+				column.reserve(n_valid);
+				for (int r = 0; r < n_valid; ++r) column.push_back(values[valid_rows[r]]);
+				yend.push_back(column);
+			}
+		}
+		if (chosen->needs_instruments) {
+			wxArrayInt picked;
+			m_spreg_instr_list->GetSelections(picked);
+			if (picked.IsEmpty()) {
+				UpdateMessageBox("");
+				m_gauge->Hide();
+				wxMessageBox(_("This model needs at least one instrument: a variable that "
+							   "predicts the endogenous one but has no direct effect."),
+							 _("Error"), wxOK | wxICON_ERROR, this);
+				return true;
+			}
+			for (size_t i = 0; i < picked.GetCount(); ++i) {
+				const wxString& display = m_spreg_instr_list->GetString(picked[i]);
+				q_names.push_back(name_to_nm[display]);
+				table_int->GetColData(table_int->FindColId(name_to_nm[display]),
+									  name_to_tm_id[display], values);
+				std::vector<double> column;
+				column.reserve(n_valid);
+				for (int r = 0; r < n_valid; ++r) column.push_back(values[valid_rows[r]]);
+				q.push_back(column);
+			}
+		}
+	}
+
 	SpregJob::Writer writer(job_dir);
 	bool ok = writer.AddY(y, err);
 	if (ok) ok = writer.AddX(x, err);
@@ -631,10 +798,13 @@ bool RegressionDlg::RunSpregModel(wxCommandEvent& WXUNUSED(event))
 	// only one that survives a large data set
 	if (options.find("method") != options.end()) options["method"] = "LU";
 
+	if (ok && !regimes.empty()) ok = writer.AddRegimes(regimes, err);
+	if (ok && !yend.empty()) ok = writer.AddEndogenous(yend, err);
+	if (ok && !q.empty()) ok = writer.AddInstruments(q, err);
 	if (ok) {
 		ok = writer.Write(m_spreg_model, options, name_to_nm[y_display], x_names,
-						  w_man_int->GetLongDispName(weights_id), wxEmptyString,
-						  std::vector<wxString>(), std::vector<wxString>(), err);
+						  w_man_int->GetLongDispName(weights_id), regimes_name,
+						  yend_names, q_names, err);
 	}
 	if (!ok) {
 		UpdateMessageBox("");
@@ -714,15 +884,20 @@ void RegressionDlg::ShowSpregResults(const SpregJob::Result& result,
 		if (r2 != result.fit.end()) {
 			text << wxString::Format("R-squared           :%12.6f\n", r2->second);
 		}
+		// only what the model actually reports: the GMM models have no likelihood
 		if (sigma != result.fit.end()) {
-			text << wxString::Format("Sigma-square        :%12.6g  %s%12.6g\n",
-									 sigma->second, "Akaike info criterion :",
-									 aic != result.fit.end() ? aic->second : 0.0);
+			text << wxString::Format("Sigma-square        :%12.6g", sigma->second);
+			if (aic != result.fit.end()) {
+				text << wxString::Format("  Akaike info criterion :%12.6g", aic->second);
+			}
+			text << "\n";
 		}
 		if (logll != result.fit.end()) {
-			text << wxString::Format("Log likelihood      :%12.6g  %s%12.6g\n",
-									 logll->second, "Schwarz criterion     :",
-									 schwarz != result.fit.end() ? schwarz->second : 0.0);
+			text << wxString::Format("Log likelihood      :%12.6g", logll->second);
+			if (schwarz != result.fit.end()) {
+				text << wxString::Format("  Schwarz criterion     :%12.6g", schwarz->second);
+			}
+			text << "\n";
 		}
 	}
 
@@ -1768,6 +1943,8 @@ void RegressionDlg::InitVariableList()
 	m_varlist->SetSelection(0);
 	m_varlist->SetFirstItem(m_varlist->GetSelection());
 	EnablingItems();
+	// the engine's variable pickers draw from the list that was just built
+	FillSpregVariables(NULL);
 }
 
 void RegressionDlg::EnablingItems()

@@ -31,7 +31,6 @@ from typing import Any, Dict, List, Optional, Tuple
 
 # spreg's internal coefficient names: var_<i>, W_var_<i>, W_dep_var, lambda,
 # optionally prefixed by a regime id ("0_var_1") or by "_Global_".
-NAME_RE = re.compile(r"^(?P<prefix>(?:[^_]*_)*?)(?P<core>var_\d+|W_var_\d+|W_dep_var|lambda)$")
 
 # --------------------------------------------------------------------------
 # option specs
@@ -469,30 +468,54 @@ FIT_FIELDS = [
 ]
 
 
-def _rewrite_name(raw: str, x_names: List[str], y_name: str) -> Tuple[str, str]:
-    """Map spreg's internal names onto the user's names, and say what the row is.
+def _split_regime_prefix(raw: str) -> Tuple[str, str]:
+    """Separate the regime a coefficient belongs to from the coefficient.
 
-    Handles the regimes prefixes too, so ``0_var_1`` becomes ``0_INC`` and
-    ``_Global_W_dep_var`` becomes ``_Global_W_HOVAL``.
+    ``0_INC`` -> ``("0_", "INC")``; ``_Global_W_HOVAL`` -> ``("_Global_",
+    "W_HOVAL")``, spreg's mark for a coefficient shared by every regime.
     """
-    match = NAME_RE.match(raw)
-    if not match:
-        return raw, "exog"
-    prefix, core = match.group("prefix") or "", match.group("core")
+    if raw.startswith("_Global_"):
+        return "_Global_", raw[len("_Global_"):]
+    match = re.match(r"^(\d+_)(.+)$", raw)
+    if match:
+        return match.group(1), match.group(2)
+    return "", raw
 
-    if core == "W_dep_var":
-        return prefix + ("W_" + y_name if y_name else core), "lag"
-    if core == "lambda":
-        return prefix + "lambda", "error"
-    if core.startswith("W_var_"):
+
+def _rewrite_name(raw: str, x_names: List[str], y_name: str,
+                  yend_names: Optional[List[str]] = None) -> Tuple[str, str]:
+    """Map spreg's names onto the user's, and say what each row is.
+
+    Two sets of names come out of spreg depending on whether it was told what
+    the variables are called: ``var_1`` / ``W_dep_var`` / ``endogenous_1`` when
+    it was not, and the user's own names - ``INC``, ``W_HOVAL``, ``CRIME`` -
+    when it was, which is what our solver asks for.  Both are recognised here,
+    and the regime prefix is carried through untouched.
+    """
+    prefix, core = _split_regime_prefix(raw)
+    name = core
+    role = "exog"
+
+    lag_names = {"W_dep_var", "W_" + y_name} if y_name else {"W_dep_var"}
+    if core in lag_names:
+        name = "W_" + y_name if y_name else core
+        role = "lag"
+    elif core == "lambda":
+        role = "error"
+    elif yend_names and core in yend_names:
+        role = "endog"                       # an instrumented regressor
+    elif core.startswith("W_var_"):
+        role = "slx"
         idx = _index(core[len("W_var_"):])
         if idx and 1 <= idx <= len(x_names):
-            return prefix + "W_" + x_names[idx - 1], "slx"
-        return raw, "slx"
-    idx = _index(core[len("var_"):])
-    if idx and 1 <= idx <= len(x_names):
-        return prefix + x_names[idx - 1], "exog"
-    return raw, "exog"
+            name = "W_" + x_names[idx - 1]
+    elif core.startswith("W_") and core[len("W_"):] in x_names:
+        role = "slx"                         # the spatial lag of a covariate
+    elif core.startswith("var_"):
+        idx = _index(core[len("var_"):])
+        if idx and 1 <= idx <= len(x_names):
+            name = x_names[idx - 1]
+    return prefix + name, role
 
 
 def _index(text: str) -> Optional[int]:
@@ -502,14 +525,16 @@ def _index(text: str) -> Optional[int]:
         return None
 
 
-def extract_coefficients(model_obj: Any, x_names: List[str], y_name: str
+def extract_coefficients(model_obj: Any, x_names: List[str], y_name: str,
+                         yend_names: Optional[List[str]] = None
                          ) -> Tuple[Dict[str, Any], List[str]]:
     """The coefficient table, from spreg's uniform ``output`` DataFrame."""
     warnings: List[str] = []
     table = getattr(model_obj, "output", None)
     if table is not None and hasattr(table, "to_dict"):
         cols = {c: table[c].tolist() for c in table.columns}
-        pairs = [_rewrite_name(str(v), x_names, y_name) for v in cols["var_names"]]
+        pairs = [_rewrite_name(str(v), x_names, y_name, yend_names)
+                 for v in cols["var_names"]]
         return {
             "names": [p[0] for p in pairs],
             "roles": [p[1] for p in pairs],
@@ -525,7 +550,7 @@ def extract_coefficients(model_obj: Any, x_names: List[str], y_name: str
         raise RuntimeError("the estimator returned no coefficient table")
     warnings.append("coefficient table rebuilt from `betas`: standard errors unavailable")
     raw_names = [str(n) for n in (getattr(model_obj, "name_x", []) or [])]
-    pairs = [_rewrite_name(n, x_names, y_name) for n in raw_names]
+    pairs = [_rewrite_name(n, x_names, y_name, yend_names) for n in raw_names]
     names = [p[0] for p in pairs]
     roles = [p[1] for p in pairs]
     while len(names) < len(betas):
@@ -577,7 +602,8 @@ def extract_result(model_obj: Any, entry: Dict[str, Any], ctx: Dict[str, Any]) -
         body["warnings"] = warnings
         return body
 
-    coefficients, warnings = extract_coefficients(model_obj, x_names, y_name)
+    coefficients, warnings = extract_coefficients(model_obj, x_names, y_name,
+                                                  ctx.get("yend_names"))
     diagnostics, dwarn = collect_diagnostics(model_obj)
     warnings += dwarn
 
