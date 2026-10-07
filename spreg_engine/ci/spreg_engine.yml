@@ -1,0 +1,131 @@
+# Build the downloadable spreg engine for every platform GeoDa ships on.
+#
+# This file belongs in .github/workflows/ once adopted; it is kept inside
+# spreg_engine/ here so that it does not run in the main repository before the
+# feature exists.
+#
+# One job per platform, each producing one zip.  The jobs are independent and
+# the artifacts are only useful together, so a release is published when all of
+# them are green: bump the versions in spreg_engine/solver/requirements.lock,
+# tag `spreg-engine-v<N>`, and the workflow attaches the zips to that release
+# and prints the manifest entries to paste into manifest/engines.json.
+
+name: spreg engine
+
+on:
+  workflow_dispatch:
+    inputs:
+      publish:
+        description: "attach the artifacts to the spreg-engine-v1 release"
+        type: boolean
+        default: false
+  push:
+    tags: ["spreg-engine-v*"]
+  pull_request:
+    paths:
+      - "spreg_engine/**"
+      - ".github/workflows/spreg_engine.yml"
+
+defaults:
+  run:
+    working-directory: spreg_engine
+
+jobs:
+  build:
+    name: ${{ matrix.platform }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: macos-14          # arm64
+            platform: macos-arm64
+          - os: macos-13          # intel
+            platform: macos-x86_64
+          - os: windows-2022
+            platform: windows-x86_64
+          - os: ubuntu-22.04
+            platform: linux-x86_64
+    steps:
+      - uses: actions/checkout@v4
+
+      # uv fetches and lays out python-build-standalone for us
+      - uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+
+      - name: Build the engine archive
+        run: |
+          python tools/build_engine.py \
+            --outdir dist \
+            --platform ${{ matrix.platform }} \
+            --manifest-entry dist/manifest-entry.json
+
+      - name: Unpack the archive the way GeoDa will
+        shell: bash
+        run: |
+          mkdir -p "$RUNNER_TEMP/engine"
+          if command -v unzip >/dev/null; then
+            unzip -q dist/*.zip -d "$RUNNER_TEMP/engine"
+          else
+            powershell -Command "Expand-Archive -Path (Get-Item dist/*.zip) -DestinationPath '$RUNNER_TEMP/engine'"
+          fi
+          test -f "$RUNNER_TEMP/engine/engine.json"
+          cat "$RUNNER_TEMP/engine/engine.json"
+
+      # Every check below runs on the *unpacked artifact*, with the interpreter
+      # the artifact contains, and the solver the application ships.  If this
+      # passes, the download GeoDa hands to users is known to work.
+      - name: Pick the engine interpreter
+        shell: bash
+        run: |
+          if [ -x "$RUNNER_TEMP/engine/python/bin/python3" ]; then
+            echo "ENGINE_PY=$RUNNER_TEMP/engine/python/bin/python3" >> "$GITHUB_ENV"
+          else
+            echo "ENGINE_PY=$RUNNER_TEMP/engine/python/python.exe" >> "$GITHUB_ENV"
+          fi
+
+      - name: Protocol selftest on the unpacked engine
+        run: '"$ENGINE_PY" solver/solve.py --selftest'
+        shell: bash
+
+      - name: Run every registered model on the unpacked engine
+        run: '"$ENGINE_PY" tools/check_models.py --json dist/models.json'
+        shell: bash
+
+      - name: A real estimation on real data
+        run: |
+          "$ENGINE_PY" tools/make_demo_job.py --outdir "$RUNNER_TEMP/demo" --model ML_Lag --run
+        shell: bash
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: geoda-spreg-${{ matrix.platform }}
+          path: |
+            spreg_engine/dist/*.zip
+            spreg_engine/dist/manifest-entry.json
+            spreg_engine/dist/models.json
+
+  release:
+    needs: build
+    if: startsWith(github.ref, 'refs/tags/spreg-engine-v')
+    runs-on: ubuntu-22.04
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: geoda-spreg-*
+          merge-multiple: true
+          path: artifacts
+      - name: Attach the archives to the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release view "$GITHUB_REF_NAME" >/dev/null 2>&1 || \
+            gh release create "$GITHUB_REF_NAME" --title "$GITHUB_REF_NAME" \
+              --notes "spreg engine archives; see spreg_engine/manifest/engines.json"
+          gh release upload "$GITHUB_REF_NAME" artifacts/*.zip --clobber
+      - name: Manifest entries to paste
+        run: cat artifacts/manifest-entry.json
