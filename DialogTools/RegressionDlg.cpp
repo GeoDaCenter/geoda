@@ -25,7 +25,9 @@
 #include <wx/txtstrm.h>
 #include <wx/wfstream.h>
 #include <wx/xrc/xmlres.h> // XRC XML resouces
+#include <cmath>
 #include <wx/stdpaths.h>
+#include <wx/utils.h>
 #include <wx/filedlg.h>
 #include <wx/textdlg.h>
 

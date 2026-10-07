@@ -397,8 +397,12 @@ bool Writer::Write(const wxString& model,
 			shape.push_back(arrays_[i].rows);
 			shape.push_back(arrays_[i].cols);
 			entry.push_back(json_spirit::Pair("shape", shape));
-			entry.push_back(json_spirit::Pair("offset", arrays_[i].offset));
-			entry.push_back(json_spirit::Pair("nbytes", arrays_[i].nbytes));
+			// boost::int64_t is json_spirit's own 64 bit type; a bare long long
+			// is ambiguous between its int and its int64 constructors on gcc
+			entry.push_back(json_spirit::Pair("offset",
+											  static_cast<boost::int64_t>(arrays_[i].offset)));
+			entry.push_back(json_spirit::Pair("nbytes",
+											  static_cast<boost::int64_t>(arrays_[i].nbytes)));
 			arrays.push_back(json_spirit::Pair(ToUtf8(arrays_[i].name), entry));
 		}
 		root.push_back(json_spirit::Pair("arrays", arrays));
