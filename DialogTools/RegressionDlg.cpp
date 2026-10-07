@@ -26,6 +26,7 @@
 #include <wx/wfstream.h>
 #include <wx/xrc/xmlres.h> // XRC XML resouces
 #include <cmath>
+#include <wx/spinctrl.h>
 #include <wx/stdpaths.h>
 #include <wx/utils.h>
 #include <wx/filedlg.h>
@@ -243,6 +244,8 @@ bool RegressionDlg::Create(wxWindow* parent, wxWindowID id,
 	m_spreg_regime_row = NULL;
 	m_spreg_endog_row = NULL;
 	m_spreg_instr_row = NULL;
+	m_spreg_options_row = NULL;
+	m_spreg_options_grid = NULL;
 	m_spreg_model = wxEmptyString;
 	m_spreg_installed = false;
 	m_has_spreg_result = false;
@@ -347,16 +350,22 @@ void RegressionDlg::CreateControls()
 
 		m_spreg_instr_row = NULL;              // the two lists sit on one row
 
+		m_spreg_options_grid = new wxFlexGridSizer(2, 6, 10);   // label over control
+		m_spreg_options_row = m_spreg_options_grid;
+
 		if (box_sizer) {
 			box_sizer->Add(m_spreg_regime_row, 0, wxTOP | wxALIGN_LEFT, 6);
 			box_sizer->Add(m_spreg_endog_row, 0, wxTOP | wxEXPAND, 6);
+			box_sizer->Add(m_spreg_options_row, 0, wxTOP | wxALIGN_LEFT, 6);
 			box_sizer->Show(m_spreg_regime_row, false);
 			box_sizer->Show(m_spreg_endog_row, false);
+			box_sizer->Show(m_spreg_options_row, false);
 		}
 
 		m_install_spreg_btn->Bind(wxEVT_BUTTON, &RegressionDlg::OnInstallSpregClick, this);
 		RefreshSpregState();
 	}
+
 
 
 
@@ -381,6 +390,7 @@ void RegressionDlg::RefreshSpregState()
 	m_spreg_installed = status.installed;
 	if (status.installed) {
 		m_spreg_status->SetLabel(wxString::Format(_("spreg %s ready"), status.version));
+		m_spreg_status->Wrap(300);
 		m_install_spreg_btn->Hide();
 		// The model list costs a Python start, so it is fetched once the dialog
 		// is up rather than while it is being built - otherwise opening the
@@ -398,6 +408,7 @@ void RegressionDlg::RefreshSpregState()
 		m_spreg_status->SetLabel(have_manifest
 			? _("Regimes, spatial Durbin, GMM/IV and probit models need this")
 			: _("The advanced models are not available in this build"));
+		m_spreg_status->Wrap(300);
 		m_install_spreg_btn->Show();
 		m_install_spreg_btn->Enable(have_manifest);
 		if (m_spreg_model_choice) {
@@ -463,7 +474,11 @@ void RegressionDlg::FillSpregModels(const wxString& engine_dir)
 		if (model.needs_coords) continue;
 		if (model.family == "skater") continue;
 		m_spreg_models.push_back(model);
-		m_spreg_model_choice->Append(model.label + "  (" + model.id + ")");
+		// The longest labels are long enough to stretch the whole dialog, and the
+		// full text is on the tooltip and on the status line once it is chosen.
+		wxString entry = model.label;
+		if (entry.length() > 40) entry = entry.Left(37) + "...";
+		m_spreg_model_choice->Append(entry);
 	}
 
 	if (m_spreg_models.empty()) {
@@ -471,6 +486,93 @@ void RegressionDlg::FillSpregModels(const wxString& engine_dir)
 	}
 	m_spreg_model_choice->SetSelection(0);
 	m_spreg_model_choice->Enable(!m_spreg_models.empty());
+}
+
+void RegressionDlg::FillSpregOptions(wxWindow* parent,
+									  const SpregJob::ModelOption& model)
+{
+	if (!m_spreg_options_grid) return;
+
+	m_spreg_options_grid->Clear(true);       // deletes the controls it holds
+	m_spreg_option_names.clear();
+	m_spreg_option_ctrls.clear();
+
+	// One control per option, of the type the registry declares: a checkbox for
+	// a switch, a list for a choice whose values are known, a spin control for a
+	// bounded number, a text field otherwise.  The help text rides along as a
+	// tooltip, so the dialog explains itself.
+	for (std::map<wxString, SpregJob::OptionSpec>::const_iterator it =
+			 model.options.begin(); it != model.options.end(); ++it) {
+		const SpregJob::OptionSpec& spec = it->second;
+		wxStaticText* label = new wxStaticText(parent, wxID_ANY, spec.name + ":");
+		wxWindow* control = NULL;
+
+		if (spec.type == "bool") {
+			wxCheckBox* box = new wxCheckBox(parent, wxID_ANY, wxEmptyString);
+			box->SetValue(spec.default_value == "true");
+			control = box;
+		} else if (spec.type == "enum" && !spec.values.empty()) {
+			wxChoice* choice = new wxChoice(parent, wxID_ANY);
+			for (size_t i = 0; i < spec.values.size(); ++i) {
+				choice->Append(spec.values[i]);
+			}
+			int selection = choice->FindString(spec.default_value);
+			choice->SetSelection(selection == wxNOT_FOUND ? 0 : selection);
+			control = choice;
+		} else if (spec.type == "int" && spec.has_range) {
+			wxSpinCtrl* spin = new wxSpinCtrl(parent, wxID_ANY, wxEmptyString,
+											  wxDefaultPosition, wxSize(90, -1),
+											  wxSP_ARROW_KEYS,
+											  static_cast<int>(spec.min_value),
+											  static_cast<int>(spec.max_value),
+											  wxAtoi(spec.default_value));
+			control = spin;
+		} else {
+			wxTextCtrl* text = new wxTextCtrl(parent, wxID_ANY, spec.default_value,
+											  wxDefaultPosition, wxSize(110, -1));
+			control = text;
+		}
+		if (!spec.help.IsEmpty()) control->SetToolTip(spec.help);
+		if (!spec.help.IsEmpty()) label->SetToolTip(spec.help);
+
+		m_spreg_option_names.push_back(it->first);
+		m_spreg_option_ctrls.push_back(control);
+		m_spreg_options_grid->Add(label, 0, wxALIGN_CENTRE_VERTICAL);
+		m_spreg_options_grid->Add(control, 0, wxALIGN_CENTRE_VERTICAL);
+	}
+}
+
+std::map<wxString, wxString> RegressionDlg::ReadSpregOptions(bool& ok, wxString& err)
+{
+	std::map<wxString, wxString> options;
+	ok = true;
+	for (size_t i = 0; i < m_spreg_option_ctrls.size(); ++i) {
+		const wxString& name = m_spreg_option_names[i];
+		wxWindow* control = m_spreg_option_ctrls[i];
+		wxString value;
+		if (wxCheckBox* box = wxDynamicCast(control, wxCheckBox)) {
+			value = box->GetValue() ? "true" : "false";
+		} else if (wxChoice* choice = wxDynamicCast(control, wxChoice)) {
+			value = choice->GetStringSelection();
+		} else if (wxSpinCtrl* spin = wxDynamicCast(control, wxSpinCtrl)) {
+			value << spin->GetValue();
+		} else if (wxTextCtrl* text = wxDynamicCast(control, wxTextCtrl)) {
+			value = text->GetValue();
+			value.Trim(true);
+			value.Trim(false);
+			// the registry's text options are numbers or one of a few keywords
+			// ("all", "none"); anything else would reach the solver as a refusal,
+			// which is later than it needs to be
+			double number = 0;
+			if (!value.IsEmpty() && !value.ToCDouble(&number) && value != "all"
+				&& value != "none" && value != "all ") {
+				err = wxString::Format(_("%s must be a number."), name);
+				ok = false;
+			}
+		}
+		options[name] = value;
+	}
+	return options;
 }
 
 void RegressionDlg::FillSpregVariables(wxWindow* parent)
@@ -503,6 +605,7 @@ void RegressionDlg::OnSpregModelSelected(wxCommandEvent& WXUNUSED(event))
 		if (m_spreg_status) {
 			m_spreg_status->SetLabel(m_spreg_installed
 				? wxString(_("the models above are GeoDa's own")) : wxString());
+			m_spreg_status->Wrap(300);
 		}
 	} else {
 		const SpregJob::ModelOption& model = m_spreg_models[selection - 1];
@@ -511,10 +614,17 @@ void RegressionDlg::OnSpregModelSelected(wxCommandEvent& WXUNUSED(event))
 		if (m_spreg_status) {
 			m_spreg_status->SetLabel(wxString::Format(_("%s, estimated by spreg"),
 													  model.label));
+			m_spreg_status->Wrap(300);
+		}
+		if (m_spreg_model_choice) {
+			m_spreg_model_choice->SetToolTip(model.label + "  (" + model.id + ")");
 		}
 	}
 
-	// the variables this model needs, and only those
+	// the options this model declares, and the variables it needs - and only those
+	if (selection > 0 && m_spreg_options_grid) {
+		FillSpregOptions(m_spreg_model_choice->GetParent(), m_spreg_models[selection - 1]);
+	}
 	const bool want_regime = selection > 0
 		&& m_spreg_models[selection - 1].needs_regimes;
 	const bool want_endog = selection > 0
@@ -531,7 +641,22 @@ void RegressionDlg::OnSpregModelSelected(wxCommandEvent& WXUNUSED(event))
 	if (box_sizer && m_spreg_endog_row) {
 		box_sizer->Show(m_spreg_endog_row, want_endog);
 	}
+	if (box_sizer && m_spreg_options_row) {
+		box_sizer->Show(m_spreg_options_row, selection > 0);
+	}
 	Layout();
+	// the controls the engine brings can need more room than the dialog has;
+	// grow to fit them, but never past the screen
+	{
+		const wxSize best = GetBestSize();
+		wxSize wanted = GetSize();
+		if (best.x > wanted.x) wanted.x = best.x;
+		if (best.y > wanted.y) wanted.y = best.y;
+		const wxRect screen = wxGetClientDisplayRect();
+		if (wanted.x > screen.width - 40) wanted.x = screen.width - 40;
+		if (wanted.y > screen.height - 60) wanted.y = screen.height - 60;
+		if (wanted != GetSize()) SetSize(wanted);
+	}
 }
 
 /**
@@ -786,17 +911,15 @@ bool RegressionDlg::RunSpregModel(wxCommandEvent& WXUNUSED(event))
 		}
 	}
 
-	// the options the registry declares for this model, as they stand
-	std::map<wxString, wxString> options;
-	for (size_t i = 0; i < m_spreg_models.size(); ++i) {
-		if (m_spreg_models[i].id == m_spreg_model) {
-			options = m_spreg_models[i].defaults;
-			break;
-		}
+	// what the dialog's controls say, which start at the registry's defaults
+	bool options_ok = true;
+	std::map<wxString, wxString> options = ReadSpregOptions(options_ok, err);
+	if (!options_ok) {
+		UpdateMessageBox("");
+		m_gauge->Hide();
+		wxMessageBox(err, _("Error"), wxOK | wxICON_ERROR, this);
+		return true;
 	}
-	// "full" builds a dense n by n matrix; LU is the sparse log-Jacobian and the
-	// only one that survives a large data set
-	if (options.find("method") != options.end()) options["method"] = "LU";
 
 	if (ok && !regimes.empty()) ok = writer.AddRegimes(regimes, err);
 	if (ok && !yend.empty()) ok = writer.AddEndogenous(yend, err);

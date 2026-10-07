@@ -640,19 +640,39 @@ bool ParseModels(const std::string& text, std::vector<ModelOption>& models,
 			const json_spirit::Object& o = options->get_obj();
 			for (json_spirit::Object::const_iterator it = o.begin();
 				 it != o.end(); ++it) {
+				if (it->value_.type() != json_spirit::obj_type) continue;
 				const json_spirit::Object& spec = it->value_.get_obj();
+				OptionSpec description;
+				description.name = wxString::FromUTF8(it->name_.c_str());
+				description.type = AsString(FindMember(spec, "type"));
+				description.help = AsString(FindMember(spec, "help"));
+
 				const json_spirit::Value* def = FindMember(spec, "default");
-				wxString value_text;
 				if (def) {
 					if (def->type() == json_spirit::bool_type) {
-						value_text = def->get_bool() ? "true" : "false";
+						description.default_value = def->get_bool() ? "true" : "false";
 					} else if (def->type() == json_spirit::str_type) {
-						value_text = wxString::FromUTF8(def->get_str().c_str());
+						description.default_value =
+							wxString::FromUTF8(def->get_str().c_str());
 					} else {
-						value_text << AsDouble(def, 0);
+						description.default_value << AsDouble(def, 0);
 					}
 				}
-				option.defaults[wxString::FromUTF8(it->name_.c_str())] = value_text;
+				const json_spirit::Value* values = FindMember(spec, "values");
+				if (values && values->type() == json_spirit::array_type) {
+					const json_spirit::Array& array = values->get_array();
+					for (size_t i = 0; i < array.size(); ++i) {
+						description.values.push_back(AsString(&array[i]));
+					}
+				}
+				const json_spirit::Value* low = FindMember(spec, "min");
+				const json_spirit::Value* high = FindMember(spec, "max");
+				if (low || high) {
+					description.has_range = true;
+					description.min_value = AsDouble(low, 0);
+					description.max_value = AsDouble(high, 1000000);
+				}
+				option.options[description.name] = description;
 			}
 		}
 		if (!option.id.IsEmpty()) models.push_back(option);

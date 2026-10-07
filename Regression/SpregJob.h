@@ -115,11 +115,23 @@ struct Result {
 	bool Read(const wxString& job_dir, wxString& err);
 };
 
-/** The model ids the solver offers, from `solve.py --list-models`. */
+/** One choice a model offers, as the registry describes it. */
+struct OptionSpec {
+	wxString name;
+	wxString type;                             // "bool", "int", "float", "enum", "str"
+	wxString help;
+	std::vector<wxString> values;              // for "enum"
+	wxString default_value;                    // as text, whatever the type
+	double min_value, max_value;
+	bool has_range;
+	OptionSpec() : min_value(0), max_value(0), has_range(false) {}
+};
+
+/** A model the solver offers, from `solve.py --list-models`. */
 struct ModelOption {
 	wxString id, label, family;
 	bool needs_weights, needs_regimes, needs_endog, needs_instruments, needs_coords;
-	std::map<wxString, wxString> defaults;      // option name -> default, as text
+	std::map<wxString, OptionSpec> options;    // what the dialog can set
 	ModelOption() : needs_weights(true), needs_regimes(false), needs_endog(false),
 		needs_instruments(false), needs_coords(false) {}
 };

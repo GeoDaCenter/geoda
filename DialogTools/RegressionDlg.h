@@ -43,6 +43,7 @@ class WeightsManState;
 
 class wxButton;
 class wxChoice;
+class wxFlexGridSizer;
 
 #include "../Regression/SpregJob.h"
 
@@ -131,7 +132,15 @@ public:
 	wxSizer* m_spreg_regime_row;
 	wxSizer* m_spreg_endog_row;
 	wxSizer* m_spreg_instr_row;
+	// one control per option the chosen model declares, built from the engine's
+	// registry rather than from a list written here
+	wxSizer* m_spreg_options_row;
+	wxFlexGridSizer* m_spreg_options_grid;
+	std::vector<wxString> m_spreg_option_names;
+	std::vector<wxWindow*> m_spreg_option_ctrls;
 	void FillSpregVariables(wxWindow* parent);
+	void FillSpregOptions(wxWindow* parent, const SpregJob::ModelOption& model);
+	std::map<wxString, wxString> ReadSpregOptions(bool& ok, wxString& err);
 	bool GatherSpregExtras(const SpregJob::ModelOption& model, wxString& err,
 						   SpregJob::Writer& writer, wxString& regimes_name,
 						   std::vector<wxString>& yend_names,
