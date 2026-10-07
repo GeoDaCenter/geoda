@@ -21,13 +21,13 @@
 #include "SpregSha256.h"
 
 #include <algorithm>
-#include <fstream>
 #include <string>
 #include <vector>
 
 #include <wx/wx.h>
 #include <wx/filename.h>
 #include <wx/dir.h>
+#include <wx/file.h>
 #include <wx/filefn.h>
 #include <wx/stream.h>
 #include <wx/tokenzr.h>
@@ -82,12 +82,20 @@ wxString UserBaseDir(bool create)
 
 bool ReadWholeFile(const wxString& path, std::string& out, wxString& err)
 {
-	std::ifstream in(path.fn_str(), std::ios::binary);
-	if (!in) {
+	wxFile file(path);
+	if (!file.IsOpened()) {
 		err = wxString::Format(_("Could not open %s"), path);
 		return false;
 	}
-	out.assign(std::istreambuf_iterator<char>(in), std::istreambuf_iterator<char>());
+	const wxFileOffset length = file.Length();
+	out.resize(length > 0 ? static_cast<size_t>(length) : 0);
+	const wxFileOffset got = out.empty() ? 0 : file.Read(&out[0], out.size());
+	file.Close();
+	if (got < 0) {
+		err = wxString::Format(_("Could not read %s"), path);
+		return false;
+	}
+	out.resize(got > 0 ? static_cast<size_t>(got) : 0);
 	return true;
 }
 
@@ -260,9 +268,12 @@ ProcessResult RunProcess(const wxString& cmd, const wxString& wait_for_file,
 
 size_t WriteToFile(void* ptr, size_t size, size_t nmemb, void* stream)
 {
-	FILE* file = static_cast<FILE*>(stream);
+	// wxFile, not FILE*: fopen() cannot take the wide path a wxString gives on
+	// Windows, and wxFile handles either kind of path on every platform
+	wxFile* file = static_cast<wxFile*>(stream);
 	if (!file) return 0;
-	return fwrite(ptr, size, nmemb, file);
+	const size_t bytes = size * nmemb;
+	return file->Write(ptr, bytes) == bytes ? bytes : 0;
 }
 
 struct TransferState {
@@ -549,18 +560,19 @@ Status Discover(const Manifest& manifest)
 
 bool Sha256File(const wxString& path, wxString& hex_out, wxString& err)
 {
-	std::ifstream in(path.fn_str(), std::ios::binary);
-	if (!in) {
+	wxFile file(path);
+	if (!file.IsOpened()) {
 		err = wxString::Format(_("Could not read %s"), path);
 		return false;
 	}
 	Sha256 hash;
 	std::vector<char> buffer(kCopyBuffer);
-	while (in) {
-		in.read(&buffer[0], static_cast<std::streamsize>(buffer.size()));
-		const std::streamsize got = in.gcount();
-		if (got > 0) hash.Update(&buffer[0], static_cast<size_t>(got));
+	for (;;) {
+		const wxFileOffset got = file.Read(&buffer[0], buffer.size());
+		if (got <= 0) break;
+		hash.Update(&buffer[0], static_cast<size_t>(got));
 	}
+	file.Close();
 	hex_out = wxString::FromUTF8(hash.HexDigest().c_str());
 	return true;
 }
@@ -588,8 +600,8 @@ bool Download(const wxString& url, const wxString& dest, ProgressSink* sink,
 		return false;
 	}
 
-	FILE* file = fopen(dest.fn_str(), "wb");
-	if (!file) {
+	wxFile file(dest, wxFile::write);
+	if (!file.IsOpened()) {
 		curl_easy_cleanup(curl);
 		err = wxString::Format(_("Could not write to %s"), dest);
 		return false;
@@ -605,7 +617,7 @@ bool Download(const wxString& url, const wxString& dest, ProgressSink* sink,
 	const wxCharBuffer url_bytes = url.utf8_str();
 	curl_easy_setopt(curl, CURLOPT_URL, url_bytes.data());
 	curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteToFile);
-	curl_easy_setopt(curl, CURLOPT_WRITEDATA, file);
+	curl_easy_setopt(curl, CURLOPT_WRITEDATA, &file);
 	curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);   // github release assets redirect
 	curl_easy_setopt(curl, CURLOPT_MAXREDIRS, 5L);
 	curl_easy_setopt(curl, CURLOPT_FAILONERROR, 1L);
@@ -622,7 +634,7 @@ bool Download(const wxString& url, const wxString& dest, ProgressSink* sink,
 	long http_status = 0;
 	curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &http_status);
 	curl_easy_cleanup(curl);
-	fclose(file);
+	file.Close();
 
 	if (code == CURLE_OK && http_status >= 200 && http_status < 300) return true;
 

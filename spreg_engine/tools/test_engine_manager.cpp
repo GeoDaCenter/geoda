@@ -107,10 +107,37 @@ int main(int argc, char** argv)
 
 	if (argc < 3) {
 		std::printf("usage: %s <engine-archive.zip> <scratch-dir> [repo-root]\n", argv[0]);
+		std::printf("       %s --download <url> <scratch-dir>\n", argv[0]);
 		return 2;
 	}
 	const wxString archive = wxString::FromUTF8(argv[1]);
 	const wxString scratch = wxString::FromUTF8(argv[2]);
+
+	if (argc >= 3 && wxString(argv[1]) == "--download") {
+		// exercises Download() on its own, including the error messages, and
+		// checks what came back against the digest the manifest carries
+		const wxString url = argv[2];
+		const wxString dest = (argc > 3 ? wxString(argv[3]) : wxString("."))
+			+ "/download-test.bin";
+		wxString err;
+		NullSink sink;
+		const bool ok = Download(url, dest, &sink, err);
+		std::printf("download %s\n", ok ? "ok" : "failed");
+		if (!ok) {
+			std::printf("%s\n", (const char*) err.utf8_str());
+			return 0;                     // a failure is the expected result here
+		}
+		wxString digest;
+		if (!Sha256File(dest, digest, err)) {
+			std::printf("hash failed: %s\n", (const char*) err.utf8_str());
+			return 1;
+		}
+		wxFileName file(dest);
+		std::printf("downloaded %lld bytes\nsha256 %s\n",
+					(long long) file.GetSize().GetValue(),
+					(const char*) digest.utf8_str());
+		return 0;
+	}
 
 	// ShippedRoot() = GetResourceDir() + "spreg_engine/", so hand it the
 	// repository, where spreg_engine/ has the layout the application ships:
