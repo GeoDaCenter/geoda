@@ -40,6 +40,8 @@ class TableInterface;
 class Project;
 class WeightsManState;
 
+class wxButton;
+
 class RegressionDlg: public wxDialog, public FramesManagerObserver,
   public TableStateObserver, public WeightsManStateObserver
 {
@@ -64,6 +66,7 @@ public:
 
     void CreateControls();
     void OnRunClick( wxCommandEvent& event );
+    void OnInstallSpregClick( wxCommandEvent& event );
     void OnViewResultsClick( wxCommandEvent& event );
 	void OnSaveToTxtFileClick( wxCommandEvent& event );
     void OnStandardizeClick( wxCommandEvent& event );
@@ -108,6 +111,12 @@ public:
     wxRadioButton* m_radio3;
 	wxGauge* m_gauge;
 	wxStaticText* m_gauge_text;
+
+	// the button that installs the engine behind the advanced models, and the
+	// line that says whether it is there; built in code, see RefreshSpregState
+	wxButton* m_install_spreg_btn;
+	wxStaticText* m_spreg_status;
+	void RefreshSpregState();
     
     RegressionReportDlg *regReportDlg;
 

@@ -21,14 +21,14 @@
 
 #include <wx/wx.h>
 #include <wx/button.h>
-#include <wx/filedlg.h>
 #include <wx/filename.h>
+#include <wx/gauge.h>
 #include <wx/msgdlg.h>
-#include <wx/progdlg.h>
 #include <wx/sizer.h>
 #include <wx/statline.h>
 #include <wx/stattext.h>
 #include <wx/textctrl.h>
+#include <wx/utils.h>
 
 #include "../Regression/SpregEngine.h"
 
@@ -38,7 +38,7 @@ namespace {
 
 wxString FormatSize(long long bytes)
 {
-	if (bytes < 0) return _( "unknown" );
+	if (bytes < 0) return _("unknown");
 	if (bytes < 1024) {
 		wxString text;
 		text << bytes << " B";
@@ -49,43 +49,41 @@ wxString FormatSize(long long bytes)
 	return wxString::Format("%.2f GB", bytes / 1073741824.0);
 }
 
-/** The engine GeoDa would use right now, empty when there is none. */
-wxString CurrentEngineDir()
-{
-	SpregEngine::Manifest manifest;
-	wxString err;
-	if (!manifest.Read(SpregEngine::ShippedManifestPath(), err)) return wxEmptyString;
-	return SpregEngine::Discover(manifest).dir;
-}
-
 /**
- * Drives a wxProgressDialog from the installer's progress callback.  The
- * progress dialog is what keeps the application responsive while a 150 MB
- * download and an unpack are running, and its cancel button is what stops them.
+ * Moves the dialog's gauge while the installer works.
+ *
+ * wxYieldIfNeeded() is what makes that visible: the download and the unpack
+ * run on this thread, so without it nothing would be repainted until they are
+ * over.  It is safe here because the dialog disables its buttons first, so
+ * there is nothing to click while it yields.
  */
-class ProgressDlgSink : public ProgressSink {
+class GaugeSink : public ProgressSink {
 public:
-	explicit ProgressDlgSink(wxProgressDialog* dialog)
-		: dialog_(dialog), cancelled_(false) {}
+	GaugeSink(wxGauge* gauge, wxStaticText* status)
+		: gauge_(gauge), status_(status), cancelled_(false) {}
 
 	virtual bool OnProgress(long long done, long long total, const wxString& phase)
 	{
-		if (!dialog_) return true;                 // no UI: never cancel
-		bool alive;
-		if (total > 0) {
-			const int value = static_cast<int>((done * 1000) / total);
-			alive = dialog_->Update(value < 0 ? 0 : (value > 1000 ? 1000 : value), phase);
-		} else {
-			alive = dialog_->Pulse(phase);
+		if (status_) status_->SetLabel(phase);
+		if (gauge_) {
+			if (total > 0) {
+				int value = static_cast<int>((done * 1000) / total);
+				if (value < 0) value = 0;
+				if (value > 1000) value = 1000;
+				if (value != gauge_->GetValue()) gauge_->SetValue(value);
+			} else {
+				gauge_->Pulse();
+			}
 		}
-		if (!alive) cancelled_ = true;
+		wxYieldIfNeeded();
 		return !cancelled_;
 	}
 
 	virtual bool Cancelled() { return cancelled_; }
 
 private:
-	wxProgressDialog* dialog_;
+	wxGauge* gauge_;
+	wxStaticText* status_;
 	bool cancelled_;
 };
 
@@ -94,10 +92,12 @@ private:
 SpregEngineDlg::SpregEngineDlg(wxWindow* parent, wxWindowID id,
 							   const wxString& title, const wxPoint& pos,
 							   const wxSize& size)
-	: wxDialog(parent, id, title, pos, size, wxDEFAULT_DIALOG_STYLE | wxRESIZE_BORDER)
+	: wxDialog(parent, id, title, pos, size, wxDEFAULT_DIALOG_STYLE | wxRESIZE_BORDER),
+	  status_text_(NULL), gauge_(NULL), log_text_(NULL), install_button_(NULL),
+	  close_button_(NULL), installed_(false), busy_(false)
 {
 	CreateControls();
-	RefreshStatus();
+	UpdateState();
 }
 
 bool SpregEngineDlg::EngineAvailable()
@@ -113,109 +113,82 @@ void SpregEngineDlg::CreateControls()
 	wxBoxSizer* top = new wxBoxSizer(wxVERTICAL);
 
 	wxStaticText* intro = new wxStaticText(this, wxID_ANY,
-		_("GeoDa's own engine covers classical regression, spatial lag and spatial "
-		  "error.  The advanced models - regimes, spatial Durbin and SLX, GMM and "
-		  "instrumental variables, probit, specification search - run in a separate "
-		  "engine built on the Python package spreg.\n\n"
-		  "It is downloaded on demand and kept in your own GeoDa folder; nothing is "
-		  "installed system wide and nothing changes in GeoDa's own engine."));
-	intro->Wrap(600);
+		_("The advanced regression models - regimes, spatial Durbin, GMM and "
+		  "instrumental variables, probit - are estimated by spreg, a Python "
+		  "package. GeoDa downloads an engine for it once, keeps it in your own "
+		  "GeoDa folder and uses it from then on.\n\n"
+		  "Nothing is installed system wide, and GeoDa's own regression models "
+		  "are not affected either way."));
+	intro->Wrap(520);
 	top->Add(intro, 0, wxALL, 12);
 
-	wxStaticLine* line = new wxStaticLine(this);
-	top->Add(line, 0, wxEXPAND | wxLEFT | wxRIGHT, 12);
-
 	status_text_ = new wxStaticText(this, wxID_ANY, "");
-	top->Add(status_text_, 0, wxALL, 12);
+	top->Add(status_text_, 0, wxLEFT | wxRIGHT | wxBOTTOM, 12);
+
+	gauge_ = new wxGauge(this, wxID_ANY, 1000);
+	top->Add(gauge_, 0, wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, 12);
+
+	log_text_ = new wxTextCtrl(this, wxID_ANY, "", wxDefaultPosition, wxSize(-1, 150),
+							   wxTE_MULTILINE | wxTE_READONLY | wxTE_RICH2);
+	top->Add(log_text_, 1, wxEXPAND | wxLEFT | wxRIGHT, 12);
 
 	wxBoxSizer* buttons = new wxBoxSizer(wxHORIZONTAL);
-	install_button_ = new wxButton(this, wxID_ANY, _("&Install engine"));
-	install_file_button_ = new wxButton(this, wxID_ANY, _("Install from &file..."));
-	test_button_ = new wxButton(this, wxID_ANY, _("&Test engine"));
-	remove_button_ = new wxButton(this, wxID_ANY, _("&Remove engine"));
+	install_button_ = new wxButton(this, wxID_ANY, _("&Install Engine"));
 	close_button_ = new wxButton(this, wxID_CANCEL, _("Close"));
-	buttons->Add(install_button_, 0, wxRIGHT, 6);
-	buttons->Add(install_file_button_, 0, wxRIGHT, 6);
-	buttons->Add(test_button_, 0, wxRIGHT, 6);
-	buttons->Add(remove_button_, 0, wxRIGHT, 6);
+	buttons->Add(install_button_, 0, wxRIGHT, 8);
 	buttons->AddStretchSpacer();
 	buttons->Add(close_button_, 0);
-	top->Add(buttons, 0, wxEXPAND | wxLEFT | wxRIGHT, 12);
-
-	log_text_ = new wxTextCtrl(this, wxID_ANY, "", wxDefaultPosition, wxDefaultSize,
-							   wxTE_MULTILINE | wxTE_READONLY | wxTE_RICH2);
-	top->Add(log_text_, 1, wxEXPAND | wxALL, 12);
+	top->Add(buttons, 0, wxEXPAND | wxALL, 12);
 
 	SetSizer(top);
-
 	install_button_->Bind(wxEVT_BUTTON, &SpregEngineDlg::OnInstall, this);
-	install_file_button_->Bind(wxEVT_BUTTON, &SpregEngineDlg::OnInstallFromFile, this);
-	test_button_->Bind(wxEVT_BUTTON, &SpregEngineDlg::OnTest, this);
-	remove_button_->Bind(wxEVT_BUTTON, &SpregEngineDlg::OnRemove, this);
 	close_button_->Bind(wxEVT_BUTTON, &SpregEngineDlg::OnClose, this);
-
 	Centre();
 }
 
-void SpregEngineDlg::RefreshStatus()
+void SpregEngineDlg::UpdateState()
 {
 	Manifest manifest;
 	wxString err;
 	if (!manifest.Read(ShippedManifestPath(), err)) {
-		status_text_->SetLabel(wxString::Format(
-			_("This installation of GeoDa has no engine manifest:\n%s\n\n%s"),
-			ShippedManifestPath(), err));
-		EnableActions(false);
+		// the application was not packaged completely
+		status_text_->SetLabel(_("This installation of GeoDa cannot download the engine."));
+		Log(err);
+		install_button_->Enable(false);
 		return;
 	}
 
 	const Status status = Discover(manifest);
-	wxString text;
-	if (status.installed) {
-		text = wxString::Format(
-			_("Engine installed: spreg %s\n%s\n%s on disk"),
-			status.version, status.dir, FormatSize(EngineSize(status.dir)));
+	installed_ = status.installed;
+	if (installed_) {
+		status_text_->SetLabel(wxString::Format(_("spreg %s is installed:\n%s"),
+												status.version, status.dir));
+		install_button_->SetLabel(_("&Reinstall Engine"));
 	} else {
 		const Artifact* artifact = manifest.ForThisPlatform();
-		text = _("No engine installed.");
 		if (artifact) {
-			text += wxString::Format(
-				_("\n\nInstalling it downloads %s for %s and unpacks to %s."),
-				FormatSize(artifact->size_bytes), PlatformKey(), FormatSize(artifact->unpacked_bytes));
+			status_text_->SetLabel(wxString::Format(
+				_("Downloading the engine takes %s and unpacks to %s."),
+				FormatSize(artifact->size_bytes), FormatSize(artifact->unpacked_bytes)));
 		} else {
-			text += wxString::Format(
-				_("\n\nThere is no engine archive for %s (%s) yet."),
-				PlatformKey(), manifest.spreg);
+			status_text_->SetLabel(wxString::Format(
+				_("There is no engine published for %s yet."), PlatformKey()));
+			install_button_->Enable(false);
 		}
-		if (!status.problem.IsEmpty()) text += "\n\n" + status.problem;
+		if (!status.problem.IsEmpty()) Log(status.problem);
 	}
-	status_text_->SetLabel(text);
-	status_text_->Wrap(600);
-
-	const bool installed = status.installed;
-	const bool can_install = manifest.ForThisPlatform() != NULL;
-	install_button_->Enable(can_install);
-	install_file_button_->Enable(true);
-	test_button_->Enable(installed);
-	remove_button_->Enable(installed);
 	Layout();
 }
 
-void SpregEngineDlg::EnableActions(bool enable)
+void SpregEngineDlg::SetBusy(bool busy)
 {
-	install_button_->Enable(enable);
-	install_file_button_->Enable(enable);
-	test_button_->Enable(enable);
-	remove_button_->Enable(enable);
-	close_button_->Enable(enable);
+	busy_ = busy;
+	install_button_->Enable(!busy);
+	close_button_->Enable(!busy);
+	gauge_->SetValue(0);
 }
 
-void SpregEngineDlg::AppendLine(const wxString& line)
-{
-	log_text_->AppendText(line + "\n");
-}
-
-void SpregEngineDlg::ShowText(const wxString& text, bool append)
+void SpregEngineDlg::Log(const wxString& text, bool append)
 {
 	if (!append) log_text_->SetValue("");
 	log_text_->AppendText(text);
@@ -224,154 +197,60 @@ void SpregEngineDlg::ShowText(const wxString& text, bool append)
 
 void SpregEngineDlg::OnInstall(wxCommandEvent& WXUNUSED(event))
 {
+	if (busy_) return;
+
 	Manifest manifest;
 	wxString err;
 	if (!manifest.Read(ShippedManifestPath(), err)) {
-		wxMessageBox(err, _("Engine manifest"), wxOK | wxICON_ERROR, this);
+		wxMessageBox(err, _("Install Spreg"), wxOK | wxICON_ERROR, this);
 		return;
 	}
 	const Artifact* artifact = manifest.ForThisPlatform();
 	if (!artifact) {
 		wxMessageBox(wxString::Format(
-			_("There is no engine archive for %s yet.  You can still install one "
-			  "from a file, if you have it."), PlatformKey()),
-			_("No engine for this platform"), wxOK | wxICON_INFORMATION, this);
+			_("There is no engine published for %s yet."), PlatformKey()),
+			_("Install Spreg"), wxOK | wxICON_INFORMATION, this);
 		return;
 	}
 
-	if (wxMessageBox(wxString::Format(
-			_("Download and install the regression engine?\n\n"
-			  "spreg %s for %s\n%s to download, %s on disk, in\n%s\n\n"
-			  "The download is verified against a checksum that GeoDa ships."),
-			manifest.spreg, PlatformKey(), FormatSize(artifact->size_bytes),
-			FormatSize(artifact->unpacked_bytes), EnginesRoot()),
-		_("Install engine"), wxYES_NO | wxICON_QUESTION, this) != wxYES) {
-		return;
-	}
+	SetBusy(true);
+	Log(wxString::Format(_("Downloading %s and unpacking it into\n%s"),
+						 FormatSize(artifact->size_bytes), EnginesRoot()), false);
 
-	EnableActions(false);
-	{
-		wxProgressDialog progress(_("Installing the regression engine"),
-								  _("Preparing..."), 1000, this,
-								  wxPD_APP_MODAL | wxPD_CAN_ABORT
-								  | wxPD_ELAPSED_TIME | wxPD_AUTO_HIDE);
-		ProgressDlgSink sink(&progress);
-
-		wxString installed_dir;
-		const bool ok = InstallFromUrl(manifest, *artifact, &sink, err, installed_dir);
-		if (!ok) {
-			EnableActions(true);
-			ShowText(wxString::Format(_("Installation failed.\n\n%s"), err));
-			RefreshStatus();
-			wxMessageBox(err, _("Installation failed"), wxOK | wxICON_ERROR, this);
-			return;
-		}
-		ShowText(wxString::Format(_("Installed spreg %s into\n%s"), manifest.spreg,
-								  installed_dir));
-	}
-
-	// prove it works before telling the user it does
-	wxString probe;
-	if (ProbeEngine(CurrentEngineDir(), probe, err)) {
-		AppendLine(_("\nThe engine answers:"));
-		AppendLine(probe);
-	} else {
-		AppendLine(wxString::Format(_("\nThe engine was installed but does not run:\n%s"), err));
-	}
-	EnableActions(true);
-	RefreshStatus();
-}
-
-void SpregEngineDlg::OnInstallFromFile(wxCommandEvent& WXUNUSED(event))
-{
-	wxFileDialog dialog(this, _("Select an engine archive"),
-						wxEmptyString, wxEmptyString,
-						_("Engine archives (*.zip)|*.zip|All files (*.*)|*.*"),
-						wxFD_OPEN | wxFD_FILE_MUST_EXIST);
-	if (dialog.ShowModal() != wxID_OK) return;
-
-	Manifest manifest;
-	wxString err;
-	if (!manifest.Read(ShippedManifestPath(), err)) {
-		wxMessageBox(err, _("Engine manifest"), wxOK | wxICON_ERROR, this);
-		return;
-	}
-	const Artifact* artifact = manifest.ForThisPlatform();
-
-	wxString warning;
-	if (!artifact) {
-		warning = wxString::Format(
-			_("The manifest has no engine for %s, so the archive cannot be checked "
-			  "against a known checksum.  Install it anyway?"), PlatformKey());
-	} else {
-		warning = wxString::Format(
-			_("Install this archive as the engine for %s?\n\nThe checksum in GeoDa's "
-			  "manifest will be checked first, and the installation is refused "
-			  "unless it matches."), PlatformKey());
-	}
-	if (wxMessageBox(warning, _("Install from file"), wxYES_NO | wxICON_QUESTION, this)
-		!= wxYES) {
-		return;
-	}
-
-	// an archive the manifest knows about gets verified; anything else is
-	// installed only after the warning above, with an empty checksum
-	Artifact fallback;
-	if (!artifact) {
-		fallback.key = PlatformKey();
-		fallback.built = false;      // no size or checksum to check
-		artifact = &fallback;
-	}
-
-	EnableActions(false);
+	GaugeSink sink(gauge_, status_text_);
 	wxString installed_dir;
-	const bool ok = InstallFromZip(manifest, *artifact, dialog.GetPath(), NULL, err,
-									installed_dir);
+	const bool ok = InstallFromUrl(manifest, *artifact, &sink, err, installed_dir);
+
 	if (!ok) {
-		EnableActions(true);
-		ShowText(wxString::Format(_("Installation failed.\n\n%s"), err));
-		RefreshStatus();
-		wxMessageBox(err, _("Installation failed"), wxOK | wxICON_ERROR, this);
+		SetBusy(false);
+		status_text_->SetLabel(_("The engine could not be installed."));
+		Log(err);
+		wxLogMessage("Spreg: the engine could not be installed: %s", err);
+		wxMessageBox(err, _("Install Spreg"), wxOK | wxICON_ERROR, this);
+		UpdateState();
 		return;
 	}
-	ShowText(wxString::Format(_("Installed into\n%s"), installed_dir));
-	EnableActions(true);
-	RefreshStatus();
-}
 
-void SpregEngineDlg::OnTest(wxCommandEvent& WXUNUSED(event))
-{
-	const wxString dir = CurrentEngineDir();
-	EnableActions(false);
-
-	wxString output, err;
-	if (ProbeEngine(dir, output, err)) {
-		ShowText(_("The engine works.  It reports:\n\n") + output);
+	// tell the user it works, not that it was downloaded
+	wxString answer;
+	if (ProbeEngine(installed_dir, answer, err)) {
+		Log(wxString::Format(_("\nInstalled into\n%s\n\nThe engine reports:\n%s"),
+							 installed_dir, answer));
+		status_text_->SetLabel(_("spreg is installed and ready."));
+		installed_ = true;
 	} else {
-		ShowText(_("The engine does not work:\n\n") + err);
+		Log(wxString::Format(_("\nThe engine was installed but does not run:\n%s"), err));
+		wxLogMessage("Spreg: the engine was installed but does not run: %s", err);
+		wxMessageBox(err, _("Install Spreg"), wxOK | wxICON_ERROR, this);
+		status_text_->SetLabel(_("The engine was installed but does not run."));
 	}
-	EnableActions(true);
-}
-
-void SpregEngineDlg::OnRemove(wxCommandEvent& WXUNUSED(event))
-{
-	const wxString dir = CurrentEngineDir();
-	if (wxMessageBox(wxString::Format(_("Remove the regression engine?\n\n%s\n\n"
-										"GeoDa's own regression models are not affected."),
-									  dir),
-					 _("Remove engine"), wxYES_NO | wxICON_QUESTION, this) != wxYES) {
-		return;
-	}
-	wxString err;
-	if (Remove(dir, err)) {
-		ShowText(wxString::Format(_("Removed %s"), dir));
-	} else {
-		ShowText(wxString::Format(_("Could not remove the engine.\n\n%s"), err));
-	}
-	RefreshStatus();
+	SetBusy(false);
+	UpdateState();
+	Layout();
 }
 
 void SpregEngineDlg::OnClose(wxCommandEvent& WXUNUSED(event))
 {
-	EndModal(wxID_OK);
+	if (busy_) return;
+	EndModal(installed_ ? wxID_OK : wxID_CANCEL);
 }

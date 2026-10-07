@@ -325,16 +325,32 @@ Where the pieces live in a built GeoDa:
 |---|---|
 | `Regression/SpregEngine.{h,cpp}` | discovery, manifest, download, checksum, unpack, install, remove, run |
 | `Regression/SpregSha256.h` | SHA-256, header only, no new dependency |
-| `DialogTools/SpregEngineDlg.{h,cpp}` | *Tools ▸ Advanced Regression Engine…*: install, install from file, test, remove |
+| `DialogTools/SpregEngineDlg.{h,cpp}` | the **Install Spreg** dialog: what is being downloaded, how far it has got, and what to do when it fails |
+| the **Install Spreg** button | in the Regression dialog, under the models it unlocks |
 | the installed engine | `<user data>/GeoDa/engines/` — macOS `~/Library/Application Support/GeoDa/engines`, Windows `%APPDATA%\GeoDa\engines`, Linux `~/.geoda/engines` |
 | the shipped solver and manifest | macOS `GeoDa.app/Contents/Resources/spreg_engine/`, elsewhere `<exe dir>/spreg_engine/` |
 
 Decisions worth knowing:
 
-* The menu item is added at runtime in the `GdaFrame` constructor instead of in
-  `menus.xrc`, because regenerating `rc/GdaAppResources.cpp` with a different
-  `wxrc` version rewrites thirteen thousand lines of it. The Explore ▸ HTML menu
-  and the MCP entries are added the same way.
+* The engine is installed from the Regression dialog, not from a menu of its
+  own: it only means anything next to the models it provides, and a separate
+  "engine manager" invited questions about what it was for. The button and its
+  status line are added to the dialog's Models box in code rather than in
+  `dialogs.xrc`, because regenerating `rc/GdaAppResources.cpp` with a different
+  `wxrc` version rewrites thirteen thousand lines of it.  Once an engine is
+  installed the button disappears and the line reads *spreg 1.9.1 ready - the
+  advanced models are available*; that is where the controls of the coming
+  models will be enabled.
+* Installing is the only thing the dialog does.  There is no uninstall and no
+  install-from-file in the interface: those are administrator jobs, and the
+  README describes them - delete `<user data>/GeoDa/engines/spreg-*` to remove
+  an engine, and for an offline or pre-seeded installation unpack the archive
+  into that directory yourself, or point `GEODA_SPREG_ENGINES` at a directory
+  you have prepared.
+* The engine archives have to be published before the button can work: the
+  manifest points at a release asset under `GeoDaCenter/software`, and until
+  the release exists the download answers 404 - which the dialog now says in so
+  many words, including the address it tried.
 * `GEODA_SPREG_ENGINES` overrides the engine directory. That is for
   administrators who prepare machines, multi-user installs, and the headless
   test below; it is also the documented pre-seed path for air-gapped sites.

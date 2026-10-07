@@ -627,16 +627,26 @@ bool Download(const wxString& url, const wxString& dest, ProgressSink* sink,
 	if (code == CURLE_OK && http_status >= 200 && http_status < 300) return true;
 
 	wxRemoveFile(dest);
+	// the status first: with FAILONERROR a 404 also comes back as a curl error,
+	// and "the URL returned error 404" tells the user nothing
 	if (sink && sink->Cancelled()) {
 		err = _("The download was cancelled.");
 	} else if (code == CURLE_ABORTED_BY_CALLBACK) {
 		err = _("The download was cancelled.");
+	} else if (http_status == 404) {
+		err = wxString::Format(
+			_("The engine for this version of GeoDa has not been published yet, so "
+			  "there is nothing to download.\n\nGeoDa looked for:\n%s\n\n"
+			  "(The server answered 404.  A proxy or a firewall that blocks the "
+			  "download would look different.)"), url);
 	} else if (code != CURLE_OK) {
-		err = wxString::Format(_("Could not download the engine:\n%s"),
+		err = wxString::Format(_("Could not download the engine:\n%s\n\n%s"),
 							   error_buffer[0] ? wxString::FromUTF8(error_buffer)
-											   : wxString(curl_easy_strerror(code)));
+											   : wxString(curl_easy_strerror(code)),
+							   url);
 	} else {
-		err = wxString::Format(_("The server answered with HTTP status %ld."), http_status);
+		err = wxString::Format(_("The server answered with HTTP status %ld.\n\n%s"),
+							   http_status, url);
 	}
 	return false;
 }

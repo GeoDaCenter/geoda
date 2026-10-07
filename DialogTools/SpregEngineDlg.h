@@ -24,49 +24,55 @@
 #include <wx/string.h>
 
 class wxButton;
+class wxGauge;
 class wxStaticText;
 class wxTextCtrl;
 
 /**
- * Installs, tests and removes the Python regression engine that provides the
- * advanced models (regimes, spatial Durbin/SLX, GMM and IV, probit, ...).
+ * Installs the engine that provides the advanced regression models (regimes,
+ * spatial Durbin and SLX, GMM and instrumental variables, probit) and reports
+ * how the download is getting on.
  *
- * GeoDa ships the solver and the engine manifest, and downloads the engine
- * itself only when someone asks for it, so that the installer stays as it is
- * and no Python is bundled.  See Regression/SpregEngine.h for the mechanics and
- * spreg_engine/README.md for the whole story.
+ * It is opened from the Regression dialog's "Install Spreg" button: the engine
+ * only means anything in that context, so it is not a menu entry of its own.
+ * There is one action - install - and nothing else to get wrong; removing the
+ * engine, or installing one from a file, are administrator jobs that the
+ * README describes.
+ *
+ * See Regression/SpregEngine.h for the mechanics (download, checksum, atomic
+ * unpack, running the solver) and spreg_engine/README.md for the whole story.
  */
 class SpregEngineDlg: public wxDialog
 {
 public:
 	SpregEngineDlg(wxWindow* parent, wxWindowID id = wxID_ANY,
-				   const wxString& title = _("Advanced Regression Engine"),
+				   const wxString& title = _("Install Spreg"),
 				   const wxPoint& pos = wxDefaultPosition,
-				   const wxSize& size = wxSize(640, 470));
+				   const wxSize& size = wxSize(560, 400));
 
-	/** Runs a job through the engine; used by the regression dialog later. */
+	/** True when an engine is installed, asked and answered. */
+	bool EngineInstalled() const { return installed_; }
+
+	/** Is there a usable engine right now?  Cheap: it reads a directory. */
 	static bool EngineAvailable();
 
 private:
 	void CreateControls();
-	void RefreshStatus();
-	void ShowText(const wxString& text, bool append = false);
-	void AppendLine(const wxString& line);
-	void EnableActions(bool enable);
+	void UpdateState();
+	void SetBusy(bool busy);
+	void Log(const wxString& text, bool append = true);
 
 	void OnInstall( wxCommandEvent& event );
-	void OnInstallFromFile( wxCommandEvent& event );
-	void OnTest( wxCommandEvent& event );
-	void OnRemove( wxCommandEvent& event );
 	void OnClose( wxCommandEvent& event );
 
 	wxStaticText* status_text_;
+	wxGauge* gauge_;
 	wxTextCtrl* log_text_;
 	wxButton* install_button_;
-	wxButton* install_file_button_;
-	wxButton* test_button_;
-	wxButton* remove_button_;
 	wxButton* close_button_;
+
+	bool installed_;
+	bool busy_;
 };
 
 #endif

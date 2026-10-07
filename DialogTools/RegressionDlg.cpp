@@ -48,6 +48,8 @@
 #include "../Regression/ML_im.h"
 #include "../Regression/smile.h"
 #include "RegressionDlg.h"
+#include "SpregEngineDlg.h"
+#include "../Regression/SpregEngine.h"
 #include "RegressionReportDlg.h"
 
 bool classicalRegression(GalElement *g,
@@ -238,6 +240,66 @@ void RegressionDlg::CreateControls()
     
     m_gauge_text = XRCCTRL(*this, "IDC_GAUGE_TEXT", wxStaticText);
     
+
+
+	// The engine behind the advanced models is installed on demand, so the
+	// button that installs it is added here rather than to dialogs.xrc: a new
+	// control there would mean regenerating rc/GdaAppResources.cpp, and a
+	// different wxrc rewrites thirteen thousand lines of it.  It goes inside
+	// the Models box, where the models it enables will live.
+	m_install_spreg_btn = NULL;
+	m_spreg_status = NULL;
+	if (m_radio1 && m_radio1->GetParent()) {
+		wxWindow* models_box = m_radio1->GetParent();
+		wxSizer* box_sizer = models_box->GetSizer();
+		m_install_spreg_btn = new wxButton(models_box, wxID_ANY, _("Install Spreg"));
+		m_spreg_status = new wxStaticText(models_box, wxID_ANY, wxEmptyString);
+		wxBoxSizer* row = new wxBoxSizer(wxHORIZONTAL);
+		row->Add(m_install_spreg_btn, 0, wxALIGN_CENTRE_VERTICAL);
+		row->Add(m_spreg_status, 0, wxALIGN_CENTRE_VERTICAL | wxLEFT, 10);
+		if (box_sizer) {
+			box_sizer->Add(row, 0, wxTOP | wxALIGN_LEFT, 8);
+		}
+		m_install_spreg_btn->Bind(wxEVT_BUTTON, &RegressionDlg::OnInstallSpregClick, this);
+		RefreshSpregState();
+	}
+}
+
+void RegressionDlg::RefreshSpregState()
+{
+	// The advanced models are only usable when an engine is installed.  This is
+	// where the controls that belong to them - the model list, regimes,
+	// endogenous variables - are enabled once they exist; for now it reports
+	// the state and offers the button that fixes it.
+	SpregEngine::Manifest manifest;
+	wxString err;
+	const bool have_manifest = manifest.Read(SpregEngine::ShippedManifestPath(), err);
+	const SpregEngine::Status status = have_manifest
+		? SpregEngine::Discover(manifest) : SpregEngine::Status();
+
+	if (!m_install_spreg_btn) return;
+
+	if (status.installed) {
+		m_spreg_status->SetLabel(wxString::Format(_("spreg %s ready - the advanced models are available"),
+												 status.version));
+		m_install_spreg_btn->Hide();
+	} else {
+		m_spreg_status->SetLabel(have_manifest
+			? _("Regimes, spatial Durbin, GMM/IV and probit models need this")
+			: _("The advanced models are not available in this build"));
+		m_install_spreg_btn->Show();
+		m_install_spreg_btn->Enable(have_manifest);
+	}
+	m_spreg_status->GetParent()->Layout();
+}
+
+void RegressionDlg::OnInstallSpregClick(wxCommandEvent& WXUNUSED(event))
+{
+	SpregEngineDlg dlg(this);
+	dlg.ShowModal();
+	// whether it succeeded or the user gave up, say what the state is now; a
+	// successful install also unlocks the advanced models here
+	RefreshSpregState();
 }
 
 void RegressionDlg::OnSetupAutoModel(wxCommandEvent& event )
