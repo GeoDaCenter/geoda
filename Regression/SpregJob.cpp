@@ -285,13 +285,16 @@ json_spirit::Value OptionsToObject(const std::map<wxString, wxString>& options)
 	for (std::map<wxString, wxString>::const_iterator it = options.begin();
 		 it != options.end(); ++it) {
 		const wxString& value = it->second;
-		// the registry declares the types; send numbers and booleans as such
+		// The registry says what type each option has, but the value here is
+		// text, so json_spirit has to be told: booleans and numbers go out as
+		// such, everything else - enum names, "all", model ids - as a string.
+		// ToCDouble also understands exponents ("1e-07" is what epsilon's
+		// default looks like), which a hand written digit check does not.
 		if (value == "true" || value == "false") {
 			object.push_back(json_spirit::Pair(ToUtf8(it->first), value == "true"));
 		} else {
 			double number = 0;
-			if (value.ToCDouble(&number)
-				&& value.find_first_not_of("0123456789.-") == wxString::npos) {
+			if (!value.IsEmpty() && value.ToCDouble(&number)) {
 				object.push_back(json_spirit::Pair(ToUtf8(it->first),
 												   json_spirit::Value(number)));
 			} else {

@@ -21,6 +21,7 @@
 #define __GEODA_CENTER_REGRESSION_DLG_H__
 
 #include <vector>
+#include <map>
 #include <wx/dialog.h>
 #include <wx/listbox.h>
 #include <wx/checkbox.h>
@@ -41,6 +42,9 @@ class Project;
 class WeightsManState;
 
 class wxButton;
+class wxChoice;
+
+#include "../Regression/SpregJob.h"
 
 class RegressionDlg: public wxDialog, public FramesManagerObserver,
   public TableStateObserver, public WeightsManStateObserver
@@ -112,11 +116,26 @@ public:
 	wxGauge* m_gauge;
 	wxStaticText* m_gauge_text;
 
-	// the button that installs the engine behind the advanced models, and the
-	// line that says whether it is there; built in code, see RefreshSpregState
+	// the button that installs the engine behind the advanced models, the line
+	// that says whether it is there, and the list of the models it offers:
+	// all built in code, see RefreshSpregState
 	wxButton* m_install_spreg_btn;
 	wxStaticText* m_spreg_status;
+	wxChoice* m_spreg_model_choice;
+	std::vector<SpregJob::ModelOption> m_spreg_models;
+	wxString m_spreg_model;            // empty: use the models above
+	bool m_spreg_installed;
+	std::vector<double> m_spreg_yhat, m_spreg_resid, m_spreg_prederr;
+	SpregJob::Result m_spreg_result;
+	bool m_has_spreg_result;
+
 	void RefreshSpregState();
+	void FillSpregModels(const wxString& engine_dir);
+	void EnableNativeModels(bool enable);
+	void OnSpregModelSelected(wxCommandEvent& event);
+	bool RunSpregModel(wxCommandEvent& event);
+	void ShowSpregResults(const SpregJob::Result& result, const wxString& dataset,
+						  const wxString& weights_name);
     
     RegressionReportDlg *regReportDlg;
 

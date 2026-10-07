@@ -305,6 +305,7 @@
 		DDFFC7F21AC1C7CF00F7DD6D /* HighlightState.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DDFFC7EC1AC1C7CF00F7DD6D /* HighlightState.cpp */; };
 	7868C00590920455A6AA0A0A /* SpregEngine.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8C6CA1A07391F8D6CDDFC836 /* SpregEngine.cpp */; };
 	5A5D950F66B6836FE7E9AEAA /* SpregEngineDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8E6F87197DAE341DB693E4DE /* SpregEngineDlg.cpp */; };
+	C1EEC752DFF6D1080B09F1E9 /* SpregJob.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5254E0903F662C613EBC68A9 /* SpregJob.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -960,6 +961,8 @@
 	8C6CA1A07391F8D6CDDFC836 /* SpregEngine.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SpregEngine.cpp; sourceTree = "<group>"; };
 	B8C80201DBA3114FE3EE698F /* SpregEngineDlg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SpregEngineDlg.h; sourceTree = "<group>"; };
 	8E6F87197DAE341DB693E4DE /* SpregEngineDlg.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SpregEngineDlg.cpp; sourceTree = "<group>"; };
+	56D56A99B544BEE4CB4E3778 /* SpregJob.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SpregJob.h; sourceTree = "<group>"; };
+	5254E0903F662C613EBC68A9 /* SpregJob.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SpregJob.cpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
@@ -1643,6 +1646,8 @@
 				8C6CA1A07391F8D6CDDFC836 /* SpregEngine.cpp */,
 				9602F806BA5003393FE0AB1F /* SpregEngine.h */,
 				AD9DB3FA34EFE5499B3C2BC0 /* SpregSha256.h */,
+				5254E0903F662C613EBC68A9 /* SpregJob.cpp */,
+				56D56A99B544BEE4CB4E3778 /* SpregJob.h */,
 			);
 			path = Regression;
 			sourceTree = "<group>";
@@ -2151,6 +2156,7 @@
 				A11B85BC1B18DC9C008B64EA /* Basemap.cpp in Sources */,
 				5A5D950F66B6836FE7E9AEAA /* SpregEngineDlg.cpp in Sources */,
 				7868C00590920455A6AA0A0A /* SpregEngine.cpp in Sources */,
+				C1EEC752DFF6D1080B09F1E9 /* SpregJob.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

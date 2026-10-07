@@ -25,6 +25,7 @@
 #include <wx/txtstrm.h>
 #include <wx/wfstream.h>
 #include <wx/xrc/xmlres.h> // XRC XML resouces
+#include <wx/stdpaths.h>
 #include <wx/filedlg.h>
 #include <wx/textdlg.h>
 
@@ -50,6 +51,7 @@
 #include "RegressionDlg.h"
 #include "SpregEngineDlg.h"
 #include "../Regression/SpregEngine.h"
+#include "../Regression/SpregJob.h"
 #include "RegressionReportDlg.h"
 
 bool classicalRegression(GalElement *g,
@@ -291,9 +293,23 @@ void RegressionDlg::CreateControls()
 		if (box_sizer) {
 			box_sizer->Add(row, 0, wxTOP | wxALIGN_LEFT, 8);
 		}
+		wxBoxSizer* model_row = new wxBoxSizer(wxHORIZONTAL);
+		m_spreg_model_choice = new wxChoice(models_box, wxID_ANY);
+		wxStaticText* model_label = new wxStaticText(models_box, wxID_ANY, _("spreg model:"));
+		model_row->Add(model_label, 0, wxALIGN_CENTRE_VERTICAL | wxRIGHT, 6);
+		model_row->Add(m_spreg_model_choice, 0, wxALIGN_CENTRE_VERTICAL);
+		if (box_sizer) {
+			box_sizer->Add(model_row, 0, wxTOP | wxALIGN_LEFT, 6);
+		}
+		m_spreg_model_choice->Bind(wxEVT_CHOICE, &RegressionDlg::OnSpregModelSelected, this);
+
 		m_install_spreg_btn->Bind(wxEVT_BUTTON, &RegressionDlg::OnInstallSpregClick, this);
 		RefreshSpregState();
 	}
+
+	m_spreg_model = wxEmptyString;
+	m_spreg_installed = false;
+	m_has_spreg_result = false;
 
 }
 
@@ -311,16 +327,25 @@ void RegressionDlg::RefreshSpregState()
 
 	if (!m_install_spreg_btn) return;
 
+	m_spreg_installed = status.installed;
 	if (status.installed) {
-		m_spreg_status->SetLabel(wxString::Format(_("spreg %s ready - the advanced models are available"),
-												 status.version));
+		m_spreg_status->SetLabel(wxString::Format(_("spreg %s ready"), status.version));
 		m_install_spreg_btn->Hide();
+		FillSpregModels(status.dir);
 	} else {
 		m_spreg_status->SetLabel(have_manifest
 			? _("Regimes, spatial Durbin, GMM/IV and probit models need this")
 			: _("The advanced models are not available in this build"));
 		m_install_spreg_btn->Show();
 		m_install_spreg_btn->Enable(have_manifest);
+		if (m_spreg_model_choice) {
+			m_spreg_model_choice->Clear();
+			m_spreg_model_choice->Append(_("- the engine is not installed -"));
+			m_spreg_model_choice->SetSelection(0);
+			m_spreg_model_choice->Enable(false);
+		}
+		m_spreg_model = wxEmptyString;
+		EnableNativeModels(true);
 	}
 	m_spreg_status->GetParent()->Layout();
 }
@@ -332,6 +357,415 @@ void RegressionDlg::OnInstallSpregClick(wxCommandEvent& WXUNUSED(event))
 	// whether it succeeded or the user gave up, say what the state is now; a
 	// successful install also unlocks the advanced models here
 	RefreshSpregState();
+}
+
+void RegressionDlg::EnableNativeModels(bool enable)
+{
+	// with a spreg model chosen the three radio buttons above no longer decide
+	// anything, so they are greyed rather than left to mislead
+	if (m_radio1) m_radio1->Enable(enable);
+	if (m_radio2) m_radio2->Enable(enable);
+	if (m_radio3) m_radio3->Enable(enable);
+}
+
+void RegressionDlg::FillSpregModels(const wxString& engine_dir)
+{
+	if (!m_spreg_model_choice) return;
+
+	m_spreg_models.clear();
+	m_spreg_model_choice->Clear();
+	m_spreg_model_choice->Append(_("- use the models above -"));
+
+	std::vector<SpregJob::ModelOption> offered;
+	wxString err;
+	if (!SpregJob::ListModels(engine_dir, offered, err)) {
+		wxLogMessage("Spreg: the model list could not be read: %s", err);
+		m_spreg_model_choice->Append(_("- the model list could not be read -"));
+		m_spreg_model_choice->SetSelection(0);
+		m_spreg_model_choice->Enable(false);
+		return;
+	}
+
+	// Only the models this dialog can feed today are offered.  The ones that
+	// need a regime variable, endogenous variables and instruments, or
+	// coordinates, appear as soon as the controls that collect them exist;
+	// SKATER is left out because it returns regions rather than a regression.
+	for (size_t i = 0; i < offered.size(); ++i) {
+		const SpregJob::ModelOption& model = offered[i];
+		if (model.needs_regimes || model.needs_endog || model.needs_instruments
+			|| model.needs_coords) {
+			continue;
+		}
+		if (model.family == "skater") continue;
+		m_spreg_models.push_back(model);
+		m_spreg_model_choice->Append(model.label + "  (" + model.id + ")");
+	}
+
+	if (m_spreg_models.empty()) {
+		m_spreg_model_choice->Append(_("- no engine model fits this dialog yet -"));
+	}
+	m_spreg_model_choice->SetSelection(0);
+	m_spreg_model_choice->Enable(!m_spreg_models.empty());
+}
+
+void RegressionDlg::OnSpregModelSelected(wxCommandEvent& WXUNUSED(event))
+{
+	const int selection = m_spreg_model_choice ? m_spreg_model_choice->GetSelection() : 0;
+	if (selection <= 0 || selection - 1 >= static_cast<int>(m_spreg_models.size())) {
+		m_spreg_model = wxEmptyString;
+		EnableNativeModels(true);
+		if (m_spreg_status) {
+			m_spreg_status->SetLabel(m_spreg_installed
+				? wxString(_("the models above are GeoDa's own")) : wxString());
+		}
+	} else {
+		const SpregJob::ModelOption& model = m_spreg_models[selection - 1];
+		m_spreg_model = model.id;
+		EnableNativeModels(false);
+		if (m_spreg_status) {
+			m_spreg_status->SetLabel(wxString::Format(_("%s, estimated by spreg"),
+													  model.label));
+		}
+	}
+	Layout();
+}
+
+/**
+ * Runs one of the engine's models on what the dialog has gathered.
+ *
+ * The data preparation repeats what OnRunClick does for the models above -
+ * columns out of the table, undefined observations dropped, the weights subset
+ * to match - and the duplication is deliberate for now: sharing it means
+ * rewriting the inside of a function that carries the three models GeoDa
+ * already had, and that is a change of its own.  The job itself goes out
+ * through SpregJob, so nothing here knows any spreg API.
+ */
+bool RegressionDlg::RunSpregModel(wxCommandEvent& WXUNUSED(event))
+{
+	wxLogMessage("RegressionDlg::RunSpregModel(%s)", m_spreg_model);
+
+	m_gauge->Show();
+	UpdateMessageBox(_("calculating..."));
+
+	const wxString y_display = m_dependent->GetValue();
+	if (y_display.IsEmpty() || m_independentlist->GetCount() == 0) {
+		UpdateMessageBox("");
+		m_gauge->Hide();
+		wxLogMessage("Spreg: no dependent variable or no covariate");
+		wxMessageBox(_("Please choose a dependent variable and at least one covariate."),
+					 _("Error"), wxOK | wxICON_ERROR, this);
+		return true;                        // handled: nothing else should run
+	}
+
+	const int nX = m_independentlist->GetCount();
+	std::vector<wxString> x_names;
+	for (int i = 0; i < nX; ++i) x_names.push_back(name_to_nm[m_independentlist->GetString(i)]);
+
+	std::vector<double> y_in(m_obs, 0);
+	std::vector<std::vector<double> > x_in(nX);
+	std::vector<bool> undefs(m_obs, false);
+	{
+		std::vector<double> values;
+		const int y_col = table_int->FindColId(name_to_nm[y_display]);
+		if (y_col == wxNOT_FOUND) {
+			UpdateMessageBox("");
+			m_gauge->Hide();
+			wxLogMessage("Spreg: the dependent variable is no longer in the table");
+		wxMessageBox(_("The dependent variable is no longer in the table.  Please "
+						   "close and reopen the dialog."), _("Error"),
+						 wxOK | wxICON_ERROR, this);
+			return true;
+		}
+		table_int->GetColData(y_col, name_to_tm_id[y_display], values);
+		y_in = values;
+		std::vector<bool> undefined;
+		table_int->GetColUndefined(y_col, name_to_tm_id[y_display], undefined);
+		for (long i = 0; i < m_obs; ++i) undefs[i] = undefs[i] || undefined[i];
+
+		for (int i = 0; i < nX; ++i) {
+			const wxString& display = m_independentlist->GetString(i);
+			const int col = table_int->FindColId(name_to_nm[display]);
+			if (col == wxNOT_FOUND) {
+				UpdateMessageBox("");
+				m_gauge->Hide();
+				wxLogMessage("Spreg: a covariate is no longer in the table");
+		wxMessageBox(_("A covariate is no longer in the table.  Please close and "
+							   "reopen the dialog."), _("Error"),
+							 wxOK | wxICON_ERROR, this);
+				return true;
+			}
+			table_int->GetColData(col, name_to_tm_id[display], values);
+			x_in[i] = values;
+			table_int->GetColUndefined(col, name_to_tm_id[display], undefined);
+			for (long j = 0; j < m_obs; ++j) undefs[j] = undefs[j] || undefined[j];
+		}
+	}
+
+	std::vector<int> valid_rows;
+	std::map<int, int> remap;
+	for (long i = 0; i < m_obs; ++i) {
+		if (!undefs[i]) {
+			remap[i] = static_cast<int>(valid_rows.size());
+			valid_rows.push_back(static_cast<int>(i));
+		}
+	}
+	const int n_valid = static_cast<int>(valid_rows.size());
+	if (n_valid == 0) {
+		UpdateMessageBox("");
+		m_gauge->Hide();
+		wxLogMessage("Spreg: no observation has all the variables defined");
+		wxMessageBox(_("Please check the selected variables are all valid."), _("Error"),
+					 wxOK | wxICON_ERROR, this);
+		return true;
+	}
+
+	if (!m_CheckWeight->GetValue()) {
+		UpdateMessageBox("");
+		m_gauge->Hide();
+		wxLogMessage("Spreg: no spatial weights matrix was chosen");
+		wxMessageBox(_("These models need a spatial weights matrix.  Please choose one."),
+					 _("Error"), wxOK | wxICON_ERROR, this);
+		return true;
+	}
+	const boost::uuids::uuid weights_id = GetWeightsId();
+	GalWeight* gal_weight = w_man_int->GetGal(weights_id);
+	if (!gal_weight || !gal_weight->gal) {
+		UpdateMessageBox("");
+		m_gauge->Hide();
+		wxLogMessage("Spreg: the chosen weights matrix is gone");
+		wxMessageBox(_("The chosen weights matrix is no longer available."), _("Error"),
+					 wxOK | wxICON_ERROR, this);
+		return true;
+	}
+
+	// the observations the model sees: the ones with every variable defined
+	std::vector<double> y;
+	y.reserve(n_valid);
+	for (int i = 0; i < n_valid; ++i) y.push_back(y_in[valid_rows[i]]);
+	std::vector<std::vector<double> > x(nX);
+	for (int c = 0; c < nX; ++c) {
+		x[c].reserve(n_valid);
+		for (int i = 0; i < n_valid; ++i) x[c].push_back(x_in[c][valid_rows[i]]);
+	}
+
+	const wxString sep = wxFileName::GetPathSeparator();
+	const wxString job_dir = wxStandardPaths::Get().GetTempDir() + sep
+		+ wxString::Format("geoda-spreg-job-%lu", wxGetProcessId());
+	wxFileName::Mkdir(job_dir, wxS_DIR_DEFAULT, wxPATH_MKDIR_FULL);
+	wxRemoveFile(job_dir + sep + "data.bin");
+	wxRemoveFile(job_dir + sep + "result.json");
+
+	SpregEngine::Manifest manifest;
+	wxString err;
+	if (!manifest.Read(SpregEngine::ShippedManifestPath(), err)) {
+		UpdateMessageBox("");
+		m_gauge->Hide();
+		wxLogMessage("Spreg: %s", err);
+		wxMessageBox(err, _("Error"), wxOK | wxICON_ERROR, this);
+		return true;
+	}
+	const SpregEngine::Status status = SpregEngine::Discover(manifest);
+	if (!status.installed) {
+		UpdateMessageBox("");
+		m_gauge->Hide();
+		wxLogMessage("Spreg: the engine is not installed");
+		wxMessageBox(_("The engine is not installed.  Use the Install Spreg button."),
+					 _("Error"), wxOK | wxICON_ERROR, this);
+		return true;
+	}
+
+	SpregJob::Writer writer(job_dir);
+	const std::vector<long>* dummy = NULL;
+	(void) dummy;
+	bool ok = writer.AddY(y, err);
+	if (ok) ok = writer.AddX(x, err);
+	if (ok) {
+		if (n_valid == static_cast<int>(m_obs)) {
+			ok = writer.AddWeights(gal_weight->gal, n_valid, err);
+		} else {
+			// a copy with the undefined observations taken out, as OnRunClick does
+			GalElement* subset = new GalElement[n_valid];
+			for (int i = 0; i < n_valid; ++i) {
+				const int original = valid_rows[i];
+				const std::vector<long>& nbrs = gal_weight->gal[original].GetNbrs();
+				const std::vector<double>& weights =
+					gal_weight->gal[original].GetNbrWeights();
+				int index = 0;
+				for (size_t j = 0; j < nbrs.size(); ++j) {
+					const int neighbour = static_cast<int>(nbrs[j]);
+					if (undefs[neighbour]) continue;
+					subset[i].SetNbr(index++, remap[neighbour],
+									 j < weights.size() ? weights[j] : 1.0);
+				}
+			}
+			ok = writer.AddWeights(subset, n_valid, err);
+			delete[] subset;
+		}
+	}
+
+	// the options the registry declares for this model, as they stand
+	std::map<wxString, wxString> options;
+	for (size_t i = 0; i < m_spreg_models.size(); ++i) {
+		if (m_spreg_models[i].id == m_spreg_model) {
+			options = m_spreg_models[i].defaults;
+			break;
+		}
+	}
+	// "full" builds a dense n by n matrix; LU is the sparse log-Jacobian and the
+	// only one that survives a large data set
+	if (options.find("method") != options.end()) options["method"] = "LU";
+
+	if (ok) {
+		ok = writer.Write(m_spreg_model, options, name_to_nm[y_display], x_names,
+						  w_man_int->GetLongDispName(weights_id), wxEmptyString,
+						  std::vector<wxString>(), std::vector<wxString>(), err);
+	}
+	if (!ok) {
+		UpdateMessageBox("");
+		m_gauge->Hide();
+		wxMessageBox(err, _("Error"), wxOK | wxICON_ERROR, this);
+		return true;
+	}
+
+	UpdateMessageBox(_("estimating..."));
+	wxString output;
+	const int code = SpregEngine::RunJob(status.dir, job_dir, output, err, 3600);
+	if (code != 0) {
+		UpdateMessageBox("");
+		m_gauge->Hide();
+		wxMessageBox(wxString::Format(_("%s\n\nThe engine's log is in\n%s"), err, job_dir),
+					 _("Error"), wxOK | wxICON_ERROR, this);
+		return true;
+	}
+
+	SpregJob::Result result;
+	if (!result.Read(job_dir, err)) {
+		UpdateMessageBox("");
+		m_gauge->Hide();
+		wxMessageBox(err, _("Error"), wxOK | wxICON_ERROR, this);
+		return true;
+	}
+	if (!result.ok) {
+		UpdateMessageBox("");
+		m_gauge->Hide();
+		wxLogMessage("Spreg: %s", result.error_message);
+		wxMessageBox(result.error_message, _("Error"), wxOK | wxICON_ERROR, this);
+		return true;
+	}
+
+	ShowSpregResults(result, table_int->GetTableName(),
+					 w_man_int->GetLongDispName(weights_id));
+
+	m_spreg_result = result;
+	m_spreg_yhat = result.yhat;
+	m_spreg_resid = result.resid;
+	m_spreg_prederr = result.pred_err;
+	m_has_spreg_result = true;
+
+	UpdateMessageBox("");
+	m_gauge->Hide();
+	return true;
+}
+
+void RegressionDlg::ShowSpregResults(const SpregJob::Result& result,
+									 const wxString& dataset,
+									 const wxString& weights_name)
+{
+	wxString text;
+	text << "SUMMARY OF OUTPUT: " << result.title << "\n";
+	text << wxString::Format("%-20s%s\n", "Data set            : ", dataset);
+	text << wxString::Format("%-20s%s\n", "Spatial Weight      : ", weights_name);
+	text << wxString::Format("Dependent Variable  :%12s  Number of Observations:%5d\n",
+							 m_dependent->GetValue(), result.n);
+	{
+		const double* mean_y = NULL;
+		std::map<wxString, double>::const_iterator it = result.fit.find("mean_y");
+		if (it != result.fit.end()) mean_y = &it->second;
+		std::map<wxString, double>::const_iterator sd = result.fit.find("std_y");
+		text << wxString::Format("Mean dependent var  :%12.6g  Number of Variables   :%5d\n",
+								 mean_y ? *mean_y : 0.0, result.k);
+		text << wxString::Format("S.D. dependent var  :%12.6g  Degrees of Freedom    :%5d\n",
+								 sd != result.fit.end() ? sd->second : 0.0,
+								 result.n - result.k);
+	}
+	{
+		std::map<wxString, double>::const_iterator r2 = result.fit.find("r2");
+		if (r2 == result.fit.end()) r2 = result.fit.find("pr2");
+		std::map<wxString, double>::const_iterator logll = result.fit.find("logll");
+		std::map<wxString, double>::const_iterator aic = result.fit.find("aic");
+		std::map<wxString, double>::const_iterator schwarz = result.fit.find("schwarz");
+		std::map<wxString, double>::const_iterator sigma = result.fit.find("sigma2");
+		if (r2 != result.fit.end()) {
+			text << wxString::Format("R-squared           :%12.6f\n", r2->second);
+		}
+		if (sigma != result.fit.end()) {
+			text << wxString::Format("Sigma-square        :%12.6g  %s%12.6g\n",
+									 sigma->second, "Akaike info criterion :",
+									 aic != result.fit.end() ? aic->second : 0.0);
+		}
+		if (logll != result.fit.end()) {
+			text << wxString::Format("Log likelihood      :%12.6g  %s%12.6g\n",
+									 logll->second, "Schwarz criterion     :",
+									 schwarz != result.fit.end() ? schwarz->second : 0.0);
+		}
+	}
+
+	text << "---------------------------------------------------------------";
+	text << "---------------------\n";
+	text << "       Variable      Coefficient      Std.Error    z-Statistic   Probability\n";
+	text << "---------------------------------------------------------------";
+	text << "---------------------\n";
+	for (size_t i = 0; i < result.names.size(); ++i) {
+		wxString name = result.names[i];
+		// the regimes models prefix every row with its regime, and mark the ones
+		// that are shared across regimes
+		if (name.StartsWith("_Global_")) name = name.Mid(8) + " (all regimes)";
+		text << GenUtils::PadTrim(name, 18);
+		text << wxString::Format("  %12.6g   ", result.estimate[i]);
+		if (i < result.std_err.size() && !std::isnan(result.std_err[i])) {
+			text << wxString::Format("%12.6g   ", result.std_err[i]);
+		} else {
+			text << wxString::Format("%12s   ", "-");
+		}
+		if (i < result.z.size() && !std::isnan(result.z[i])) {
+			text << wxString::Format("%12.6g   ", result.z[i]);
+		} else {
+			text << wxString::Format("%12s   ", "-");
+		}
+		if (i < result.p.size() && !std::isnan(result.p[i])) {
+			text << wxString::Format("%9.5f\n", result.p[i]);
+		} else {
+			text << wxString::Format("%9s\n", "-");
+		}
+	}
+	text << "---------------------------------------------------------------";
+	text << "---------------------\n\n";
+
+	if (!result.diagnostics.empty()) {
+		text << "REGRESSION DIAGNOSTICS\n";
+		wxString group;
+		for (size_t i = 0; i < result.diagnostics.size(); ++i) {
+			const SpregJob::Result::Diagnostic& d = result.diagnostics[i];
+			if (d.group != group) {
+				group = d.group;
+				text << group.Upper() << "\n";
+				text << "TEST                  DF           VALUE        PROB\n";
+			}
+			text << GenUtils::PadTrim(d.label, 22);
+			text << wxString::Format("%2.0f   %13.4f   %11.5f\n", d.df, d.statistic, d.p);
+		}
+		text << "\n";
+	}
+	for (size_t i = 0; i < result.warnings.size(); ++i) {
+		text << "NOTE: " << result.warnings[i] << "\n";
+	}
+	text << wxString::Format("\nengine: spreg %s\n", result.spreg_version);
+
+	// logReport is what the dialog keeps: it is what enables Save to File, and
+	// what the three models above hand to the report window as well
+	logReport = text;
+	DisplayRegression(logReport);
+	EnablingItems();
 }
 
 void RegressionDlg::OnSetupAutoModel(wxCommandEvent& event )
@@ -366,6 +800,13 @@ void RegressionDlg::OnSetupAutoModel(wxCommandEvent& event )
 void RegressionDlg::OnRunClick( wxCommandEvent& event )
 {
 	wxLogMessage("Click RegressionDlg::OnRunClick");
+
+	// when one of the engine's models is chosen it runs through the solver, and
+	// everything below - the three models GeoDa has always had - is left alone
+	if (!m_spreg_model.IsEmpty()) {
+		RunSpregModel(event);
+		return;
+	}
 
     m_gauge->Show();
 	UpdateMessageBox(_("calculating..."));

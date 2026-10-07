@@ -142,32 +142,27 @@ long long AsInt(const json_spirit::Value* value, long long fallback)
 // ---------------------------------------------------------------------------
 
 /**
- * Has the child finished?  wxProcess::Exists() is not enough on unix: a child
- * that has exited but has not been reaped is a zombie, and still exists, so an
- * engine that fails on start would look like one that hangs.  waitpid() answers
- * the question and reaps it.  On Windows a process that ends stops existing.
+ * The process object for the solver.
+ *
+ * It does not call wxProcess::OnTerminate(), which is what normally makes wx
+ * delete the object: this loop still wants to read its streams and ask whether
+ * it ended, and wx's bookkeeping for a child reaches into the object from the
+ * event loop - deleting it first is a crash inside wxExecuteData::OnExit().
+ * The object is therefore ours to delete, once the child is gone.
  */
-bool ChildFinished(int pid, int* exit_code)
-{
-#ifdef __WXMSW__
-	if (wxProcess::Exists(pid)) return false;
-	*exit_code = -1;
-	return true;
-#else
-	int status = 0;
-	const pid_t got = waitpid(static_cast<pid_t>(pid), &status, WNOHANG);
-	if (got == static_cast<pid_t>(pid)) {
-		*exit_code = WIFEXITED(status) ? WEXITSTATUS(status)
-									   : -WTERMSIG(status);
-		return true;
+class SolverProcess : public wxProcess {
+public:
+	SolverProcess() : wxProcess(wxPROCESS_REDIRECT), terminated(false), status(-1) {}
+
+	virtual void OnTerminate(int WXUNUSED(pid), int status_in)
+	{
+		status = status_in;
+		terminated = true;
 	}
-	if (got < 0 && errno == ECHILD) {
-		*exit_code = -1;        // wx's handler got there first
-		return true;
-	}
-	return false;
-#endif
-}
+
+	bool terminated;
+	int status;
+};
 
 struct ProcessResult {
 	bool start_failed;
@@ -197,7 +192,7 @@ ProcessResult RunProcess(const wxString& cmd, const wxString& wait_for_file,
 	ProcessResult result;
 	wxLogMessage("SpregEngine: running %s", cmd);
 
-	wxProcess* process = new wxProcess(wxPROCESS_REDIRECT);
+	SolverProcess* process = new SolverProcess();
 	const long pid = wxExecute(cmd, wxEXEC_ASYNC, process);
 	if (pid == 0) {
 		delete process;
@@ -229,12 +224,11 @@ ProcessResult RunProcess(const wxString& cmd, const wxString& wait_for_file,
 			result.finished = true;
 			break;
 		}
-		int exit_code = -1;
-		if (ChildFinished(static_cast<int>(pid), &exit_code)) {
+		if (process->terminated || !wxProcess::Exists(static_cast<int>(pid))) {
 			// it stopped on its own; whatever it had to say is in the file it
 			// was asked to write, or in the log next to the job
 			result.finished = true;
-			result.exit_code = exit_code;
+			result.exit_code = process->status;
 			break;
 		}
 
@@ -256,9 +250,26 @@ ProcessResult RunProcess(const wxString& cmd, const wxString& wait_for_file,
 			break;
 		}
 		wxMilliSleep(50);
+		// wx reaps the child from the event loop, so it has to run: this is what
+		// turns the child's exit into OnTerminate() and an exit code
+		wxYieldIfNeeded();
 	}
 
-	delete process;
+	// The answer file can appear a moment before the interpreter has finished
+	// exiting.  Give it that moment, so that wx is done with the object before
+	// it is deleted; if it is still there after that the object is deliberately
+	// left to wx rather than risk it reaching into freed memory later.
+	for (int i = 0; i < 100 && !process->terminated
+		 && wxProcess::Exists(static_cast<int>(pid)); ++i) {
+		wxMilliSleep(20);
+		wxYieldIfNeeded();
+	}
+	if (process->terminated || !wxProcess::Exists(static_cast<int>(pid))) {
+		delete process;
+	} else {
+		wxLogMessage("SpregEngine: the solver is still running; leaving its process to wx");
+		process->Detach();
+	}
 	return result;
 }
 

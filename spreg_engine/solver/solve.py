@@ -523,6 +523,8 @@ def cmd_run(jobdir: str) -> int:
             result, obs = run_job(jobdir, log)
         seen = set()
         for item in caught:
+            if item.category.__name__ in ("SparseEfficiencyWarning",):
+                continue                      # "splu converted its input to CSC" is not news
             text = "%s: %s" % (item.category.__name__, item.message)
             if text not in seen:
                 seen.add(text)
