@@ -96,6 +96,13 @@ public:
 private:
     json_spirit::Value Dispatch(const json_spirit::Value& request,
                                 McpElicitChannel* elicit);
+    // The registry entry a tools/call request targets. The client sees two
+    // tools and passes the real command id inside execute_command's "name"
+    // argument, so this resolves one level deeper than the request's own tool
+    // name. Returns null when the request is not a tools/call, or names a
+    // tool or command that does not exist (list_command has no registry
+    // entry, so it resolves to null).
+    const McpTool* ResolveRequestTool(const json_spirit::Value& request) const;
     // The client answered one of our elicitation requests: wake the tool that
     // asked.
     void ApplyAskResponse(const json_spirit::Object& response);

@@ -109,17 +109,33 @@ json_spirit::Value McpServer::MakeParseError() const
     return Obj(resp);
 }
 
-bool McpServer::IsHeavyTool(const json_spirit::Value& request) const
+// The client sees two tools and names the real command inside
+// execute_command's "arguments", so both the thread choice and the
+// elicitation opt-in have to resolve the inner id rather than the request's
+// own tool name.
+const McpTool* McpServer::ResolveRequestTool(const json_spirit::Value& request) const
 {
-    if (request.type() != json_spirit::obj_type) return false;
+    if (request.type() != json_spirit::obj_type) return NULL;
     const json_spirit::Object& obj = request.get_obj();
     wxString method = GdaJson::getStrValFromObj(obj, "method");
-    if (method != "tools/call") return false;
+    if (method != "tools/call") return NULL;
     json_spirit::Value params;
-    if (!GdaJson::findValue(request, params, "params")) return false;
-    if (params.type() != json_spirit::obj_type) return false;
-    wxString name = GdaJson::getStrValFromObj(params.get_obj(), "name");
-    const McpTool* tool = m_tools.FindTool(name);
+    if (!GdaJson::findValue(request, params, "params")) return NULL;
+    if (params.type() != json_spirit::obj_type) return NULL;
+    const json_spirit::Object& p = params.get_obj();
+    wxString name = GdaJson::getStrValFromObj(p, "name");
+    if (name == kMcpExecuteToolName) {
+        json_spirit::Value tool_args;
+        if (!GdaJson::findValue(p, tool_args, "arguments")) return NULL;
+        if (tool_args.type() != json_spirit::obj_type) return NULL;
+        name = GdaJson::getStrValFromObj(tool_args.get_obj(), "name");
+    }
+    return m_tools.FindTool(name);
+}
+
+bool McpServer::IsHeavyTool(const json_spirit::Value& request) const
+{
+    const McpTool* tool = ResolveRequestTool(request);
     return tool && tool->run_on_worker;
 }
 
@@ -145,15 +161,7 @@ bool McpServer::IsResponseMessage(const std::string& body) const
 
 bool McpServer::IsElicitingTool(const json_spirit::Value& request) const
 {
-    if (request.type() != json_spirit::obj_type) return false;
-    const json_spirit::Object& obj = request.get_obj();
-    wxString method = GdaJson::getStrValFromObj(obj, "method");
-    if (method != "tools/call") return false;
-    json_spirit::Value params;
-    if (!GdaJson::findValue(request, params, "params")) return false;
-    if (params.type() != json_spirit::obj_type) return false;
-    wxString name = GdaJson::getStrValFromObj(params.get_obj(), "name");
-    const McpTool* tool = m_tools.FindTool(name);
+    const McpTool* tool = ResolveRequestTool(request);
     return tool && tool->may_elicit;
 }
 
@@ -299,13 +307,16 @@ json_spirit::Value McpServer::HandleInitialize(const json_spirit::Object& params
     // resources only as user @-mentions.
     result.push_back(P("instructions", json_spirit::Value(
         "GeoDa: desktop spatial data analysis -- spatial weights, global and "
-        "local autocorrelation (LISA), clustering, regression, maps. Read the "
-        "skill first: skill/get {\"uri\": \"skill://spatial-analysis-"
-        "workbook\"} (or resources/read {uri: skill://spatial-analysis-"
-        "workbook}). It is the workbook this server's tools follow, and it "
-        "maps every task onto them -- do not call another tool before you "
+        "local autocorrelation (LISA), clustering, regression, maps. Two "
+        "tools: list_command lists every command (id, group, parameters), and "
+        "execute_command {name: \"<command id>\", arguments: {...}} runs one. "
+        "Read the workbook skill first: execute_command {name: \"skill/get\", "
+        "arguments: {uri: \"skill://spatial-analysis-workbook\"}} (or "
+        "resources/read {uri: skill://spatial-analysis-workbook}). It maps "
+        "each task onto the commands -- do not run another command before you "
         "have read it. If project/status reports no data set open, open one "
-        "with file/open {\"path\": ...}; file/close closes it.")));
+        "with execute_command {name: \"file/open\", arguments: {path: ...}}; "
+        "execute_command {name: \"file/close\"} closes it.")));
     return Obj(result);
 }
 
@@ -337,27 +348,60 @@ json_spirit::Value McpServer::HandleResourcesRead(const json_spirit::Object& par
 json_spirit::Value McpServer::HandleToolsCall(const json_spirit::Object& params,
                                               McpElicitChannel* elicit)
 {
-    wxString name = GdaJson::getStrValFromObj(params, "name");
-    const McpTool* tool = m_tools.FindTool(name);
-    if (!tool) {
-        throw McpError(-32602, "Unknown tool: " + name.ToStdString());
+    // Two exposed tools: list_command returns the catalog, and
+    // execute_command {name, arguments} runs one command. Any other tool name
+    // is an error -- there is no per-command tool surface.
+    wxString tool_name = GdaJson::getStrValFromObj(params, "name");
+
+    json_spirit::Value result;
+    if (tool_name == kMcpListToolName) {
+        json_spirit::Object list_args;
+        json_spirit::Value list_val;
+        if (GdaJson::findValue(params, list_val, "arguments") &&
+            list_val.type() == json_spirit::obj_type) {
+            list_args = list_val.get_obj();
+        }
+        result = m_tools.GetCommandsList(list_args);
+    } else if (tool_name == kMcpExecuteToolName) {
+        json_spirit::Value tool_args_val;
+        if (!GdaJson::findValue(params, tool_args_val, "arguments") ||
+            tool_args_val.type() != json_spirit::obj_type) {
+            throw McpError(-32602,
+                "Missing arguments: call execute_command {name: "
+                "\"<command id>\", arguments: {...}}.");
+        }
+        const json_spirit::Object& tool_args = tool_args_val.get_obj();
+
+        wxString name = GdaJson::getStrValFromObj(tool_args, "name");
+        if (name.IsEmpty()) {
+            throw McpError(-32602,
+                "Missing command name: call execute_command {name: "
+                "\"<command id>\", arguments: {...}}.");
+        }
+        const McpTool* tool = m_tools.FindTool(name);
+        if (!tool) {
+            throw McpError(-32602, "Unknown command: " + name.ToStdString());
+        }
+
+        McpToolContext ctx;
+        ctx.project = GdaFrame::GetProject();
+        // Only commands that opted in may ask the user, and only when the
+        // client advertised the capability; every other command keeps the
+        // parameter error it raised before.
+        ctx.elicit = (tool->may_elicit && m_client_elicits) ? elicit : NULL;
+
+        json_spirit::Object args;
+        json_spirit::Value args_val;
+        if (GdaJson::findValue(tool_args, args_val, "arguments") &&
+            args_val.type() == json_spirit::obj_type) {
+            args = args_val.get_obj();
+        }
+        result = tool->handler(ctx, args);
+    } else {
+        throw McpError(-32602,
+            "Unknown tool: " + tool_name.ToStdString() +
+            " (this server exposes list_command and execute_command)");
     }
-
-    McpToolContext ctx;
-    ctx.project = GdaFrame::GetProject();
-    // Only tools that opted in may ask the user, and only when the client
-    // advertised the capability; every other tool keeps the parameter error it
-    // raised before.
-    ctx.elicit = (tool->may_elicit && m_client_elicits) ? elicit : NULL;
-
-    json_spirit::Object args;
-    json_spirit::Value args_val;
-    if (GdaJson::findValue(params, args_val, "arguments") &&
-        args_val.type() == json_spirit::obj_type) {
-        args = args_val.get_obj();
-    }
-
-    json_spirit::Value result = tool->handler(ctx, args);
 
     // If the handler returned a MCP "content" array directly (e.g. an image
     // snapshot from return_image), pass it through verbatim. Otherwise wrap
