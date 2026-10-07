@@ -383,6 +383,24 @@ namespace
 void RegisterCommands(McpTools& tools)
 {
     // =====================================================================
+    // skill (first: the client is told to read this before anything else)
+    // =====================================================================
+    Add(tools, "skill/list", "List Skills", "Skill",
+        "List the skills this server ships, as skill:// URIs. Currently the "
+        "spatial analysis workbook; read it with skill/get.",
+        NoParams(), false, McpSkillList);
+
+    Add(tools, "skill/get", "Read Skill", "Skill",
+        "Return the text of a skill from skill/list -- the workbook that maps "
+        "spatial analysis tasks onto these tools. Read it before any analysis; "
+        "resources/read serves the same text to clients that read resources.",
+        Schema(std::vector<json_spirit::Pair>{
+                   P("uri", StrProp("Skill URI, e.g. "
+                                    "skill://spatial-analysis-workbook"))},
+               {"uri"}),
+        false, McpSkillGet);
+
+    // =====================================================================
     // file
     // =====================================================================
     // Opening creates the table and map frames, so this is a main-thread tool

@@ -38,6 +38,12 @@ json_spirit::Value McpTableGetColumn(const McpToolContext& ctx,
 json_spirit::Value McpTableUnivariateStats(const McpToolContext& ctx,
                                           const json_spirit::Object& params);
 
+// skill
+json_spirit::Value McpSkillList(const McpToolContext& ctx,
+                                const json_spirit::Object& params);
+json_spirit::Value McpSkillGet(const McpToolContext& ctx,
+                               const json_spirit::Object& params);
+
 // file
 json_spirit::Value McpFileOpen(const McpToolContext& ctx,
                                const json_spirit::Object& params);

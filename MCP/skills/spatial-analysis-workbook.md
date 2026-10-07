@@ -16,12 +16,19 @@ U.S. counties; homicide rates and socioeconomic covariates).
 ## FIRST: Always load this skill
 
 Loading this skill's content is the **first step of every task** — before any
-tool call and before any other action. Load it via MCP as
-`resources/read {uri: "skill://spatial-analysis-workbook"}`, or read the full
-guide via `prompts/get {name: "spatial-analysis-workbook"}`, then follow it
-exactly. Do NOT call `table/*`, `weights/*`, `global/*`, `space/*`,
-`window/*`, or any other tool before you have read this skill. Every workbook
-exercise maps to a numbered step in the sections below.
+tool call and before any other action. Read it with
+`skill/get {uri: "skill://spatial-analysis-workbook"}` (what `initialize` points
+you at), as the resource `resources/read {uri:
+"skill://spatial-analysis-workbook"}`, or as the prompt
+`prompts/get {name: "spatial-analysis-workbook"}` — all three serve this text.
+Then follow it exactly: do NOT call `table/*`, `weights/*`, `global/*`,
+`space/*`, `window/*`, or any other tool before you have read it. Every
+workbook exercise maps to a numbered step in the sections below.
+
+If `project/status` reports that nothing is open, open the data set yourself
+with `file/open {path}` — an absolute path, `~` and `${VAR}` expanded, e.g.
+`~/Downloads/natregimes/natregimes.shp`. A project already open is left alone:
+call `file/close` first to switch data sets.
 
 Some tools ask the user directly. If a required numeric variable is missing from
 a `lisa/*` or `global/*` call, the server raises a question card (MCP
@@ -71,6 +78,9 @@ types, and where the significant hot and cold spots are located.
 
 Before any analysis, confirm a dataset is open and understand its variables.
 
+- `file/open {path}` — open a local data set (shapefile, GeoJSON, GeoPackage,
+  or a `.gda` project) in the running app; `file/close` closes it again. A
+  format without geometry opens as a table-only project.
 - `project/status` — confirm a dataset is open; rows, columns, and the list
   of column names.
 - `table/list_columns` — see the available variables and their types.

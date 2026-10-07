@@ -68,11 +68,10 @@ json_spirit::Value McpResources::GetResourcesList() const
 json_spirit::Value McpResources::GetResource(const json_spirit::Object& params) const
 {
     wxString uri = GdaJson::getStrValFromObj(params, "uri");
-    if (uri != "skill://spatial-analysis-workbook") {
+    std::string text = GetSkillText(uri);
+    if (text.empty()) {
         throw McpError(-32602, "Unknown resource: " + uri.ToStdString());
     }
-
-    std::string text = WorkbookSkillText();
 
     std::vector<json_spirit::Pair> content;
     content.push_back(P("uri", json_spirit::Value(uri.ToStdString())));
@@ -83,6 +82,14 @@ json_spirit::Value McpResources::GetResource(const json_spirit::Object& params) 
     std::vector<json_spirit::Pair> result;
     result.push_back(P("contents", json_spirit::Value(json_spirit::Array(1, Obj(content)))));
     return Obj(result);
+}
+
+std::string McpResources::GetSkillText(const wxString& uri)
+{
+    if (uri == "skill://spatial-analysis-workbook") {
+        return WorkbookSkillText();
+    }
+    return std::string();
 }
 
 std::string McpResources::WorkbookSkillText()
@@ -102,12 +109,19 @@ std::string McpResources::WorkbookSkillText()
 "## FIRST: Always load this skill\n"
 "\n"
 "Loading this skill's content is the **first step of every task** -- before "
-"any tool call and before any other action. Load it via MCP as "
-"`resources/read {uri: \"skill://spatial-analysis-workbook\"}`, or read the "
-"full guide via `prompts/get {name: \"spatial-analysis-workbook\"}`, then "
-"follow it exactly. Do NOT call `table/*`, `weights/*`, `global/*`, "
-"`space/*`, `window/*`, or any other tool before you have read this skill. "
-"Every workbook exercise maps to a numbered step in the sections below.\n"
+"any tool call and before any other action. Read it with "
+"`skill/get {uri: \"skill://spatial-analysis-workbook\"}` (what `initialize` "
+"points you at), as the resource `resources/read {uri: "
+"\"skill://spatial-analysis-workbook\"}`, or as the prompt "
+"`prompts/get {name: \"spatial-analysis-workbook\"}` -- all three serve this "
+"text. Then follow it exactly: do NOT call `table/*`, `weights/*`, "
+"`global/*`, `space/*`, `window/*`, or any other tool before you have read "
+"it. Every workbook exercise maps to a numbered step in the sections below.\n"
+"\n"
+"If `project/status` reports that nothing is open, open the data set yourself "
+"with `file/open {path}` -- an absolute path, `~` and `${VAR}` expanded, e.g. "
+"`~/Downloads/natregimes/natregimes.shp`. A project already open is left "
+"alone: call `file/close` first to switch data sets.\n"
 "\n"
 "Some tools ask the user directly. If a required numeric variable is missing "
 "from a `lisa/*` or `global/*` call, the server raises a question card (MCP "
@@ -160,6 +174,9 @@ std::string McpResources::WorkbookSkillText()
 "Before any analysis, confirm a dataset is open and understand its "
 "variables.\n"
 "\n"
+"- `file/open {path}` -- open a local data set (shapefile, GeoJSON, "
+"GeoPackage, or a `.gda` project) in the running app; `file/close` closes it "
+"again. A format without geometry opens as a table-only project.\n"
 "- `project/status` -- confirm a dataset is open; rows, columns, and the list "
 "of column names.\n"
 "- `table/list_columns` -- see the available variables and their types.\n"

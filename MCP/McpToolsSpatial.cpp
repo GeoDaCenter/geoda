@@ -19,6 +19,7 @@
 
 #include "MCP/McpToolsSpatial.h"
 #include "MCP/McpTools.h"
+#include "MCP/McpResources.h"
 
 #include <algorithm>
 #include <cmath>
@@ -776,6 +777,46 @@ namespace
         }
         return Arr(arr);
     }
+}
+
+// =========================================================================
+// skill (the workbook this server ships)
+// =========================================================================
+// The same text is served to resource-reading clients as
+// skill://spatial-analysis-workbook. The tool exists because Claude Code
+// exposes MCP resources only as user @-mentions, so an agent cannot read a
+// resource on its own: a tool is the only way it can load the skill without an
+// external skill repo. `initialize` points every client here.
+json_spirit::Value McpSkillList(const McpToolContext& ctx,
+                                const json_spirit::Object& params)
+{
+    McpResources resources;
+    return resources.GetResourcesList();
+}
+
+json_spirit::Value McpSkillGet(const McpToolContext& ctx,
+                               const json_spirit::Object& params)
+{
+    wxString uri = GetStr(params, "uri");
+    if (uri.IsEmpty()) {
+        throw McpError(-32602, "Missing required parameter: uri");
+    }
+    std::string text = McpResources::GetSkillText(uri);
+    if (text.empty()) {
+        throw McpError(-32602, "Unknown skill: " + uri.ToStdString());
+    }
+
+    // Same shape as resources/read, so a client can treat the two alike.
+    std::vector<json_spirit::Pair> content;
+    content.push_back(P("uri", json_spirit::Value(uri.ToStdString())));
+    content.push_back(P("mimeType", json_spirit::Value("text/markdown")));
+    content.push_back(P("text",
+        json_spirit::Value(wxString::FromUTF8(text.c_str()).ToStdString())));
+
+    std::vector<json_spirit::Pair> result;
+    result.push_back(P("contents",
+        json_spirit::Value(json_spirit::Array(1, Obj(content)))));
+    return Obj(result);
 }
 
 // =========================================================================
