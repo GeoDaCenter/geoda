@@ -26,8 +26,12 @@ BuildTools/windows/temp/
 BuildTools/windows/enc_temp_folder/
 BuildTools/windows/Debug/
 BuildTools/windows/libraries/
+BuildTools/windows/vcpkg/
 BuildTools/windows/Release/
+BuildTools/windows/arm64-windows/
 BuildTools/windows/ipch/
+BuildTools/windows/ARM64/
+BuildTools/windows/GeoDa.vs2022/
 BuildTools/windows/GeoDa.vcxproj.filters
 
 BuildTools/macosx/debug/
@@ -39,6 +43,7 @@ BuildTools/macosx/temp/
 BuildTools/macosx/temp1/
 BuildTools/macosx/temp108/
 BuildTools/macosx/build/
+BuildTools/macosx/Resources/
 BuildTools/macosx/GeoDa.xcodeproj/
 BuildTools/macosx/GeoDa.xcodeproj/xcuserdata/
 BuildTools/macosx/GeoDa-leopard.xcodeproj/

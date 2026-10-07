@@ -22,6 +22,38 @@ Please read the detail instructions under directory BuildTools/
 
 Note:  contributions of build scripts under other platforms are welcomed, please follow the structure of building script under BuildTools/.
 
+# Editing the MCP skill #
+
+The built-in MCP server ships a skill, the spatial data analysis workbook, and serves it to MCP clients itself: an agent that connects to GeoDa can read it with nothing installed. The same text reaches a client four ways:
+
+* `skill/get {uri: "skill://spatial-analysis-workbook"}`, listed by `skill/list`. These are tools, so a client that does not expose MCP resources can still read the skill.
+* The resource `skill://spatial-analysis-workbook`, via `resources/read`.
+* The prompt `spatial-analysis-workbook`, via `prompts/get`. Its `section` argument loads one part: `workflow`, `overview`, `maps`, `weights`, `global`, `local`, `rates`, `multivariate`, `clustering`.
+* The `instructions` that `initialize` returns, which name the skill and how to read it.
+
+The text lives in three files, and all three have to be edited together:
+
+* `MCP/skills/spatial-analysis-workbook.md` - the authoring source, and the copy a human reads.
+* `MCP/McpResources.cpp`, `WorkbookSkillText()` - the whole document as the C string that `skill/get` and the resource serve.
+* `MCP/McpPrompts.cpp`, `GuideText()` and `SectionText()` - the same guide split into the prompt's sections.
+
+Worth keeping in mind when editing:
+
+* The "FIRST: Always load this skill" section is the contract that makes an agent read the workbook before it calls anything. Keep it, and keep it first.
+* Name tools and parameters exactly as they are registered in `MCP/McpCommands.cpp`; this document is their documentation.
+* Adding a section means a new `kSectionKeys`/`kSectionLabels` entry, a `SectionText()` branch, and a matching heading in the `.md`.
+* If how the skill is delivered changes, update the `instructions` in `MCP/McpServer.cpp` too.
+
+To see what a client sees, with GeoDa running (default port 8765):
+
+        curl -s -X POST -H 'content-type: application/json' \
+          -d '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"skill/get","arguments":{"uri":"skill://spatial-analysis-workbook"}}}' \
+          http://127.0.0.1:8765/mcp
+
+`MCP/tests/skill_serving_test.py` checks the whole arrangement: that the instructions point at the skill, that `skill/get` and `resources/read` return identical text, that the document still opens with the load-me-first section, and that an unknown URI is an error.
+
+        GEODA_BIN=/path/to/GeoDa python3 MCP/tests/skill_serving_test.py
+
 # Internationalization #
 
 GeoDa Internationalization (I18n) and Localization(L10n) project aims to provide an online tool that GeoDa users could help to translate the GeoDa UI to different languages.

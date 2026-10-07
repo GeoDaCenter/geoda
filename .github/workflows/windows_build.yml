@@ -23,7 +23,7 @@ jobs:
   # This workflow contains a single job called "build"
   windows_build:
     # The type of runner that the job will run on
-    runs-on: windows-2022
+    runs-on: ${{ matrix.runner }}
     if: ${{ !contains(github.event.head_commit.message, '[ci skip]') && !contains(github.event.head_commit.message, '[skip ci]') }}
 
     strategy:
@@ -33,10 +33,23 @@ jobs:
             VS_VER: 2022
             MSVC_VER: 1930
             platform: x64
+            runner: windows-2022
           - VS_VERSION: Visual Studio 17
             VS_VER: 2022
             MSVC_VER: 1930
             platform: x86
+            runner: windows-2022
+          # arm64 is cross-compiled on the x64 runner. The windows-11-arm
+          # image moved to Visual Studio 2026 (actions/runner-images#14602),
+          # whose toolset Boost 1.88's bootstrap does not recognise ("Unknown
+          # toolset: vcunk"), so the arm64 dependency chain cannot be built
+          # there. windows-2022 still ships VS 2022 (v143) plus the ARM64
+          # build tools, and -arch=arm64 cross-compiles against them.
+          - VS_VERSION: Visual Studio 17
+            VS_VER: 2022
+            MSVC_VER: 1930
+            platform: arm64
+            runner: windows-2022
 
     env:
       VS_VERSION: ${{ matrix.VS_VERSION }}
@@ -62,21 +75,82 @@ jobs:
               $env:WIN64_ARG=""
               $env:CMAKE_ARCHITECTURE="Win32"
           }
-          else
+          elseif($env:platform -eq "x64")
           {
               $env:ARCHITECTURE="amd64"
               $env:WIN64_ARG="WIN64=YES"
               $env:CMAKE_ARCHITECTURE="x64"
+          }
+          elseif($env:platform -eq "arm64")
+          {
+              $env:ARCHITECTURE="arm64"
+              $env:WIN64_ARG="WIN64=YES"
+              $env:CMAKE_ARCHITECTURE="arm64"
           }
           echo "::set-env name=PATH::$env:PATH"
           echo "::set-env name=ARCHITECTURE::$env:ARCHITECTURE"
           echo "::set-env name=WIN64_ARG::$env:WIN64_ARG"
 
       # Set compiler environment
+      #
+      # Locate Visual Studio with vswhere instead of a hardcoded path. At the
+      # end of September 2026 GitHub migrated the windows-11-arm label from a
+      # VS 2022 image ("...\2022\Enterprise") to a VS 2026 one
+      # ("...\18\Enterprise"), which broke the old fixed path. Resolving the
+      # install location keeps this working across that and future changes.
       - name: Set compiler environment
         shell: cmd
         run: |
-          if "%VS_VER%" == "2022" CALL "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\Common7\Tools\VsDevCmd.bat" -arch=%ARCHITECTURE%
+          set "VSWHERE=%ProgramFiles(x86)%\Microsoft Visual Studio\Installer\vswhere.exe"
+          set "VSPATH="
+          for /f "usebackq delims=" %%i in (`"%VSWHERE%" -latest -prerelease -products * -property installationPath 2^>nul`) do set "VSPATH=%%i"
+          if not defined VSPATH if exist "C:\Program Files\Microsoft Visual Studio\2022\Enterprise" set "VSPATH=C:\Program Files\Microsoft Visual Studio\2022\Enterprise"
+          if not defined VSPATH (
+            echo ERROR: could not locate a Visual Studio installation.
+            exit /b 1
+          )
+          echo Using Visual Studio at "%VSPATH%"
+          CALL "%VSPATH%\Common7\Tools\VsDevCmd.bat" -arch=%ARCHITECTURE%
+          rem VsDevCmd sets INCLUDE/LIB for the target but leaves the
+          rem toolset's bin directory off PATH. The dependency builds invoke
+          rem cl/link/nmake by bare name, so on the runner they either are not
+          rem found or resolve to Git for Windows' own link.exe
+          rem ("/usr/bin/link: extra operand ..."), which fails the wxWidgets
+          rem build and later the GeoDa link with LNK1181 wxmsw31u.lib.
+          rem Put the target toolset first, then the host ones -- nmake lives
+          rem in the host directory, not in the arm64 cross directory.
+          set "TARGETDIR=%ARCHITECTURE%"
+          if /i "%TARGETDIR%"=="amd64" set "TARGETDIR=x64"
+          set "VCTOOLS="
+          for /d %%d in ("%VSPATH%\VC\Tools\MSVC\*") do set "VCTOOLS=%%d"
+          set "TARGETBIN="
+          if defined VCTOOLS if exist "%VCTOOLS%\bin\HostX64\%TARGETDIR%\cl.exe" set "TARGETBIN=%VCTOOLS%\bin\HostX64\%TARGETDIR%"
+          if not defined TARGETBIN if defined VCTOOLS if exist "%VCTOOLS%\bin\HostX86\%TARGETDIR%\cl.exe" set "TARGETBIN=%VCTOOLS%\bin\HostX86\%TARGETDIR%"
+          if not defined TARGETBIN (
+            echo ERROR: no MSVC %TARGETDIR% toolset found under "%VSPATH%".
+            exit /b 1
+          )
+          rem The Windows SDK ships its tools per host architecture too, and
+          rem VsDevCmd puts the arm64 ones on PATH. An arm64 rc.exe cannot run
+          rem on the x64 runner ("This version of %1 is not compatible with the
+          rem version of Windows you're running"), so prefer the x64 SDK tools --
+          rem they target arm64 just as well, and this is what MSBuild does for
+          rem cross builds.
+          set "SDKBIN="
+          if defined WindowsSdkDir if defined WindowsSDKVersion if exist "%WindowsSdkDir%bin\%WindowsSDKVersion%x64\rc.exe" set "SDKBIN=%WindowsSdkDir%bin\%WindowsSDKVersion%x64"
+          if not defined SDKBIN if defined WindowsSdkDir for /d %%d in ("%WindowsSdkDir%bin\10.*") do set "SDKBIN=%%d\x64"
+          set "PREPEND=%TARGETBIN%;%VCTOOLS%\bin\HostX64\x64;%VCTOOLS%\bin\HostX86\x86"
+          if defined SDKBIN set "PREPEND=%SDKBIN%;%PREPEND%"
+          set "PATH=%PREPEND%;%PATH%"
+          where cl
+          where link
+          where nmake
+          where rc
+          where cl >nul 2>&1 && where link >nul 2>&1 && where nmake >nul 2>&1 && where rc >nul 2>&1
+          if errorlevel 1 (
+            echo ERROR: cl.exe, link.exe, nmake.exe or rc.exe is missing from PATH.
+            exit /b 1
+          )
           echo ::set-env name=PATH::%PATH%
           echo ::set-env name=INCLUDE::%INCLUDE%
           echo ::set-env name=LIB::%LIB%
@@ -127,23 +201,26 @@ jobs:
           $env:GDA_PATH="$env:GITHUB_WORKSPACE\BuildTools\windows"
           cd $env:GDA_PATH
           mkdir temp
-          #
-          # GDAL # gisinternals SDK version still to 2016
-          #
-          if($env:platform -eq "x86") 
+          if($env:platform -ne "arm64")
           {
-            $env:GDAL_SDK_VER="release-1911"
+            #
+            # GDAL # gisinternals SDK version still to 2016
+            #
+            if($env:platform -eq "x86") 
+            {
+              $env:GDAL_SDK_VER="release-1911"
+            }
+            else
+            {
+              $env:GDAL_SDK_VER="release-1911-x64"
+            }
+            cd temp 
+            Invoke-WebRequest "https://github.com/GeoDaCenter/software/releases/download/v2000/$env:GDAL_SDK_VER-dev.zip" -OutFile "$env:GDAL_SDK_VER.zip" 
+            cd ..
+            7z x .\temp\$env:GDAL_SDK_VER.zip
+            dir
+            Rename-Item $env:GDAL_SDK_VER libraries
           }
-          else
-          {
-            $env:GDAL_SDK_VER="release-1911-x64"
-          }
-          cd temp 
-          Invoke-WebRequest "https://github.com/GeoDaCenter/software/releases/download/v2000/$env:GDAL_SDK_VER-dev.zip" -OutFile "$env:GDAL_SDK_VER.zip" 
-          cd ..
-          7z x .\temp\$env:GDAL_SDK_VER.zip
-          dir
-          Rename-Item $env:GDAL_SDK_VER libraries
           cd temp
           #
           # wxWidgets 3.1.4
@@ -157,17 +234,40 @@ jobs:
           {
             nmake -f makefile.vc UNICODE=1 SHARED=1 RUNTIME_LIBS=dynamic BUILD=release MONOLITHIC=1 USE_OPENGL=1 USE_POSTSCRIPT=1
           }
-          else 
+          elseif($env:platform -eq "x64") 
           {
             nmake -f makefile.vc UNICODE=1 SHARED=1 RUNTIME_LIBS=dynamic BUILD=release MONOLITHIC=1 USE_OPENGL=1 USE_POSTSCRIPT=1 TARGET_CPU=AMD64
           }
+          elseif($env:platform -eq "arm64") 
+          {
+            nmake -f makefile.vc UNICODE=1 SHARED=1 RUNTIME_LIBS=dynamic BUILD=release MONOLITHIC=1 USE_OPENGL=1 USE_POSTSCRIPT=1 TARGET_CPU=ARM64
+          }
           cd $env:GDA_PATH\temp
-          #
-          # Boost 1.75
-          #
-          Invoke-WebRequest "https://github.com/lixun910/pygeoda_boost/archive/refs/tags/v1.18.zip" -OutFile "boost.zip"
-          7z x boost.zip
-          Rename-Item pygeoda_boost-1.18 boost
+          if($env:platform -ne "arm64")
+          {
+            #
+            # Boost 1.75
+            #
+            Invoke-WebRequest "https://github.com/lixun910/pygeoda_boost/archive/refs/tags/v1.18.zip" -OutFile "boost.zip"
+            7z x boost.zip
+            Rename-Item pygeoda_boost-1.18 boost
+          }
+          else
+          {
+            #
+            # Boost 1.88
+            #
+            Invoke-WebRequest "https://archives.boost.io/release/1.88.0/source/boost_1_88_0.zip" -OutFile "boost_1_88_0.zip"
+            7z x boost_1_88_0.zip   
+            dir
+            Push-Location boost_1_88_0
+              dir
+              cmd /c "bootstrap.bat"
+              cmd /c "b2.exe -j12 toolset=msvc architecture=arm address-model=64 abi=ms pch=off --without-mpi --without-graph_parallel install --prefix=..\boost"
+            Pop-Location
+            Copy-Item -Path "boost\include\boost-1_88\boost" -Destination "boost\include\boost" -Recurse -Force
+            Remove-Item -Path "boost\include\boost-1_88" -Recurse -Force
+          }
           #
           # JSON Spirit v4.08
           #
@@ -179,9 +279,13 @@ jobs:
           {
             msbuild.exe json_vs2019.sln /property:Configuration="Release" /p:Platform="Win32"
           }
-          else 
+          elseif($env:platform -eq "x64") 
           {
             msbuild.exe json_vs2019.sln /property:Configuration="Release" /p:Platform="x64"
+          }
+          elseif($env:platform -eq "arm64") 
+          {
+            msbuild.exe json_vs2022.sln /property:Configuration="Release" /p:Platform="ARM64"
           }
           cd ..
           #
@@ -197,11 +301,17 @@ jobs:
             msbuild.exe clapack_vs2019.sln /t:BLAS\blas_vs2019 /property:Configuration="ReleaseDLL" /p:Platform="Win32"
             msbuild.exe clapack_vs2019.sln /t:clapack_vs2019 /property:Configuration="ReleaseDLL" /p:Platform="Win32"
           }
-          else 
+          elseif($env:platform -eq "x64")
           {
             msbuild.exe clapack_vs2019.sln /t:libf2c_vs2019 /property:Configuration="ReleaseDLL" /p:Platform="x64"
             msbuild.exe clapack_vs2019.sln /t:BLAS\blas_vs2019 /property:Configuration="ReleaseDLL" /p:Platform="x64"
             msbuild.exe clapack_vs2019.sln /t:clapack_vs2019 /property:Configuration="ReleaseDLL" /p:Platform="x64"
+          }
+          elseif($env:platform -eq "arm64")
+          {
+            msbuild.exe clapack_vs2022.sln /t:libf2c_vs2022 /property:Configuration="ReleaseDLL" /p:Platform="ARM64"
+            msbuild.exe clapack_vs2022.sln /t:BLAS\blas_vs2022 /property:Configuration="ReleaseDLL" /p:Platform="ARM64"
+            msbuild.exe clapack_vs2022.sln /t:clapack_vs2022 /property:Configuration="ReleaseDLL" /p:Platform="ARM64"
           }
           cd ..
           #
@@ -215,13 +325,23 @@ jobs:
           Invoke-WebRequest "https://github.com/yixuan/spectra/archive/refs/tags/v0.8.0.zip" -OutFile "spectra.zip"
           7z x spectra.zip
           Rename-Item spectra-0.8.0 spectra
-          #
-          # OpenCL
-          #
-          Invoke-WebRequest "https://github.com/GeoDaCenter/software/releases/download/v2000/OpenCL.zip" -OutFile "OpenCL.zip"
-          7z x OpenCL.zip
+          if($env:platform -ne "arm64")
+          {
+            #
+            # OpenCL
+            #
+            Invoke-WebRequest "https://github.com/GeoDaCenter/software/releases/download/v2000/OpenCL.zip" -OutFile "OpenCL.zip"
+            7z x OpenCL.zip
+          }
           dir
           cd ..
+          cd $env:GDA_PATH
+          if($env:platform -eq "arm64")
+          {
+            vcpkg install gdal:arm64-windows opencl:arm64-windows --x-install-root=$env:GDA_PATH
+            Copy-Item -Path "$env:GDA_PATH\arm64-windows" -Destination "$env:GDA_PATH\libraries" -Recurse -Force
+            Remove-Item -Path "$env:GDA_PATH\arm64-windows" -Recurse -Force
+          }
 
       # Build GeoDa
       - name: Build GeoDa
@@ -253,9 +373,13 @@ jobs:
           {
             msbuild.exe GeoDa.vs2019.sln /t:GeoDa /property:Configuration="Release" /m /p:Platform="Win32"
           }
-          else
+          elseif($env:platform -eq "x64")
           {
             msbuild.exe GeoDa.vs2019.sln /t:GeoDa /property:Configuration="Release" /m /p:Platform="x64"  
+          }
+          elseif($env:platform -eq "arm64")
+          {
+            msbuild.exe GeoDa.vs2022.sln /t:GeoDa /property:Configuration="Release" /m /p:Platform="ARM64"  
           }
           # update installer version numbers in iss files
           python update_installer_version.py
@@ -267,18 +391,23 @@ jobs:
             ISCC.exe /q installer\32bit\GeoDa.iss
             ISCC.exe /q installer\32bit\GeoDa-win7+.iss
           } 
-          else
+          elseif($env:platform -eq "x64")
           {
             ISCC.exe /q installer\64bit\GeoDa.iss
             ISCC.exe /q installer\64bit\GeoDa-win7+.iss
+          }
+          elseif($env:platform -eq "arm64")
+          {
+            ISCC.exe /q installer\arm64\GeoDa.iss
           }
 
       - uses: actions/upload-artifact@v4
         with:
           name: GeoDa-Windows-${{ env.platform }}-installer
-          path: ${{ github.workspace }}\BuildTools\windows\GeoDa_1.22_${{ env.platform }}_Setup.exe
+          path: ${{ github.workspace }}\BuildTools\windows\GeoDa_1.22.2_${{ env.platform }}_Setup.exe
 
       - uses: actions/upload-artifact@v4
+        if: ${{ env.platform != 'arm64' }}
         with:
           name: GeoDa-Windows7+-${{ env.platform }}-installer
-          path: ${{ github.workspace }}\BuildTools\windows\GeoDa_1.22_win7+${{ env.platform }}_Setup.exe
+          path: ${{ github.workspace }}\BuildTools\windows\GeoDa_1.22.2_win7+${{ env.platform }}_Setup.exe

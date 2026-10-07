@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="ISO-8859-15"?>
+<?xml version="1.0" encoding="utf-8"?>
 <resource>
   <object class="wxPanel" name="ID_CONTROL_PANEL">
     <object class="wxBoxSizer">

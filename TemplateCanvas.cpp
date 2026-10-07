@@ -18,6 +18,7 @@
  */
 
 
+#include <algorithm>
 #include <limits>
 #include <math.h>
 #include <map>
@@ -769,9 +770,15 @@ void TemplateCanvas::OnPaint(wxPaintEvent& event)
 {
     if (layer2_bm) {
         wxSize sz = GetClientSize();
+        // layer2_bm only catches up with the client size on the next idle
+        // event, so a paint that arrives right after a resize -- or right
+        // after an off-screen RenderToDC -- can ask for a larger rect than
+        // the bitmap holds, which aborts wxBitmap::GetSubBitmap.
+        int w = std::min(sz.x, layer2_bm->GetWidth());
+        int h = std::min(sz.y, layer2_bm->GetHeight());
         wxMemoryDC dc(*layer2_bm);
         wxPaintDC paint_dc(this);
-        paint_dc.Blit(0, 0, sz.x, sz.y, &dc, 0, 0);
+        paint_dc.Blit(0, 0, w, h, &dc, 0, 0);
         // Draw optional control objects if needed
         PaintControls(paint_dc);
         helper_PaintSelectionOutline(paint_dc);

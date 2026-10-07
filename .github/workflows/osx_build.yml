@@ -10,10 +10,13 @@ on:
     tags: ['v*']
     paths-ignore:
       - '**/README.md'
-  # Stop checking osx build on pull request, one has to check is manually
+  # Run on pull requests targeting master so macOS builds are checked
+  # automatically, like the other build workflows. Can still be triggered
+  # manually via workflow_dispatch.
   pull_request:
-    branches-ignore:
-      - master
+    branches: [master]
+    paths-ignore:
+      - '**/README.md'
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
@@ -22,7 +25,8 @@ on:
 jobs:
   # This workflow contains a single job called "build"
   osx_build:
-    # The type of runner that the job will run on, macos-13 is x86_64
+    # macos-15 is arm64; macos-15-intel is x86_64. macos-13 (Intel) was
+    # retired Dec 4 2025 and macos-14 is unsupported after Nov 2 2026.
     runs-on: ${{ matrix.distro }}
     if: ${{ !contains(github.event.head_commit.message, '[ci skip]') && !contains(github.event.head_commit.message, '[skip ci]') }}
 
@@ -30,16 +34,19 @@ jobs:
       fail-fast: true
       matrix:
         distro:
-          - 'macos-13'
-          - 'macos-14'
+          - 'macos-15-intel'
+          - 'macos-15'
         include:
-          - distro: 'macos-13'
+          - distro: 'macos-15-intel'
             pre: 'x86_64'
-          - distro: 'macos-14'
+          - distro: 'macos-15'
             pre: 'arm64'
     env:
-      GEODA_VER: '1.22.0'
+      GEODA_VER: '1.22.2'
       GEODA_ARCH: ${{ matrix.pre }}
+      # Empty on pull requests from forks (secrets are not passed there);
+      # used to skip codesigning so the build still verifies.
+      HAS_MACOS_CERT: ${{ secrets.MACOS_CERTIFICATE != '' }}
 
     # Steps represent a sequence of tasks that will be executed as part of the job
 
@@ -48,6 +55,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Install application certificate
+        if: env.HAS_MACOS_CERT == 'true'
         uses: apple-actions/import-codesign-certs@v2
         with:
           keychain: ${{ github.run_id }}
@@ -105,6 +113,10 @@ jobs:
           ./install.sh
 
       - name: Build GeoDa
+        env:
+          # 1 when the signing certificate is unavailable (fork PRs); make app
+          # then builds the bundle unsigned.
+          GEODA_SKIP_CODESIGN: ${{ secrets.MACOS_CERTIFICATE == '' && 1 || 0 }}
         run: |
           mkdir -p o
           cd BuildTools/macosx
@@ -113,16 +125,32 @@ jobs:
           cp ../../GeoDamake.macosx.opt ../../GeoDamake.opt
           echo "find identity"
           security find-identity -v
+          # Update Info.plist version to match version.h
+          echo "Updating Info.plist version..."
           VER_MAJOR=$(grep "const int version_major" $GEODA_HOME/../../version.h | sed -e 's/.*const int version_major = \([0-9]*\);.*/\1/')
           VER_MINOR=$(grep "const int version_minor" $GEODA_HOME/../../version.h | sed -e 's/.*const int version_minor = \([0-9]*\);.*/\1/')
           VER_BUILD=$(grep "const int version_build" $GEODA_HOME/../../version.h | sed -e 's/.*const int version_build = \([0-9]*\);.*/\1/')
           GEODA_VERSION=$VER_MAJOR.$VER_MINOR.$VER_BUILD-$GEODA_ARCH
           echo $GEODA_VERSION
+          # Update version in plist files
+          # 3-part version (major.minor.build); append a 4th component only if
+          # version.h still carries version_subbuild (legacy 1.22.0.x scheme).
+          VER_STR="${VER_MAJOR}.${VER_MINOR}.${VER_BUILD}"
+          VER_SUB=$(grep "const int version_subbuild" $GEODA_HOME/../../version.h | sed -e 's/.*const int version_subbuild = \([0-9]*\);.*/\1/' || true)
+          if [ -n "$VER_SUB" ]; then
+            VER_STR="$VER_STR.$VER_SUB"
+          fi
+          /usr/libexec/PlistBuddy -c "Set :CFBundleShortVersionString $VER_STR" GeoDa-GDAL-Info.plist
+          /usr/libexec/PlistBuddy -c "Set :CFBundleVersion $VER_STR" GeoDa-GDAL-Info.plist
+          /usr/libexec/PlistBuddy -c "Set :CFBundleShortVersionString $VER_STR" GeoDa-Xcode-Info.plist
+          /usr/libexec/PlistBuddy -c "Set :CFBundleVersion $VER_STR" GeoDa-Xcode-Info.plist
           make -j$(sysctl -n hw.ncpu)
           make app
           cd create-dmg
           ./geoda.sh $GEODA_VERSION
-          codesign --timestamp -s "Developer ID Application: Geodapress LLC (26M5NG43GP)" -i edu.uchicago.spatial GeoDa$GEODA_VERSION-Installer.dmg
+          if [ "$GEODA_SKIP_CODESIGN" != "1" ]; then
+            codesign --timestamp -s "Developer ID Application: Geodapress LLC (26M5NG43GP)" -i edu.uchicago.spatial GeoDa$GEODA_VERSION-Installer.dmg
+          fi
 
       - name: Notarize DMG
         run: |

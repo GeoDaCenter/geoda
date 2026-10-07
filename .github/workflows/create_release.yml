@@ -3,7 +3,7 @@ name: Create Release
 on:
   push:
     tags:
-      - 'v*' # Triggers on version tags like v1.22.0
+      - 'v*' # Triggers on version tags like v1.22.1
 
 jobs:
   create-release:
@@ -46,80 +46,59 @@ jobs:
 
       - name: Wait for builds to complete
         run: |
-          echo "Waiting for build workflows to complete..."
-
-          # Function to check if all required workflows are complete
-          check_workflows() {
-            local max_attempts=60  # 1 hours maximum (60 * 60 seconds)
-            local attempt=1
-            
-            while [ $attempt -le $max_attempts ]; do
-              echo "Checking build status (attempt $attempt/$max_attempts)..."
-              
-              # Get the current commit SHA
-              COMMIT_SHA=$(git rev-parse HEAD)
-              
-              # Check if all three build workflows have completed successfully
-              # We need to check the workflow runs for the current commit
-              WORKFLOWS_COMPLETE=true
-              
-              # Check OSX build workflow
-              OSX_STATUS=$(gh api repos/${{ github.repository }}/actions/runs --jq '.workflow_runs[] | select(.head_sha=="'$COMMIT_SHA'" and .name=="Mac OSX builds") | .conclusion' --paginate | head -1)
-              if [ "$OSX_STATUS" != "success" ]; then
-                echo "Mac OSX builds workflow status: $OSX_STATUS (waiting...)"
-                WORKFLOWS_COMPLETE=false
-              else
-                echo "Mac OSX builds workflow completed successfully"
-              fi
-              
-              # Check Ubuntu build workflow
-              UBUNTU_STATUS=$(gh api repos/${{ github.repository }}/actions/runs --jq '.workflow_runs[] | select(.head_sha=="'$COMMIT_SHA'" and .name=="Ubuntu builds") | .conclusion' --paginate | head -1)
-              if [ "$UBUNTU_STATUS" != "success" ]; then
-                echo "Ubuntu builds workflow status: $UBUNTU_STATUS (waiting...)"
-                WORKFLOWS_COMPLETE=false
-              else
-                echo "Ubuntu builds workflow completed successfully"
-              fi
-              
-              # Check Windows build workflow
-              WINDOWS_STATUS=$(gh api repos/${{ github.repository }}/actions/runs --jq '.workflow_runs[] | select(.head_sha=="'$COMMIT_SHA'" and .name=="Windows builds") | .conclusion' --paginate | head -1)
-              if [ "$WINDOWS_STATUS" != "success" ]; then
-                echo "Windows builds workflow status: $WINDOWS_STATUS (waiting...)"
-                WORKFLOWS_COMPLETE=false
-              else
-                echo "Windows builds workflow completed successfully"
-              fi
-              
-              # If all workflows are complete, break out of the loop
-              if [ "$WORKFLOWS_COMPLETE" = true ]; then
-                echo "All build workflows have completed successfully!"
-                break
-              fi
-              
-              echo "Waiting 60 seconds before next check..."
-              sleep 60
-              attempt=$((attempt + 1))
-            done
-            
-            if [ "$WORKFLOWS_COMPLETE" = false ]; then
-              echo "Warning: Not all build workflows completed successfully within the timeout period."
-              echo "Proceeding with available artifacts..."
+          # Wait until every build workflow (Windows, macOS, Ubuntu, AppImage)
+          # triggered by this tag push has finished, so their artifacts exist
+          # before we download them. Polls the runs API every 30s.
+          COMMIT_SHA=$(git rev-parse HEAD)
+          echo "Waiting for build workflows on ${COMMIT_SHA}..."
+          for attempt in $(seq 1 180); do
+            RUNS=$(gh api "repos/${GITHUB_REPOSITORY}/actions/runs?head_sha=${COMMIT_SHA}" \
+              --jq '[.workflow_runs[] | select(.name != "Create Release")]')
+            TOTAL=$(echo "$RUNS" | jq 'length')
+            if [ "$TOTAL" -eq 0 ]; then
+              echo "  no build runs found yet (attempt $attempt/180); waiting 30s..."
+              sleep 30
+              continue
             fi
-          }
+            DONE=$(echo "$RUNS" | jq '[.[] | select(.status == "completed")] | length')
+            FAILED=$(echo "$RUNS" | jq '[.[] | select(.conclusion == "failure" or .conclusion == "cancelled" or .conclusion == "timed_out")] | length')
+            echo "  completed $DONE/$TOTAL, failed $FAILED (attempt $attempt/180)"
+            if [ "$DONE" -eq "$TOTAL" ]; then
+              if [ "$FAILED" -gt 0 ]; then
+                echo "::warning::One or more build workflows failed; proceeding with available artifacts"
+              fi
+              break
+            fi
+            sleep 30
+          done
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-          # Start the check process
-          check_workflows
-
-      - name: Download all artifacts
-        uses: actions/download-artifact@v4
-        with:
-          path: artifacts
-          pattern: 'GeoDa-*'
+      - name: Download all build artifacts
+        # download-artifact@v4 without run-id only looks in the CURRENT run
+        # (the Create Release run), which has no artifacts. Pull from every
+        # build workflow run at this commit instead.
+        run: |
+          mkdir -p artifacts
+          COMMIT_SHA=$(git rev-parse HEAD)
+          RUN_IDS=$(gh api "repos/${GITHUB_REPOSITORY}/actions/runs?head_sha=${COMMIT_SHA}" \
+            --jq '.workflow_runs[] | select(.name != "Create Release") | .id')
+          if [ -z "$RUN_IDS" ]; then
+            echo "::error::No build workflow runs found for ${COMMIT_SHA}"
+            exit 1
+          fi
+          for RUN_ID in $RUN_IDS; do
+            echo "Downloading artifacts from run ${RUN_ID}"
+            gh run download "${RUN_ID}" --repo "${GITHUB_REPOSITORY}" \
+              --dir artifacts --pattern 'GeoDa-*'
+          done
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: List downloaded artifacts
         run: |
           echo "Downloaded artifacts:"
-          find artifacts -type f -name "*.dmg" -o -name "*.exe" -o -name "*.deb" | sort
+          find artifacts -type f -print | sort
 
       - name: Create Release
         id: create_release
@@ -186,6 +165,17 @@ jobs:
           asset_content_type: application/octet-stream
         continue-on-error: true
 
+      - name: Upload Windows ARM64 Installer
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./artifacts/GeoDa-Windows-arm64-installer/GeoDa_${{ steps.get_version.outputs.version }}_arm64_Setup.exe
+          asset_name: GeoDa_${{ steps.get_version.outputs.version }}_arm64_Setup.exe
+          asset_content_type: application/octet-stream
+        continue-on-error: true
+
       - name: Upload macOS Intel Installer
         uses: actions/upload-release-asset@v1
         env:
@@ -228,6 +218,17 @@ jobs:
           asset_path: ./artifacts/GeoDa-${{ steps.get_version.outputs.version }}-noble/geoda_${{ steps.get_version.outputs.version }}-1noble1_amd64.deb
           asset_name: GeoDa-1.22.0-noble.zip
           asset_content_type: application/vnd.debian.binary-package
+        continue-on-error: true
+
+      - name: Upload AppImage
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./artifacts/GeoDa-${{ steps.get_version.outputs.version }}-AppImage/GeoDa-${{ steps.get_version.outputs.version }}-x86_64.AppImage
+          asset_name: GeoDa-${{ steps.get_version.outputs.version }}-x86_64.AppImage
+          asset_content_type: application/octet-stream
         continue-on-error: true
 
       - name: Verify Release Assets

@@ -106,7 +106,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>C:\Intel\OpenCL\sdk\include;C:\OSGeo4W\include;temp\boost_1_57_0;temp\wxWidgets-3.1.0\include;temp\wxWidgets-3.1.0\lib\vc_dll\mswud;temp\json_spirit_v4.08;temp\eigen3;temp\spectra\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\;C:\Intel\OpenCL\sdk\include;C:\OSGeo4W\include;temp\boost_1_57_0;temp\wxWidgets-3.1.0\include;temp\wxWidgets-3.1.0\lib\vc_dll\mswud;temp\json_spirit_v4.08;temp\eigen3;temp\spectra\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;DEBUG;_DEBUG;_WINDOWS;__WXMSW__;__WXDEBUG__;WXUSINGDLL;UNICODE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>false</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
@@ -122,7 +122,7 @@
     <ResourceCompile>
       <PreprocessorDefinitions>__WXMSW__;_UNICODE;_WINDOWS;NOPCH;WXUSINGDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <Culture>0x0409</Culture>
-      <AdditionalIncludeDirectories>temp\wxWidgets-3.1.0\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\;temp\wxWidgets-3.1.0\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Link>
       <AdditionalDependencies>opencl.lib;zlibstat.lib;gdal_i.lib;libcurl.lib;libboost_date_time-vc100-mt-gd-1_57.lib;libboost_thread-vc100-mt-gd-1_57.lib;BLAS.lib;clapack.lib;libf2c.lib;json_spirit_lib.lib;sqlite3_i.lib;GlU32.lib;OpenGL32.lib;wxmsw31ud.lib;wxmsw31ud_gl.lib;wxtiffd.lib;wxjpegd.lib;wxpngd.lib;wxzlibd.lib;wxregexud.lib;wxexpatd.lib;wsock32.lib;comctl32.lib;winmm.lib;rpcrt4.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -138,7 +138,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug2017|Win32'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>C:\OSGeo4W\include;temp\boost_1_57_0;temp\wxWidgets-3.1.0\include;temp\wxWidgets-3.1.0\lib\vc_dll\mswud;temp\json_spirit_v4.08;temp\eigen3;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\;C:\OSGeo4W\include;temp\boost_1_57_0;temp\wxWidgets-3.1.0\include;temp\wxWidgets-3.1.0\lib\vc_dll\mswud;temp\json_spirit_v4.08;temp\eigen3;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;DEBUG;_DEBUG;_WINDOWS;__WXMSW__;__WXDEBUG__;WXUSINGDLL;UNICODE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>false</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
@@ -154,7 +154,7 @@
     <ResourceCompile>
       <PreprocessorDefinitions>__WXMSW__;_UNICODE;_WINDOWS;NOPCH;WXUSINGDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <Culture>0x0409</Culture>
-      <AdditionalIncludeDirectories>temp\wxWidgets-3.1.0\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\;temp\wxWidgets-3.1.0\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Link>
       <AdditionalDependencies>opencl.lib;zlibstat.lib;gdal_i.lib;libcurl.lib;libboost_date_time-vc100-mt-gd-1_57.lib;libboost_thread-vc100-mt-gd-1_57.lib;BLAS.lib;clapack.lib;libf2c.lib;json_spirit_lib.lib;sqlite3_i.lib;GlU32.lib;OpenGL32.lib;wxmsw31ud.lib;wxmsw31ud_gl.lib;wxtiffd.lib;wxjpegd.lib;wxpngd.lib;wxzlibd.lib;wxregexud.lib;wxexpatd.lib;wsock32.lib;comctl32.lib;winmm.lib;rpcrt4.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -170,7 +170,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>C:\Intel\OpenCL\sdk\include;dep\zlib\include;C:\OSGeo4W\include;temp\boost_1_57_0;temp\wxWidgets-3.1.0\include;temp\wxWidgets-3.1.0\lib\vc_x64_dll\mswud;temp\json_spirit_v4.08;temp\eigen3;temp\spectra\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\;C:\Intel\OpenCL\sdk\include;dep\zlib\include;C:\OSGeo4W\include;temp\boost_1_57_0;temp\wxWidgets-3.1.0\include;temp\wxWidgets-3.1.0\lib\vc_x64_dll\mswud;temp\json_spirit_v4.08;temp\eigen3;temp\spectra\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;DEBUG;_DEBUG;_WINDOWS;__WXMSW__;__WXDEBUG__;WXUSINGDLL;UNICODE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>false</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
@@ -189,7 +189,7 @@
     <ResourceCompile>
       <PreprocessorDefinitions>__WXMSW__;_UNICODE;_WINDOWS;NOPCH;WXUSINGDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <Culture>0x0409</Culture>
-      <AdditionalIncludeDirectories>temp\wxWidgets-3.1.0\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\;temp\wxWidgets-3.1.0\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Link>
       <AdditionalDependencies>opencl.lib;zlibstat.lib;gdal_i.lib;libcurl.lib;libboost_atomic-vc100-mt-gd-1_57.lib;libboost_regex-vc100-mt-gd-1_57.lib;libboost_date_time-vc100-mt-gd-1_57.lib;libboost_thread-vc100-mt-gd-1_57.lib;BLAS.lib;clapack.lib;libf2c.lib;json_spirit_lib.lib;GlU32.lib;OpenGL32.lib;wxmsw31ud.lib;wxmsw31ud_gl.lib;wxtiffd.lib;wxjpegd.lib;wxpngd.lib;wxzlibd.lib;wxregexud.lib;wxexpatd.lib;wsock32.lib;comctl32.lib;winmm.lib;rpcrt4.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -208,7 +208,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug2017|x64'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>..\..\deps\OpenCL\include;..\..\deps\zlib\include;..\..\deps\boost_1_57_0\include;..\..\deps\wxWidgets-3.1.0\include;..\..\deps\wxWidgets-3.1.0\lib\vc_x64_dll\mswud;..\..\deps\json_spirit_v4.08\include;..\..\deps\eigen3;..\..\deps\gdal-1.9.0\include;..\..\deps\curl-7.46.0\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\;..\..\deps\OpenCL\include;..\..\deps\zlib\include;..\..\deps\boost_1_57_0\include;..\..\deps\wxWidgets-3.1.0\include;..\..\deps\wxWidgets-3.1.0\lib\vc_x64_dll\mswud;..\..\deps\json_spirit_v4.08\include;..\..\deps\eigen3;..\..\deps\gdal-1.9.0\include;..\..\deps\curl-7.46.0\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;DEBUG;_WINDOWS;__WXMSW__;__WXDEBUG__;WXUSINGDLL;UNICODE;_UNICODE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>false</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
@@ -225,7 +225,7 @@
     <ResourceCompile>
       <PreprocessorDefinitions>__WXMSW__;_UNICODE;_WINDOWS;NOPCH;WXUSINGDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <Culture>0x0409</Culture>
-      <AdditionalIncludeDirectories>..\..\deps\wxWidgets-3.1.0\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\;..\..\deps\wxWidgets-3.1.0\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Link>
       <AdditionalDependencies>opencl.lib;zlibstat.lib;gdal_i.lib;libcurl.lib;libboost_date_time-vc140-mt-gd-1_57.lib;libboost_thread-vc140-mt-gd-1_57.lib;libboost_system-vc140-mt-gd-1_57.lib;BLAS.lib;clapack.lib;libf2c.lib;json_spirit_libd.lib;wxmsw31ud.lib;wxmsw31ud_gl.lib;wxtiffd.lib;wxjpegd.lib;wxpngd.lib;wxzlibd.lib;wxregexud.lib;wxexpatd.lib;wxscintillad.lib;wsock32.lib;comctl32.lib;winmm.lib;rpcrt4.lib;GlU32.lib;OpenGL32.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -243,7 +243,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
-      <AdditionalIncludeDirectories>C:\Intel\OpenCL\sdk\include;C:\OSGeo4W\include;temp\boost_1_57_0;temp\wxWidgets-3.1.0\include;temp\wxWidgets-3.1.0\lib\vc_dll\mswu;temp\json_spirit_v4.08;temp\eigen3;temp\spectra\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\;C:\Intel\OpenCL\sdk\include;C:\OSGeo4W\include;temp\boost_1_57_0;temp\wxWidgets-3.1.0\include;temp\wxWidgets-3.1.0\lib\vc_dll\mswu;temp\json_spirit_v4.08;temp\eigen3;temp\spectra\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_WINDOWS;__WXMSW__;__NO_VC_CRTDBG__;WXUSINGDLL;UNICODE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <PrecompiledHeader>
@@ -256,7 +256,7 @@
     <ResourceCompile>
       <PreprocessorDefinitions>__WXMSW__;_UNICODE;_WINDOWS;NOPCH;WXUSINGDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <Culture>0x0409</Culture>
-      <AdditionalIncludeDirectories>temp\wxWidgets-3.1.0\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\;temp\wxWidgets-3.1.0\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Link>
       <AdditionalDependencies>opencl.lib;zlibstat.lib;gdal_i.lib;libcurl.lib;libboost_date_time-vc100-mt-1_57.lib;libboost_thread-vc100-mt-1_57.lib;BLAS.lib;clapack.lib;libf2c.lib;json_spirit_lib.lib;sqlite3_i.lib;GlU32.lib;OpenGL32.lib;wxmsw31u.lib;wxmsw31u_gl.lib;wxtiff.lib;wxjpeg.lib;wxpng.lib;wxzlib.lib;wxregexu.lib;wxexpat.lib;wsock32.lib;comctl32.lib;winmm.lib;rpcrt4.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -270,7 +270,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>C:\Intel\OpenCL\sdk\include;C:\OSGeo4W\include;temp\boost_1_57_0;temp\wxWidgets-3.1.0\include;temp\wxWidgets-3.1.0\lib\vc_x64_dll\mswu;temp\json_spirit_v4.08;temp\eigen3;dep\zlib\include;temp\spectra\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\;C:\Intel\OpenCL\sdk\include;C:\OSGeo4W\include;temp\boost_1_57_0;temp\wxWidgets-3.1.0\include;temp\wxWidgets-3.1.0\lib\vc_x64_dll\mswu;temp\json_spirit_v4.08;temp\eigen3;dep\zlib\include;temp\spectra\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_WINDOWS;__WXMSW__;__NO_VC_CRTDBG__;WXUSINGDLL;UNICODE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <PrecompiledHeader>
@@ -284,7 +284,7 @@
     <ResourceCompile>
       <PreprocessorDefinitions>__WXMSW__;_UNICODE;_WINDOWS;NOPCH;WXUSINGDLL;UNICODE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <Culture>0x0409</Culture>
-      <AdditionalIncludeDirectories>temp\wxWidgets-3.1.0\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\;temp\wxWidgets-3.1.0\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Link>
       <AdditionalDependencies>opencl.lib;zlibstat.lib;libcurl.lib;gdal_i.lib;libboost_date_time-vc100-mt-1_57.lib;libboost_thread-vc100-mt-1_57.lib;BLAS.lib;clapack.lib;libf2c.lib;json_spirit_lib.lib;sqlite3_i.lib;GlU32.lib;OpenGL32.lib;wxmsw31u.lib;wxmsw31u_gl.lib;wxtiff.lib;wxjpeg.lib;wxpng.lib;wxzlib.lib;wxregexu.lib;wxexpat.lib;wsock32.lib;comctl32.lib;winmm.lib;rpcrt4.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -898,6 +898,13 @@
     <ClCompile Include="..\..\TemplateCanvas.cpp" />
     <ClCompile Include="..\..\TemplateFrame.cpp" />
     <ClCompile Include="..\..\TemplateLegend.cpp" />
+    <ClCompile Include="..\..\MCP\McpCommands.cpp" />
+    <ClCompile Include="..\..\MCP\McpHttpServer.cpp" />
+    <ClCompile Include="..\..\MCP\McpPrompts.cpp" />
+    <ClCompile Include="..\..\MCP\McpResources.cpp" />
+    <ClCompile Include="..\..\MCP\McpServer.cpp" />
+    <ClCompile Include="..\..\MCP\McpTools.cpp" />
+    <ClCompile Include="..\..\MCP\McpToolsSpatial.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

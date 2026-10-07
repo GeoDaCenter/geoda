@@ -13,7 +13,7 @@ app:  build-geoda
 compile-geoda:	ogl-target io-target algorithms-target dataviewer-target dialogtools-target \
 		weights-target knn-target explore-target libgdiam-target regression-target \
 		shapeoperations-target resource-target varcalc-target \
-		geoda-target
+		mcp-target geoda-target
 
 conf = `./libraries/bin/wx-config --libs`
 
@@ -58,6 +58,9 @@ shapeoperations-target:
 
 varcalc-target:
 	(cd $(GeoDa_ROOT)/VarCalc; $(MAKE))
+
+mcp-target:
+	(cd $(GeoDa_ROOT)/MCP; $(MAKE))
 
 geoda-target:
 	(cd $(GeoDa_ROOT); $(MAKE))

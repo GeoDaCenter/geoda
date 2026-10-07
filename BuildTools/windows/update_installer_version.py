@@ -19,7 +19,9 @@ def extract_version_from_header(version_h_path):
         with open(version_h_path, 'r') as f:
             content = f.read()
 
-        # Extract version components using regex
+        # Extract version components using regex. major/minor/build are
+        # required; subbuild is optional (since 1.22.1 GeoDa uses a 3-part
+        # version and version_subbuild is no longer defined in version.h).
         patterns = {
             'major': r'const int version_major = (\d+);',
             'minor': r'const int version_minor = (\d+);',
@@ -31,6 +33,9 @@ def extract_version_from_header(version_h_path):
             match = re.search(pattern, content)
             if match:
                 version_info[component] = int(match.group(1))
+            elif component == 'subbuild':
+                print(
+                    "Info: version_subbuild not found, using 3-part version")
             else:
                 print(
                     f"Warning: Could not find {component} version in {version_h_path}")
@@ -86,15 +91,22 @@ def main():
     if not version_info:
         sys.exit(1)
 
-    # Create full version string
-    full_version = f"{version_info['major']}.{version_info['minor']}.{version_info['build']}.{version_info['subbuild']}"
+    # Create full version string (subbuild appended only when present)
+    version_parts = [
+        str(version_info['major']),
+        str(version_info['minor']),
+        str(version_info['build'])
+    ]
+    if 'subbuild' in version_info:
+        version_parts.append(str(version_info['subbuild']))
+    full_version = ".".join(version_parts)
     print(f"Full version: {full_version}")
 
     # Find all installer files
     installer_dir = script_dir / "installer"
     iss_files = []
 
-    for arch_dir in ["32bit", "64bit"]:
+    for arch_dir in ["32bit", "64bit", "arm64"]:
         arch_path = installer_dir / arch_dir
         if arch_path.exists():
             for iss_file in arch_path.glob("*.iss"):

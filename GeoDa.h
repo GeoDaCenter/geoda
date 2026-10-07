@@ -45,6 +45,7 @@ class GdaApp;
 class GdaFrame;
 class LineChartFrame;
 class wxTranslationHelper;
+class McpHttpServer;
 
 /** Main appilcation class. */
 class GdaApp: public wxApp
@@ -62,6 +63,7 @@ public:
 private:
     wxSingleInstanceChecker* checker;
     wxString cmd_line_proj_file_name;
+    int m_mcp_port;
     wxTranslationHelper* m_TranslationHelper;
     FILE *m_pLogFile;
 };
@@ -94,6 +96,12 @@ public:
 	void OnQuit(wxCommandEvent& WXUNUSED(event));
 	
 	void NewProjectFromFile(const wxString& full_file_path);
+    // Open a data source or .gda project file with no UI at all: nothing is
+    // shown, and a failure comes back through `error` instead of a message
+    // box, so callers that cannot put a dialog on screen (the MCP file/open
+    // tool) can report it. Returns false when no project was opened. Must run
+    // on the main thread: it creates the table and map frames.
+    bool OpenProjectNoUI(const wxString& full_file_path, wxString& error);
 	void OnNewProject(wxCommandEvent& event);
     void ShowOpenDatasourceDlg(wxPoint pos, bool init=false);
 	void OpenProject(const wxString& full_proj_path);
@@ -620,7 +628,11 @@ public:
     void OnCustomCategoryClick(wxCommandEvent& event);
     void OnCustomCategoryClick_B(wxCommandEvent& event);
     void OnCustomCategoryClick_C(wxCommandEvent& event);
-    
+
+    void OnMcpStartServer(wxCommandEvent& event);
+    void OnMcpStopServer(wxCommandEvent& event);
+    void SetMcpServer(McpHttpServer* server) { m_mcp_server = server; }
+
     void UpdateRecentDatasourceMenu();
 
 	static Project* GetProject() { return projectOpen ? project_p : 0; }
@@ -650,7 +662,9 @@ protected:
 	static Project* project_p;
 	static bool projectOpen;
 	static std::list<wxAuiToolBar*> toolbar_list;
-	
+
+    McpHttpServer* m_mcp_server;
+
 	DECLARE_EVENT_TABLE()
 };
 

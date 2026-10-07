@@ -55,7 +55,9 @@ fi
 if ! [ -f "../libraries/lib/libboost_thread.a" ]; then
     cd boost_1_76_0
     ./bootstrap.sh
-    ./b2 --with-thread --with-date_time --with-chrono --with-system link=static threading=multi stage
+    # -Wno-enum-constexpr-conversion: Boost 1.76's MPL casts (value - 1) to an
+    # enum, which clang 17+ on macOS 15 runners treats as an error.
+    ./b2 --with-thread --with-date_time --with-chrono --with-system link=static threading=multi stage cxxflags="-Wno-enum-constexpr-conversion -Wno-int-conversion"
     cp -R stage/lib/* ../../libraries/lib/.
     cp -R boost ../../libraries/include/.
     cd ..
@@ -68,6 +70,14 @@ if ! [ -f "wxWidgets-3.2.6.tar.bz2" ]; then
 fi
 if ! [ -f "../libraries/bin/wx-config" ]; then
     cd wxWidgets-3.2.6
+    # The bundled libpng's pngpriv.h still includes the legacy <fp.h> header on
+    # macOS (TARGET_OS_MAC branch), which Apple removed from the macOS 15 SDK.
+    # <math.h> is the correct header on modern macOS and <float.h> (already
+    # included just above) provides DBL_DIG/MIN/MAX, so substitute it here.
+    # This mirrors the fix that upstream libpng adopted for newer SDKs.
+    if [ -f "src/png/pngpriv.h" ]; then
+        sed -i '' 's|^#      include <fp.h>|#      include <math.h>|' src/png/pngpriv.h
+    fi
     ./configure --with-cocoa --with-opengl --enable-postscript --enable-textfile --without-liblzma --enable-webview --enable-cxx11 --disable-mediactrl --enable-webviewwebkit --enable-monolithic --with-libtiff=builtin --with-libpng=builtin --with-libjpeg=builtin --prefix=$GEODA_HOME/libraries
     make -j $CPUS
     make install
@@ -95,6 +105,15 @@ fi
 if ! [ -f "eigen3.zip" ]; then
     curl -L -O https://github.com/GeoDaCenter/software/releases/download/v2000/eigen3.zip
     unzip eigen3.zip
+fi
+# Eigen 3.3.3 in the vendored zip is incompatible with the clang shipped on
+# macOS 15+ runners: Transpositions.h calls .derived() on a
+# Transpose<TranspositionsBase<...>> value, which newer clang rejects
+# ("no member named 'derived'"). Backport the Eigen 3.4.0 fix by using the
+# nestedExpression() accessor that the class already defines.
+EIGEN_TRANSPOSITIONS=$GEODA_HOME/temp/eigen3/Eigen/src/Core/Transpositions.h
+if [ -f "$EIGEN_TRANSPOSITIONS" ] && grep -q "trt.derived()" "$EIGEN_TRANSPOSITIONS"; then
+    sed -i '' 's/trt\.derived()/trt.nestedExpression()/' "$EIGEN_TRANSPOSITIONS"
 fi
 if ! [ -f "v0.8.0.zip" ]; then
     curl -L -O https://github.com/yixuan/spectra/archive/refs/tags/v0.8.0.zip

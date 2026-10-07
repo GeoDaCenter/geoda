@@ -3,6 +3,12 @@ cmake_policy(VERSION 3.5)
 
 add_definitions(-DJSON_SPIRIT_VALUE_ENABLED)
 SET(CMAKE_INCLUDE_PATH /Users/runner/work/geoda/geoda/BuildTools/macosx/libraries/include/boost ${CMAKE_INCLUDE_PATH})
+# json_spirit pulls in boost::spirit, whose MPL headers cast (value - 1) to an
+# enum; clang 17+ (macos-15 runners) promotes -Wenum-constexpr-conversion to
+# an error. Suppress it here since this CMakeLists only drives the macOS build.
+if(APPLE)
+  add_compile_options(-Wno-enum-constexpr-conversion -Wno-int-conversion)
+endif()
 
 PROJECT(json_spirit)
 SUBDIRS(json_spirit json_demo json_headers_only_demo json_map_demo json_test)

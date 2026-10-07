@@ -55,6 +55,10 @@
 #include <wx/filedlg.h>
 #include <wx/filefn.h> // for wxCopyFile and wxFileExists
 #include <wx/msgdlg.h>
+#include <wx/button.h>
+#include <wx/clipbrd.h>
+#include <wx/stattext.h>
+#include <wx/textctrl.h>
 #include <wx/stdpaths.h>
 #include <wx/regex.h>
 #include <wx/numformatter.h>
@@ -187,6 +191,7 @@
 #include "TemplateFrame.h"
 #include "SaveButtonManager.h"
 #include "GeoDa.h"
+#include "MCP/McpHttpServer.h"
 #include "version.h"
 #include "arizona/viz3/plots/scatterplot.h"
 #include "rc/GeoDaIcon-16x16.xpm"
@@ -201,9 +206,15 @@
 // the application binary.
 extern void GdaInitXmlResource();
 
+// Port the built-in MCP server binds to when the app starts. The app starts
+// the server automatically so an external MCP client can be pointed at a
+// stable URL; if the port is taken it falls back to the next ones (see
+// McpHttpServer::Start).
+#define GEODA_MCP_DEFAULT_PORT 8765
+
 IMPLEMENT_APP(GdaApp)
 
-GdaApp::GdaApp() : checker(0), m_pLogFile(0)
+GdaApp::GdaApp() : checker(0), m_mcp_port(0), m_pLogFile(0)
 {
 	//Don't call wxHandleFatalExceptions so that a core dump file will be
 	//produced for debugging.
@@ -383,7 +394,7 @@ bool GdaApp::OnInit(void)
     frame->SetMinSize(wxSize(640, frameHeight));
     
 	SetTopWindow(GdaFrame::GetGdaFrame());
-	
+
 	if (GeneralWxUtils::isWindows()) {
 		// For XP / Vista / Win 7, the user can select to use font sizes
 		// of %100, %125 or %150.
@@ -419,13 +430,29 @@ bool GdaApp::OnInit(void)
 #endif
     wxString os_id = GeneralWxUtils::LogOsId();
     wxLogMessage(os_id);
-    wxString versionlog = wxString::Format("vs: %d-%d-%d-%d",
+    wxString versionlog = wxString::Format("vs: %d-%d-%d",
                                            Gda::version_major,
                                            Gda::version_minor,
-                                           Gda::version_build,
-                                           Gda::version_subbuild);
+                                           Gda::version_build);
     wxLogMessage(versionlog);
     wxLogMessage("%s", loggerFile);
+
+    // Start the built-in MCP server. It is on by default (port
+    // GEODA_MCP_DEFAULT_PORT, see OnCmdLineParsed) so external MCP clients can
+    // connect as soon as the app is up; --no-mcp / GEODA_MCP_ENABLED=0 turns it
+    // off. This runs *after* the log target is installed on purpose: binding
+    // the socket and writing the discovery file can emit wxLog messages, and
+    // with the default GUI log target still active they would be buffered and
+    // then flushed into a blocking modal dialog while OnInit() is still
+    // running -- which stalls the whole app, MCP included, until dismissed.
+    if (m_mcp_port > 0) {
+        McpHttpServer* mcp_server = new McpHttpServer(m_mcp_port);
+        if (mcp_server->Start()) {
+            GdaFrame::GetGdaFrame()->SetMcpServer(mcp_server);
+        } else {
+            delete mcp_server;
+        }
+    }
     
    
     if (!cmd_line_proj_file_name.IsEmpty()) {
@@ -445,6 +472,30 @@ bool GdaApp::OnInit(void)
 
 bool GdaApp::OnCmdLineParsed(wxCmdLineParser& parser)
 {
+    // The MCP server starts with the app, on a fixed port, so an external
+    // MCP client can be pointed at a stable URL without any manual step.
+    // Override the port with --mcp-port N or GEODA_MCP_PORT; turn the server
+    // off with --no-mcp or GEODA_MCP_ENABLED=0.
+    m_mcp_port = GEODA_MCP_DEFAULT_PORT;
+    wxString mcp_enabled;
+    if ( wxGetEnv("GEODA_MCP_ENABLED", &mcp_enabled) ) {
+        if (mcp_enabled == "0" || mcp_enabled == "false" || mcp_enabled == "no") {
+            m_mcp_port = 0;
+        }
+    }
+    wxString env_mcp_port;
+    long env_port = 0;
+    if ( wxGetEnv("GEODA_MCP_PORT", &env_mcp_port) &&
+        env_mcp_port.ToLong(&env_port) && env_port > 0 && env_port <= 65535 ) {
+        m_mcp_port = (int)env_port;
+    }
+    if ( parser.Found("no-mcp") ) {
+        m_mcp_port = 0;
+    }
+    long mcp_port = 0;
+    if ( parser.Found("mcp-port", &mcp_port) ) {
+        m_mcp_port = (int)mcp_port;
+    }
     if ( parser.GetParamCount() > 0) {
         cmd_line_proj_file_name = parser.GetParam(0);
     }
@@ -456,6 +507,12 @@ const wxCmdLineEntryDesc GdaApp::globalCmdLineDesc [] =
 	{ wxCMD_LINE_SWITCH, "h", "help",
 		"displays help on the command line parameters",
 		wxCMD_LINE_VAL_NONE, wxCMD_LINE_OPTION_HELP },
+	{ wxCMD_LINE_OPTION, "m", "mcp-port",
+		"port for the built-in MCP server (default 8765)",
+		wxCMD_LINE_VAL_NUMBER, wxCMD_LINE_PARAM_OPTIONAL },
+	{ wxCMD_LINE_SWITCH, NULL, "no-mcp",
+		"do not start the built-in MCP server",
+		wxCMD_LINE_VAL_NONE, wxCMD_LINE_PARAM_OPTIONAL },
 	{ wxCMD_LINE_PARAM, NULL, NULL, "project file",
 		wxCMD_LINE_VAL_STRING, wxCMD_LINE_PARAM_OPTIONAL },
 	{ wxCMD_LINE_NONE }
@@ -765,11 +822,16 @@ void GdaFrame::SetMenusToDefault()
 
 GdaFrame::GdaFrame(const wxString& title, const wxPoint& pos,
 				   const wxSize& size, long style)
-: wxFrame(NULL, wxID_ANY, title, pos, size, style)
+: wxFrame(NULL, wxID_ANY, title, pos, size, style), m_mcp_server(NULL)
 {
 	SetBackgroundColour(*wxWHITE);
 	SetIcon(wxIcon(GeoDaIcon_16x16_xpm));
 	SetMenuBar(wxXmlResource::Get()->LoadMenuBar("ID_SHARED_MAIN_MENU"));
+
+    Bind(wxEVT_COMMAND_MENU_SELECTED, &GdaFrame::OnMcpStartServer, this,
+         XRCID("ID_MCP_START_SERVER"));
+    Bind(wxEVT_COMMAND_MENU_SELECTED, &GdaFrame::OnMcpStopServer, this,
+         XRCID("ID_MCP_STOP_SERVER"));
 
 	if (!GetHtmlMenuItems() || htmlMenuItems.size() == 0) {
 	} else {
@@ -808,6 +870,11 @@ GdaFrame::GdaFrame(const wxString& title, const wxPoint& pos,
 
 GdaFrame::~GdaFrame()
 {
+    if (m_mcp_server) {
+        delete m_mcp_server;
+        m_mcp_server = NULL;
+    }
+
 	GdaFrame::gda_frame = 0;
 }
 
@@ -1201,6 +1268,126 @@ void GdaFrame::OnEmptyCustomCategoryClick(wxCommandEvent& event)
     }
 }
 
+namespace {
+
+// Shows where the built-in MCP server listens and copies a ready-to-paste line
+// for an MCP client or coding agent. The wxTextEntryDialog this replaces held
+// the endpoint URL in an editable field, leaving the user to work out what to
+// paste and where.
+class McpServerInfoDialog : public wxDialog
+{
+public:
+    McpServerInfoDialog(wxWindow* parent, const wxString& base_url,
+                        const wxString& endpoint_url);
+
+private:
+    void OnCopy(wxCommandEvent& event);
+    void OnCloseClick(wxCommandEvent& event);
+
+    wxString m_connect_text;
+    wxStaticText* m_status;
+};
+
+McpServerInfoDialog::McpServerInfoDialog(wxWindow* parent,
+                                         const wxString& base_url,
+                                         const wxString& endpoint_url)
+: wxDialog(parent, wxID_ANY, _("GeoDa MCP Server"), wxDefaultPosition,
+           wxDefaultSize, wxDEFAULT_DIALOG_STYLE),
+  m_connect_text(wxString::Format(_("Connect GeoDa MCP at %s"), base_url)),
+  m_status(NULL)
+{
+    wxBoxSizer* top = new wxBoxSizer(wxVERTICAL);
+
+    top->Add(new wxStaticText(this, wxID_ANY,
+                              _("The GeoDa MCP server is running at:")),
+             0, wxLEFT | wxRIGHT | wxTOP, 12);
+    top->Add(new wxTextCtrl(this, wxID_ANY, base_url, wxDefaultPosition,
+                            wxDefaultSize, wxTE_READONLY),
+             0, wxEXPAND | wxLEFT | wxRIGHT | wxTOP, 12);
+
+    top->Add(new wxStaticText(this, wxID_ANY,
+                              wxString::Format(_("MCP clients connect to %s"),
+                                               endpoint_url)),
+             0, wxLEFT | wxRIGHT | wxTOP, 12);
+
+    top->Add(new wxStaticText(this, wxID_ANY,
+                              _("Paste this into Claude Code, Codex or any "
+                                "other MCP client:")),
+             0, wxLEFT | wxRIGHT | wxTOP, 12);
+    top->Add(new wxTextCtrl(this, wxID_ANY, m_connect_text, wxDefaultPosition,
+                            wxDefaultSize, wxTE_READONLY),
+             0, wxEXPAND | wxLEFT | wxRIGHT | wxTOP, 12);
+
+    // Line the copy confirmation appears on. Reserved up front so the dialog
+    // does not change height when Copy is pressed.
+    m_status = new wxStaticText(this, wxID_ANY, " ");
+    top->Add(m_status, 0, wxLEFT | wxRIGHT | wxTOP, 12);
+
+    wxButton* copy_btn = new wxButton(this, wxID_ANY, _("Copy"));
+    // wxID_CANCEL rather than wxID_CLOSE so Escape closes the dialog too.
+    wxButton* close_btn = new wxButton(this, wxID_CANCEL, _("Close"));
+    copy_btn->Bind(wxEVT_BUTTON, &McpServerInfoDialog::OnCopy, this);
+    close_btn->Bind(wxEVT_BUTTON, &McpServerInfoDialog::OnCloseClick, this);
+
+    wxBoxSizer* buttons = new wxBoxSizer(wxHORIZONTAL);
+    buttons->AddStretchSpacer();
+    buttons->Add(copy_btn, 0, wxRIGHT, 8);
+    buttons->Add(close_btn);
+    top->Add(buttons, 0, wxEXPAND | wxALL, 12);
+
+    SetSizerAndFit(top);
+    SetMinSize(GetSize());
+    CentreOnParent();
+}
+
+void McpServerInfoDialog::OnCopy(wxCommandEvent& event)
+{
+    if (wxTheClipboard->Open()) {
+        wxTheClipboard->SetData(new wxTextDataObject(m_connect_text));
+        wxTheClipboard->Close();
+        m_status->SetLabel(_("Copied to clipboard."));
+    } else {
+        m_status->SetLabel(_("Could not open the clipboard."));
+    }
+    Layout();
+}
+
+void McpServerInfoDialog::OnCloseClick(wxCommandEvent& event)
+{
+    EndModal(wxID_CANCEL);
+}
+
+} // namespace
+
+void GdaFrame::OnMcpStartServer(wxCommandEvent& event)
+{
+    // The server is already running in the usual case: it starts with the app.
+    // Starting it here is for the app started with --no-mcp or a server
+    // stopped from this menu. Either way the dialog below is the point of the
+    // menu entry -- it reports the URL of the port actually bound, which is
+    // not the default one when 8765 was taken.
+    if (!m_mcp_server) {
+        m_mcp_server = new McpHttpServer(GEODA_MCP_DEFAULT_PORT);
+    }
+    if (!m_mcp_server->IsRunning() && !m_mcp_server->Start()) {
+        wxMessageBox(_("Failed to start the MCP server."), _("MCP Server"),
+                     wxOK | wxICON_ERROR, this);
+        return;
+    }
+    McpServerInfoDialog dlg(this, m_mcp_server->GetBaseUrl(),
+                            m_mcp_server->GetUrl());
+    dlg.ShowModal();
+}
+
+void GdaFrame::OnMcpStopServer(wxCommandEvent& event)
+{
+    if (m_mcp_server) {
+        m_mcp_server->Stop();
+        wxMessageBox(_("MCP server stopped."), _("MCP Server"),
+                     wxOK | wxICON_INFORMATION, this);
+    }
+}
+
 void GdaFrame::OnRecentDSClick(wxCommandEvent& event)
 {
     wxLogMessage("Click GdaFrame::OnRecentDSClick");
@@ -1262,37 +1449,87 @@ void GdaFrame::OnRecentDSClick(wxCommandEvent& event)
  also be called from the shortcut "New Project From" File menu option. */
 void GdaFrame::NewProjectFromFile(const wxString& full_file_path)
 {
-	wxString proj_title = wxFileName(full_file_path).GetName();
-    wxString layer_name = proj_title;
-	
-	try {
-		FileDataSource fds(full_file_path);
-	
-        // this datasource will be freed when dlg exit, so make a copy
-        // in project_p
-        project_p = new Project(proj_title, layer_name, &fds);
-    } catch (GdaException& e) {
-        RemoveInvalidRecentDS();
-        wxMessageDialog dlg (this, e.what(), _("Error"), wxOK | wxICON_ERROR);
-		dlg.ShowModal();
-        return;
-    }
-    
-    wxString error_msg;
-    if (!project_p) {
-        error_msg << "Error: Could not initialize new project.";
-    } else if (!project_p->IsValid()) {
-        error_msg << "Error:";
-        error_msg << project_p->GetOpenErrorMessage();
-    }
-	if (!error_msg.IsEmpty()) {
+    wxString error;
+    if (OpenProjectNoUI(full_file_path, error)) return;
 
-        wxMessageDialog dlg (this, error_msg, _("Error"), wxOK | wxICON_ERROR);
-		dlg.ShowModal();
-        return;
+    RemoveInvalidRecentDS();
+    wxMessageDialog dlg (this, error, _("Error"), wxOK | wxICON_ERROR);
+    dlg.ShowModal();
+}
+
+/**
+ Open a data source or .gda project file with no UI at all. This is the open
+ path of NewProjectFromFile / OpenProject with their message boxes turned into
+ a returned error, so a caller that has no way to show a dialog -- the MCP
+ file/open tool, which opens the file in the running app -- can report the
+ failure itself. Nothing is shown on success either; the frames it creates
+ appear on the main thread like any other window.
+
+ Any project already open must be closed first: GeoDa holds one layer at a
+ time, and the OpenProject path refuses a second open for the same reason.
+ */
+bool GdaFrame::OpenProjectNoUI(const wxString& full_file_path, wxString& error)
+{
+    error.Empty();
+
+    if (!wxFileExists(full_file_path)) {
+        error = wxString::Format(_("Error: \"%s\" not found."), full_file_path);
+        return false;
     }
-    
+    if (IsProjectOpen()) {
+        error = wxString::Format(_("A project (%s) is already open. Please "
+                                   "close it first."),
+                                 project_p->GetProjectTitle());
+        return false;
+    }
+
+    wxFileName fn(full_file_path);
+    if (fn.GetExt().CmpNoCase("gda") == 0) {
+        // A GeoDa project file, restored the way OpenProject does it.
+        Project* new_project = NULL;
+        try {
+            new_project = new Project(full_file_path);
+        } catch (GdaException& e) {
+            error = wxString(e.what(), wxConvUTF8);
+            return false;
+        }
+        if (!new_project->IsValid()) {
+            error = _("Error while opening project:\n\n");
+            error << new_project->GetOpenErrorMessage();
+            delete new_project;
+            return false;
+        }
+        project_p = new_project;
+        InitWithProject(full_file_path);
+        return true;
+    }
+
+    // A data source: shapefile, GeoJSON, GeoPackage and the other formats GeoDa
+    // reads. FileDataSource is temporary -- Project keeps its own copy.
+    wxString proj_title = fn.GetName();
+    Project* new_project = NULL;
+    try {
+        FileDataSource fds(full_file_path);
+        new_project = new Project(proj_title, proj_title, &fds);
+    } catch (GdaException& e) {
+        error = wxString(e.what(), wxConvUTF8);
+        return false;
+    }
+
+    if (!new_project) {
+        error = _("Could not initialize new project.");
+        return false;
+    }
+    if (!new_project->IsValid()) {
+        error = new_project->GetOpenErrorMessage();
+        if (error.IsEmpty()) error = _("Could not initialize new project.");
+        delete new_project;
+        return false;
+    }
+
+    project_p = new_project;
     InitWithProject();
+    return true;
 }
 
 /** New Project opened by the user from within GeoDa */
@@ -6825,11 +7062,7 @@ void GdaFrame::OnHelpAbout(wxCommandEvent& WXUNUSED(event) )
 	wxString vl_s;
 	vl_s << "GeoDa " << Gda::version_major << "." << Gda::version_minor << ".";
 	vl_s << Gda::version_build;
-    
-    if (Gda::version_subbuild > 0) {
-        vl_s << "." << Gda::version_subbuild;
-    }
-    
+
 	if (Gda::version_type == 0) {
 		vl_s << " (alpha),";
 	} else if (Gda::version_type == 1) {

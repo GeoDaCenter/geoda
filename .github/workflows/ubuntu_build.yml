@@ -42,7 +42,7 @@ jobs:
 
     env:
       platform: ${{ matrix.distro }}
-      GEODA_VER: '1.22.0'
+      GEODA_VER: '1.22.2'
       TARGET_OS: ${{ matrix.pre }}
       EXTRA_GEODA_LD_FLAGS: ${{ matrix.ldflags }}
 

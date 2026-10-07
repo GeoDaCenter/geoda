@@ -5,7 +5,7 @@ AppPublisherURL=https://spatial.uchicago.edu/
 AppSupportURL=https://spatial.uchicago.edu/
 AppUpdatesURL=https://spatial.uchicago.edu/
 AppSupportPhone=(480)965-7533
-AppVersion=1.22.0.18
+AppVersion=1.22.2
 DefaultDirName={pf}\GeoDa Software
 DefaultGroupName=GeoDa Software
 ; Since no icons will be created in "{group}", we don't need the wizard
@@ -15,7 +15,7 @@ UninstallDisplayIcon={app}\GeoDa.exe
 Compression=lzma2
 SolidCompression=yes
 OutputDir=..\..
-OutputBaseFilename=GeoDa_1.22_x86_Setup
+OutputBaseFilename=GeoDa_1.22.2_x86_Setup
 ;OutputDir=userdocs:Inno Setup Examples Output
 
 ChangesAssociations=yes
@@ -114,7 +114,7 @@ Root: "HKLM"; Subkey: "SOFTWARE\Microsoft\Internet Explorer\MAIN\FeatureControl\
 [Code]
 function VCRedistNeedsInstall: Boolean;
 begin
-  Result := not RegKeyExists(HKLM,'SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{03d1453c-7d5c-479c-afea-8482f406e036}');
+  Result := not RegKeyExists(HKLM,'SOFTWARE\Microsoft\VisualStudio\14.0\VC\Runtimes\X86');
 end;
 
 function GetUninstallString: string;

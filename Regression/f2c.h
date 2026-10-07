@@ -9,7 +9,10 @@ typedef char *address;
 typedef short int shortint;
 typedef float real;
 typedef double doublereal;
-typedef struct { real r, i; } complex;
+// 'complex' was renamed to f2c_complex: newer libc++ (clang 17+, Xcode 16)
+// transitively forward-declares std::complex, so with 'using namespace std;'
+// the old name became ambiguous in TUs that include f2c.h.
+typedef struct { real r, i; } f2c_complex;
 typedef struct { doublereal r, i; } doublecomplex;
 typedef long int logical;
 typedef short int shortlogical;
@@ -127,7 +130,7 @@ union Multitype {	/* for multiple entry points */
 	/* longint j; */
 	real r;
 	doublereal d;
-	complex c;
+	f2c_complex c;
 	doublecomplex z;
 	};
 

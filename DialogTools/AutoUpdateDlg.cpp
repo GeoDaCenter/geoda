@@ -177,7 +177,9 @@ wxString AutoUpdate::CheckUpdate()
 
     if (update_build == Gda::version_build && update_build % 2 == 0) {
     	// release sub-version e.g. 1.8.16.2
-        if ( update_subbuild > Gda::version_subbuild) {
+        // Current version is 3-part (no subbuild); a server version with a
+        // 4th component on the same build is treated as an update.
+        if ( update_subbuild > 0) {
             return version;
         }
     }
@@ -189,7 +191,7 @@ wxString AutoUpdate::CheckUpdate()
         }
         if (update_build == Gda::version_build && update_build %2 == 1) {
             // e.g. 1.8.5
-            if ( update_subbuild > Gda::version_subbuild) {
+            if ( update_subbuild > 0) {
                 return version;
             }
         }
