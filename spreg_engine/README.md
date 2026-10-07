@@ -341,6 +341,17 @@ Decisions worth knowing:
   installed the button disappears and the line reads *spreg 1.9.1 ready - the
   advanced models are available*; that is where the controls of the coming
   models will be enabled.
+* The model list comes out of the engine, and starting the engine costs a
+  second or two, so the Regression dialog fetches it *after* it is on screen
+  rather than while it is being built, and the answer is kept in the engine
+  directory (`model_list.json`) from then on.  Installing an engine fills that
+  cache, so the dialog opens in about fifty milliseconds and the list is there
+  a moment later; measured: 49 ms to build the dialog, 78 ms to fill the list
+  from the cache, against about 1.6 s when it has to ask the engine.
+* *Save to Table* works for the engine's models too: predicted values,
+  residuals and (where the model reports them) prediction errors, as
+  `SPR_PREDIC`, `SPR_RESIDU` and `SPR_PRDERR` - `SPR_` because a shapefile field
+  name is ten characters.
 * Installing is the only thing the dialog does.  There is no uninstall and no
   install-from-file in the interface: those are administrator jobs, and the
   README describes them - delete `<user data>/GeoDa/engines/spreg-*` to remove

@@ -595,16 +595,20 @@ bool Result::Read(const wxString& job_dir, wxString& err)
 // the model registry
 // ---------------------------------------------------------------------------
 
-bool ListModels(const wxString& engine_dir, std::vector<ModelOption>& models,
-				wxString& err)
+wxString ModelListCachePath(const wxString& engine_dir)
+{
+	return engine_dir + wxFileName::GetPathSeparator() + "model_list.json";
+}
+
+namespace {
+
+/** Turns the solver's registry dump into the list the dialog offers. */
+bool ParseModels(const std::string& text, std::vector<ModelOption>& models,
+				 wxString& err)
 {
 	models.clear();
-	wxString text;
-	if (!RunSolverCommand(engine_dir, "--list-models", text, err, 120)) return false;
-
 	json_spirit::Value value;
-	if (!json_spirit::read(text.utf8_string(), value)
-		|| value.type() != json_spirit::obj_type) {
+	if (!json_spirit::read(text, value) || value.type() != json_spirit::obj_type) {
 		err = _("The engine's model list could not be read.");
 		return false;
 	}
@@ -652,6 +656,43 @@ bool ListModels(const wxString& engine_dir, std::vector<ModelOption>& models,
 			}
 		}
 		if (!option.id.IsEmpty()) models.push_back(option);
+	}
+	return true;
+}
+
+} // namespace
+
+bool ListModels(const wxString& engine_dir, std::vector<ModelOption>& models,
+				wxString& err, bool allow_cache)
+{
+	models.clear();
+
+	if (allow_cache) {
+		wxFile cache(ModelListCachePath(engine_dir));
+		if (cache.IsOpened()) {
+			const wxFileOffset length = cache.Length();
+			std::string text;
+			text.resize(length > 0 ? static_cast<size_t>(length) : 0);
+			const wxFileOffset got = text.empty() ? 0 : cache.Read(&text[0], text.size());
+			cache.Close();
+			text.resize(got > 0 ? static_cast<size_t>(got) : 0);
+			if (!text.empty() && ParseModels(text, models, err) && !models.empty()) {
+				return true;
+			}
+			err.Clear();               // an unreadable cache is not an error: ask
+		}
+	}
+
+	wxString text;
+	if (!RunSolverCommand(engine_dir, "--list-models", text, err, 120)) return false;
+	if (!ParseModels(text.utf8_string(), models, err)) return false;
+
+	// keep it for next time; a failure here is not worth bothering anyone about
+	wxFile cache(ModelListCachePath(engine_dir), wxFile::write);
+	if (cache.IsOpened()) {
+		const std::string utf8 = text.utf8_string();
+		cache.Write(utf8.c_str(), utf8.size());
+		cache.Close();
 	}
 	return true;
 }

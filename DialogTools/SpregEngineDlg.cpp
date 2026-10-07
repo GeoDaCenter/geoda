@@ -31,6 +31,7 @@
 #include <wx/utils.h>
 
 #include "../Regression/SpregEngine.h"
+#include "../Regression/SpregJob.h"
 
 using namespace SpregEngine;
 
@@ -231,9 +232,14 @@ void SpregEngineDlg::OnInstall(wxCommandEvent& WXUNUSED(event))
 		return;
 	}
 
-	// tell the user it works, not that it was downloaded
+	// Tell the user it works, not that it was downloaded - and have it answer
+	// the questions the Regression dialog will ask while we are here, so that
+	// opening that dialog never has to wait for the interpreter.
 	wxString answer;
 	if (ProbeEngine(installed_dir, answer, err)) {
+		std::vector<SpregJob::ModelOption> models;
+		wxString list_err;
+		SpregJob::ListModels(installed_dir, models, list_err, false);
 		Log(wxString::Format(_("\nInstalled into\n%s\n\nThe engine reports:\n%s"),
 							 installed_dir, answer));
 		status_text_->SetLabel(_("spreg is installed and ready."));

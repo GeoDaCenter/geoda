@@ -309,6 +309,7 @@ void RegressionDlg::CreateControls()
 		RefreshSpregState();
 	}
 
+
 	m_spreg_model = wxEmptyString;
 	m_spreg_installed = false;
 	m_has_spreg_result = false;
@@ -333,7 +334,18 @@ void RegressionDlg::RefreshSpregState()
 	if (status.installed) {
 		m_spreg_status->SetLabel(wxString::Format(_("spreg %s ready"), status.version));
 		m_install_spreg_btn->Hide();
-		FillSpregModels(status.dir);
+		// The model list costs a Python start, so it is fetched once the dialog
+		// is up rather than while it is being built - otherwise opening the
+		// dialog waits for the interpreter.  On everything but the first time
+		// it comes out of the engine's own cache and is there at once.
+		if (m_spreg_model_choice) {
+			m_spreg_model_choice->Clear();
+			m_spreg_model_choice->Append(_("- looking for the engine's models -"));
+			m_spreg_model_choice->SetSelection(0);
+			m_spreg_model_choice->Enable(false);
+		}
+		const wxString engine_dir = status.dir;
+		CallAfter([this, engine_dir]() { FillSpregModels(engine_dir); });
 	} else {
 		m_spreg_status->SetLabel(have_manifest
 			? _("Regimes, spatial Durbin, GMM/IV and probit models need this")
@@ -465,7 +477,7 @@ bool RegressionDlg::RunSpregModel(wxCommandEvent& WXUNUSED(event))
 
 	std::vector<double> y_in(m_obs, 0);
 	std::vector<std::vector<double> > x_in(nX);
-	std::vector<bool> undefs(m_obs, false);
+	std::vector<bool> undefs_local(m_obs, false);
 	{
 		std::vector<double> values;
 		const int y_col = table_int->FindColId(name_to_nm[y_display]);
@@ -482,7 +494,7 @@ bool RegressionDlg::RunSpregModel(wxCommandEvent& WXUNUSED(event))
 		y_in = values;
 		std::vector<bool> undefined;
 		table_int->GetColUndefined(y_col, name_to_tm_id[y_display], undefined);
-		for (long i = 0; i < m_obs; ++i) undefs[i] = undefs[i] || undefined[i];
+		for (long i = 0; i < m_obs; ++i) undefs_local[i] = undefs_local[i] || undefined[i];
 
 		for (int i = 0; i < nX; ++i) {
 			const wxString& display = m_independentlist->GetString(i);
@@ -499,14 +511,14 @@ bool RegressionDlg::RunSpregModel(wxCommandEvent& WXUNUSED(event))
 			table_int->GetColData(col, name_to_tm_id[display], values);
 			x_in[i] = values;
 			table_int->GetColUndefined(col, name_to_tm_id[display], undefined);
-			for (long j = 0; j < m_obs; ++j) undefs[j] = undefs[j] || undefined[j];
+			for (long j = 0; j < m_obs; ++j) undefs_local[j] = undefs_local[j] || undefined[j];
 		}
 	}
 
 	std::vector<int> valid_rows;
 	std::map<int, int> remap;
 	for (long i = 0; i < m_obs; ++i) {
-		if (!undefs[i]) {
+		if (!undefs_local[i]) {
 			remap[i] = static_cast<int>(valid_rows.size());
 			valid_rows.push_back(static_cast<int>(i));
 		}
@@ -576,6 +588,10 @@ bool RegressionDlg::RunSpregModel(wxCommandEvent& WXUNUSED(event))
 		return true;
 	}
 
+	// Save to Table reads this member, so it has to describe this run
+	undefs.assign(m_obs, false);
+	for (long i = 0; i < m_obs; ++i) undefs[i] = undefs_local[i];
+
 	SpregJob::Writer writer(job_dir);
 	bool ok = writer.AddY(y, err);
 	if (ok) ok = writer.AddX(x, err);
@@ -593,7 +609,7 @@ bool RegressionDlg::RunSpregModel(wxCommandEvent& WXUNUSED(event))
 				int index = 0;
 				for (size_t j = 0; j < nbrs.size(); ++j) {
 					const int neighbour = static_cast<int>(nbrs[j]);
-					if (undefs[neighbour]) continue;
+					if (undefs_local[neighbour]) continue;
 					subset[i].SetNbr(index++, remap[neighbour],
 									 j < weights.size() ? weights[j] : 1.0);
 				}
@@ -1577,11 +1593,30 @@ void RegressionDlg::OnCSaveRegressionClick( wxCommandEvent& event )
     std::vector<bool> save_undefs(n_obs);
 	std::vector<double> yhat(table_int->GetNumberRows());
 	std::vector<double> resid(table_int->GetNumberRows());
-	std::vector<double> prederr(RegressModel > 1 ? n_obs : 0);
-	std::vector<SaveToTableEntry> data(RegressModel > 1 ? 3 : 2);
-		
+	// a run through the engine keeps its own numbers and its own model, and only
+	// some of those report a prediction error
+	const bool spreg_run = !m_spreg_model.IsEmpty() && m_has_spreg_result;
+	const bool with_prederr = spreg_run ? !m_spreg_prederr.empty() : (RegressModel > 1);
+	std::vector<double> prederr(with_prederr ? n_obs : 0);
+	std::vector<SaveToTableEntry> data(with_prederr ? 3 : 2);
+
 	wxString pre = "";
-	if (RegressModel==1) {
+	if (spreg_run) {
+		// the three models above use OLS_/LAG_/ERR_; "SPR_" keeps a spreg column
+		// name within the ten characters a shapefile field allows
+		pre = "SPR_";
+		const int n_valid = static_cast<int>(m_spreg_yhat.size());
+		int idx = 0;
+		for (int i = 0; i < n_obs; i++) {
+			if (!undefs[i] && idx < n_valid) {
+				yhat[i] = m_spreg_yhat[idx];
+				resid[i] = idx < static_cast<int>(m_spreg_resid.size()) ? m_spreg_resid[idx] : 0;
+				if (with_prederr) prederr[i] = m_spreg_prederr[idx];
+				idx += 1;
+			}
+			save_undefs[i] = undefs[i];
+		}
+	} else if (RegressModel==1) {
 		pre = "OLS_";
 		int idx = 0;
 		for (int i=0; i<n_obs; i++) {
@@ -1590,7 +1625,7 @@ void RegressionDlg::OnCSaveRegressionClick( wxCommandEvent& event )
 				resid[i] = m_resid1[idx];
 				idx += 1;
 			}
-			save_undefs[i] = undefs[idx];
+			save_undefs[i] = undefs[i];
 		}
 	} else if (RegressModel==2) {
 		pre = "LAG_";

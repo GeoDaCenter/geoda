@@ -124,9 +124,19 @@ struct ModelOption {
 		needs_instruments(false), needs_coords(false) {}
 };
 
-/** Runs the solver's registry dump and parses it.  Needs an installed engine. */
+/**
+ * The models the engine offers.
+ *
+ * Starting the engine costs a second or two, so its answer is kept in the
+ * engine directory (model_list.json) and read from there from then on; the
+ * cache lives and dies with the engine.  With allow_cache false it always asks
+ * the engine, which is what warming the cache after an installation does.
+ */
 bool ListModels(const wxString& engine_dir, std::vector<ModelOption>& models,
-				wxString& err);
+				wxString& err, bool allow_cache = true);
+
+/** Where that answer is kept, i.e. <engine_dir>/model_list.json. */
+wxString ModelListCachePath(const wxString& engine_dir);
 
 } // namespace SpregJob
 
