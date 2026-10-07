@@ -2,7 +2,7 @@
 
 A workflow guide following **Luc Anselin, "Exploring Spatial Data with GeoDa:
 A Workbook"** (Center for Spatial Data Science, University of Chicago). It
-maps each part of the workbook onto the MCP tools of the GeoDa MCP server so
+maps each part of the workbook onto the commands of the GeoDa MCP server so
 the exercises can be reproduced against the open project.
 
 The workbook's running example is the **natregimes** sample dataset (3,085
@@ -16,22 +16,30 @@ U.S. counties; homicide rates and socioeconomic covariates).
 ## FIRST: Always load this skill
 
 Loading this skill's content is the **first step of every task** — before any
-tool call and before any other action. Read it with
-`skill/get {uri: "skill://spatial-analysis-workbook"}` (what `initialize` points
-you at), as the resource `resources/read {uri:
+command and before any other action. Read it with
+`execute_command {name: "skill/get", arguments: {uri: "skill://spatial-analysis-workbook"}}`
+(what `initialize` points you at), as the resource `resources/read {uri:
 "skill://spatial-analysis-workbook"}`, or as the prompt
 `prompts/get {name: "spatial-analysis-workbook"}` — all three serve this text.
-Then follow it exactly: do NOT call `table/*`, `weights/*`, `global/*`,
-`space/*`, `window/*`, or any other tool before you have read it. Every
-workbook exercise maps to a numbered step in the sections below.
+Then follow it exactly: do NOT run any other command before you have read it.
+Every workbook exercise maps to a numbered step in the sections below.
+
+## The two tools: `list_command` and `execute_command`
+
+The server exposes **two MCP tools**. `execute_command` runs one GeoDa action:
+`execute_command {name: "<command id>", arguments: {<parameters>}}`.
+`list_command` returns the catalog of commands — each one's id, menu group,
+description and parameters. Throughout this guide `id {params}` is shorthand
+for that call — `file/open {path: X}` means
+`execute_command {name: "file/open", arguments: {path: X}}`.
 
 If `project/status` reports that nothing is open, open the data set yourself
 with `file/open {path}` — an absolute path, `~` and `${VAR}` expanded, e.g.
 `~/Downloads/natregimes/natregimes.shp`. A project already open is left alone:
 call `file/close` first to switch data sets.
 
-Some tools ask the user directly. If a required numeric variable is missing from
-a `lisa/*` or `global/*` call, the server raises a question card (MCP
+Some commands ask the user directly. If a required numeric variable is missing
+from a `lisa/*` or `global/*` call, the server raises a question card (MCP
 elicitation) listing the project's numeric columns and continues with whatever
 the user picks — so you do not have to ask first. If you already asked and were
 told, pass the column and no card appears.

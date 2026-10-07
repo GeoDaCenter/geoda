@@ -100,6 +100,16 @@ struct McpTool
     McpToolHandler handler;
 };
 
+// The two MCP tools the GeoDa server exposes to clients, in place of one tool
+// per command (~90 of them). `list_command` returns the catalog -- each
+// command's id, group, description and parameters -- so a client discovers
+// the surface on demand instead of loading ninety schemas up front, and
+// `execute_command {name, arguments}` runs one. This follows the sqlrooms /
+// kepler.gl MCP command design (list_commands + execute_command over a shared
+// command registry); the registry in MCP/McpCommands.cpp stays the executor.
+extern const char* const kMcpListToolName;     // "list_command"
+extern const char* const kMcpExecuteToolName;  // "execute_command"
+
 // Registry of MCP tools. Populated once in the constructor; read-only
 // afterwards so it is safe to query from worker threads.
 class McpTools
@@ -111,6 +121,11 @@ public:
     const McpTool* FindTool(const wxString& name) const;
     const std::vector<McpTool>& GetTools() const { return m_tools; }
     json_spirit::Value GetToolsList() const;
+
+    // Catalog for the list_command tool: every command's id, group, label,
+    // description and parameters. `params` may carry "group" to keep only one
+    // menu group (case-insensitive) and/or "name" to return a single command.
+    json_spirit::Value GetCommandsList(const json_spirit::Object& params) const;
 
     // Registration API, used by RegisterCommands (MCP/McpCommands.cpp).
     // may_elicit marks tools that ask the user for a missing parameter; it

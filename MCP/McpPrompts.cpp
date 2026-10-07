@@ -93,9 +93,10 @@ json_spirit::Value McpPrompts::GetPromptsList() const
             "Spatial data analysis workflow following Luc Anselin's "
             "\"Exploring Spatial Data with GeoDa: A Workbook\" (Center for "
             "Spatial Data Science). Maps each workbook part to the GeoDa MCP "
-            "tools: maps, weights, global autocorrelation, LISA, rates, and "
-            "clustering. Pass 'section' to load one part, or omit it for the "
-            "full guide.")));
+            "commands (maps, weights, global autocorrelation, LISA, rates, and "
+            "clustering), which are run through the server's single "
+            "\"command\" tool. Pass 'section' to load one part, or omit it for "
+            "the full guide.")));
     prompt.push_back(P("arguments", json_spirit::Value(args)));
 
     json_spirit::Array prompts;
@@ -155,7 +156,9 @@ json_spirit::Value McpPrompts::GetPrompt(const json_spirit::Object& params) cons
     std::vector<json_spirit::Pair> result;
     result.push_back(P("description",
         json_spirit::Value(
-            "Workbook-guided spatial data analysis with the GeoDa MCP server")));
+            "Workbook-guided spatial data analysis with the GeoDa MCP server. "
+            "Every command is run with execute_command {name: \"<command "
+            "id>\", arguments: {...}}; list_command lists them.")));
     result.push_back(P("messages", json_spirit::Value(messages)));
     return Obj(result);
 }
@@ -418,33 +421,35 @@ std::string McpPrompts::GuideText()
 "\n"
 "This guide follows Luc Anselin, \"Exploring Spatial Data with GeoDa: A "
 "Workbook\" (Center for Spatial Data Science, University of Chicago). It "
-"maps each part of the workbook onto the MCP tools of this server so the "
+"maps each part of the workbook onto the commands of this server so the "
 "exercises can be reproduced against the open project. The workbook's "
 "running example is the natregimes sample dataset (3,085 U.S. counties).\n"
 "\n"
 "## FIRST: Always load the skill content\n"
 "\n"
 "Loading the relevant skill content is the first step of every task, before "
-"any tool call and before any other action:\n"
-"- Over MCP: list skills with `skill/list`, then read this workbook skill "
-"with `skill/get {uri: \"skill://spatial-analysis-workbook\"}` -- what "
-"`initialize` points you at -- or as the resource "
+"any command and before any other action:\n"
+"- Over MCP: read this workbook skill with `execute_command {name: "
+"\"skill/get\", arguments: {uri: \"skill://spatial-analysis-workbook\"}}` -- "
+"what `initialize` points you at -- or as the resource "
 "`resources/read {uri: \"skill://spatial-analysis-workbook\"}`. Follow it "
 "exactly.\n"
 "- From this prompt: the same content is served by `prompts/get`; read the "
-"full guide before using any tool.\n"
-"Do NOT call `table/*`, `weights/*`, `global/*`, `space/*`, `window/*`, or "
-"any other tool before you have read the skill. The workbook skill is the "
-"authoritative step-by-step guide for every exercise.\n"
+"full guide before running any command.\n"
+"The server exposes **two MCP tools**: `list_command` lists every command (id, "
+"group, parameters), and `execute_command {name: \"<command id>\", arguments: "
+"{<parameters>}}` runs one -- `id {params}` below is shorthand for that call. "
+"Do NOT run any other command before you have read the skill. The workbook "
+"skill is the authoritative step-by-step guide for every exercise.\n"
 "\n"
 "If `project/status` reports that nothing is open, open the data set yourself "
 "with `file/open {path}` -- an absolute path, with `~` expanded. Opening "
 "while a project is open is refused: call `file/close` first to switch data "
 "sets.\n"
 "\n"
-"Some tools ask the user directly. If a required numeric variable is missing "
-"from a `lisa/*` or `global/*` call, the server raises a question card (MCP "
-"elicitation) listing the project's numeric columns and continues with "
+"Some commands ask the user directly. If a required numeric variable is "
+"missing from a `lisa/*` or `global/*` call, the server raises a question card "
+"(MCP elicitation) listing the project's numeric columns and continues with "
 "whatever the user picks -- so you do not have to ask first. If you already "
 "asked and were told, pass the column and no card appears.\n"
 "\n"
