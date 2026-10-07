@@ -21,6 +21,7 @@
 #include "SpregEngine.h"
 
 #include <cmath>
+#include <cstring>
 #include <limits>
 #include <string>
 #include <vector>
@@ -575,9 +576,12 @@ bool Result::Read(const wxString& job_dir, wxString& err)
 						continue;
 					}
 					const size_t count = static_cast<size_t>(nbytes / sizeof(double));
-					const double* values =
-						reinterpret_cast<const double*>(&payload[static_cast<size_t>(offset)]);
-					wanted[w].target->assign(values, values + count);
+					// memcpy, not a cast: the payload is a character buffer and
+					// has no reason to be aligned for doubles
+					std::vector<double> values(count);
+					std::memcpy(&values[0], &payload[static_cast<size_t>(offset)],
+								count * sizeof(double));
+					*wanted[w].target = values;
 				}
 			}
 		}

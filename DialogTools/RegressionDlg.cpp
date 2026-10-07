@@ -577,8 +577,6 @@ bool RegressionDlg::RunSpregModel(wxCommandEvent& WXUNUSED(event))
 	}
 
 	SpregJob::Writer writer(job_dir);
-	const std::vector<long>* dummy = NULL;
-	(void) dummy;
 	bool ok = writer.AddY(y, err);
 	if (ok) ok = writer.AddX(x, err);
 	if (ok) {

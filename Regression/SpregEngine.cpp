@@ -43,9 +43,7 @@
 #include "../GenUtils.h"
 
 #ifndef __WXMSW__
-#include <sys/stat.h>
-#include <sys/wait.h>
-#include <cerrno>
+#include <sys/stat.h>       // chmod
 #endif
 
 namespace {
