@@ -48,13 +48,15 @@ jobs:
         run: |
           # Wait until every build workflow (Windows, macOS, Ubuntu, AppImage)
           # started by this tag push has finished, so their artifacts exist
-          # before we download them. Polls the runs API every 30s.
+          # before we download them. Polls the runs API every 30s. A re-run adds
+          # another run for the same workflow, so only the newest run of each is
+          # counted -- an old failed attempt should not decide this step.
           COMMIT_SHA=$(git rev-parse HEAD)
           TAG="${GITHUB_REF#refs/tags/}"
           echo "Waiting for the build workflows ${TAG} started on ${COMMIT_SHA}..."
           for attempt in $(seq 1 180); do
-            RUNS=$(gh api "repos/${GITHUB_REPOSITORY}/actions/runs?head_sha=${COMMIT_SHA}" \
-              --jq '[.workflow_runs[] | select(.name != "Create Release") | select(.head_branch == "'"${TAG}"'")]')
+            RUNS=$(gh api "repos/${GITHUB_REPOSITORY}/actions/runs?head_sha=${COMMIT_SHA}&per_page=100" \
+              --jq '[.workflow_runs[] | select(.name != "Create Release") | select(.head_branch == "'"${TAG}"'")] | group_by(.name) | map(max_by(.created_at))')
             TOTAL=$(echo "$RUNS" | jq 'length')
             if [ "$TOTAL" -eq 0 ]; then
               echo "  no build runs found yet (attempt $attempt/180); waiting 30s..."
@@ -82,13 +84,14 @@ jobs:
         # the runs from the push to master that produced the same commit, and
         # those artifacts carry the same names -- gh run download then refuses
         # to extract over an existing file ("file exists") and the release is
-        # never created, which is what happened to v1.22.2.
+        # never created, which is what happened to v1.22.2. The newest run of
+        # each workflow is the one to take, since a re-run repeats the names too.
         run: |
           mkdir -p artifacts
           COMMIT_SHA=$(git rev-parse HEAD)
           TAG="${GITHUB_REF#refs/tags/}"
-          RUN_IDS=$(gh api "repos/${GITHUB_REPOSITORY}/actions/runs?head_sha=${COMMIT_SHA}" \
-            --jq '.workflow_runs[] | select(.name != "Create Release") | select(.head_branch == "'"${TAG}"'") | .id')
+          RUN_IDS=$(gh api "repos/${GITHUB_REPOSITORY}/actions/runs?head_sha=${COMMIT_SHA}&per_page=100" \
+            --jq '[.workflow_runs[] | select(.name != "Create Release") | select(.head_branch == "'"${TAG}"'")] | group_by(.name) | map(max_by(.created_at)) | .[].id')
           if [ -z "$RUN_IDS" ]; then
             echo "::error::No build workflow runs found for ${COMMIT_SHA}"
             exit 1
