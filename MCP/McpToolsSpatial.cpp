@@ -19,6 +19,7 @@
 
 #include "MCP/McpToolsSpatial.h"
 #include "MCP/McpTools.h"
+#include "MCP/McpResources.h"
 
 #include <algorithm>
 #include <cmath>
@@ -776,6 +777,128 @@ namespace
         }
         return Arr(arr);
     }
+}
+
+// =========================================================================
+// skill (the workbook this server ships)
+// =========================================================================
+// The same text is served to resource-reading clients as
+// skill://spatial-analysis-workbook. The tool exists because Claude Code
+// exposes MCP resources only as user @-mentions, so an agent cannot read a
+// resource on its own: a tool is the only way it can load the skill without an
+// external skill repo. `initialize` points every client here.
+json_spirit::Value McpSkillList(const McpToolContext& ctx,
+                                const json_spirit::Object& params)
+{
+    McpResources resources;
+    return resources.GetResourcesList();
+}
+
+json_spirit::Value McpSkillGet(const McpToolContext& ctx,
+                               const json_spirit::Object& params)
+{
+    wxString uri = GetStr(params, "uri");
+    if (uri.IsEmpty()) {
+        throw McpError(-32602, "Missing required parameter: uri");
+    }
+    std::string text = McpResources::GetSkillText(uri);
+    if (text.empty()) {
+        throw McpError(-32602, "Unknown skill: " + uri.ToStdString());
+    }
+
+    // Same shape as resources/read, so a client can treat the two alike.
+    std::vector<json_spirit::Pair> content;
+    content.push_back(P("uri", json_spirit::Value(uri.ToStdString())));
+    content.push_back(P("mimeType", json_spirit::Value("text/markdown")));
+    content.push_back(P("text",
+        json_spirit::Value(wxString::FromUTF8(text.c_str()).ToStdString())));
+
+    std::vector<json_spirit::Pair> result;
+    result.push_back(P("contents",
+        json_spirit::Value(json_spirit::Array(1, Obj(content)))));
+    return Obj(result);
+}
+
+// =========================================================================
+// file (open a data set in the running app)
+// =========================================================================
+// Opening and closing create and destroy wx frames, so both run on the main
+// thread (registered with run_on_worker == false, like the window tools).
+json_spirit::Value McpFileOpen(const McpToolContext& ctx,
+                               const json_spirit::Object& params)
+{
+    wxString path = GetStr(params, "path");
+    if (path.IsEmpty()) {
+        throw McpError(-32602, "Missing required parameter: path");
+    }
+    // The path is written the way the user or agent thinks of it: "~" and
+    // "${HOME}" are expanded here, so the error below names a path that can be
+    // checked by hand.
+    if (path == "~" || path.StartsWith("~/")) {
+        path = wxGetHomeDir() + path.Mid(1);
+    }
+    path = wxExpandEnvVars(path);
+    wxFileName fn(path);
+    if (!fn.IsAbsolute()) {
+        throw McpError(-32602,
+            "path must be absolute, e.g. /Users/you/data.geojson");
+    }
+
+    GdaFrame* frame = GdaFrame::GetGdaFrame();
+    if (!frame) {
+        throw McpError(-32000, "GeoDa is not ready to open a file.");
+    }
+    wxString error;
+    if (!frame->OpenProjectNoUI(fn.GetFullPath(), error)) {
+        throw McpError(-32602, error.ToStdString());
+    }
+
+    // Report what was opened, so the caller can go straight to the analysis
+    // tools without a project/status round trip.
+    Project* project = GdaFrame::GetProject();
+    if (!project) {
+        throw McpError(-32000, "The file was opened but no project is open.");
+    }
+    std::vector<json_spirit::Pair> r;
+    r.push_back(P("open", json_spirit::Value(true)));
+    r.push_back(P("path", json_spirit::Value(fn.GetFullPath().ToStdString())));
+    r.push_back(P("title",
+        json_spirit::Value(project->GetProjectTitle().ToStdString())));
+    r.push_back(P("num_records", json_spirit::Value(project->GetNumRecords())));
+    TableInterface* table = project->GetTableInt();
+    if (table) {
+        r.push_back(P("num_columns",
+                      json_spirit::Value(table->GetNumberCols())));
+    }
+    return Obj(r);
+}
+
+json_spirit::Value McpFileClose(const McpToolContext& ctx,
+                                const json_spirit::Object& params)
+{
+    Project* project = RequireProject(ctx);
+    TableInterface* table = project->GetTableInt();
+    // Unsaved edits belong to the user, and nothing on the MCP side can save
+    // them (file/save is a GUI action), so they are never discarded silently.
+    if (!GetBool(params, "force", false) && table &&
+        (table->ChangedSinceLastSave() ||
+         table->ProjectChangedSinceLastSave())) {
+        throw McpError(-32602,
+            "The project has unsaved changes. Save them in GeoDa, or pass "
+            "force: true to discard them.");
+    }
+    GdaFrame* frame = GdaFrame::GetGdaFrame();
+    if (!frame) {
+        throw McpError(-32000, "GeoDa is not ready to close a file.");
+    }
+    // ignore_unsaved_changes: the "save your data?" dialogs belong to the GUI
+    // and would block the main thread that serves every MCP request.
+    if (!frame->OnCloseProject(true)) {
+        throw McpError(-32000, "The project could not be closed.");
+    }
+    std::vector<json_spirit::Pair> r;
+    r.push_back(P("open", json_spirit::Value(false)));
+    return Obj(r);
 }
 
 // =========================================================================

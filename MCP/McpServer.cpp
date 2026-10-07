@@ -291,6 +291,21 @@ json_spirit::Value McpServer::HandleInitialize(const json_spirit::Object& params
                        json_spirit::Value(negotiated.ToStdString())));
     result.push_back(P("capabilities", Obj(capabilities)));
     result.push_back(P("serverInfo", Obj(server_info)));
+    // The initialize `instructions` are the one thing a client is handed
+    // before it calls anything, so the workbook skill is announced here: an
+    // agent that connects to GeoDa learns to load the skill from the server
+    // itself, with no external skill repo and nothing to install. skill/get
+    // rather than the resource URI alone, because Claude Code exposes MCP
+    // resources only as user @-mentions.
+    result.push_back(P("instructions", json_spirit::Value(
+        "GeoDa: desktop spatial data analysis -- spatial weights, global and "
+        "local autocorrelation (LISA), clustering, regression, maps. Read the "
+        "skill first: skill/get {\"uri\": \"skill://spatial-analysis-"
+        "workbook\"} (or resources/read {uri: skill://spatial-analysis-"
+        "workbook}). It is the workbook this server's tools follow, and it "
+        "maps every task onto them -- do not call another tool before you "
+        "have read it. If project/status reports no data set open, open one "
+        "with file/open {\"path\": ...}; file/close closes it.")));
     return Obj(result);
 }
 

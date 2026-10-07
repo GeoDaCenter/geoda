@@ -44,6 +44,12 @@ public:
     // McpError for unknown resource URIs.
     json_spirit::Value GetResource(const json_spirit::Object& params) const;
 
+    // Text of the skill behind a skill:// URI, empty when the URI is unknown.
+    // The skill/get tool serves the same text: Claude Code exposes MCP
+    // resources only as user @-mentions, so a tool is the one way an agent can
+    // fetch the skill on its own.
+    static std::string GetSkillText(const wxString& uri);
+
 private:
     // The workbook skill, as markdown text.
     static std::string WorkbookSkillText();

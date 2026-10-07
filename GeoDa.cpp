@@ -1358,37 +1358,87 @@ void GdaFrame::OnRecentDSClick(wxCommandEvent& event)
  also be called from the shortcut "New Project From" File menu option. */
 void GdaFrame::NewProjectFromFile(const wxString& full_file_path)
 {
-	wxString proj_title = wxFileName(full_file_path).GetName();
-    wxString layer_name = proj_title;
-	
-	try {
-		FileDataSource fds(full_file_path);
-	
-        // this datasource will be freed when dlg exit, so make a copy
-        // in project_p
-        project_p = new Project(proj_title, layer_name, &fds);
-    } catch (GdaException& e) {
-        RemoveInvalidRecentDS();
-        wxMessageDialog dlg (this, e.what(), _("Error"), wxOK | wxICON_ERROR);
-		dlg.ShowModal();
-        return;
-    }
-    
-    wxString error_msg;
-    if (!project_p) {
-        error_msg << "Error: Could not initialize new project.";
-    } else if (!project_p->IsValid()) {
-        error_msg << "Error:";
-        error_msg << project_p->GetOpenErrorMessage();
-    }
-	if (!error_msg.IsEmpty()) {
+    wxString error;
+    if (OpenProjectNoUI(full_file_path, error)) return;
 
-        wxMessageDialog dlg (this, error_msg, _("Error"), wxOK | wxICON_ERROR);
-		dlg.ShowModal();
-        return;
+    RemoveInvalidRecentDS();
+    wxMessageDialog dlg (this, error, _("Error"), wxOK | wxICON_ERROR);
+    dlg.ShowModal();
+}
+
+/**
+ Open a data source or .gda project file with no UI at all. This is the open
+ path of NewProjectFromFile / OpenProject with their message boxes turned into
+ a returned error, so a caller that has no way to show a dialog -- the MCP
+ file/open tool, which opens the file in the running app -- can report the
+ failure itself. Nothing is shown on success either; the frames it creates
+ appear on the main thread like any other window.
+
+ Any project already open must be closed first: GeoDa holds one layer at a
+ time, and the OpenProject path refuses a second open for the same reason.
+ */
+bool GdaFrame::OpenProjectNoUI(const wxString& full_file_path, wxString& error)
+{
+    error.Empty();
+
+    if (!wxFileExists(full_file_path)) {
+        error = wxString::Format(_("Error: \"%s\" not found."), full_file_path);
+        return false;
     }
-    
+    if (IsProjectOpen()) {
+        error = wxString::Format(_("A project (%s) is already open. Please "
+                                   "close it first."),
+                                 project_p->GetProjectTitle());
+        return false;
+    }
+
+    wxFileName fn(full_file_path);
+    if (fn.GetExt().CmpNoCase("gda") == 0) {
+        // A GeoDa project file, restored the way OpenProject does it.
+        Project* new_project = NULL;
+        try {
+            new_project = new Project(full_file_path);
+        } catch (GdaException& e) {
+            error = wxString(e.what(), wxConvUTF8);
+            return false;
+        }
+        if (!new_project->IsValid()) {
+            error = _("Error while opening project:\n\n");
+            error << new_project->GetOpenErrorMessage();
+            delete new_project;
+            return false;
+        }
+        project_p = new_project;
+        InitWithProject(full_file_path);
+        return true;
+    }
+
+    // A data source: shapefile, GeoJSON, GeoPackage and the other formats GeoDa
+    // reads. FileDataSource is temporary -- Project keeps its own copy.
+    wxString proj_title = fn.GetName();
+    Project* new_project = NULL;
+    try {
+        FileDataSource fds(full_file_path);
+        new_project = new Project(proj_title, proj_title, &fds);
+    } catch (GdaException& e) {
+        error = wxString(e.what(), wxConvUTF8);
+        return false;
+    }
+
+    if (!new_project) {
+        error = _("Could not initialize new project.");
+        return false;
+    }
+    if (!new_project->IsValid()) {
+        error = new_project->GetOpenErrorMessage();
+        if (error.IsEmpty()) error = _("Could not initialize new project.");
+        delete new_project;
+        return false;
+    }
+
+    project_p = new_project;
     InitWithProject();
+    return true;
 }
 
 /** New Project opened by the user from within GeoDa */
