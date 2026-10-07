@@ -43,7 +43,7 @@ const char* kFloat64 = "f8";
 const char* kInt64 = "i8";
 const char* kInt32 = "i4";
 
-std::string ToUtf8(const wxString& text) { return text.utf8_string(); }
+std::string ToUtf8(const wxString& text) { return text.ToStdString(wxConvUTF8); }
 
 const json_spirit::Value* FindMember(const json_spirit::Object& obj,
 									 const char* name)
@@ -685,12 +685,12 @@ bool ListModels(const wxString& engine_dir, std::vector<ModelOption>& models,
 
 	wxString text;
 	if (!RunSolverCommand(engine_dir, "--list-models", text, err, 120)) return false;
-	if (!ParseModels(text.utf8_string(), models, err)) return false;
+	if (!ParseModels(text.ToStdString(wxConvUTF8), models, err)) return false;
 
 	// keep it for next time; a failure here is not worth bothering anyone about
 	wxFile cache(ModelListCachePath(engine_dir), wxFile::write);
 	if (cache.IsOpened()) {
-		const std::string utf8 = text.utf8_string();
+		const std::string utf8 = text.ToStdString(wxConvUTF8);
 		cache.Write(utf8.c_str(), utf8.size());
 		cache.Close();
 	}
