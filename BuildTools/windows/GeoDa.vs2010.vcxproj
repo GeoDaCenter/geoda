@@ -786,6 +786,9 @@
     <ClInclude Include="..\..\version.h" />
     <ClInclude Include="..\..\Weights\DistUtils.h" />
     <ClInclude Include="..\..\wxTranslationHelper.h" />
+    <ClInclude Include="..\..\DialogTools\SpregEngineDlg.h" />
+    <ClInclude Include="..\..\regression\SpregEngine.h" />
+    <ClInclude Include="..\..\regression\SpregSha256.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\DialogTools\CalculatorDlg.cpp" />
@@ -905,6 +908,8 @@
     <ClCompile Include="..\..\MCP\McpServer.cpp" />
     <ClCompile Include="..\..\MCP\McpTools.cpp" />
     <ClCompile Include="..\..\MCP\McpToolsSpatial.cpp" />
+    <ClCompile Include="..\..\DialogTools\SpregEngineDlg.cpp" />
+    <ClCompile Include="..\..\regression\SpregEngine.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

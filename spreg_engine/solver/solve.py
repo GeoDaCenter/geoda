@@ -714,9 +714,14 @@ def write_job_dir(jobdir: str, spec: Dict[str, Any], arrays: Dict[str, Any]) -> 
         fh.write("\n")
 
 
-def cmd_list_models() -> int:
-    print(json.dumps({"protocol": PROTOCOL_VERSION, "engine": engine_info(),
-                      "models": REG.list_models()}, indent=2))
+def cmd_list_models(out: Optional[str] = None) -> int:
+    text = json.dumps({"protocol": PROTOCOL_VERSION, "engine": engine_info(),
+                       "models": REG.list_models()}, indent=2) + "\n"
+    if out:
+        with open(out, "w", encoding="utf-8") as fh:
+            fh.write(text)
+    else:
+        print(text, end="")
     return 0
 
 
@@ -726,13 +731,23 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     parser.add_argument("--selftest", action="store_true", help="run the end-to-end protocol test")
     parser.add_argument("--list-models", action="store_true", help="print the model registry")
     parser.add_argument("--engine-info", action="store_true", help="print versions")
+    # GeoDa waits for a file rather than for this process to exit, because the
+    # event loop that would deliver the exit code is not running while a dialog
+    # is blocked on us; --out is how it gets an answer it can poll for.
+    parser.add_argument("--out", metavar="FILE",
+                        help="write the answer of --engine-info / --list-models to FILE")
     args = parser.parse_args(argv)
 
     if args.engine_info:
-        print(json.dumps(engine_info(), indent=2))
+        text = json.dumps(engine_info(), indent=2) + "\n"
+        if args.out:
+            with open(args.out, "w", encoding="utf-8") as fh:
+                fh.write(text)
+        else:
+            print(text, end="")
         return 0
     if args.list_models:
-        return cmd_list_models()
+        return cmd_list_models(args.out)
     if args.selftest:
         return cmd_selftest()
     if args.job:

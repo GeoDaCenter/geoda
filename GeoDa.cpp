@@ -99,6 +99,7 @@
 #include "DialogTools/SelectWeightsDlg.h"
 #include "DialogTools/SaveSelectionDlg.h"
 #include "DialogTools/RegressionDlg.h"
+#include "DialogTools/SpregEngineDlg.h"
 #include "DialogTools/RegressionReportDlg.h"
 #include "DialogTools/LisaWhat2OpenDlg.h"
 #include "DialogTools/RegressionDlg.h"
@@ -827,6 +828,26 @@ GdaFrame::GdaFrame(const wxString& title, const wxPoint& pos,
 	SetBackgroundColour(*wxWHITE);
 	SetIcon(wxIcon(GeoDaIcon_16x16_xpm));
 	SetMenuBar(wxXmlResource::Get()->LoadMenuBar("ID_SHARED_MAIN_MENU"));
+
+	// The engine behind the advanced regression models is installed on demand,
+	// so its manager is added to the Tools menu here rather than in menus.xrc:
+	// regenerating GdaAppResources.cpp for one item would churn 13k lines
+	// whenever a different wxrc version does the generating.
+	{
+		wxMenuBar* mb = GetMenuBar();
+		const int tools_index = mb->FindMenu(_("Tools"));
+		if (tools_index != wxNOT_FOUND) {
+			wxMenu* tools = mb->GetMenu(tools_index);
+			// right after Weights Manager, which the regression dialog uses
+			tools->Insert(tools->GetMenuItemCount() > 0 ? 1 : 0,
+						  XRCID("ID_TOOLS_SPREG_ENGINE"),
+						  _("Advanced Regression Engine..."),
+						  _("Install, test or remove the engine that provides the "
+							"regimes, spatial Durbin, GMM/IV and probit models"));
+		}
+	}
+	Bind(wxEVT_COMMAND_MENU_SELECTED, &GdaFrame::OnToolsSpregEngine, this,
+		 XRCID("ID_TOOLS_SPREG_ENGINE"));
 
     Bind(wxEVT_COMMAND_MENU_SELECTED, &GdaFrame::OnMcpStartServer, this,
          XRCID("ID_MCP_START_SERVER"));
@@ -2483,6 +2504,14 @@ void GdaFrame::OnToolsWeightsManager(wxCommandEvent& WXUNUSED(event) )
 	}
 	// memory managed by wx
 	WeightsManFrame* f = new WeightsManFrame(this, p);
+}
+
+void GdaFrame::OnToolsSpregEngine(wxCommandEvent& WXUNUSED(event))
+{
+	wxLogMessage("Click GdaFrame::OnToolsSpregEngine");
+	// modal: installing the engine is a one-off action with its own progress
+	SpregEngineDlg dlg(this);
+	dlg.ShowModal();
 }
 
 void GdaFrame::OnToolsWeightsCreate(wxCommandEvent& WXUNUSED(event) )

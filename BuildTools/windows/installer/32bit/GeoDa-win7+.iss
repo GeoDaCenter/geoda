@@ -79,6 +79,8 @@ Source: "..\..\..\..\internationalization\lang\*"; DestDir: "{userappdata}\GeoDa
 Source: "..\..\..\..\internationalization\lang\config.ini"; DestDir: "{userappdata}\GeoDa\lang"
 ; Add lang data back to {app} so they can be copied to other new windows users
 Source: "..\..\..\..\internationalization\lang\*"; DestDir: "{app}\lang"; Flags: recursesubdirs
+Source: "..\..\..\..\spreg_engine\manifest\*"; DestDir: "{app}\spreg_engine\manifest"; Flags: recursesubdirs
+Source: "..\..\..\..\spreg_engine\solver\*"; DestDir: "{app}\spreg_engine\solver"; Flags: recursesubdirs
 Source: "..\..\libraries\bin\gdal-data\*"; DestDir: "{app}\data"; Flags: recursesubdirs
 
 ;Source: "Readme.txt"; DestDir: "{app}"; Flags: isreadme

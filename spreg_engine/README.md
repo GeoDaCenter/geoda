@@ -317,6 +317,66 @@ printing blanks; `diagnostics` is empty for those models and 15 entries for
   `spreg-engine-vN` release; the engine directory name carries the version, so
   old and new coexist.
 
+## The application side
+
+Where the pieces live in a built GeoDa:
+
+| | |
+|---|---|
+| `Regression/SpregEngine.{h,cpp}` | discovery, manifest, download, checksum, unpack, install, remove, run |
+| `Regression/SpregSha256.h` | SHA-256, header only, no new dependency |
+| `DialogTools/SpregEngineDlg.{h,cpp}` | *Tools ▸ Advanced Regression Engine…*: install, install from file, test, remove |
+| the installed engine | `<user data>/GeoDa/engines/` — macOS `~/Library/Application Support/GeoDa/engines`, Windows `%APPDATA%\GeoDa\engines`, Linux `~/.geoda/engines` |
+| the shipped solver and manifest | macOS `GeoDa.app/Contents/Resources/spreg_engine/`, elsewhere `<exe dir>/spreg_engine/` |
+
+Decisions worth knowing:
+
+* The menu item is added at runtime in the `GdaFrame` constructor instead of in
+  `menus.xrc`, because regenerating `rc/GdaAppResources.cpp` with a different
+  `wxrc` version rewrites thirteen thousand lines of it. The Explore ▸ HTML menu
+  and the MCP entries are added the same way.
+* `GEODA_SPREG_ENGINES` overrides the engine directory. That is for
+  administrators who prepare machines, multi-user installs, and the headless
+  test below; it is also the documented pre-seed path for air-gapped sites.
+* The engine never touches the system: it lives in the user's own directory and
+  the same dialog removes it. GeoDa's own engine and installer are untouched.
+* Installs are atomic. The archive is unpacked into `<engine>.tmp-<pid>` and
+  renamed into place, the previous engine is kept until the new one is in
+  place, and a failed download or a mismatched checksum leaves everything as it
+  was.
+* An archive that tries to write outside its own directory (a `../` entry, an
+  absolute path) is refused, and the part of it that was extracted is deleted.
+* GeoDa waits for the file the solver writes rather than for its exit code:
+  `wx` only delivers exit codes through the event loop, which is not running
+  while a dialog is blocked waiting.
+* `Regression/` and `DialogTools/` are compiled by glob on macOS and Linux, so
+  no makefile changes were needed there; MSVC (three projects) and Xcode (both
+  projects) keep explicit lists and were updated. When the CMake build lands,
+  its `GEODA_RUNTIME_FILES`/`copy_directory` block needs the same two
+  directories, next to the existing `web_plugins` copy.
+
+### Tests, without building the application
+
+```bash
+tools/test_sha256.cpp                  # digest vectors, cross-checked with shasum
+tools/run_engine_manager_test.sh       # verify / unpack / install / discover / upgrade / remove
+tools/syntax_check.py <sources>        # type-check against the flags CMake used
+```
+
+`run_engine_manager_test.sh` is the one that matters: it links only
+`SpregEngine.cpp` and a small harness, and runs the real installer against a
+real archive in a scratch directory (build one first with
+`tools/build_engine.py --outdir dist`) — including a corrupted download, an archive
+with a `../` entry, installing twice over itself, and removing something that is
+not an engine.
+
+### Still to come
+
+Rendering the structured result into GeoDa's report, *Save to Table* and *Save
+to File*; building the job directory from `RegressionDlg`'s existing data
+preparation; the model list and option widgets from `solve.py --list-models`;
+and the parity harness against the built-in engine.
+
 ## Deliberately out of scope for v1
 
 The panel estimators (`PooledOLS`, `PanelFE`, `PanelRE`, `Panel_FE_Lag`,

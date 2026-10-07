@@ -183,6 +183,7 @@ public:
     void OnToolsDataTSNE(wxCommandEvent& event);
     
 	void OnToolsWeightsManager(wxCommandEvent& event);
+	void OnToolsSpregEngine(wxCommandEvent& event);
 	void OnToolsWeightsCreate(wxCommandEvent& event);
 	void OnConnectivityHistView(wxCommandEvent& event);
 	void OnConnectivityMapView(wxCommandEvent& event);
