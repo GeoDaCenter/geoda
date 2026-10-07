@@ -62,6 +62,7 @@ fi
 	-I"$ROOT" \
 	$($WX_CONFIG --cxxflags) \
 	"$ROOT/Regression/SpregEngine.cpp" \
+	"$ROOT/Regression/SpregJob.cpp" \
 	"$ROOT/spreg_engine/tools/test_engine_manager.cpp" \
 	$($WX_CONFIG --libs std) \
 	$($CURL_CONFIG --libs) \
