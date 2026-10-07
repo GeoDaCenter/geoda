@@ -51,6 +51,10 @@ public:
     void Stop();
     bool IsRunning() const { return m_server != NULL; }
     int GetPort() const { return m_port; }
+    // Origin of the server, http://127.0.0.1:<port>, and the URL an MCP client
+    // connects to, <origin>/mcp. Both report the port actually bound, which is
+    // not the requested one when that port was already taken.
+    wxString GetBaseUrl() const;
     wxString GetUrl() const;
 
 private:

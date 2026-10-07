@@ -27,6 +27,7 @@
 #include <wx/datetime.h>
 #include <wx/file.h>
 #include <wx/filename.h>
+#include <wx/log.h>
 #include <wx/utils.h>
 
 // Posted by a worker thread to hand a finished socket back to the main thread
@@ -206,6 +207,27 @@ namespace
         if (ReadDiscoveryPort() != port) return;
         wxRemoveFile(GetDiscoveryFilePath());
     }
+
+    // True if something is already accepting connections on the loopback port,
+    // i.e. the port cannot be used. Start() cannot rely on the bind failing:
+    // wxSOCKET_REUSEADDR maps to SO_REUSEADDR, which on Windows lets a second
+    // process bind a port another process is already listening on, so both
+    // would think they own 8765. Connecting to the port answers the question on
+    // every platform.
+    bool IsPortInUse(int port)
+    {
+        if (port <= 0 || port > 65535) return false;
+        wxIPV4address addr;
+        addr.Hostname("127.0.0.1");
+        addr.Service((unsigned short)port);
+        wxSocketClient probe;
+        // A free loopback port refuses the connection immediately; the timeout
+        // only bounds the wait if the loopback itself stops answering.
+        probe.SetTimeout(1);
+        bool in_use = probe.Connect(addr);
+        probe.Close();
+        return in_use;
+    }
 }
 
 // Worker thread for heavy tools (LISA with permutations, clustering). Owns the
@@ -294,6 +316,7 @@ bool McpHttpServer::Start()
 
     // Preferred port first, then the next few (so a second GeoDa instance
     // lands on a nearby port rather than a random one), then let the OS pick.
+    int requested_port = m_port;
     int try_ports[12];
     int n = 0;
     if (m_port != 0) {
@@ -304,6 +327,9 @@ bool McpHttpServer::Start()
     try_ports[n++] = 0;
 
     for (int i = 0; i < n; ++i) {
+        // 0 asks the OS for any free port, so only a named port can be taken
+        // and needs the check.
+        if (try_ports[i] != 0 && IsPortInUse(try_ports[i])) continue;
         wxIPV4address addr;
         addr.Hostname("127.0.0.1");
         addr.Service((unsigned short)try_ports[i]);
@@ -317,6 +343,11 @@ bool McpHttpServer::Start()
             m_server->SetNotify(wxSOCKET_CONNECTION_FLAG);
             m_server->Notify(true);
             WriteDiscoveryFile(m_port);
+            wxLogMessage("MCP server listening on %s", GetUrl());
+            if (requested_port != 0 && m_port != requested_port) {
+                wxLogMessage("MCP server: port %d is in use, using %d instead",
+                             requested_port, m_port);
+            }
             return true;
         }
         delete server;
@@ -341,9 +372,14 @@ void McpHttpServer::Stop()
     m_buffers.clear();
 }
 
+wxString McpHttpServer::GetBaseUrl() const
+{
+    return wxString::Format("http://127.0.0.1:%d", m_port);
+}
+
 wxString McpHttpServer::GetUrl() const
 {
-    return wxString::Format("http://127.0.0.1:%d/mcp", m_port);
+    return GetBaseUrl() + "/mcp";
 }
 
 void McpHttpServer::OnServerEvent(wxSocketEvent& event)

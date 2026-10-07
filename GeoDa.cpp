@@ -55,6 +55,10 @@
 #include <wx/filedlg.h>
 #include <wx/filefn.h> // for wxCopyFile and wxFileExists
 #include <wx/msgdlg.h>
+#include <wx/button.h>
+#include <wx/clipbrd.h>
+#include <wx/stattext.h>
+#include <wx/textctrl.h>
 #include <wx/stdpaths.h>
 #include <wx/regex.h>
 #include <wx/numformatter.h>
@@ -1264,27 +1268,114 @@ void GdaFrame::OnEmptyCustomCategoryClick(wxCommandEvent& event)
     }
 }
 
+namespace {
+
+// Shows where the built-in MCP server listens and copies a ready-to-paste line
+// for an MCP client or coding agent. The wxTextEntryDialog this replaces held
+// the endpoint URL in an editable field, leaving the user to work out what to
+// paste and where.
+class McpServerInfoDialog : public wxDialog
+{
+public:
+    McpServerInfoDialog(wxWindow* parent, const wxString& base_url,
+                        const wxString& endpoint_url);
+
+private:
+    void OnCopy(wxCommandEvent& event);
+    void OnCloseClick(wxCommandEvent& event);
+
+    wxString m_connect_text;
+    wxStaticText* m_status;
+};
+
+McpServerInfoDialog::McpServerInfoDialog(wxWindow* parent,
+                                         const wxString& base_url,
+                                         const wxString& endpoint_url)
+: wxDialog(parent, wxID_ANY, _("GeoDa MCP Server"), wxDefaultPosition,
+           wxDefaultSize, wxDEFAULT_DIALOG_STYLE),
+  m_connect_text(wxString::Format(_("Connect GeoDa MCP at %s"), base_url)),
+  m_status(NULL)
+{
+    wxBoxSizer* top = new wxBoxSizer(wxVERTICAL);
+
+    top->Add(new wxStaticText(this, wxID_ANY,
+                              _("The GeoDa MCP server is running at:")),
+             0, wxLEFT | wxRIGHT | wxTOP, 12);
+    top->Add(new wxTextCtrl(this, wxID_ANY, base_url, wxDefaultPosition,
+                            wxDefaultSize, wxTE_READONLY),
+             0, wxEXPAND | wxLEFT | wxRIGHT | wxTOP, 12);
+
+    top->Add(new wxStaticText(this, wxID_ANY,
+                              wxString::Format(_("MCP clients connect to %s"),
+                                               endpoint_url)),
+             0, wxLEFT | wxRIGHT | wxTOP, 12);
+
+    top->Add(new wxStaticText(this, wxID_ANY,
+                              _("Paste this into Claude Code, Codex or any "
+                                "other MCP client:")),
+             0, wxLEFT | wxRIGHT | wxTOP, 12);
+    top->Add(new wxTextCtrl(this, wxID_ANY, m_connect_text, wxDefaultPosition,
+                            wxDefaultSize, wxTE_READONLY),
+             0, wxEXPAND | wxLEFT | wxRIGHT | wxTOP, 12);
+
+    // Line the copy confirmation appears on. Reserved up front so the dialog
+    // does not change height when Copy is pressed.
+    m_status = new wxStaticText(this, wxID_ANY, " ");
+    top->Add(m_status, 0, wxLEFT | wxRIGHT | wxTOP, 12);
+
+    wxButton* copy_btn = new wxButton(this, wxID_ANY, _("Copy"));
+    // wxID_CANCEL rather than wxID_CLOSE so Escape closes the dialog too.
+    wxButton* close_btn = new wxButton(this, wxID_CANCEL, _("Close"));
+    copy_btn->Bind(wxEVT_BUTTON, &McpServerInfoDialog::OnCopy, this);
+    close_btn->Bind(wxEVT_BUTTON, &McpServerInfoDialog::OnCloseClick, this);
+
+    wxBoxSizer* buttons = new wxBoxSizer(wxHORIZONTAL);
+    buttons->AddStretchSpacer();
+    buttons->Add(copy_btn, 0, wxRIGHT, 8);
+    buttons->Add(close_btn);
+    top->Add(buttons, 0, wxEXPAND | wxALL, 12);
+
+    SetSizerAndFit(top);
+    SetMinSize(GetSize());
+    CentreOnParent();
+}
+
+void McpServerInfoDialog::OnCopy(wxCommandEvent& event)
+{
+    if (wxTheClipboard->Open()) {
+        wxTheClipboard->SetData(new wxTextDataObject(m_connect_text));
+        wxTheClipboard->Close();
+        m_status->SetLabel(_("Copied to clipboard."));
+    } else {
+        m_status->SetLabel(_("Could not open the clipboard."));
+    }
+    Layout();
+}
+
+void McpServerInfoDialog::OnCloseClick(wxCommandEvent& event)
+{
+    EndModal(wxID_CANCEL);
+}
+
+} // namespace
+
 void GdaFrame::OnMcpStartServer(wxCommandEvent& event)
 {
-    if (m_mcp_server && m_mcp_server->IsRunning()) {
-        wxMessageBox(_("The MCP server is already running."), _("MCP Server"),
-                     wxOK | wxICON_INFORMATION, this);
-        return;
-    }
+    // The server is already running in the usual case: it starts with the app.
+    // Starting it here is for the app started with --no-mcp or a server
+    // stopped from this menu. Either way the dialog below is the point of the
+    // menu entry -- it reports the URL of the port actually bound, which is
+    // not the default one when 8765 was taken.
     if (!m_mcp_server) {
         m_mcp_server = new McpHttpServer(GEODA_MCP_DEFAULT_PORT);
     }
-    if (!m_mcp_server->Start()) {
+    if (!m_mcp_server->IsRunning() && !m_mcp_server->Start()) {
         wxMessageBox(_("Failed to start the MCP server."), _("MCP Server"),
                      wxOK | wxICON_ERROR, this);
         return;
     }
-    wxString url = m_mcp_server->GetUrl();
-    wxTextEntryDialog dlg(this, _("MCP server is running. Copy this URL and "
-                                   "configure it in your MCP client, e.g. in "
-                                   "Claude Code:\n{\"geoda\": {\"type\": "
-                                   "\"http\", \"url\": \"<url>\"}}"),
-                          _("MCP Server"), url);
+    McpServerInfoDialog dlg(this, m_mcp_server->GetBaseUrl(),
+                            m_mcp_server->GetUrl());
     dlg.ShowModal();
 }
 
