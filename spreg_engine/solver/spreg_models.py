@@ -100,7 +100,8 @@ OPT = {
 #   skater          cls().fit(n_clusters=..., W=w, data=x, **kw)
 
 def _m(model_id, label, family, cls, style="standard", options=(), requires=None, notes=""):
-    req = {"weights": True, "regimes": False, "endog": False, "instruments": False, "coords": False}
+    req = {"weights": True, "regimes": False, "endog": False, "instruments": False,
+           "coords": False, "y_binary": False}
     if requires:
         req.update(requires)
     return {
@@ -238,6 +239,7 @@ MODELS: List[Dict[str, Any]] = [
     # ---- binary dependent variable ---------------------------------------
     _m("Probit", "Probit (binary dependent variable)", "probit", "spreg.probit:Probit",
        options=("slx_lags", "optim", "maxiter", "scalem", "predflag"),
+       requires={"y_binary": True},
        notes="y must contain only 0 and 1"),
     # ---- non-linear SLX --------------------------------------------------
     _m("NSLX", "Non-linear SLX (distance decay)", "nslx", "spreg.nslx:NSLX", style="nslx",

@@ -534,6 +534,19 @@ bool Result::Read(const wxString& job_dir, wxString& err)
 		}
 	}
 
+	const json_spirit::Value* clusters = FindMember(root, "clusters");
+	if (clusters && clusters->type() == json_spirit::obj_type) {
+		const json_spirit::Object& c = clusters->get_obj();
+		n_regions = static_cast<int>(AsDouble(FindMember(c, "n_regions"), 0));
+		const json_spirit::Value* sizes = FindMember(c, "sizes");
+		if (sizes && sizes->type() == json_spirit::array_type) {
+			const json_spirit::Array& array = sizes->get_array();
+			for (size_t i = 0; i < array.size(); ++i) {
+				region_sizes.push_back(AsDouble(&array[i], 0));
+			}
+		}
+	}
+
 	const json_spirit::Value* fit = FindMember(root, "fit");
 	if (fit && fit->type() == json_spirit::obj_type) {
 		const json_spirit::Object& f = fit->get_obj();
@@ -585,9 +598,10 @@ bool Result::Read(const wxString& job_dir, wxString& err)
 				}
 				bin.Close();
 				const struct { const char* key; std::vector<double>* target; } wanted[] = {
-					{ "yhat", &yhat }, { "resid", &resid }, { "pred_err", &pred_err }
+					{ "yhat", &yhat }, { "resid", &resid }, { "pred_err", &pred_err },
+					{ "region", &region }
 				};
-				for (int w = 0; w < 3; ++w) {
+				for (int w = 0; w < 4; ++w) {
 					const json_spirit::Value* entry = FindMember(table, wanted[w].key);
 					if (!entry || entry->type() != json_spirit::obj_type) continue;
 					const json_spirit::Object& e = entry->get_obj();
@@ -658,6 +672,7 @@ bool ParseModels(const std::string& text, std::vector<ModelOption>& models,
 			option.needs_endog = AsBool(FindMember(r, "endog"), false);
 			option.needs_instruments = AsBool(FindMember(r, "instruments"), false);
 			option.needs_coords = AsBool(FindMember(r, "coords"), false);
+			option.needs_binary_y = AsBool(FindMember(r, "y_binary"), false);
 		}
 		const json_spirit::Value* options = FindMember(m, "options");
 		if (options && options->type() == json_spirit::obj_type) {
@@ -711,7 +726,30 @@ bool ListModels(const wxString& engine_dir, std::vector<ModelOption>& models,
 {
 	models.clear();
 
-	if (allow_cache) {
+	// The cache holds what the solver said when it was written.  A newer solver
+	// may describe its models differently - a model may gain an option, or a
+	// requirement the dialog acts on - so a cache older than the solver is stale.
+	bool cache_is_current = true;
+	{
+		wxFileName cache_file(ModelListCachePath(engine_dir));
+		if (cache_file.FileExists()) {
+			const wxDateTime cached = cache_file.GetModificationTime();
+			const wxString solver = SolverScriptPath();
+			wxFileName models_file(solver);
+			models_file.SetName("spreg_models");
+			const wxString* files[2] = { &solver, NULL };
+			const wxString models_path = models_file.GetFullPath();
+			files[1] = &models_path;
+			for (int i = 0; i < 2; ++i) {
+				wxFileName source(*files[i]);
+				if (source.FileExists() && source.GetModificationTime().IsLaterThan(cached)) {
+					cache_is_current = false;
+				}
+			}
+		}
+	}
+
+	if (allow_cache && cache_is_current) {
 		wxFile cache(ModelListCachePath(engine_dir));
 		if (cache.IsOpened()) {
 			const wxFileOffset length = cache.Length();

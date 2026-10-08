@@ -153,6 +153,7 @@ public:
 	wxString m_spreg_model;            // empty: use the models above
 	bool m_spreg_installed;
 	std::vector<double> m_spreg_yhat, m_spreg_resid, m_spreg_prederr;
+	std::vector<wxInt64> m_spreg_region;      // SKATER's region id per observation
 	SpregJob::Result m_spreg_result;
 	bool m_has_spreg_result;
 

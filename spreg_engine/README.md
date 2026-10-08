@@ -399,10 +399,21 @@ Decisions worth knowing:
 ```bash
 tools/test_sha256.cpp                  # digest vectors, cross-checked with shasum
 tools/run_engine_manager_test.sh       # verify / unpack / install / discover / upgrade / remove
+tools/run_parity_test.sh [engine-dir]  # GeoDa's own engine against spreg, same data, same weights
 tools/syntax_check.py <sources>        # type-check against the flags CMake used
 ```
 
-`run_engine_manager_test.sh` is the one that matters: it links only
+`run_parity_test.sh` answers the question the whole exercise rests on: do the two
+engines agree?  It builds only the two engines - the C++ one from
+`Regression/`, the other through the solver - and runs OLS, ML lag and ML error
+over the same grid with the same weights.  They agree to 1e-8 or better on every
+coefficient and on the log-likelihood; `ci/spreg_engine.yml` runs the same
+comparison on every engine it builds.  One trap is written into the test: the
+C++ engine *absorbs* the arrays it is handed, so each model gets its own copy -
+sharing one set of arrays made the second and third models disagree wildly, which
+is how a first version of it failed.
+
+`run_engine_manager_test.sh` is the other one that matters: it links only
 `SpregEngine.cpp` and a small harness, and runs the real installer against a
 real archive in a scratch directory (build one first with
 `tools/build_engine.py --outdir dist`) — including a corrupted download, an archive

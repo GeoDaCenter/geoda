@@ -108,12 +108,17 @@ struct Result {
 	};
 	std::vector<Diagnostic> diagnostics;
 	std::vector<double> yhat, resid, pred_err;     // empty when not reported
+	// regionalization results (SKATER): one region id per observation, and how
+	// many observations each region has
+	std::vector<double> region;
+	int n_regions;
+	std::vector<double> region_sizes;
 	// "regimes" models: one group of coefficients per regime, as the solver
 	// named them ("0_INC", "1_INC", and "_Global_..." for the shared ones)
 	bool has_global_rows;
 	std::vector<wxString> warnings;
 
-	Result() : ok(false), n(0), k(0), has_global_rows(false) {}
+	Result() : ok(false), n(0), k(0), has_global_rows(false), n_regions(0) {}
 
 	/** Reads result.json (and result.bin) from a job directory. */
 	bool Read(const wxString& job_dir, wxString& err);
@@ -135,9 +140,10 @@ struct OptionSpec {
 struct ModelOption {
 	wxString id, label, family;
 	bool needs_weights, needs_regimes, needs_endog, needs_instruments, needs_coords;
+	bool needs_binary_y;
 	std::map<wxString, OptionSpec> options;    // what the dialog can set
 	ModelOption() : needs_weights(true), needs_regimes(false), needs_endog(false),
-		needs_instruments(false), needs_coords(false) {}
+		needs_instruments(false), needs_coords(false), needs_binary_y(false) {}
 };
 
 /**

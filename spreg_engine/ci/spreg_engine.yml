@@ -107,6 +107,50 @@ jobs:
             spreg_engine/dist/manifest-entry.json
             spreg_engine/dist/models.json
 
+  # Does spreg agree with the engine GeoDa has always had?  Those three models -
+  # OLS, spatial lag, spatial error - are in both, so the same data and the same
+  # weights go through each and the numbers are put side by side.  This job needs
+  # nothing but wxWidgets, LAPACK and json_spirit, all of which are a download
+  # away, so it does not have to build the application.
+  parity:
+    name: parity with GeoDa's own engine
+    runs-on: ubuntu-22.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: wxWidgets and curl
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            libwxgtk3.0-gtk3-dev libcurl4-openssl-dev
+
+      - name: LAPACK, as the application links it
+        run: |
+          curl -sL -o /tmp/clapack.tgz \
+            https://github.com/GeoDaCenter/software/releases/download/v2000/clapack.tgz
+          mkdir -p /tmp/clapack && tar xzf /tmp/clapack.tgz -C /tmp/clapack
+
+      - name: json_spirit
+        run: |
+          curl -sL -o /tmp/json_spirit.zip \
+            https://github.com/GeoDaCenter/software/releases/download/v2000/json_spirit_v4.08.zip
+          unzip -q /tmp/json_spirit.zip -d /tmp/json_spirit
+
+      # The engine for this platform has to have been published (see the build
+      # jobs above); without it this job has nothing to compare against.
+      - name: The engine
+        run: |
+          curl -sL -o /tmp/engine.zip \
+            https://github.com/GeoDaCenter/software/releases/download/spreg-engine-v1/geoda-spreg-1.9.1-py313-linux-x86_64.zip
+          mkdir -p /tmp/engine && unzip -q /tmp/engine.zip -d /tmp/engine
+
+      - name: The two engines, side by side
+        env:
+          GEODA_CLAPACK_PATH: /tmp/clapack/CLAPACK-3.2.1
+          GEODA_JSON_SPIRIT_SRC: /tmp/json_spirit/json_spirit_v4.08
+        run: spreg_engine/tools/run_parity_test.sh /tmp/engine
+
   release:
     needs: build
     if: startsWith(github.ref, 'refs/tags/spreg-engine-v')

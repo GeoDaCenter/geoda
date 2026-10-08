@@ -387,6 +387,7 @@ void RegressionDlg::CreateControls()
 
 
 
+
 }
 
 void RegressionDlg::RefreshSpregState()
@@ -482,11 +483,9 @@ void RegressionDlg::FillSpregModels(const wxString& engine_dir)
 
 	// Everything the dialog can collect is offered: a model that wants a regime
 	// variable, endogenous variables with instruments, or a pair of coordinates
-	// asks for them when it is chosen.  SKATER is left out because it returns
-	// regions rather than a regression.
+	// asks for them when it is chosen.
 	for (size_t i = 0; i < offered.size(); ++i) {
 		const SpregJob::ModelOption& model = offered[i];
-		if (model.family == "skater") continue;
 		m_spreg_models.push_back(model);
 		// The longest labels are long enough to stretch the whole dialog, and the
 		// full text is on the tooltip and on the status line once it is chosen.
@@ -640,8 +639,11 @@ void RegressionDlg::OnSpregModelSelected(wxCommandEvent& WXUNUSED(event))
 		m_spreg_model = model.id;
 		EnableNativeModels(false);
 		if (m_spreg_status) {
-			m_spreg_status->SetLabel(wxString::Format(_("%s, estimated by spreg"),
-													  model.label));
+			wxString hint = wxString::Format(_("%s, estimated by spreg"), model.label);
+			if (model.needs_binary_y) {
+				hint << _("; the dependent variable must be 0 or 1");
+			}
+			m_spreg_status->SetLabel(hint);
 			m_spreg_status->Wrap(300);
 		}
 		if (m_spreg_model_choice) {
@@ -768,6 +770,31 @@ bool RegressionDlg::RunSpregModel(wxCommandEvent& WXUNUSED(event))
 			x_in[i] = values;
 			table_int->GetColUndefined(col, name_to_tm_id[display], undefined);
 			for (long j = 0; j < m_obs; ++j) undefs_local[j] = undefs_local[j] || undefined[j];
+		}
+	}
+
+	// a model that estimates a choice wants a dependent variable that says yes or
+	// no; saying so here beats the engine's own refusal after a round trip
+	if (chosen_model && chosen_model->needs_binary_y) {
+		double lowest = 0, highest = 0;
+		bool seen = false;
+		for (long i = 0; i < m_obs; ++i) {
+			if (undefs_local[i]) continue;
+			const double value = y_in[i];
+			if (!seen || value < lowest) lowest = value;
+			if (!seen || value > highest) highest = value;
+			seen = true;
+		}
+		if (lowest < 0 || highest > 1 || (lowest == highest)) {
+			UpdateMessageBox("");
+			m_gauge->Hide();
+			wxString message = wxString::Format(
+				_("This model explains a choice between two outcomes, so the dependent "
+				  "variable has to hold nothing but 0 and 1.  \"%s\" runs from %g to %g."),
+				m_dependent->GetValue(), lowest, highest);
+			wxLogMessage("Spreg: %s", message);
+			wxMessageBox(message, _("Error"), wxOK | wxICON_ERROR, this);
+			return true;
 		}
 	}
 
@@ -1051,6 +1078,10 @@ bool RegressionDlg::RunSpregModel(wxCommandEvent& WXUNUSED(event))
 	m_spreg_yhat = result.yhat;
 	m_spreg_resid = result.resid;
 	m_spreg_prederr = result.pred_err;
+	m_spreg_region.clear();
+	for (size_t i = 0; i < result.region.size(); ++i) {
+		m_spreg_region.push_back(static_cast<wxInt64>(result.region[i]));
+	}
 	m_has_spreg_result = true;
 
 	UpdateMessageBox("");
@@ -1063,6 +1094,26 @@ void RegressionDlg::ShowSpregResults(const SpregJob::Result& result,
 									 const wxString& weights_name)
 {
 	wxString text;
+	if (result.n_regions > 0) {
+		// a regionalization rather than a regression: there are no coefficients,
+		// and the answer is the region each observation was put in
+		text << "SUMMARY OF OUTPUT: " << result.title << "\n";
+		text << wxString::Format("%-20s%s\n", "Data set            : ", dataset);
+		text << wxString::Format("%-20s%s\n", "Spatial Weight      : ", weights_name);
+		text << wxString::Format("%-20s%5d\n", "Number of Regions   :", result.n_regions);
+		text << wxString::Format("Number of Observations:%5d\n", result.n);
+		text << "Observations per region:";
+		for (size_t i = 0; i < result.region_sizes.size(); ++i) {
+			text << wxString::Format(" %d", (int) result.region_sizes[i]);
+		}
+		text << "\n\nThe region each observation belongs to is saved with "
+				"Save to Table, as the column SPR_REGION.\n";
+		text << wxString::Format("\nengine: spreg %s\n", result.spreg_version);
+		logReport = text;
+		DisplayRegression(logReport);
+		EnablingItems();
+		return;
+	}
 	text << "SUMMARY OF OUTPUT: " << result.title << "\n";
 	text << wxString::Format("%-20s%s\n", "Data set            : ", dataset);
 	text << wxString::Format("%-20s%s\n", "Spatial Weight      : ", weights_name);
@@ -1976,12 +2027,27 @@ void RegressionDlg::OnCSaveRegressionClick( wxCommandEvent& event )
 	// a run through the engine keeps its own numbers and its own model, and only
 	// some of those report a prediction error
 	const bool spreg_run = !m_spreg_model.IsEmpty() && m_has_spreg_result;
+	const bool regions_only = spreg_run && !m_spreg_region.empty()
+		&& m_spreg_yhat.empty();
 	const bool with_prederr = spreg_run ? !m_spreg_prederr.empty() : (RegressModel > 1);
 	std::vector<double> prederr(with_prederr ? n_obs : 0);
-	std::vector<SaveToTableEntry> data(with_prederr ? 3 : 2);
+	std::vector<wxInt64> region(regions_only ? n_obs : 0);
+	std::vector<SaveToTableEntry> data(regions_only ? 1 : (with_prederr ? 3 : 2));
 
 	wxString pre = "";
-	if (spreg_run) {
+	if (spreg_run && !m_spreg_region.empty()) {
+		// a regionalization: one column, the region each observation is in
+		pre = "SPR_";
+		const int n_valid = static_cast<int>(m_spreg_region.size());
+		int idx = 0;
+		for (int i = 0; i < n_obs; i++) {
+			if (!undefs[i] && idx < n_valid) {
+				region[i] = m_spreg_region[idx];
+				idx += 1;
+			}
+			save_undefs[i] = undefs[i];
+		}
+	} else if (spreg_run) {
 		// the three models above use OLS_/LAG_/ERR_; "SPR_" keeps a spreg column
 		// name within the ten characters a shapefile field allows
 		pre = "SPR_";
@@ -2033,6 +2099,19 @@ void RegressionDlg::OnCSaveRegressionClick( wxCommandEvent& event )
 		}
 	}	
 	
+	if (regions_only) {
+		data[0].l_val = &region;
+		data[0].undefined = &save_undefs;
+		data[0].label = "Region";
+		data[0].field_default = pre + "REGION";
+		data[0].type = GdaConst::long64_type;
+		SaveToTableDlg dlg(project, this, data, _("Save the Regions"),
+						   wxDefaultPosition, wxSize(400, 300));
+		dlg.ShowModal();
+		if (project->FindTableGrid()) project->FindTableGrid()->Refresh();
+		return;
+	}
+
 	data[0].d_val = &yhat;
     data[0].undefined = &save_undefs;
 	data[0].label = "Predicted Value";
