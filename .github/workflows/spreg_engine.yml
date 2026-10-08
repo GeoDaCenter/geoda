@@ -215,6 +215,18 @@ jobs:
           gh release view "$GITHUB_REF_NAME" >/dev/null 2>&1 || \
             gh release create "$GITHUB_REF_NAME" --title "$GITHUB_REF_NAME" \
               --notes "spreg engine archives; see spreg_engine/manifest/engines.json"
-          gh release upload "$GITHUB_REF_NAME" artifacts/*/*.zip --clobber
+          # A published archive's sha256 is in some application's manifest, and
+          # that is what the download is checked against: replacing one under an
+          # existing tag would break every install that has the old hash, so a
+          # second set of archives wants a second tag rather than --clobber.
+          for zip in artifacts/*/*.zip; do
+            name=$(basename "$zip")
+            if gh release view "$GITHUB_REF_NAME" --json assets --jq '.assets[].name' \
+                 | grep -qxF "$name"; then
+              echo "::error::$GITHUB_REF_NAME already publishes $name; bump the tag instead"
+              exit 1
+            fi
+          done
+          gh release upload "$GITHUB_REF_NAME" artifacts/*/*.zip
       - name: Manifest entries to paste into spreg_engine/manifest/engines.json
         run: cat artifacts/*/manifest-entry.json
