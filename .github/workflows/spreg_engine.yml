@@ -25,6 +25,10 @@ on:
   push:
     tags: ["spreg-engine-v*"]
   pull_request:
+    # labeled is in the list so that adding the run-parity label to a pull
+    # request runs the comparison below on it, which is the only way to try it
+    # before it is on the default branch
+    types: [opened, synchronize, reopened, labeled]
     paths:
       - "spreg_engine/**"
       - ".github/workflows/spreg_engine.yml"
@@ -126,9 +130,15 @@ jobs:
   parity:
     name: parity with GeoDa's own engine
     needs: build
-    # it compares against the *published* engine, so it runs after a release, or
-    # by hand on a dispatch
-    if: (github.event_name == 'workflow_dispatch' && inputs.parity) || startsWith(github.ref, 'refs/tags/spreg-engine-v')
+    # it compares against the *published* engine, so it runs after a release, by
+    # hand on a dispatch, or on a pull request labelled run-parity - which is how
+    # a change to it can be tried without waiting for it to reach master, since
+    # workflow_dispatch only knows workflows that are already there
+    if: |
+      (github.event_name == 'workflow_dispatch' && inputs.parity) ||
+      startsWith(github.ref, 'refs/tags/spreg-engine-v') ||
+      (github.event_name == 'pull_request' &&
+       contains(github.event.pull_request.labels.*.name, 'run-parity'))
     runs-on: ubuntu-22.04
     timeout-minutes: 45              # CLAPACK is compiled here before the test runs
     defaults:
