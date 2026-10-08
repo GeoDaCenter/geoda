@@ -58,7 +58,10 @@ jobs:
         with:
           enable-cache: true
 
+      # bash explicitly: the default shell is PowerShell on Windows, and it
+      # reads the backslash continuations as a unary operator, not a line break
       - name: Build the engine archive
+        shell: bash
         run: |
           python tools/build_engine.py \
             --outdir dist \
@@ -135,7 +138,7 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y --no-install-recommends \
-            libwxgtk3.0-gtk3-dev libcurl4-openssl-dev
+            libwxgtk3.0-gtk3-dev libcurl4-openssl-dev libboost-dev
 
       - name: LAPACK, as the application links it
         run: |

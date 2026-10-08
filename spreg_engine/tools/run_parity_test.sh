@@ -33,6 +33,28 @@ if [ -z "$ENGINE" ] || [ ! -d "$ENGINE" ]; then
 	exit 2
 fi
 
+# The scratch directory comes first: the json_spirit block below compiles into
+# it when there is no prebuilt library to link.
+WORK=$(mktemp -d "${TMPDIR:-/tmp}/geoda-parity-XXXXXX")
+trap 'rm -rf "$WORK"' EXIT
+
+# Boost headers: json_spirit is not header-only and includes boost/config.hpp,
+# so wherever this runs there has to be a boost include.  Which directory that
+# is differs by platform, so find it rather than assuming the machine this was
+# written on.
+if [ -z "${BOOST_INCLUDE:-}" ]; then
+	for candidate in /opt/homebrew/include /usr/local/include /usr/include; do
+		if [ -f "$candidate/boost/config.hpp" ]; then
+			BOOST_INCLUDE="$candidate"
+			break
+		fi
+	done
+fi
+if [ -z "${BOOST_INCLUDE:-}" ]; then
+	echo "no boost headers found; set BOOST_INCLUDE" >&2
+	exit 2
+fi
+
 # json_spirit: the static library from a GeoDa build if there is one, and
 # otherwise its sources, which are four files and build in a second
 JSON_SPIRIT_LIB=""
@@ -60,7 +82,7 @@ if [ -z "$JSON_SPIRIT_LIB" ]; then
 	echo "json_spirit: building from $JSON_SPIRIT_SRC"
 	for source in "$JSON_SPIRIT_SRC"/json_spirit/*.cpp; do
 		"${CXX:-c++}" -std=gnu++14 -O1 -c "$source" -o "$WORK/$(basename "$source" .cpp).o" \
-			-I"$JSON_SPIRIT_SRC" -I"${BOOST_INCLUDE:-/usr/include}"
+			-I"$JSON_SPIRIT_SRC" -I"$BOOST_INCLUDE"
 		JSON_SPIRIT_OBJECTS="$JSON_SPIRIT_OBJECTS $WORK/$(basename "$source" .cpp).o"
 	done
 fi
@@ -73,15 +95,12 @@ if [ ! -f "$CLAPACK/lapack.a" ]; then
 	exit 2
 fi
 
-WORK=$(mktemp -d "${TMPDIR:-/tmp}/geoda-parity-XXXXXX")
-trap 'rm -rf "$WORK"' EXIT
-
 echo "engine  : $ENGINE"
 echo "clapack : $CLAPACK"
 
 # shellcheck disable=SC2046
 "${CXX:-c++}" -std=gnu++14 -O1 -g -o "$WORK/test_parity" \
-	-I"$ROOT" -I"$JSON_SPIRIT_SRC" -I"${BOOST_INCLUDE:-/opt/homebrew/include}" \
+	-I"$ROOT" -I"$JSON_SPIRIT_SRC" -I"$BOOST_INCLUDE" \
 	$( $WX_CONFIG --cxxflags 2>/dev/null || echo "" ) \
 	"$ROOT/Regression/SpregEngine.cpp" \
 	"$ROOT/Regression/SpregJob.cpp" \
