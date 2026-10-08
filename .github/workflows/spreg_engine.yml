@@ -137,11 +137,15 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: wxWidgets and curl
+      # The distribution's wxGTK, which on 22.04 is 3.0 - the application ships
+      # 3.2.4, so this job is also a check that the spreg code builds against
+      # 3.0.  gdal is here because GalWeight.h reaches Project.h, and through it
+      # the OGR headers, even though the comparison itself is pure arithmetic.
+      - name: wxWidgets, curl and gdal
         run: |
           sudo apt-get update
           sudo apt-get install -y --no-install-recommends \
-            libwxgtk3.0-gtk3-dev libcurl4-openssl-dev libboost-dev xvfb
+            libwxgtk3.0-gtk3-dev libcurl4-openssl-dev libboost-dev xvfb libgdal-dev
 
       # The engine is compiled against the same CLAPACK the application links,
       # not against the system LAPACK: f2c's integers are 64-bit where the

@@ -22,7 +22,7 @@ set -euo pipefail
 export DEBIAN_FRONTEND=noninteractive
 apt-get update -qq
 apt-get install -y -qq --no-install-recommends \
-    libwxgtk3.0-gtk3-dev libcurl4-openssl-dev libboost-dev xvfb \
+    libwxgtk3.0-gtk3-dev libcurl4-openssl-dev libboost-dev xvfb libgdal-dev \
     unzip curl ca-certificates build-essential >/dev/null
 
 echo "== CLAPACK, as the application links it =="
