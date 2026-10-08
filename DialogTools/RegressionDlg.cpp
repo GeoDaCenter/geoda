@@ -571,10 +571,12 @@ void RegressionDlg::FillSpregOptions(wxWindow* parent,
 	// a switch, a list for a choice whose values are known, a spin control for a
 	// bounded number, a text field otherwise.  The help text rides along as a
 	// tooltip, so the dialog explains itself.
-	for (std::map<wxString, SpregJob::OptionSpec>::const_iterator it =
-			 model.options.begin(); it != model.options.end(); ++it) {
-		const SpregJob::OptionSpec& spec = it->second;
-		wxStaticText* label = new wxStaticText(parent, wxID_ANY, spec.name + ":");
+	for (size_t i = 0; i < model.options.size(); ++i) {
+		const SpregJob::OptionSpec& spec = model.options[i];
+		// the registry's name for the option, with spreg's keyword only as a
+		// fallback: "White test" rather than "white_test"
+		wxStaticText* label = new wxStaticText(parent, wxID_ANY,
+			(spec.label.IsEmpty() ? spec.name : spec.label) + ":");
 		wxWindow* control = NULL;
 
 		if (spec.type == "bool") {
@@ -605,7 +607,7 @@ void RegressionDlg::FillSpregOptions(wxWindow* parent,
 		if (!spec.help.IsEmpty()) control->SetToolTip(spec.help);
 		if (!spec.help.IsEmpty()) label->SetToolTip(spec.help);
 
-		m_spreg_option_names.push_back(it->first);
+		m_spreg_option_names.push_back(spec.name);
 		m_spreg_option_ctrls.push_back(control);
 		m_spreg_options_grid->Add(label, 0, wxALIGN_CENTRE_VERTICAL);
 		m_spreg_options_grid->Add(control, 0, wxALIGN_CENTRE_VERTICAL);

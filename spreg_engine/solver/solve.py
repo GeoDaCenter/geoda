@@ -409,6 +409,11 @@ def run_job(jobdir: str, log: Log) -> Tuple[Dict[str, Any], Dict[str, Any]]:
     if "name_q" in parameters and data.get("instruments_names"):
         kwargs["name_q"] = data["instruments_names"]
 
+    # Options the solver owns rather than spreg: they say what is computed around
+    # the estimator, not how it is estimated, so they are taken out before it is
+    # called - and they are not counted as "with ..." in the log line either.
+    solver_options = {name: kwargs.pop(name) for name in REG.SOLVER_OPTIONS if name in kwargs}
+
     log("estimating %s%s" % (entry["id"], "" if not kwargs else " with %s" % _short(kwargs)))
     started = time.time()
     with contextlib.redirect_stdout(_Chatter(log)):     # spreg prints the model name
@@ -418,6 +423,13 @@ def run_job(jobdir: str, log: Log) -> Tuple[Dict[str, Any], Dict[str, Any]]:
     ctx = {"x_names": data["x_names"], "y_name": data["y_name"], "n": data["n"],
            "yend_names": data.get("endogenous_names")}
     result = REG.extract_result(model, entry, ctx)
+
+    # The tests an estimator does not compute itself but that spreg offers for it
+    # as a comparison with another fitted model.
+    if solver_options.get("likelihood_ratio"):
+        extra = REG.likelihood_ratio_test(entry, data, model, kwargs, log)
+        if extra:
+            result.setdefault("diagnostics", []).append(extra)
     warnings += result.setdefault("warnings", [])
     result["warnings"] = warnings
 

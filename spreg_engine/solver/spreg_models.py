@@ -42,48 +42,75 @@ from typing import Any, Dict, List, Optional, Tuple
 
 OPT = {
     "robust": {"type": "enum", "values": ["none", "white", "het"], "default": "none",
-               "map": {"none": None}, "help": "robust standard errors"},
-    "slx_lags": {"type": "int", "default": 0, "min": 0, "max": 3,
+               "map": {"none": None}, "label": "Robust standard errors",
+               "help": "spreg's robust (White or heteroskedasticity-consistent) standard errors; "
+                       "with them the spatial dependence tests are not computed"},
+    "slx_lags": {"type": "int", "default": 0, "min": 0, "max": 3, "label": "SLX lags of X",
                  "help": "spatial lags of X (1 = spatial Durbin / SLX)"},
-    "slx_vars": {"type": "str", "default": "all", "help": "'all' or a list of X names"},
-    "sig2n_k": {"type": "bool", "default": True, "help": "sigma^2 = u'u/(n-k)"},
-    "nonspat_diag": {"type": "bool", "default": True, "help": "Jarque-Bera, BP, KB"},
-    "spat_diag": {"type": "bool", "default": True, "help": "LM tests for spatial dependence"},
-    "moran": {"type": "bool", "default": True, "help": "Moran's I on the residuals"},
-    "white_test": {"type": "bool", "default": False, "help": "White heteroskedasticity test"},
+    "slx_vars": {"type": "str", "default": "all", "label": "SLX variables",
+                 "help": "'all' or a list of X names"},
+    "sig2n_k": {"type": "bool", "default": True, "label": "sigma^2 = u'u/(n-k)",
+                 "help": "divide by n-k rather than n when estimating sigma^2"},
+    "nonspat_diag": {"type": "bool", "default": True, "label": "Non-spatial diagnostics",
+                     "help": "Jarque-Bera, Breusch-Pagan and Koenker-Bassett on the residuals, "
+                             "and the measures of fit"},
+    "spat_diag": {"type": "bool", "default": True, "label": "Spatial dependence tests",
+                  "help": "LM tests for spatial dependence: lag, error and their robust forms, "
+                          "SARMA, spatial Durbin and WX (OLS); the Anselin-Kelejian test on the "
+                          "residuals (GM_Lag, TSLS)"},
+    "moran": {"type": "bool", "default": True, "label": "Moran's I",
+              "help": "Moran's I on the residuals - a diffuse test of spatial dependence, "
+                      "computed on top of the spatial diagnostics"},
+    # On by default, unlike in spreg: GeoDa's own OLS report carries a White
+    # test, and the cost of computing it is a fraction of a second.
+    "white_test": {"type": "bool", "default": True, "label": "White test",
+                   "help": "White's specification robust test for heteroskedasticity; spreg leaves "
+                           "it off unless it is asked for, and reports it as not computed when the "
+                           "condition number is too large"},
     "method": {"type": "enum", "values": ["LU", "full", "ord"], "default": "LU",
+               "label": "Log-Jacobian",
                "help": "log-Jacobian method: LU (sparse), full (dense), ord (eigenvalues)"},
-    "epsilon": {"type": "float", "default": 1e-7, "help": "convergence tolerance"},
+    "epsilon": {"type": "float", "default": 1e-7, "label": "Convergence tolerance"},
     "spat_impacts": {"type": "enum", "values": ["none", "simple", "full", "all"],
                      "default": "simple", "map": {"none": None},
+                     "label": "Impacts",
                      "help": "direct/indirect/total impacts"},
+    # Not a spreg keyword: the solver computes this one.  spreg's ML estimators
+    # carry no tests of their own - its notebooks pair the fitted model with the
+    # OLS one through spreg.diagnostics.likratiotest for the test of rho or lambda
+    # = 0, which is what GeoDa's own report shows for the same two models.
+    "likelihood_ratio": {"type": "bool", "default": True, "label": "LR test against OLS",
+                         "help": "likelihood ratio test of the spatial coefficient against an OLS "
+                                 "fit of the same model"},
+
     "constant_regi": {"type": "enum", "values": ["many", "one"], "default": "many",
+                      "label": "Constant",
                       "help": "one constant per regime, or one overall"},
-    "cols2regi": {"type": "str", "default": "all",
+    "cols2regi": {"label": "Variables by regime", "type": "str", "default": "all",
                   "help": "'all' or a list of booleans, one per X variable"},
-    "regime_lag_sep": {"type": "bool", "default": False, "help": "regime-specific lag coefficient"},
-    "regime_err_sep": {"type": "bool", "default": True, "help": "separate error process per regime"},
-    "cores": {"type": "bool", "default": False, "help": "use all cores"},
-    "max_iter": {"type": "int", "default": 1, "min": 1},
-    "step1c": {"type": "bool", "default": False},
-    "w_lags": {"type": "int", "default": 1, "min": 1, "max": 3,
+    "regime_lag_sep": {"label": "Regime-specific lag", "type": "bool", "default": False, "help": "regime-specific lag coefficient"},
+    "regime_err_sep": {"label": "Regime-specific error", "type": "bool", "default": True, "help": "separate error process per regime"},
+    "cores": {"label": "Use all cores", "type": "bool", "default": False, "help": "use all cores"},
+    "max_iter": {"label": "Iterations", "type": "int", "default": 1, "min": 1},
+    "step1c": {"label": "Step 1c", "type": "bool", "default": False},
+    "w_lags": {"label": "Lags for instruments", "type": "int", "default": 1, "min": 1, "max": 3,
                "help": "number of lags used to build the instruments"},
-    "lag_q": {"type": "bool", "default": True, "help": "also lag the additional instruments"},
-    "optim": {"type": "enum", "values": ["newton", "bfgs", "ncg"], "default": "newton",
+    "lag_q": {"label": "Lag the instruments", "type": "bool", "default": True, "help": "also lag the additional instruments"},
+    "optim": {"label": "Optimizer", "type": "enum", "values": ["newton", "bfgs", "ncg"], "default": "newton",
               "help": "optimizer"},
-    "maxiter": {"type": "int", "default": 100, "min": 1, "help": "optimizer iterations"},
-    "scalem": {"type": "enum", "values": ["phimean", "xmean"], "default": "phimean",
+    "maxiter": {"label": "Optimizer iterations", "type": "int", "default": 100, "min": 1, "help": "optimizer iterations"},
+    "scalem": {"label": "Marginal effects scale", "type": "enum", "values": ["phimean", "xmean"], "default": "phimean",
                "help": "scale of the marginal effects"},
-    "predflag": {"type": "bool", "default": True, "help": "print the prediction table"},
-    "bstart": {"type": "bool", "default": False, "help": "use the OLS estimates as a start"},
-    "distance_metric": {"type": "enum", "values": ["Euclidean", "Arc"], "default": "Euclidean"},
-    "leafsize": {"type": "int", "default": 30, "min": 1},
-    "var_flag": {"type": "enum", "values": ["analytic", "numeric"], "default": "analytic",
+    "predflag": {"label": "Prediction table", "type": "bool", "default": True, "help": "print the prediction table"},
+    "bstart": {"label": "Start from OLS", "type": "bool", "default": False, "help": "use the OLS estimates as a start"},
+    "distance_metric": {"label": "Distance", "type": "enum", "values": ["Euclidean", "Arc"], "default": "Euclidean"},
+    "leafsize": {"label": "Leaf size", "type": "int", "default": 30, "min": 1},
+    "var_flag": {"label": "Variance", "type": "enum", "values": ["analytic", "numeric"], "default": "analytic",
                  "map": {"analytic": 1, "numeric": 0}},
-    "verbose": {"type": "bool", "default": False},
-    "n_clusters": {"type": "int", "default": 5, "min": 2},
-    "quorum": {"type": "int", "default": -1},
-    "model_family": {"type": "enum", "values": ["spreg", "statsmodels"], "default": "spreg",
+    "verbose": {"label": "Verbose", "type": "bool", "default": False},
+    "n_clusters": {"label": "Regions", "type": "int", "default": 5, "min": 2},
+    "quorum": {"label": "Quorum", "type": "int", "default": -1},
+    "model_family": {"label": "Scoring regression", "type": "enum", "values": ["spreg", "statsmodels"], "default": "spreg",
                      "help": "regression used to score the regions"},
 }
 
@@ -130,13 +157,13 @@ MODELS: List[Dict[str, Any]] = [
        requires={"regimes": True}),
     # ---- ML --------------------------------------------------------------
     _m("ML_Lag", "Spatial lag (ML)", "ml_lag", "spreg.ml_lag:ML_Lag",
-       options=("method", "epsilon", "slx_lags", "spat_impacts", "spat_diag"),
+       options=("method", "epsilon", "slx_lags", "spat_impacts", "likelihood_ratio"),
        notes="slx_lags=1 gives the spatial Durbin model"),
     _m("ML_Error", "Spatial error (ML)", "ml_error", "spreg.ml_error:ML_Error",
-       options=("method", "epsilon", "slx_lags")),
+       options=("method", "epsilon", "slx_lags", "likelihood_ratio")),
     _m("ML_Lag_Regimes", "Spatial lag (ML), by regime", "ml_lag", "spreg.ml_lag_regimes:ML_Lag_Regimes",
        style="regimes",
-       options=("method", "epsilon", "slx_lags", "regime_lag_sep", "cores", "spat_diag") + _REGI,
+       options=("method", "epsilon", "slx_lags", "regime_lag_sep", "cores") + _REGI,
        requires={"regimes": True}),
     _m("ML_Error_Regimes", "Spatial error (ML), by regime", "ml_error",
        "spreg.ml_error_regimes:ML_Error_Regimes", style="regimes",
@@ -230,7 +257,7 @@ MODELS: List[Dict[str, Any]] = [
        requires={"regimes": True}),
     _m("GM_Lag_Regimes", "Spatial lag (GS2SLS), by regime", "gm_lag",
        "spreg.twosls_sp_regimes:GM_Lag_Regimes", style="endog_regimes_b",
-       options=_REGI + ("slx_lags", "w_lags", "lag_q", "robust", "sig2n_k"),
+       options=_REGI + ("slx_lags", "w_lags", "lag_q", "robust", "sig2n_k", "spat_diag"),
        requires={"regimes": True}),
     _m("TSLS_Regimes", "Two stage least squares, by regime", "tsls",
        "spreg.twosls_regimes:TSLS_Regimes", style="endog_regimes_a",
@@ -331,6 +358,45 @@ def validate_options(entry: Dict[str, Any], options: Dict[str, Any]) -> Tuple[Di
             continue
         kwargs[arg] = value
     return kwargs, warnings
+
+
+# Options that steer what the solver computes around the estimator rather than
+# being passed to it.
+SOLVER_OPTIONS = ("likelihood_ratio",)
+
+
+def likelihood_ratio_test(entry: Dict[str, Any], data: Dict[str, Any], model: Any,
+                          kwargs: Dict[str, Any], log: Log) -> Optional[Dict[str, Any]]:
+    """The likelihood ratio test of the spatial coefficient, against OLS.
+
+    spreg's ML estimators compute no tests of their own: its notebooks (13 and 15,
+    on ML_Lag and ML_Error) pair the fitted model with an OLS one and call
+    ``spreg.diagnostics.likratiotest``, which is the test of rho = 0 or lambda = 0
+    that GeoDa's own report shows for the same two models.  The baseline is an OLS
+    on the same data and weights, with the same SLX lags - an SDM is compared with
+    an SLX-OLS, not with a plain one.
+
+    Returns the diagnostic to add, or None when there is nothing to compare: the
+    regimes ML models have no OLS counterpart that reports a log-likelihood.
+    """
+    import spreg
+    from spreg.diagnostics import likratiotest
+
+    if not hasattr(model, "logll"):
+        return None
+    baseline_kwargs = {}
+    if kwargs.get("slx_lags"):
+        baseline_kwargs["slx_lags"] = kwargs["slx_lags"]
+    try:
+        baseline = spreg.OLS(data["y"], data["x"], w=data.get("w"), **baseline_kwargs)
+        result = likratiotest(baseline, model)
+    except Exception as exc:                 # no log-likelihood on one side, say
+        log("the likelihood ratio test could not be computed: %s" % exc)
+        return None
+    return {"group": "spatial dependence", "name": "lr",
+            "label": "Likelihood ratio (vs OLS)",
+            "stat": float(result["likr"]), "df": int(result["df"]),
+            "p": float(result["p-value"])}
 
 
 # --------------------------------------------------------------------------

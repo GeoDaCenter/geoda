@@ -690,6 +690,9 @@ bool ParseModels(const std::string& text, std::vector<ModelOption>& models,
 				const json_spirit::Object& spec = it->value_.get_obj();
 				OptionSpec description;
 				description.name = wxString::FromUTF8(it->name_.c_str());
+				// the registry's own word for the option, which the dialog shows
+				// in place of spreg's keyword when there is one
+				description.label = AsString(FindMember(spec, "label"));
 				description.type = AsString(FindMember(spec, "type"));
 				description.help = AsString(FindMember(spec, "help"));
 
@@ -718,7 +721,7 @@ bool ParseModels(const std::string& text, std::vector<ModelOption>& models,
 					description.min_value = AsDouble(low, 0);
 					description.max_value = AsDouble(high, 1000000);
 				}
-				option.options[description.name] = description;
+				option.options.push_back(description);
 			}
 		}
 		if (!option.id.IsEmpty()) models.push_back(option);

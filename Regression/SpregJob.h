@@ -126,7 +126,8 @@ struct Result {
 
 /** One choice a model offers, as the registry describes it. */
 struct OptionSpec {
-	wxString name;
+	wxString name;                            // the keyword the engine knows it by
+	wxString label;                           // what to call it in the dialog, if it has a name
 	wxString type;                             // "bool", "int", "float", "enum", "str"
 	wxString help;
 	std::vector<wxString> values;              // for "enum"
@@ -141,7 +142,10 @@ struct ModelOption {
 	wxString id, label, family;
 	bool needs_weights, needs_regimes, needs_endog, needs_instruments, needs_coords;
 	bool needs_binary_y;
-	std::map<wxString, OptionSpec> options;    // what the dialog can set
+	// in the order the engine's registry declares them - the estimation options
+	// first and the tests of the chosen model after them, which is the order the
+	// dialog shows them in and the order a map would have thrown away
+	std::vector<OptionSpec> options;
 	ModelOption() : needs_weights(true), needs_regimes(false), needs_endog(false),
 		needs_instruments(false), needs_coords(false), needs_binary_y(false) {}
 };
