@@ -29,6 +29,7 @@
 #include <wx/radiobut.h>
 #include <wx/gauge.h>
 #include <wx/stattext.h>
+#include <wx/notebook.h>
 #include "../FramesManagerObserver.h"
 #include "../DataViewer/TableStateObserver.h"
 #include "../ShapeOperations/WeightsManStateObserver.h"
@@ -117,6 +118,11 @@ public:
 	wxGauge* m_gauge;
 	wxStaticText* m_gauge_text;
 
+	// the Models box is a notebook of two pages: GeoDa's own three models, and
+	// the engine's - the second holds everything below
+	wxNotebook* m_models_notebook;
+	wxPanel* m_spreg_page;
+
 	// the button that installs the engine behind the advanced models, the line
 	// that says whether it is there, and the list of the models it offers:
 	// all built in code, see RefreshSpregState
@@ -158,6 +164,8 @@ public:
 	bool m_has_spreg_result;
 
 	void RefreshSpregState();
+	/// grows the dialog when the controls on the current page need more room
+	void GrowToFit();
 	void FillSpregModels(const wxString& engine_dir);
 	void EnableNativeModels(bool enable);
 	void OnSpregModelSelected(wxCommandEvent& event);
