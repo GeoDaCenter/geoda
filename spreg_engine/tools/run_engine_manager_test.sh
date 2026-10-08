@@ -69,4 +69,6 @@ fi
 	"${JSON_ARGS[@]}"
 
 echo
-"$BIN" "$ARCHIVE" "$WORK"
+# the repository is where spreg_engine/ has the layout the application ships,
+# so the test can be given an archive from anywhere
+"$BIN" "$ARCHIVE" "$WORK" "$ROOT"
