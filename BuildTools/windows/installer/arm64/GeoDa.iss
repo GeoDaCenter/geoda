@@ -61,6 +61,8 @@ Source: "..\..\temp\wxWidgets\lib\vc_arm64_dll\wxmsw314u_vc_custom.dll"; DestDir
 Source: "..\..\temp\wxWidgets\lib\vc_arm64_dll\wxmsw314u_gl_vc_custom.dll"; DestDir: "{app}"
 Source: "..\..\..\..\Algorithms\lisa_kernel.cl"; DestDir: "{app}"
 Source: "..\..\..\..\internationalization\lang\*"; DestDir: "{app}\lang"; Flags: recursesubdirs
+Source: "..\..\..\..\spreg_engine\manifest\*"; DestDir: "{app}\spreg_engine\manifest"; Flags: recursesubdirs
+Source: "..\..\..\..\spreg_engine\solver\*"; DestDir: "{app}\spreg_engine\solver"; Flags: recursesubdirs
 Source: "..\..\libraries\share\gdal\*"; DestDir: "{app}\data"; Flags: recursesubdirs
 
 ;Source: "Readme.txt"; DestDir: "{app}"; Flags: isreadme

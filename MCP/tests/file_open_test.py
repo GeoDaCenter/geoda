@@ -90,11 +90,15 @@ def rpc(method, params=None, rid=1):
 
 
 def call_tool(name, arguments, rid=1):
-    """Call an MCP tool and parse the JSON text block of the result."""
-    result = rpc("tools/call", {"name": name, "arguments": arguments}, rid=rid)
+    """Run a GeoDa command through the server's `execute_command` tool."""
+    result = rpc(
+        "tools/call",
+        {"name": "execute_command",
+         "arguments": {"name": name, "arguments": arguments}},
+        rid=rid)
     blocks = result.get("content", [])
     if not blocks:
-        raise McpError("tool %s returned empty content" % name)
+        raise McpError("command %s returned empty content" % name)
     return json.loads(blocks[0].get("text", ""))
 
 
@@ -186,11 +190,15 @@ def main():
 
         # 0. The tools are advertised with the schema the test needs.
         listed = rpc("tools/list", {})["tools"]
-        tools = {t["name"]: t for t in listed}
-        check("file/open" in tools, "file/open is listed")
-        check("path" in tools["file/open"]["inputSchema"].get("properties", {}),
-              "file/open takes a path parameter")
-        check("file/close" in tools, "file/close is listed")
+        names = [t["name"] for t in listed]
+        check(sorted(names) == ["execute_command", "list_command"],
+              "tools/list returns exactly list_command and execute_command")
+        exec_props = listed[names.index("execute_command")]["inputSchema"].get(
+            "properties", {})
+        check("name" in exec_props,
+              "execute_command takes the command id as 'name'")
+        check("arguments" in exec_props,
+              "execute_command takes its parameters as 'arguments'")
 
         # 1. Nothing is open before the first open.
         status = call_tool("project/status", {})

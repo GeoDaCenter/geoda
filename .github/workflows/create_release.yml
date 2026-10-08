@@ -47,13 +47,16 @@ jobs:
       - name: Wait for builds to complete
         run: |
           # Wait until every build workflow (Windows, macOS, Ubuntu, AppImage)
-          # triggered by this tag push has finished, so their artifacts exist
-          # before we download them. Polls the runs API every 30s.
+          # started by this tag push has finished, so their artifacts exist
+          # before we download them. Polls the runs API every 30s. A re-run adds
+          # another run for the same workflow, so only the newest run of each is
+          # counted -- an old failed attempt should not decide this step.
           COMMIT_SHA=$(git rev-parse HEAD)
-          echo "Waiting for build workflows on ${COMMIT_SHA}..."
+          TAG="${GITHUB_REF#refs/tags/}"
+          echo "Waiting for the build workflows ${TAG} started on ${COMMIT_SHA}..."
           for attempt in $(seq 1 180); do
-            RUNS=$(gh api "repos/${GITHUB_REPOSITORY}/actions/runs?head_sha=${COMMIT_SHA}" \
-              --jq '[.workflow_runs[] | select(.name != "Create Release")]')
+            RUNS=$(gh api "repos/${GITHUB_REPOSITORY}/actions/runs?head_sha=${COMMIT_SHA}&per_page=100" \
+              --jq '[.workflow_runs[] | select(.name != "Create Release") | select(.head_branch == "'"${TAG}"'")] | group_by(.name) | map(max_by(.created_at))')
             TOTAL=$(echo "$RUNS" | jq 'length')
             if [ "$TOTAL" -eq 0 ]; then
               echo "  no build runs found yet (attempt $attempt/180); waiting 30s..."
@@ -76,13 +79,19 @@ jobs:
 
       - name: Download all build artifacts
         # download-artifact@v4 without run-id only looks in the CURRENT run
-        # (the Create Release run), which has no artifacts. Pull from every
-        # build workflow run at this commit instead.
+        # (the Create Release run), which has no artifacts. Pull from the runs
+        # this tag started instead: every run at this commit would also include
+        # the runs from the push to master that produced the same commit, and
+        # those artifacts carry the same names -- gh run download then refuses
+        # to extract over an existing file ("file exists") and the release is
+        # never created, which is what happened to v1.22.2. The newest run of
+        # each workflow is the one to take, since a re-run repeats the names too.
         run: |
           mkdir -p artifacts
           COMMIT_SHA=$(git rev-parse HEAD)
-          RUN_IDS=$(gh api "repos/${GITHUB_REPOSITORY}/actions/runs?head_sha=${COMMIT_SHA}" \
-            --jq '.workflow_runs[] | select(.name != "Create Release") | .id')
+          TAG="${GITHUB_REF#refs/tags/}"
+          RUN_IDS=$(gh api "repos/${GITHUB_REPOSITORY}/actions/runs?head_sha=${COMMIT_SHA}&per_page=100" \
+            --jq '[.workflow_runs[] | select(.name != "Create Release") | select(.head_branch == "'"${TAG}"'")] | group_by(.name) | map(max_by(.created_at)) | .[].id')
           if [ -z "$RUN_IDS" ]; then
             echo "::error::No build workflow runs found for ${COMMIT_SHA}"
             exit 1
@@ -127,8 +136,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./artifacts/GeoDa-Windows-x86-installer/GeoDa_${{ steps.get_version.outputs.version }}_x86_Setup.exe
-          asset_name: GeoDa_${{ steps.get_version.outputs.version }}_x86_Setup.exe
+          asset_path: ./artifacts/GeoDa-Windows-x86-installer/GeoDa_1.22_x86_Setup.exe
+          asset_name: GeoDa-Windows-x86-installer.zip
           asset_content_type: application/octet-stream
         continue-on-error: true
 
@@ -138,8 +147,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./artifacts/GeoDa-Windows-x64-installer/GeoDa_${{ steps.get_version.outputs.version }}_x64_Setup.exe
-          asset_name: GeoDa_${{ steps.get_version.outputs.version }}_x64_Setup.exe
+          asset_path: ./artifacts/GeoDa-Windows-x64-installer/GeoDa_1.22_x64_Setup.exe
+          asset_name: GeoDa-Windows-x64-installer.zip
           asset_content_type: application/octet-stream
         continue-on-error: true
 
@@ -149,8 +158,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./artifacts/GeoDa-Windows7+-x86-installer/GeoDa_${{ steps.get_version.outputs.version }}_win7+x86_Setup.exe
-          asset_name: GeoDa_${{ steps.get_version.outputs.version }}_win7+x86_Setup.exe
+          asset_path: ./artifacts/GeoDa-Windows7+-x86-installer/GeoDa_1.22_win7+x86_Setup.exe
+          asset_name: GeoDa-Windows7+-x86-installer.zip
           asset_content_type: application/octet-stream
         continue-on-error: true
 
@@ -160,8 +169,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./artifacts/GeoDa-Windows7+-x64-installer/GeoDa_${{ steps.get_version.outputs.version }}_win7+x64_Setup.exe
-          asset_name: GeoDa_${{ steps.get_version.outputs.version }}_win7+x64_Setup.exe
+          asset_path: ./artifacts/GeoDa-Windows7+-x64-installer/GeoDa_1.22_win7+x64_Setup.exe
+          asset_name: GeoDa-Windows7+-x64-installer.zip
           asset_content_type: application/octet-stream
         continue-on-error: true
 
@@ -183,7 +192,7 @@ jobs:
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: ./artifacts/GeoDa-${{ steps.get_version.outputs.version }}-x86_64-MacOS/GeoDa${{ steps.get_version.outputs.version }}-x86_64-Installer.dmg
-          asset_name: GeoDa${{ steps.get_version.outputs.version }}-x86_64-Installer.dmg
+          asset_name: GeoDa1.22.0-x86_64-Installer.dmg
           asset_content_type: application/octet-stream
         continue-on-error: true
 
@@ -194,7 +203,7 @@ jobs:
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: ./artifacts/GeoDa-${{ steps.get_version.outputs.version }}-arm64-MacOS/GeoDa${{ steps.get_version.outputs.version }}-arm64-Installer.dmg
-          asset_name: GeoDa${{ steps.get_version.outputs.version }}-arm64-Installer.dmg
+          asset_name: GeoDa1.22.0-arm64-Installer
           asset_content_type: application/octet-stream
         continue-on-error: true
 
@@ -205,7 +214,7 @@ jobs:
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: ./artifacts/GeoDa-${{ steps.get_version.outputs.version }}-jammy/geoda_${{ steps.get_version.outputs.version }}-1jammy1_amd64.deb
-          asset_name: geoda_${{ steps.get_version.outputs.version }}-1jammy1_amd64.deb
+          asset_name: GeoDa-1.22.0-jammy.zip
           asset_content_type: application/vnd.debian.binary-package
         continue-on-error: true
 
@@ -216,7 +225,7 @@ jobs:
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: ./artifacts/GeoDa-${{ steps.get_version.outputs.version }}-noble/geoda_${{ steps.get_version.outputs.version }}-1noble1_amd64.deb
-          asset_name: geoda_${{ steps.get_version.outputs.version }}-1noble1_amd64.deb
+          asset_name: GeoDa-1.22.0-noble.zip
           asset_content_type: application/vnd.debian.binary-package
         continue-on-error: true
 

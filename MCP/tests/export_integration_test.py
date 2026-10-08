@@ -123,11 +123,15 @@ def rpc(method, params=None, rid=1):
 
 
 def call_tool(name, arguments, rid=1):
-    """Call an MCP tool and parse the JSON text block of the result."""
-    result = rpc("tools/call", {"name": name, "arguments": arguments}, rid=rid)
+    """Run a GeoDa command through the server's `execute_command` tool."""
+    result = rpc(
+        "tools/call",
+        {"name": "execute_command",
+         "arguments": {"name": name, "arguments": arguments}},
+        rid=rid)
     blocks = result.get("content", [])
     if not blocks:
-        raise McpError("tool %s returned empty content" % name)
+        raise McpError("command %s returned empty content" % name)
     text = blocks[0].get("text", "")
     return json.loads(text)
 

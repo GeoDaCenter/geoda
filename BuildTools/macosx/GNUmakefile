@@ -107,6 +107,10 @@ build-geoda-mac:
 	cp $(GeoDa_ROOT)/BuildTools/CommonDistFiles/cache.sqlite build/GeoDa.app/Contents/Resources
 	cp $(GeoDa_ROOT)/Algorithms/lisa_kernel.cl build/GeoDa.app/Contents/MacOS
 	cp -rf $(GeoDa_ROOT)/internationalization/lang build/GeoDa.app/Contents/Resources
+	# the spreg engine's solver and manifest: the engine itself is downloaded on demand
+	mkdir -p build/GeoDa.app/Contents/Resources/spreg_engine
+	cp -R $(GeoDa_ROOT)/spreg_engine/manifest build/GeoDa.app/Contents/Resources/spreg_engine/manifest
+	cp -R $(GeoDa_ROOT)/spreg_engine/solver build/GeoDa.app/Contents/Resources/spreg_engine/solver
 	$(LD) $(LDFLAGS) $(GeoDa_OBJ) $(LIBS) -o build/GeoDa.app/Contents/MacOS/GeoDa
 	cp GeoDa-GDAL-Info.plist build/GeoDa.app/Contents/Info.plist
 	cp $(GeoDa_ROOT)/rc/data_viewer_dialogs.xrc build/GeoDa.app/Contents/Resources

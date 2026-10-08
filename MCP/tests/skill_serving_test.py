@@ -6,8 +6,9 @@ outside the app:
 
   * `initialize` returns it in the `instructions` field, which is the only
     channel that reaches a client before it calls anything;
-  * `skill/list` + `skill/get` return it as tools, which is what an agent
-    needs because Claude Code exposes MCP resources only as user @-mentions;
+  * the `skill/list` + `skill/get` commands return it through the single
+    `command` tool, which is what an agent needs because Claude Code exposes
+    MCP resources only as user @-mentions;
   * `resources/list` + `resources/read` serve the same text as the
     `skill://spatial-analysis-workbook` resource, and `prompts/list` +
     `prompts/get` as the workbook prompt.
@@ -65,11 +66,15 @@ def rpc(method, params=None, rid=1):
 
 
 def call_tool(name, arguments, rid=1):
-    """Call an MCP tool and parse the JSON text block of the result."""
-    result = rpc("tools/call", {"name": name, "arguments": arguments}, rid=rid)
+    """Run a GeoDa command through the server's `execute_command` tool."""
+    result = rpc(
+        "tools/call",
+        {"name": "execute_command",
+         "arguments": {"name": name, "arguments": arguments}},
+        rid=rid)
     blocks = result.get("content", [])
     if not blocks:
-        raise McpError("tool %s returned empty content" % name)
+        raise McpError("command %s returned empty content" % name)
     return json.loads(blocks[0].get("text", ""))
 
 
@@ -157,11 +162,16 @@ def main():
 
         # The skill is a tool, so an agent can read it without @-mentioning a
         # resource.
-        tools = {t["name"]: t for t in rpc("tools/list", {})["tools"]}
-        check("skill/list" in tools, "skill/list is listed")
-        check("skill/get" in tools, "skill/get is listed")
-        check("uri" in tools["skill/get"]["inputSchema"].get("properties", {}),
-              "skill/get takes a uri parameter")
+        listed = rpc("tools/list", {})["tools"]
+        names = [t["name"] for t in listed]
+        check(sorted(names) == ["execute_command", "list_command"],
+              "tools/list returns exactly list_command and execute_command")
+        exec_props = listed[names.index("execute_command")]["inputSchema"].get(
+            "properties", {})
+        check("name" in exec_props,
+              "execute_command takes the command id as 'name'")
+        check("arguments" in exec_props,
+              "execute_command takes its parameters as 'arguments'")
 
         listed = call_tool("skill/list", {})
         skills = {

@@ -89,6 +89,10 @@ build-geoda:
 	cp $(GEODA_HOME)/../CommonDistFiles/geoda_prefs.json build/geoda_prefs.json
 	cp -rf $(GEODA_HOME)/../CommonDistFiles/web_plugins/* build/web_plugins
 	cp -rf $(GeoDa_ROOT)/internationalization/lang build/
+	# the spreg engine's solver and manifest: the engine itself is downloaded on demand
+	mkdir -p build/spreg_engine
+	cp -R $(GeoDa_ROOT)/spreg_engine/manifest build/spreg_engine/manifest
+	cp -R $(GeoDa_ROOT)/spreg_engine/solver build/spreg_engine/solver
 	if [ -d "/usr/share/gdal/2.2" ]; then cp /usr/share/gdal/2.2/* build/gdaldata; fi
 	if [ -f "/usr/share/gdal/header.dxf" ]; then cp /usr/share/gdal/* build/gdaldata; fi
 	cp /usr/share/proj/* build/proj

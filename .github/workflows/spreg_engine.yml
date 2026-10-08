@@ -1,0 +1,246 @@
+# Build the downloadable spreg engine for every platform GeoDa ships on.
+#
+# One job per platform, each producing one zip and checking it by unpacking it
+# and running the solver's own selftest, the model sweep and a real estimation
+# with the interpreter it contains.  Bumping a version means: edit
+# spreg_engine/solver/requirements.in, regenerate the lock, tag
+# `spreg-engine-v<N>`, and the release job attaches the zips to that release and
+# prints the manifest entries to paste into spreg_engine/manifest/engines.json -
+# the hashes come from the artifacts themselves, so they have to come from here
+# rather than from a build on someone's desk.
+#
+# The parity job then runs GeoDa's own engine against spreg on the published
+# engine, which is the check that says the two agree; it waits for the release
+# because it downloads what was published.
+
+name: spreg engine
+
+on:
+  workflow_dispatch:
+    inputs:
+      parity:
+        description: "also compare the published engine against GeoDa's own"
+        type: boolean
+        default: true
+  push:
+    tags: ["spreg-engine-v*"]
+  pull_request:
+    # labeled is in the list so that adding the run-parity label to a pull
+    # request runs the comparison below on it, which is the only way to try it
+    # before it is on the default branch
+    types: [opened, synchronize, reopened, labeled]
+    paths:
+      - "spreg_engine/**"
+      - ".github/workflows/spreg_engine.yml"
+
+defaults:
+  run:
+    working-directory: spreg_engine
+
+jobs:
+  build:
+    name: ${{ matrix.platform }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # macos-15 is arm64 and macos-15-intel is x86_64, as in osx_build.yml:
+          # macos-13 was retired Dec 4 2025 (a job asking for it queues forever)
+          # and macos-14 is unsupported after Nov 2 2026
+          - os: macos-15          # arm64
+            platform: macos-arm64
+          - os: macos-15-intel    # intel
+            platform: macos-x86_64
+          - os: windows-2022
+            platform: windows-x86_64
+          - os: ubuntu-22.04
+            platform: linux-x86_64
+    steps:
+      - uses: actions/checkout@v4
+
+      # uv fetches and lays out python-build-standalone for us
+      - uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+
+      # bash explicitly: the default shell is PowerShell on Windows, and it
+      # reads the backslash continuations as a unary operator, not a line break
+      - name: Build the engine archive
+        shell: bash
+        run: |
+          python tools/build_engine.py \
+            --outdir dist \
+            --platform ${{ matrix.platform }} \
+            --manifest-entry dist/manifest-entry.json
+
+      - name: Unpack the archive the way GeoDa will
+        shell: bash
+        run: |
+          mkdir -p "$RUNNER_TEMP/engine"
+          if command -v unzip >/dev/null; then
+            unzip -q dist/*.zip -d "$RUNNER_TEMP/engine"
+          else
+            powershell -Command "Expand-Archive -Path (Get-Item dist/*.zip) -DestinationPath '$RUNNER_TEMP/engine'"
+          fi
+          test -f "$RUNNER_TEMP/engine/engine.json"
+          cat "$RUNNER_TEMP/engine/engine.json"
+
+      # Every check below runs on the *unpacked artifact*, with the interpreter
+      # the artifact contains, and the solver the application ships.  If this
+      # passes, the download GeoDa hands to users is known to work.
+      - name: Pick the engine interpreter
+        shell: bash
+        run: |
+          if [ -x "$RUNNER_TEMP/engine/python/bin/python3" ]; then
+            echo "ENGINE_PY=$RUNNER_TEMP/engine/python/bin/python3" >> "$GITHUB_ENV"
+          else
+            # Windows: the interpreter sits at the root and bash wants a posix path
+            TEMP_POSIX=$(cygpath -u "$RUNNER_TEMP" 2>/dev/null || echo "$RUNNER_TEMP")
+            echo "ENGINE_PY=$TEMP_POSIX/engine/python/python.exe" >> "$GITHUB_ENV"
+          fi
+
+      - name: Protocol selftest on the unpacked engine
+        run: '"$ENGINE_PY" solver/solve.py --selftest'
+        shell: bash
+
+      - name: Run every registered model on the unpacked engine
+        run: '"$ENGINE_PY" tools/check_models.py --json dist/models.json'
+        shell: bash
+
+      - name: A real estimation on real data
+        run: |
+          "$ENGINE_PY" tools/make_demo_job.py --outdir "$RUNNER_TEMP/demo" --model ML_Lag --run
+        shell: bash
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: geoda-spreg-${{ matrix.platform }}
+          path: |
+            spreg_engine/dist/*.zip
+            spreg_engine/dist/manifest-entry.json
+            spreg_engine/dist/models.json
+
+  # Does spreg agree with the engine GeoDa has always had?  Those three models -
+  # OLS, spatial lag, spatial error - are in both, so the same data and the same
+  # weights go through each and the numbers are put side by side.  This job needs
+  # nothing but wxWidgets, LAPACK and json_spirit, all of which are a download
+  # away, so it does not have to build the application.
+  parity:
+    name: parity with GeoDa's own engine
+    needs: build
+    # it compares against the *published* engine, so it runs after a release, by
+    # hand on a dispatch, or on a pull request labelled run-parity - which is how
+    # a change to it can be tried without waiting for it to reach master, since
+    # workflow_dispatch only knows workflows that are already there
+    if: |
+      (github.event_name == 'workflow_dispatch' && inputs.parity) ||
+      startsWith(github.ref, 'refs/tags/spreg-engine-v') ||
+      (github.event_name == 'pull_request' &&
+       contains(github.event.pull_request.labels.*.name, 'run-parity'))
+    runs-on: ubuntu-22.04
+    timeout-minutes: 45              # CLAPACK is compiled here before the test runs
+    defaults:
+      run:
+        working-directory: .            # this one is not spreg_engine-relative
+    steps:
+      - uses: actions/checkout@v4
+
+      # The distribution's wxGTK, which on 22.04 is 3.0 - the application ships
+      # 3.2.4, so this job is also a check that the spreg code builds against
+      # 3.0.  gdal is here because GalWeight.h reaches Project.h, and through it
+      # the OGR headers, even though the comparison itself is pure arithmetic.
+      - name: wxWidgets, curl and gdal
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            libwxgtk3.0-gtk3-dev libcurl4-openssl-dev libboost-dev xvfb libgdal-dev
+
+      # The engine is compiled against the same CLAPACK the application links,
+      # not against the system LAPACK: f2c's integers are 64-bit where the
+      # Fortran ABI's are 32-bit, so the two are not interchangeable.  The
+      # published tarball is sources, so build it as BuildTools/ubuntu/
+      # build_disco.sh builds it.  INSTALL is not optional even though this
+      # links none of its tests: SRC takes lsame.o from it.
+      - name: LAPACK, as the application links it
+        run: |
+          curl -sL -o /tmp/clapack.tgz \
+            https://github.com/GeoDaCenter/software/releases/download/v2000/clapack.tgz
+          mkdir -p /tmp/clapack && tar xzf /tmp/clapack.tgz -C /tmp/clapack
+          cd /tmp/clapack/CLAPACK-3.2.1
+          cp make.inc.example make.inc
+          # CLAPACK's BLAS calls printf without including stdio.h.  gcc 11, which
+          # is what a 22.04 runner has, warns; a newer compiler makes it an
+          # error, and this flag is a no-op either way.
+          sed -i 's|^CFLAGS    = -O3 -I$(TOPDIR)/INCLUDE|& -Wno-implicit-function-declaration|' make.inc
+          make -j"$(nproc)" f2clib
+          cp F2CLIBS/libf2c.a .
+          make -j"$(nproc)" blaslib
+          make -j"$(nproc)" -C INSTALL
+          make -j"$(nproc)" -C SRC
+          mv -f blas_LINUX.a blas.a
+          mv -f lapack_LINUX.a lapack.a
+          ls -l lapack.a blas.a libf2c.a
+
+      - name: json_spirit
+        run: |
+          curl -sL -o /tmp/json_spirit.zip \
+            https://github.com/GeoDaCenter/software/releases/download/v2000/json_spirit_v4.08.zip
+          unzip -q /tmp/json_spirit.zip -d /tmp/json_spirit
+
+      # The engine for this platform has to have been published (see the build
+      # jobs above); without it this job has nothing to compare against.
+      - name: The engine
+        run: |
+          curl -sL -o /tmp/engine.zip \
+            https://github.com/GeoDaCenter/software/releases/download/spreg-engine-v1/geoda-spreg-1.9.1-py313-linux-x86_64.zip
+          mkdir -p /tmp/engine && unzip -q /tmp/engine.zip -d /tmp/engine
+
+      - name: The two engines, side by side
+        env:
+          GEODA_CLAPACK_PATH: /tmp/clapack/CLAPACK-3.2.1
+          GEODA_JSON_SPIRIT_SRC: /tmp/json_spirit/json_spirit_v4.08
+        # the test links wxGTK for wxString and wxFileName, and initialising it
+        # wants a display; the numbers themselves need no window, so a virtual
+        # one is enough
+        run: |
+          if command -v xvfb-run >/dev/null; then
+            xvfb-run -a spreg_engine/tools/run_parity_test.sh /tmp/engine
+          else
+            spreg_engine/tools/run_parity_test.sh /tmp/engine
+          fi
+
+  release:
+    needs: build
+    if: startsWith(github.ref, 'refs/tags/spreg-engine-v')
+    runs-on: ubuntu-22.04
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: geoda-spreg-*
+          path: artifacts
+      - name: Attach the archives to the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release view "$GITHUB_REF_NAME" >/dev/null 2>&1 || \
+            gh release create "$GITHUB_REF_NAME" --title "$GITHUB_REF_NAME" \
+              --notes "spreg engine archives; see spreg_engine/manifest/engines.json"
+          # A published archive's sha256 is in some application's manifest, and
+          # that is what the download is checked against: replacing one under an
+          # existing tag would break every install that has the old hash, so a
+          # second set of archives wants a second tag rather than --clobber.
+          for zip in artifacts/*/*.zip; do
+            name=$(basename "$zip")
+            if gh release view "$GITHUB_REF_NAME" --json assets --jq '.assets[].name' \
+                 | grep -qxF "$name"; then
+              echo "::error::$GITHUB_REF_NAME already publishes $name; bump the tag instead"
+              exit 1
+            fi
+          done
+          gh release upload "$GITHUB_REF_NAME" artifacts/*/*.zip
+      - name: Manifest entries to paste into spreg_engine/manifest/engines.json
+        run: cat artifacts/*/manifest-entry.json
