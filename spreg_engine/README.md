@@ -297,13 +297,22 @@ binary row-standardised W and ignores GWT values (the job's
 versus its transpose) has to be the same on both sides. Everything else follows
 from spreg's `OLS` being ordinary least squares.
 
-One output difference to expect, since it shapes the report renderer: spreg's
-ML lag and ML error classes do not expose the LM / Moran / LR diagnostics as
-result fields (only the classical models do), so those rows in GeoDa's current
-lag and error reports have nothing behind them. The structured result simply
-omits them, and the renderer must drop rows it has no value for rather than
-printing blanks; `diagnostics` is empty for those models and 15 entries for
-`OLS` on the same data.
+### Which tests a model has
+
+The tests come from the estimators, and spreg does not give every model the same
+set - its notebooks (5, 9, 13, 15) are the reference for this, and the registry
+follows them:
+
+| model | tests |
+|-------|-------|
+| `OLS`, `OLS_Regimes` | Jarque-Bera, Breusch-Pagan, Koenker-Bassett and the F statistic (`nonspat_diag`); LM tests for lag, error and their robust forms, SARMA, spatial Durbin and WX (`spat_diag`); Moran's I (`moran`); the White test (`white_test`, which spreg computes only when asked) |
+| `ML_Lag`, `ML_Error` | the likelihood ratio test of rho or lambda = 0 - spreg's ML classes carry no test of their own, so the solver forms it with `spreg.diagnostics.likratiotest` against an OLS on the same data, as notebooks 13 and 15 do |
+| `GM_Lag`, `GM_Lag_Regimes`, `TSLS`, `TSLS_Regimes` | the Anselin-Kelejian test on the residual of the IV/GMM fit (`spat_diag`) |
+| the GMM error and SARAR families, `Probit`, `NSLX`, `SKATER_reg` | none: spreg offers no post-estimation tests for them, so their options do not claim any |
+
+A model that has no tests has no test options, and the report leaves the section
+out rather than printing it empty. `diagnostics` is empty for those models and 16
+entries for `OLS` on the same data.
 
 ## Adding a model, or moving to a new spreg
 

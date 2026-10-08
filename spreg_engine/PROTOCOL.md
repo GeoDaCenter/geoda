@@ -289,13 +289,22 @@ Each entry:
   "class": "spreg.ml_lag:ML_Lag",
   "requires": { "weights": true, "regimes": false, "endog": false, "coords": false },
   "options": {
-    "method":       { "type": "enum", "values": ["full", "LU", "ord"], "default": "LU" },
+    "method":       { "type": "enum", "values": ["full", "LU", "ord"], "default": "LU",
+                      "label": "Log-Jacobian", "help": "log-Jacobian method" },
     "slx_lags":     { "type": "int",  "default": 0, "min": 0, "max": 3 },
     "epsilon":      { "type": "float","default": 1e-7 },
-    "spat_diag":    { "type": "bool", "default": true }
+    "likelihood_ratio": { "type": "bool", "default": true, "label": "LR test against OLS",
+                          "help": "likelihood ratio test of the spatial coefficient" }
   }
 }
 ```
+
+`label` is what the dialog calls the option - "White test" rather than `white_test` -
+and `help` is its tooltip; both are optional, and an option without a label is shown
+under its keyword.  The order they appear in here is the order the dialog shows them
+in, so a model's estimation options come first and the tests of that model after them.
+An option whose name is in `spreg_models.SOLVER_OPTIONS` is not passed to spreg: the
+solver computes it around the estimator instead (`likelihood_ratio` is the only one).
 
 Protocol v1 model ids (cross-sectional only):
 
