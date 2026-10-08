@@ -42,9 +42,12 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - os: macos-14          # arm64
+          # macos-15 is arm64 and macos-15-intel is x86_64, as in osx_build.yml:
+          # macos-13 was retired Dec 4 2025 (a job asking for it queues forever)
+          # and macos-14 is unsupported after Nov 2 2026
+          - os: macos-15          # arm64
             platform: macos-arm64
-          - os: macos-13          # intel
+          - os: macos-15-intel    # intel
             platform: macos-x86_64
           - os: windows-2022
             platform: windows-x86_64
