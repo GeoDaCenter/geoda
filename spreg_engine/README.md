@@ -38,8 +38,10 @@ RegressionReportDlg / Save to Table / Save to File
   for smoke tests and for the parity work against the C++ engine.
 * **`examples/write_job.cpp`** — the whole format written from C++, no
   dependencies.
-* **`ci/spreg_engine.yml`** — four build jobs (macOS x2, Windows, Linux) that
-  build, unpack and verify an archive, then attach it to a release.
+* **`.github/workflows/spreg_engine.yml`** — four build jobs (macOS x2, Windows,
+  Linux) that build an archive, unpack it and verify it with the interpreter it
+  contains, then attach the archives to a release; a parity job compares the
+  published engine against GeoDa's own.
 
 Where these land in the GeoDa tree: `solver/` goes into the application bundle
 (`Contents/Resources/spreg_engine/` on macOS, next to `GeoDa.exe` on Windows,
@@ -407,7 +409,7 @@ tools/syntax_check.py <sources>        # type-check against the flags CMake used
 engines agree?  It builds only the two engines - the C++ one from
 `Regression/`, the other through the solver - and runs OLS, ML lag and ML error
 over the same grid with the same weights.  They agree to 1e-8 or better on every
-coefficient and on the log-likelihood; `ci/spreg_engine.yml` runs the same
+coefficient and on the log-likelihood; `.github/workflows/spreg_engine.yml` runs the same
 comparison on every engine it builds.  One trap is written into the test: the
 C++ engine *absorbs* the arrays it is handed, so each model gets its own copy -
 sharing one set of arrays made the second and third models disagree wildly, which

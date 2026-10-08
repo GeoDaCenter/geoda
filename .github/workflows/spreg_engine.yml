@@ -1,24 +1,27 @@
 # Build the downloadable spreg engine for every platform GeoDa ships on.
 #
-# This file belongs in .github/workflows/ once adopted; it is kept inside
-# spreg_engine/ here so that it does not run in the main repository before the
-# feature exists.
+# One job per platform, each producing one zip and checking it by unpacking it
+# and running the solver's own selftest, the model sweep and a real estimation
+# with the interpreter it contains.  Bumping a version means: edit
+# spreg_engine/solver/requirements.in, regenerate the lock, tag
+# `spreg-engine-v<N>`, and the release job attaches the zips to that release and
+# prints the manifest entries to paste into spreg_engine/manifest/engines.json -
+# the hashes come from the artifacts themselves, so they have to come from here
+# rather than from a build on someone's desk.
 #
-# One job per platform, each producing one zip.  The jobs are independent and
-# the artifacts are only useful together, so a release is published when all of
-# them are green: bump the versions in spreg_engine/solver/requirements.lock,
-# tag `spreg-engine-v<N>`, and the workflow attaches the zips to that release
-# and prints the manifest entries to paste into manifest/engines.json.
+# The parity job then runs GeoDa's own engine against spreg on the published
+# engine, which is the check that says the two agree; it waits for the release
+# because it downloads what was published.
 
 name: spreg engine
 
 on:
   workflow_dispatch:
     inputs:
-      publish:
-        description: "attach the artifacts to the spreg-engine-v1 release"
+      parity:
+        description: "also compare the published engine against GeoDa's own"
         type: boolean
-        default: false
+        default: true
   push:
     tags: ["spreg-engine-v*"]
   pull_request:
@@ -83,7 +86,9 @@ jobs:
           if [ -x "$RUNNER_TEMP/engine/python/bin/python3" ]; then
             echo "ENGINE_PY=$RUNNER_TEMP/engine/python/bin/python3" >> "$GITHUB_ENV"
           else
-            echo "ENGINE_PY=$RUNNER_TEMP/engine/python/python.exe" >> "$GITHUB_ENV"
+            # Windows: the interpreter sits at the root and bash wants a posix path
+            TEMP_POSIX=$(cygpath -u "$RUNNER_TEMP" 2>/dev/null || echo "$RUNNER_TEMP")
+            echo "ENGINE_PY=$TEMP_POSIX/engine/python/python.exe" >> "$GITHUB_ENV"
           fi
 
       - name: Protocol selftest on the unpacked engine
@@ -114,8 +119,15 @@ jobs:
   # away, so it does not have to build the application.
   parity:
     name: parity with GeoDa's own engine
+    needs: build
+    # it compares against the *published* engine, so it runs after a release, or
+    # by hand on a dispatch
+    if: (github.event_name == 'workflow_dispatch' && inputs.parity) || startsWith(github.ref, 'refs/tags/spreg-engine-v')
     runs-on: ubuntu-22.04
     timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: .            # this one is not spreg_engine-relative
     steps:
       - uses: actions/checkout@v4
 
@@ -161,7 +173,6 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           pattern: geoda-spreg-*
-          merge-multiple: true
           path: artifacts
       - name: Attach the archives to the release
         env:
@@ -170,6 +181,6 @@ jobs:
           gh release view "$GITHUB_REF_NAME" >/dev/null 2>&1 || \
             gh release create "$GITHUB_REF_NAME" --title "$GITHUB_REF_NAME" \
               --notes "spreg engine archives; see spreg_engine/manifest/engines.json"
-          gh release upload "$GITHUB_REF_NAME" artifacts/*.zip --clobber
-      - name: Manifest entries to paste
-        run: cat artifacts/manifest-entry.json
+          gh release upload "$GITHUB_REF_NAME" artifacts/*/*.zip --clobber
+      - name: Manifest entries to paste into spreg_engine/manifest/engines.json
+        run: cat artifacts/*/manifest-entry.json
