@@ -55,6 +55,31 @@ if [ -z "${BOOST_INCLUDE:-}" ]; then
 	exit 2
 fi
 
+# GDAL headers: GalWeight.h reaches Project.h and through it the OGR headers.
+# A distribution keeps them in /usr/include/gdal, which is off the default search
+# path - GeoDamake.ubuntu.opt spells that path out as -I/usr/include/gdal - so ask
+# gdal-config, and look in the places it might be instead if there is none.
+GDAL_INCLUDE="${GDAL_INCLUDE:-}"
+if [ -z "$GDAL_INCLUDE" ] && command -v gdal-config >/dev/null; then
+	gdal_flags=$(gdal-config --cflags)
+	gdal_dir=$(printf '%s\n' $gdal_flags | sed -n 's/^-I//p' | head -1)
+	if [ -n "$gdal_dir" ] && [ -f "$gdal_dir/ogrsf_frmts.h" ]; then
+		GDAL_INCLUDE="$gdal_flags"
+	fi
+fi
+if [ -z "$GDAL_INCLUDE" ]; then
+	for candidate in /opt/homebrew/include /usr/local/include /usr/include /usr/include/gdal; do
+		if [ -f "$candidate/ogrsf_frmts.h" ]; then
+			GDAL_INCLUDE="-I$candidate"
+			break
+		fi
+	done
+fi
+if [ -z "$GDAL_INCLUDE" ]; then
+	echo "no GDAL headers found; set GDAL_INCLUDE" >&2
+	exit 2
+fi
+
 # json_spirit: the static library from a GeoDa build if there is one, and
 # otherwise its sources, which are four files and build in a second
 JSON_SPIRIT_LIB=""
@@ -100,7 +125,7 @@ echo "clapack : $CLAPACK"
 
 # shellcheck disable=SC2046
 "${CXX:-c++}" -std=gnu++14 -O1 -g -o "$WORK/test_parity" \
-	-I"$ROOT" -I"$JSON_SPIRIT_SRC" -I"$BOOST_INCLUDE" \
+	-I"$ROOT" -I"$JSON_SPIRIT_SRC" -I"$BOOST_INCLUDE" $GDAL_INCLUDE \
 	$( $WX_CONFIG --cxxflags 2>/dev/null || echo "" ) \
 	"$ROOT/Regression/SpregEngine.cpp" \
 	"$ROOT/Regression/SpregJob.cpp" \
