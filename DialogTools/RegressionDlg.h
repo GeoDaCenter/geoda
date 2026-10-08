@@ -166,6 +166,8 @@ public:
 	void RefreshSpregState();
 	/// grows the dialog when the controls on the current page need more room
 	void GrowToFit();
+	/// wraps the status line to the room left beside the Install button
+	void WrapSpregStatus();
 	void FillSpregModels(const wxString& engine_dir);
 	void EnableNativeModels(bool enable);
 	void OnSpregModelSelected(wxCommandEvent& event);

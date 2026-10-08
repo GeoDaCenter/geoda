@@ -355,17 +355,31 @@ void RegressionDlg::CreateControls()
 		m_spreg_page->SetSizer(spreg_sizer);
 
 		m_install_spreg_btn = new wxButton(m_spreg_page, wxID_ANY, _("Install Spreg"));
-		m_spreg_status = new wxStaticText(m_spreg_page, wxID_ANY, wxEmptyString);
-		wxBoxSizer* row = new wxBoxSizer(wxHORIZONTAL);
-		row->Add(m_install_spreg_btn, 0, wxALIGN_CENTRE_VERTICAL);
-		row->Add(m_spreg_status, 0, wxALIGN_CENTRE_VERTICAL | wxLEFT, 10);
-		spreg_sizer->Add(row, 0, wxALL | wxALIGN_LEFT, 6);
+		spreg_sizer->Add(m_install_spreg_btn, 0, wxLEFT | wxRIGHT | wxTOP | wxALIGN_LEFT, 6);
 
-		wxBoxSizer* model_row = new wxBoxSizer(wxHORIZONTAL);
+		// What the state of the engine is, and once a model is chosen what it is:
+		// on a line of its own rather than beside the button, so that it starts in
+		// the same column as everything else and has the width of the page - and
+		// is still there, in the same place, once the button has gone.
+		m_spreg_status = new wxStaticText(m_spreg_page, wxID_ANY, wxEmptyString);
+		// in the secondary colour, as a line of explanation is: it says what the
+		// state of the engine is, or what the chosen model will do, and it has to
+		// not read as though it were part of the label below it
+		m_spreg_status->SetForegroundColour(
+			wxSystemSettings::GetColour(wxSYS_COLOUR_GRAYTEXT));
+		spreg_sizer->Add(m_spreg_status, 0,
+						 wxLEFT | wxRIGHT | wxTOP | wxBOTTOM | wxALIGN_LEFT, 6);
+
+		// The model list gets a row of its own, its label above it as the options
+		// further down have theirs.  Put beside it, the label would line up with
+		// the Install button's frame rather than with its text, and the two rows
+		// then read as not aligned - a button and a choice inset their text the
+		// same way, so lining the two controls up lines their text up too.
+		wxBoxSizer* model_row = new wxBoxSizer(wxVERTICAL);
 		m_spreg_model_choice = new wxChoice(m_spreg_page, wxID_ANY);
-		wxStaticText* model_label = new wxStaticText(m_spreg_page, wxID_ANY, _("spreg model:"));
-		model_row->Add(model_label, 0, wxALIGN_CENTRE_VERTICAL | wxRIGHT, 6);
-		model_row->Add(m_spreg_model_choice, 0, wxALIGN_CENTRE_VERTICAL);
+		model_row->Add(new wxStaticText(m_spreg_page, wxID_ANY, _("spreg model:")),
+					   0, wxBOTTOM, 2);
+		model_row->Add(m_spreg_model_choice, 0);
 		spreg_sizer->Add(model_row, 0, wxLEFT | wxRIGHT | wxBOTTOM | wxALIGN_LEFT, 6);
 		m_spreg_model_choice->Bind(wxEVT_CHOICE, &RegressionDlg::OnSpregModelSelected, this);
 
@@ -449,7 +463,7 @@ void RegressionDlg::RefreshSpregState()
 	m_spreg_installed = status.installed;
 	if (status.installed) {
 		m_spreg_status->SetLabel(wxString::Format(_("spreg %s ready"), status.version));
-		m_spreg_status->Wrap(300);
+		WrapSpregStatus();
 		m_install_spreg_btn->Hide();
 		// The model list costs a Python start, so it is fetched once the dialog
 		// is up rather than while it is being built - otherwise opening the
@@ -467,7 +481,7 @@ void RegressionDlg::RefreshSpregState()
 		m_spreg_status->SetLabel(have_manifest
 			? _("Regimes, spatial Durbin, GMM/IV and probit models need this")
 			: _("The advanced models are not available in this build"));
-		m_spreg_status->Wrap(300);
+		WrapSpregStatus();
 		m_install_spreg_btn->Show();
 		m_install_spreg_btn->Enable(have_manifest);
 		if (m_spreg_model_choice) {
@@ -675,7 +689,7 @@ void RegressionDlg::OnSpregModelSelected(wxCommandEvent& WXUNUSED(event))
 		if (m_spreg_status) {
 			m_spreg_status->SetLabel(m_spreg_installed
 				? wxString(_("the models above are GeoDa's own")) : wxString());
-			m_spreg_status->Wrap(300);
+			WrapSpregStatus();
 		}
 	} else {
 		const SpregJob::ModelOption& model = m_spreg_models[selection - 1];
@@ -687,7 +701,7 @@ void RegressionDlg::OnSpregModelSelected(wxCommandEvent& WXUNUSED(event))
 				hint << _("; the dependent variable must be 0 or 1");
 			}
 			m_spreg_status->SetLabel(hint);
-			m_spreg_status->Wrap(300);
+			WrapSpregStatus();
 		}
 		if (m_spreg_model_choice) {
 			m_spreg_model_choice->SetToolTip(model.label + "  (" + model.id + ")");
@@ -724,8 +738,21 @@ void RegressionDlg::OnSpregModelSelected(wxCommandEvent& WXUNUSED(event))
 	GrowToFit();
 }
 
+void RegressionDlg::WrapSpregStatus()
+{
+	// The status line has a row of its own, and it may use the width of the page
+	// and no more: wrapped to a width the page does not have, its text runs to the
+	// edge of the box and is cut off there.  Before the page has been laid out its
+	// width is not known yet, and 400 fits whatever the dialog's.
+	if (!m_spreg_status) return;
+	const int page = m_spreg_page ? m_spreg_page->GetClientSize().x : 0;
+	const int room = page - 16;                  // the row's own borders
+	m_spreg_status->Wrap(room > 120 ? room : 400);
+}
+
 void RegressionDlg::GrowToFit()
 {
+	WrapSpregStatus();
 	// the controls the engine brings can need more room than the dialog has;
 	// grow to fit them, but never past the screen
 	const wxSize best = GetBestSize();
