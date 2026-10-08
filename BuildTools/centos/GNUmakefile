@@ -68,6 +68,10 @@ build-geoda-mac:
 	cp $(GeoDa_ROOT)/BuildTools/CommonDistFiles/cache.sqlite build/cache.sqlite
 	cp -rf $(GeoDa_ROOT)/BuildTools/CommonDistFiles/web_plugins/* build/web_plugins/
 	cp $(GeoDa_ROOT)/BuildTools/CommonDistFiles/GeoDa.png build/GeoDa.png
+	# the spreg engine's solver and manifest: the engine itself is downloaded on demand
+	mkdir -p build/spreg_engine
+	cp -R $(GeoDa_ROOT)/spreg_engine/manifest build/spreg_engine/manifest
+	cp -R $(GeoDa_ROOT)/spreg_engine/solver build/spreg_engine/solver
 	cp $(GeoDa_ROOT)/rc/data_viewer_dialogs.xrc build/Resources
 	cp $(GeoDa_ROOT)/rc/dialogs.xrc build/Resources
 	cp $(GeoDa_ROOT)/rc/GeoDa.icns build/Resources

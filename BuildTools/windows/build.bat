@@ -1057,6 +1057,9 @@ copy /Y ..\CommonDistFiles\cache.sqlite Release\.
 copy /Y ..\CommonDistFiles\geoda_prefs.sqlite Release\.
 copy /Y ..\CommonDistFiles\geoda_prefs.json Release\.
 xcopy /I /S /E /Y ..\CommonDistFiles\web_plugins Release\web_plugins
+REM the spreg engine's solver and manifest (the engine itself is downloaded on demand)
+xcopy /I /S /E /Y ..\spreg_engine\manifest Release\spreg_engine\manifest
+xcopy /I /S /E /Y ..\spreg_engine\solver Release\spreg_engine\solver
 copy /Y %LIBRARY_HOME%\%LIB_HM_LIB%\expat.dll Release\.
 copy /Y %LIBRARY_HOME%\%LIB_HM_LIB%\gdal_geoda20.dll Release\.
 copy /Y %LIBRARY_HOME%\%LIB_HM_LIB%\libpq.dll Release\.

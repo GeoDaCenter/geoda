@@ -21,6 +21,7 @@
 #define __GEODA_CENTER_REGRESSION_DLG_H__
 
 #include <vector>
+#include <map>
 #include <wx/dialog.h>
 #include <wx/listbox.h>
 #include <wx/checkbox.h>
@@ -39,6 +40,12 @@ class DiagnosticReport;
 class TableInterface;
 class Project;
 class WeightsManState;
+
+class wxButton;
+class wxChoice;
+class wxFlexGridSizer;
+
+#include "../Regression/SpregJob.h"
 
 class RegressionDlg: public wxDialog, public FramesManagerObserver,
   public TableStateObserver, public WeightsManStateObserver
@@ -64,6 +71,7 @@ public:
 
     void CreateControls();
     void OnRunClick( wxCommandEvent& event );
+    void OnInstallSpregClick( wxCommandEvent& event );
     void OnViewResultsClick( wxCommandEvent& event );
 	void OnSaveToTxtFileClick( wxCommandEvent& event );
     void OnStandardizeClick( wxCommandEvent& event );
@@ -108,6 +116,54 @@ public:
     wxRadioButton* m_radio3;
 	wxGauge* m_gauge;
 	wxStaticText* m_gauge_text;
+
+	// the button that installs the engine behind the advanced models, the line
+	// that says whether it is there, and the list of the models it offers:
+	// all built in code, see RefreshSpregState
+	wxButton* m_install_spreg_btn;
+	wxStaticText* m_spreg_status;
+	wxChoice* m_spreg_model_choice;
+	// the extra variables some of the engine's models need, shown only when the
+	// chosen model asks for them: a regime membership column, and the endogenous
+	// variables with the instruments that identify them
+	wxChoice* m_spreg_regime_choice;
+	wxListBox* m_spreg_endog_list;
+	wxListBox* m_spreg_instr_list;
+	// the models that build their own weights from coordinates ask for a pair
+	wxChoice* m_spreg_coord_x_choice;
+	wxChoice* m_spreg_coord_y_choice;
+	wxSizer* m_spreg_coords_row;
+	wxSizer* m_spreg_regime_row;
+	wxSizer* m_spreg_endog_row;
+	wxSizer* m_spreg_instr_row;
+	// one control per option the chosen model declares, built from the engine's
+	// registry rather than from a list written here
+	wxSizer* m_spreg_options_row;
+	wxFlexGridSizer* m_spreg_options_grid;
+	std::vector<wxString> m_spreg_option_names;
+	std::vector<wxWindow*> m_spreg_option_ctrls;
+	void FillSpregVariables(wxWindow* parent);
+	void FillSpregOptions(wxWindow* parent, const SpregJob::ModelOption& model);
+	std::map<wxString, wxString> ReadSpregOptions(bool& ok, wxString& err);
+	bool GatherSpregExtras(const SpregJob::ModelOption& model, wxString& err,
+						   SpregJob::Writer& writer, wxString& regimes_name,
+						   std::vector<wxString>& yend_names,
+						   std::vector<wxString>& q_names);
+	std::vector<SpregJob::ModelOption> m_spreg_models;
+	wxString m_spreg_model;            // empty: use the models above
+	bool m_spreg_installed;
+	std::vector<double> m_spreg_yhat, m_spreg_resid, m_spreg_prederr;
+	std::vector<wxInt64> m_spreg_region;      // SKATER's region id per observation
+	SpregJob::Result m_spreg_result;
+	bool m_has_spreg_result;
+
+	void RefreshSpregState();
+	void FillSpregModels(const wxString& engine_dir);
+	void EnableNativeModels(bool enable);
+	void OnSpregModelSelected(wxCommandEvent& event);
+	bool RunSpregModel(wxCommandEvent& event);
+	void ShowSpregResults(const SpregJob::Result& result, const wxString& dataset,
+						  const wxString& weights_name);
     
     RegressionReportDlg *regReportDlg;
 

@@ -303,6 +303,9 @@
 		DDFFC7CD1AC0E58B00F7DD6D /* CorrelParamsObservable.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DDFFC7C71AC0E58B00F7DD6D /* CorrelParamsObservable.cpp */; };
 		DDFFC7D51AC0E7DC00F7DD6D /* CorrelParamsDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DDFFC7D31AC0E7DC00F7DD6D /* CorrelParamsDlg.cpp */; };
 		DDFFC7F21AC1C7CF00F7DD6D /* HighlightState.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DDFFC7EC1AC1C7CF00F7DD6D /* HighlightState.cpp */; };
+	7868C00590920455A6AA0A0A /* SpregEngine.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8C6CA1A07391F8D6CDDFC836 /* SpregEngine.cpp */; };
+	5A5D950F66B6836FE7E9AEAA /* SpregEngineDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8E6F87197DAE341DB693E4DE /* SpregEngineDlg.cpp */; };
+	C1EEC752DFF6D1080B09F1E9 /* SpregJob.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5254E0903F662C613EBC68A9 /* SpregJob.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -953,6 +956,13 @@
 		DDFFC7EF1AC1C7CF00F7DD6D /* HLStateInt.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HLStateInt.h; sourceTree = "<group>"; };
 		DDFFC7F01AC1C7CF00F7DD6D /* Observable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Observable.h; sourceTree = "<group>"; };
 		DDFFC7F11AC1C7CF00F7DD6D /* Observer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Observer.h; sourceTree = "<group>"; };
+	AD9DB3FA34EFE5499B3C2BC0 /* SpregSha256.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SpregSha256.h; sourceTree = "<group>"; };
+	9602F806BA5003393FE0AB1F /* SpregEngine.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SpregEngine.h; sourceTree = "<group>"; };
+	8C6CA1A07391F8D6CDDFC836 /* SpregEngine.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SpregEngine.cpp; sourceTree = "<group>"; };
+	B8C80201DBA3114FE3EE698F /* SpregEngineDlg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SpregEngineDlg.h; sourceTree = "<group>"; };
+	8E6F87197DAE341DB693E4DE /* SpregEngineDlg.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SpregEngineDlg.cpp; sourceTree = "<group>"; };
+	56D56A99B544BEE4CB4E3778 /* SpregJob.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SpregJob.h; sourceTree = "<group>"; };
+	5254E0903F662C613EBC68A9 /* SpregJob.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SpregJob.cpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
@@ -1440,6 +1450,8 @@
 				DD8183C61970619800228B0A /* WeightsManDlg.cpp */,
 				A1894C3D213F29DC00718FFC /* SpatialJoinDlg.cpp */,
 				A1894C3E213F29DC00718FFC /* SpatialJoinDlg.h */,
+				8E6F87197DAE341DB693E4DE /* SpregEngineDlg.cpp */,
+				B8C80201DBA3114FE3EE698F /* SpregEngineDlg.h */,
 			);
 			path = DialogTools;
 			sourceTree = "<group>";
@@ -1631,6 +1643,11 @@
 				DD7976B50F1D2CA800496A84 /* SparseVector.h */,
 				DD7976B60F1D2CA800496A84 /* Weights.cpp */,
 				DD7976B70F1D2CA800496A84 /* Weights.h */,
+				8C6CA1A07391F8D6CDDFC836 /* SpregEngine.cpp */,
+				9602F806BA5003393FE0AB1F /* SpregEngine.h */,
+				AD9DB3FA34EFE5499B3C2BC0 /* SpregSha256.h */,
+				5254E0903F662C613EBC68A9 /* SpregJob.cpp */,
+				56D56A99B544BEE4CB4E3778 /* SpregJob.h */,
 			);
 			path = Regression;
 			sourceTree = "<group>";
@@ -2137,6 +2154,9 @@
 				DD9373F71AC1FEAA0066AF21 /* PolysToContigWeights.cpp in Sources */,
 				DDCCB5CC1AD47C200067D6C4 /* SimpleBinsHistCanvas.cpp in Sources */,
 				A11B85BC1B18DC9C008B64EA /* Basemap.cpp in Sources */,
+				5A5D950F66B6836FE7E9AEAA /* SpregEngineDlg.cpp in Sources */,
+				7868C00590920455A6AA0A0A /* SpregEngine.cpp in Sources */,
+				C1EEC752DFF6D1080B09F1E9 /* SpregJob.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

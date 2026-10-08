@@ -158,6 +158,10 @@ jobs:
           if [ -d "BuildTools/CommonDistFiles/web_plugins" ]; then
             mkdir -p GeoDa.AppDir/usr/bin/web_plugins
             cp -a BuildTools/CommonDistFiles/web_plugins/. GeoDa.AppDir/usr/bin/web_plugins/
+          # the spreg engine's solver and manifest (the engine itself is downloaded on demand)
+          mkdir -p GeoDa.AppDir/usr/bin/spreg_engine
+          cp -a spreg_engine/solver GeoDa.AppDir/usr/bin/spreg_engine/solver
+          cp -a spreg_engine/manifest GeoDa.AppDir/usr/bin/spreg_engine/manifest
           fi
 
           # Bundle basemap_cache
