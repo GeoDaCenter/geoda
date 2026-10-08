@@ -72,6 +72,28 @@ def run(cmd, **kw) -> subprocess.CompletedProcess:
     return subprocess.run([str(c) for c in cmd], check=True, **kw)
 
 
+def interpreter_of(staging: Path) -> Path:
+    """The interpreter inside a staged engine.
+
+    On unix it is python/bin/python3; a Windows build has no bin/ and puts
+    python.exe at the root, which is the sort of difference that only shows up
+    when the workflow runs somewhere other than the machine it was written on.
+    """
+    for candidate in (staging / "python" / "bin" / "python3",
+                      staging / "python" / "python.exe"):
+        if candidate.exists():
+            return candidate
+    return staging / "python" / "bin" / "python3"
+
+
+def site_packages_of(staging: Path) -> Path:
+    for pattern in ("python/lib/python*/site-packages", "python/Lib/site-packages"):
+        found = next(staging.glob(pattern), None)
+        if found is not None:
+            return found
+    raise SystemExit("no site-packages under %s" % staging)
+
+
 def fetch_python(python_version: str, workdir: Path) -> Path:
     """Standalone, relocatable CPython, copied out of uv's managed store."""
     install_dir = workdir / "python-store"
@@ -85,9 +107,7 @@ def fetch_python(python_version: str, workdir: Path) -> Path:
 
 
 def prune(staging: Path) -> None:
-    site_packages = next(staging.glob("python/lib/python*/site-packages"), None)
-    if site_packages is None:
-        raise SystemExit("no site-packages under %s" % staging)
+    site_packages = site_packages_of(staging)
 
     for path in list(site_packages.rglob("*")):
         if path.is_dir() and path.name in PRUNE_DIRS:
@@ -224,9 +244,14 @@ def main() -> int:
         build = fetch_python(args.python, workdir)
         python_src = build / ("python" if (build / "python").is_dir() else ".")
         shutil.copytree(python_src, staging / "python", symlinks=False)
-        python = staging / "python" / "bin" / ("python.exe" if os.name == "nt" else "python3")
+        python = interpreter_of(staging)
         if not python.exists():
             raise SystemExit("no interpreter at %s" % python)
+        # the version that matters is the engine's, not the one running this
+        # script: the archive is named after it and the manifest expects it
+        engine_python = run([python, "-c",
+                             "import sys;print('%d.%d.%d' % sys.version_info[:3])"],
+                            capture_output=True, text=True).stdout.strip()
 
         # uv marks interpreters it manages; a shipped engine must not carry that
         for marker in staging.rglob("EXTERNALLY-MANAGED"):
@@ -251,7 +276,7 @@ def main() -> int:
             "protocol": 1,
             "solver": match.group(1) if match else "unknown",
             "spreg": spreg_version,
-            "python": platform.python_version(),
+            "python": engine_python,
             "platform": key,
             "executables": executables_list(staging),
         }
@@ -259,7 +284,9 @@ def main() -> int:
             engine["built"] = os.environ["SOURCE_DATE_EPOCH"]
         (staging / "engine.json").write_text(json.dumps(engine, indent=2) + "\n")
 
-        py_tag = "%d%d" % (sys.version_info.major, sys.version_info.minor)
+        # "3.13" -> "313": taken from what was asked for rather than from the
+        # interpreter running this script, which differs per CI runner
+        py_tag = args.python.replace(".", "")
         archive = outdir / ("geoda-spreg-%s-py%s-%s.zip" % (spreg_version, py_tag, key))
         size, unpacked, sha = write_archive(staging, archive)
 
@@ -271,7 +298,7 @@ def main() -> int:
             "size_bytes": size,
             "unpacked_bytes": unpacked,
             "format": "zip",
-            "python": platform.python_version(),
+            "python": engine_python,
             "spreg": spreg_version,
             "executables": engine["executables"],
         }
