@@ -438,13 +438,20 @@ wxString EnginesRoot()
 	// once, can point GeoDa at an engine directory of their own; the same
 	// variable makes the install path testable without a GUI.
 	wxString override_dir;
+	wxString root;
 	if (wxGetEnv("GEODA_SPREG_ENGINES", &override_dir) && !override_dir.IsEmpty()) {
-		if (!wxDirExists(override_dir)) {
-			wxFileName::Mkdir(override_dir, wxS_DIR_DEFAULT, wxPATH_MKDIR_FULL);
-		}
-		return override_dir + Sep();
+		root = override_dir;
+	} else {
+		root = UserBaseDir(true) + Sep() + "engines";
 	}
-	return UserBaseDir(true) + Sep() + "engines" + Sep();
+	// It has to exist before the first download writes into it.  The user data
+	// folder is made when GeoDa first runs; this one inside it is not, so an
+	// install used to fail on the first byte, with nothing but "could not write
+	// to <file>" to say why.
+	if (!wxDirExists(root)) {
+		wxFileName::Mkdir(root, wxS_DIR_DEFAULT, wxPATH_MKDIR_FULL);
+	}
+	return root + Sep();
 }
 
 wxString PlatformKey()
@@ -609,10 +616,20 @@ bool Download(const wxString& url, const wxString& dest, ProgressSink* sink,
 		return false;
 	}
 
+	// The directory the destination goes in is made if it is not there: an
+	// install whose engine folder was removed while GeoDa was running should not
+	// end here, and the message below can then be about the file itself.
+	const wxString dest_dir = wxFileName(dest).GetPath();
+	if (!dest_dir.IsEmpty() && !wxDirExists(dest_dir)) {
+		wxFileName::Mkdir(dest_dir, wxS_DIR_DEFAULT, wxPATH_MKDIR_FULL);
+	}
+
 	wxFile file(dest, wxFile::write);
 	if (!file.IsOpened()) {
 		curl_easy_cleanup(curl);
-		err = wxString::Format(_("Could not write to %s"), dest);
+		err = wxDirExists(dest_dir)
+			? wxString::Format(_("Could not write to %s"), dest)
+			: wxString::Format(_("There is no directory %s to download into"), dest_dir);
 		return false;
 	}
 

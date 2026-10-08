@@ -432,6 +432,24 @@ int main(int argc, char** argv)
 		check("and leaves it alone", wxFileName::DirExists(not_an_engine));
 	}
 
+	// -- downloading makes the directory it writes into ---------------------
+	// An install failed on its first byte when the engine folder was not there
+	// yet, which is the state every first install starts in: the user data
+	// folder is made when GeoDa first runs, the engines folder inside it is not.
+	{
+		const wxString fresh = scratch + "/fresh/chain";
+		if (wxFileName::DirExists(fresh)) {
+			wxFileName::Rmdir(fresh, wxPATH_RMDIR_RECURSIVE);
+		}
+		wxString fresh_err;
+		NullSink sink;
+		// the download itself cannot work - nothing listens there - but the
+		// directory has to have been made before the first byte is written
+		Download("http://127.0.0.1:9/nothing", fresh + "/probe.bin", &sink, fresh_err);
+		check("a download makes the directory it writes into",
+			  wxFileName::DirExists(fresh), fresh_err);
+	}
+
 	std::printf("\n%s\n", failures ? "FAILED" : "all checks passed");
 	return failures ? 1 : 0;
 }
