@@ -249,6 +249,23 @@ bool Writer::AddRegimes(const std::vector<int>& regimes, wxString& err)
 	return AddIntArray("regime", regimes, static_cast<int>(regimes.size()), 1, err);
 }
 
+bool Writer::AddCoords(const std::vector<double>& xs, const std::vector<double>& ys,
+					   wxString& err)
+{
+	if (xs.size() != ys.size() || xs.empty()) {
+		err = _("The two coordinate columns do not match.");
+		return false;
+	}
+	// row major, like the covariates: x of observation i at 2*i
+	std::vector<double> flat;
+	flat.reserve(xs.size() * 2);
+	for (size_t i = 0; i < xs.size(); ++i) {
+		flat.push_back(xs[i]);
+		flat.push_back(ys[i]);
+	}
+	return AddFloatArray("coords", flat, static_cast<int>(xs.size()), 2, err);
+}
+
 bool Writer::AddEndogenous(const std::vector<std::vector<double> >& yend, wxString& err)
 {
 	const int n = static_cast<int>(yend[0].size());
@@ -314,7 +331,8 @@ bool Writer::Write(const wxString& model,
 				   const wxString& y_name, const std::vector<wxString>& x_names,
 				   const wxString& weights_name, const wxString& regimes_name,
 				   const std::vector<wxString>& yend_names,
-				   const std::vector<wxString>& q_names, wxString& err)
+				   const std::vector<wxString>& q_names,
+				   const std::vector<wxString>& coords_names, wxString& err)
 {
 	if (!have_y_) { err = _("There is no dependent variable."); return false; }
 	if (!have_x_) { err = _("There are no covariates."); return false; }
@@ -366,6 +384,12 @@ bool Writer::Write(const wxString& model,
 			q.push_back(json_spirit::Pair("names", NamesToArray(q_names)));
 			q.push_back(json_spirit::Pair("array", "q"));
 			data.push_back(json_spirit::Pair("instruments", q));
+		}
+		if (!coords_names.empty()) {
+			json_spirit::Object coords;
+			coords.push_back(json_spirit::Pair("names", NamesToArray(coords_names)));
+			coords.push_back(json_spirit::Pair("array", "coords"));
+			data.push_back(json_spirit::Pair("coords", coords));
 		}
 		root.push_back(json_spirit::Pair("data", data));
 	}

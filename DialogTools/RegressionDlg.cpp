@@ -244,6 +244,9 @@ bool RegressionDlg::Create(wxWindow* parent, wxWindowID id,
 	m_spreg_regime_row = NULL;
 	m_spreg_endog_row = NULL;
 	m_spreg_instr_row = NULL;
+	m_spreg_coord_x_choice = NULL;
+	m_spreg_coord_y_choice = NULL;
+	m_spreg_coords_row = NULL;
 	m_spreg_options_row = NULL;
 	m_spreg_options_grid = NULL;
 	m_spreg_model = wxEmptyString;
@@ -350,21 +353,34 @@ void RegressionDlg::CreateControls()
 
 		m_spreg_instr_row = NULL;              // the two lists sit on one row
 
+		m_spreg_coord_x_choice = new wxChoice(models_box, wxID_ANY);
+		m_spreg_coord_y_choice = new wxChoice(models_box, wxID_ANY);
+		m_spreg_coords_row = new wxBoxSizer(wxHORIZONTAL);
+		m_spreg_coords_row->Add(new wxStaticText(models_box, wxID_ANY, _("coordinate variables:")),
+								0, wxALIGN_CENTRE_VERTICAL | wxRIGHT, 6);
+		m_spreg_coords_row->Add(m_spreg_coord_x_choice, 0, wxALIGN_CENTRE_VERTICAL | wxRIGHT, 4);
+		m_spreg_coords_row->Add(m_spreg_coord_y_choice, 0, wxALIGN_CENTRE_VERTICAL);
+		m_spreg_coord_x_choice->SetToolTip(_("The x coordinate (longitude) of each observation"));
+		m_spreg_coord_y_choice->SetToolTip(_("The y coordinate (latitude) of each observation"));
+
 		m_spreg_options_grid = new wxFlexGridSizer(2, 6, 10);   // label over control
 		m_spreg_options_row = m_spreg_options_grid;
 
 		if (box_sizer) {
 			box_sizer->Add(m_spreg_regime_row, 0, wxTOP | wxALIGN_LEFT, 6);
 			box_sizer->Add(m_spreg_endog_row, 0, wxTOP | wxEXPAND, 6);
+			box_sizer->Add(m_spreg_coords_row, 0, wxTOP | wxALIGN_LEFT, 6);
 			box_sizer->Add(m_spreg_options_row, 0, wxTOP | wxALIGN_LEFT, 6);
 			box_sizer->Show(m_spreg_regime_row, false);
 			box_sizer->Show(m_spreg_endog_row, false);
+			box_sizer->Show(m_spreg_coords_row, false);
 			box_sizer->Show(m_spreg_options_row, false);
 		}
 
 		m_install_spreg_btn->Bind(wxEVT_BUTTON, &RegressionDlg::OnInstallSpregClick, this);
 		RefreshSpregState();
 	}
+
 
 
 
@@ -464,14 +480,12 @@ void RegressionDlg::FillSpregModels(const wxString& engine_dir)
 		return;
 	}
 
-	// Everything the dialog can collect is offered: the models that want a
-	// regime variable, or endogenous variables with instruments, ask for them
-	// when they are chosen.  The coordinate based model is left out for now
-	// (there is no coordinate picker yet), and SKATER because it returns regions
-	// rather than a regression.
+	// Everything the dialog can collect is offered: a model that wants a regime
+	// variable, endogenous variables with instruments, or a pair of coordinates
+	// asks for them when it is chosen.  SKATER is left out because it returns
+	// regions rather than a regression.
 	for (size_t i = 0; i < offered.size(); ++i) {
 		const SpregJob::ModelOption& model = offered[i];
-		if (model.needs_coords) continue;
 		if (model.family == "skater") continue;
 		m_spreg_models.push_back(model);
 		// The longest labels are long enough to stretch the whole dialog, and the
@@ -585,6 +599,20 @@ void RegressionDlg::FillSpregVariables(wxWindow* parent)
 			m_spreg_regime_choice->Append(m_varlist->GetString(i));
 		}
 	}
+	if (m_spreg_coord_x_choice) {
+		const wxString keep_x = m_spreg_coord_x_choice->GetStringSelection();
+		const wxString keep_y = m_spreg_coord_y_choice->GetStringSelection();
+		m_spreg_coord_x_choice->Clear();
+		m_spreg_coord_y_choice->Clear();
+		for (unsigned i = 0; i < m_varlist->GetCount(); ++i) {
+			m_spreg_coord_x_choice->Append(m_varlist->GetString(i));
+			m_spreg_coord_y_choice->Append(m_varlist->GetString(i));
+		}
+		int index = m_spreg_coord_x_choice->FindString(keep_x);
+		m_spreg_coord_x_choice->SetSelection(index == wxNOT_FOUND ? 0 : index);
+		index = m_spreg_coord_y_choice->FindString(keep_y);
+		m_spreg_coord_y_choice->SetSelection(index == wxNOT_FOUND ? 0 : index);
+	}
 	if (m_spreg_endog_list) {
 		m_spreg_endog_list->Clear();
 		m_spreg_instr_list->Clear();
@@ -630,6 +658,8 @@ void RegressionDlg::OnSpregModelSelected(wxCommandEvent& WXUNUSED(event))
 	const bool want_endog = selection > 0
 		&& (m_spreg_models[selection - 1].needs_endog
 			|| m_spreg_models[selection - 1].needs_instruments);
+	const bool want_coords = selection > 0
+		&& m_spreg_models[selection - 1].needs_coords;
 	wxSizer* box_sizer = m_spreg_model_choice
 		? m_spreg_model_choice->GetParent()->GetSizer() : NULL;
 	if (!box_sizer && m_spreg_model_choice) {
@@ -640,6 +670,9 @@ void RegressionDlg::OnSpregModelSelected(wxCommandEvent& WXUNUSED(event))
 	}
 	if (box_sizer && m_spreg_endog_row) {
 		box_sizer->Show(m_spreg_endog_row, want_endog);
+	}
+	if (box_sizer && m_spreg_coords_row) {
+		box_sizer->Show(m_spreg_coords_row, want_coords);
 	}
 	if (box_sizer && m_spreg_options_row) {
 		box_sizer->Show(m_spreg_options_row, selection > 0);
@@ -675,6 +708,14 @@ bool RegressionDlg::RunSpregModel(wxCommandEvent& WXUNUSED(event))
 
 	m_gauge->Show();
 	UpdateMessageBox(_("calculating..."));
+
+	// whether this model needs GeoDa's weights at all: the ones that build their
+	// own from coordinates do not
+	const SpregJob::ModelOption* chosen_model = NULL;
+	for (size_t i = 0; i < m_spreg_models.size(); ++i) {
+		if (m_spreg_models[i].id == m_spreg_model) chosen_model = &m_spreg_models[i];
+	}
+	const bool wants_weights = !chosen_model || chosen_model->needs_weights;
 
 	const wxString y_display = m_dependent->GetValue();
 	if (y_display.IsEmpty() || m_independentlist->GetCount() == 0) {
@@ -748,7 +789,10 @@ bool RegressionDlg::RunSpregModel(wxCommandEvent& WXUNUSED(event))
 		return true;
 	}
 
-	if (!m_CheckWeight->GetValue()) {
+	// the ones that build their own weights from coordinates do not want these
+	const boost::uuids::uuid weights_id = GetWeightsId();
+	GalWeight* gal_weight = wants_weights ? w_man_int->GetGal(weights_id) : NULL;
+	if (wants_weights && !m_CheckWeight->GetValue()) {
 		UpdateMessageBox("");
 		m_gauge->Hide();
 		wxLogMessage("Spreg: no spatial weights matrix was chosen");
@@ -756,9 +800,7 @@ bool RegressionDlg::RunSpregModel(wxCommandEvent& WXUNUSED(event))
 					 _("Error"), wxOK | wxICON_ERROR, this);
 		return true;
 	}
-	const boost::uuids::uuid weights_id = GetWeightsId();
-	GalWeight* gal_weight = w_man_int->GetGal(weights_id);
-	if (!gal_weight || !gal_weight->gal) {
+	if (wants_weights && (!gal_weight || !gal_weight->gal)) {
 		UpdateMessageBox("");
 		m_gauge->Hide();
 		wxLogMessage("Spreg: the chosen weights matrix is gone");
@@ -813,11 +855,48 @@ bool RegressionDlg::RunSpregModel(wxCommandEvent& WXUNUSED(event))
 		if (m_spreg_models[i].id == m_spreg_model) chosen = &m_spreg_models[i];
 	}
 	wxString regimes_name;
-	std::vector<wxString> yend_names, q_names;
+	std::vector<wxString> yend_names, q_names, coords_names;
 	std::vector<std::vector<double> > yend, q;
+	std::vector<double> coord_x, coord_y;
 	std::vector<int> regimes;
 	if (chosen) {
 		std::vector<double> values;
+		if (chosen->needs_coords) {
+			const wxString x_display = m_spreg_coord_x_choice
+				? m_spreg_coord_x_choice->GetStringSelection() : wxString();
+			const wxString y_display = m_spreg_coord_y_choice
+				? m_spreg_coord_y_choice->GetStringSelection() : wxString();
+			if (x_display.IsEmpty() || y_display.IsEmpty() || x_display == y_display) {
+				UpdateMessageBox("");
+				m_gauge->Hide();
+				wxMessageBox(_("This model builds its own weights from coordinates.  Please "
+							   "choose the x and the y column."), _("Error"),
+							 wxOK | wxICON_ERROR, this);
+				return true;
+			}
+			const char* which[2] = { "x", "y" };
+			const wxString displays[2] = { x_display, y_display };
+			for (int c = 0; c < 2; ++c) {
+				const wxString display = displays[c];
+				const int col = table_int->FindColId(name_to_nm[display]);
+				if (col == wxNOT_FOUND) {
+					UpdateMessageBox("");
+					m_gauge->Hide();
+					wxMessageBox(_("A coordinate variable is no longer in the table."),
+								 _("Error"), wxOK | wxICON_ERROR, this);
+					return true;
+				}
+				table_int->GetColData(col, name_to_tm_id[display], values);
+				std::vector<double>& target = c == 0 ? coord_x : coord_y;
+				target.reserve(n_valid);
+				for (int i = 0; i < n_valid; ++i) {
+					if (undefs_local[valid_rows[i]]) continue;
+					target.push_back(values[valid_rows[i]]);
+				}
+				coords_names.push_back(name_to_nm[display]);
+				(void) which;
+			}
+		}
 		if (chosen->needs_regimes) {
 			const wxString display = m_spreg_regime_choice
 				? m_spreg_regime_choice->GetStringSelection() : wxString();
@@ -887,7 +966,7 @@ bool RegressionDlg::RunSpregModel(wxCommandEvent& WXUNUSED(event))
 	SpregJob::Writer writer(job_dir);
 	bool ok = writer.AddY(y, err);
 	if (ok) ok = writer.AddX(x, err);
-	if (ok) {
+	if (ok && wants_weights) {
 		if (n_valid == static_cast<int>(m_obs)) {
 			ok = writer.AddWeights(gal_weight->gal, n_valid, err);
 		} else {
@@ -921,13 +1000,15 @@ bool RegressionDlg::RunSpregModel(wxCommandEvent& WXUNUSED(event))
 		return true;
 	}
 
+	if (ok && !coord_x.empty()) ok = writer.AddCoords(coord_x, coord_y, err);
 	if (ok && !regimes.empty()) ok = writer.AddRegimes(regimes, err);
 	if (ok && !yend.empty()) ok = writer.AddEndogenous(yend, err);
 	if (ok && !q.empty()) ok = writer.AddInstruments(q, err);
 	if (ok) {
 		ok = writer.Write(m_spreg_model, options, name_to_nm[y_display], x_names,
-						  w_man_int->GetLongDispName(weights_id), regimes_name,
-						  yend_names, q_names, err);
+						  wants_weights ? w_man_int->GetLongDispName(weights_id)
+										: wxString("built from the coordinates"),
+						  regimes_name, yend_names, q_names, coords_names, err);
 	}
 	if (!ok) {
 		UpdateMessageBox("");
@@ -963,7 +1044,8 @@ bool RegressionDlg::RunSpregModel(wxCommandEvent& WXUNUSED(event))
 	}
 
 	ShowSpregResults(result, table_int->GetTableName(),
-					 w_man_int->GetLongDispName(weights_id));
+					 wants_weights ? w_man_int->GetLongDispName(weights_id)
+								   : _("built from the coordinates"));
 
 	m_spreg_result = result;
 	m_spreg_yhat = result.yhat;

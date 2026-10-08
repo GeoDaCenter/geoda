@@ -350,9 +350,11 @@ Decisions worth knowing:
   from the cache, against about 1.6 s when it has to ask the engine.
 * The variables some of the engine's models need are collected where they are
   needed: choosing a model with regimes reveals a picker for the regime
-  variable, and choosing one with endogenous variables reveals the two lists for
-  them and for their instruments.  Which row appears is decided by the model
-  registry, not by a list written here.
+  variable, choosing one with endogenous variables reveals the two lists for them
+  and for their instruments, and choosing one that builds its weights from
+  coordinates - which then needs no GeoDa weights at all - reveals a pair of
+  coordinate pickers.  Which row appears is decided by the model registry, not by
+  a list written here.
 * *Save to Table* works for the engine's models too: predicted values,
   residuals and (where the model reports them) prediction errors, as
   `SPR_PREDIC`, `SPR_RESIDU` and `SPR_PRDERR` - `SPR_` because a shapefile field

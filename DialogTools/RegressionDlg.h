@@ -129,6 +129,10 @@ public:
 	wxChoice* m_spreg_regime_choice;
 	wxListBox* m_spreg_endog_list;
 	wxListBox* m_spreg_instr_list;
+	// the models that build their own weights from coordinates ask for a pair
+	wxChoice* m_spreg_coord_x_choice;
+	wxChoice* m_spreg_coord_y_choice;
+	wxSizer* m_spreg_coords_row;
 	wxSizer* m_spreg_regime_row;
 	wxSizer* m_spreg_endog_row;
 	wxSizer* m_spreg_instr_row;

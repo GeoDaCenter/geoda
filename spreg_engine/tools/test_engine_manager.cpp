@@ -186,9 +186,9 @@ int main(int argc, char** argv)
 		std::map<wxString, wxString> options;
 		if (wxString(argc > 4 ? argv[4] : "OLS") == "ML_Lag") options["method"] = "LU";
 		ok = ok && writer.Write(wxString(argc > 4 ? argv[4] : "OLS"), options,
-								"y", x_names, "grid-rook", "", 
+								"y", x_names, "grid-rook", "",
 								std::vector<wxString>(), std::vector<wxString>(),
-								job_err);
+								std::vector<wxString>(), job_err);
 		check("the job is written", ok, job_err);
 
 		wxString run_output, run_err;

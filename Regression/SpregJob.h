@@ -55,6 +55,9 @@ public:
 					const std::vector<double>& values, int n, wxString& err);
 	/** A regime membership variable, one id per observation (a "regimes" model). */
 	bool AddRegimes(const std::vector<int>& regimes, wxString& err);
+	/** The two coordinate columns, n by 2, for the models that build W from them. */
+	bool AddCoords(const std::vector<double>& xs, const std::vector<double>& ys,
+				   wxString& err);
 	/** Endogenous variables and their instruments, n by q, for the IV models. */
 	bool AddEndogenous(const std::vector<std::vector<double> >& yend, wxString& err);
 	bool AddInstruments(const std::vector<std::vector<double> >& q, wxString& err);
@@ -69,7 +72,8 @@ public:
 			   const wxString& y_name, const std::vector<wxString>& x_names,
 			   const wxString& weights_name, const wxString& regimes_name,
 			   const std::vector<wxString>& yend_names,
-			   const std::vector<wxString>& q_names, wxString& err);
+			   const std::vector<wxString>& q_names,
+			   const std::vector<wxString>& coords_names, wxString& err);
 
 	const wxString& path() const { return dir_; }
 
