@@ -213,6 +213,28 @@ wxSizer* FindSizerOfStaticBox(wxSizer* sizer, wxWindow* box)
 	return NULL;
 }
 
+/**
+ * Reparents every window a sizer lays out.
+ *
+ * A window is shown on whichever window is its parent, whatever the sizer says,
+ * so moving a page of controls from the Models box into a notebook page - which
+ * is what happens to the three models XRC put there - means walking its sizers
+ * and reparenting the controls they hold.
+ */
+void ReparentSizerWindows(wxSizer* sizer, wxWindow* parent)
+{
+	if (!sizer || !parent) return;
+	for (size_t i = 0; i < sizer->GetItemCount(); ++i) {
+		wxSizerItem* item = sizer->GetItem(i);
+		if (!item) continue;
+		if (wxWindow* window = item->GetWindow()) {
+			if (window->GetParent() != parent) window->Reparent(parent);
+		} else {
+			ReparentSizerWindows(item->GetSizer(), parent);
+		}
+	}
+}
+
 } // namespace
 
 bool RegressionDlg::Create(wxWindow* parent, wxWindowID id,
@@ -295,68 +317,106 @@ void RegressionDlg::CreateControls()
 
 
 	// The engine behind the advanced models is installed on demand, so the
-	// button that installs it is added here rather than to dialogs.xrc: a new
+	// controls that belong to it are built here rather than in dialogs.xrc: a new
 	// control there would mean regenerating rc/GdaAppResources.cpp, and a
-	// different wxrc rewrites thirteen thousand lines of it.  It goes inside
-	// the Models box, where the models it enables will live.
+	// different wxrc rewrites thirteen thousand lines of it.
+	//
+	// The Models box holds two pages, so which models are being set up shows in
+	// the tab that is open rather than in knowing which controls belong to which
+	// model: GeoDa's own three on "Default", the engine's on "Spreg".
 	if (m_radio1 && m_radio1->GetParent()) {
 		wxWindow* models_box = m_radio1->GetParent();
 		// the box has no sizer of its own when the dialog came from XRC; the
 		// StaticBoxSizer sits in the dialog's sizer tree instead
 		wxSizer* box_sizer = models_box ? models_box->GetSizer() : NULL;
 		if (!box_sizer) box_sizer = FindSizerOfStaticBox(GetSizer(), models_box);
-		m_install_spreg_btn = new wxButton(models_box, wxID_ANY, _("Install Spreg"));
-		m_spreg_status = new wxStaticText(models_box, wxID_ANY, wxEmptyString);
-		wxBoxSizer* row = new wxBoxSizer(wxHORIZONTAL);
-		row->Add(m_install_spreg_btn, 0, wxALIGN_CENTRE_VERTICAL);
-		row->Add(m_spreg_status, 0, wxALIGN_CENTRE_VERTICAL | wxLEFT, 10);
-		if (box_sizer) {
-			box_sizer->Add(row, 0, wxTOP | wxALIGN_LEFT, 8);
+
+		// what XRC laid out inside the box becomes the first page, sizer and all
+		wxSizerItem* native_item = (box_sizer && box_sizer->GetItemCount() > 0)
+			? box_sizer->GetItem(static_cast<size_t>(0)) : NULL;
+		wxSizer* native_sizer = native_item ? native_item->GetSizer() : NULL;
+		if (native_sizer) box_sizer->Detach(native_sizer);
+
+		m_models_notebook = new wxNotebook(models_box, wxID_ANY);
+		wxPanel* default_page = new wxPanel(m_models_notebook, wxID_ANY);
+		m_spreg_page = new wxPanel(m_models_notebook, wxID_ANY);
+		m_models_notebook->AddPage(default_page, _("Default"), true);
+		m_models_notebook->AddPage(m_spreg_page, _("Spreg"));
+		if (box_sizer) box_sizer->Add(m_models_notebook, 1, wxEXPAND | wxTOP, 4);
+
+		if (native_sizer) {
+			ReparentSizerWindows(native_sizer, default_page);
+			wxBoxSizer* default_sizer = new wxBoxSizer(wxVERTICAL);
+			default_sizer->Add(native_sizer, 1, wxALL | wxEXPAND, 6);
+			default_page->SetSizer(default_sizer);
 		}
-		wxBoxSizer* model_row = new wxBoxSizer(wxHORIZONTAL);
-		m_spreg_model_choice = new wxChoice(models_box, wxID_ANY);
-		wxStaticText* model_label = new wxStaticText(models_box, wxID_ANY, _("spreg model:"));
-		model_row->Add(model_label, 0, wxALIGN_CENTRE_VERTICAL | wxRIGHT, 6);
-		model_row->Add(m_spreg_model_choice, 0, wxALIGN_CENTRE_VERTICAL);
-		if (box_sizer) {
-			box_sizer->Add(model_row, 0, wxTOP | wxALIGN_LEFT, 6);
-		}
+
+		wxBoxSizer* spreg_sizer = new wxBoxSizer(wxVERTICAL);
+		m_spreg_page->SetSizer(spreg_sizer);
+
+		m_install_spreg_btn = new wxButton(m_spreg_page, wxID_ANY, _("Install Spreg"));
+		spreg_sizer->Add(m_install_spreg_btn, 0, wxLEFT | wxRIGHT | wxTOP | wxALIGN_LEFT, 6);
+
+		// What the state of the engine is, and once a model is chosen what it is:
+		// on a line of its own rather than beside the button, so that it starts in
+		// the same column as everything else and has the width of the page - and
+		// is still there, in the same place, once the button has gone.
+		m_spreg_status = new wxStaticText(m_spreg_page, wxID_ANY, wxEmptyString);
+		// in the secondary colour, as a line of explanation is: it says what the
+		// state of the engine is, or what the chosen model will do, and it has to
+		// not read as though it were part of the label below it
+		m_spreg_status->SetForegroundColour(
+			wxSystemSettings::GetColour(wxSYS_COLOUR_GRAYTEXT));
+		spreg_sizer->Add(m_spreg_status, 0,
+						 wxLEFT | wxRIGHT | wxTOP | wxBOTTOM | wxALIGN_LEFT, 6);
+
+		// The model list gets a row of its own, its label above it as the options
+		// further down have theirs.  Put beside it, the label would line up with
+		// the Install button's frame rather than with its text, and the two rows
+		// then read as not aligned - a button and a choice inset their text the
+		// same way, so lining the two controls up lines their text up too.
+		wxBoxSizer* model_row = new wxBoxSizer(wxVERTICAL);
+		m_spreg_model_choice = new wxChoice(m_spreg_page, wxID_ANY);
+		model_row->Add(new wxStaticText(m_spreg_page, wxID_ANY, _("spreg model:")),
+					   0, wxBOTTOM, 2);
+		model_row->Add(m_spreg_model_choice, 0);
+		spreg_sizer->Add(model_row, 0, wxLEFT | wxRIGHT | wxBOTTOM | wxALIGN_LEFT, 6);
 		m_spreg_model_choice->Bind(wxEVT_CHOICE, &RegressionDlg::OnSpregModelSelected, this);
 
 		// The rows for the extra variables stay hidden until a model that needs
 		// them is chosen; all three draw their names from the variables list
 		// above, so the user picks from what is in the table.
-		m_spreg_regime_choice = new wxChoice(models_box, wxID_ANY);
-		m_spreg_endog_list = new wxListBox(models_box, wxID_ANY, wxDefaultPosition,
+		m_spreg_regime_choice = new wxChoice(m_spreg_page, wxID_ANY);
+		m_spreg_endog_list = new wxListBox(m_spreg_page, wxID_ANY, wxDefaultPosition,
 										  wxSize(-1, 60), 0, NULL, wxLB_EXTENDED);
-		m_spreg_instr_list = new wxListBox(models_box, wxID_ANY, wxDefaultPosition,
+		m_spreg_instr_list = new wxListBox(m_spreg_page, wxID_ANY, wxDefaultPosition,
 										  wxSize(-1, 60), 0, NULL, wxLB_EXTENDED);
 
 		m_spreg_regime_row = new wxBoxSizer(wxHORIZONTAL);
-		wxStaticText* regime_label = new wxStaticText(models_box, wxID_ANY, _("regime variable:"));
+		wxStaticText* regime_label = new wxStaticText(m_spreg_page, wxID_ANY, _("regime variable:"));
 		m_spreg_regime_row->Add(regime_label, 0, wxALIGN_CENTRE_VERTICAL | wxRIGHT, 6);
 		m_spreg_regime_row->Add(m_spreg_regime_choice, 0, wxALIGN_CENTRE_VERTICAL);
 
 		m_spreg_endog_row = new wxBoxSizer(wxHORIZONTAL);
 		wxBoxSizer* endog_col = new wxBoxSizer(wxVERTICAL);
-		endog_col->Add(new wxStaticText(models_box, wxID_ANY, _("endogenous variables:")),
+		endog_col->Add(new wxStaticText(m_spreg_page, wxID_ANY, _("endogenous variables:")),
 					   0, wxBOTTOM, 2);
 		wxBoxSizer* endog_lists = new wxBoxSizer(wxHORIZONTAL);
 		endog_lists->Add(m_spreg_endog_list, 1, wxRIGHT, 10);
 		endog_col->Add(endog_lists, 1, wxEXPAND);
 		m_spreg_endog_row->Add(endog_col, 1, wxEXPAND);
 		wxBoxSizer* instr_col = new wxBoxSizer(wxVERTICAL);
-		instr_col->Add(new wxStaticText(models_box, wxID_ANY, _("instruments:")),
+		instr_col->Add(new wxStaticText(m_spreg_page, wxID_ANY, _("instruments:")),
 					   0, wxBOTTOM, 2);
 		instr_col->Add(m_spreg_instr_list, 1, wxEXPAND);
 		m_spreg_endog_row->Add(instr_col, 1, wxEXPAND);
 
 		m_spreg_instr_row = NULL;              // the two lists sit on one row
 
-		m_spreg_coord_x_choice = new wxChoice(models_box, wxID_ANY);
-		m_spreg_coord_y_choice = new wxChoice(models_box, wxID_ANY);
+		m_spreg_coord_x_choice = new wxChoice(m_spreg_page, wxID_ANY);
+		m_spreg_coord_y_choice = new wxChoice(m_spreg_page, wxID_ANY);
 		m_spreg_coords_row = new wxBoxSizer(wxHORIZONTAL);
-		m_spreg_coords_row->Add(new wxStaticText(models_box, wxID_ANY, _("coordinate variables:")),
+		m_spreg_coords_row->Add(new wxStaticText(m_spreg_page, wxID_ANY, _("coordinate variables:")),
 								0, wxALIGN_CENTRE_VERTICAL | wxRIGHT, 6);
 		m_spreg_coords_row->Add(m_spreg_coord_x_choice, 0, wxALIGN_CENTRE_VERTICAL | wxRIGHT, 4);
 		m_spreg_coords_row->Add(m_spreg_coord_y_choice, 0, wxALIGN_CENTRE_VERTICAL);
@@ -366,25 +426,21 @@ void RegressionDlg::CreateControls()
 		m_spreg_options_grid = new wxFlexGridSizer(2, 6, 10);   // label over control
 		m_spreg_options_row = m_spreg_options_grid;
 
-		if (box_sizer) {
-			box_sizer->Add(m_spreg_regime_row, 0, wxTOP | wxALIGN_LEFT, 6);
-			box_sizer->Add(m_spreg_endog_row, 0, wxTOP | wxEXPAND, 6);
-			box_sizer->Add(m_spreg_coords_row, 0, wxTOP | wxALIGN_LEFT, 6);
-			box_sizer->Add(m_spreg_options_row, 0, wxTOP | wxALIGN_LEFT, 6);
-			box_sizer->Show(m_spreg_regime_row, false);
-			box_sizer->Show(m_spreg_endog_row, false);
-			box_sizer->Show(m_spreg_coords_row, false);
-			box_sizer->Show(m_spreg_options_row, false);
-		}
+		spreg_sizer->Add(m_spreg_regime_row, 0, wxLEFT | wxRIGHT | wxBOTTOM | wxALIGN_LEFT, 6);
+		spreg_sizer->Add(m_spreg_endog_row, 0, wxLEFT | wxRIGHT | wxBOTTOM | wxEXPAND, 6);
+		spreg_sizer->Add(m_spreg_coords_row, 0, wxLEFT | wxRIGHT | wxBOTTOM | wxALIGN_LEFT, 6);
+		spreg_sizer->Add(m_spreg_options_row, 0, wxLEFT | wxRIGHT | wxBOTTOM | wxALIGN_LEFT, 6);
+		spreg_sizer->Show(m_spreg_regime_row, false);
+		spreg_sizer->Show(m_spreg_endog_row, false);
+		spreg_sizer->Show(m_spreg_coords_row, false);
+		spreg_sizer->Show(m_spreg_options_row, false);
 
 		m_install_spreg_btn->Bind(wxEVT_BUTTON, &RegressionDlg::OnInstallSpregClick, this);
 		RefreshSpregState();
+		// the tab bar takes room the dialog was not laid out with; grow if the
+		// pages now need more than it has
+		GrowToFit();
 	}
-
-
-
-
-
 
 
 
@@ -407,7 +463,7 @@ void RegressionDlg::RefreshSpregState()
 	m_spreg_installed = status.installed;
 	if (status.installed) {
 		m_spreg_status->SetLabel(wxString::Format(_("spreg %s ready"), status.version));
-		m_spreg_status->Wrap(300);
+		WrapSpregStatus();
 		m_install_spreg_btn->Hide();
 		// The model list costs a Python start, so it is fetched once the dialog
 		// is up rather than while it is being built - otherwise opening the
@@ -425,7 +481,7 @@ void RegressionDlg::RefreshSpregState()
 		m_spreg_status->SetLabel(have_manifest
 			? _("Regimes, spatial Durbin, GMM/IV and probit models need this")
 			: _("The advanced models are not available in this build"));
-		m_spreg_status->Wrap(300);
+		WrapSpregStatus();
 		m_install_spreg_btn->Show();
 		m_install_spreg_btn->Enable(have_manifest);
 		if (m_spreg_model_choice) {
@@ -499,6 +555,7 @@ void RegressionDlg::FillSpregModels(const wxString& engine_dir)
 	}
 	m_spreg_model_choice->SetSelection(0);
 	m_spreg_model_choice->Enable(!m_spreg_models.empty());
+
 }
 
 void RegressionDlg::FillSpregOptions(wxWindow* parent,
@@ -632,7 +689,7 @@ void RegressionDlg::OnSpregModelSelected(wxCommandEvent& WXUNUSED(event))
 		if (m_spreg_status) {
 			m_spreg_status->SetLabel(m_spreg_installed
 				? wxString(_("the models above are GeoDa's own")) : wxString());
-			m_spreg_status->Wrap(300);
+			WrapSpregStatus();
 		}
 	} else {
 		const SpregJob::ModelOption& model = m_spreg_models[selection - 1];
@@ -644,7 +701,7 @@ void RegressionDlg::OnSpregModelSelected(wxCommandEvent& WXUNUSED(event))
 				hint << _("; the dependent variable must be 0 or 1");
 			}
 			m_spreg_status->SetLabel(hint);
-			m_spreg_status->Wrap(300);
+			WrapSpregStatus();
 		}
 		if (m_spreg_model_choice) {
 			m_spreg_model_choice->SetToolTip(model.label + "  (" + model.id + ")");
@@ -662,36 +719,50 @@ void RegressionDlg::OnSpregModelSelected(wxCommandEvent& WXUNUSED(event))
 			|| m_spreg_models[selection - 1].needs_instruments);
 	const bool want_coords = selection > 0
 		&& m_spreg_models[selection - 1].needs_coords;
-	wxSizer* box_sizer = m_spreg_model_choice
-		? m_spreg_model_choice->GetParent()->GetSizer() : NULL;
-	if (!box_sizer && m_spreg_model_choice) {
-		box_sizer = FindSizerOfStaticBox(GetSizer(), m_spreg_model_choice->GetParent());
+	// the rows live on the engine's page, so that is the sizer to show them in
+	wxSizer* page_sizer = m_spreg_page ? m_spreg_page->GetSizer() : NULL;
+	if (page_sizer && m_spreg_regime_row) {
+		page_sizer->Show(m_spreg_regime_row, want_regime);
 	}
-	if (box_sizer && m_spreg_regime_row) {
-		box_sizer->Show(m_spreg_regime_row, want_regime);
+	if (page_sizer && m_spreg_endog_row) {
+		page_sizer->Show(m_spreg_endog_row, want_endog);
 	}
-	if (box_sizer && m_spreg_endog_row) {
-		box_sizer->Show(m_spreg_endog_row, want_endog);
+	if (page_sizer && m_spreg_coords_row) {
+		page_sizer->Show(m_spreg_coords_row, want_coords);
 	}
-	if (box_sizer && m_spreg_coords_row) {
-		box_sizer->Show(m_spreg_coords_row, want_coords);
+	if (page_sizer && m_spreg_options_row) {
+		page_sizer->Show(m_spreg_options_row, selection > 0);
 	}
-	if (box_sizer && m_spreg_options_row) {
-		box_sizer->Show(m_spreg_options_row, selection > 0);
-	}
+	if (m_spreg_page) m_spreg_page->Layout();
 	Layout();
+	GrowToFit();
+}
+
+void RegressionDlg::WrapSpregStatus()
+{
+	// The status line has a row of its own, and it may use the width of the page
+	// and no more: wrapped to a width the page does not have, its text runs to the
+	// edge of the box and is cut off there.  Before the page has been laid out its
+	// width is not known yet, and 400 fits whatever the dialog's.
+	if (!m_spreg_status) return;
+	const int page = m_spreg_page ? m_spreg_page->GetClientSize().x : 0;
+	const int room = page - 16;                  // the row's own borders
+	m_spreg_status->Wrap(room > 120 ? room : 400);
+}
+
+void RegressionDlg::GrowToFit()
+{
+	WrapSpregStatus();
 	// the controls the engine brings can need more room than the dialog has;
 	// grow to fit them, but never past the screen
-	{
-		const wxSize best = GetBestSize();
-		wxSize wanted = GetSize();
-		if (best.x > wanted.x) wanted.x = best.x;
-		if (best.y > wanted.y) wanted.y = best.y;
-		const wxRect screen = wxGetClientDisplayRect();
-		if (wanted.x > screen.width - 40) wanted.x = screen.width - 40;
-		if (wanted.y > screen.height - 60) wanted.y = screen.height - 60;
-		if (wanted != GetSize()) SetSize(wanted);
-	}
+	const wxSize best = GetBestSize();
+	wxSize wanted = GetSize();
+	if (best.x > wanted.x) wanted.x = best.x;
+	if (best.y > wanted.y) wanted.y = best.y;
+	const wxRect screen = wxGetClientDisplayRect();
+	if (wanted.x > screen.width - 40) wanted.x = screen.width - 40;
+	if (wanted.y > screen.height - 60) wanted.y = screen.height - 60;
+	if (wanted != GetSize()) SetSize(wanted);
 }
 
 /**
