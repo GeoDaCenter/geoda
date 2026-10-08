@@ -138,7 +138,7 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y --no-install-recommends \
-            libwxgtk3.0-gtk3-dev libcurl4-openssl-dev libboost-dev
+            libwxgtk3.0-gtk3-dev libcurl4-openssl-dev libboost-dev xvfb
 
       - name: LAPACK, as the application links it
         run: |
@@ -164,7 +164,15 @@ jobs:
         env:
           GEODA_CLAPACK_PATH: /tmp/clapack/CLAPACK-3.2.1
           GEODA_JSON_SPIRIT_SRC: /tmp/json_spirit/json_spirit_v4.08
-        run: spreg_engine/tools/run_parity_test.sh /tmp/engine
+        # the test links wxGTK for wxString and wxFileName, and initialising it
+        # wants a display; the numbers themselves need no window, so a virtual
+        # one is enough
+        run: |
+          if command -v xvfb-run >/dev/null; then
+            xvfb-run -a spreg_engine/tools/run_parity_test.sh /tmp/engine
+          else
+            spreg_engine/tools/run_parity_test.sh /tmp/engine
+          fi
 
   release:
     needs: build
