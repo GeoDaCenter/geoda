@@ -130,7 +130,7 @@ jobs:
     # by hand on a dispatch
     if: (github.event_name == 'workflow_dispatch' && inputs.parity) || startsWith(github.ref, 'refs/tags/spreg-engine-v')
     runs-on: ubuntu-22.04
-    timeout-minutes: 30
+    timeout-minutes: 45              # CLAPACK is compiled here before the test runs
     defaults:
       run:
         working-directory: .            # this one is not spreg_engine-relative
@@ -143,11 +143,26 @@ jobs:
           sudo apt-get install -y --no-install-recommends \
             libwxgtk3.0-gtk3-dev libcurl4-openssl-dev libboost-dev xvfb
 
+      # The engine is compiled against the same CLAPACK the application links,
+      # not against the system LAPACK: f2c's integers are 64-bit where the
+      # Fortran ABI's are 32-bit, so the two are not interchangeable.  The
+      # published tarball is sources, so build it as BuildTools/ubuntu/
+      # build_disco.sh builds it - without the INSTALL test binaries and tmglib,
+      # which the comparison does not link.
       - name: LAPACK, as the application links it
         run: |
           curl -sL -o /tmp/clapack.tgz \
             https://github.com/GeoDaCenter/software/releases/download/v2000/clapack.tgz
           mkdir -p /tmp/clapack && tar xzf /tmp/clapack.tgz -C /tmp/clapack
+          cd /tmp/clapack/CLAPACK-3.2.1
+          cp make.inc.example make.inc
+          make -j"$(nproc)" f2clib
+          cp F2CLIBS/libf2c.a .
+          make -j"$(nproc)" blaslib
+          make -j"$(nproc)" -C SRC
+          mv -f blas_LINUX.a blas.a
+          mv -f lapack_LINUX.a lapack.a
+          ls -l lapack.a blas.a libf2c.a
 
       - name: json_spirit
         run: |

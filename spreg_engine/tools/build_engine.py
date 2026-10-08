@@ -9,7 +9,10 @@ What it does, per platform:
   1. fetch a standalone, relocatable CPython (python-build-standalone, via `uv`);
   2. install the hash-pinned wheel set from solver/requirements.lock into it;
   3. prune caches and test suites, then byte-compile with hash-based
-     invalidation so the archive stays byte-for-byte reproducible;
+     invalidation, which keeps the archive close to reproducible: two builds of
+     the same version come out the same size and differ, if at all, in a couple
+     of site-packages .pyc - so the sha256 in the manifest describes the build
+     that was published, not a build that is expected to repeat;
   4. write engine.json (versions, protocol, executable list) and collect the
      bundled packages' licences;
   5. zip it with fixed timestamps and print the sha256 to put in the manifest.
@@ -52,6 +55,14 @@ FIXED_DATE = (1980, 1, 1, 0, 0, 0)
 PRUNE_DIRS = ["__pycache__", "tests", "test", "testing", "doc", "docs", "benchmarks",
               "examples", "scripts"]
 PRUNE_FILES = ["*.pyc", "*.pyo", "*.a", "*.lib", "*.pdb", "*.c", "*.h", "*.pxd", "*.pyx"]
+
+# Asking the engine interpreter a question - its version, its site-packages -
+# imports sysconfig, which leaves the stdlib .pyc files it compiled behind.  Those
+# are written with the default (timestamp) invalidation and, worse, with whatever
+# string hash the interpreter was given, so a handful of modules that marshal a
+# frozenset differ from build to build and the archive stops being reproducible.
+# The probes want an answer, not artifacts.
+PROBE_ENV = {"PYTHONDONTWRITEBYTECODE": "1", "PYTHONHASHSEED": "0"}
 
 
 def platform_key() -> str:
@@ -152,15 +163,41 @@ def collect_licenses(site_packages: Path, target: Path) -> None:
 
 
 def compile_bytecode(python: Path, site_packages: Path) -> None:
-    """Hash-invalidated .pyc: deterministic bytes, fast cold start.
+    """Hash-invalidated .pyc: fast cold start, and as repeatable as we can get.
 
     PYTHONHASHSEED matters: a handful of modules marshal a frozenset, whose
     iteration order otherwise follows the randomized string hash, which would
     make those .pyc files - and so the archive - differ from build to build.
+    Even with it pinned, two builds of the same version are not bit-identical:
+    the last time this was measured, sklearn's _stochastic_gradient and a scipy
+    tests module came out 30 and 50 bytes apart, with the same source and the
+    same interpreter.  Nothing reads them except the import system, so the
+    archives are interchangeable; it does mean the manifest's sha256 has to be
+    taken from the build that was published, which is what CI does.
     """
     run([python, "-m", "compileall", "-q", "-j", str(os.cpu_count() or 2),
          "--invalidation-mode", "unchecked-hash", str(site_packages)],
         env={**os.environ, "PYTHONDONTWRITEBYTECODE": "1", "PYTHONHASHSEED": "0"})
+
+
+def drop_stray_bytecode(staging: Path, site_packages: Path) -> None:
+    """Delete __pycache__ from everywhere but site-packages.
+
+    python-build-standalone ships no bytecode for the standard library, so any
+    that turns up under python/lib came from this build - uv runs the interpreter
+    too - and is both unreproducible and beside the point: compiling a couple of
+    dozen stdlib modules costs the engine a few milliseconds on its first run.
+    """
+    site = str(site_packages.resolve())
+    removed = 0
+    for path in sorted(staging.rglob("__pycache__"), reverse=True):
+        if str(path.resolve()).startswith(site):
+            continue
+        shutil.rmtree(path, ignore_errors=True)
+        removed += 1
+    if removed:
+        print("   dropped %d stray __pycache__ director%s outside site-packages"
+              % (removed, "y" if removed == 1 else "ies"))
 
 
 def write_archive(staging: Path, outfile: Path) -> tuple[int, int, str]:
@@ -251,7 +288,8 @@ def main() -> int:
         # script: the archive is named after it and the manifest expects it
         engine_python = run([python, "-c",
                              "import sys;print('%d.%d.%d' % sys.version_info[:3])"],
-                            capture_output=True, text=True).stdout.strip()
+                            capture_output=True, text=True,
+                            env={**os.environ, **PROBE_ENV}).stdout.strip()
 
         # uv marks interpreters it manages; a shipped engine must not carry that
         for marker in staging.rglob("EXTERNALLY-MANAGED"):
@@ -262,12 +300,14 @@ def main() -> int:
              "--only-binary", ":all:", "--no-compile", "-r", str(requirements)])
         site_packages = Path(run([python, "-c",
                                    "import sysconfig;print(sysconfig.get_paths()['purelib'])"
-                                   ], capture_output=True, text=True).stdout.strip())
+                                   ], capture_output=True, text=True,
+                                  env={**os.environ, **PROBE_ENV}).stdout.strip())
         print("   site-packages: %s" % site_packages)
 
         prune(staging)
         if not args.no_bytecode:
             compile_bytecode(python, site_packages)
+        drop_stray_bytecode(staging, site_packages)
         collect_licenses(site_packages, staging / "licenses")
 
         match = re.search(r'SOLVER_VERSION\s*=\s*"([^"]+)"', (SOLVER / "solve.py").read_text())
