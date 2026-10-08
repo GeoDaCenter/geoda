@@ -147,8 +147,8 @@ jobs:
       # not against the system LAPACK: f2c's integers are 64-bit where the
       # Fortran ABI's are 32-bit, so the two are not interchangeable.  The
       # published tarball is sources, so build it as BuildTools/ubuntu/
-      # build_disco.sh builds it - without the INSTALL test binaries and tmglib,
-      # which the comparison does not link.
+      # build_disco.sh builds it.  INSTALL is not optional even though this
+      # links none of its tests: SRC takes lsame.o from it.
       - name: LAPACK, as the application links it
         run: |
           curl -sL -o /tmp/clapack.tgz \
@@ -156,9 +156,14 @@ jobs:
           mkdir -p /tmp/clapack && tar xzf /tmp/clapack.tgz -C /tmp/clapack
           cd /tmp/clapack/CLAPACK-3.2.1
           cp make.inc.example make.inc
+          # CLAPACK's BLAS calls printf without including stdio.h.  gcc 11, which
+          # is what a 22.04 runner has, warns; a newer compiler makes it an
+          # error, and this flag is a no-op either way.
+          sed -i 's|^CFLAGS    = -O3 -I$(TOPDIR)/INCLUDE|& -Wno-implicit-function-declaration|' make.inc
           make -j"$(nproc)" f2clib
           cp F2CLIBS/libf2c.a .
           make -j"$(nproc)" blaslib
+          make -j"$(nproc)" -C INSTALL
           make -j"$(nproc)" -C SRC
           mv -f blas_LINUX.a blas.a
           mv -f lapack_LINUX.a lapack.a
