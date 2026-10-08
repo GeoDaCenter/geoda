@@ -43,7 +43,14 @@ const char* kFloat64 = "f8";
 const char* kInt64 = "i8";
 const char* kInt32 = "i4";
 
-std::string ToUtf8(const wxString& text) { return text.ToStdString(wxConvUTF8); }
+// mb_str(wxConvUTF8), not ToStdString(wxConvUTF8): the ToStdString overload that
+// takes a conversion exists only from wxWidgets 3.2, and this file is also built
+// against 3.0 - the distribution's wxGTK, which is what the parity test links.
+std::string ToUtf8(const wxString& text)
+{
+	const wxCharBuffer bytes = text.mb_str(wxConvUTF8);
+	return std::string(bytes.data(), bytes.length());
+}
 
 const json_spirit::Value* FindMember(const json_spirit::Object& obj,
 									 const char* name)
@@ -767,12 +774,12 @@ bool ListModels(const wxString& engine_dir, std::vector<ModelOption>& models,
 
 	wxString text;
 	if (!RunSolverCommand(engine_dir, "--list-models", text, err, 120)) return false;
-	if (!ParseModels(text.ToStdString(wxConvUTF8), models, err)) return false;
+	if (!ParseModels(ToUtf8(text), models, err)) return false;
 
 	// keep it for next time; a failure here is not worth bothering anyone about
 	wxFile cache(ModelListCachePath(engine_dir), wxFile::write);
 	if (cache.IsOpened()) {
-		const std::string utf8 = text.ToStdString(wxConvUTF8);
+		const std::string utf8 = ToUtf8(text);
 		cache.Write(utf8.c_str(), utf8.size());
 		cache.Close();
 	}
