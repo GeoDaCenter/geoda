@@ -28,11 +28,11 @@
       "status": "built",
       "file": "geoda-spreg-1.9.1-py313-macos-arm64.zip",
       "url": "https://github.com/GeoDaCenter/software/releases/download/spreg-engine-v1/geoda-spreg-1.9.1-py313-macos-arm64.zip",
-      "sha256": "f0f738cb9c90630ab3e56963c844e2164f873d4cf314a7a03094164d81491046",
-      "size_bytes": 158528482,
-      "unpacked_bytes": 474294687,
+      "sha256": "ac22add3f2e46deac1fc7ad2d8f5459a69733fbbf8625dce17bb715018acc680",
+      "size_bytes": 158878496,
+      "unpacked_bytes": 475451460,
       "format": "zip",
-      "python": "3.13.7",
+      "python": "3.13.16",
       "spreg": "1.9.1",
       "bytecode": true,
       "executables": [
@@ -59,34 +59,38 @@
       ]
     },
     "windows-x86_64": {
-      "status": "pending",
+      "status": "built",
       "file": "geoda-spreg-1.9.1-py313-windows-x86_64.zip",
       "url": "https://github.com/GeoDaCenter/software/releases/download/spreg-engine-v1/geoda-spreg-1.9.1-py313-windows-x86_64.zip",
-      "sha256": "",
-      "size_bytes": 0,
-      "unpacked_bytes": 0,
+      "sha256": "6c19f3c4f24fce341f227bcf8fab33674cb2130ddea061499ae796b78a06a01d",
+      "size_bytes": 160470797,
+      "unpacked_bytes": 471506278,
       "format": "zip",
-      "python": "",
+      "python": "3.13.16",
       "spreg": "1.9.1",
       "bytecode": true,
       "executables": [
         "python/python.exe",
-        "python/Scripts/pip.exe"
+        "python/pythonw.exe"
       ]
     },
     "linux-x86_64": {
-      "status": "pending",
+      "status": "built",
       "file": "geoda-spreg-1.9.1-py313-linux-x86_64.zip",
       "url": "https://github.com/GeoDaCenter/software/releases/download/spreg-engine-v1/geoda-spreg-1.9.1-py313-linux-x86_64.zip",
-      "sha256": "",
-      "size_bytes": 0,
-      "unpacked_bytes": 0,
+      "sha256": "653c4d62bbb57f4710f3350c92ae3d4d4a991002f3dd098c0aeef70fd2db48ca",
+      "size_bytes": 231484374,
+      "unpacked_bytes": 695060655,
       "format": "zip",
-      "python": "",
+      "python": "3.13.16",
       "spreg": "1.9.1",
       "bytecode": true,
       "executables": [
-        "python/bin/python3"
+        "python/bin/python",
+        "python/bin/python3",
+        "python/bin/python3-config",
+        "python/bin/python3.13",
+        "python/bin/python3.13-config"
       ]
     },
     "linux-aarch64": {
