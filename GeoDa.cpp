@@ -1461,7 +1461,7 @@ void GdaFrame::NewProjectFromFile(const wxString& full_file_path)
  Open a data source or .gda project file with no UI at all. This is the open
  path of NewProjectFromFile / OpenProject with their message boxes turned into
  a returned error, so a caller that has no way to show a dialog -- the MCP
- file/open tool, which opens the file in the running app -- can report the
+ file/open command, which opens the file in the running app -- can report the
  failure itself. Nothing is shown on success either; the frames it creates
  appear on the main thread like any other window.
 

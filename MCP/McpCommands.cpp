@@ -392,8 +392,9 @@ void RegisterCommands(McpTools& tools)
 
     Add(tools, "skill/get", "Read Skill", "Skill",
         "Return the text of a skill from skill/list -- the workbook that maps "
-        "spatial analysis tasks onto these tools. Read it before any analysis; "
-        "resources/read serves the same text to clients that read resources.",
+        "spatial analysis tasks onto these commands. Read it before any "
+        "analysis; resources/read serves the same text to clients that read "
+        "resources.",
         Schema(std::vector<json_spirit::Pair>{
                    P("uri", StrProp("Skill URI, e.g. "
                                     "skill://spatial-analysis-workbook"))},
