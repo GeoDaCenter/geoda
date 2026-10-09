@@ -293,7 +293,10 @@ def filter_requirements(source: Path, skip, target: Path) -> list:
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("--outdir", default="dist", help="where to write the archive")
-    parser.add_argument("--python", default="3.13", help="standalone CPython series to fetch")
+    parser.add_argument("--python", default="3.13",
+                        help="standalone CPython to fetch: a series (3.13) or a full "
+                             "python-build-standalone spec (cpython-3.13-windows-aarch64-none) "
+                             "where uv would otherwise pick another architecture")
     parser.add_argument("--platform", default=None, help="override the platform key")
     parser.add_argument("--requirements", default=str(SOLVER / "requirements.lock"))
     parser.add_argument("--manifest-entry", default=None,
@@ -402,9 +405,14 @@ def main() -> int:
             engine["built"] = os.environ["SOURCE_DATE_EPOCH"]
         (staging / "engine.json").write_text(json.dumps(engine, indent=2) + "\n")
 
-        # "3.13" -> "313": taken from what was asked for rather than from the
-        # interpreter running this script, which differs per CI runner
-        py_tag = args.python.replace(".", "")
+        # "3.13.16" -> "313": the engine's own version, which is what the
+        # directory name and the manifest's python_series are about.  Taking it
+        # from what was asked for ("3.13") worked only while the request was a
+        # series; it can also be a python-build-standalone spec, and the two
+        # platforms that need one (windows-arm64, to get the native build rather
+        # than the emulated x86_64 uv picks by default) would be named after it.
+        parts = engine_python.split(".")
+        py_tag = "%s%s" % (parts[0], parts[1]) if len(parts) >= 2 else engine_python
         archive = outdir / ("geoda-spreg-%s-py%s-%s.zip" % (spreg_version, py_tag, key))
         size, unpacked, sha = write_archive(staging, archive)
 

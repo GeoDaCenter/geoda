@@ -68,6 +68,11 @@ jobs:
           - os: windows-11-arm   # arm64
             platform: windows-arm64
             skip: pyogrio
+            # uv's own default here is an emulated x86_64 interpreter ("support for
+            # the native architecture is not yet mature"); asking for the native
+            # build by name is what makes this an engine for arm, and it is why
+            # pyogrio has to be left out - its win_arm64 wheel does not exist
+            python: cpython-3.13-windows-aarch64-none
           - os: ubuntu-22.04
             platform: linux-x86_64
     steps:
@@ -88,14 +93,17 @@ jobs:
         env:
           RELEASE: ${{ startsWith(github.ref, 'refs/tags/spreg-engine-v') && github.ref_name || '' }}
           # a platform that cannot install everything the lock names says which
-          # package to leave out (matrix.skip)
+          # package to leave out (matrix.skip), and one that needs a particular
+          # interpreter says which (matrix.python)
           SKIP: ${{ matrix.skip }}
+          PYTHON: ${{ matrix.python }}
         run: |
           python tools/build_engine.py \
             --outdir dist \
             --platform ${{ matrix.platform }} \
             ${RELEASE:+--release "$RELEASE"} \
             ${SKIP:+--skip "$SKIP"} \
+            ${PYTHON:+--python "$PYTHON"} \
             --manifest-entry dist/manifest-entry.json
 
       - name: Unpack the archive the way GeoDa will

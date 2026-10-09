@@ -162,7 +162,9 @@ matrix, about 800 MB).
 The archive holds the interpreter and the wheel set in `solver/requirements.lock`,
 which is the same for every platform except where a wheel does not exist: no
 release of `pyogrio` has a `win_arm64` wheel, and `build_engine.py` installs with
-`--only-binary`, so `windows-arm64` is built with `--skip pyogrio`.  That is safe
+`--only-binary`, so `windows-arm64` is built with `--skip pyogrio` (and with
+`--python cpython-3.13-windows-aarch64-none`, because uv would otherwise hand it an
+emulated x86_64 interpreter and the win_amd64 wheels that go with it).  That is safe
 because the solver never reads a file with it - the job carries its data as
 arrays and spreg only reaches for geopandas' file layer when a *user* asks it to
 read one, which the engine is never asked to do.  An engine built that way names
