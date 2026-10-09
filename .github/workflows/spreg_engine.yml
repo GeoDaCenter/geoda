@@ -57,6 +57,17 @@ jobs:
             platform: macos-x86_64
           - os: windows-2022
             platform: windows-x86_64
+          # Windows on arm is a platform GeoDa ships - an arm64 installer is built
+          # and signed - and PlatformKey() asks for windows-arm64 on it, so it
+          # needs an engine of its own.  This is the only native arm64 Windows
+          # runner; the engine build is Python only, so the Visual Studio trouble
+          # that keeps the application itself cross-compiled on windows-2022 does
+          # not come into it.  pyogrio is left out: no release of it has a
+          # win_arm64 wheel, and geopandas - which is carried - imports it only
+          # when reading a file, which the engine never does.
+          - os: windows-11-arm   # arm64
+            platform: windows-arm64
+            skip: pyogrio
           - os: ubuntu-22.04
             platform: linux-x86_64
     steps:
@@ -76,11 +87,15 @@ jobs:
         # shipped manifest already points at, which is the tool's default.
         env:
           RELEASE: ${{ startsWith(github.ref, 'refs/tags/spreg-engine-v') && github.ref_name || '' }}
+          # a platform that cannot install everything the lock names says which
+          # package to leave out (matrix.skip)
+          SKIP: ${{ matrix.skip }}
         run: |
           python tools/build_engine.py \
             --outdir dist \
             --platform ${{ matrix.platform }} \
             ${RELEASE:+--release "$RELEASE"} \
+            ${SKIP:+--skip "$SKIP"} \
             --manifest-entry dist/manifest-entry.json
 
       - name: Unpack the archive the way GeoDa will

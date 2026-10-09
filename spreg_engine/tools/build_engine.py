@@ -262,6 +262,34 @@ def executables_list(staging: Path) -> list[str]:
     return names
 
 
+def filter_requirements(source: Path, skip, target: Path) -> list:
+    """The lock without the packages this platform cannot install.
+
+    Every package here is a wheel or pure Python except pyogrio, which has no
+    win_arm64 wheel in any release, and --only-binary will not build a wheel from
+    source.  Dropping it means dropping its pinned line together with the hash
+    lines that continue it; what was dropped goes into engine.json, so an engine
+    can be asked what it does not carry.
+    """
+    kept, dropped, i = [], [], 0
+    lines = source.read_text().splitlines(True)
+    while i < len(lines):
+        line = lines[i]
+        name = None
+        if "==" in line and not line[:1] in (" ", "\t", "#", "-"):
+            name = line.split("==", 1)[0].strip().lower()
+        if name in skip:
+            dropped.append(name)
+            i += 1
+            while i < len(lines) and lines[i][:1] in (" ", "\t"):
+                i += 1                       # the --hash lines that belong to it
+            continue
+        kept.append(line)
+        i += 1
+    target.write_text("".join(kept))
+    return dropped
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("--outdir", default="dist", help="where to write the archive")
@@ -270,6 +298,10 @@ def main() -> int:
     parser.add_argument("--requirements", default=str(SOLVER / "requirements.lock"))
     parser.add_argument("--manifest-entry", default=None,
                         help="also write the manifest entry for this platform here")
+    parser.add_argument("--skip", default="",
+                        help="packages to leave out of this platform's engine, comma separated: "
+                             "a platform can lack a wheel for one of them (windows-arm64 has no "
+                             "pyogrio) and --only-binary will not build it from source")
     parser.add_argument("--release", default=None,
                         help="the release the archives will be published to; the manifest entry's "
                              "url is built from it.  A tag names its own release; anything else "
@@ -302,7 +334,15 @@ def main() -> int:
     shutil.rmtree(workdir, ignore_errors=True)
     staging = workdir / "engine"
     staging.mkdir(parents=True)
+    skip = [name.strip().lower() for name in args.skip.split(",") if name.strip()]
     print("== building the spreg engine for %s (spreg %s)" % (key, spreg_version))
+
+    install_from = requirements
+    skipped = []
+    if skip:
+        install_from = workdir / "requirements-for-this-platform.lock"
+        skipped = filter_requirements(requirements, skip, install_from)
+        print("   leaving out: %s" % (", ".join(skipped) if skipped else "nothing"))
 
     try:
         build = fetch_python(args.python, workdir)
@@ -323,8 +363,16 @@ def main() -> int:
             marker.unlink()
 
         # --no-compile: we compile in the next step, with a fixed hash seed
-        run(["uv", "pip", "install", "--python", str(python), "--require-hashes",
-             "--only-binary", ":all:", "--no-compile", "-r", str(requirements)])
+        install = ["uv", "pip", "install", "--python", str(python), "--require-hashes",
+                   "--only-binary", ":all:", "--no-compile"]
+        if skipped:
+            # The lock is the whole dependency closure, so there is nothing to
+            # resolve - and nothing may be: geopandas names pyogrio as a
+            # dependency, and a resolver would pull back the very wheel this
+            # platform does not have, which --require-hashes then refuses for
+            # being unpinned.
+            install.append("--no-deps")
+        run(install + ["-r", str(install_from)])
         site_packages = Path(run([python, "-c",
                                    "import sysconfig;print(sysconfig.get_paths()['purelib'])"
                                    ], capture_output=True, text=True,
@@ -347,6 +395,9 @@ def main() -> int:
             "platform": key,
             "executables": executables_list(staging),
         }
+        if skipped:
+            # an engine that does not carry everything the lock names says so
+            engine["skipped"] = skipped
         if os.environ.get("SOURCE_DATE_EPOCH"):          # keep the archive reproducible
             engine["built"] = os.environ["SOURCE_DATE_EPOCH"]
         (staging / "engine.json").write_text(json.dumps(engine, indent=2) + "\n")
