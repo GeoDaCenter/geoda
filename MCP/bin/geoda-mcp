@@ -1,0 +1,78 @@
+#!/bin/sh
+# stdio MCP server for GeoDa.
+#
+# A client registers THIS as a command:
+#
+#   claude mcp add -s user geoda -- ~/.geoda/bin/geoda-mcp
+#   codex  mcp add geoda -- ~/.geoda/bin/geoda-mcp
+#
+# Registering the app's HTTP endpoint by URL instead — `url = http://127.0.0.1:8765/mcp`
+# — leaves a URL in the model's context, and a model that cannot see the server's
+# tools (a client that was not restarted after registering, or that started while
+# the app was down) will drive that endpoint by hand: hand-written JSON-RPC
+# envelopes, headers and temp files, tens of calls per session. As a command the
+# client starts this process and the model only ever sees tools.
+#
+# The script is a pass-through, and deliberately thin: one newline-delimited
+# JSON-RPC message in on stdin, one POST to the app's loopback endpoint, one JSON
+# reply out on stdout. Nothing else may go to stdout — it is the frame stream.
+#
+# Usage: geoda-mcp
+#
+# The app must be running. `~/.geoda/mcp.json`, which the app writes when its
+# MCP server starts, carries the port that was actually bound (8765, or the next
+# free port up to 8774, or an OS-assigned one); the pinned default below is only
+# a fallback.
+
+set -u
+
+DEFAULT_URL='http://127.0.0.1:8765/mcp'
+DISCOVERY_FILE="${GEODA_MCP_DISCOVERY_FILE:-$HOME/.geoda/mcp.json}"
+
+url="${GEODA_MCP_URL:-}"
+if [ -z "$url" ] && [ -r "$DISCOVERY_FILE" ]; then
+  # No jq on a stock macOS, and the file is one small flat object, so read the
+  # one key we need with sed. `head -1` because a file being rewritten could
+  # briefly hold more than one match.
+  url=$(sed -n 's/.*"url"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/p' "$DISCOVERY_FILE" | head -1)
+fi
+if [ -z "$url" ]; then
+  url="$DEFAULT_URL"
+fi
+
+# One JSON-RPC error reply, so a client that cannot reach the app gets a message
+# it can show rather than a hang or a silent dead server. `id` may be empty (a
+# notification), in which case nothing is printed — a reply to a notification is
+# a protocol violation.
+fail() {
+  if [ -n "$id" ]; then
+    printf '{"jsonrpc":"2.0","id":%s,"error":{"code":-32000,"message":"%s"}}\n' \
+      "$id" "$1"
+  fi
+}
+
+while IFS= read -r line; do
+  # Blank line between frames is allowed by the transport; skip it.
+  [ -n "$line" ] || continue
+
+  id=$(printf '%s' "$line" |
+    sed -n 's/.*"id"[[:space:]]*:[[:space:]]*\(-\{0,1\}[0-9][0-9]*\).*/\1/p' | head -1)
+
+  if ! body=$(printf '%s' "$line" | curl -sS --max-time 1800 \
+      -X POST "$url" \
+      -H 'content-type: application/json' \
+      -H 'accept: application/json, text/event-stream' \
+      -H 'MCP-Protocol-Version: 2025-06-18' \
+      --data-binary @- 2>&1); then
+    fail "GeoDa is not reachable at $url - start GeoDa (it serves MCP while it runs) and retry. $body"
+    continue
+  fi
+
+  # A notification is answered 202 with no body: nothing to pass on.
+  [ -n "$body" ] || continue
+  printf '%s\n' "$body"
+done
+
+# stdin closed: the client has gone away, so exit and let the app reap the
+# session. Nothing to clean up — every call was independent.
+exit 0

@@ -599,6 +599,10 @@
     <label>Options</label>
     <object class="wxMenu" name="ID_MCP_MENU">
       <label>MCP</label>
+      <object class="wxMenuItem" name="ID_MCP_INSTALL_PLUGIN">
+        <label>Install MCP Plugin…</label>
+        <help>Install GeoDa into Claude Code or Codex, so the agent starts the connection itself</help>
+      </object>
       <object class="wxMenuItem" name="ID_MCP_START_SERVER">
         <label>Start MCP Server…</label>
       </object>
