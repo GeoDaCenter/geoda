@@ -15,7 +15,9 @@ What it does, per platform:
      that was published, not a build that is expected to repeat;
   4. write engine.json (versions, protocol, executable list) and collect the
      bundled packages' licences;
-  5. zip it with fixed timestamps and print the sha256 to put in the manifest.
+  5. zip it with fixed timestamps and print the sha256 to put in the manifest,
+     with the url of the release it will be published to (--release, or the one
+     the shipped manifest names).
 
 The archive is what GeoDa downloads and unpacks into
     <user data>/GeoDa/engines/spreg-<spreg>-py<major><minor>/
@@ -81,6 +83,26 @@ def platform_key() -> str:
 def run(cmd, **kw) -> subprocess.CompletedProcess:
     print("+ %s" % " ".join(str(c) for c in cmd), flush=True)
     return subprocess.run([str(c) for c in cmd], check=True, **kw)
+
+
+def shipped_release(default: str = "spreg-engine-v1") -> str:
+    """The release the shipped manifest points at.
+
+    A build that is not for a tag still has to write a url into its manifest
+    entry, and that url has to name the release the application is downloading
+    from - which is the one in manifest/engines.json, whatever it has moved on
+    to.  Reading it from there keeps the two in step; hard-coding it is how a
+    v2 tag came to print entries pointing at v1.
+    """
+    try:
+        manifest = json.loads((ROOT / "manifest" / "engines.json").read_text())
+        for artifact in manifest["artifacts"].values():
+            url = artifact.get("url") or ""
+            if "/download/" in url:
+                return url.split("/download/", 1)[1].split("/", 1)[0]
+    except Exception:
+        pass
+    return default
 
 
 def interpreter_of(staging: Path) -> Path:
@@ -248,6 +270,10 @@ def main() -> int:
     parser.add_argument("--requirements", default=str(SOLVER / "requirements.lock"))
     parser.add_argument("--manifest-entry", default=None,
                         help="also write the manifest entry for this platform here")
+    parser.add_argument("--release", default=None,
+                        help="the release the archives will be published to; the manifest entry's "
+                             "url is built from it.  A tag names its own release; anything else "
+                             "defaults to the one the shipped manifest already points at")
     parser.add_argument("--no-bytecode", action="store_true",
                         help="skip precompilation: ~40%% smaller download, slower first start")
     parser.add_argument("--build-dir", default=None,
@@ -258,6 +284,7 @@ def main() -> int:
     args = parser.parse_args()
 
     key = args.platform or platform_key()
+    release = args.release or shipped_release()
     outdir = Path(args.outdir).resolve()
     outdir.mkdir(parents=True, exist_ok=True)
 
@@ -333,7 +360,7 @@ def main() -> int:
         entry = {
             "file": archive.name,
             "url": "https://github.com/GeoDaCenter/software/releases/download/"
-                   "spreg-engine-v1/" + archive.name,
+                   "%s/%s" % (release, archive.name),
             "sha256": sha,
             "size_bytes": size,
             "unpacked_bytes": unpacked,
