@@ -4,10 +4,12 @@
 # and running the solver's own selftest, the model sweep and a real estimation
 # with the interpreter it contains.  Bumping a version means: edit
 # spreg_engine/solver/requirements.in, regenerate the lock, tag
-# `spreg-engine-v<N>`, and the release job attaches the zips to that release and
-# prints the manifest entries to paste into spreg_engine/manifest/engines.json -
-# the hashes come from the artifacts themselves, so they have to come from here
-# rather than from a build on someone's desk.
+# `spreg-engine-v<N>`, and the release job publishes the zips under that tag in
+# GeoDaCenter/software and prints the manifest entries to paste into
+# spreg_engine/manifest/engines.json - the hashes come from the artifacts
+# themselves, so they have to come from here rather than from a build on someone's
+# desk.  Publishing there needs the SOFTWARE_RELEASE_TOKEN secret; see the release
+# job below.
 #
 # The parity job then runs GeoDa's own engine against spreg on the published
 # engine, which is the check that says the two agree; it waits for the release
@@ -211,23 +213,37 @@ jobs:
             spreg_engine/tools/run_parity_test.sh /tmp/engine
           fi
 
+  # The archives are published, not to this repository but to GeoDaCenter/software,
+  # where the other downloadable binaries live and where spreg_engine/manifest/
+  # engines.json points: an application checks a download against the sha256 in
+  # the manifest it ships, so the manifest and the release have to be the same
+  # place.  Writing there needs a token of its own - the workflow token can only
+  # write the repository it runs in - kept as the SOFTWARE_RELEASE_TOKEN secret
+  # (a fine-grained token with "Contents: read and write" on GeoDaCenter/software).
   release:
     needs: build
     if: startsWith(github.ref, 'refs/tags/spreg-engine-v')
     runs-on: ubuntu-22.04
     permissions:
-      contents: write
+      contents: read                    # the release is written with the token below
+    env:
+      SOFTWARE_REPO: GeoDaCenter/software
+      GH_TOKEN: ${{ secrets.SOFTWARE_RELEASE_TOKEN }}
     steps:
       - uses: actions/download-artifact@v4
         with:
           pattern: geoda-spreg-*
           path: artifacts
       - name: Attach the archives to the release
-        env:
-          GH_TOKEN: ${{ github.token }}
         run: |
-          gh release view "$GITHUB_REF_NAME" >/dev/null 2>&1 || \
-            gh release create "$GITHUB_REF_NAME" --title "$GITHUB_REF_NAME" \
+          if [ -z "${GH_TOKEN}" ]; then
+            echo "::error::the SOFTWARE_RELEASE_TOKEN secret is not set; it needs \
+          Contents: read and write on ${SOFTWARE_REPO}, and the archives are published there"
+            exit 1
+          fi
+          gh release view "$GITHUB_REF_NAME" --repo "$SOFTWARE_REPO" >/dev/null 2>&1 || \
+            gh release create "$GITHUB_REF_NAME" --repo "$SOFTWARE_REPO" \
+              --title "$GITHUB_REF_NAME" \
               --notes "spreg engine archives; see spreg_engine/manifest/engines.json"
           # A published archive's sha256 is in some application's manifest, and
           # that is what the download is checked against: replacing one under an
@@ -235,12 +251,13 @@ jobs:
           # second set of archives wants a second tag rather than --clobber.
           for zip in artifacts/*/*.zip; do
             name=$(basename "$zip")
-            if gh release view "$GITHUB_REF_NAME" --json assets --jq '.assets[].name' \
-                 | grep -qxF "$name"; then
-              echo "::error::$GITHUB_REF_NAME already publishes $name; bump the tag instead"
+            if gh release view "$GITHUB_REF_NAME" --repo "$SOFTWARE_REPO" \
+                 --json assets --jq '.assets[].name' | grep -qxF "$name"; then
+              echo "::error::$SOFTWARE_REPO already publishes $name under $GITHUB_REF_NAME; \
+          bump the tag instead"
               exit 1
             fi
           done
-          gh release upload "$GITHUB_REF_NAME" artifacts/*/*.zip
+          gh release upload "$GITHUB_REF_NAME" artifacts/*/*.zip --repo "$SOFTWARE_REPO"
       - name: Manifest entries to paste into spreg_engine/manifest/engines.json
         run: cat artifacts/*/manifest-entry.json

@@ -385,6 +385,15 @@ Decisions worth knowing:
   manifest points at a release asset under `GeoDaCenter/software`, and until
   the release exists the download answers 404 - which the dialog now says in so
   many words, including the address it tried.
+* `spreg_engine.yml`'s release job publishes them there, so a tag is all it
+  takes: `SPREG_ENGINE` is built by the four build jobs, and on `spreg-engine-v<N>`
+  the archives are attached to a release of that name in **GeoDaCenter/software**
+  and the manifest entries are printed for pasting in.  Writing to that repository
+  needs a token of its own, because the workflow token may only write the
+  repository the workflow runs in: keep a fine-grained token with
+  *Contents: read and write* on `GeoDaCenter/software` as the
+  `SOFTWARE_RELEASE_TOKEN` secret of this repository.  Without it the job stops
+  before it publishes anything and says so.
 * `GEODA_SPREG_ENGINES` overrides the engine directory. That is for
   administrators who prepare machines, multi-user installs, and the headless
   test below; it is also the documented pre-seed path for air-gapped sites.
