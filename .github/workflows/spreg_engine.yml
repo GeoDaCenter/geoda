@@ -224,6 +224,13 @@ jobs:
     needs: build
     if: startsWith(github.ref, 'refs/tags/spreg-engine-v')
     runs-on: ubuntu-22.04
+    # this job never checks the repository out - it works on the artifacts the
+    # build jobs left - so the workflow's spreg_engine-relative default would
+    # have bash start in a directory that does not exist, and the publish would
+    # fail before running a single command
+    defaults:
+      run:
+        working-directory: .
     permissions:
       contents: read                    # the release is written with the token below
     env:
