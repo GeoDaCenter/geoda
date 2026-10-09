@@ -157,11 +157,29 @@ matrix, about 800 MB).
 
 ## How GeoDa drives it
 
+### 0. What an engine carries
+
+The archive holds the interpreter and the wheel set in `solver/requirements.lock`,
+which is the same for every platform except where a wheel does not exist: no
+release of `pyogrio` has a `win_arm64` wheel, and `build_engine.py` installs with
+`--only-binary`, so `windows-arm64` is built with `--skip pyogrio` (and with
+`--python cpython-3.13-windows-aarch64-none`, because uv would otherwise hand it an
+emulated x86_64 interpreter and the win_amd64 wheels that go with it).  That is safe
+because the solver never reads a file with it - the job carries its data as
+arrays and spreg only reaches for geopandas' file layer when a *user* asks it to
+read one, which the engine is never asked to do.  An engine built that way names
+what it left out in its own `engine.json`, so it can be asked.
+
 ### 1. Install (or upgrade) the engine
 
 1. Read `manifest/engines.json`, pick the entry for the running platform; the
-   key is `macos-arm64`, `macos-x86_64`, `windows-x86_64`, `linux-x86_64`,
-   `linux-aarch64`. Skip entries with `"status": "pending"`.
+   key is `macos-arm64`, `macos-x86_64`, `windows-x86_64`, `windows-arm64`,
+   `linux-x86_64`, `linux-aarch64`. Skip entries with `"status": "pending"`.
+   Which of these exist follows what GeoDa itself ships: there is an arm64
+   installer for both macOS and Windows, so both get an engine, while GeoDa's
+   Linux builds are x86_64 only and `linux-aarch64` stays a placeholder. A
+   platform with no entry is not an error - the dialog says there is no engine
+   published for it yet and the application falls back to its own models.
 2. If the target directory `<user data>/GeoDa/engines/spreg-<spreg>-py<py>-<platform>/`
    already exists and contains a valid `engine.json` with a matching protocol,
    there is nothing to do.
