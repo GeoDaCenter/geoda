@@ -269,6 +269,12 @@ public:
             if (streaming) {
                 WriteSseFrame(m_socket, json_spirit::write(response));
                 delete channel;
+            } else if (response.type() == json_spirit::null_type) {
+                // A notification, which the server answers with a null value:
+                // accepted with no body, as the transport requires. Sending the
+                // null would put a frame with no id on the stream the client
+                // reads replies from.
+                SendAccepted(m_socket);
             } else {
                 std::string http =
                     BuildHttpResponse(json_spirit::write(response), 200);
@@ -536,7 +542,14 @@ void McpHttpServer::HandleRequest(wxSocketBase* socket,
         }
     } else {
         json_spirit::Value response = m_mcp->HandleRequest(body);
-        SendResponse(socket, json_spirit::write(response), 200);
+        if (response.type() == json_spirit::null_type) {
+            // A notification: accepted with no body (see the worker thread
+            // above). A client reading replies as frames must not be handed a
+            // null one.
+            SendAccepted(socket);
+        } else {
+            SendResponse(socket, json_spirit::write(response), 200);
+        }
         socket->Close();
         socket->Destroy();
     }

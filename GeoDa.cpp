@@ -192,6 +192,7 @@
 #include "SaveButtonManager.h"
 #include "GeoDa.h"
 #include "MCP/McpHttpServer.h"
+#include "MCP/McpClientSetup.h"
 #include "version.h"
 #include "arizona/viz3/plots/scatterplot.h"
 #include "rc/GeoDaIcon-16x16.xpm"
@@ -828,6 +829,8 @@ GdaFrame::GdaFrame(const wxString& title, const wxPoint& pos,
 	SetIcon(wxIcon(GeoDaIcon_16x16_xpm));
 	SetMenuBar(wxXmlResource::Get()->LoadMenuBar("ID_SHARED_MAIN_MENU"));
 
+    Bind(wxEVT_COMMAND_MENU_SELECTED, &GdaFrame::OnMcpInstallPlugin, this,
+         XRCID("ID_MCP_INSTALL_PLUGIN"));
     Bind(wxEVT_COMMAND_MENU_SELECTED, &GdaFrame::OnMcpStartServer, this,
          XRCID("ID_MCP_START_SERVER"));
     Bind(wxEVT_COMMAND_MENU_SELECTED, &GdaFrame::OnMcpStopServer, this,
@@ -1357,7 +1360,271 @@ void McpServerInfoDialog::OnCloseClick(wxCommandEvent& event)
     EndModal(wxID_CANCEL);
 }
 
+// `text` broken into lines of at most `cols` characters, each starting with
+// `indent`. Paragraph breaks in the text are kept.
+wxString WrapIndented(const wxString& text, int cols, const wxString& indent)
+{
+    wxString out;
+    wxArrayString paragraphs = wxSplit(text, '\n');
+    for (size_t p = 0; p < paragraphs.size(); ++p) {
+        wxArrayString words = wxSplit(paragraphs[p], ' ');
+        wxString line;
+        for (size_t w = 0; w < words.size(); ++w) {
+            if (words[w].IsEmpty()) continue;
+            if (line.IsEmpty()) {
+                line = words[w];
+            } else if ((int) (line.length() + 1 + words[w].length()) <= cols) {
+                line += " " + words[w];
+            } else {
+                out += indent + line + "\n";
+                line = words[w];
+            }
+        }
+        out += indent + line + "\n";
+    }
+    return out;
+}
+
+// Puts GeoDa into a coding agent -- Claude Code, Codex -- as a plugin, so that
+// the agent owns the MCP connection and only ever sees the app's commands as
+// tools, instead of being handed an endpoint URL it would then drive by hand.
+//
+// One button per client, each disabled with the reason when that client is not
+// installed, and a per-step report afterwards. The install itself runs the
+// client's own CLI, on this thread, so the status line says what is happening
+// before the dialog stops repainting.
+class McpInstallDialog : public wxDialog
+{
+public:
+    McpInstallDialog(wxWindow* parent, const wxString& base_url,
+                     const wxString& endpoint_url);
+
+private:
+    void OnInstallClick(wxCommandEvent& event);
+    void OnManualSetup(wxCommandEvent& event);
+    void OnCloseClick(wxCommandEvent& event);
+
+    void Install(const McpClientSetup::Client& client);
+    void ShowReport(const McpClientSetup::Result& result);
+
+    wxString m_base_url;
+    wxString m_endpoint_url;
+    std::vector<McpClientSetup::Client> m_clients;
+    wxStaticText* m_status;
+    wxTextCtrl* m_report;
+};
+
+// Ids for the per-client buttons, so one handler can serve them all.
+enum { ID_MCP_INSTALL_CLAUDE = wxID_HIGHEST + 101, ID_MCP_INSTALL_CODEX };
+
+int InstallButtonId(const wxString& client_id)
+{
+    return (client_id == "claude") ? ID_MCP_INSTALL_CLAUDE
+                                   : ID_MCP_INSTALL_CODEX;
+}
+
+McpInstallDialog::McpInstallDialog(wxWindow* parent, const wxString& base_url,
+                                   const wxString& endpoint_url)
+: wxDialog(parent, wxID_ANY, _("Set Up an Agent to Drive GeoDa"),
+           wxDefaultPosition, wxDefaultSize, wxDEFAULT_DIALOG_STYLE),
+  m_base_url(base_url), m_endpoint_url(endpoint_url), m_status(NULL),
+  m_report(NULL)
+{
+    m_clients = McpClientSetup::ProbeClients();
+
+    wxBoxSizer* top = new wxBoxSizer(wxVERTICAL);
+
+    top->Add(new wxStaticText(this, wxID_ANY, wxString::Format(
+                 _("GeoDa serves its commands over MCP at %s while it is "
+                   "running.\nInstalling it as a plugin gives a coding agent "
+                   "those commands as tools, and\nthe agent starts the "
+                   "connection itself -- there is no URL to paste."),
+                 base_url)),
+             0, wxLEFT | wxRIGHT | wxTOP, 12);
+
+    // One row per client: the button, then where its CLI was (or was not)
+    // found. A missing client is disabled rather than hidden, so that the
+    // reason is on screen.
+    for (size_t i = 0; i < m_clients.size(); ++i) {
+        const McpClientSetup::Client& client = m_clients[i];
+
+        wxBoxSizer* row = new wxBoxSizer(wxHORIZONTAL);
+        wxButton* button = new wxButton(
+            this, InstallButtonId(client.id),
+            wxString::Format(_("Install in %s"), client.label));
+        row->Add(button, 0, wxRIGHT, 8);
+
+        wxStaticText* where = new wxStaticText(this, wxID_ANY, "");
+        if (client.binary.IsEmpty()) {
+            button->Disable();
+            button->SetToolTip(wxString::Format(
+                _("The %s command line was not found, so there is nothing to "
+                  "install into."),
+                client.label));
+            where->SetLabel(wxString::Format(
+                _("not found (looked in: %s)"), wxJoin(client.searched, ',')));
+            where->Wrap(520);
+        } else {
+            where->SetLabel(client.binary);
+            button->Bind(wxEVT_BUTTON, &McpInstallDialog::OnInstallClick, this);
+        }
+        row->Add(where, 1, wxALIGN_CENTER_VERTICAL);
+
+        top->Add(row, 0, wxEXPAND | wxLEFT | wxRIGHT | wxTOP, 12);
+    }
+
+    top->Add(new wxStaticText(this, wxID_ANY, _(
+                 "A plugin brings the MCP server, the launcher that starts it "
+                 "and the workbook skill.\nIf the plugin cannot deliver the "
+                 "server, the launcher is installed instead and the client "
+                 "registers it directly.")),
+             0, wxLEFT | wxRIGHT | wxTOP, 12);
+
+    // Line the progress and result messages appear on. Reserved up front so the
+    // dialog does not change height while it works.
+    m_status = new wxStaticText(this, wxID_ANY, " ");
+    top->Add(m_status, 0, wxLEFT | wxRIGHT | wxTOP, 12);
+
+    m_report = new wxTextCtrl(
+        this, wxID_ANY,
+        _("Choose a client above. Each step of the install is reported here,\n"
+          "including what the client's own command line said."),
+        wxDefaultPosition, wxSize(560, 190), wxTE_MULTILINE | wxTE_READONLY);
+    m_report->SetFont(wxFont(11, wxFONTFAMILY_TELETYPE, wxFONTSTYLE_NORMAL,
+                             wxFONTWEIGHT_NORMAL));
+    top->Add(m_report, 1, wxEXPAND | wxLEFT | wxRIGHT | wxTOP, 12);
+
+    wxButton* manual_btn =
+        new wxButton(this, wxID_ANY, _("Manual setup (URL)…"));
+    wxButton* close_btn = new wxButton(this, wxID_CANCEL, _("Close"));
+    manual_btn->Bind(wxEVT_BUTTON, &McpInstallDialog::OnManualSetup, this);
+    close_btn->Bind(wxEVT_BUTTON, &McpInstallDialog::OnCloseClick, this);
+
+    wxBoxSizer* buttons = new wxBoxSizer(wxHORIZONTAL);
+    buttons->Add(manual_btn);
+    buttons->AddStretchSpacer();
+    buttons->Add(close_btn);
+    top->Add(buttons, 0, wxEXPAND | wxALL, 12);
+
+    SetSizerAndFit(top);
+    SetMinSize(wxSize(GetSize().GetWidth(), GetSize().GetHeight()));
+    CentreOnParent();
+}
+
+void McpInstallDialog::OnInstallClick(wxCommandEvent& event)
+{
+    for (size_t i = 0; i < m_clients.size(); ++i) {
+        if (InstallButtonId(m_clients[i].id) == event.GetId()) {
+            Install(m_clients[i]);
+            return;
+        }
+    }
+}
+
+void McpInstallDialog::Install(const McpClientSetup::Client& client)
+{
+    // The client's own CLI runs on this thread (wxExecute is main-thread only),
+    // so say what is about to happen and paint it before the app goes quiet.
+    m_report->SetValue("");
+    m_status->SetLabel(wxString::Format(
+        _("Installing into %s… GeoDa stays busy until it finishes."),
+        client.label));
+    Layout();
+    Update();
+
+    wxBusyCursor busy;
+    McpClientSetup::Result result = McpClientSetup::Install(client, m_endpoint_url);
+
+    ShowReport(result);
+}
+
+void McpInstallDialog::ShowReport(const McpClientSetup::Result& result)
+{
+    // A step's detail is indented under it, a line per fact, so a step that
+    // failed says what the CLI said rather than only that it failed.
+    //
+    // The indenting is done here, by hand, because the text control wraps by
+    // itself: a soft-wrapped continuation starts back at the left margin, where
+    // it reads as the next step. The break is measured from the font this
+    // control is actually using, with slack, so nothing wraps a second time.
+    const wxString indent = "     ";
+    int cols = 100;
+    if (m_report && m_report->GetClientSize().GetWidth() > 0) {
+        const int char_w = m_report->GetTextExtent("0123456789").GetWidth() / 10;
+        if (char_w > 0) {
+            const int usable = (m_report->GetClientSize().GetWidth() * 9) / 10;
+            if (usable / char_w > (int) indent.length() + 20) {
+                cols = usable / char_w - (int) indent.length();
+            }
+        }
+    }
+
+    wxString text;
+    for (size_t i = 0; i < result.steps.size(); ++i) {
+        const McpClientSetup::Step& step = result.steps[i];
+        text += wxString::Format("%-4s %-20s %s\n", step.ok ? "OK" : "FAIL",
+                                 step.label, step.summary);
+        text += WrapIndented(step.detail, cols, indent) + "\n";
+    }
+
+    if (result.restart_required) {
+        text += wxString::Format(
+            _("Done. Restart %s (quit it and start it again) so it loads the "
+              "plugin; the tools appear in the new session."),
+            result.client_label);
+    } else if (!result.ok) {
+        text += _("The install did not complete. \"Manual setup (URL)\" below "
+                  "shows the endpoint to register by hand.");
+    }
+
+    m_report->SetValue(text);
+    m_report->ShowPosition(0);
+    m_status->SetLabel(result.ok
+                           ? wxString::Format(_("%s is set up."),
+                                              result.client_label)
+                           : wxString::Format(_("%s was not set up."),
+                                              result.client_label));
+    Layout();
+}
+
+void McpInstallDialog::OnManualSetup(wxCommandEvent& event)
+{
+    McpServerInfoDialog dlg(this, m_base_url, m_endpoint_url);
+    dlg.ShowModal();
+}
+
+void McpInstallDialog::OnCloseClick(wxCommandEvent& event)
+{
+    EndModal(wxID_CANCEL);
+}
+
 } // namespace
+
+// Make sure the server is up before offering to install it: a registration
+// pointing at an endpoint nothing is serving is what this menu entry exists to
+// avoid. Returns the running server, or NULL (with a message shown) when it
+// could not be started.
+McpHttpServer* GdaFrame::EnsureMcpServer()
+{
+    if (!m_mcp_server) {
+        m_mcp_server = new McpHttpServer(GEODA_MCP_DEFAULT_PORT);
+    }
+    if (!m_mcp_server->IsRunning() && !m_mcp_server->Start()) {
+        wxMessageBox(_("Failed to start the MCP server."), _("MCP Server"),
+                     wxOK | wxICON_ERROR, this);
+        return NULL;
+    }
+    return m_mcp_server;
+}
+
+void GdaFrame::OnMcpInstallPlugin(wxCommandEvent& event)
+{
+    McpHttpServer* server = EnsureMcpServer();
+    if (!server) return;
+
+    McpInstallDialog dlg(this, server->GetBaseUrl(), server->GetUrl());
+    dlg.ShowModal();
+}
 
 void GdaFrame::OnMcpStartServer(wxCommandEvent& event)
 {
@@ -1366,16 +1633,9 @@ void GdaFrame::OnMcpStartServer(wxCommandEvent& event)
     // stopped from this menu. Either way the dialog below is the point of the
     // menu entry -- it reports the URL of the port actually bound, which is
     // not the default one when 8765 was taken.
-    if (!m_mcp_server) {
-        m_mcp_server = new McpHttpServer(GEODA_MCP_DEFAULT_PORT);
-    }
-    if (!m_mcp_server->IsRunning() && !m_mcp_server->Start()) {
-        wxMessageBox(_("Failed to start the MCP server."), _("MCP Server"),
-                     wxOK | wxICON_ERROR, this);
-        return;
-    }
-    McpServerInfoDialog dlg(this, m_mcp_server->GetBaseUrl(),
-                            m_mcp_server->GetUrl());
+    McpHttpServer* server = EnsureMcpServer();
+    if (!server) return;
+    McpServerInfoDialog dlg(this, server->GetBaseUrl(), server->GetUrl());
     dlg.ShowModal();
 }
 
