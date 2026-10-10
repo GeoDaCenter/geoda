@@ -1,0 +1,15 @@
+{
+  "name": "geoda",
+  "owner": {
+    "name": "GeoDa",
+    "url": "https://github.com/GeoDaCenter/geoda"
+  },
+  "description": "GeoDa's MCP server, launcher and onboarding skill, as a plugin.",
+  "plugins": [
+    {
+      "name": "geoda",
+      "source": "./plugins/geoda",
+      "description": "Drive GeoDa's spatial analysis from the agent: open data, build maps and plots in the app, create spatial weights, and run Moran's I, LISA, rate smoothing, PCA and clustering over MCP."
+    }
+  ]
+}

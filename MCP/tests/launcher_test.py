@@ -6,10 +6,10 @@ URL: a URL in the model's context invites hand-written JSON-RPC, while a
 command lets the client own the transport and the model see only tools. The
 launcher is what makes that work, so it has three properties worth testing:
 
-  1. it is byte-for-byte the script the app writes when it installs the
-     launcher itself -- MCP/McpClientSetup.cpp embeds a copy of
-     MCP/bin/geoda-mcp for the direct route, and the two drifting apart is
-     silent otherwise (the client would run an older script);
+  1. all three copies of it are the same script: the file at MCP/bin/geoda-mcp,
+     the copy MCP/McpClientSetup.cpp embeds for the direct route, and the copy
+     the plugin ships at plugins/geoda/bin/geoda-mcp. Any of them drifting apart
+     is silent otherwise (the client would run an older script);
   2. with GeoDa running, one newline-delimited request in gives one JSON reply
      out and nothing else on stdout, because stdout is the frame stream;
   3. with GeoDa not running, it answers with a JSON-RPC error that names that,
@@ -40,6 +40,8 @@ GEODA_BIN = os.environ.get(
 )
 PORT = int(os.environ.get("MCP_TEST_PORT", "8791"))
 LAUNCHER = os.path.normpath(os.path.join(SCRIPT_DIR, "..", "bin", "geoda-mcp"))
+PLUGIN_LAUNCHER = os.path.normpath(
+    os.path.join(SCRIPT_DIR, "..", "..", "plugins", "geoda", "bin", "geoda-mcp"))
 SETUP_CPP = os.path.normpath(os.path.join(SCRIPT_DIR, "..", "McpClientSetup.cpp"))
 
 # The raw-string delimiter the embedded copy is wrapped in. Must stay within
@@ -115,13 +117,23 @@ def wait_for_server(proc, timeout=90):
 
 
 def main():
-    print("1. the embedded launcher and MCP/bin/geoda-mcp are the same script")
+    print("1. the three copies of the launcher are the same script")
     with open(LAUNCHER, encoding="utf-8") as f:
         on_disk = f.read()
     embedded = embedded_launcher()
     check(embedded == on_disk,
           "MCP/McpClientSetup.cpp embeds MCP/bin/geoda-mcp byte for byte")
     check(os.access(LAUNCHER, os.X_OK), "the launcher is executable")
+    # The plugin's own copy, which is what the client runs when GeoDa was set up
+    # from the marketplace rather than by the direct route above.
+    check(os.path.exists(PLUGIN_LAUNCHER),
+          "the plugin ships a launcher at plugins/geoda/bin/geoda-mcp")
+    with open(PLUGIN_LAUNCHER, encoding="utf-8") as f:
+        plugin_copy = f.read()
+    check(plugin_copy == on_disk,
+          "plugins/geoda/bin/geoda-mcp is MCP/bin/geoda-mcp byte for byte")
+    check(os.access(PLUGIN_LAUNCHER, os.X_OK),
+          "the plugin's launcher is executable (it is run as a command)")
 
     print("2. GeoDa not running: a named error, not a hang")
     # A port nothing is listening on, named explicitly so the answer does not

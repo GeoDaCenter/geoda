@@ -36,18 +36,27 @@
 
 namespace {
 
-// The plugin, published from the GeoDa project's own marketplace. Registering
-// it gives the client the MCP server, the launcher that starts it, and the
-// workbook skill, all at once -- and the client can then list, update and
+// The plugin, published from GeoDa's own repository -- .claude-plugin and
+// .agents at its root, the plugin itself under plugins/geoda. Registering it
+// gives the client the MCP server, the launcher that starts it, and the
+// onboarding skill, all at once -- and the client can then list, update and
 // remove the lot with its own commands.
-const char* kMarketplace = "lixun910/geoda-plugin";
+//
+// The app is a large repository (a fresh checkout runs to a few hundred MB) and
+// the plugin needs three directories out of it, so the add is asked for a sparse
+// checkout of exactly those. Both clients take the flag; a client old enough not
+// to have it is retried without, which costs it the full clone but still works.
+const char* kMarketplace = "GeoDaCenter/geoda";
+const char* kMarketplaceClaudePaths = ".claude-plugin";
+const char* kMarketplaceCodexPaths = ".agents";
+const char* kMarketplacePluginPath = "plugins";
 const char* kPluginName = "geoda";
-const char* kPluginId = "geoda@geoda-plugin";
+const char* kPluginId = "geoda@geoda";
 const char* kServerName = "geoda";
 
 // The stdio launcher the direct route installs. The same script is committed at
-// MCP/bin/geoda-mcp and shipped by the plugin; MCP/tests/launcher_test.py fails
-// when the two drift apart.
+// MCP/bin/geoda-mcp and shipped by the plugin at plugins/geoda/bin/geoda-mcp;
+// MCP/tests/launcher_test.py fails when the copies drift apart.
 const char* kLauncherScript = R"GEODALAUNCH(#!/bin/sh
 # stdio MCP server for GeoDa.
 #
@@ -368,12 +377,39 @@ bool InstallViaPlugin(const McpClientSetup::Client& client,
 {
 	const bool claude = (client.id == "claude");
 
-	CommandResult market =
-	    RunClient(client.binary,
-	              Args4("plugin", "marketplace", "add", kMarketplace));
+	// Claude Code takes one --sparse and then every path; Codex takes a --sparse
+	// per path. The paths are the three directories the plugin is made of: the
+	// two marketplace files at the repository root, and the plugin itself.
+	StringList add = Args4("plugin", "marketplace", "add", kMarketplace);
+	if (claude) {
+		add.push_back("--sparse");
+		add.push_back(kMarketplaceClaudePaths);
+		add.push_back(kMarketplaceCodexPaths);
+		add.push_back(kMarketplacePluginPath);
+	} else {
+		add.push_back("--sparse");
+		add.push_back(kMarketplaceClaudePaths);
+		add.push_back("--sparse");
+		add.push_back(kMarketplaceCodexPaths);
+		add.push_back("--sparse");
+		add.push_back(kMarketplacePluginPath);
+	}
+
+	CommandResult market = RunClient(client.binary, add);
 	if (!market.started) {
 		*why_not = wxString::Format(_("%s could not be run."), client.label);
 		return false;
+	}
+	// The same add without the sparse paths, for a client whose CLI predates the
+	// flag: it clones the whole app repository to get the same three directories.
+	bool sparse_dropped = false;
+	if (market.code != 0 && !MentionsAlready(market.out)) {
+		CommandResult retry = RunClient(
+		    client.binary, Args4("plugin", "marketplace", "add", kMarketplace));
+		if (retry.started && (retry.code == 0 || MentionsAlready(retry.out))) {
+			market = retry;
+			sparse_dropped = true;
+		}
 	}
 	if (market.code != 0 && !MentionsAlready(market.out)) {
 		*why_not = wxString::Format(_("`plugin marketplace add %s` failed: %s"),
@@ -411,16 +447,21 @@ bool InstallViaPlugin(const McpClientSetup::Client& client,
 		return false;
 	}
 
-	steps->push_back(McpClientSetup::Step(
-	    _("Plugin marketplace"), true, _("registered"),
+	wxString where =
 	    wxString::Format(_("%s is now a known marketplace for %s."),
-	                     kMarketplace, client.label)));
+	                     kMarketplace, client.label);
+	where += sparse_dropped
+	             ? _(" This client's CLI has no `--sparse`, so the whole "
+	                 "repository was checked out to get it.")
+	             : _(" Only the plugin's own directories were checked out.");
+	steps->push_back(McpClientSetup::Step(
+	    _("Plugin marketplace"), true, _("registered"), where));
 	steps->push_back(McpClientSetup::Step(
 	    _("Plugin"), true, already ? _("already installed") : _("installed"),
 	    wxString::Format(
 	        _("%s -- brings the MCP server (as a local command), the launcher "
-	          "that starts it, and the spatial-analysis skill, so nothing else "
-	          "has to be installed."),
+	          "that starts it, and the skill that sets the client up and drives "
+	          "the app, so nothing else has to be installed."),
 	        kPluginId)));
 	steps->push_back(McpClientSetup::Step(
 	    _("MCP server"), true, _("from the plugin"),
