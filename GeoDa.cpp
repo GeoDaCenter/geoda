@@ -1360,6 +1360,31 @@ void McpServerInfoDialog::OnCloseClick(wxCommandEvent& event)
     EndModal(wxID_CANCEL);
 }
 
+// `text` broken into lines of at most `cols` characters, each starting with
+// `indent`. Paragraph breaks in the text are kept.
+wxString WrapIndented(const wxString& text, int cols, const wxString& indent)
+{
+    wxString out;
+    wxArrayString paragraphs = wxSplit(text, '\n');
+    for (size_t p = 0; p < paragraphs.size(); ++p) {
+        wxArrayString words = wxSplit(paragraphs[p], ' ');
+        wxString line;
+        for (size_t w = 0; w < words.size(); ++w) {
+            if (words[w].IsEmpty()) continue;
+            if (line.IsEmpty()) {
+                line = words[w];
+            } else if ((int) (line.length() + 1 + words[w].length()) <= cols) {
+                line += " " + words[w];
+            } else {
+                out += indent + line + "\n";
+                line = words[w];
+            }
+        }
+        out += indent + line + "\n";
+    }
+    return out;
+}
+
 // Puts GeoDa into a coding agent -- Claude Code, Codex -- as a plugin, so that
 // the agent owns the MCP connection and only ever sees the app's commands as
 // tools, instead of being handed an endpoint URL it would then drive by hand.
@@ -1460,9 +1485,11 @@ McpInstallDialog::McpInstallDialog(wxWindow* parent, const wxString& base_url,
     m_status = new wxStaticText(this, wxID_ANY, " ");
     top->Add(m_status, 0, wxLEFT | wxRIGHT | wxTOP, 12);
 
-    m_report = new wxTextCtrl(this, wxID_ANY, "", wxDefaultPosition,
-                              wxSize(560, 190),
-                              wxTE_MULTILINE | wxTE_READONLY);
+    m_report = new wxTextCtrl(
+        this, wxID_ANY,
+        _("Choose a client above. Each step of the install is reported here,\n"
+          "including what the client's own command line said."),
+        wxDefaultPosition, wxSize(560, 190), wxTE_MULTILINE | wxTE_READONLY);
     m_report->SetFont(wxFont(11, wxFONTFAMILY_TELETYPE, wxFONTSTYLE_NORMAL,
                              wxFONTWEIGHT_NORMAL));
     top->Add(m_report, 1, wxEXPAND | wxLEFT | wxRIGHT | wxTOP, 12);
@@ -1513,16 +1540,31 @@ void McpInstallDialog::Install(const McpClientSetup::Client& client)
 
 void McpInstallDialog::ShowReport(const McpClientSetup::Result& result)
 {
+    // A step's detail is indented under it, a line per fact, so a step that
+    // failed says what the CLI said rather than only that it failed.
+    //
+    // The indenting is done here, by hand, because the text control wraps by
+    // itself: a soft-wrapped continuation starts back at the left margin, where
+    // it reads as the next step. The break is measured from the font this
+    // control is actually using, with slack, so nothing wraps a second time.
+    const wxString indent = "     ";
+    int cols = 100;
+    if (m_report && m_report->GetClientSize().GetWidth() > 0) {
+        const int char_w = m_report->GetTextExtent("0123456789").GetWidth() / 10;
+        if (char_w > 0) {
+            const int usable = (m_report->GetClientSize().GetWidth() * 9) / 10;
+            if (usable / char_w > (int) indent.length() + 20) {
+                cols = usable / char_w - (int) indent.length();
+            }
+        }
+    }
+
     wxString text;
     for (size_t i = 0; i < result.steps.size(); ++i) {
         const McpClientSetup::Step& step = result.steps[i];
         text += wxString::Format("%-4s %-20s %s\n", step.ok ? "OK" : "FAIL",
                                  step.label, step.summary);
-        // The detail is indented under its step: a line per fact, so a step
-        // that failed says what the CLI said rather than only that it failed.
-        wxString detail = step.detail;
-        detail.Replace("\n", "\n     ");
-        text += "     " + detail + "\n\n";
+        text += WrapIndented(step.detail, cols, indent) + "\n";
     }
 
     if (result.restart_required) {
