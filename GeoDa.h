@@ -629,8 +629,11 @@ public:
     void OnCustomCategoryClick_B(wxCommandEvent& event);
     void OnCustomCategoryClick_C(wxCommandEvent& event);
 
+    void OnMcpInstallPlugin(wxCommandEvent& event);
     void OnMcpStartServer(wxCommandEvent& event);
     void OnMcpStopServer(wxCommandEvent& event);
+    // Starts the server when it is not running; NULL when it cannot be started.
+    McpHttpServer* EnsureMcpServer();
     void SetMcpServer(McpHttpServer* server) { m_mcp_server = server; }
 
     void UpdateRecentDatasourceMenu();

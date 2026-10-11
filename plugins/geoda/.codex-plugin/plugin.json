@@ -1,0 +1,35 @@
+{
+  "name": "geoda",
+  "version": "0.2.0",
+  "description": "Drive GeoDa's spatial analysis from the agent: open data, build maps and plots in the app, create spatial weights, and run Moran's I, LISA, rate smoothing, PCA and clustering over MCP.",
+  "author": {
+    "name": "Xun Li"
+  },
+  "keywords": [
+    "geoda",
+    "gis",
+    "spatial",
+    "geospatial",
+    "lisa",
+    "moran",
+    "mcp"
+  ],
+  "skills": "./skills/",
+  "mcpServers": "./mcp.json",
+  "interface": {
+    "displayName": "GeoDa",
+    "shortDescription": "Spatial analysis in the GeoDa desktop app",
+    "longDescription": "Connect this agent to a running GeoDa app. The plugin registers GeoDa's MCP server as a local command, so the tools are the app's own -- open a data set, build choropleth maps, plots and LISA cluster maps as live windows, create spatial weights matrices, and run Moran's I, Geary's C, LISA, rate smoothing, PCA and clustering (SKATER, REDCAP, max-p, AZP) -- and ships the skill that starts the app when it is not running.",
+    "developerName": "GeoDa",
+    "category": "Productivity",
+    "capabilities": [
+      "Read",
+      "Write"
+    ],
+    "defaultPrompt": [
+      "Run a LISA analysis on the homicide rate in the natregimes sample",
+      "Map the homicide rate by quantile and by natural breaks and compare them",
+      "Cluster the US counties by their socioeconomic variables, spatially constrained"
+    ]
+  }
+}

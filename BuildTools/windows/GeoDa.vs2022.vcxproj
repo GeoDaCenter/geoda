@@ -925,6 +925,7 @@
     <ClCompile Include="..\..\TemplateCanvas.cpp" />
     <ClCompile Include="..\..\TemplateFrame.cpp" />
     <ClCompile Include="..\..\TemplateLegend.cpp" />
+    <ClCompile Include="..\..\MCP\McpClientSetup.cpp" />
     <ClCompile Include="..\..\MCP\McpCommands.cpp" />
     <ClCompile Include="..\..\MCP\McpHttpServer.cpp" />
     <ClCompile Include="..\..\MCP\McpPrompts.cpp" />

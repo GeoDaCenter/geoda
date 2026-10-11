@@ -54,6 +54,21 @@ To see what a client sees, with GeoDa running (default port 8765):
 
         GEODA_BIN=/path/to/GeoDa python3 MCP/tests/skill_serving_test.py
 
+# The agent plugin #
+
+GeoDa's MCP server can also reach a client as a **plugin**, which the client installs and starts itself, so the agent sees GeoDa's commands as tools rather than being handed the endpoint URL. That plugin is published from this repository: `.claude-plugin/marketplace.json` (Claude Code) and `.agents/plugins/marketplace.json` (Codex) at the root, with the plugin itself under `plugins/geoda/`. `plugins/geoda/README.md` has the layout, and why there is deliberately no `plugin.json` at the plugin's root.
+
+A marketplace is looked for at the root of the repository it names, and this one is a large source tree, so the install asks for a sparse checkout of the three directories the plugin needs:
+
+        claude plugin marketplace add GeoDaCenter/geoda --sparse .claude-plugin .agents plugins
+        claude plugin install -y geoda@geoda
+
+GeoDa does the same thing from its own window: **Options -> MCP -> Install MCP Plugin...** gives a button for Claude Code and one for Codex, reports each step, and falls back to registering the HTTP endpoint by URL where a plugin install is not possible.
+
+The launcher exists in three copies - `plugins/geoda/bin/geoda-mcp`, `MCP/bin/geoda-mcp`, and the raw string `MCP/McpClientSetup.cpp` writes out for the direct route - and `MCP/tests/launcher_test.py` fails when they drift apart.
+
+        GEODA_BIN=/path/to/GeoDa python3 MCP/tests/launcher_test.py
+
 # Internationalization #
 
 GeoDa Internationalization (I18n) and Localization(L10n) project aims to provide an online tool that GeoDa users could help to translate the GeoDa UI to different languages.

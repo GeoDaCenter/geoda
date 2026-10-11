@@ -1,0 +1,20 @@
+{
+  "name": "geoda",
+  "interface": {
+    "displayName": "GeoDa"
+  },
+  "plugins": [
+    {
+      "name": "geoda",
+      "source": {
+        "source": "local",
+        "path": "./plugins/geoda"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_USE"
+      },
+      "category": "Productivity"
+    }
+  ]
+}
