@@ -100,7 +100,10 @@ bool SCHCDlg::Run(std::vector<wxInt64>& clusters)
     int transpose = 0; // row wise
     // todo should be replaced
     double** ragged_distances = distancematrix(rows, columns, input_data,  mask, weight, dist, transpose);
-    bool isSqrt = method == 'a' ? true : false;
+    // distancematrix() returns squared distances for Euclidean only; single,
+    // complete and average linkage work on distances, Ward on squared ones
+    // (ward.D2)
+    bool isSqrt = method != 'w' && dist == 'e'; // 'w' == Ward's linkage
     double** distances = DataUtils::fullRaggedMatrix(ragged_distances, rows, rows, isSqrt);
     for (int i = 1; i < rows; i++) free(ragged_distances[i]);
     free(ragged_distances);

@@ -490,6 +490,14 @@ bool HClusterDlg::Run(std::vector<wxInt64>& clusters)
                                                 DataUtils::ManhattanDistance);
     }
 
+    // single, complete and average linkage work on distances, Ward on squared
+    // ones (ward.D2); EuclideanDistance() is the only metric handing them over
+    // squared, and ManhattanDistance() returns distances already
+    if (dist == 'e' && method != 'w') {
+        int cnt = rows * (rows-1) / 2;
+        for (int i=0; i<cnt; i++) pwdist[i] = sqrt(pwdist[i]);
+    }
+
     fastcluster::auto_array_ptr<t_index> members;
     if (htree != NULL) {
         delete[] htree;
