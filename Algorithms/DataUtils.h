@@ -475,7 +475,7 @@ public:
         for (int i = 1; i < k; i++) {
             for (int j = 0; j < i; j++) {
                 if (isSqrt) copy[i][j] = sqrt(matrix[i][j]);
-                copy[i][j] = matrix[i][j];
+                else copy[i][j] = matrix[i][j];
                 copy[j][i] = copy[i][j];
             }
         }
