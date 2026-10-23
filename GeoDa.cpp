@@ -829,13 +829,6 @@ GdaFrame::GdaFrame(const wxString& title, const wxPoint& pos,
 	SetIcon(wxIcon(GeoDaIcon_16x16_xpm));
 	SetMenuBar(wxXmlResource::Get()->LoadMenuBar("ID_SHARED_MAIN_MENU"));
 
-    Bind(wxEVT_COMMAND_MENU_SELECTED, &GdaFrame::OnMcpInstallPlugin, this,
-         XRCID("ID_MCP_INSTALL_PLUGIN"));
-    Bind(wxEVT_COMMAND_MENU_SELECTED, &GdaFrame::OnMcpStartServer, this,
-         XRCID("ID_MCP_START_SERVER"));
-    Bind(wxEVT_COMMAND_MENU_SELECTED, &GdaFrame::OnMcpStopServer, this,
-         XRCID("ID_MCP_STOP_SERVER"));
-
 	if (!GetHtmlMenuItems() || htmlMenuItems.size() == 0) {
 	} else {
 		wxMenuBar* mb = GetMenuBar();
@@ -1631,7 +1624,17 @@ McpHttpServer* GdaFrame::EnsureMcpServer()
     return m_mcp_server;
 }
 
-void GdaFrame::OnMcpInstallPlugin(wxCommandEvent& event)
+bool GdaFrame::IsMcpServerRunning() const
+{
+    return m_mcp_server != NULL && m_mcp_server->IsRunning();
+}
+
+wxString GdaFrame::GetMcpServerBaseUrl() const
+{
+    return IsMcpServerRunning() ? m_mcp_server->GetBaseUrl() : wxString();
+}
+
+void GdaFrame::InstallMcpClient()
 {
     McpHttpServer* server = EnsureMcpServer();
     if (!server) return;
@@ -1640,25 +1643,26 @@ void GdaFrame::OnMcpInstallPlugin(wxCommandEvent& event)
     dlg.ShowModal();
 }
 
-void GdaFrame::OnMcpStartServer(wxCommandEvent& event)
+void GdaFrame::ShowMcpServerInfo()
 {
     // The server is already running in the usual case: it starts with the app.
     // Starting it here is for the app started with --no-mcp or a server
-    // stopped from this menu. Either way the dialog below is the point of the
-    // menu entry -- it reports the URL of the port actually bound, which is
-    // not the default one when 8765 was taken.
+    // stopped from the caller. Either way the dialog below is the point --
+    // it reports the URL of the port actually bound, which is not the default
+    // one when 8765 was taken.
     McpHttpServer* server = EnsureMcpServer();
     if (!server) return;
     McpServerInfoDialog dlg(this, server->GetBaseUrl(), server->GetUrl());
     dlg.ShowModal();
 }
 
-void GdaFrame::OnMcpStopServer(wxCommandEvent& event)
+void GdaFrame::StopMcpServer()
 {
+    // Silent: the caller shows the new state (the MCP page of the Preferences
+    // dialog reports it in place, and a message box on top of that dialog
+    // would only repeat it).
     if (m_mcp_server) {
         m_mcp_server->Stop();
-        wxMessageBox(_("MCP server stopped."), _("MCP Server"),
-                     wxOK | wxICON_INFORMATION, this);
     }
 }
 

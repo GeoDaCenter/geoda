@@ -63,7 +63,7 @@ A marketplace is looked for at the root of the repository it names, and this one
         claude plugin marketplace add GeoDaCenter/geoda --sparse .claude-plugin .agents plugins
         claude plugin install -y geoda@geoda
 
-GeoDa does the same thing from its own window: **Options -> MCP -> Install MCP Plugin...** gives a button for Claude Code and one for Codex, reports each step, and falls back to registering the HTTP endpoint by URL where a plugin install is not possible.
+GeoDa does the same thing from its own window: the **MCP** page of **Preferences** (File -> Preferences, or GeoDa -> Preferences on macOS) gives a button for Claude Code and one for Codex, reports each step, and falls back to registering the HTTP endpoint by URL where a plugin install is not possible.
 
 The launcher exists in three copies - `plugins/geoda/bin/geoda-mcp`, `MCP/bin/geoda-mcp`, and the raw string `MCP/McpClientSetup.cpp` writes out for the direct route - and `MCP/tests/launcher_test.py` fails when they drift apart.
 

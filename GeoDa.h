@@ -629,9 +629,19 @@ public:
     void OnCustomCategoryClick_B(wxCommandEvent& event);
     void OnCustomCategoryClick_C(wxCommandEvent& event);
 
-    void OnMcpInstallPlugin(wxCommandEvent& event);
-    void OnMcpStartServer(wxCommandEvent& event);
-    void OnMcpStopServer(wxCommandEvent& event);
+    // The MCP server is a property of the application, not of a view, so its
+    // commands are offered from the Preferences dialog's MCP page rather than
+    // from a menu the view frames replace (which is what hid them as soon as a
+    // project was open).
+    bool IsMcpServerRunning() const;
+    // Origin of the running server, http://127.0.0.1:<port>; empty when it is
+    // not running.
+    wxString GetMcpServerBaseUrl() const;
+    // Brings the server up and reports where it listens.
+    void ShowMcpServerInfo();
+    // Brings the server up and offers to install GeoDa into a coding agent.
+    void InstallMcpClient();
+    void StopMcpServer();
     // Starts the server when it is not running; NULL when it cannot be started.
     McpHttpServer* EnsureMcpServer();
     void SetMcpServer(McpHttpServer* server) { m_mcp_server = server; }

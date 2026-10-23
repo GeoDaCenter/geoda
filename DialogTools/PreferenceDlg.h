@@ -21,6 +21,7 @@
 #define __GEODA_CENTER_PREFERENCE_DLG_H__
 
 #include <string>
+#include <wx/button.h>
 #include <wx/dialog.h>
 #include <wx/bmpbuttn.h>
 #include <wx/choice.h>
@@ -28,6 +29,7 @@
 #include <wx/sizer.h>
 #include <wx/checkbox.h>
 #include <wx/hyperlink.h>
+#include <wx/stattext.h>
 #include <wx/xrc/xmlres.h>
 
 #include "../HLStateInt.h"
@@ -118,7 +120,15 @@ protected:
     // labels
     wxCheckBox* cbox_lbl;
     wxTextCtrl* txt_lbl_font;
-    
+    // MCP server page
+    wxStaticText* mcp_status;
+    wxButton* mcp_start_btn;
+    wxButton* mcp_stop_btn;
+    void UpdateMcpStatus();
+    void OnMcpStart(wxCommandEvent& ev);
+    void OnMcpStop(wxCommandEvent& ev);
+    void OnMcpInstall(wxCommandEvent& ev);
+
     void Init();
     void SetupControls();    
     void OnChooseLanguage(wxCommandEvent& ev);

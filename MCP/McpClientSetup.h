@@ -31,7 +31,8 @@
  * What "install" means here is the thing that decides whether the agent drives
  * GeoDa or works around it. The MCP server is registered as a **command** --
  * the stdio launcher this app ships -- and not as the http://127.0.0.1:8765/mcp
- * URL the MCP menu offers: registering a URL leaves one in the model's context,
+ * URL the app's MCP page offers: registering a URL leaves one in the model's
+ * context,
  * and a client that cannot see the server's tools (one not restarted since
  * registering, or started while the app was down) will drive that endpoint by
  * hand, with hand-written JSON-RPC envelopes, tens of calls per session. As a
