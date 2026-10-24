@@ -41,11 +41,11 @@ Restart the client afterwards — a client only sees the tools of the servers it
 started with. Then ask it to do something spatial, e.g. *"run a LISA analysis on
 the homicide rate in the natregimes sample with GeoDa"*.
 
-The same two clicks are in the app: **Options → MCP → Install MCP Plugin…**,
-which reports what happened at each step (and passes the sparse paths itself),
-falling back to registering the endpoint by URL when a plugin install is not
-possible — Windows, whose clients have no `/bin/sh` for the launcher, or a
-client without a plugin loader.
+The same two clicks are in the app: the **MCP** page of **Preferences** (File →
+Preferences, or GeoDa → Preferences on macOS), which reports what happened at
+each step (and passes the sparse paths itself), falling back to registering the
+endpoint by URL when a plugin install is not possible — Windows, whose clients
+have no `/bin/sh` for the launcher, or a client without a plugin loader.
 
 ## Layout
 

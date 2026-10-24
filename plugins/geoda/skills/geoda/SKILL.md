@@ -57,10 +57,11 @@ Restart the client.
 
 ## Step 3 — If the tools are still missing, set the app up
 
-GeoDa installs itself into the client: **Options → MCP → Install MCP Plugin…**
-gives a button for Claude Code and one for Codex, and reports what it did step
-by step. The same thing by hand — the marketplace is GeoDa's own repository, so
-the `--sparse` paths keep the client from checking out the whole application:
+GeoDa installs itself into the client: the **MCP** page of **Preferences**
+(File → Preferences, or GeoDa → Preferences on macOS) gives a button for Claude
+Code and one for Codex, and reports what it did step by step. The same thing by
+hand — the marketplace is GeoDa's own repository, so the `--sparse` paths keep
+the client from checking out the whole application:
 
 ```bash
 claude plugin marketplace add GeoDaCenter/geoda --sparse .claude-plugin .agents plugins
@@ -72,9 +73,9 @@ codex plugin marketplace add GeoDaCenter/geoda --sparse .claude-plugin --sparse 
 codex plugin add geoda@geoda
 ```
 
-Restart the client afterwards. (Without a plugin loader, GeoDa's MCP menu also
-shows the endpoint URL — `http://127.0.0.1:8765/mcp` — for a client that takes a
-URL, though a command is what lets this agent see the tools rather than a URL it
+Restart the client afterwards. (Without a plugin loader, that page also shows
+the endpoint URL — `http://127.0.0.1:8765/mcp` — for a client that takes a URL,
+though a command is what lets this agent see the tools rather than a URL it
 would have to call by hand.)
 
 ## Step 4 — Driving GeoDa
