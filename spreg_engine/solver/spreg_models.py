@@ -532,7 +532,7 @@ def extract_impacts(model_obj: Any) -> List[Dict[str, Any]]:
 FIT_FIELDS = [
     ("logll", "logll"), ("aic", "aic"), ("schwarz", "schwarz"), ("sig2", "sigma2"),
     ("r2", "r2"), ("ar2", "adj_r2"), ("pr2", "pr2"), ("pr2_e", "pr2_e"),
-    ("mean_y", "mean_y"), ("std_y", "std_y"), ("utu", "utu"), ("sig2n_k", "sigma2_ml"),
+    ("mean_y", "mean_y"), ("std_y", "std_y"), ("utu", "utu"), ("sig2n", "sigma2_ml"),
 ]
 
 
@@ -705,6 +705,7 @@ def extract_result(model_obj: Any, entry: Dict[str, Any], ctx: Dict[str, Any]) -
             "title": str(title),
             "n": int(getattr(model_obj, "n", ctx.get("n", 0)) or 0),
             "k": int(getattr(model_obj, "k", 0) or 0),
+            "robust": str(ctx.get("robust") or ""),
         },
         "coefficients": coefficients,
         "spatial_parameters": spatial,

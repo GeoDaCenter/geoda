@@ -421,7 +421,8 @@ def run_job(jobdir: str, log: Log) -> Tuple[Dict[str, Any], Dict[str, Any]]:
     log("done in %.2fs" % (time.time() - started))
 
     ctx = {"x_names": data["x_names"], "y_name": data["y_name"], "n": data["n"],
-           "yend_names": data.get("endogenous_names")}
+           "yend_names": data.get("endogenous_names"),
+           "robust": kwargs.get("robust") or ""}
     result = REG.extract_result(model, entry, ctx)
 
     # The tests an estimator does not compute itself but that spreg offers for it

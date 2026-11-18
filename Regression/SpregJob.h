@@ -98,11 +98,12 @@ struct Result {
 	int n, k;
 	wxString requested_model, class_name, title, error_message;
 	wxString spreg_version;
+	wxString robust;                     // "", "white" or "hac"
 	std::vector<wxString> names, roles;
 	std::vector<double> estimate, std_err, z, p;   // nulls become NaN
 	std::map<wxString, double> fit;
 	struct Diagnostic {
-		wxString group, label;
+		wxString group, name, label;
 		double statistic, df, p;
 		Diagnostic() : statistic(0), df(0), p(0) {}
 	};
