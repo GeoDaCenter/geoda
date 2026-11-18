@@ -162,9 +162,20 @@ void SpregEngineDlg::UpdateState()
 	const Status status = Discover(manifest);
 	installed_ = status.installed;
 	if (installed_) {
-		status_text_->SetLabel(wxString::Format(_("spreg %s is installed:\n%s"),
-												status.version, status.dir));
-		install_button_->SetLabel(_("&Reinstall Engine"));
+		// a newer GeoDa may ship a newer engine than the one already on disk;
+		// say so rather than leaving it in use until someone thinks to reinstall
+		const bool outdated = IsOlderVersion(status.version, manifest.spreg);
+		if (outdated) {
+			status_text_->SetLabel(wxString::Format(
+				_("spreg %s is installed, but this GeoDa ships %s.  "
+				  "Update the engine to use the newer one:\n%s"),
+				status.version, manifest.spreg, status.dir));
+			install_button_->SetLabel(_("&Update Engine"));
+		} else {
+			status_text_->SetLabel(wxString::Format(_("spreg %s is installed:\n%s"),
+													status.version, status.dir));
+			install_button_->SetLabel(_("&Reinstall Engine"));
+		}
 	} else {
 		const Artifact* artifact = manifest.ForThisPlatform();
 		if (artifact) {

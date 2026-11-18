@@ -462,9 +462,20 @@ void RegressionDlg::RefreshSpregState()
 
 	m_spreg_installed = status.installed;
 	if (status.installed) {
-		m_spreg_status->SetLabel(wxString::Format(_("spreg %s ready"), status.version));
+		// the engine already on disk may be older than the one this GeoDa
+		// ships; the Install button then stays, saying Update
+		if (SpregEngine::IsOlderVersion(status.version, manifest.spreg)) {
+			m_spreg_status->SetLabel(wxString::Format(
+				_("spreg %s ready; %s is available"), status.version, manifest.spreg));
+			m_install_spreg_btn->SetLabel(_("Update Spreg"));
+			m_install_spreg_btn->Show();
+			m_install_spreg_btn->Enable(true);
+		} else {
+			m_spreg_status->SetLabel(wxString::Format(_("spreg %s ready"), status.version));
+			m_install_spreg_btn->SetLabel(_("Install Spreg"));
+			m_install_spreg_btn->Hide();
+		}
 		WrapSpregStatus();
-		m_install_spreg_btn->Hide();
 		// The model list costs a Python start, so it is fetched once the dialog
 		// is up rather than while it is being built - otherwise opening the
 		// dialog waits for the interpreter.  On everything but the first time
@@ -482,6 +493,7 @@ void RegressionDlg::RefreshSpregState()
 			? _("Regimes, spatial Durbin, GMM/IV and probit models need this")
 			: _("The advanced models are not available in this build"));
 		WrapSpregStatus();
+		m_install_spreg_btn->SetLabel(_("Install Spreg"));
 		m_install_spreg_btn->Show();
 		m_install_spreg_btn->Enable(have_manifest);
 		if (m_spreg_model_choice) {

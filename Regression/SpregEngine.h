@@ -103,6 +103,13 @@ struct Status {
 /** Looks for an installed, usable engine; never downloads anything. */
 Status Discover(const Manifest& manifest);
 
+/**
+ * Whether `installed` is an older dotted version than `shipped`, e.g. 1.9.1
+ * against 1.9.2.  Non-numeric suffixes are ignored, and an empty version is
+ * never called older.
+ */
+bool IsOlderVersion(const wxString& installed, const wxString& shipped);
+
 /** The interpreter inside an engine directory, empty if there is none. */
 wxString EnginePythonPath(const wxString& engine_dir);
 
