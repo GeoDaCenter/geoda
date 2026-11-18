@@ -47,6 +47,11 @@ public:
 	bool AddY(const std::vector<double>& y, wxString& err);
 	/** The covariates, n by k, no constant (the solver adds it). */
 	bool AddX(const std::vector<std::vector<double> >& x, wxString& err);
+	/** What the weights are ("kernel" when the diagonal is nonzero), which
+	 *  decides the transform the solver applies and whether self-loops are
+	 *  allowed; empty for an ordinary spatial weights matrix. */
+	void SetWeightsKind(const wxString& kind) { weights_kind_ = kind; }
+
 	/** The weights, as the CSR GeoDa's GalElement[] already is. */
 	bool AddWeights(const GalElement* gal, int n, wxString& err);
 	/** The same, straight from three arrays, for callers that have no GAL. */
@@ -85,6 +90,7 @@ private:
 	struct Array { wxString name, dtype; int rows, cols; long long offset, nbytes; };
 
 	wxString dir_;
+	wxString weights_kind_;
 	long long offset_;
 	std::vector<Array> arrays_;
 	bool have_y_, have_x_, have_w_;

@@ -408,7 +408,14 @@ bool Writer::Write(const wxString& model,
 		weights.push_back(json_spirit::Pair("indptr", "w_indptr"));
 		weights.push_back(json_spirit::Pair("indices", "w_indices"));
 		weights.push_back(json_spirit::Pair("data", "w_data"));
-		weights.push_back(json_spirit::Pair("transform", "r"));
+		// A kernel weights matrix is sent exactly as GeoDa holds it: its
+		// diagonal of ones is what spreg's HAC estimator needs, and
+		// row-standardizing would destroy it.
+		const bool kernel = weights_kind_ == "kernel";
+		weights.push_back(json_spirit::Pair("transform", kernel ? "o" : "r"));
+		if (!weights_kind_.IsEmpty()) {
+			weights.push_back(json_spirit::Pair("kind", ToUtf8(weights_kind_)));
+		}
 		weights.push_back(json_spirit::Pair("name", ToUtf8(weights_name)));
 		root.push_back(json_spirit::Pair("weights", weights));
 	}
