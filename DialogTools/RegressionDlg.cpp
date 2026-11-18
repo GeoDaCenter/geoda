@@ -45,6 +45,7 @@
 #include "../ShapeOperations/WeightsManState.h"
 #include "../ShapeOperations/GeodaWeight.h"
 #include "../ShapeOperations/GalWeight.h"
+#include "../VarCalc/WeightsMetaInfo.h"
 #include "../Regression/DiagnosticReport.h"
 #include "../Regression/Lite2.h"
 #include "../Regression/PowerLag.h"
@@ -780,6 +781,7 @@ void RegressionDlg::GrowToFit()
 bool RegressionDlg::RunSpregModel(wxCommandEvent& WXUNUSED(event))
 {
 	wxLogMessage("RegressionDlg::RunSpregModel(%s)", m_spreg_model);
+	wxString err;
 
 	m_gauge->Show();
 	UpdateMessageBox(_("calculating..."));
@@ -790,8 +792,6 @@ bool RegressionDlg::RunSpregModel(wxCommandEvent& WXUNUSED(event))
 	for (size_t i = 0; i < m_spreg_models.size(); ++i) {
 		if (m_spreg_models[i].id == m_spreg_model) chosen_model = &m_spreg_models[i];
 	}
-	const bool wants_weights = !chosen_model || chosen_model->needs_weights;
-
 	const wxString y_display = m_dependent->GetValue();
 	if (y_display.IsEmpty() || m_independentlist->GetCount() == 0) {
 		UpdateMessageBox("");
@@ -871,6 +871,23 @@ bool RegressionDlg::RunSpregModel(wxCommandEvent& WXUNUSED(event))
 		}
 	}
 
+	// What the dialog's controls say, which start at the registry's defaults.
+	// Read before the weights are handled: for an OLS, whether one of the
+	// spatial options is on is what decides whether a weights matrix is needed.
+	bool options_ok = true;
+	std::map<wxString, wxString> options = ReadSpregOptions(options_ok, err);
+	if (!options_ok) {
+		UpdateMessageBox("");
+		m_gauge->Hide();
+		wxMessageBox(err, _("Error"), wxOK | wxICON_ERROR, this);
+		return true;
+	}
+	long slx_lags = 0;
+	options["slx_lags"].ToLong(&slx_lags);
+	const bool spatial_tests = options["spat_diag"] == "true";
+	const bool moran = options["moran"] == "true";
+	const bool hac = options["robust"] == "hac";
+
 	std::vector<int> valid_rows;
 	std::map<int, int> remap;
 	for (long i = 0; i < m_obs; ++i) {
@@ -889,8 +906,18 @@ bool RegressionDlg::RunSpregModel(wxCommandEvent& WXUNUSED(event))
 		return true;
 	}
 
+	// Besides the models that say they need weights, an OLS needs them only
+	// for the spatial tests, Moran's I, SLX terms or HAC standard errors.
+	bool wants_weights = !chosen_model || chosen_model->needs_weights;
+	if (!wants_weights && (spatial_tests || moran || slx_lags > 0 || hac)) {
+		wants_weights = true;
+	}
+
 	// the ones that build their own weights from coordinates do not want these
 	const boost::uuids::uuid weights_id = GetWeightsId();
+	const bool kernel_weights = wants_weights && m_CheckWeight->GetValue()
+		&& !weights_id.is_nil()
+		&& w_man_int->GetWeightsType(weights_id) == WeightsMetaInfo::WT_kernel;
 	GalWeight* gal_weight = wants_weights ? w_man_int->GetGal(weights_id) : NULL;
 	if (wants_weights && !m_CheckWeight->GetValue()) {
 		UpdateMessageBox("");
@@ -906,6 +933,40 @@ bool RegressionDlg::RunSpregModel(wxCommandEvent& WXUNUSED(event))
 		wxLogMessage("Spreg: the chosen weights matrix is gone");
 		wxMessageBox(_("The chosen weights matrix is no longer available."), _("Error"),
 					 wxOK | wxICON_ERROR, this);
+		return true;
+	}
+	if (hac && !kernel_weights) {
+		UpdateMessageBox("");
+		m_gauge->Hide();
+		wxLogMessage("Spreg: HAC was asked for without kernel weights");
+		wxMessageBox(_("HAC standard errors are computed from a kernel weights matrix.  "
+					   "Choose a kernel weights matrix, or White standard errors."),
+					 _("Error"), wxOK | wxICON_ERROR, this);
+		return true;
+	}
+	if (hac && chosen_model) {
+		const wxString& id = chosen_model->id;
+		const bool supports_hac = id == "OLS" || id == "OLS_Regimes"
+			|| id == "TSLS" || id == "TSLS_Regimes";
+		if (!supports_hac || slx_lags > 0) {
+			UpdateMessageBox("");
+			m_gauge->Hide();
+			wxLogMessage("Spreg: HAC is not available for %s", id);
+			wxMessageBox(_("HAC standard errors are available for OLS and 2SLS without "
+						   "SLX terms.  The spatial lag models need an ordinary weights "
+						   "matrix, which HAC cannot use."),
+						 _("Error"), wxOK | wxICON_ERROR, this);
+			return true;
+		}
+	}
+	if (kernel_weights && (spatial_tests || moran)) {
+		UpdateMessageBox("");
+		m_gauge->Hide();
+		wxLogMessage("Spreg: spatial tests were asked for with kernel weights");
+		wxMessageBox(_("Kernel weights have ones along the diagonal, so spreg's spatial "
+					   "dependence tests and Moran's I do not apply to them.  Turn those "
+					   "off, or use HAC standard errors."),
+					 _("Error"), wxOK | wxICON_ERROR, this);
 		return true;
 	}
 
@@ -927,7 +988,6 @@ bool RegressionDlg::RunSpregModel(wxCommandEvent& WXUNUSED(event))
 	wxRemoveFile(job_dir + sep + "result.json");
 
 	SpregEngine::Manifest manifest;
-	wxString err;
 	if (!manifest.Read(SpregEngine::ShippedManifestPath(), err)) {
 		UpdateMessageBox("");
 		m_gauge->Hide();
@@ -950,10 +1010,7 @@ bool RegressionDlg::RunSpregModel(wxCommandEvent& WXUNUSED(event))
 	for (long i = 0; i < m_obs; ++i) undefs[i] = undefs_local[i];
 
 	// what this model needs beyond the covariates
-	const SpregJob::ModelOption* chosen = NULL;
-	for (size_t i = 0; i < m_spreg_models.size(); ++i) {
-		if (m_spreg_models[i].id == m_spreg_model) chosen = &m_spreg_models[i];
-	}
+	const SpregJob::ModelOption* chosen = chosen_model;
 	wxString regimes_name;
 	std::vector<wxString> yend_names, q_names, coords_names;
 	std::vector<std::vector<double> > yend, q;
@@ -1064,6 +1121,7 @@ bool RegressionDlg::RunSpregModel(wxCommandEvent& WXUNUSED(event))
 	}
 
 	SpregJob::Writer writer(job_dir);
+	writer.SetWeightsKind(kernel_weights ? wxString("kernel") : wxString());
 	bool ok = writer.AddY(y, err);
 	if (ok) ok = writer.AddX(x, err);
 	if (ok && wants_weights) {
@@ -1090,25 +1148,18 @@ bool RegressionDlg::RunSpregModel(wxCommandEvent& WXUNUSED(event))
 		}
 	}
 
-	// what the dialog's controls say, which start at the registry's defaults
-	bool options_ok = true;
-	std::map<wxString, wxString> options = ReadSpregOptions(options_ok, err);
-	if (!options_ok) {
-		UpdateMessageBox("");
-		m_gauge->Hide();
-		wxMessageBox(err, _("Error"), wxOK | wxICON_ERROR, this);
-		return true;
-	}
-
 	if (ok && !coord_x.empty()) ok = writer.AddCoords(coord_x, coord_y, err);
 	if (ok && !regimes.empty()) ok = writer.AddRegimes(regimes, err);
 	if (ok && !yend.empty()) ok = writer.AddEndogenous(yend, err);
 	if (ok && !q.empty()) ok = writer.AddInstruments(q, err);
+	const wxString weights_label = wants_weights
+		? w_man_int->GetLongDispName(weights_id)
+		: (chosen_model && chosen_model->needs_coords
+		   ? wxString(_("built from the coordinates")) : wxString());
 	if (ok) {
 		ok = writer.Write(m_spreg_model, options, name_to_nm[y_display], x_names,
-						  wants_weights ? w_man_int->GetLongDispName(weights_id)
-										: wxString("built from the coordinates"),
-						  regimes_name, yend_names, q_names, coords_names, err);
+						  weights_label, regimes_name, yend_names, q_names,
+						  coords_names, err);
 	}
 	if (!ok) {
 		UpdateMessageBox("");
@@ -1143,9 +1194,7 @@ bool RegressionDlg::RunSpregModel(wxCommandEvent& WXUNUSED(event))
 		return true;
 	}
 
-	ShowSpregResults(result, table_int->GetTableName(),
-					 wants_weights ? w_man_int->GetLongDispName(weights_id)
-								   : _("built from the coordinates"));
+	ShowSpregResults(result, table_int->GetTableName(), weights_label);
 
 	m_spreg_result = result;
 	m_spreg_yhat = result.yhat;
@@ -1189,7 +1238,8 @@ void RegressionDlg::ShowSpregResults(const SpregJob::Result& result,
 	}
 	text << "SUMMARY OF OUTPUT: " << result.title << "\n";
 	text << wxString::Format("%-20s%s\n", "Data set            : ", dataset);
-	text << wxString::Format("%-20s%s\n", "Spatial Weight      : ", weights_name);
+	text << wxString::Format("%-20s%s\n", "Spatial Weight      : ",
+							 weights_name.IsEmpty() ? wxString(_("None")) : weights_name);
 	text << wxString::Format("Dependent Variable  :%12s  Number of Observations:%5d\n",
 							 m_dependent->GetValue(), result.n);
 	{

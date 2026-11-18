@@ -272,12 +272,19 @@ def build_weights(job: Dict[str, Any], arrays: Dict[str, Any], data: Dict[str, A
         raise ProtocolError("weights.indices contains out-of-range neighbor ids")
     if not np.isfinite(values).all():
         raise ProtocolError("weights.data contains NaN or infinite values")
-    if len(indices) and (indices == np.repeat(np.arange(n), np.diff(indptr))).any():
+    # A kernel weights matrix has ones on the diagonal (that is what spreg's
+    # HAC estimator wants); every other matrix spreg accepts has a zero
+    # diagonal.  So the diagonal is only rejected for the latter.
+    kernel = str(spec.get("kind", "")).lower() == "kernel"
+    if not kernel and len(indices) \
+            and (indices == np.repeat(np.arange(n), np.diff(indptr))).any():
         raise ProtocolError("weights contain self-loops; spreg requires a zero diagonal")
 
-    transform = str(spec.get("transform", "r")).lower()
+    transform = str(spec.get("transform", "o" if kernel else "r")).lower()
     if transform not in ("r", "b", "o"):
         raise ProtocolError("weights.transform must be 'r', 'b' or 'o', got %r" % transform)
+    if kernel and transform == "r":
+        raise ProtocolError("kernel weights must be sent untransformed (transform 'o')")
 
     if transform == "b":
         values = np.ones_like(values)
@@ -297,6 +304,17 @@ def build_weights(job: Dict[str, Any], arrays: Dict[str, Any], data: Dict[str, A
         w.transform = "r"
     elif transform == "b":
         w.transform = "b"
+    if kernel:
+        # spreg's HAC estimator insists on a libpysal Kernel object, but the
+        # weight values GeoDa sends already are the kernel weights: only the
+        # class matters here, so the sparse matrix is carried over as it is.
+        kernel_w = libw.Kernel.__new__(libw.Kernel)
+        kernel_w.__dict__.update(w.__dict__)
+        kernel_w.function = "triangular"
+        kernel_w.bandwidth = None
+        kernel_w.fixed = True
+        kernel_w.diagonal = True
+        w = kernel_w
     # 'o': leave the weights exactly as sent (transform stays unset)
     log("weights: n=%d, %d stored links, transform=%s, name=%s"
         % (n, len(values), transform, spec.get("name", "")))
@@ -309,7 +327,10 @@ def build_weights(job: Dict[str, Any], arrays: Dict[str, Any], data: Dict[str, A
 
 def call_estimator(entry: Dict[str, Any], cls: Any, data: Dict[str, Any],
                    kwargs: Dict[str, Any], log: Log):
-    y, x, w = data["y"], data["x"], data.get("w")
+    # `w_for_model` lets HAC runs keep the kernel matrix for `gwk` while the
+    # estimator itself is given no `w`: spreg rejects a kernel matrix there.
+    y, x = data["y"], data["x"]
+    w = data.get("w_for_model", data.get("w"))
     style = entry["style"]
     regimes = data.get("regimes")
     yend = data.get("endogenous")
@@ -379,11 +400,20 @@ def run_job(jobdir: str, log: Log) -> Tuple[Dict[str, Any], Dict[str, Any]]:
                                 "(found %s)" % ", ".join(repr(v) for v in sorted(values)[:4]))
 
     data["w"] = build_weights(job, arrays, data, log) if job.get("weights") else None
+    data["weights_kernel"] = bool(data["w"] is not None
+                                  and str((job.get("weights") or {}).get("kind", "")).lower()
+                                  == "kernel")
 
     try:
         kwargs, warnings = REG.validate_options(entry, job.get("options") or {})
     except ValueError as exc:
         raise ProtocolError(str(exc))
+
+    if kwargs.get("robust") == "hac" and data["w"] is not None:
+        diagonal = np.asarray(data["w"].sparse.diagonal()).reshape(-1)
+        if diagonal.shape[0] != data["n"] or not np.allclose(diagonal, 1.0):
+            raise ProtocolError("HAC standard errors need kernel weights with ones "
+                                "along the diagonal (this matrix does not have them)")
     if entry["style"] in ("regimes", "endog_regimes_a", "endog_regimes_b"):
         # the solver owns the constant for regimes models
         kwargs["constant_regi"] = kwargs.get("constant_regi", "many") if data["constant"] else False
@@ -408,6 +438,28 @@ def run_job(jobdir: str, log: Log) -> Tuple[Dict[str, Any], Dict[str, Any]]:
         kwargs["name_yend"] = data["endogenous_names"]
     if "name_q" in parameters and data.get("instruments_names"):
         kwargs["name_q"] = data["instruments_names"]
+
+    # HAC standard errors are computed from a kernel weights matrix, which spreg
+    # takes as `gwk`.  The kernel matrix cannot stand in for `w` (spreg rejects
+    # it there), so the estimator is given none: for OLS and 2SLS that only
+    # drops the spatial diagnostics, which HAC disables anyway.
+    if kwargs.get("robust") == "hac":
+        if entry["id"] in ("GM_Lag", "GM_Lag_Regimes"):
+            raise ProtocolError("HAC standard errors are not available for the spatial "
+                                "lag models: they need an ordinary spatial weights matrix "
+                                "for their instruments, and HAC needs a kernel matrix")
+        if kwargs.get("slx_lags"):
+            raise ProtocolError("HAC standard errors cannot be combined with SLX terms "
+                                "here: SLX needs an ordinary spatial weights matrix while "
+                                "HAC needs a kernel matrix")
+        if not data["weights_kernel"]:
+            raise ProtocolError("HAC standard errors need a kernel weights matrix; "
+                                "choose a kernel weights matrix for this model")
+        if "gwk" not in parameters:
+            raise ProtocolError("model %s cannot compute HAC standard errors"
+                                % entry["id"])
+        kwargs["gwk"] = data["w"]
+        data["w_for_model"] = None
 
     # Options the solver owns rather than spreg: they say what is computed around
     # the estimator, not how it is estimated, so they are taken out before it is

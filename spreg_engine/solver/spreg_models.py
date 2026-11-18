@@ -41,10 +41,11 @@ from typing import Any, Dict, List, Optional, Tuple
 # (e.g. "auto" -> None).
 
 OPT = {
-    "robust": {"type": "enum", "values": ["none", "white", "het"], "default": "none",
+    "robust": {"type": "enum", "values": ["none", "white", "hac"], "default": "none",
                "map": {"none": None}, "label": "Robust standard errors",
-               "help": "spreg's robust (White or heteroskedasticity-consistent) standard errors; "
-                       "with them the spatial dependence tests are not computed"},
+               "help": "spreg's robust standard errors: White (heteroskedasticity-consistent) "
+                       "or HAC (needs kernel weights); with them the spatial dependence tests "
+                       "are not computed"},
     "slx_lags": {"type": "int", "default": 0, "min": 0, "max": 3, "label": "SLX lags of X",
                  "help": "spatial lags of X (1 = spatial Durbin / SLX)"},
     "slx_vars": {"type": "str", "default": "all", "label": "SLX variables",
@@ -54,16 +55,17 @@ OPT = {
     "nonspat_diag": {"type": "bool", "default": True, "label": "Non-spatial diagnostics",
                      "help": "Jarque-Bera, Breusch-Pagan and Koenker-Bassett on the residuals, "
                              "and the measures of fit"},
-    "spat_diag": {"type": "bool", "default": True, "label": "Spatial dependence tests",
+    "spat_diag": {"type": "bool", "default": False, "label": "Spatial dependence tests",
                   "help": "LM tests for spatial dependence: lag, error and their robust forms, "
                           "SARMA, spatial Durbin and WX (OLS); the Anselin-Kelejian test on the "
-                          "residuals (GM_Lag, TSLS)"},
-    "moran": {"type": "bool", "default": True, "label": "Moran's I",
+                          "residuals (GM_Lag, TSLS). Needs a spatial weights matrix"},
+    "moran": {"type": "bool", "default": False, "label": "Moran's I",
               "help": "Moran's I on the residuals - a diffuse test of spatial dependence, "
-                      "computed on top of the spatial diagnostics"},
-    # On by default, unlike in spreg: GeoDa's own OLS report carries a White
-    # test, and the cost of computing it is a fraction of a second.
-    "white_test": {"type": "bool", "default": True, "label": "White test",
+                      "computed on top of the spatial diagnostics. Needs a spatial weights "
+                      "matrix"},
+    # Off by default, as in spreg: the White test is one more optional test,
+    # not part of what an OLS run reports unless it is asked for.
+    "white_test": {"type": "bool", "default": False, "label": "White test",
                    "help": "White's specification robust test for heteroskedasticity; spreg leaves "
                            "it off unless it is asked for, and reports it as not computed when the "
                            "condition number is too large"},
@@ -149,12 +151,16 @@ MODELS: List[Dict[str, Any]] = [
     # ---- classical -------------------------------------------------------
     _m("OLS", "Classical (OLS)", "classical", "spreg.ols:OLS",
        options=("robust", "slx_lags", "sig2n_k", "nonspat_diag", "spat_diag", "moran", "white_test"),
-       notes="weights are required by spreg even for a purely non-spatial OLS"),
+       requires={"weights": False},
+       notes="weights are needed only for the spatial dependence tests, Moran's I, "
+             "SLX or HAC"),
     _m("OLS_Regimes", "Classical (OLS), by regime", "classical", "spreg.ols_regimes:OLS_Regimes",
        style="regimes",
        options=("robust", "slx_lags", "sig2n_k", "nonspat_diag", "spat_diag", "moran",
                 "white_test") + _REGI,
-       requires={"regimes": True}),
+       requires={"regimes": True, "weights": False},
+       notes="weights are needed only for the spatial dependence tests, Moran's I, "
+             "SLX or HAC"),
     # ---- ML --------------------------------------------------------------
     _m("ML_Lag", "Spatial lag (ML)", "ml_lag", "spreg.ml_lag:ML_Lag",
        options=("method", "epsilon", "slx_lags", "spat_impacts", "likelihood_ratio"),
