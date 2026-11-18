@@ -508,6 +508,21 @@ long long EngineSize(const wxString& engine_dir)
 	return total;
 }
 
+bool IsOlderVersion(const wxString& installed, const wxString& shipped)
+{
+	if (installed.IsEmpty() || shipped.IsEmpty()) return false;
+	const wxArrayString have = wxSplit(installed, '.');
+	const wxArrayString want = wxSplit(shipped, '.');
+	const size_t count = have.size() > want.size() ? have.size() : want.size();
+	for (size_t i = 0; i < count; ++i) {
+		long a = 0, b = 0;
+		if (i < have.size()) have[i].ToLong(&a);
+		if (i < want.size()) want[i].ToLong(&b);
+		if (a != b) return a < b;
+	}
+	return false;
+}
+
 Status Discover(const Manifest& manifest)
 {
 	Status status;
