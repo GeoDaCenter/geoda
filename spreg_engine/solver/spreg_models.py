@@ -48,7 +48,8 @@ OPT = {
     "slx_lags": {"type": "int", "default": 0, "min": 0, "max": 3, "label": "SLX lags of X",
                  "help": "spatial lags of X (1 = spatial Durbin / SLX)"},
     "slx_vars": {"type": "str", "default": "all", "label": "SLX variables",
-                 "help": "'all' or a list of X names"},
+                 "help": "which covariates to lag: all of them, or the ones "
+                         "selected in the list"},
     "sig2n_k": {"type": "bool", "default": True, "label": "sigma^2 = u'u/(n-k)",
                  "help": "divide by n-k rather than n when estimating sigma^2"},
     "nonspat_diag": {"type": "bool", "default": True, "label": "Non-spatial diagnostics",
@@ -148,12 +149,13 @@ _REGI = ("constant_regi", "cols2regi")
 MODELS: List[Dict[str, Any]] = [
     # ---- classical -------------------------------------------------------
     _m("OLS", "Classical (OLS)", "classical", "spreg.ols:OLS",
-       options=("robust", "slx_lags", "sig2n_k", "nonspat_diag", "spat_diag", "moran", "white_test"),
+       options=("robust", "slx_lags", "slx_vars", "sig2n_k", "nonspat_diag", "spat_diag",
+                "moran", "white_test"),
        notes="weights are required by spreg even for a purely non-spatial OLS"),
     _m("OLS_Regimes", "Classical (OLS), by regime", "classical", "spreg.ols_regimes:OLS_Regimes",
        style="regimes",
-       options=("robust", "slx_lags", "sig2n_k", "nonspat_diag", "spat_diag", "moran",
-                "white_test") + _REGI,
+       options=("robust", "slx_lags", "slx_vars", "sig2n_k", "nonspat_diag", "spat_diag",
+                "moran", "white_test") + _REGI,
        requires={"regimes": True}),
     # ---- ML --------------------------------------------------------------
     _m("ML_Lag", "Spatial lag (ML)", "ml_lag", "spreg.ml_lag:ML_Lag",

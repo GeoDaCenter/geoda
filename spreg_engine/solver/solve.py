@@ -384,6 +384,23 @@ def run_job(jobdir: str, log: Log) -> Tuple[Dict[str, Any], Dict[str, Any]]:
         kwargs, warnings = REG.validate_options(entry, job.get("options") or {})
     except ValueError as exc:
         raise ProtocolError(str(exc))
+
+    # slx_vars arrives as text from the dialog: "none", or the names of the
+    # covariates to lag.  spreg wants one boolean per covariate column.
+    slx_vars = kwargs.get("slx_vars")
+    if isinstance(slx_vars, str):
+        chosen = [name.strip() for name in slx_vars.split(",") if name.strip()]
+        if len(chosen) == 1 and chosen[0].lower() == "none":
+            # no lagged covariate: leave SLX out rather than handing spreg an
+            # empty block
+            kwargs.pop("slx_vars", None)
+            kwargs.pop("slx_lags", None)
+        elif not (len(chosen) == 1 and chosen[0].lower() == "all"):
+            unknown = [name for name in chosen if name not in data["x_names"]]
+            if unknown:
+                raise ProtocolError("slx_vars names variable(s) that are not "
+                                    "covariates: %s" % ", ".join(unknown))
+            kwargs["slx_vars"] = [name in chosen for name in data["x_names"]]
     if entry["style"] in ("regimes", "endog_regimes_a", "endog_regimes_b"):
         # the solver owns the constant for regimes models
         kwargs["constant_regi"] = kwargs.get("constant_regi", "many") if data["constant"] else False

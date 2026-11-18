@@ -18,6 +18,7 @@
  */
 
 #include <time.h>
+#include <set>
 #include <boost/foreach.hpp>
 #include <wx/wx.h>
 #include <wx/grid.h>
@@ -271,6 +272,7 @@ bool RegressionDlg::Create(wxWindow* parent, wxWindowID id,
 	m_spreg_coords_row = NULL;
 	m_spreg_options_row = NULL;
 	m_spreg_options_grid = NULL;
+	m_spreg_slx_list = NULL;
 	m_spreg_model = wxEmptyString;
 	m_spreg_installed = false;
 	m_has_spreg_result = false;
@@ -566,6 +568,7 @@ void RegressionDlg::FillSpregOptions(wxWindow* parent,
 	m_spreg_options_grid->Clear(true);       // deletes the controls it holds
 	m_spreg_option_names.clear();
 	m_spreg_option_ctrls.clear();
+	m_spreg_slx_list = NULL;
 
 	// One control per option, of the type the registry declares: a checkbox for
 	// a switch, a list for a choice whose values are known, a spin control for a
@@ -599,6 +602,14 @@ void RegressionDlg::FillSpregOptions(wxWindow* parent,
 											  static_cast<int>(spec.max_value),
 											  wxAtoi(spec.default_value));
 			control = spin;
+		} else if (spec.name == "slx_vars") {
+			// which covariates get a spatial lag: a list makes that a choice
+			// rather than the all-or-nothing the option used to be
+			wxListBox* list = new wxListBox(parent, wxID_ANY, wxDefaultPosition,
+											wxSize(180, 80), 0, NULL, wxLB_EXTENDED);
+			m_spreg_slx_list = list;
+			RefreshSpregSlxVars();
+			control = list;
 		} else {
 			wxTextCtrl* text = new wxTextCtrl(parent, wxID_ANY, spec.default_value,
 											  wxDefaultPosition, wxSize(110, -1));
@@ -611,6 +622,29 @@ void RegressionDlg::FillSpregOptions(wxWindow* parent,
 		m_spreg_option_ctrls.push_back(control);
 		m_spreg_options_grid->Add(label, 0, wxALIGN_CENTRE_VERTICAL);
 		m_spreg_options_grid->Add(control, 0, wxALIGN_CENTRE_VERTICAL);
+	}
+}
+
+void RegressionDlg::RefreshSpregSlxVars()
+{
+	// The list holds the current covariates, so it is refilled whenever they
+	// change.  A first fill selects all of them, which is the option's default;
+	// after that the user's choices are kept by name.
+	if (!m_spreg_slx_list || !m_independentlist) return;
+	std::set<wxString> keep;
+	wxArrayInt picked;
+	m_spreg_slx_list->GetSelections(picked);
+	for (size_t i = 0; i < picked.GetCount(); ++i) {
+		keep.insert(m_spreg_slx_list->GetString(picked[i]));
+	}
+	const bool first_fill = m_spreg_slx_list->GetCount() == 0;
+	m_spreg_slx_list->Clear();
+	for (unsigned i = 0; i < m_independentlist->GetCount(); ++i) {
+		const wxString& name = m_independentlist->GetString(i);
+		m_spreg_slx_list->Append(name);
+		if (first_fill || keep.count(name)) {
+			m_spreg_slx_list->SetSelection(i);
+		}
 	}
 }
 
@@ -628,6 +662,22 @@ std::map<wxString, wxString> RegressionDlg::ReadSpregOptions(bool& ok, wxString&
 			value = choice->GetStringSelection();
 		} else if (wxSpinCtrl* spin = wxDynamicCast(control, wxSpinCtrl)) {
 			value << spin->GetValue();
+		} else if (wxListBox* list = wxDynamicCast(control, wxListBox)) {
+			if (name == "slx_vars") {
+				wxArrayInt picked;
+				list->GetSelections(picked);
+				if (list->GetCount() == 0
+					|| static_cast<int>(picked.GetCount()) == list->GetCount()) {
+					value = "all";
+				} else if (picked.IsEmpty()) {
+					value = "none";
+				} else {
+					for (size_t j = 0; j < picked.GetCount(); ++j) {
+						if (!value.IsEmpty()) value << ",";
+						value << list->GetString(picked[j]);
+					}
+				}
+			}
 		} else if (wxTextCtrl* text = wxDynamicCast(control, wxTextCtrl)) {
 			value = text->GetValue();
 			value.Trim(true);
@@ -2010,6 +2060,7 @@ void RegressionDlg::OnCButton2Click( wxCommandEvent& event )
 			m_nCount = 0;
 		}
 	}
+	RefreshSpregSlxVars();
 	EnablingItems();
 	lastSelection = 2;
 }
@@ -2056,7 +2107,8 @@ void RegressionDlg::OnCButton3Click( wxCommandEvent& event )
 		}
 	}
 	if(m_independentlist->GetCount() <= 0) m_Run = false;
-	EnablingItems();	
+	RefreshSpregSlxVars();
+	EnablingItems();
 }
 
 void RegressionDlg::OnCButton4Click( wxCommandEvent& event )
@@ -2065,11 +2117,12 @@ void RegressionDlg::OnCButton4Click( wxCommandEvent& event )
 	for (unsigned int i=0; i<m_varlist->GetCount(); i++) {
 		m_independentlist->Append(m_varlist->GetString(i));
 	}
-	m_varlist->Clear();	
+	m_varlist->Clear();
 	b_done1 = b_done2 = b_done3 = false;
 	m_nCount = 0;
 
-	EnablingItems();		
+	RefreshSpregSlxVars();
+	EnablingItems();
 	lastSelection = 2;
 }
 
@@ -2079,12 +2132,13 @@ void RegressionDlg::OnCButton5Click( wxCommandEvent& event )
 	for (unsigned int i=0; i<m_independentlist->GetCount(); i++) {
 		m_varlist->Append(m_independentlist->GetString(i));
 	}
-	m_independentlist->Clear();	
+	m_independentlist->Clear();
 	m_Run = false;
 	b_done1 = b_done2 = b_done3 = false;
 	m_nCount = 0;
 
-	EnablingItems();	
+	RefreshSpregSlxVars();
+	EnablingItems();
 	lastSelection = 2;
 }
 

@@ -148,7 +148,11 @@ public:
 	wxFlexGridSizer* m_spreg_options_grid;
 	std::vector<wxString> m_spreg_option_names;
 	std::vector<wxWindow*> m_spreg_option_ctrls;
+	// the "SLX variables" option is a list of the current covariates, so that
+	// the user can lag some of them rather than all or none
+	wxListBox* m_spreg_slx_list;
 	void FillSpregVariables(wxWindow* parent);
+	void RefreshSpregSlxVars();
 	void FillSpregOptions(wxWindow* parent, const SpregJob::ModelOption& model);
 	std::map<wxString, wxString> ReadSpregOptions(bool& ok, wxString& err);
 	bool GatherSpregExtras(const SpregJob::ModelOption& model, wxString& err,
