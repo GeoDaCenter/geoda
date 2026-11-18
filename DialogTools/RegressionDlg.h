@@ -171,6 +171,7 @@ public:
 	void FillSpregModels(const wxString& engine_dir);
 	void EnableNativeModels(bool enable);
 	void OnSpregModelSelected(wxCommandEvent& event);
+	void OnModelsPageChanged(wxBookCtrlEvent& event);
 	bool RunSpregModel(wxCommandEvent& event);
 	void ShowSpregResults(const SpregJob::Result& result, const wxString& dataset,
 						  const wxString& weights_name);

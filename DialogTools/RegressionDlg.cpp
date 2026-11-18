@@ -342,6 +342,10 @@ void RegressionDlg::CreateControls()
 		m_spreg_page = new wxPanel(m_models_notebook, wxID_ANY);
 		m_models_notebook->AddPage(default_page, _("Default"), true);
 		m_models_notebook->AddPage(m_spreg_page, _("Spreg"));
+		// going back to Default has to mean GeoDa's own models again: leaving
+		// the engine's model selected would make Run estimate that instead
+		m_models_notebook->Bind(wxEVT_NOTEBOOK_PAGE_CHANGED,
+								&RegressionDlg::OnModelsPageChanged, this);
 		if (box_sizer) box_sizer->Add(m_models_notebook, 1, wxEXPAND | wxTOP, 4);
 
 		if (native_sizer) {
@@ -525,7 +529,7 @@ void RegressionDlg::FillSpregModels(const wxString& engine_dir)
 
 	m_spreg_models.clear();
 	m_spreg_model_choice->Clear();
-	m_spreg_model_choice->Append(_("- use the models above -"));
+	m_spreg_model_choice->Append(_("- use the models below -"));
 
 	std::vector<SpregJob::ModelOption> offered;
 	wxString err;
@@ -738,6 +742,24 @@ void RegressionDlg::OnSpregModelSelected(wxCommandEvent& WXUNUSED(event))
 	if (m_spreg_page) m_spreg_page->Layout();
 	Layout();
 	GrowToFit();
+}
+
+void RegressionDlg::OnModelsPageChanged(wxBookCtrlEvent& event)
+{
+	// "Default" means the three models that live on that page.  A model picked
+	// on the Spreg page stays picked - and Run keeps estimating it - unless it
+	// is let go here; that is why switching back used to leave the spreg output
+	// on screen instead of running GeoDa's own OLS.
+	if (m_models_notebook && m_models_notebook->GetSelection() == 0) {
+		if (m_spreg_model_choice) m_spreg_model_choice->SetSelection(0);
+		m_spreg_model = wxEmptyString;
+		EnableNativeModels(true);
+		if (m_spreg_status && m_spreg_installed) {
+			m_spreg_status->SetLabel(_("the models above are GeoDa's own"));
+			WrapSpregStatus();
+		}
+	}
+	event.Skip();
 }
 
 void RegressionDlg::WrapSpregStatus()
@@ -1143,10 +1165,6 @@ bool RegressionDlg::RunSpregModel(wxCommandEvent& WXUNUSED(event))
 		return true;
 	}
 
-	ShowSpregResults(result, table_int->GetTableName(),
-					 wants_weights ? w_man_int->GetLongDispName(weights_id)
-								   : _("built from the coordinates"));
-
 	m_spreg_result = result;
 	m_spreg_yhat = result.yhat;
 	m_spreg_resid = result.resid;
@@ -1156,6 +1174,14 @@ bool RegressionDlg::RunSpregModel(wxCommandEvent& WXUNUSED(event))
 		m_spreg_region.push_back(static_cast<wxInt64>(result.region[i]));
 	}
 	m_has_spreg_result = true;
+	// the run left numbers Save to Table can add to the data, just as the three
+	// models above do; without these two flags its buttons stay disabled
+	m_Run = true;
+	m_OpenDump = true;
+
+	ShowSpregResults(result, table_int->GetTableName(),
+					 wants_weights ? w_man_int->GetLongDispName(weights_id)
+								   : _("built from the coordinates"));
 
 	UpdateMessageBox("");
 	m_gauge->Hide();
