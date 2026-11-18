@@ -27,6 +27,7 @@ import sys
 import tempfile
 import time
 import traceback
+import warnings as pywarnings
 from typing import Any, Dict, List, Optional, Sequence, Tuple
 
 PROTOCOL_VERSION = 1
@@ -416,8 +417,30 @@ def run_job(jobdir: str, log: Log) -> Tuple[Dict[str, Any], Dict[str, Any]]:
 
     log("estimating %s%s" % (entry["id"], "" if not kwargs else " with %s" % _short(kwargs)))
     started = time.time()
+    # spreg 1.9.x's condition-number diagnostic takes the square root of a
+    # ratio that can be negative and lets numpy report a ComplexWarning; what
+    # it keeps is real, so the warning says nothing about this run.  It fires
+    # with or without the spatial tests.  Other warnings are still reported.
+    complex_warning = getattr(getattr(np, "exceptions", None), "ComplexWarning", None)
+    if complex_warning is None:
+        complex_warning = getattr(np, "ComplexWarning", None)
+    caught = []
     with contextlib.redirect_stdout(_Chatter(log)):     # spreg prints the model name
-        model = call_estimator(entry, cls, data, kwargs, log)
+        if complex_warning is None:
+            model = call_estimator(entry, cls, data, kwargs, log)
+        else:
+            with pywarnings.catch_warnings(record=True) as caught:
+                pywarnings.simplefilter("always")
+                model = call_estimator(entry, cls, data, kwargs, log)
+    saw_complex = False
+    for warning in caught:
+        if issubclass(warning.category, complex_warning):
+            saw_complex = True
+        else:
+            pywarnings.warn(warning.message, warning.category)
+    if saw_complex:
+        log("note: spreg's condition-number diagnostic produced a complex value; "
+            "its ComplexWarning was suppressed")
     log("done in %.2fs" % (time.time() - started))
 
     ctx = {"x_names": data["x_names"], "y_name": data["y_name"], "n": data["n"],

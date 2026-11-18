@@ -1338,16 +1338,56 @@ void RegressionDlg::ShowSpregResults(const SpregJob::Result& result,
 
 	if (!result.diagnostics.empty()) {
 		text << "REGRESSION DIAGNOSTICS\n";
-		wxString group;
+		wxString group, section;
 		for (size_t i = 0; i < result.diagnostics.size(); ++i) {
 			const SpregJob::Result::Diagnostic& d = result.diagnostics[i];
 			if (d.group != group) {
 				group = d.group;
+				section.Clear();
 				text << group.Upper() << "\n";
-				text << "TEST                  DF           VALUE        PROB\n";
+				if (group == "spatial dependence") {
+					// spreg.OLS.summary splits these into the SAR / error
+					// alternatives and the spatial Durbin alternatives; mixing
+					// them reads as one list of interchangeable tests
+					bool has_sections = false, has_moran = false;
+					for (size_t j = 0; j < result.diagnostics.size(); ++j) {
+						const SpregJob::Result::Diagnostic& e = result.diagnostics[j];
+						if (e.group != group) continue;
+						if (!e.section.IsEmpty()) has_sections = true;
+						if (e.name == "moran_res") has_moran = true;
+					}
+					if (has_sections) {
+						section = "sarerr";
+						text << "- SARERR -\n";
+						text << (has_moran
+								 ? "TEST                           MI/DF       VALUE           PROB\n"
+								 : "TEST                              DF       VALUE           PROB\n");
+					} else {
+						text << "TEST                  DF           VALUE        PROB\n";
+					}
+				} else {
+					text << "TEST                  DF           VALUE        PROB\n";
+				}
 			}
-			text << GenUtils::PadTrim(d.label, 22);
-			text << wxString::Format("%2.0f   %13.4f   %11.5f\n", d.df, d.statistic, d.p);
+			if (group == "spatial dependence" && !d.section.IsEmpty()
+				&& d.section != section) {
+				section = d.section;
+				if (section == "durbin") {
+					text << "\n- Spatial Durbin -\n";
+					text << "TEST                              DF       VALUE           PROB\n";
+				}
+			}
+			if (group == "spatial dependence" && d.name == "moran_res") {
+				// spreg prints Moran's I in the MI/DF column and its z value,
+				// not the statistic itself, in the VALUE column
+				text << GenUtils::PadTrim(d.label, 27);
+				text << wxString::Format("  %8.4f  %12.4f  %11.5f\n",
+										 d.mi, d.statistic, d.p);
+			} else {
+				text << GenUtils::PadTrim(d.label, 22);
+				text << wxString::Format("%2.0f   %13.4f   %11.5f\n",
+										 d.df, d.statistic, d.p);
+			}
 		}
 		text << "\n";
 	}
