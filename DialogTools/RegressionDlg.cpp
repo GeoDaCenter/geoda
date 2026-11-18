@@ -1189,7 +1189,8 @@ void RegressionDlg::ShowSpregResults(const SpregJob::Result& result,
 	}
 	text << "SUMMARY OF OUTPUT: " << result.title << "\n";
 	text << wxString::Format("%-20s%s\n", "Data set            : ", dataset);
-	text << wxString::Format("%-20s%s\n", "Spatial Weight      : ", weights_name);
+	text << wxString::Format("%-20s%s\n", "Spatial Weight      : ",
+							 weights_name.IsEmpty() ? wxString(_("None")) : weights_name);
 	text << wxString::Format("Dependent Variable  :%12s  Number of Observations:%5d\n",
 							 m_dependent->GetValue(), result.n);
 	{
@@ -1204,30 +1205,104 @@ void RegressionDlg::ShowSpregResults(const SpregJob::Result& result,
 								 result.n - result.k);
 	}
 	{
-		std::map<wxString, double>::const_iterator r2 = result.fit.find("r2");
-		if (r2 == result.fit.end()) r2 = result.fit.find("pr2");
-		std::map<wxString, double>::const_iterator logll = result.fit.find("logll");
-		std::map<wxString, double>::const_iterator aic = result.fit.find("aic");
-		std::map<wxString, double>::const_iterator schwarz = result.fit.find("schwarz");
-		std::map<wxString, double>::const_iterator sigma = result.fit.find("sigma2");
-		if (r2 != result.fit.end()) {
-			text << wxString::Format("R-squared           :%12.6f\n", r2->second);
+		// The measures of fit spreg.OLS.summary reports, in its order and with
+		// its labels; a model that does not compute one of them leaves its
+		// line out rather than printing a zero.
+		const std::map<wxString, double>& fit = result.fit;
+		std::map<wxString, double>::const_iterator it;
+
+		double r2 = 0, pr2 = 0;
+		bool have_r2 = false, have_pr2 = false;
+		it = fit.find("r2");
+		if (it != fit.end()) { r2 = it->second; have_r2 = true; }
+		it = fit.find("pr2");
+		if (it != fit.end()) { pr2 = it->second; have_pr2 = true; }
+		if (have_r2) {
+			text << wxString::Format("%-20s:%12.4f\n", "R-squared", r2);
+		} else if (have_pr2) {
+			text << wxString::Format("%-20s:%12.4f\n", "Pseudo R-squared", pr2);
 		}
-		// only what the model actually reports: the GMM models have no likelihood
-		if (sigma != result.fit.end()) {
-			text << wxString::Format("Sigma-square        :%12.6g", sigma->second);
-			if (aic != result.fit.end()) {
-				text << wxString::Format("  Akaike info criterion :%12.6g", aic->second);
+		it = fit.find("adj_r2");
+		if (it != fit.end()) {
+			text << wxString::Format("%-20s:%12.4f\n", "Adjusted R-squared", it->second);
+		}
+
+		// spreg computes the F statistic with the non-spatial diagnostics and
+		// prints it beside the residual sum of squares
+		double f_stat = 0, f_p = 0;
+		bool have_f = false;
+		for (size_t i = 0; i < result.diagnostics.size(); ++i) {
+			if (result.diagnostics[i].name == "f_stat") {
+				f_stat = result.diagnostics[i].statistic;
+				f_p = result.diagnostics[i].p;
+				have_f = true;
+			}
+		}
+		it = fit.find("utu");
+		if (it != fit.end()) {
+			text << wxString::Format("%-20s:%12.6g", "Sum squared residual", it->second);
+			if (have_f) {
+				text << wxString::Format("                %-22s:%12.4f",
+										 "F-statistic", f_stat);
 			}
 			text << "\n";
+		} else if (have_f) {
+			text << wxString::Format("%-20s:%12.4f\n", "F-statistic", f_stat);
 		}
-		if (logll != result.fit.end()) {
-			text << wxString::Format("Log likelihood      :%12.6g", logll->second);
-			if (schwarz != result.fit.end()) {
-				text << wxString::Format("  Schwarz criterion     :%12.6g", schwarz->second);
+
+		double sigma2 = 0;
+		bool have_sigma = false;
+		it = fit.find("sigma2");
+		if (it != fit.end()) { sigma2 = it->second; have_sigma = true; }
+		if (have_sigma) {
+			text << wxString::Format("%-20s:%12.3f", "Sigma-square", sigma2);
+			if (have_f) {
+				text << wxString::Format("                %-22s:%12.4g",
+										 "Prob(F-statistic)", f_p);
 			}
 			text << "\n";
+			text << wxString::Format("%-20s:%12.3f", "S.E. of regression",
+									 sigma2 > 0 ? std::sqrt(sigma2) : 0.0);
+			it = fit.find("logll");
+			if (it != fit.end()) {
+				text << wxString::Format("                %-22s:%12.3f",
+										 "Log likelihood", it->second);
+			}
+			text << "\n";
+		} else {
+			it = fit.find("logll");
+			if (it != fit.end()) {
+				text << wxString::Format("%-20s:%12.3f\n", "Log likelihood", it->second);
+			}
 		}
+
+		it = fit.find("sigma2_ml");
+		if (it != fit.end()) {
+			text << wxString::Format("%-20s:%12.3f", "Sigma-square ML", it->second);
+			std::map<wxString, double>::const_iterator aic = fit.find("aic");
+			if (aic != fit.end()) {
+				text << wxString::Format("                %-22s:%12.3f",
+										 "Akaike info criterion", aic->second);
+			}
+			text << "\n";
+		} else {
+			it = fit.find("aic");
+			if (it != fit.end()) {
+				text << wxString::Format("%-20s:%12.3f\n",
+										 "Akaike info criterion", it->second);
+			}
+		}
+		it = fit.find("schwarz");
+		if (it != fit.end()) {
+			text << wxString::Format("%-20s:%12.3f\n", "Schwarz criterion", it->second);
+		}
+	}
+
+	// what kind of standard errors these are, as spreg says above its table
+	if (result.robust == "white") {
+		text << "\nWhite Standard Errors\n";
+	} else if (result.robust == "hac") {
+		text << "\nHAC Standard Errors\n";
 	}
 
 	text << "---------------------------------------------------------------";
@@ -1263,16 +1338,56 @@ void RegressionDlg::ShowSpregResults(const SpregJob::Result& result,
 
 	if (!result.diagnostics.empty()) {
 		text << "REGRESSION DIAGNOSTICS\n";
-		wxString group;
+		wxString group, section;
 		for (size_t i = 0; i < result.diagnostics.size(); ++i) {
 			const SpregJob::Result::Diagnostic& d = result.diagnostics[i];
 			if (d.group != group) {
 				group = d.group;
+				section.Clear();
 				text << group.Upper() << "\n";
-				text << "TEST                  DF           VALUE        PROB\n";
+				if (group == "spatial dependence") {
+					// spreg.OLS.summary splits these into the SAR / error
+					// alternatives and the spatial Durbin alternatives; mixing
+					// them reads as one list of interchangeable tests
+					bool has_sections = false, has_moran = false;
+					for (size_t j = 0; j < result.diagnostics.size(); ++j) {
+						const SpregJob::Result::Diagnostic& e = result.diagnostics[j];
+						if (e.group != group) continue;
+						if (!e.section.IsEmpty()) has_sections = true;
+						if (e.name == "moran_res") has_moran = true;
+					}
+					if (has_sections) {
+						section = "sarerr";
+						text << "- SARERR -\n";
+						text << (has_moran
+								 ? "TEST                           MI/DF       VALUE           PROB\n"
+								 : "TEST                              DF       VALUE           PROB\n");
+					} else {
+						text << "TEST                  DF           VALUE        PROB\n";
+					}
+				} else {
+					text << "TEST                  DF           VALUE        PROB\n";
+				}
 			}
-			text << GenUtils::PadTrim(d.label, 22);
-			text << wxString::Format("%2.0f   %13.4f   %11.5f\n", d.df, d.statistic, d.p);
+			if (group == "spatial dependence" && !d.section.IsEmpty()
+				&& d.section != section) {
+				section = d.section;
+				if (section == "durbin") {
+					text << "\n- Spatial Durbin -\n";
+					text << "TEST                              DF       VALUE           PROB\n";
+				}
+			}
+			if (group == "spatial dependence" && d.name == "moran_res") {
+				// spreg prints Moran's I in the MI/DF column and its z value,
+				// not the statistic itself, in the VALUE column
+				text << GenUtils::PadTrim(d.label, 27);
+				text << wxString::Format("  %8.4f  %12.4f  %11.5f\n",
+										 d.mi, d.statistic, d.p);
+			} else {
+				text << GenUtils::PadTrim(d.label, 22);
+				text << wxString::Format("%2.0f   %13.4f   %11.5f\n",
+										 d.df, d.statistic, d.p);
+			}
 		}
 		text << "\n";
 	}

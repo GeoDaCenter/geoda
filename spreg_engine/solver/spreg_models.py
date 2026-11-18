@@ -393,7 +393,7 @@ def likelihood_ratio_test(entry: Dict[str, Any], data: Dict[str, Any], model: An
     except Exception as exc:                 # no log-likelihood on one side, say
         log("the likelihood ratio test could not be computed: %s" % exc)
         return None
-    return {"group": "spatial dependence", "name": "lr",
+    return {"group": "spatial dependence", "name": "lr", "section": "",
             "label": "Likelihood ratio (vs OLS)",
             "stat": float(result["likr"]), "df": int(result["df"]),
             "p": float(result["p-value"])}
@@ -408,28 +408,31 @@ def likelihood_ratio_test(entry: Dict[str, Any], data: Dict[str, Any], model: An
 #   df_stat_p : dict with 'df' plus a statistic and a p-value under varying keys
 #   impacts   : dict {kind: (direct, indirect, total)}
 
+# The fifth field is the subsection of spreg's spatial diagnostics a test
+# belongs to: spreg.OLS.summary prints the SAR / error alternatives first and
+# the spatial Durbin alternatives after them, and mixing the two is misleading.
 DIAGNOSTICS = [
-    ("lm_error", "LM (error)", "spatial dependence", "stat_p"),
-    ("lm_lag", "LM (lag)", "spatial dependence", "stat_p"),
-    ("rlm_error", "Robust LM (error)", "spatial dependence", "stat_p"),
-    ("rlm_lag", "Robust LM (lag)", "spatial dependence", "stat_p"),
-    ("rlm_durlag", "Robust LM (lag, Durbin)", "spatial dependence", "stat_p"),
-    ("lm_sarma", "LM (SARMA)", "spatial dependence", "stat_p"),
-    ("lm_wx", "LM (WX)", "spatial dependence", "stat_p"),
-    ("rlm_wx", "Robust LM (WX)", "spatial dependence", "stat_p"),
-    ("lm_spdurbin", "LM (spatial Durbin)", "spatial dependence", "stat_p"),
-    ("lm_slxerr", "LM (SLX error)", "spatial dependence", "stat_p"),
-    ("moran_res", "Moran's I (residuals)", "spatial dependence", "moran"),
-    ("ak_test", "Anselin-Kelejian test", "spatial dependence", "stat_p"),
-    ("white", "White test", "heteroskedasticity", "df_stat_p"),
-    ("breusch_pagan", "Breusch-Pagan", "heteroskedasticity", "df_stat_p"),
-    ("koenker_bassett", "Koenker-Bassett", "heteroskedasticity", "df_stat_p"),
-    ("jarque_bera", "Jarque-Bera", "normality", "df_stat_p"),
-    ("f_stat", "F statistic", "fit", "stat_p"),
-    ("lr", "Likelihood ratio test", "spatial dependence", "stat_p"),
-    ("llr", "Log-likelihood ratio", "fit", "stat_p"),
-    ("chow", "Chow test", "regimes", "chow"),
-    ("wald", "Wald test", "regimes", "chow"),
+    ("moran_res", "Moran's I (error)", "spatial dependence", "moran", "sarerr"),
+    ("lm_lag", "Lagrange Multiplier (lag)", "spatial dependence", "stat_p", "sarerr"),
+    ("rlm_lag", "Robust LM (lag)", "spatial dependence", "stat_p", "sarerr"),
+    ("lm_error", "Lagrange Multiplier (error)", "spatial dependence", "stat_p", "sarerr"),
+    ("rlm_error", "Robust LM (error)", "spatial dependence", "stat_p", "sarerr"),
+    ("lm_sarma", "Lagrange Multiplier (SARMA)", "spatial dependence", "stat_p", "sarerr"),
+    ("lm_wx", "LM test for WX", "spatial dependence", "stat_p", "durbin"),
+    ("rlm_wx", "Robust LM WX test", "spatial dependence", "stat_p", "durbin"),
+    ("rlm_durlag", "Robust LM Lag - SDM", "spatial dependence", "stat_p", "durbin"),
+    ("lm_spdurbin", "Joint test for SDM", "spatial dependence", "stat_p", "durbin"),
+    ("lm_slxerr", "Joint test for Error and WX", "spatial dependence", "stat_p", "durbin"),
+    ("ak_test", "Anselin-Kelejian test", "spatial dependence", "stat_p", ""),
+    ("lr", "Likelihood ratio test", "spatial dependence", "stat_p", ""),
+    ("white", "White test", "heteroskedasticity", "df_stat_p", ""),
+    ("breusch_pagan", "Breusch-Pagan test", "heteroskedasticity", "df_stat_p", ""),
+    ("koenker_bassett", "Koenker-Bassett test", "heteroskedasticity", "df_stat_p", ""),
+    ("jarque_bera", "Jarque-Bera", "normality", "df_stat_p", ""),
+    ("f_stat", "F statistic", "fit", "stat_p", ""),
+    ("llr", "Log-likelihood ratio", "fit", "stat_p", ""),
+    ("chow", "Chow test", "regimes", "chow", ""),
+    ("wald", "Wald test", "regimes", "chow", ""),
 ]
 
 
@@ -469,7 +472,7 @@ def collect_diagnostics(model_obj: Any) -> Tuple[List[Dict[str, Any]], List[str]
     """Probe the estimator for the diagnostics it produced."""
     out: List[Dict[str, Any]] = []
     warnings: List[str] = []
-    for attr, label, group, kind in DIAGNOSTICS:
+    for attr, label, group, kind, section in DIAGNOSTICS:
         if not hasattr(model_obj, attr):
             continue
         value = getattr(model_obj, attr, None)
@@ -479,10 +482,14 @@ def collect_diagnostics(model_obj: Any) -> Tuple[List[Dict[str, Any]], List[str]
             if kind == "stat_p":
                 stat, p = _scalar(value[0]), _scalar(value[1])
                 out.append({"group": group, "name": attr, "label": label,
-                            "stat": stat, "df": 1, "p": p})
+                            "section": section, "stat": stat, "df": 1, "p": p})
             elif kind == "moran":
+                # spreg reports (I, z, p): the z value is what its VALUE column
+                # carries, while I sits in the MI/DF column
                 out.append({"group": group, "name": attr, "label": label,
-                            "stat": _scalar(value[0]), "df": 1, "p": _scalar(value[-1])})
+                            "section": section, "stat": _scalar(value[1]),
+                            "mi": _scalar(value[0]), "df": 1,
+                            "p": _scalar(value[-1])})
             elif kind == "df_stat_p":
                 if not isinstance(value, dict):
                     continue
@@ -494,7 +501,8 @@ def collect_diagnostics(model_obj: Any) -> Tuple[List[Dict[str, Any]], List[str]
                             break
                 p = _scalar(value.get("pvalue", value.get("p", value.get("prob"))))
                 out.append({"group": group, "name": attr, "label": label,
-                            "stat": stat, "df": _scalar(value.get("df")), "p": p})
+                            "section": section, "stat": stat,
+                            "df": _scalar(value.get("df")), "p": p})
             elif kind == "chow":
                 stat = None
                 for key in ("chow", "wald", "value", "stat", "test"):
@@ -506,7 +514,7 @@ def collect_diagnostics(model_obj: Any) -> Tuple[List[Dict[str, Any]], List[str]
                 df = _scalar(getattr(value, "df", None)) if hasattr(value, "df") else None
                 if stat is not None:
                     out.append({"group": group, "name": attr, "label": label,
-                                "stat": stat, "df": df, "p": p})
+                                "section": section, "stat": stat, "df": df, "p": p})
         except Exception as exc:                      # never let a probe break a run
             warnings.append("could not read diagnostic %s (%s)" % (attr, type(exc).__name__))
     return out, warnings
@@ -532,7 +540,7 @@ def extract_impacts(model_obj: Any) -> List[Dict[str, Any]]:
 FIT_FIELDS = [
     ("logll", "logll"), ("aic", "aic"), ("schwarz", "schwarz"), ("sig2", "sigma2"),
     ("r2", "r2"), ("ar2", "adj_r2"), ("pr2", "pr2"), ("pr2_e", "pr2_e"),
-    ("mean_y", "mean_y"), ("std_y", "std_y"), ("utu", "utu"), ("sig2n_k", "sigma2_ml"),
+    ("mean_y", "mean_y"), ("std_y", "std_y"), ("utu", "utu"), ("sig2n", "sigma2_ml"),
 ]
 
 
@@ -705,6 +713,7 @@ def extract_result(model_obj: Any, entry: Dict[str, Any], ctx: Dict[str, Any]) -
             "title": str(title),
             "n": int(getattr(model_obj, "n", ctx.get("n", 0)) or 0),
             "k": int(getattr(model_obj, "k", 0) or 0),
+            "robust": str(ctx.get("robust") or ""),
         },
         "coefficients": coefficients,
         "spatial_parameters": spatial,

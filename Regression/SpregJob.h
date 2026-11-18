@@ -98,13 +98,17 @@ struct Result {
 	int n, k;
 	wxString requested_model, class_name, title, error_message;
 	wxString spreg_version;
+	wxString robust;                     // "", "white" or "hac"
 	std::vector<wxString> names, roles;
 	std::vector<double> estimate, std_err, z, p;   // nulls become NaN
 	std::map<wxString, double> fit;
 	struct Diagnostic {
-		wxString group, label;
-		double statistic, df, p;
-		Diagnostic() : statistic(0), df(0), p(0) {}
+		// section: "sarerr" or "durbin" for the two halves of spreg's spatial
+		// diagnostics, empty for the other groups.  mi: Moran's I, which sits
+		// in spreg's MI/DF column beside the z value in `statistic`.
+		wxString group, name, label, section;
+		double statistic, df, p, mi;
+		Diagnostic() : statistic(0), df(0), p(0), mi(0) {}
 	};
 	std::vector<Diagnostic> diagnostics;
 	std::vector<double> yhat, resid, pred_err;     // empty when not reported
