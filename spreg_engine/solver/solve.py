@@ -676,9 +676,25 @@ def cmd_selftest() -> int:
         indptr = np.cumsum(indptr)
         regime = np.array([int(c >= cols // 2) for c in range(n)])
 
+        # A kernel weights matrix for HAC: ones on the diagonal, the kernel
+        # weight (0.5) off it.  It is carried untransformed, as GeoDa sends it.
+        k_rows = np.concatenate([rows_idx, np.arange(n)])
+        k_cols = np.concatenate([cols_idx, np.arange(n)])
+        k_vals = np.concatenate([np.full(rows_idx.shape[0], 0.5), np.ones(n)])
+        k_order = np.argsort(k_rows, kind="stable")
+        k_rows, k_cols, k_vals = k_rows[k_order], k_cols[k_order], k_vals[k_order]
+        k_indptr = np.zeros(n + 1, dtype=np.int64)
+        np.add.at(k_indptr, k_rows + 1, 1)
+        k_indptr = np.cumsum(k_indptr)
+        kernel_weights = {"format": "csr", "n": n, "indptr": "k_indptr",
+                          "indices": "k_indices", "data": "k_data",
+                          "transform": "o", "kind": "kernel", "name": "grid-kernel"}
+
         arrays = {"y": y.reshape(-1, 1), "x": x, "regime": regime.reshape(-1, 1),
                   "w_indptr": indptr, "w_indices": cols_idx.astype(np.int32),
-                  "w_data": vals, "coords": xs}
+                  "w_data": vals, "coords": xs,
+                  "k_indptr": k_indptr, "k_indices": k_cols.astype(np.int32),
+                  "k_data": k_vals}
         spec = {
             "protocol": PROTOCOL_VERSION, "job_id": "selftest",
             "created": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
@@ -696,16 +712,22 @@ def cmd_selftest() -> int:
         write_job_dir(jobdir, spec, arrays)
         check("job directory written", os.path.isfile(os.path.join(jobdir, "data.bin")))
 
-        def run(model: str, options: Optional[Dict[str, Any]] = None):
+        def run(model: str, options: Optional[Dict[str, Any]] = None,
+                weights: str = "spatial"):
             job = json.loads(json.dumps(spec))
             job["model"] = model
             job["options"] = options or {}
+            if weights == "none":                     # a non-spatial OLS
+                job.pop("weights", None)
+            elif weights == "kernel":                # the kernel matrix for HAC
+                job["weights"] = dict(kernel_weights)
             write_job_dir(jobdir, job, arrays)
             code = cmd_run(jobdir)
             result = read_json(os.path.join(jobdir, "result.json"))
             return code, result
 
-        code, res = run("OLS")
+        # The spatial dependence tests are opt-in, so ask for them explicitly.
+        code, res = run("OLS", {"spat_diag": True})
         check("OLS runs", code == 0 and res["status"] == "ok",
               res.get("error", {}).get("message", ""))
 
@@ -722,12 +744,34 @@ def cmd_selftest() -> int:
         check("coefficient names rewritten", names[:3] == ["CONSTANT", "x1", "x2"], str(names[:3]))
         check("fit statistics present", {"r2", "logll", "aic"} <= set(res["fit"]),
               str(sorted(res["fit"])))
-        check("diagnostics present", any(d["name"] == "lm_lag" for d in res["diagnostics"]),
+        check("spatial diagnostics present (spat_diag)",
+              any(d["name"] == "lm_lag" for d in res["diagnostics"]),
               "%d diagnostic(s)" % len(res["diagnostics"]))
         check("engine info present", "spreg" in res.get("engine", {}),
               str(res.get("engine", {}).get("spreg")))
         check("observations written", os.path.getsize(os.path.join(jobdir, "result.bin")) == 2 * n * 8)
         check("report written", os.path.isfile(os.path.join(jobdir, "report.txt")))
+
+        # A non-spatial OLS needs no weights at all, and asks for no spatial test.
+        code, res = run("OLS", weights="none")
+        check("no-weights OLS runs", code == 0 and res["status"] == "ok",
+              res.get("error", {}).get("message", ""))
+        spatial_diag = [d for d in res.get("diagnostics", [])
+                        if d.get("group") == "spatial dependence"]
+        check("no-weights OLS has no spatial diagnostics", not spatial_diag,
+              str([d.get("name") for d in spatial_diag]))
+
+        # HAC is computed from a kernel matrix: ones on the diagonal, sent as is.
+        code, res = run("OLS", {"robust": "hac"}, weights="kernel")
+        check("kernel weights with HAC run", code == 0 and res["status"] == "ok",
+              res.get("error", {}).get("message", ""))
+
+        # An ordinary (zero-diagonal) matrix is not a kernel: say so, clearly.
+        code, res = run("OLS", {"robust": "hac"})
+        message = res.get("error", {}).get("message", "")
+        check("HAC with ordinary weights refused",
+              code != 0 and res["status"] == "error" and "kernel" in message.lower(),
+              message[:80])
 
         code, res = run("ML_Lag", {"method": "LU"})
         rho = (res.get("spatial_parameters") or [{}])[0].get("estimate")

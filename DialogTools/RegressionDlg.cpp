@@ -927,6 +927,9 @@ bool RegressionDlg::RunSpregModel(wxCommandEvent& WXUNUSED(event))
 					 _("Error"), wxOK | wxICON_ERROR, this);
 		return true;
 	}
+	// This also covers kernel weights (.kwt, which GetGal loads like a .gwt):
+	// a missing or unreadable file stops here, and no NULL GalElement[] reaches
+	// the job writer.
 	if (wants_weights && (!gal_weight || !gal_weight->gal)) {
 		UpdateMessageBox("");
 		m_gauge->Hide();
@@ -946,15 +949,20 @@ bool RegressionDlg::RunSpregModel(wxCommandEvent& WXUNUSED(event))
 	}
 	if (hac && chosen_model) {
 		const wxString& id = chosen_model->id;
+		// The solver's registry offers `robust` for exactly these, and spreg's
+		// OLS/OLS_Regimes/TSLS signatures take `gwk`.  TSLS_Regimes takes `gwk`
+		// too, but does not expose `robust` in the registry, so HAC is left out
+		// here rather than failing later with an unknown option.
 		const bool supports_hac = id == "OLS" || id == "OLS_Regimes"
-			|| id == "TSLS" || id == "TSLS_Regimes";
+			|| id == "TSLS";
 		if (!supports_hac || slx_lags > 0) {
 			UpdateMessageBox("");
 			m_gauge->Hide();
 			wxLogMessage("Spreg: HAC is not available for %s", id);
-			wxMessageBox(_("HAC standard errors are available for OLS and 2SLS without "
-						   "SLX terms.  The spatial lag models need an ordinary weights "
-						   "matrix, which HAC cannot use."),
+			wxMessageBox(_("HAC standard errors are available for OLS, OLS by "
+						   "regime and 2SLS without SLX terms.  The spatial lag "
+						   "models need an ordinary weights matrix, which HAC "
+						   "cannot use."),
 						 _("Error"), wxOK | wxICON_ERROR, this);
 			return true;
 		}

@@ -63,13 +63,15 @@ directly; the spec is written down so this is a contract, not an accident.
     "coords":      { "names": ["X", "Y"], "array": "coords" }      // NSLX only
   },
 
-  "weights": {                         // omit for pure OLS without spatial diagnostics
+  "weights": {                         // optional for OLS: needed only for the spatial
+                                       // tests, Moran's I, SLX or HAC (see §1.2)
     "format": "csr",
     "n": 49,
     "indptr":  "w_indptr",
     "indices": "w_indices",
     "data":    "w_data",
     "transform": "r",                  // "r" row-standardize | "b" binary | "o" as sent
+    // "kind": "kernel",               // kernel matrix (HAC); needs transform "o"
     "name": "columbus_q.gal",          // shown in the report header
     "is_symmetric": true               // advisory only; asymmetric W is allowed
   },
@@ -128,9 +130,19 @@ A **GWT** file loaded in GeoDa carries real weights; a **GAL** carries 1.0. So
 `transform:"r"` + GAL reproduces a row-standardized binary W, and
 `transform:"r"` + GWT reproduces a row-standardized weighted W.
 
+`kind` is optional. When it is `"kernel"`, the matrix is a kernel weights
+matrix and is passed to spreg as `gwk`, never as `w` (spreg's HAC estimator
+requires a `libpysal` `Kernel`, whose diagonal is ones). A kernel matrix must
+therefore be sent with `transform:"o"`; the solver rejects `"r"` for it.
+
+`weights` is optional for `OLS` and `OLS_Regimes`: a purely non-spatial OLS can
+omit it. It is required once the spatial dependence tests, Moran's I, SLX terms
+or HAC are requested.
+
 Notes:
 
-* Self-loops (`indices[i] == i`) are rejected by the solver with a clear error.
+* Self-loops (`indices[i] == i`) are rejected by the solver with a clear error,
+  except for a kernel matrix, whose diagonal of ones is exactly what HAC needs.
 * Asymmetric W (KNN, kernel) is fully supported. This is a *gain* over the
   current engine, which rejects KNN for lag/error models.
 * Zero-row weights are rejected for `"r"` (division by zero).
@@ -305,6 +317,11 @@ under its keyword.  The order they appear in here is the order the dialog shows 
 in, so a model's estimation options come first and the tests of that model after them.
 An option whose name is in `spreg_models.SOLVER_OPTIONS` is not passed to spreg: the
 solver computes it around the estimator instead (`likelihood_ratio` is the only one).
+
+`robust` takes `"none"`, `"white"` or `"hac"`. `"hac"` needs a kernel weights
+matrix (`kind:"kernel"`, §1.2), which the solver passes to spreg as `gwk`; it is
+available for `OLS`, `OLS_Regimes` and `TSLS` without SLX terms, and is rejected
+otherwise.
 
 Protocol v1 model ids (cross-sectional only):
 
