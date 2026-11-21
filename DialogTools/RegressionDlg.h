@@ -151,6 +151,11 @@ public:
 	void FillSpregVariables(wxWindow* parent);
 	void FillSpregOptions(wxWindow* parent, const SpregJob::ModelOption& model);
 	std::map<wxString, wxString> ReadSpregOptions(bool& ok, wxString& err);
+	/// the dependency between the test options (Moran needs spat_diag, White
+	/// needs nonspat_diag), kept in step as the user checks and unchecks them
+	void OnSpregOptionChanged(wxCommandEvent& event);
+	bool SpregOptionChecked(const wxString& name) const;
+	void SetSpregOptionChecked(const wxString& name, bool value);
 	bool GatherSpregExtras(const SpregJob::ModelOption& model, wxString& err,
 						   SpregJob::Writer& writer, wxString& regimes_name,
 						   std::vector<wxString>& yend_names,

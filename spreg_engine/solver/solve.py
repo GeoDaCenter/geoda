@@ -421,6 +421,18 @@ def run_job(jobdir: str, log: Log) -> Tuple[Dict[str, Any], Dict[str, Any]]:
     except ValueError as exc:
         raise ProtocolError(str(exc))
 
+    # Two options only mean something inside another block of tests.  spreg
+    # silently computes neither in that case, so say so rather than return a
+    # report that looks as if the test had been run.
+    if kwargs.get("moran") and not kwargs.get("spat_diag"):
+        warnings.append("Moran's I is computed as part of the spatial dependence "
+                        "tests; enable spat_diag (Spatial dependence tests) to "
+                        "compute it")
+    if kwargs.get("white_test") and not kwargs.get("nonspat_diag"):
+        warnings.append("the White test is computed as part of the non-spatial "
+                        "diagnostics; enable nonspat_diag (Non-spatial diagnostics) "
+                        "to compute it")
+
     if entry["style"] in ("regimes", "endog_regimes_a", "endog_regimes_b"):
         # the solver owns the constant for regimes models
         kwargs["constant_regi"] = kwargs.get("constant_regi", "many") if data["constant"] else False
@@ -797,6 +809,21 @@ def cmd_selftest() -> int:
         check("no-weights OLS has no spatial diagnostics", not spatial_diag,
               str([d.get("name") for d in spatial_diag]))
 
+        # Moran's I and the White test are nested in other option blocks.
+        # Asking for one on its own must warn, not silently compute nothing.
+        code, res = run("OLS", {"moran": True})
+        warned = " ".join(res.get("warnings") or [])
+        check("Moran without spat_diag warns",
+              code == 0 and res["status"] == "ok"
+              and not any(d.get("name") == "moran_res" for d in res.get("diagnostics", []))
+              and "moran" in warned.lower(), warned[:90])
+        code, res = run("OLS", {"white_test": True, "nonspat_diag": False})
+        warned = " ".join(res.get("warnings") or [])
+        check("White test without nonspat_diag warns",
+              code == 0 and res["status"] == "ok"
+              and not any(d.get("name") == "white" for d in res.get("diagnostics", []))
+              and "white" in warned.lower(), warned[:90])
+
         # HAC is computed from a kernel matrix: ones on the diagonal, sent as is.
         code, res_hac = run("OLS", {"robust": "hac"}, weights="kernel")
         check("kernel weights with HAC run", code == 0 and res_hac["status"] == "ok",
@@ -824,17 +851,27 @@ def cmd_selftest() -> int:
               and "hac" in message.lower() and "kernel" in message.lower(),
               message[:80])
 
-        broken = json.loads(json.dumps(spec))
-        broken["options"] = {"robust": "hac"}
-        broken["weights"] = dict(kernel_weights)
-        broken["weights"]["transform"] = "b"
-        write_job_dir(jobdir, broken, arrays)
-        code = cmd_run(jobdir)
-        res = read_json(os.path.join(jobdir, "result.json"))
-        message = res.get("error", {}).get("message", "")
-        check("kernel weights require transform 'o'",
+        def refused_transform(value: str):
+            job = json.loads(json.dumps(spec))
+            job["options"] = {"robust": "hac"}
+            job["weights"] = dict(kernel_weights)
+            job["weights"]["transform"] = value
+            write_job_dir(jobdir, job, arrays)
+            code = cmd_run(jobdir)
+            result = read_json(os.path.join(jobdir, "result.json"))
+            return code, result.get("error", {}).get("message", "")
+
+        code, message = refused_transform("b")
+        check("kernel weights reject transform 'b'",
               code == 2 and "kernel" in message.lower() and "transform" in message.lower(),
               message[:80])
+        code, message = refused_transform("r")
+        check("kernel weights reject transform 'r'",
+              code == 2 and "kernel" in message.lower() and "transform" in message.lower(),
+              message[:80])
+        code, message = refused_transform("x")
+        check("kernel weights reject unknown transform",
+              code == 2 and "transform" in message.lower(), message[:80])
 
         # An ordinary (zero-diagonal) matrix is not a kernel: say so, clearly.
         code, res = run("OLS", {"robust": "hac"})
@@ -844,15 +881,60 @@ def cmd_selftest() -> int:
               message[:80])
 
         # The other models whose spreg signature takes `robust` and `gwk`.
-        code, res = run("OLS_Regimes", {"robust": "hac"}, weights="kernel")
-        check("OLS_Regimes with HAC runs", code == 0 and res["status"] == "ok",
-              res.get("error", {}).get("message", ""))
-        code, res = run("TSLS", {"robust": "hac"}, weights="kernel", iv=True)
-        check("TSLS with HAC runs", code == 0 and res["status"] == "ok",
-              res.get("error", {}).get("message", ""))
-        code, res = run("TSLS_Regimes", {"robust": "hac"}, weights="kernel", iv=True)
-        check("TSLS_Regimes with HAC runs", code == 0 and res["status"] == "ok",
-              res.get("error", {}).get("message", ""))
+        # HAC must actually change the standard errors, not merely return ok.
+        for model, needs_iv in (("OLS_Regimes", False), ("TSLS", True),
+                                ("TSLS_Regimes", True)):
+            code, res = run(model, {"robust": "hac"}, weights="kernel", iv=needs_iv)
+            hac_ok = code == 0 and res["status"] == "ok"
+            check("%s with HAC runs" % model, hac_ok,
+                  res.get("error", {}).get("message", ""))
+            code, res_w = run(model, {"robust": "white"}, iv=needs_iv)
+            model_hac_se = np.asarray((res.get("coefficients") or {}).get("std_err", []),
+                                      dtype=float)
+            model_white_se = np.asarray((res_w.get("coefficients") or {}).get("std_err", []),
+                                        dtype=float)
+            same_shape = model_hac_se.shape == model_white_se.shape
+            check("%s HAC std_err differs from White" % model,
+                  hac_ok and code == 0 and res_w["status"] == "ok"
+                  and same_shape and model_hac_se.size > 0
+                  and np.isfinite(model_hac_se).all() and np.isfinite(model_white_se).all()
+                  and not np.allclose(model_hac_se, model_white_se),
+                  "max|diff|=%.3g" % (np.abs(model_hac_se - model_white_se).max()
+                                      if same_shape else float("nan")))
+
+        # "none" means unadjusted.  spreg's default for GM_Lag_Regimes is
+        # White, so the solver has to pass robust=None rather than omit it.
+        code, res_none = run("GM_Lag_Regimes", {"robust": "none"})
+        code, res_white = run("GM_Lag_Regimes", {"robust": "white"})
+        none_se = np.asarray((res_none.get("coefficients") or {}).get("std_err", []),
+                             dtype=float)
+        gm_white_se = np.asarray((res_white.get("coefficients") or {}).get("std_err", []),
+                                 dtype=float)
+        same_shape = none_se.shape == gm_white_se.shape
+        check("GM_Lag_Regimes none is not White",
+              code == 0 and res_none["status"] == "ok" and res_white["status"] == "ok"
+              and same_shape and none_se.size > 0 and np.isfinite(none_se).all()
+              and not np.allclose(none_se, gm_white_se),
+              "max|diff|=%.3g" % (np.abs(none_se - gm_white_se).max()
+                                  if same_shape else float("nan")))
+
+        # A direct spreg call with robust=None is the unadjusted reference.
+        import scipy.sparse as sp
+        import libpysal.weights as libw
+        from spreg.twosls_sp_regimes import GM_Lag_Regimes
+        direct_w = libw.WSP(sp.csr_matrix((vals, cols_idx, indptr),
+                                          shape=(n, n))).to_W()
+        direct_w.transform = "r"
+        direct = GM_Lag_Regimes(y, x, regime.reshape(-1), None, None, direct_w,
+                                robust=None, w_lags=1, lag_q=True, slx_lags=0,
+                                sig2n_k=True, spat_diag=True,
+                                constant_regi="many", cols2regi="all")
+        direct_se = np.asarray(direct.std_err, dtype=float)
+        same_shape = none_se.shape == direct_se.shape
+        check("GM_Lag_Regimes none matches unadjusted",
+              same_shape and np.allclose(none_se, direct_se, rtol=1e-6, atol=1e-8),
+              "max|diff|=%.3g" % (np.abs(none_se - direct_se).max()
+                                  if same_shape else float("nan")))
 
         code, res = run("ML_Lag", {"method": "LU"})
         rho = (res.get("spatial_parameters") or [{}])[0].get("estimate")

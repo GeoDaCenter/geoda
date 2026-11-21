@@ -320,11 +320,17 @@ in, so a model's estimation options come first and the tests of that model after
 An option whose name is in `spreg_models.SOLVER_OPTIONS` is not passed to spreg: the
 solver computes it around the estimator instead (`likelihood_ratio` is the only one).
 
-`robust` takes `"none"`, `"white"` or `"hac"`. `"hac"` needs a kernel weights
-matrix (`kind:"kernel"`, §1.2), which the solver passes to spreg as `gwk`; it is
-available for `OLS`, `OLS_Regimes`, `TSLS` and `TSLS_Regimes` without SLX terms,
-and is rejected otherwise. The other option defaults follow spreg: the spatial
-tests are off for these four, but on for `GM_Lag` and `GM_Lag_Regimes`.
+`robust` takes `"none"`, `"white"` or `"hac"`. `"none"` means unadjusted and is
+passed explicitly as `robust=None`, so it also overrides spreg's White default
+for `GM_Lag_Regimes`. `"hac"` needs a kernel weights matrix (`kind:"kernel"`,
+§1.2), which the solver passes to spreg as `gwk`; it is available for `OLS`,
+`OLS_Regimes`, `TSLS` and `TSLS_Regimes` without SLX terms, and is rejected
+otherwise. The other option defaults follow spreg: the spatial tests are off for
+these four, but on for `GM_Lag` and `GM_Lag_Regimes`.
+
+`moran` is computed only inside `spat_diag`, and `white_test` only inside
+`nonspat_diag`. Asking for either alone warns in the solver, and the dialog keeps
+the dependent checkbox in step.
 
 Protocol v1 model ids (cross-sectional only):
 

@@ -68,9 +68,9 @@ OPT = {
     # Off by default, as in spreg: the White test is one more optional test,
     # not part of what an OLS run reports unless it is asked for.
     "white_test": {"type": "bool", "default": False, "label": "White test",
-                   "help": "White's specification robust test for heteroskedasticity; spreg leaves "
-                           "it off unless it is asked for, and reports it as not computed when the "
-                           "condition number is too large"},
+                   "help": "White's specification robust test for heteroskedasticity; computed "
+                           "with the non-spatial diagnostics, and reported as not computed when "
+                           "the condition number is too large"},
     "method": {"type": "enum", "values": ["LU", "full", "ord"], "default": "LU",
                "label": "Log-Jacobian",
                "help": "log-Jacobian method: LU (sparse), full (dense), ord (eigenvalues)"},
@@ -365,9 +365,14 @@ def validate_options(entry: Dict[str, Any], options: Dict[str, Any]) -> Tuple[Di
             value = spec["default"]
             if spec["type"] == "enum":                # defaults go through the same map
                 value = spec.get("map", {}).get(value, value)
-        if value is None:
-            continue                          # "map" turned it into None: leave spreg's default
         arg = spec.get("arg", name)
+        if value is None:
+            # "none" means unadjusted standard errors.  Omitting the keyword
+            # would leave spreg's own default in place, which is White for
+            # GM_Lag_Regimes, so `robust` has to be passed explicitly as None.
+            if arg == "robust":
+                kwargs[arg] = None
+            continue
         if arg == "slx_vars" and isinstance(value, str) and value.strip().lower() == "all":
             continue
         if arg == "cols2regi" and isinstance(value, str) and value.strip().lower() == "all":
