@@ -130,10 +130,12 @@ A **GWT** file loaded in GeoDa carries real weights; a **GAL** carries 1.0. So
 `transform:"r"` + GAL reproduces a row-standardized binary W, and
 `transform:"r"` + GWT reproduces a row-standardized weighted W.
 
-`kind` is optional. When it is `"kernel"`, the matrix is a kernel weights
-matrix and is passed to spreg as `gwk`, never as `w` (spreg's HAC estimator
-requires a `libpysal` `Kernel`, whose diagonal is ones). A kernel matrix must
-therefore be sent with `transform:"o"`; the solver rejects `"r"` for it.
+`kind` is optional. When it is `"kernel"`, the matrix is a kernel weights matrix
+and is only accepted together with `robust:"hac"`: the solver turns it into the
+`libpysal` `Kernel` that spreg's HAC estimator requires and passes it as `gwk`,
+never as `w`. A kernel matrix must be sent with `transform:"o"`; `"r"` and `"b"`
+are rejected, since either would destroy the diagonal of ones that HAC needs.
+Using a kernel matrix with any other model is refused with a clear error.
 
 `weights` is optional for `OLS` and `OLS_Regimes`: a purely non-spatial OLS can
 omit it. It is required once the spatial dependence tests, Moran's I, SLX terms
@@ -320,8 +322,9 @@ solver computes it around the estimator instead (`likelihood_ratio` is the only 
 
 `robust` takes `"none"`, `"white"` or `"hac"`. `"hac"` needs a kernel weights
 matrix (`kind:"kernel"`, §1.2), which the solver passes to spreg as `gwk`; it is
-available for `OLS`, `OLS_Regimes` and `TSLS` without SLX terms, and is rejected
-otherwise.
+available for `OLS`, `OLS_Regimes`, `TSLS` and `TSLS_Regimes` without SLX terms,
+and is rejected otherwise. The other option defaults follow spreg: the spatial
+tests are off for these four, but on for `GM_Lag` and `GM_Lag_Regimes`.
 
 Protocol v1 model ids (cross-sectional only):
 

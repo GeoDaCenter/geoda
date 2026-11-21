@@ -283,8 +283,11 @@ def build_weights(job: Dict[str, Any], arrays: Dict[str, Any], data: Dict[str, A
     transform = str(spec.get("transform", "o" if kernel else "r")).lower()
     if transform not in ("r", "b", "o"):
         raise ProtocolError("weights.transform must be 'r', 'b' or 'o', got %r" % transform)
-    if kernel and transform == "r":
-        raise ProtocolError("kernel weights must be sent untransformed (transform 'o')")
+    if kernel and transform != "o":
+        # Row-standardizing or binarizing a kernel matrix would destroy the
+        # diagonal of ones that HAC needs, so it is only accepted as sent.
+        raise ProtocolError("kernel weights must be sent untransformed "
+                            "(transform 'o'), got %r" % transform)
 
     if transform == "b":
         values = np.ones_like(values)
@@ -304,21 +307,30 @@ def build_weights(job: Dict[str, Any], arrays: Dict[str, Any], data: Dict[str, A
         w.transform = "r"
     elif transform == "b":
         w.transform = "b"
-    if kernel:
-        # spreg's HAC estimator insists on a libpysal Kernel object, but the
-        # weight values GeoDa sends already are the kernel weights: only the
-        # class matters here, so the sparse matrix is carried over as it is.
-        kernel_w = libw.Kernel.__new__(libw.Kernel)
-        kernel_w.__dict__.update(w.__dict__)
-        kernel_w.function = "triangular"
-        kernel_w.bandwidth = None
-        kernel_w.fixed = True
-        kernel_w.diagonal = True
-        w = kernel_w
+    # A kernel matrix stays a plain W here.  run_job turns it into a
+    # libpysal Kernel only for HAC, and refuses it for every other model.
     # 'o': leave the weights exactly as sent (transform stays unset)
     log("weights: n=%d, %d stored links, transform=%s, name=%s"
         % (n, len(values), transform, spec.get("name", "")))
     return w
+
+
+def as_kernel(w: Any) -> Any:
+    """The same weights as a libpysal Kernel, which spreg's HAC requires.
+
+    The weight values GeoDa sends already are the kernel weights; only the
+    class matters to spreg, so the sparse matrix and its metadata are carried
+    over as they are.
+    """
+    import libpysal.weights as libw
+
+    kernel_w = libw.Kernel.__new__(libw.Kernel)
+    kernel_w.__dict__.update(w.__dict__)
+    kernel_w.function = "triangular"
+    kernel_w.bandwidth = None
+    kernel_w.fixed = True
+    kernel_w.diagonal = True
+    return kernel_w
 
 
 # ---------------------------------------------------------------------------
@@ -409,11 +421,6 @@ def run_job(jobdir: str, log: Log) -> Tuple[Dict[str, Any], Dict[str, Any]]:
     except ValueError as exc:
         raise ProtocolError(str(exc))
 
-    if kwargs.get("robust") == "hac" and data["w"] is not None:
-        diagonal = np.asarray(data["w"].sparse.diagonal()).reshape(-1)
-        if diagonal.shape[0] != data["n"] or not np.allclose(diagonal, 1.0):
-            raise ProtocolError("HAC standard errors need kernel weights with ones "
-                                "along the diagonal (this matrix does not have them)")
     if entry["style"] in ("regimes", "endog_regimes_a", "endog_regimes_b"):
         # the solver owns the constant for regimes models
         kwargs["constant_regi"] = kwargs.get("constant_regi", "many") if data["constant"] else False
@@ -444,6 +451,8 @@ def run_job(jobdir: str, log: Log) -> Tuple[Dict[str, Any], Dict[str, Any]]:
     # it there), so the estimator is given none: for OLS and 2SLS that only
     # drops the spatial diagnostics, which HAC disables anyway.
     if kwargs.get("robust") == "hac":
+        # Whether the model can do HAC at all comes first, so that an
+        # unsupported model is never told its weights are the problem.
         if entry["id"] in ("GM_Lag", "GM_Lag_Regimes"):
             raise ProtocolError("HAC standard errors are not available for the spatial "
                                 "lag models: they need an ordinary spatial weights matrix "
@@ -452,14 +461,24 @@ def run_job(jobdir: str, log: Log) -> Tuple[Dict[str, Any], Dict[str, Any]]:
             raise ProtocolError("HAC standard errors cannot be combined with SLX terms "
                                 "here: SLX needs an ordinary spatial weights matrix while "
                                 "HAC needs a kernel matrix")
-        if not data["weights_kernel"]:
-            raise ProtocolError("HAC standard errors need a kernel weights matrix; "
-                                "choose a kernel weights matrix for this model")
         if "gwk" not in parameters:
             raise ProtocolError("model %s cannot compute HAC standard errors"
                                 % entry["id"])
-        kwargs["gwk"] = data["w"]
+        if data["w"] is None or not data["weights_kernel"]:
+            raise ProtocolError("HAC standard errors need a kernel weights matrix; "
+                                "choose a kernel weights matrix for this model")
+        diagonal = np.asarray(data["w"].sparse.diagonal()).reshape(-1)
+        if diagonal.shape[0] != data["n"] or not np.allclose(diagonal, 1.0):
+            raise ProtocolError("HAC standard errors need kernel weights with ones "
+                                "along the diagonal (this matrix does not have them)")
+        kwargs["gwk"] = as_kernel(data["w"])
         data["w_for_model"] = None
+    elif data["weights_kernel"]:
+        # A kernel matrix only makes sense as HAC's gwk; as an ordinary w its
+        # non-zero diagonal is not what any spreg estimator accepts.
+        raise ProtocolError("kernel weights are only supported with HAC standard "
+                            "errors (robust 'hac'); choose an ordinary weights matrix "
+                            "for this model")
 
     # Options the solver owns rather than spreg: they say what is computed around
     # the estimator, not how it is estimated, so they are taken out before it is
@@ -676,6 +695,10 @@ def cmd_selftest() -> int:
         indptr = np.cumsum(indptr)
         regime = np.array([int(c >= cols // 2) for c in range(n)])
 
+        # An endogenous regressor and its instrument, for the TSLS HAC cases.
+        z_iv = rng.normal(size=(n, 1))
+        endog = 0.6 * z_iv + rng.normal(scale=0.5, size=(n, 1))
+
         # A kernel weights matrix for HAC: ones on the diagonal, the kernel
         # weight (0.5) off it.  It is carried untransformed, as GeoDa sends it.
         k_rows = np.concatenate([rows_idx, np.arange(n)])
@@ -691,6 +714,7 @@ def cmd_selftest() -> int:
                           "transform": "o", "kind": "kernel", "name": "grid-kernel"}
 
         arrays = {"y": y.reshape(-1, 1), "x": x, "regime": regime.reshape(-1, 1),
+                  "yend": endog, "q": z_iv,
                   "w_indptr": indptr, "w_indices": cols_idx.astype(np.int32),
                   "w_data": vals, "coords": xs,
                   "k_indptr": k_indptr, "k_indices": k_cols.astype(np.int32),
@@ -713,7 +737,7 @@ def cmd_selftest() -> int:
         check("job directory written", os.path.isfile(os.path.join(jobdir, "data.bin")))
 
         def run(model: str, options: Optional[Dict[str, Any]] = None,
-                weights: str = "spatial"):
+                weights: str = "spatial", iv: bool = False):
             job = json.loads(json.dumps(spec))
             job["model"] = model
             job["options"] = options or {}
@@ -721,6 +745,9 @@ def cmd_selftest() -> int:
                 job.pop("weights", None)
             elif weights == "kernel":                # the kernel matrix for HAC
                 job["weights"] = dict(kernel_weights)
+            if iv:                                   # TSLS needs both
+                job["data"]["endogenous"] = {"names": ["endog"], "array": "yend"}
+                job["data"]["instruments"] = {"names": ["z"], "array": "q"}
             write_job_dir(jobdir, job, arrays)
             code = cmd_run(jobdir)
             result = read_json(os.path.join(jobdir, "result.json"))
@@ -752,7 +779,16 @@ def cmd_selftest() -> int:
         check("observations written", os.path.getsize(os.path.join(jobdir, "result.bin")) == 2 * n * 8)
         check("report written", os.path.isfile(os.path.join(jobdir, "report.txt")))
 
-        # A non-spatial OLS needs no weights at all, and asks for no spatial test.
+        # The defaults ask for no spatial test, with or without weights.
+        code, res = run("OLS")
+        check("weighted OLS runs", code == 0 and res["status"] == "ok",
+              res.get("error", {}).get("message", ""))
+        default_spatial = [d for d in res.get("diagnostics", [])
+                           if d.get("group") == "spatial dependence"]
+        check("weighted OLS default has no spatial diagnostics", not default_spatial,
+              str([d.get("name") for d in default_spatial]))
+
+        # A non-spatial OLS needs no weights at all.
         code, res = run("OLS", weights="none")
         check("no-weights OLS runs", code == 0 and res["status"] == "ok",
               res.get("error", {}).get("message", ""))
@@ -762,9 +798,43 @@ def cmd_selftest() -> int:
               str([d.get("name") for d in spatial_diag]))
 
         # HAC is computed from a kernel matrix: ones on the diagonal, sent as is.
-        code, res = run("OLS", {"robust": "hac"}, weights="kernel")
-        check("kernel weights with HAC run", code == 0 and res["status"] == "ok",
-              res.get("error", {}).get("message", ""))
+        code, res_hac = run("OLS", {"robust": "hac"}, weights="kernel")
+        check("kernel weights with HAC run", code == 0 and res_hac["status"] == "ok",
+              res_hac.get("error", {}).get("message", ""))
+        hac_se = np.asarray((res_hac.get("coefficients") or {}).get("std_err", []),
+                            dtype=float)
+
+        code, res_white = run("OLS", {"robust": "white"})
+        check("White standard errors run", code == 0 and res_white["status"] == "ok",
+              res_white.get("error", {}).get("message", ""))
+        white_se = np.asarray((res_white.get("coefficients") or {}).get("std_err", []),
+                              dtype=float)
+        differs = (hac_se.shape == white_se.shape and hac_se.size > 0
+                   and np.isfinite(hac_se).all() and np.isfinite(white_se).all()
+                   and not np.allclose(hac_se, white_se))
+        check("HAC standard errors differ from White", differs,
+              "max|diff|=%.3g" % (np.abs(hac_se - white_se).max()
+                                  if hac_se.shape == white_se.shape else float("nan")))
+
+        # A kernel matrix is HAC's gwk only, and only in its stored form.
+        code, res = run("OLS", weights="kernel")
+        message = res.get("error", {}).get("message", "")
+        check("kernel weights without HAC refused",
+              code != 0 and res["status"] == "error"
+              and "hac" in message.lower() and "kernel" in message.lower(),
+              message[:80])
+
+        broken = json.loads(json.dumps(spec))
+        broken["options"] = {"robust": "hac"}
+        broken["weights"] = dict(kernel_weights)
+        broken["weights"]["transform"] = "b"
+        write_job_dir(jobdir, broken, arrays)
+        code = cmd_run(jobdir)
+        res = read_json(os.path.join(jobdir, "result.json"))
+        message = res.get("error", {}).get("message", "")
+        check("kernel weights require transform 'o'",
+              code == 2 and "kernel" in message.lower() and "transform" in message.lower(),
+              message[:80])
 
         # An ordinary (zero-diagonal) matrix is not a kernel: say so, clearly.
         code, res = run("OLS", {"robust": "hac"})
@@ -772,6 +842,17 @@ def cmd_selftest() -> int:
         check("HAC with ordinary weights refused",
               code != 0 and res["status"] == "error" and "kernel" in message.lower(),
               message[:80])
+
+        # The other models whose spreg signature takes `robust` and `gwk`.
+        code, res = run("OLS_Regimes", {"robust": "hac"}, weights="kernel")
+        check("OLS_Regimes with HAC runs", code == 0 and res["status"] == "ok",
+              res.get("error", {}).get("message", ""))
+        code, res = run("TSLS", {"robust": "hac"}, weights="kernel", iv=True)
+        check("TSLS with HAC runs", code == 0 and res["status"] == "ok",
+              res.get("error", {}).get("message", ""))
+        code, res = run("TSLS_Regimes", {"robust": "hac"}, weights="kernel", iv=True)
+        check("TSLS_Regimes with HAC runs", code == 0 and res["status"] == "ok",
+              res.get("error", {}).get("message", ""))
 
         code, res = run("ML_Lag", {"method": "LU"})
         rho = (res.get("spatial_parameters") or [{}])[0].get("estimate")

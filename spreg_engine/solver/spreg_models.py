@@ -55,6 +55,8 @@ OPT = {
     "nonspat_diag": {"type": "bool", "default": True, "label": "Non-spatial diagnostics",
                      "help": "Jarque-Bera, Breusch-Pagan and Koenker-Bassett on the residuals, "
                              "and the measures of fit"},
+    # Off by default as in spreg.  GM_Lag and GM_Lag_Regimes override this
+    # because spreg turns their Anselin-Kelejian test on by default.
     "spat_diag": {"type": "bool", "default": False, "label": "Spatial dependence tests",
                   "help": "LM tests for spatial dependence: lag, error and their robust forms, "
                           "SARMA, spatial Durbin and WX (OLS); the Anselin-Kelejian test on the "
@@ -128,18 +130,22 @@ OPT = {
 #   nslx            cls(y, x, coords, **kw)
 #   skater          cls().fit(n_clusters=..., W=w, data=x, **kw)
 
-def _m(model_id, label, family, cls, style="standard", options=(), requires=None, notes=""):
+def _m(model_id, label, family, cls, style="standard", options=(), requires=None,
+       notes="", overrides=None):
     req = {"weights": True, "regimes": False, "endog": False, "instruments": False,
            "coords": False, "y_binary": False}
     if requires:
         req.update(requires)
+    opts = {name: dict(OPT[name]) for name in options}
+    for name, change in (overrides or {}).items():
+        opts[name].update(change)
     return {
         "id": model_id,
         "label": label,
         "family": family,
         "class": cls,
         "style": style,
-        "options": {name: dict(OPT[name]) for name in options},
+        "options": opts,
         "requires": req,
         "notes": notes,
     }
@@ -211,7 +217,9 @@ MODELS: List[Dict[str, Any]] = [
        "spreg.twosls_sp:GM_Lag", style="endog",
        options=("w_lags", "lag_q", "slx_lags", "robust", "sig2n_k", "spat_diag"),
        requires={"endog": False, "instruments": False},
-       notes="endogenous X and instruments are optional; W_X is used as instruments"),
+       notes="endogenous X and instruments are optional; W_X is used as instruments",
+       # spreg turns the Anselin-Kelejian test on by default for this model.
+       overrides={"spat_diag": {"default": True}}),
     _m("TSLS", "Two stage least squares (2SLS)", "tsls", "spreg.twosls:TSLS",
        style="endog",
        options=("robust", "slx_lags", "sig2n_k", "spat_diag", "nonspat_diag"),
@@ -264,10 +272,12 @@ MODELS: List[Dict[str, Any]] = [
     _m("GM_Lag_Regimes", "Spatial lag (GS2SLS), by regime", "gm_lag",
        "spreg.twosls_sp_regimes:GM_Lag_Regimes", style="endog_regimes_b",
        options=_REGI + ("slx_lags", "w_lags", "lag_q", "robust", "sig2n_k", "spat_diag"),
-       requires={"regimes": True}),
+       requires={"regimes": True},
+       # As in spreg: the Anselin-Kelejian test is on by default here.
+       overrides={"spat_diag": {"default": True}}),
     _m("TSLS_Regimes", "Two stage least squares, by regime", "tsls",
        "spreg.twosls_regimes:TSLS_Regimes", style="endog_regimes_a",
-       options=_REGI + ("slx_lags", "sig2n_k", "spat_diag"),
+       options=_REGI + ("slx_lags", "robust", "sig2n_k", "spat_diag"),
        requires={"regimes": True, "endog": True, "instruments": True}),
     # ---- binary dependent variable ---------------------------------------
     _m("Probit", "Probit (binary dependent variable)", "probit", "spreg.probit:Probit",

@@ -768,6 +768,16 @@ void RegressionDlg::GrowToFit()
 	if (wanted != GetSize()) SetSize(wanted);
 }
 
+// A lookup that does not insert a missing key: the whole options map goes to
+// the solver, and an extra empty option is refused as one the model does not
+// declare.  (operator[] would insert one.)
+static wxString SpregOptionValue(const std::map<wxString, wxString>& options,
+								 const wxString& name)
+{
+	std::map<wxString, wxString>::const_iterator it = options.find(name);
+	return it == options.end() ? wxString() : it->second;
+}
+
 /**
  * Runs one of the engine's models on what the dialog has gathered.
  *
@@ -883,10 +893,10 @@ bool RegressionDlg::RunSpregModel(wxCommandEvent& WXUNUSED(event))
 		return true;
 	}
 	long slx_lags = 0;
-	options["slx_lags"].ToLong(&slx_lags);
-	const bool spatial_tests = options["spat_diag"] == "true";
-	const bool moran = options["moran"] == "true";
-	const bool hac = options["robust"] == "hac";
+	SpregOptionValue(options, "slx_lags").ToLong(&slx_lags);
+	const bool spatial_tests = SpregOptionValue(options, "spat_diag") == "true";
+	const bool moran = SpregOptionValue(options, "moran") == "true";
+	const bool hac = SpregOptionValue(options, "robust") == "hac";
 
 	std::vector<int> valid_rows;
 	std::map<int, int> remap;
@@ -938,6 +948,27 @@ bool RegressionDlg::RunSpregModel(wxCommandEvent& WXUNUSED(event))
 					 wxOK | wxICON_ERROR, this);
 		return true;
 	}
+	// Which model can do HAC comes first, so that an unsupported model is not
+	// told that its weights are the problem.  spreg 1.9.1's OLS, OLS_Regimes,
+	// TSLS and TSLS_Regimes constructors take `robust` and `gwk`.  GM_Lag and
+	// GM_Lag_Regimes declare `robust` too, but their instruments need an
+	// ordinary W, which HAC cannot provide.
+	if (hac && chosen_model) {
+		const wxString& id = chosen_model->id;
+		const bool supports_hac = id == "OLS" || id == "OLS_Regimes"
+			|| id == "TSLS" || id == "TSLS_Regimes";
+		if (!supports_hac || slx_lags > 0) {
+			UpdateMessageBox("");
+			m_gauge->Hide();
+			wxLogMessage("Spreg: HAC is not available for %s", id);
+			wxMessageBox(_("HAC standard errors are available for OLS, OLS by "
+						   "regime, 2SLS and 2SLS by regime without SLX terms.  "
+						   "The spatial lag models need an ordinary weights "
+						   "matrix, which HAC cannot use."),
+						 _("Error"), wxOK | wxICON_ERROR, this);
+			return true;
+		}
+	}
 	if (hac && !kernel_weights) {
 		UpdateMessageBox("");
 		m_gauge->Hide();
@@ -947,25 +978,14 @@ bool RegressionDlg::RunSpregModel(wxCommandEvent& WXUNUSED(event))
 					 _("Error"), wxOK | wxICON_ERROR, this);
 		return true;
 	}
-	if (hac && chosen_model) {
-		const wxString& id = chosen_model->id;
-		// The solver's registry offers `robust` for exactly these, and spreg's
-		// OLS/OLS_Regimes/TSLS signatures take `gwk`.  TSLS_Regimes takes `gwk`
-		// too, but does not expose `robust` in the registry, so HAC is left out
-		// here rather than failing later with an unknown option.
-		const bool supports_hac = id == "OLS" || id == "OLS_Regimes"
-			|| id == "TSLS";
-		if (!supports_hac || slx_lags > 0) {
-			UpdateMessageBox("");
-			m_gauge->Hide();
-			wxLogMessage("Spreg: HAC is not available for %s", id);
-			wxMessageBox(_("HAC standard errors are available for OLS, OLS by "
-						   "regime and 2SLS without SLX terms.  The spatial lag "
-						   "models need an ordinary weights matrix, which HAC "
-						   "cannot use."),
-						 _("Error"), wxOK | wxICON_ERROR, this);
-			return true;
-		}
+	if (kernel_weights && !hac) {
+		UpdateMessageBox("");
+		m_gauge->Hide();
+		wxLogMessage("Spreg: kernel weights were chosen without HAC");
+		wxMessageBox(_("Kernel weights are only supported with HAC standard errors.  "
+					   "Choose HAC, or use an ordinary weights matrix for this model."),
+					 _("Error"), wxOK | wxICON_ERROR, this);
+		return true;
 	}
 	if (kernel_weights && (spatial_tests || moran)) {
 		UpdateMessageBox("");
