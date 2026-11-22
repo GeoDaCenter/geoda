@@ -165,11 +165,50 @@ jobs:
             echo ERROR: cl.exe, link.exe, nmake.exe or rc.exe is missing from PATH.
             exit /b 1
           )
-          echo VSPATH=%VSPATH% >> %GITHUB_ENV%
-          echo PATH=%PATH% >> %GITHUB_ENV%
-          echo INCLUDE=%INCLUDE% >> %GITHUB_ENV%
-          echo LIB=%LIB% >> %GITHUB_ENV%
-          echo LIBPATH=%LIBPATH% >> %GITHUB_ENV%
+          rem Parenthesize the echo so the space before ">>" is not written
+          rem into the value. A trailing space on the last LIB entry makes the
+          rem linker look for "...\um\x86 " and fail with LNK1181.
+          (echo VSPATH=%VSPATH%)>>"%GITHUB_ENV%"
+          (echo PATH=%PATH%)>>"%GITHUB_ENV%"
+          (echo INCLUDE=%INCLUDE%)>>"%GITHUB_ENV%"
+          (echo LIB=%LIB%)>>"%GITHUB_ENV%"
+          (echo LIBPATH=%LIBPATH%)>>"%GITHUB_ENV%"
+
+      # VsDevCmd on the windows-2022 image emits Windows SDK paths with
+      # doubled separators (e.g. ...\10\\lib\\...\\um\\x86) and can leave a
+      # trailing space on the last LIB entry. The MSVC linker treats that
+      # space as part of the directory name and then cannot find
+      # kernel32.lib (LNK1181/LNK1104). Normalize the path lists once here
+      # and persist the clean values so every later step -- including
+      # "Build GeoDa" -- gets them.
+      - name: Normalize MSVC environment
+        shell: pwsh
+        run: |
+          function Normalize-PathList([string]$Value) {
+            if (-not $Value) { return $Value }
+            ($Value -split ';' | ForEach-Object {
+              $Entry = ($_ -replace '[\r\n]', '').Trim()
+              # Do not fold the leading "\\" of UNC or \\?\ paths.
+              if ($Entry -and -not $Entry.StartsWith('\\')) {
+                $Entry = $Entry -replace '\\\\', '\'
+              }
+              $Entry
+            } | Where-Object { $_ -ne '' }) -join ';'
+          }
+          # VSPATH is a single path, but trim it the same way: the cmd step's
+          # "echo ... >> %GITHUB_ENV%" used to leave a trailing space, which
+          # silently broke "$env:VSPATH\Common7\Tools\VsDevCmd.bat" below.
+          foreach ($Name in @('VSPATH', 'LIB', 'INCLUDE', 'LIBPATH', 'PATH')) {
+            $Value = [Environment]::GetEnvironmentVariable($Name)
+            if ($Value) {
+              $Normalized = if ($Name -eq 'VSPATH') { $Value.Trim() } else { Normalize-PathList $Value }
+              "$Name=$Normalized" |
+                Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8NoBOM
+              [Environment]::SetEnvironmentVariable($Name, $Normalized)
+            }
+          }
+          Write-Output "Normalized VSPATH=[$env:VSPATH]"
+          Write-Output "Normalized LIB=$env:LIB"
 
       - uses: actions/cache@v4
         id: cache
@@ -231,12 +270,40 @@ jobs:
           {
               Import-VisualStudioVars -VisualStudioVersion $env:VS_VER -Architecture $env:ARCHITECTURE
           }
-          # Normalize doubled separators in the MSVC env vars (see above).
-          if ($env:LIB) { $env:LIB = $env:LIB -replace '\\\\', '\' }
-          if ($env:INCLUDE) { $env:INCLUDE = $env:INCLUDE -replace '\\\\', '\' }
-          if ($env:PATH) { $env:PATH = $env:PATH -replace '\\\\', '\' }
+          # Normalize the MSVC env vars: collapse doubled separators AND trim
+          # whitespace from every entry. A trailing space on the last LIB
+          # entry makes the linker look for "...\um\x86 " and fail to find
+          # kernel32.lib (LNK1181), which is exactly what the x86 job hit.
+          # Keep this in sync with the "Normalize MSVC environment" step.
+          function Normalize-PathList([string]$Value) {
+            if (-not $Value) { return $Value }
+            ($Value -split ';' | ForEach-Object {
+              $Entry = ($_ -replace '[\r\n]', '').Trim()
+              # Do not fold the leading "\\" of UNC or \\?\ paths.
+              if ($Entry -and -not $Entry.StartsWith('\\')) {
+                $Entry = $Entry -replace '\\\\', '\'
+              }
+              $Entry
+            } | Where-Object { $_ -ne '' }) -join ';'
+          }
+          $env:LIB = Normalize-PathList $env:LIB
+          $env:INCLUDE = Normalize-PathList $env:INCLUDE
+          $env:PATH = Normalize-PathList $env:PATH
+          $env:LIBPATH = Normalize-PathList $env:LIBPATH
           Write-Output "After env setup: LIB=$env:LIB"
           Write-Output "After env setup: INCLUDE=$env:INCLUDE"
+          # Fail early with a clear message if the linker will not be able to
+          # find the Windows SDK import libraries.
+          $Kernel32Dir = $env:LIB -split ';' |
+            Where-Object {
+              $_ -and (Test-Path -LiteralPath (Join-Path $_ 'kernel32.lib'))
+            } |
+            Select-Object -First 1
+          if (-not $Kernel32Dir) {
+            Write-Error "LIB contains no directory with kernel32.lib`nLIB=$env:LIB"
+            exit 1
+          }
+          Write-Output "kernel32.lib found in $Kernel32Dir"
           #
           # prepare
           #
