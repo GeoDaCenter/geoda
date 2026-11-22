@@ -41,10 +41,11 @@ from typing import Any, Dict, List, Optional, Tuple
 # (e.g. "auto" -> None).
 
 OPT = {
-    "robust": {"type": "enum", "values": ["none", "white", "het"], "default": "none",
+    "robust": {"type": "enum", "values": ["none", "white", "hac"], "default": "none",
                "map": {"none": None}, "label": "Robust standard errors",
-               "help": "spreg's robust (White or heteroskedasticity-consistent) standard errors; "
-                       "with them the spatial dependence tests are not computed"},
+               "help": "spreg's robust standard errors: White (heteroskedasticity-consistent) "
+                       "or HAC (needs kernel weights); with them the spatial dependence tests "
+                       "are not computed"},
     "slx_lags": {"type": "int", "default": 0, "min": 0, "max": 3, "label": "SLX lags of X",
                  "help": "spatial lags of X (1 = spatial Durbin / SLX)"},
     "slx_vars": {"type": "str", "default": "all", "label": "SLX variables",
@@ -54,19 +55,22 @@ OPT = {
     "nonspat_diag": {"type": "bool", "default": True, "label": "Non-spatial diagnostics",
                      "help": "Jarque-Bera, Breusch-Pagan and Koenker-Bassett on the residuals, "
                              "and the measures of fit"},
-    "spat_diag": {"type": "bool", "default": True, "label": "Spatial dependence tests",
+    # Off by default as in spreg.  GM_Lag and GM_Lag_Regimes override this
+    # because spreg turns their Anselin-Kelejian test on by default.
+    "spat_diag": {"type": "bool", "default": False, "label": "Spatial dependence tests",
                   "help": "LM tests for spatial dependence: lag, error and their robust forms, "
                           "SARMA, spatial Durbin and WX (OLS); the Anselin-Kelejian test on the "
-                          "residuals (GM_Lag, TSLS)"},
-    "moran": {"type": "bool", "default": True, "label": "Moran's I",
+                          "residuals (GM_Lag, TSLS). Needs a spatial weights matrix"},
+    "moran": {"type": "bool", "default": False, "label": "Moran's I",
               "help": "Moran's I on the residuals - a diffuse test of spatial dependence, "
-                      "computed on top of the spatial diagnostics"},
-    # On by default, unlike in spreg: GeoDa's own OLS report carries a White
-    # test, and the cost of computing it is a fraction of a second.
-    "white_test": {"type": "bool", "default": True, "label": "White test",
-                   "help": "White's specification robust test for heteroskedasticity; spreg leaves "
-                           "it off unless it is asked for, and reports it as not computed when the "
-                           "condition number is too large"},
+                      "computed on top of the spatial diagnostics. Needs a spatial weights "
+                      "matrix"},
+    # Off by default, as in spreg: the White test is one more optional test,
+    # not part of what an OLS run reports unless it is asked for.
+    "white_test": {"type": "bool", "default": False, "label": "White test",
+                   "help": "White's specification robust test for heteroskedasticity; computed "
+                           "with the non-spatial diagnostics, and reported as not computed when "
+                           "the condition number is too large"},
     "method": {"type": "enum", "values": ["LU", "full", "ord"], "default": "LU",
                "label": "Log-Jacobian",
                "help": "log-Jacobian method: LU (sparse), full (dense), ord (eigenvalues)"},
@@ -126,18 +130,22 @@ OPT = {
 #   nslx            cls(y, x, coords, **kw)
 #   skater          cls().fit(n_clusters=..., W=w, data=x, **kw)
 
-def _m(model_id, label, family, cls, style="standard", options=(), requires=None, notes=""):
+def _m(model_id, label, family, cls, style="standard", options=(), requires=None,
+       notes="", overrides=None):
     req = {"weights": True, "regimes": False, "endog": False, "instruments": False,
            "coords": False, "y_binary": False}
     if requires:
         req.update(requires)
+    opts = {name: dict(OPT[name]) for name in options}
+    for name, change in (overrides or {}).items():
+        opts[name].update(change)
     return {
         "id": model_id,
         "label": label,
         "family": family,
         "class": cls,
         "style": style,
-        "options": {name: dict(OPT[name]) for name in options},
+        "options": opts,
         "requires": req,
         "notes": notes,
     }
@@ -149,12 +157,16 @@ MODELS: List[Dict[str, Any]] = [
     # ---- classical -------------------------------------------------------
     _m("OLS", "Classical (OLS)", "classical", "spreg.ols:OLS",
        options=("robust", "slx_lags", "sig2n_k", "nonspat_diag", "spat_diag", "moran", "white_test"),
-       notes="weights are required by spreg even for a purely non-spatial OLS"),
+       requires={"weights": False},
+       notes="weights are needed only for the spatial dependence tests, Moran's I, "
+             "SLX or HAC"),
     _m("OLS_Regimes", "Classical (OLS), by regime", "classical", "spreg.ols_regimes:OLS_Regimes",
        style="regimes",
        options=("robust", "slx_lags", "sig2n_k", "nonspat_diag", "spat_diag", "moran",
                 "white_test") + _REGI,
-       requires={"regimes": True}),
+       requires={"regimes": True, "weights": False},
+       notes="weights are needed only for the spatial dependence tests, Moran's I, "
+             "SLX or HAC"),
     # ---- ML --------------------------------------------------------------
     _m("ML_Lag", "Spatial lag (ML)", "ml_lag", "spreg.ml_lag:ML_Lag",
        options=("method", "epsilon", "slx_lags", "spat_impacts", "likelihood_ratio"),
@@ -205,7 +217,9 @@ MODELS: List[Dict[str, Any]] = [
        "spreg.twosls_sp:GM_Lag", style="endog",
        options=("w_lags", "lag_q", "slx_lags", "robust", "sig2n_k", "spat_diag"),
        requires={"endog": False, "instruments": False},
-       notes="endogenous X and instruments are optional; W_X is used as instruments"),
+       notes="endogenous X and instruments are optional; W_X is used as instruments",
+       # spreg turns the Anselin-Kelejian test on by default for this model.
+       overrides={"spat_diag": {"default": True}}),
     _m("TSLS", "Two stage least squares (2SLS)", "tsls", "spreg.twosls:TSLS",
        style="endog",
        options=("robust", "slx_lags", "sig2n_k", "spat_diag", "nonspat_diag"),
@@ -258,10 +272,12 @@ MODELS: List[Dict[str, Any]] = [
     _m("GM_Lag_Regimes", "Spatial lag (GS2SLS), by regime", "gm_lag",
        "spreg.twosls_sp_regimes:GM_Lag_Regimes", style="endog_regimes_b",
        options=_REGI + ("slx_lags", "w_lags", "lag_q", "robust", "sig2n_k", "spat_diag"),
-       requires={"regimes": True}),
+       requires={"regimes": True},
+       # As in spreg: the Anselin-Kelejian test is on by default here.
+       overrides={"spat_diag": {"default": True}}),
     _m("TSLS_Regimes", "Two stage least squares, by regime", "tsls",
        "spreg.twosls_regimes:TSLS_Regimes", style="endog_regimes_a",
-       options=_REGI + ("slx_lags", "sig2n_k", "spat_diag"),
+       options=_REGI + ("slx_lags", "robust", "sig2n_k", "spat_diag"),
        requires={"regimes": True, "endog": True, "instruments": True}),
     # ---- binary dependent variable ---------------------------------------
     _m("Probit", "Probit (binary dependent variable)", "probit", "spreg.probit:Probit",
@@ -349,9 +365,14 @@ def validate_options(entry: Dict[str, Any], options: Dict[str, Any]) -> Tuple[Di
             value = spec["default"]
             if spec["type"] == "enum":                # defaults go through the same map
                 value = spec.get("map", {}).get(value, value)
-        if value is None:
-            continue                          # "map" turned it into None: leave spreg's default
         arg = spec.get("arg", name)
+        if value is None:
+            # "none" means unadjusted standard errors.  Omitting the keyword
+            # would leave spreg's own default in place, which is White for
+            # GM_Lag_Regimes, so `robust` has to be passed explicitly as None.
+            if arg == "robust":
+                kwargs[arg] = None
+            continue
         if arg == "slx_vars" and isinstance(value, str) and value.strip().lower() == "all":
             continue
         if arg == "cols2regi" and isinstance(value, str) and value.strip().lower() == "all":
@@ -674,6 +695,23 @@ def extract_result(model_obj: Any, entry: Dict[str, Any], ctx: Dict[str, Any]) -
                                                   ctx.get("yend_names"))
     diagnostics, dwarn = collect_diagnostics(model_obj)
     warnings += dwarn
+
+    # spreg groups the caveats it prints into `model.warning`; GeoDa does not
+    # read the report text, so carry them into the result's warnings as well.
+    # Most estimators store a string there, but Probit stores a bool: True
+    # means its optimizer stopped before converging.  Render that as a
+    # sentence rather than letting str() leak the meaningless "True".
+    spreg_warning = getattr(model_obj, "warning", "")
+    if isinstance(spreg_warning, str):
+        for line in spreg_warning.splitlines():
+            line = line.strip()
+            if line:
+                warnings.append(line)
+    elif spreg_warning is True:
+        if entry["family"] == "probit":
+            warnings.append("the Probit optimizer did not converge")
+        else:
+            warnings.append("spreg reported a warning for %s" % entry["id"])
 
     # std_err / z / p may be shorter than the coefficient vector (GM_Combo reports
     # `lambda` without a standard error); pad so the arrays stay aligned.

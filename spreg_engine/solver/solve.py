@@ -272,12 +272,22 @@ def build_weights(job: Dict[str, Any], arrays: Dict[str, Any], data: Dict[str, A
         raise ProtocolError("weights.indices contains out-of-range neighbor ids")
     if not np.isfinite(values).all():
         raise ProtocolError("weights.data contains NaN or infinite values")
-    if len(indices) and (indices == np.repeat(np.arange(n), np.diff(indptr))).any():
+    # A kernel weights matrix has ones on the diagonal (that is what spreg's
+    # HAC estimator wants); every other matrix spreg accepts has a zero
+    # diagonal.  So the diagonal is only rejected for the latter.
+    kernel = str(spec.get("kind", "")).lower() == "kernel"
+    if not kernel and len(indices) \
+            and (indices == np.repeat(np.arange(n), np.diff(indptr))).any():
         raise ProtocolError("weights contain self-loops; spreg requires a zero diagonal")
 
-    transform = str(spec.get("transform", "r")).lower()
+    transform = str(spec.get("transform", "o" if kernel else "r")).lower()
     if transform not in ("r", "b", "o"):
         raise ProtocolError("weights.transform must be 'r', 'b' or 'o', got %r" % transform)
+    if kernel and transform != "o":
+        # Row-standardizing or binarizing a kernel matrix would destroy the
+        # diagonal of ones that HAC needs, so it is only accepted as sent.
+        raise ProtocolError("kernel weights must be sent untransformed "
+                            "(transform 'o'), got %r" % transform)
 
     if transform == "b":
         values = np.ones_like(values)
@@ -297,10 +307,30 @@ def build_weights(job: Dict[str, Any], arrays: Dict[str, Any], data: Dict[str, A
         w.transform = "r"
     elif transform == "b":
         w.transform = "b"
+    # A kernel matrix stays a plain W here.  run_job turns it into a
+    # libpysal Kernel only for HAC, and refuses it for every other model.
     # 'o': leave the weights exactly as sent (transform stays unset)
     log("weights: n=%d, %d stored links, transform=%s, name=%s"
         % (n, len(values), transform, spec.get("name", "")))
     return w
+
+
+def as_kernel(w: Any) -> Any:
+    """The same weights as a libpysal Kernel, which spreg's HAC requires.
+
+    The weight values GeoDa sends already are the kernel weights; only the
+    class matters to spreg, so the sparse matrix and its metadata are carried
+    over as they are.
+    """
+    import libpysal.weights as libw
+
+    kernel_w = libw.Kernel.__new__(libw.Kernel)
+    kernel_w.__dict__.update(w.__dict__)
+    kernel_w.function = "triangular"
+    kernel_w.bandwidth = None
+    kernel_w.fixed = True
+    kernel_w.diagonal = True
+    return kernel_w
 
 
 # ---------------------------------------------------------------------------
@@ -309,7 +339,10 @@ def build_weights(job: Dict[str, Any], arrays: Dict[str, Any], data: Dict[str, A
 
 def call_estimator(entry: Dict[str, Any], cls: Any, data: Dict[str, Any],
                    kwargs: Dict[str, Any], log: Log):
-    y, x, w = data["y"], data["x"], data.get("w")
+    # `w_for_model` lets HAC runs keep the kernel matrix for `gwk` while the
+    # estimator itself is given no `w`: spreg rejects a kernel matrix there.
+    y, x = data["y"], data["x"]
+    w = data.get("w_for_model", data.get("w"))
     style = entry["style"]
     regimes = data.get("regimes")
     yend = data.get("endogenous")
@@ -379,11 +412,42 @@ def run_job(jobdir: str, log: Log) -> Tuple[Dict[str, Any], Dict[str, Any]]:
                                 "(found %s)" % ", ".join(repr(v) for v in sorted(values)[:4]))
 
     data["w"] = build_weights(job, arrays, data, log) if job.get("weights") else None
+    data["weights_kernel"] = bool(data["w"] is not None
+                                  and str((job.get("weights") or {}).get("kind", "")).lower()
+                                  == "kernel")
 
     try:
         kwargs, warnings = REG.validate_options(entry, job.get("options") or {})
     except ValueError as exc:
         raise ProtocolError(str(exc))
+
+    # Two options only mean something inside another block of tests.  spreg
+    # silently computes neither in that case, so say so rather than return a
+    # report that looks as if the test had been run.
+    if kwargs.get("moran") and not kwargs.get("spat_diag"):
+        warnings.append("Moran's I is computed as part of the spatial dependence "
+                        "tests; enable spat_diag (Spatial dependence tests) to "
+                        "compute it")
+    if kwargs.get("white_test") and not kwargs.get("nonspat_diag"):
+        warnings.append("the White test is computed as part of the non-spatial "
+                        "diagnostics; enable nonspat_diag (Non-spatial diagnostics) "
+                        "to compute it")
+    # With White or HAC standard errors spreg itself warns that the White test
+    # is not computed; that warning is carried through from model.warning, so
+    # the solver does not add a second, near-identical note here.
+
+    # The options below all need a weights matrix, but a non-spatial OLS does
+    # not.  Say which option needs it here, rather than let spreg fail with a
+    # generic "A weights matrix w must be provided".  HAC is exempt: it needs a
+    # kernel matrix and has its own, more specific checks below.
+    needs_weights = bool(kwargs.get("spat_diag") or kwargs.get("moran")
+                         or int(kwargs.get("slx_lags") or 0) > 0)
+    if needs_weights and data["w"] is None and kwargs.get("robust") != "hac":
+        raise ProtocolError(
+            "model %s needs a spatial weights matrix for the spatial dependence "
+            "tests, Moran's I or SLX terms; send weights in the job, or turn "
+            "those options off" % entry["id"])
+
     if entry["style"] in ("regimes", "endog_regimes_a", "endog_regimes_b"):
         # the solver owns the constant for regimes models
         kwargs["constant_regi"] = kwargs.get("constant_regi", "many") if data["constant"] else False
@@ -408,6 +472,49 @@ def run_job(jobdir: str, log: Log) -> Tuple[Dict[str, Any], Dict[str, Any]]:
         kwargs["name_yend"] = data["endogenous_names"]
     if "name_q" in parameters and data.get("instruments_names"):
         kwargs["name_q"] = data["instruments_names"]
+
+    # HAC standard errors are computed from a kernel weights matrix, which spreg
+    # takes as `gwk`.  The kernel matrix cannot stand in for `w` (spreg rejects
+    # it there), so the estimator is given none: for OLS and 2SLS that only
+    # drops the spatial diagnostics, which HAC disables anyway.
+    if kwargs.get("robust") == "hac":
+        if kwargs.get("spat_diag") or kwargs.get("moran"):
+            warnings.append("HAC standard errors disable the spatial dependence tests "
+                            "and Moran's I; they are not computed for this run")
+            # spreg disables spat_diag itself for HAC, but a true moran would
+            # still make it demand an ordinary w.  Turn both off explicitly.
+            if "spat_diag" in kwargs:
+                kwargs["spat_diag"] = False
+            if "moran" in kwargs:
+                kwargs["moran"] = False
+        # Whether the model can do HAC at all comes first, so that an
+        # unsupported model is never told its weights are the problem.
+        if entry["id"] in ("GM_Lag", "GM_Lag_Regimes"):
+            raise ProtocolError("HAC standard errors are not available for the spatial "
+                                "lag models: they need an ordinary spatial weights matrix "
+                                "for their instruments, and HAC needs a kernel matrix")
+        if kwargs.get("slx_lags"):
+            raise ProtocolError("HAC standard errors cannot be combined with SLX terms "
+                                "here: SLX needs an ordinary spatial weights matrix while "
+                                "HAC needs a kernel matrix")
+        if "gwk" not in parameters:
+            raise ProtocolError("model %s cannot compute HAC standard errors"
+                                % entry["id"])
+        if data["w"] is None or not data["weights_kernel"]:
+            raise ProtocolError("HAC standard errors need a kernel weights matrix; "
+                                "choose a kernel weights matrix for this model")
+        diagonal = np.asarray(data["w"].sparse.diagonal()).reshape(-1)
+        if diagonal.shape[0] != data["n"] or not np.allclose(diagonal, 1.0):
+            raise ProtocolError("HAC standard errors need kernel weights with ones "
+                                "along the diagonal (this matrix does not have them)")
+        kwargs["gwk"] = as_kernel(data["w"])
+        data["w_for_model"] = None
+    elif data["weights_kernel"]:
+        # A kernel matrix only makes sense as HAC's gwk; as an ordinary w its
+        # non-zero diagonal is not what any spreg estimator accepts.
+        raise ProtocolError("kernel weights are only supported with HAC standard "
+                            "errors (robust 'hac'); choose an ordinary weights matrix "
+                            "for this model")
 
     # Options the solver owns rather than spreg: they say what is computed around
     # the estimator, not how it is estimated, so they are taken out before it is
@@ -624,9 +731,31 @@ def cmd_selftest() -> int:
         indptr = np.cumsum(indptr)
         regime = np.array([int(c >= cols // 2) for c in range(n)])
 
+        # An endogenous regressor and its instrument, for the TSLS HAC cases.
+        z_iv = rng.normal(size=(n, 1))
+        endog = 0.6 * z_iv + rng.normal(scale=0.5, size=(n, 1))
+
+        # A kernel weights matrix for HAC: ones on the diagonal, the kernel
+        # weight (0.5) off it.  It is carried untransformed, as GeoDa sends it.
+        k_rows = np.concatenate([rows_idx, np.arange(n)])
+        k_cols = np.concatenate([cols_idx, np.arange(n)])
+        k_vals = np.concatenate([np.full(rows_idx.shape[0], 0.5), np.ones(n)])
+        k_order = np.argsort(k_rows, kind="stable")
+        k_rows, k_cols, k_vals = k_rows[k_order], k_cols[k_order], k_vals[k_order]
+        k_indptr = np.zeros(n + 1, dtype=np.int64)
+        np.add.at(k_indptr, k_rows + 1, 1)
+        k_indptr = np.cumsum(k_indptr)
+        kernel_weights = {"format": "csr", "n": n, "indptr": "k_indptr",
+                          "indices": "k_indices", "data": "k_data",
+                          "transform": "o", "kind": "kernel", "name": "grid-kernel"}
+
         arrays = {"y": y.reshape(-1, 1), "x": x, "regime": regime.reshape(-1, 1),
+                  "ybin": (y > np.median(y)).astype(float).reshape(-1, 1),
+                  "yend": endog, "q": z_iv,
                   "w_indptr": indptr, "w_indices": cols_idx.astype(np.int32),
-                  "w_data": vals, "coords": xs}
+                  "w_data": vals, "coords": xs,
+                  "k_indptr": k_indptr, "k_indices": k_cols.astype(np.int32),
+                  "k_data": k_vals}
         spec = {
             "protocol": PROTOCOL_VERSION, "job_id": "selftest",
             "created": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
@@ -644,16 +773,28 @@ def cmd_selftest() -> int:
         write_job_dir(jobdir, spec, arrays)
         check("job directory written", os.path.isfile(os.path.join(jobdir, "data.bin")))
 
-        def run(model: str, options: Optional[Dict[str, Any]] = None):
+        def run(model: str, options: Optional[Dict[str, Any]] = None,
+                weights: str = "spatial", iv: bool = False,
+                y_array: Optional[str] = None):
             job = json.loads(json.dumps(spec))
             job["model"] = model
             job["options"] = options or {}
+            if y_array:
+                job["data"]["y"] = {"name": y_array, "array": y_array}
+            if weights == "none":                     # a non-spatial OLS
+                job.pop("weights", None)
+            elif weights == "kernel":                # the kernel matrix for HAC
+                job["weights"] = dict(kernel_weights)
+            if iv:                                   # TSLS needs both
+                job["data"]["endogenous"] = {"names": ["endog"], "array": "yend"}
+                job["data"]["instruments"] = {"names": ["z"], "array": "q"}
             write_job_dir(jobdir, job, arrays)
             code = cmd_run(jobdir)
             result = read_json(os.path.join(jobdir, "result.json"))
             return code, result
 
-        code, res = run("OLS")
+        # The spatial dependence tests are opt-in, so ask for them explicitly.
+        code, res = run("OLS", {"spat_diag": True})
         check("OLS runs", code == 0 and res["status"] == "ok",
               res.get("error", {}).get("message", ""))
 
@@ -670,12 +811,219 @@ def cmd_selftest() -> int:
         check("coefficient names rewritten", names[:3] == ["CONSTANT", "x1", "x2"], str(names[:3]))
         check("fit statistics present", {"r2", "logll", "aic"} <= set(res["fit"]),
               str(sorted(res["fit"])))
-        check("diagnostics present", any(d["name"] == "lm_lag" for d in res["diagnostics"]),
+        check("spatial diagnostics present (spat_diag)",
+              any(d["name"] == "lm_lag" for d in res["diagnostics"]),
               "%d diagnostic(s)" % len(res["diagnostics"]))
         check("engine info present", "spreg" in res.get("engine", {}),
               str(res.get("engine", {}).get("spreg")))
         check("observations written", os.path.getsize(os.path.join(jobdir, "result.bin")) == 2 * n * 8)
         check("report written", os.path.isfile(os.path.join(jobdir, "report.txt")))
+
+        # The defaults ask for no spatial test, with or without weights.
+        code, res = run("OLS")
+        check("weighted OLS runs", code == 0 and res["status"] == "ok",
+              res.get("error", {}).get("message", ""))
+        default_spatial = [d for d in res.get("diagnostics", [])
+                           if d.get("group") == "spatial dependence"]
+        check("weighted OLS default has no spatial diagnostics", not default_spatial,
+              str([d.get("name") for d in default_spatial]))
+
+        # A non-spatial OLS needs no weights at all.
+        code, res = run("OLS", weights="none")
+        check("no-weights OLS runs", code == 0 and res["status"] == "ok",
+              res.get("error", {}).get("message", ""))
+        spatial_diag = [d for d in res.get("diagnostics", [])
+                        if d.get("group") == "spatial dependence"]
+        check("no-weights OLS has no spatial diagnostics", not spatial_diag,
+              str([d.get("name") for d in spatial_diag]))
+
+        # Moran's I and the White test are nested in other option blocks.
+        # Asking for one on its own must warn, not silently compute nothing.
+        code, res = run("OLS", {"moran": True})
+        warned = " ".join(res.get("warnings") or [])
+        check("Moran without spat_diag warns",
+              code == 0 and res["status"] == "ok"
+              and not any(d.get("name") == "moran_res" for d in res.get("diagnostics", []))
+              and "moran" in warned.lower(), warned[:90])
+        code, res = run("OLS", {"white_test": True, "nonspat_diag": False})
+        warned = " ".join(res.get("warnings") or [])
+        check("White test without nonspat_diag warns",
+              code == 0 and res["status"] == "ok"
+              and not any(d.get("name") == "white" for d in res.get("diagnostics", []))
+              and "white" in warned.lower(), warned[:90])
+
+        # ... and the tests do appear when their parent option is on.
+        code, res = run("OLS", {"spat_diag": True, "moran": True})
+        moran = next((d for d in res.get("diagnostics", [])
+                      if d.get("name") == "moran_res"), None)
+        check("Moran's I present when requested",
+              code == 0 and res["status"] == "ok" and moran is not None
+              and moran.get("stat") is not None and moran.get("p") is not None
+              and np.isfinite([moran["stat"], moran["p"]]).all(), str(moran))
+
+        code, res = run("OLS", {"white_test": True})
+        white = next((d for d in res.get("diagnostics", [])
+                      if d.get("name") == "white"), None)
+        check("White test present when requested",
+              code == 0 and res["status"] == "ok" and white is not None
+              and white.get("stat") is not None and white.get("p") is not None
+              and np.isfinite([white["stat"], white["p"]]).all(), str(white))
+
+        # White standard errors drop the White test.  spreg's model.warning is
+        # carried through; the solver no longer adds a second note, so exactly
+        # one warning may mention the White test.
+        for white_options, white_weights in (
+                ({"white_test": True, "robust": "white"}, "spatial"),
+                ({"white_test": True, "robust": "hac"}, "kernel")):
+            code, res = run("OLS", white_options, weights=white_weights)
+            white_notes = [w for w in res.get("warnings") or []
+                           if "white test" in w.lower()]
+            check("White test with %s warns" % white_options["robust"],
+                  code == 0 and res["status"] == "ok"
+                  and not any(d.get("name") == "white" for d in res.get("diagnostics", []))
+                  and len(white_notes) == 1
+                  and "estimated by" in white_notes[0].lower(),
+                  " ".join(white_notes)[:120])
+
+        # HAC turns the spatial diagnostics off; a direct protocol job has to
+        # hear about it rather than get a report that silently omits them.
+        code, res = run("OLS", {"robust": "hac", "spat_diag": True, "moran": True},
+                        weights="kernel")
+        warned = " ".join(res.get("warnings") or [])
+        check("HAC disables spatial tests with a warning",
+              code == 0 and res["status"] == "ok"
+              and not any(d.get("name") in ("lm_lag", "moran_res")
+                          for d in res.get("diagnostics", []))
+              and "hac" in warned.lower()
+              and ("spatial" in warned.lower() or "moran" in warned.lower()),
+              warned[:120])
+
+        # Asking for an option that needs weights without sending any should
+        # name the option, not fall through to spreg's generic message.
+        code, res = run("OLS", {"spat_diag": True}, weights="none")
+        message = res.get("error", {}).get("message", "")
+        check("spatial tests without weights give a clear error",
+              code == 2 and res["status"] == "error"
+              and "weights matrix" in message.lower()
+              and "must be provided" not in message.lower(), message[:100])
+        code, res = run("OLS", {"slx_lags": 1}, weights="none")
+        message = res.get("error", {}).get("message", "")
+        check("SLX without weights gives a clear error",
+              code == 2 and res["status"] == "error"
+              and "weights matrix" in message.lower()
+              and "must be provided" not in message.lower(), message[:100])
+
+        # HAC is computed from a kernel matrix: ones on the diagonal, sent as is.
+        code, res_hac = run("OLS", {"robust": "hac"}, weights="kernel")
+        check("kernel weights with HAC run", code == 0 and res_hac["status"] == "ok",
+              res_hac.get("error", {}).get("message", ""))
+        hac_se = np.asarray((res_hac.get("coefficients") or {}).get("std_err", []),
+                            dtype=float)
+
+        code, res_white = run("OLS", {"robust": "white"})
+        check("White standard errors run", code == 0 and res_white["status"] == "ok",
+              res_white.get("error", {}).get("message", ""))
+        white_se = np.asarray((res_white.get("coefficients") or {}).get("std_err", []),
+                              dtype=float)
+        differs = (hac_se.shape == white_se.shape and hac_se.size > 0
+                   and np.isfinite(hac_se).all() and np.isfinite(white_se).all()
+                   and not np.allclose(hac_se, white_se))
+        check("HAC standard errors differ from White", differs,
+              "max|diff|=%.3g" % (np.abs(hac_se - white_se).max()
+                                  if hac_se.shape == white_se.shape else float("nan")))
+
+        # A kernel matrix is HAC's gwk only, and only in its stored form.
+        code, res = run("OLS", weights="kernel")
+        message = res.get("error", {}).get("message", "")
+        check("kernel weights without HAC refused",
+              code != 0 and res["status"] == "error"
+              and "hac" in message.lower() and "kernel" in message.lower(),
+              message[:80])
+
+        def refused_transform(value: str):
+            job = json.loads(json.dumps(spec))
+            job["options"] = {"robust": "hac"}
+            job["weights"] = dict(kernel_weights)
+            job["weights"]["transform"] = value
+            write_job_dir(jobdir, job, arrays)
+            code = cmd_run(jobdir)
+            result = read_json(os.path.join(jobdir, "result.json"))
+            return code, result.get("error", {}).get("message", "")
+
+        code, message = refused_transform("b")
+        check("kernel weights reject transform 'b'",
+              code == 2 and "kernel" in message.lower() and "transform" in message.lower(),
+              message[:80])
+        code, message = refused_transform("r")
+        check("kernel weights reject transform 'r'",
+              code == 2 and "kernel" in message.lower() and "transform" in message.lower(),
+              message[:80])
+        code, message = refused_transform("x")
+        check("kernel weights reject unknown transform",
+              code == 2 and "transform" in message.lower(), message[:80])
+
+        # An ordinary (zero-diagonal) matrix is not a kernel: say so, clearly.
+        code, res = run("OLS", {"robust": "hac"})
+        message = res.get("error", {}).get("message", "")
+        check("HAC with ordinary weights refused",
+              code != 0 and res["status"] == "error" and "kernel" in message.lower(),
+              message[:80])
+
+        # The other models whose spreg signature takes `robust` and `gwk`.
+        # HAC must actually change the standard errors, not merely return ok.
+        for model, needs_iv in (("OLS_Regimes", False), ("TSLS", True),
+                                ("TSLS_Regimes", True)):
+            code, res = run(model, {"robust": "hac"}, weights="kernel", iv=needs_iv)
+            hac_ok = code == 0 and res["status"] == "ok"
+            check("%s with HAC runs" % model, hac_ok,
+                  res.get("error", {}).get("message", ""))
+            code, res_w = run(model, {"robust": "white"}, iv=needs_iv)
+            model_hac_se = np.asarray((res.get("coefficients") or {}).get("std_err", []),
+                                      dtype=float)
+            model_white_se = np.asarray((res_w.get("coefficients") or {}).get("std_err", []),
+                                        dtype=float)
+            same_shape = model_hac_se.shape == model_white_se.shape
+            check("%s HAC std_err differs from White" % model,
+                  hac_ok and code == 0 and res_w["status"] == "ok"
+                  and same_shape and model_hac_se.size > 0
+                  and np.isfinite(model_hac_se).all() and np.isfinite(model_white_se).all()
+                  and not np.allclose(model_hac_se, model_white_se),
+                  "max|diff|=%.3g" % (np.abs(model_hac_se - model_white_se).max()
+                                      if same_shape else float("nan")))
+
+        # "none" means unadjusted.  spreg's default for GM_Lag_Regimes is
+        # White, so the solver has to pass robust=None rather than omit it.
+        code, res_none = run("GM_Lag_Regimes", {"robust": "none"})
+        code, res_white = run("GM_Lag_Regimes", {"robust": "white"})
+        none_se = np.asarray((res_none.get("coefficients") or {}).get("std_err", []),
+                             dtype=float)
+        gm_white_se = np.asarray((res_white.get("coefficients") or {}).get("std_err", []),
+                                 dtype=float)
+        same_shape = none_se.shape == gm_white_se.shape
+        check("GM_Lag_Regimes none is not White",
+              code == 0 and res_none["status"] == "ok" and res_white["status"] == "ok"
+              and same_shape and none_se.size > 0 and np.isfinite(none_se).all()
+              and not np.allclose(none_se, gm_white_se),
+              "max|diff|=%.3g" % (np.abs(none_se - gm_white_se).max()
+                                  if same_shape else float("nan")))
+
+        # A direct spreg call with robust=None is the unadjusted reference.
+        import scipy.sparse as sp
+        import libpysal.weights as libw
+        from spreg.twosls_sp_regimes import GM_Lag_Regimes
+        direct_w = libw.WSP(sp.csr_matrix((vals, cols_idx, indptr),
+                                          shape=(n, n))).to_W()
+        direct_w.transform = "r"
+        direct = GM_Lag_Regimes(y, x, regime.reshape(-1), None, None, direct_w,
+                                robust=None, w_lags=1, lag_q=True, slx_lags=0,
+                                sig2n_k=True, spat_diag=True,
+                                constant_regi="many", cols2regi="all")
+        direct_se = np.asarray(direct.std_err, dtype=float)
+        same_shape = none_se.shape == direct_se.shape
+        check("GM_Lag_Regimes none matches unadjusted",
+              same_shape and np.allclose(none_se, direct_se, rtol=1e-6, atol=1e-8),
+              "max|diff|=%.3g" % (np.abs(none_se - direct_se).max()
+                                  if same_shape else float("nan")))
 
         code, res = run("ML_Lag", {"method": "LU"})
         rho = (res.get("spatial_parameters") or [{}])[0].get("estimate")
@@ -689,6 +1037,17 @@ def cmd_selftest() -> int:
         check("regimes table regimized",
               any("0_" in nm for nm in (res.get("coefficients") or {}).get("names", [])),
               str((res.get("coefficients") or {}).get("names", [])[:3]))
+
+        # Probit stores its optimizer status as a bool in model.warning.  A fit
+        # stopped after one iteration must say it did not converge, not leak a
+        # bare "True" into the report.
+        code, res = run("Probit", {"maxiter": 1}, y_array="ybin")
+        probit_warnings = list(res.get("warnings") or [])
+        check("Probit non-convergence warns readably",
+              code == 0 and res["status"] == "ok"
+              and any("did not converge" in w.lower() for w in probit_warnings)
+              and not any(w.strip().lower() == "true" for w in probit_warnings),
+              " | ".join(probit_warnings)[:140])
 
         code, res = run("ML_Lag", {"method": "nosuchmethod"})
         check("bad option reported as an error", code != 0 and res["status"] == "error",

@@ -329,8 +329,9 @@ follows them:
 | the GMM error and SARAR families, `Probit`, `NSLX`, `SKATER_reg` | none: spreg offers no post-estimation tests for them, so their options do not claim any |
 
 A model that has no tests has no test options, and the report leaves the section
-out rather than printing it empty. `diagnostics` is empty for those models and 16
-entries for `OLS` on the same data.
+out rather than printing it empty. `diagnostics` is empty for those models; for
+`OLS` on the same data it holds the four non-spatial tests by default, and 14
+entries when `spat_diag` is on.
 
 ## Adding a model, or moving to a new spreg
 

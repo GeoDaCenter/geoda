@@ -63,13 +63,15 @@ directly; the spec is written down so this is a contract, not an accident.
     "coords":      { "names": ["X", "Y"], "array": "coords" }      // NSLX only
   },
 
-  "weights": {                         // omit for pure OLS without spatial diagnostics
+  "weights": {                         // optional for OLS: needed only for the spatial
+                                       // tests, Moran's I, SLX or HAC (see §1.2)
     "format": "csr",
     "n": 49,
     "indptr":  "w_indptr",
     "indices": "w_indices",
     "data":    "w_data",
     "transform": "r",                  // "r" row-standardize | "b" binary | "o" as sent
+    // "kind": "kernel",               // kernel matrix (HAC); needs transform "o"
     "name": "columbus_q.gal",          // shown in the report header
     "is_symmetric": true               // advisory only; asymmetric W is allowed
   },
@@ -128,9 +130,25 @@ A **GWT** file loaded in GeoDa carries real weights; a **GAL** carries 1.0. So
 `transform:"r"` + GAL reproduces a row-standardized binary W, and
 `transform:"r"` + GWT reproduces a row-standardized weighted W.
 
+`kind` is optional. When it is `"kernel"`, the matrix is a kernel weights matrix
+and is only accepted together with `robust:"hac"`: the solver turns it into the
+`libpysal` `Kernel` that spreg's HAC estimator requires and passes it as `gwk`,
+never as `w`. A kernel matrix must be sent with `transform:"o"`; `"r"` and `"b"`
+are rejected, since either would destroy the diagonal of ones that HAC needs.
+Using a kernel matrix with any other model is refused with a clear error.
+Every row must store its own diagonal entry with weight `1.0` within numerical
+tolerance: GeoDa's
+"apply kernel to diagonal weights" option can leave other values there, and the
+solver rejects such a matrix because spreg's HAC requires a diagonal of ones.
+
+`weights` is optional for `OLS` and `OLS_Regimes`: a purely non-spatial OLS can
+omit it. It is required once the spatial dependence tests, Moran's I, SLX terms
+or HAC are requested.
+
 Notes:
 
-* Self-loops (`indices[i] == i`) are rejected by the solver with a clear error.
+* Self-loops (`indices[i] == i`) are rejected by the solver with a clear error,
+  except for a kernel matrix, whose diagonal of ones is exactly what HAC needs.
 * Asymmetric W (KNN, kernel) is fully supported. This is a *gain* over the
   current engine, which rejects KNN for lag/error models.
 * Zero-row weights are rejected for `"r"` (division by zero).
@@ -305,6 +323,18 @@ under its keyword.  The order they appear in here is the order the dialog shows 
 in, so a model's estimation options come first and the tests of that model after them.
 An option whose name is in `spreg_models.SOLVER_OPTIONS` is not passed to spreg: the
 solver computes it around the estimator instead (`likelihood_ratio` is the only one).
+
+`robust` takes `"none"`, `"white"` or `"hac"`. `"none"` means unadjusted and is
+passed explicitly as `robust=None`, so it also overrides spreg's White default
+for `GM_Lag_Regimes`. `"hac"` needs a kernel weights matrix (`kind:"kernel"`,
+§1.2), which the solver passes to spreg as `gwk`; it is available for `OLS`,
+`OLS_Regimes`, `TSLS` and `TSLS_Regimes` without SLX terms, and is rejected
+otherwise. The other option defaults follow spreg: the spatial tests are off for
+these four, but on for `GM_Lag` and `GM_Lag_Regimes`.
+
+`moran` is computed only inside `spat_diag`, and `white_test` only inside
+`nonspat_diag`. Asking for either alone warns in the solver, and the dialog keeps
+the dependent checkbox in step.
 
 Protocol v1 model ids (cross-sectional only):
 
