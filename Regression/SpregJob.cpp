@@ -503,6 +503,7 @@ bool Result::Read(const wxString& job_dir, wxString& err)
 		requested_model = AsString(FindMember(m, "requested"));
 		class_name = AsString(FindMember(m, "class"));
 		title = AsString(FindMember(m, "title"));
+		robust = AsString(FindMember(m, "robust"));
 		n = static_cast<int>(AsDouble(FindMember(m, "n"), 0));
 		k = static_cast<int>(AsDouble(FindMember(m, "k"), 0));
 	}
@@ -571,10 +572,13 @@ bool Result::Read(const wxString& job_dir, wxString& err)
 			const json_spirit::Object& d = array[i].get_obj();
 			Diagnostic item;
 			item.group = AsString(FindMember(d, "group"));
+			item.name = AsString(FindMember(d, "name"));
 			item.label = AsString(FindMember(d, "label"));
+			item.section = AsString(FindMember(d, "section"));
 			item.statistic = AsDouble(FindMember(d, "stat"), 0);
 			item.df = AsDouble(FindMember(d, "df"), 0);
 			item.p = AsDouble(FindMember(d, "p"), 0);
+			item.mi = AsDouble(FindMember(d, "mi"), 0);
 			this->diagnostics.push_back(item);
 		}
 	}

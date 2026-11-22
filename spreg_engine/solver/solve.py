@@ -27,6 +27,7 @@ import sys
 import tempfile
 import time
 import traceback
+import warnings as pywarnings
 from typing import Any, Dict, List, Optional, Sequence, Tuple
 
 PROTOCOL_VERSION = 1
@@ -416,20 +417,46 @@ def run_job(jobdir: str, log: Log) -> Tuple[Dict[str, Any], Dict[str, Any]]:
 
     log("estimating %s%s" % (entry["id"], "" if not kwargs else " with %s" % _short(kwargs)))
     started = time.time()
-    with contextlib.redirect_stdout(_Chatter(log)):     # spreg prints the model name
-        model = call_estimator(entry, cls, data, kwargs, log)
-    log("done in %.2fs" % (time.time() - started))
+    # spreg 1.9.x's condition-number diagnostic takes the square root of a
+    # ratio that can be negative and lets numpy report a ComplexWarning; what
+    # it keeps is real, so the warning says nothing about this run.  It fires
+    # from the estimator and again from the OLS baseline the likelihood ratio
+    # test fits, so the whole run is under one recorder.  Other warnings are
+    # still reported.
+    complex_warning = getattr(getattr(np, "exceptions", None), "ComplexWarning", None)
+    if complex_warning is None:
+        complex_warning = getattr(np, "ComplexWarning", None)
+    caught = []
+    with pywarnings.catch_warnings(record=True) as caught:
+        pywarnings.simplefilter("always")
+        with contextlib.redirect_stdout(_Chatter(log)):     # spreg prints the model name
+            model = call_estimator(entry, cls, data, kwargs, log)
+        log("done in %.2fs" % (time.time() - started))
 
-    ctx = {"x_names": data["x_names"], "y_name": data["y_name"], "n": data["n"],
-           "yend_names": data.get("endogenous_names")}
-    result = REG.extract_result(model, entry, ctx)
+        # `robust` is what the fitted model actually used, not what the job
+        # asked for: a constructor that defaults to White (GM_Lag_Regimes)
+        # reports "white" even when the option was left at its default.
+        ctx = {"x_names": data["x_names"], "y_name": data["y_name"], "n": data["n"],
+               "yend_names": data.get("endogenous_names"),
+               "robust": str(getattr(model, "robust", "") or "")}
+        result = REG.extract_result(model, entry, ctx)
 
-    # The tests an estimator does not compute itself but that spreg offers for it
-    # as a comparison with another fitted model.
-    if solver_options.get("likelihood_ratio"):
-        extra = REG.likelihood_ratio_test(entry, data, model, kwargs, log)
-        if extra:
-            result.setdefault("diagnostics", []).append(extra)
+        # The tests an estimator does not compute itself but that spreg offers
+        # for it as a comparison with another fitted model.
+        extra = None
+        if solver_options.get("likelihood_ratio"):
+            extra = REG.likelihood_ratio_test(entry, data, model, kwargs, log)
+    saw_complex = False
+    for warning in caught:
+        if complex_warning is not None and issubclass(warning.category, complex_warning):
+            saw_complex = True
+        else:
+            pywarnings.warn(warning.message, warning.category)
+    if saw_complex:
+        log("note: spreg's condition-number diagnostic produced a complex value; "
+            "its ComplexWarning was suppressed")
+    if extra:
+        result.setdefault("diagnostics", []).append(extra)
     warnings += result.setdefault("warnings", [])
     result["warnings"] = warnings
 
