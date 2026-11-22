@@ -142,7 +142,7 @@ jobs:
 
       - name: A real estimation on real data
         run: |
-          "$ENGINE_PY" tools/make_demo_job.py --outdir "$RUNNER_TEMP/demo" --model ML_Lag --run
+          "$ENGINE_PY" tools/make_demo_job.py --outdir "$RUNNER_TEMP/demo" --model GM_Lag --run
         shell: bash
 
       - uses: actions/upload-artifact@v4
@@ -153,11 +153,13 @@ jobs:
             spreg_engine/dist/manifest-entry.json
             spreg_engine/dist/models.json
 
-  # Does spreg agree with the engine GeoDa has always had?  Those three models -
-  # OLS, spatial lag, spatial error - are in both, so the same data and the same
-  # weights go through each and the numbers are put side by side.  This job needs
-  # nothing but wxWidgets, LAPACK and json_spirit, all of which are a download
-  # away, so it does not have to build the application.
+  # Does spreg agree with the engine GeoDa has always had?  OLS is the estimator
+  # both still offer - the native lag/error models are ML and the solver no
+  # longer exposes spreg's ML ids - so the same data goes through each and the
+  # numbers are put side by side.  OLS does not depend on W, so this verifies
+  # the least-squares paths and the job/result format, not the weights.  This
+  # job needs nothing but wxWidgets, LAPACK and json_spirit, all of which are a
+  # download away, so it does not have to build the application.
   parity:
     name: parity with GeoDa's own engine
     needs: build

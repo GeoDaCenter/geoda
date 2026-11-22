@@ -1,11 +1,17 @@
 // Do GeoDa's own engine and spreg agree?
 //
-// The three models GeoDa has always had - OLS, spatial lag and spatial error -
-// are also among the models spreg offers.  This runs both, on the same data with
-// the same weights, and puts the numbers side by side: the two are written by
-// different people with different optimisers and different log-Jacobian
-// approximations, so what is being checked is that they are answering the same
-// question, not that they are the same program.
+// GeoDa's own engine and spreg agree where they overlap.  The only estimator
+// they still share is OLS: the native spatial lag and error models are ML, and
+// the solver stopped offering spreg's ML ids, while its remaining lag/error ids
+// are GMM/IV - a different estimator, not a parity check.  This runs OLS
+// through both engines, on the same data, and puts the numbers side by side:
+// the two are written by different people with different optimisers, so what is
+// being checked is that they are answering the same question, not that they are
+// the same program.
+//
+// OLS does not depend on W, so this guards the two least-squares paths and the
+// job/result format, not the weights; the job still writes them because that is
+// what a real job carries and both sides have to parse them.
 //
 //     spreg_engine/tools/run_parity_test.sh [engine-dir]
 //
@@ -113,7 +119,7 @@ struct Data {
 
 /** What one engine said about one model. */
 struct Estimate {
-	std::vector<double> exog, lag, error;
+	std::vector<double> exog;
 	double logll, r2;
 	bool ok;
 
@@ -141,8 +147,8 @@ void compare(const wxString& what, double native_value, double spreg_value,
 	if (!ok) ++failures;
 }
 
-/** Runs GeoDa's own engine.  "ols", "lag" or "error". */
-bool run_native(const wxString& model, Data& data, Estimate& out)
+/** Runs OLS through GeoDa's own engine. */
+bool run_native(Data& data, Estimate& out)
 {
 	// The engine's DenseVector absorbs what it is handed, so every model gets its
 	// own copy of the data - reusing one array would feed the next model a
@@ -155,38 +161,14 @@ bool run_native(const wxString& model, Data& data, Estimate& out)
 	for (int i = 0; i < 3; ++i) X[i] = &x[i][0];
 	std::vector<double> y = data.y;
 
-	if (model == "ols") {
-		DiagnosticReport dr(N, 3, true, true, 1);
-		if (!classicalRegression(&data.gal[0], N, &y[0], N, X, 3, &dr, true, true,
-								 NULL, false)) {
-			return false;
-		}
-		for (int i = 0; i < 3; ++i) out.exog.push_back(dr.GetCoefficient(i));
-		out.logll = dr.GetLIK();
-		out.r2 = dr.GetR2();
-	} else if (model == "lag") {
-		// the report carries one slot more than the covariates for rho, as
-		// RegressionDlg's m_DR(n, nX + 1, ...) does, and the coefficient vector
-		// comes back as [rho, constant, covariates...]
-		DiagnosticReport dr(N, 4, true, true, 2);
-		if (!spatialLagRegression(&data.gal[0], N, &y[0], N, X, 3, &dr, true, NULL)) {
-			return false;
-		}
-		out.lag.push_back(dr.GetCoefficient(0));
-		for (int i = 0; i < 3; ++i) out.exog.push_back(dr.GetCoefficient(i + 1));
-		out.logll = dr.GetLIK();
-		out.r2 = dr.GetR2();
-	} else {
-		// and the error model's is [constant, covariates..., lambda]
-		DiagnosticReport dr(N, 4, true, true, 3);
-		if (!spatialErrorRegression(&data.gal[0], N, &y[0], N, X, 3, &dr, true, NULL)) {
-			return false;
-		}
-		for (int i = 0; i < 3; ++i) out.exog.push_back(dr.GetCoefficient(i));
-		out.error.push_back(dr.GetCoefficient(3));
-		out.logll = dr.GetLIK();
-		out.r2 = dr.GetR2();
+	DiagnosticReport dr(N, 3, true, true, 1);
+	if (!classicalRegression(&data.gal[0], N, &y[0], N, X, 3, &dr, true, true,
+							 NULL, false)) {
+		return false;
 	}
+	for (int i = 0; i < 3; ++i) out.exog.push_back(dr.GetCoefficient(i));
+	out.logll = dr.GetLIK();
+	out.r2 = dr.GetR2();
 	out.ok = true;
 	return true;
 }
@@ -236,9 +218,9 @@ bool run_spreg(const wxString& engine_dir, const wxString& job_dir, const wxStri
 	}
 	for (size_t i = 0; i < result.names.size(); ++i) {
 		const wxString role = i < result.roles.size() ? result.roles[i] : "exog";
-		if (role == "lag") out.lag.push_back(result.estimate[i]);
-		else if (role == "error") out.error.push_back(result.estimate[i]);
-		else out.exog.push_back(result.estimate[i]);
+		// OLS puts every coefficient in "exog"; a lag/error role would belong to
+		// a model this check no longer runs.
+		if (role == "exog") out.exog.push_back(result.estimate[i]);
 	}
 	std::map<wxString, double>::const_iterator ll = result.fit.find("logll");
 	if (ll != result.fit.end()) out.logll = ll->second;
@@ -249,30 +231,23 @@ bool run_spreg(const wxString& engine_dir, const wxString& job_dir, const wxStri
 	return true;
 }
 
-/** Both engines, one model, and the comparison. */
+/** Both engines, OLS, and the comparison. */
 void compare_model(const wxString& engine_dir, const wxString& job_dir, Data& data,
-				   const wxString& label, const wxString& native_model,
-				   const wxString& spreg_model)
+				   const wxString& model)
 {
-	std::printf("\n%s\n", (const char*) label.utf8_str());
+	std::printf("\n%s\n", (const char*) model.utf8_str());
 	Estimate native, spreg;
-	if (!run_native(native_model, data, native)) {
+	if (!run_native(data, native)) {
 		check("GeoDa's own engine runs", false, "it refused the data");
 		return;
 	}
-	if (!run_spreg(engine_dir, job_dir, spreg_model, data, spreg)) {
+	if (!run_spreg(engine_dir, job_dir, model, data, spreg)) {
 		check("the solver runs", false);
 		return;
 	}
 	for (size_t i = 0; i < native.exog.size() && i < spreg.exog.size(); ++i) {
 		compare(wxString::Format("coefficient %d", (int) i), native.exog[i], spreg.exog[i],
 				kCoefficientTolerance);
-	}
-	if (!native.lag.empty() && !spreg.lag.empty()) {
-		compare("rho", native.lag[0], spreg.lag[0], kCoefficientTolerance);
-	}
-	if (!native.error.empty() && !spreg.error.empty()) {
-		compare("lambda", native.error[0], spreg.error[0], kCoefficientTolerance);
 	}
 	compare("log likelihood", native.logll, spreg.logll, kLogLikTolerance,
 			std::fabs(native.logll));
@@ -301,9 +276,16 @@ int main(int argc, char** argv)
 				"constant is %g\n", N, data.gal[0].Size(),
 				data.gal[0].SpatialLag(std::vector<double>(N, 1.0), false));
 
-	compare_model(engine_dir, job_dir, data, "OLS", "ols", "OLS");
-	compare_model(engine_dir, job_dir, data, "Spatial lag (ML)", "lag", "ML_Lag");
-	compare_model(engine_dir, job_dir, data, "Spatial error (ML)", "error", "ML_Error");
+	compare_model(engine_dir, job_dir, data, "OLS");
+	// The ML lag and error comparisons that used to be here went with the ML
+	// model ids.  RunJob always uses the solver shipped with the application
+	// (Regression/SpregEngine.cpp, SolverScriptPath), not one inside the
+	// downloaded archive - the archive carries no solver - so asking it for
+	// ML_Lag would now fail with `unknown model`.  GM_Lag is not a substitute:
+	// it is GMM/2SLS and answers a different estimation question from GeoDa's
+	// native ML lag.  OLS is therefore the only comparison left, and it does not
+	// exercise the weights; if weight handling needs a gate, compare the LM /
+	// Moran diagnostics both engines compute for OLS.
 
 	std::printf("\n%s\n", failures ? "FAILED" : "the two engines agree");
 	return failures ? 1 : 0;

@@ -13,6 +13,11 @@ GeoDa never hard-codes any of this: ``solve.py --list-models`` dumps it as JSON
 so the C++ side can build its model list and option widgets from the engine that
 is actually installed.  Adding a model is a change to this file only.
 
+The ML linear estimators (``ML_Lag``, ``ML_Error``, ``ML_Lag_Regimes`` and
+``ML_Error_Regimes``) are also not offered: GeoDa's Default page already has ML
+lag and error models, so the Spreg page is for the estimators GeoDa does not
+have - the GMM and IV ones, Probit, non-linear SLX and SKATER.
+
 Deliberately excluded from protocol v1: the panel estimators (``PooledOLS``,
 ``PanelFE``, ``PanelRE``, ``Panel_FE_Lag``/``_Error``, ``Panel_RE_Lag``/``_Error``,
 ``GM_KKP``, ``ML_LagFE``/``RE``, ...) and the SUR family (``SUR``, ``ThreeSLS``,
@@ -155,21 +160,10 @@ MODELS: List[Dict[str, Any]] = [
        options=("robust", "slx_lags", "sig2n_k", "nonspat_diag", "spat_diag", "moran",
                 "white_test") + _REGI,
        requires={"regimes": True}),
-    # ---- ML --------------------------------------------------------------
-    _m("ML_Lag", "Spatial lag (ML)", "ml_lag", "spreg.ml_lag:ML_Lag",
-       options=("method", "epsilon", "slx_lags", "spat_impacts", "likelihood_ratio"),
-       notes="slx_lags=1 gives the spatial Durbin model"),
-    _m("ML_Error", "Spatial error (ML)", "ml_error", "spreg.ml_error:ML_Error",
-       options=("method", "epsilon", "slx_lags", "likelihood_ratio")),
-    _m("ML_Lag_Regimes", "Spatial lag (ML), by regime", "ml_lag", "spreg.ml_lag_regimes:ML_Lag_Regimes",
-       style="regimes",
-       options=("method", "epsilon", "slx_lags", "regime_lag_sep", "cores") + _REGI,
-       requires={"regimes": True}),
-    _m("ML_Error_Regimes", "Spatial error (ML), by regime", "ml_error",
-       "spreg.ml_error_regimes:ML_Error_Regimes", style="regimes",
-       options=("method", "epsilon", "slx_lags", "regime_err_sep", "regime_lag_sep", "cores")
-               + _REGI,
-       requires={"regimes": True}),
+    # The ML linear estimators (ML_Lag, ML_Error and their regime variants) are
+    # deliberately not offered: GeoDa's own Default page already estimates ML
+    # lag and error models, and this page is for what GeoDa does not have.  The
+    # GMM and IV estimators below are the spreg counterparts to reach for.
     # ---- GMM / IV, no endogenous variables -------------------------------
     _m("GM_Error", "Spatial error (GMM)", "gmm_error", "spreg.error_sp:GM_Error"),
     _m("GM_Error_Het", "Spatial error (GMM, heteroskedastic)", "gmm_error",

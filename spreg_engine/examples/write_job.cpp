@@ -6,7 +6,7 @@
 //
 // Build and run:
 //     c++ -std=c++17 -o write_job write_job.cpp
-//     ./write_job /tmp/geoda-spreg-example ML_Lag
+//     ./write_job /tmp/geoda-spreg-example GM_Lag
 //     "$ENGINE/bin/python3" ../solver/solve.py --job /tmp/geoda-spreg-example
 //
 // Nothing here needs a JSON library, but GeoDa already carries json_spirit

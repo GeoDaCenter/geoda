@@ -46,10 +46,9 @@ directly; the spec is written down so this is a contract, not an accident.
   "created": "2026-10-07T17:04:11Z",   // informational
   "app": { "name": "GeoDa", "version": "1.22.1", "platform": "macos-arm64" },
 
-  "model": "ML_Lag",                   // model id from the registry (§4)
+  "model": "GM_Lag",                   // model id from the registry (§4)
   "options": {                         // model specific, validated (§4)
-    "method": "LU",
-    "slx_lags": 1
+    "w_lags": 1
   },
 
   "data": {
@@ -159,48 +158,49 @@ over those observations (the existing dialog code that rebuilds a filtered
     "libpysal": "4.15.0", "numpy": "2.5.3", "pandas": "3.0.6", "scipy": "1.18.1"
   },
   "model": {
-    "requested": "ML_Lag",
-    "class": "spreg.ml_lag.ML_Lag",    // dotted path of the class that ran
-    "family": "ml_lag",
-    "title": "MAXIMUM LIKELIHOOD SPATIAL LAG (METHOD = LU)",
+    "requested": "GM_Lag",
+    "class": "spreg.twosls_sp.GM_Lag", // dotted path of the class that ran
+    "family": "gm_lag",
+    "title": "SPATIAL TWO STAGE LEAST SQUARES",
     "n": 49, "k": 4
   },
 
   "coefficients": {                   // row i of each vector belongs to names[i]
     "names":    ["CONSTANT", "INC", "CRIME", "W_HOVAL"],
     "roles":    ["exog", "exog", "exog", "lag"],
-    "estimate": [39.6683, 0.5793, -0.4635, 0.1748],
-    "std_err":  [14.3249, 0.5189, 0.1800, 0.1669],
-    "z":        [2.7692, 1.1164, -2.5751, 1.0474],
-    "p":        [0.00562, 0.26425, 0.01002, 0.29492]
+    "estimate": [59.571051, 0.725534, -0.526396, -0.339947],
+    "std_err":  [21.410880, 0.586356, 0.202250, 0.415908],
+    "z":        [2.782279, 1.237361, -2.602705, -0.817362],
+    "p":        [0.005398, 0.215953, 0.009249, 0.413722]
   },
   "spatial_parameters": [            // convenience copies of the lag/error parameters
-    { "name": "rho", "role": "lag", "estimate": 0.1748, "std_err": 0.1669, "z": 1.0474, "p": 0.29492 }
+    { "name": "W_HOVAL", "role": "lag", "estimate": -0.339947, "std_err": 0.415908,
+      "z": -0.817362, "p": 0.413722 }
   ],
 
-  "fit": { "n": 49, "k": 4, "logll": -200.880237, "aic": 409.760474,
-           "schwarz": 417.327755, "sigma2": 211.531691, "pr2": 0.366798,
-           "mean_y": 38.436224, "std_y": 18.466127 },
+  "fit": { "sigma2": 265.837270, "pr2": 0.277279, "pr2_e": 0.359926,
+           "mean_y": 38.436224, "std_y": 18.466069,
+           "utu": 11962.677135, "sigma2_ml": 265.837270 },
 
   "diagnostics": [
-    { "group": "spatial dependence", "name": "lm_lag",  "label": "LM (lag)",
-      "stat": 0.98155, "df": 1, "p": 0.32182 },
-    { "group": "heteroskedasticity", "name": "jarque_bera", "label": "Jarque-Bera",
-      "stat": 39.7062, "df": 2, "p": 2.3e-09 }
+    { "group": "spatial dependence", "name": "ak_test", "label": "Anselin-Kelejian test",
+      "stat": 2.18851, "df": 1, "p": 0.139044 }
   ],
 
   "observations": {                    // only when outputs.observations == true
     "n": 49,
-    "arrays": { "yhat": { "dtype": "f8", "shape": [49], "offset": 0,   "nbytes": 392 },
-                "resid":{ "dtype": "f8", "shape": [49], "offset": 392, "nbytes": 392 } }
+    "arrays": { "yhat":    { "dtype": "f8", "shape": [49], "offset": 0,    "nbytes": 392 },
+                "resid":   { "dtype": "f8", "shape": [49], "offset": 392,  "nbytes": 392 },
+                "pred_err":{ "dtype": "f8", "shape": [49], "offset": 784,  "nbytes": 392 },
+                "predy_e": { "dtype": "f8", "shape": [49], "offset": 1176, "nbytes": 392 } }
   },
 
   "impacts": [                         // present when the estimator reports them
-    { "kind": "simple", "direct": 1.0, "indirect": 0.2119, "total": 1.2119 }
+    { "kind": "simple", "direct": 1.0, "indirect": -0.253702, "total": 0.746298 }
   ],
 
   "report": "report.txt",
-  "warnings": ["GM_Combo: std_err not reported for row 4 (lambda); see report text"],
+  "warnings": [],
   "error":  { "type": "ValueError", "message": "...", "traceback": "...", "where": "estimating" }
 }
 ```
@@ -283,18 +283,20 @@ Each entry:
 
 ```jsonc
 {
-  "id": "ML_Lag",
-  "label": "Spatial lag (ML)",
-  "family": "ml_lag",
-  "class": "spreg.ml_lag:ML_Lag",
-  "requires": { "weights": true, "regimes": false, "endog": false, "coords": false },
+  "id": "GM_Lag",
+  "label": "Spatial lag (GS2SLS / spatial 2SLS)",
+  "family": "gm_lag",
+  "class": "spreg.twosls_sp:GM_Lag",
+  "requires": { "weights": true, "regimes": false, "endog": false,
+                "instruments": false, "coords": false, "y_binary": false },
   "options": {
-    "method":       { "type": "enum", "values": ["full", "LU", "ord"], "default": "LU",
-                      "label": "Log-Jacobian", "help": "log-Jacobian method" },
+    "w_lags":       { "type": "int",  "default": 1, "min": 1, "max": 3 },
+    "lag_q":        { "type": "bool", "default": true },
     "slx_lags":     { "type": "int",  "default": 0, "min": 0, "max": 3 },
-    "epsilon":      { "type": "float","default": 1e-7 },
-    "likelihood_ratio": { "type": "bool", "default": true, "label": "LR test against OLS",
-                          "help": "likelihood ratio test of the spatial coefficient" }
+    "robust":       { "type": "enum", "values": ["none", "white", "het"], "default": "none",
+                      "label": "Robust standard errors" },
+    "sig2n_k":      { "type": "bool", "default": true },
+    "spat_diag":    { "type": "bool", "default": true }
   }
 }
 ```
@@ -304,7 +306,8 @@ and `help` is its tooltip; both are optional, and an option without a label is s
 under its keyword.  The order they appear in here is the order the dialog shows them
 in, so a model's estimation options come first and the tests of that model after them.
 An option whose name is in `spreg_models.SOLVER_OPTIONS` is not passed to spreg: the
-solver computes it around the estimator instead (`likelihood_ratio` is the only one).
+solver computes it around the estimator instead (`likelihood_ratio` is the only one,
+and no registered model claims it now that the ML estimators are gone).
 
 Protocol v1 model ids (cross-sectional only):
 
@@ -312,10 +315,6 @@ Protocol v1 model ids (cross-sectional only):
 |----|-------|-------|
 | `OLS` | `spreg.ols:OLS` | includes LM / Moran / Jarque-Bera / BP / KB / White |
 | `OLS_Regimes` | `spreg.ols_regimes:OLS_Regimes` | regimes |
-| `ML_Lag` | `spreg.ml_lag:ML_Lag` | `slx_lags=1` gives the spatial Durbin model |
-| `ML_Error` | `spreg.ml_error:ML_Error` | |
-| `ML_Lag_Regimes` | `spreg.ml_lag_regimes:ML_Lag_Regimes` | regimes, `regime_lag_sep` |
-| `ML_Error_Regimes` | `spreg.ml_error_regimes:ML_Error_Regimes` | regimes, `regime_err_sep` |
 | `GM_Error`, `GM_Error_Het`, `GM_Error_Hom` | `spreg.error_sp*` | robust / homoskedastic GMM |
 | `GM_Endog_Error`(`_Het`/`_Hom`) | `spreg.error_sp*` | needs endogenous + instruments |
 | `GM_Combo`(`_Het`/`_Hom`) | `spreg.error_sp*` | SARAR (lag + error) |
@@ -348,6 +347,12 @@ They can be added later as new model ids without a protocol break.
   (`spreg-1.9.1-py313`), so two GeoDa versions can coexist without interfering,
   and `engine.spreg` in the result lets support staff see which engine produced
   a number.
+* The ML linear estimators (`ML_Lag`, `ML_Error`, `ML_Lag_Regimes`,
+  `ML_Error_Regimes`) were removed from the v1 registry, not deprecated. This is
+  not a protocol bump, but it is a compatibility break for a client built
+  against the old registry: asking for one of those ids now fails with the
+  registry's `unknown model` error (`status: "error"`, exit 1), and
+  `--list-models` no longer offers them.
 
 ---
 

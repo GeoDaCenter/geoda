@@ -4,8 +4,8 @@
 Useful for smoke testing an engine artifact, and for the parity work: point
 GeoDa at the same data set and the same weights and compare the numbers.
 
-    tools/make_demo_job.py --outdir /tmp/columbus --model ML_Lag --run
-    tools/make_demo_job.py --model ML_Lag_Regimes --regime CRIME_BIN --run
+    tools/make_demo_job.py --outdir /tmp/columbus --model GM_Lag --run
+    tools/make_demo_job.py --model GM_Lag_Regimes --regime CRIME --run
 
 Runs with the engine's interpreter (it needs libpysal for the sample data):
 
@@ -52,14 +52,13 @@ def columbus() -> dict:
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--outdir", default="/tmp/geoda-spreg-columbus")
-    parser.add_argument("--model", default="ML_Lag")
+    parser.add_argument("--model", default="GM_Lag")
     parser.add_argument("--x", default="INC,CRIME", help="covariates (without the constant)")
     parser.add_argument("--y", default="HOVAL")
     parser.add_argument("--regime", default="", help="column to use as the regime variable")
     parser.add_argument("--endog", default="", help="endogenous variable(s), comma separated")
     parser.add_argument("--instruments", default="", help="instrument(s), comma separated")
     parser.add_argument("--transform", default="r", choices=["r", "b", "o"])
-    parser.add_argument("--method", default="LU", choices=["LU", "full", "ord"])
     parser.add_argument("--run", action="store_true", help="run the solver afterwards")
     args = parser.parse_args()
 
@@ -110,8 +109,10 @@ def main() -> int:
         arrays["q"] = np.column_stack([table[n] for n in names])
         spec_data["instruments"] = {"names": names, "array": "q"}
 
-    entry = spreg_models.get_model(args.model)          # rejects a typo immediately
-    options = {"method": args.method} if "method" in entry["options"] else {}
+    # get_model rejects a typo immediately; no registered model declares a
+    # solver-side option any more, so the job carries the defaults.
+    spreg_models.get_model(args.model)
+    options = {}
     spec = {
         "protocol": solve.PROTOCOL_VERSION,
         "job_id": "columbus",

@@ -677,21 +677,36 @@ def cmd_selftest() -> int:
         check("observations written", os.path.getsize(os.path.join(jobdir, "result.bin")) == 2 * n * 8)
         check("report written", os.path.isfile(os.path.join(jobdir, "report.txt")))
 
-        code, res = run("ML_Lag", {"method": "LU"})
-        rho = (res.get("spatial_parameters") or [{}])[0].get("estimate")
-        check("ML_Lag runs", code == 0 and res["status"] == "ok",
+        # The registry no longer offers the ML linear estimators; GM_Lag is its
+        # lag model.  It takes no `method` option - the log-Jacobian method is
+        # an ML-only option, so passing one would now fail validation.
+        code, res = run("GM_Lag")
+        spatial = (res.get("spatial_parameters") or [{}])[0]
+        lag = spatial.get("estimate")
+        check("GM_Lag runs", code == 0 and res["status"] == "ok",
               res.get("error", {}).get("message", ""))
-        check("ML_Lag rho in (-1, 1)", rho is not None and -1.0 < float(rho) < 1.0, "rho=%s" % rho)
+        # GM_Lag is IV/2SLS, so its lag coefficient is not bounded by ML
+        # feasibility; on this DGP the true value is small, so (-1, 1) still
+        # catches a coefficient read from the wrong column.
+        check("GM_Lag reports a lag parameter in (-1, 1)",
+              spatial.get("role") == "lag" and lag is not None
+              and -1.0 < float(lag) < 1.0,
+              "role=%s lag=%s" % (spatial.get("role"), lag))
 
-        code, res = run("ML_Lag_Regimes", {"method": "LU"})
-        check("ML_Lag_Regimes runs", code == 0 and res["status"] == "ok",
+        code, res = run("OLS_Regimes")
+        check("OLS_Regimes runs", code == 0 and res["status"] == "ok",
               res.get("error", {}).get("message", ""))
         check("regimes table regimized",
               any("0_" in nm for nm in (res.get("coefficients") or {}).get("names", [])),
               str((res.get("coefficients") or {}).get("names", [])[:3]))
 
-        code, res = run("ML_Lag", {"method": "nosuchmethod"})
+        # `robust` is an enum; an unknown value has to be rejected with a message
+        # that names the offending option.
+        code, res = run("OLS", {"robust": "bogus"})
         check("bad option reported as an error", code != 0 and res["status"] == "error",
+              res.get("error", {}).get("message", "")[:70])
+        check("bad option names the option",
+              "robust" in res.get("error", {}).get("message", ""),
               res.get("error", {}).get("message", "")[:70])
 
         broken = json.loads(json.dumps(spec))
