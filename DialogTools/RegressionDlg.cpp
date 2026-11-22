@@ -1341,6 +1341,10 @@ void RegressionDlg::ShowSpregResults(const SpregJob::Result& result,
 		wxString group, section;
 		for (size_t i = 0; i < result.diagnostics.size(); ++i) {
 			const SpregJob::Result::Diagnostic& d = result.diagnostics[i];
+			if (d.group == "fit") {
+				// the F statistic is printed with the measures of fit above
+				continue;
+			}
 			if (d.group != group) {
 				group = d.group;
 				section.Clear();
@@ -1348,20 +1352,25 @@ void RegressionDlg::ShowSpregResults(const SpregJob::Result& result,
 				if (group == "spatial dependence") {
 					// spreg.OLS.summary splits these into the SAR / error
 					// alternatives and the spatial Durbin alternatives; mixing
-					// them reads as one list of interchangeable tests
-					bool has_sections = false, has_moran = false;
-					for (size_t j = 0; j < result.diagnostics.size(); ++j) {
+					// them reads as one list of interchangeable tests.  The
+					// first test present decides the opening header.
+					wxString first, first_moran;
+					for (size_t j = i; j < result.diagnostics.size(); ++j) {
 						const SpregJob::Result::Diagnostic& e = result.diagnostics[j];
 						if (e.group != group) continue;
-						if (!e.section.IsEmpty()) has_sections = true;
-						if (e.name == "moran_res") has_moran = true;
+						first = e.section;
+						if (e.name == "moran_res") first_moran = e.name;
+						break;
 					}
-					if (has_sections) {
-						section = "sarerr";
+					section = first;
+					if (section == "sarerr") {
 						text << "- SARERR -\n";
-						text << (has_moran
-								 ? "TEST                           MI/DF       VALUE           PROB\n"
-								 : "TEST                              DF       VALUE           PROB\n");
+						text << (first_moran.IsEmpty()
+								 ? "TEST                              DF       VALUE           PROB\n"
+								 : "TEST                           MI/DF       VALUE           PROB\n");
+					} else if (section == "durbin") {
+						text << "- Spatial Durbin -\n";
+						text << "TEST                              DF       VALUE           PROB\n";
 					} else {
 						text << "TEST                  DF           VALUE        PROB\n";
 					}
@@ -1369,20 +1378,43 @@ void RegressionDlg::ShowSpregResults(const SpregJob::Result& result,
 					text << "TEST                  DF           VALUE        PROB\n";
 				}
 			}
-			if (group == "spatial dependence" && !d.section.IsEmpty()
-				&& d.section != section) {
-				section = d.section;
-				if (section == "durbin") {
-					text << "\n- Spatial Durbin -\n";
-					text << "TEST                              DF       VALUE           PROB\n";
+			if (group == "spatial dependence") {
+				if (!d.section.IsEmpty()) {
+					if (d.section != section) {
+						section = d.section;
+						text << "\n";
+						if (section == "durbin") {
+							text << "- Spatial Durbin -\n";
+							text << "TEST                              DF       VALUE           PROB\n";
+						} else {
+							text << "- SARERR -\n";
+							text << "TEST                              DF       VALUE           PROB\n";
+						}
+					}
+				} else if (!section.IsEmpty()) {
+					// a test that belongs to neither of spreg's spatial sections
+					// (the Anselin-Kelejian test, the likelihood ratio test) comes
+					// after the Durbin block; close that block, or it reads as one
+					// of the Durbin tests
+					section.Clear();
+					text << "\n";
+					text << "TEST                  DF           VALUE        PROB\n";
 				}
 			}
-			if (group == "spatial dependence" && d.name == "moran_res") {
-				// spreg prints Moran's I in the MI/DF column and its z value,
-				// not the statistic itself, in the VALUE column
+			if (group == "spatial dependence") {
+				// spreg pads these labels to 27 and puts the degrees (or Moran's
+				// I) in one column; the older 22-wide layout truncated the longer
+				// labels spreg uses
 				text << GenUtils::PadTrim(d.label, 27);
-				text << wxString::Format("  %8.4f  %12.4f  %11.5f\n",
-										 d.mi, d.statistic, d.p);
+				if (d.name == "moran_res") {
+					// spreg prints Moran's I in the MI/DF column and its z value,
+					// not the statistic itself, in the VALUE column
+					text << wxString::Format("  %8.4f  %12.4f  %11.5f\n",
+											 d.mi, d.statistic, d.p);
+				} else {
+					text << wxString::Format("  %8.0f  %12.4f  %11.5f\n",
+											 d.df, d.statistic, d.p);
+				}
 			} else {
 				text << GenUtils::PadTrim(d.label, 22);
 				text << wxString::Format("%2.0f   %13.4f   %11.5f\n",

@@ -420,12 +420,16 @@ DIAGNOSTICS = [
     ("lm_sarma", "Lagrange Multiplier (SARMA)", "spatial dependence", "stat_p", "sarerr"),
     ("lm_wx", "LM test for WX", "spatial dependence", "stat_p", "durbin"),
     ("rlm_wx", "Robust LM WX test", "spatial dependence", "stat_p", "durbin"),
+    # spreg.OLS.summary prints the lag test a second time in the Durbin block
+    ("lm_lag", "Lagrange Multiplier (lag)", "spatial dependence", "stat_p", "durbin"),
     ("rlm_durlag", "Robust LM Lag - SDM", "spatial dependence", "stat_p", "durbin"),
     ("lm_spdurbin", "Joint test for SDM", "spatial dependence", "stat_p", "durbin"),
-    ("lm_slxerr", "Joint test for Error and WX", "spatial dependence", "stat_p", "durbin"),
-    ("ak_test", "Anselin-Kelejian test", "spatial dependence", "stat_p", ""),
+    # lm_slxerr exists on the model but spreg comments it out of its summary, so
+    # it is not offered here either; uncomment to show it again
+    # ("lm_slxerr", "Joint test for Error and WX", "spatial dependence", "stat_p", "durbin"),
+    ("ak_test", "Anselin-Kelejian Test", "spatial dependence", "stat_p", ""),
     ("lr", "Likelihood ratio test", "spatial dependence", "stat_p", ""),
-    ("white", "White test", "heteroskedasticity", "df_stat_p", ""),
+    ("white", "White", "heteroskedasticity", "df_stat_p", ""),
     ("breusch_pagan", "Breusch-Pagan test", "heteroskedasticity", "df_stat_p", ""),
     ("koenker_bassett", "Koenker-Bassett test", "heteroskedasticity", "df_stat_p", ""),
     ("jarque_bera", "Jarque-Bera", "normality", "df_stat_p", ""),
@@ -468,6 +472,24 @@ def _scalar(value: Any) -> Optional[float]:
     return None
 
 
+def _df_for(attr: str, model_obj: Any) -> int:
+    """The DF spreg.OLS.summary prints for a one-line chi-square test.
+
+    Most are 1; the SARMA and WX tests and the joint Durbin tests carry more,
+    and spreg reports those degrees rather than a flat 1.
+    """
+    k = int(getattr(model_obj, "k", 0) or 0)
+    if attr == "lm_sarma":
+        return 2
+    if attr in ("lm_wx", "rlm_wx"):
+        return max(k - 1, 1)
+    if attr == "lm_spdurbin":
+        return max(k, 1)
+    if attr == "f_stat":
+        return max(k - 1, 1)
+    return 1
+
+
 def collect_diagnostics(model_obj: Any) -> Tuple[List[Dict[str, Any]], List[str]]:
     """Probe the estimator for the diagnostics it produced."""
     out: List[Dict[str, Any]] = []
@@ -482,7 +504,8 @@ def collect_diagnostics(model_obj: Any) -> Tuple[List[Dict[str, Any]], List[str]
             if kind == "stat_p":
                 stat, p = _scalar(value[0]), _scalar(value[1])
                 out.append({"group": group, "name": attr, "label": label,
-                            "section": section, "stat": stat, "df": 1, "p": p})
+                            "section": section, "stat": stat,
+                            "df": _df_for(attr, model_obj), "p": p})
             elif kind == "moran":
                 # spreg reports (I, z, p): the z value is what its VALUE column
                 # carries, while I sits in the MI/DF column
