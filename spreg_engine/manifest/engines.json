@@ -1,0 +1,144 @@
+{
+  "manifest": 1,
+  "_comment": [
+    "The spreg engine manifest shipped inside GeoDa (Contents/Resources/spreg_engine/ on",
+    "macOS, next to GeoDa.exe on Windows, /usr/share/geoda on Linux). It tells the app what",
+    "to download for each platform, how big it is and what its sha256 is. Nothing here is",
+    "fetched at runtime except the artifact itself.",
+    "",
+    "solver/ and tools/ are NOT part of the artifact: the solver script travels inside the",
+    "application bundle, so fixing the protocol or the report never requires a re-download.",
+    "The artifact contains third-party Python only (see PROTOCOL.md and the README).",
+    "",
+    "Each entry is produced by tools/build_engine.py --manifest-entry; entries still marked",
+    "pending have not been built for this release yet and GeoDa should fall back to the",
+    "built-in engine on those platforms."
+  ],
+  "protocol": 1,
+  "solver": "1.0.0",
+  "spreg": "1.9.1",
+  "python_series": "3.13",
+  "min_geoda_version": "1.24.0",
+  "engine_dir_template": "engines/spreg-{spreg}-py{py}-{platform}",
+  "unpack_root": "python",
+  "python_requirement": ">=3.12",
+  "requirements_lock": "solver/requirements.lock",
+  "artifacts": {
+    "macos-arm64": {
+      "status": "built",
+      "file": "geoda-spreg-1.9.1-py313-macos-arm64.zip",
+      "url": "https://github.com/GeoDaCenter/software/releases/download/spreg-engine-v3/geoda-spreg-1.9.1-py313-macos-arm64.zip",
+      "sha256": "84401c07cfaa4e8ccf61dbe2d9f0979d1d5c22894dcbb5d08292c7c879d28325",
+      "size_bytes": 158622906,
+      "unpacked_bytes": 474854310,
+      "format": "zip",
+      "python": "3.13.16",
+      "spreg": "1.9.1",
+      "bytecode": true,
+      "executables": [
+        "python/bin/python",
+        "python/bin/python3",
+        "python/bin/python3-config",
+        "python/bin/python3.13",
+        "python/bin/python3.13-config"
+      ]
+    },
+    "macos-x86_64": {
+      "status": "built",
+      "file": "geoda-spreg-1.9.1-py313-macos-x86_64.zip",
+      "url": "https://github.com/GeoDaCenter/software/releases/download/spreg-engine-v3/geoda-spreg-1.9.1-py313-macos-x86_64.zip",
+      "sha256": "a64bc41ec8aef2074bef22e7263589b001664e60a8e9b8bb9694c1cf163c986f",
+      "size_bytes": 165682218,
+      "unpacked_bytes": 487485274,
+      "format": "zip",
+      "python": "3.13.16",
+      "spreg": "1.9.1",
+      "bytecode": true,
+      "executables": [
+        "python/bin/python",
+        "python/bin/python3",
+        "python/bin/python3-config",
+        "python/bin/python3.13",
+        "python/bin/python3.13-config"
+      ]
+    },
+    "windows-x86_64": {
+      "status": "built",
+      "file": "geoda-spreg-1.9.1-py313-windows-x86_64.zip",
+      "url": "https://github.com/GeoDaCenter/software/releases/download/spreg-engine-v3/geoda-spreg-1.9.1-py313-windows-x86_64.zip",
+      "sha256": "59154d2ae9893d5342d81ec92ed06237375ee5dd1df40cda98022016d8028a27",
+      "size_bytes": 158650849,
+      "unpacked_bytes": 467310171,
+      "format": "zip",
+      "python": "3.13.16",
+      "spreg": "1.9.1",
+      "bytecode": true,
+      "executables": [
+        "python/python.exe",
+        "python/pythonw.exe"
+      ]
+    },
+    "windows-arm64": {
+      "status": "built",
+      "file": "geoda-spreg-1.9.1-py313-windows-arm64.zip",
+      "url": "https://github.com/GeoDaCenter/software/releases/download/spreg-engine-v3/geoda-spreg-1.9.1-py313-windows-arm64.zip",
+      "sha256": "94be7412a211ac96348f942dde6fc43c94aa5e587f8065776b6ccde1ecb5d465",
+      "size_bytes": 119165530,
+      "unpacked_bytes": 358619338,
+      "format": "zip",
+      "python": "3.13.16",
+      "spreg": "1.9.1",
+      "bytecode": true,
+      "executables": [
+        "python/python.exe",
+        "python/pythonw.exe"
+      ]
+    },
+    "linux-x86_64": {
+      "status": "built",
+      "file": "geoda-spreg-1.9.1-py313-linux-x86_64.zip",
+      "url": "https://github.com/GeoDaCenter/software/releases/download/spreg-engine-v3/geoda-spreg-1.9.1-py313-linux-x86_64.zip",
+      "sha256": "06828845bf4d5777633b631de394e2675152dab08aff3cad5fe03a32ffe5b401",
+      "size_bytes": 231383726,
+      "unpacked_bytes": 694817677,
+      "format": "zip",
+      "python": "3.13.16",
+      "spreg": "1.9.1",
+      "bytecode": true,
+      "executables": [
+        "python/bin/python",
+        "python/bin/python3",
+        "python/bin/python3-config",
+        "python/bin/python3.13",
+        "python/bin/python3.13-config"
+      ]
+    },
+    "linux-aarch64": {
+      "status": "pending",
+      "file": "geoda-spreg-1.9.1-py313-linux-aarch64.zip",
+      "url": "https://github.com/GeoDaCenter/software/releases/download/spreg-engine-v3/geoda-spreg-1.9.1-py313-linux-aarch64.zip",
+      "sha256": "",
+      "size_bytes": 0,
+      "unpacked_bytes": 0,
+      "format": "zip",
+      "python": "",
+      "spreg": "1.9.1",
+      "bytecode": true,
+      "executables": [
+        "python/bin/python3"
+      ]
+    }
+  },
+  "offline": {
+    "_comment": [
+      "Deployments with no internet: point GeoDa at an administrator-provided directory of",
+      "engine archives (or at an already unpacked engine) instead of the URLs above. GeoDa",
+      "verifies the sha256 in the same way; a directory with no manifest is accepted only",
+      "when the user explicitly allows an unverified engine."
+    ],
+    "engine_search_paths": [
+      "<user data>/GeoDa/engines",
+      "<app>/engines"
+    ]
+  }
+}

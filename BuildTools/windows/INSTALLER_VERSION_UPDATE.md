@@ -19,13 +19,15 @@ A Python script (`update_installer_version.py`) has been created that automatica
 ### Files affected
 
 - `BuildTools/windows/installer/32bit/GeoDa.iss`
-- `BuildTools/windows/installer/32bit/GeoDa-win8+.iss`
+- `BuildTools/windows/installer/32bit/GeoDa-win7+.iss`
 - `BuildTools/windows/installer/64bit/GeoDa.iss`
-- `BuildTools/windows/installer/64bit/GeoDa-win8+.iss`
+- `BuildTools/windows/installer/64bit/GeoDa-win7+.iss`
 
 ### Integration with build process
 
-The script is automatically called in both `build.bat` and `build_vs2017.bat` before the installer creation step. If the script fails, the build continues with a warning.
+The script is automatically called by the "Build GeoDa" step of
+`.github/workflows/windows_build.yml` before the Inno Setup step. If the script
+fails, the build continues with a warning.
 
 ### Manual usage
 

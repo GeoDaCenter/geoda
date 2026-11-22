@@ -1036,10 +1036,31 @@ void HistogramCanvas::HistogramIntervals()
 	Refresh();
 }
 
+void HistogramCanvas::SetNumIntervals(int num_intervals)
+{
+	// PopulateCanvas() indexes ival_breaks[cur_intervals - 2], so a single
+	// interval reads out of range and aborts the app. Ignore it.
+	if (num_intervals < 2) return;
+
+	// A string variable must keep cur_intervals == number of unique values
+	// (InitIntervals() sizes the break arrays from it), so ignore the request.
+	for (size_t t=0; t<IS_VAR_STRING.size(); ++t) {
+		if (IS_VAR_STRING[t]) return;
+	}
+	cur_intervals = std::min(num_intervals, max_intervals);
+
+	isResize = true;
+	is_custom_category = false;
+	InitIntervals();
+	invalidateBms();
+	PopulateCanvas();
+	Refresh();
+}
+
 /** based on data_min_over_time, data_max_over_time,
  cur_intervals, scale_x_over_time:
  calculate interval breaks and populate
- obs_id_to_ival, ival_obs_cnt and ival_obs_sel_cnt */ 
+ obs_id_to_ival, ival_obs_cnt and ival_obs_sel_cnt */
 void HistogramCanvas::InitIntervals()
 {
 	std::vector<bool>& hs = highlight_state->GetHighlight();

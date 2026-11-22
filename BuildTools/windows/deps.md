@@ -38,8 +38,8 @@ FindBoost module using -DBoost_ROOT/-DBoost_LIBRARY_DIR/-DBoost_COMPILER=-vc142.
 
 Minimum OS: vcpkg builds with the VS2022 (v143) toolset targeting the current
 Windows SDK, so the bundled GDAL/Arrow/curl DLLs and GeoDa.exe require
-Windows 8.1 or newer -- the "win8+" installers (installer/*bit/GeoDa-win8+.iss)
-do NOT run on Windows 7.
+Windows 8.1 or newer. The release assets keep their historical "win7+" names
+(installer/*bit/GeoDa-win7+.iss), but that payload does NOT run on Windows 7.
 
 First cold build compiles the full GDAL dependency tree (geos, hdf5, netcdf,
 Arrow, ...) from source and can take 2-4h on a 2-core GitHub runner; warm runs

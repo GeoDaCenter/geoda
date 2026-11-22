@@ -146,7 +146,28 @@ echo "Creating disk image..."
 test -f "${DMG_TEMP_NAME}" && rm -f "${DMG_TEMP_NAME}"
 ACTUAL_SIZE=`du -sm "$SRC_FOLDER" | sed -e 's/	.*//g'`
 DISK_IMAGE_SIZE=$(expr $ACTUAL_SIZE + 20)
-hdiutil create -srcfolder "$SRC_FOLDER" -volname "${VOLUME_NAME}" -fs HFS+ -fsargs "-c c=64,a=16,e=16" -format UDRW -size ${DISK_IMAGE_SIZE}m "${DMG_TEMP_NAME}"
+
+# `hdiutil create` answers "Resource busy" when something else holds the
+# disk-image subsystem -- on a busy CI runner, more often than not -- and the
+# same command succeeds a moment later. Retry it rather than failing a build
+# that has already succeeded, and clear the disk-image state between attempts
+# so the next one does not inherit the reason the last one failed.
+attempt=1
+while true; do
+  if hdiutil create -srcfolder "$SRC_FOLDER" -volname "${VOLUME_NAME}" -fs HFS+ -fsargs "-c c=64,a=16,e=16" -format UDRW -size ${DISK_IMAGE_SIZE}m "${DMG_TEMP_NAME}"; then
+    break
+  fi
+  if [ $attempt -ge 3 ]; then
+    echo "hdiutil create failed $attempt times; disk-image state follows"
+    hdiutil info
+    exit 1
+  fi
+  echo "hdiutil create failed (attempt $attempt); cleaning up and retrying"
+  test -d "/Volumes/${VOLUME_NAME}" && hdiutil detach -force "/Volumes/${VOLUME_NAME}" || true
+  test -f "${DMG_TEMP_NAME}" && rm -f "${DMG_TEMP_NAME}" || true
+  attempt=$(expr $attempt + 1)
+  sleep 5
+done
 
 # mount it
 echo "Mounting disk image..."

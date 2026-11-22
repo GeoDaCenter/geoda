@@ -25,6 +25,10 @@
 #include <wx/txtstrm.h>
 #include <wx/wfstream.h>
 #include <wx/xrc/xmlres.h> // XRC XML resouces
+#include <cmath>
+#include <wx/spinctrl.h>
+#include <wx/stdpaths.h>
+#include <wx/utils.h>
 #include <wx/filedlg.h>
 #include <wx/textdlg.h>
 
@@ -48,6 +52,9 @@
 #include "../Regression/ML_im.h"
 #include "../Regression/smile.h"
 #include "RegressionDlg.h"
+#include "SpregEngineDlg.h"
+#include "../Regression/SpregEngine.h"
+#include "../Regression/SpregJob.h"
 #include "RegressionReportDlg.h"
 
 bool classicalRegression(GalElement *g,
@@ -180,6 +187,56 @@ void RegressionDlg::OnReportClose(wxWindowDestroyEvent& event)
     regReportDlg = 0;
 }
 
+namespace {
+
+/**
+ * The sizer that manages a wxStaticBox.
+ *
+ * XRC creates the box as a child of the dialog and the wxStaticBoxSizer as an
+ * item of the dialog's sizer, with the box as its containing window - so
+ * box->GetSizer() is null and the sizer has to be found by walking the dialog's
+ * sizer tree for the one whose static box this window is.
+ */
+wxSizer* FindSizerOfStaticBox(wxSizer* sizer, wxWindow* box)
+{
+	if (!sizer || !box) return NULL;
+	if (wxStaticBoxSizer* sb = wxDynamicCast(sizer, wxStaticBoxSizer)) {
+		if (sb->GetStaticBox() == box) return sb;
+	}
+	for (size_t i = 0; i < sizer->GetItemCount(); ++i) {
+		wxSizer* child = sizer->GetItem(i) ? sizer->GetItem(i)->GetSizer() : NULL;
+		if (child) {
+			wxSizer* found = FindSizerOfStaticBox(child, box);
+			if (found) return found;
+		}
+	}
+	return NULL;
+}
+
+/**
+ * Reparents every window a sizer lays out.
+ *
+ * A window is shown on whichever window is its parent, whatever the sizer says,
+ * so moving a page of controls from the Models box into a notebook page - which
+ * is what happens to the three models XRC put there - means walking its sizers
+ * and reparenting the controls they hold.
+ */
+void ReparentSizerWindows(wxSizer* sizer, wxWindow* parent)
+{
+	if (!sizer || !parent) return;
+	for (size_t i = 0; i < sizer->GetItemCount(); ++i) {
+		wxSizerItem* item = sizer->GetItem(i);
+		if (!item) continue;
+		if (wxWindow* window = item->GetWindow()) {
+			if (window->GetParent() != parent) window->Reparent(parent);
+		} else {
+			ReparentSizerWindows(item->GetSizer(), parent);
+		}
+	}
+}
+
+} // namespace
+
 bool RegressionDlg::Create(wxWindow* parent, wxWindowID id,
 							const wxString& caption, const wxPoint& pos,
 							const wxSize& size, long style )
@@ -198,6 +255,25 @@ bool RegressionDlg::Create(wxWindow* parent, wxWindowID id,
     m_gauge = NULL;
 	m_gauge_text = NULL;
 	m_white_test_cb = NULL;
+
+	// the controls the engine's models bring with them, built in CreateControls
+	m_install_spreg_btn = NULL;
+	m_spreg_status = NULL;
+	m_spreg_model_choice = NULL;
+	m_spreg_regime_choice = NULL;
+	m_spreg_endog_list = NULL;
+	m_spreg_instr_list = NULL;
+	m_spreg_regime_row = NULL;
+	m_spreg_endog_row = NULL;
+	m_spreg_instr_row = NULL;
+	m_spreg_coord_x_choice = NULL;
+	m_spreg_coord_y_choice = NULL;
+	m_spreg_coords_row = NULL;
+	m_spreg_options_row = NULL;
+	m_spreg_options_grid = NULL;
+	m_spreg_model = wxEmptyString;
+	m_spreg_installed = false;
+	m_has_spreg_result = false;
 
     SetParent(parent);
     CreateControls();
@@ -238,6 +314,978 @@ void RegressionDlg::CreateControls()
     
     m_gauge_text = XRCCTRL(*this, "IDC_GAUGE_TEXT", wxStaticText);
     
+
+
+	// The engine behind the advanced models is installed on demand, so the
+	// controls that belong to it are built here rather than in dialogs.xrc: a new
+	// control there would mean regenerating rc/GdaAppResources.cpp, and a
+	// different wxrc rewrites thirteen thousand lines of it.
+	//
+	// The Models box holds two pages, so which models are being set up shows in
+	// the tab that is open rather than in knowing which controls belong to which
+	// model: GeoDa's own three on "Default", the engine's on "Spreg".
+	if (m_radio1 && m_radio1->GetParent()) {
+		wxWindow* models_box = m_radio1->GetParent();
+		// the box has no sizer of its own when the dialog came from XRC; the
+		// StaticBoxSizer sits in the dialog's sizer tree instead
+		wxSizer* box_sizer = models_box ? models_box->GetSizer() : NULL;
+		if (!box_sizer) box_sizer = FindSizerOfStaticBox(GetSizer(), models_box);
+
+		// what XRC laid out inside the box becomes the first page, sizer and all
+		wxSizerItem* native_item = (box_sizer && box_sizer->GetItemCount() > 0)
+			? box_sizer->GetItem(static_cast<size_t>(0)) : NULL;
+		wxSizer* native_sizer = native_item ? native_item->GetSizer() : NULL;
+		if (native_sizer) box_sizer->Detach(native_sizer);
+
+		m_models_notebook = new wxNotebook(models_box, wxID_ANY);
+		wxPanel* default_page = new wxPanel(m_models_notebook, wxID_ANY);
+		m_spreg_page = new wxPanel(m_models_notebook, wxID_ANY);
+		m_models_notebook->AddPage(default_page, _("Default"), true);
+		m_models_notebook->AddPage(m_spreg_page, _("Spreg"));
+		if (box_sizer) box_sizer->Add(m_models_notebook, 1, wxEXPAND | wxTOP, 4);
+
+		if (native_sizer) {
+			ReparentSizerWindows(native_sizer, default_page);
+			wxBoxSizer* default_sizer = new wxBoxSizer(wxVERTICAL);
+			default_sizer->Add(native_sizer, 1, wxALL | wxEXPAND, 6);
+			default_page->SetSizer(default_sizer);
+		}
+
+		wxBoxSizer* spreg_sizer = new wxBoxSizer(wxVERTICAL);
+		m_spreg_page->SetSizer(spreg_sizer);
+
+		m_install_spreg_btn = new wxButton(m_spreg_page, wxID_ANY, _("Install Spreg"));
+		spreg_sizer->Add(m_install_spreg_btn, 0, wxLEFT | wxRIGHT | wxTOP | wxALIGN_LEFT, 6);
+
+		// What the state of the engine is, and once a model is chosen what it is:
+		// on a line of its own rather than beside the button, so that it starts in
+		// the same column as everything else and has the width of the page - and
+		// is still there, in the same place, once the button has gone.
+		m_spreg_status = new wxStaticText(m_spreg_page, wxID_ANY, wxEmptyString);
+		// in the secondary colour, as a line of explanation is: it says what the
+		// state of the engine is, or what the chosen model will do, and it has to
+		// not read as though it were part of the label below it
+		m_spreg_status->SetForegroundColour(
+			wxSystemSettings::GetColour(wxSYS_COLOUR_GRAYTEXT));
+		spreg_sizer->Add(m_spreg_status, 0,
+						 wxLEFT | wxRIGHT | wxTOP | wxBOTTOM | wxALIGN_LEFT, 6);
+
+		// The model list gets a row of its own, its label above it as the options
+		// further down have theirs.  Put beside it, the label would line up with
+		// the Install button's frame rather than with its text, and the two rows
+		// then read as not aligned - a button and a choice inset their text the
+		// same way, so lining the two controls up lines their text up too.
+		wxBoxSizer* model_row = new wxBoxSizer(wxVERTICAL);
+		m_spreg_model_choice = new wxChoice(m_spreg_page, wxID_ANY);
+		model_row->Add(new wxStaticText(m_spreg_page, wxID_ANY, _("spreg model:")),
+					   0, wxBOTTOM, 2);
+		model_row->Add(m_spreg_model_choice, 0);
+		spreg_sizer->Add(model_row, 0, wxLEFT | wxRIGHT | wxBOTTOM | wxALIGN_LEFT, 6);
+		m_spreg_model_choice->Bind(wxEVT_CHOICE, &RegressionDlg::OnSpregModelSelected, this);
+
+		// The rows for the extra variables stay hidden until a model that needs
+		// them is chosen; all three draw their names from the variables list
+		// above, so the user picks from what is in the table.
+		m_spreg_regime_choice = new wxChoice(m_spreg_page, wxID_ANY);
+		m_spreg_endog_list = new wxListBox(m_spreg_page, wxID_ANY, wxDefaultPosition,
+										  wxSize(-1, 60), 0, NULL, wxLB_EXTENDED);
+		m_spreg_instr_list = new wxListBox(m_spreg_page, wxID_ANY, wxDefaultPosition,
+										  wxSize(-1, 60), 0, NULL, wxLB_EXTENDED);
+
+		m_spreg_regime_row = new wxBoxSizer(wxHORIZONTAL);
+		wxStaticText* regime_label = new wxStaticText(m_spreg_page, wxID_ANY, _("regime variable:"));
+		m_spreg_regime_row->Add(regime_label, 0, wxALIGN_CENTRE_VERTICAL | wxRIGHT, 6);
+		m_spreg_regime_row->Add(m_spreg_regime_choice, 0, wxALIGN_CENTRE_VERTICAL);
+
+		m_spreg_endog_row = new wxBoxSizer(wxHORIZONTAL);
+		wxBoxSizer* endog_col = new wxBoxSizer(wxVERTICAL);
+		endog_col->Add(new wxStaticText(m_spreg_page, wxID_ANY, _("endogenous variables:")),
+					   0, wxBOTTOM, 2);
+		wxBoxSizer* endog_lists = new wxBoxSizer(wxHORIZONTAL);
+		endog_lists->Add(m_spreg_endog_list, 1, wxRIGHT, 10);
+		endog_col->Add(endog_lists, 1, wxEXPAND);
+		m_spreg_endog_row->Add(endog_col, 1, wxEXPAND);
+		wxBoxSizer* instr_col = new wxBoxSizer(wxVERTICAL);
+		instr_col->Add(new wxStaticText(m_spreg_page, wxID_ANY, _("instruments:")),
+					   0, wxBOTTOM, 2);
+		instr_col->Add(m_spreg_instr_list, 1, wxEXPAND);
+		m_spreg_endog_row->Add(instr_col, 1, wxEXPAND);
+
+		m_spreg_instr_row = NULL;              // the two lists sit on one row
+
+		m_spreg_coord_x_choice = new wxChoice(m_spreg_page, wxID_ANY);
+		m_spreg_coord_y_choice = new wxChoice(m_spreg_page, wxID_ANY);
+		m_spreg_coords_row = new wxBoxSizer(wxHORIZONTAL);
+		m_spreg_coords_row->Add(new wxStaticText(m_spreg_page, wxID_ANY, _("coordinate variables:")),
+								0, wxALIGN_CENTRE_VERTICAL | wxRIGHT, 6);
+		m_spreg_coords_row->Add(m_spreg_coord_x_choice, 0, wxALIGN_CENTRE_VERTICAL | wxRIGHT, 4);
+		m_spreg_coords_row->Add(m_spreg_coord_y_choice, 0, wxALIGN_CENTRE_VERTICAL);
+		m_spreg_coord_x_choice->SetToolTip(_("The x coordinate (longitude) of each observation"));
+		m_spreg_coord_y_choice->SetToolTip(_("The y coordinate (latitude) of each observation"));
+
+		m_spreg_options_grid = new wxFlexGridSizer(2, 6, 10);   // label over control
+		m_spreg_options_row = m_spreg_options_grid;
+
+		spreg_sizer->Add(m_spreg_regime_row, 0, wxLEFT | wxRIGHT | wxBOTTOM | wxALIGN_LEFT, 6);
+		spreg_sizer->Add(m_spreg_endog_row, 0, wxLEFT | wxRIGHT | wxBOTTOM | wxEXPAND, 6);
+		spreg_sizer->Add(m_spreg_coords_row, 0, wxLEFT | wxRIGHT | wxBOTTOM | wxALIGN_LEFT, 6);
+		spreg_sizer->Add(m_spreg_options_row, 0, wxLEFT | wxRIGHT | wxBOTTOM | wxALIGN_LEFT, 6);
+		spreg_sizer->Show(m_spreg_regime_row, false);
+		spreg_sizer->Show(m_spreg_endog_row, false);
+		spreg_sizer->Show(m_spreg_coords_row, false);
+		spreg_sizer->Show(m_spreg_options_row, false);
+
+		m_install_spreg_btn->Bind(wxEVT_BUTTON, &RegressionDlg::OnInstallSpregClick, this);
+		RefreshSpregState();
+		// the tab bar takes room the dialog was not laid out with; grow if the
+		// pages now need more than it has
+		GrowToFit();
+	}
+
+
+
+}
+
+void RegressionDlg::RefreshSpregState()
+{
+	// The advanced models are only usable when an engine is installed.  This is
+	// where the controls that belong to them - the model list, regimes,
+	// endogenous variables - are enabled once they exist; for now it reports
+	// the state and offers the button that fixes it.
+	SpregEngine::Manifest manifest;
+	wxString err;
+	const bool have_manifest = manifest.Read(SpregEngine::ShippedManifestPath(), err);
+	const SpregEngine::Status status = have_manifest
+		? SpregEngine::Discover(manifest) : SpregEngine::Status();
+
+	if (!m_install_spreg_btn) return;
+
+	m_spreg_installed = status.installed;
+	if (status.installed) {
+		m_spreg_status->SetLabel(wxString::Format(_("spreg %s ready"), status.version));
+		WrapSpregStatus();
+		m_install_spreg_btn->Hide();
+		// The model list costs a Python start, so it is fetched once the dialog
+		// is up rather than while it is being built - otherwise opening the
+		// dialog waits for the interpreter.  On everything but the first time
+		// it comes out of the engine's own cache and is there at once.
+		if (m_spreg_model_choice) {
+			m_spreg_model_choice->Clear();
+			m_spreg_model_choice->Append(_("- looking for the engine's models -"));
+			m_spreg_model_choice->SetSelection(0);
+			m_spreg_model_choice->Enable(false);
+		}
+		const wxString engine_dir = status.dir;
+		CallAfter([this, engine_dir]() { FillSpregModels(engine_dir); });
+	} else {
+		m_spreg_status->SetLabel(have_manifest
+			? _("Regimes, spatial Durbin, GMM/IV and probit models need this")
+			: _("The advanced models are not available in this build"));
+		WrapSpregStatus();
+		m_install_spreg_btn->Show();
+		m_install_spreg_btn->Enable(have_manifest);
+		if (m_spreg_model_choice) {
+			m_spreg_model_choice->Clear();
+			m_spreg_model_choice->Append(_("- the engine is not installed -"));
+			m_spreg_model_choice->SetSelection(0);
+			m_spreg_model_choice->Enable(false);
+		}
+		m_spreg_model = wxEmptyString;
+		EnableNativeModels(true);
+	}
+	m_spreg_status->GetParent()->Layout();
+}
+
+void RegressionDlg::OnInstallSpregClick(wxCommandEvent& WXUNUSED(event))
+{
+	SpregEngineDlg dlg(this);
+	dlg.ShowModal();
+	// whether it succeeded or the user gave up, say what the state is now; a
+	// successful install also unlocks the advanced models here
+	RefreshSpregState();
+}
+
+void RegressionDlg::EnableNativeModels(bool enable)
+{
+	// with a spreg model chosen the three radio buttons above no longer decide
+	// anything, so they are greyed rather than left to mislead; when they come
+	// back, the dialog's own rules say which of them are usable
+	if (enable) {
+		EnablingItems();
+		return;
+	}
+	if (m_radio1) m_radio1->Enable(false);
+	if (m_radio2) m_radio2->Enable(false);
+	if (m_radio3) m_radio3->Enable(false);
+}
+
+void RegressionDlg::FillSpregModels(const wxString& engine_dir)
+{
+	if (!m_spreg_model_choice) return;
+
+	m_spreg_models.clear();
+	m_spreg_model_choice->Clear();
+	m_spreg_model_choice->Append(_("- use the models above -"));
+
+	std::vector<SpregJob::ModelOption> offered;
+	wxString err;
+	if (!SpregJob::ListModels(engine_dir, offered, err)) {
+		wxLogMessage("Spreg: the model list could not be read: %s", err);
+		m_spreg_model_choice->Append(_("- the model list could not be read -"));
+		m_spreg_model_choice->SetSelection(0);
+		m_spreg_model_choice->Enable(false);
+		return;
+	}
+
+	// Everything the dialog can collect is offered: a model that wants a regime
+	// variable, endogenous variables with instruments, or a pair of coordinates
+	// asks for them when it is chosen.
+	for (size_t i = 0; i < offered.size(); ++i) {
+		const SpregJob::ModelOption& model = offered[i];
+		m_spreg_models.push_back(model);
+		// The longest labels are long enough to stretch the whole dialog, and the
+		// full text is on the tooltip and on the status line once it is chosen.
+		wxString entry = model.label;
+		if (entry.length() > 40) entry = entry.Left(37) + "...";
+		m_spreg_model_choice->Append(entry);
+	}
+
+	if (m_spreg_models.empty()) {
+		m_spreg_model_choice->Append(_("- no engine model fits this dialog yet -"));
+	}
+	m_spreg_model_choice->SetSelection(0);
+	m_spreg_model_choice->Enable(!m_spreg_models.empty());
+
+}
+
+void RegressionDlg::FillSpregOptions(wxWindow* parent,
+									  const SpregJob::ModelOption& model)
+{
+	if (!m_spreg_options_grid) return;
+
+	m_spreg_options_grid->Clear(true);       // deletes the controls it holds
+	m_spreg_option_names.clear();
+	m_spreg_option_ctrls.clear();
+
+	// One control per option, of the type the registry declares: a checkbox for
+	// a switch, a list for a choice whose values are known, a spin control for a
+	// bounded number, a text field otherwise.  The help text rides along as a
+	// tooltip, so the dialog explains itself.
+	for (size_t i = 0; i < model.options.size(); ++i) {
+		const SpregJob::OptionSpec& spec = model.options[i];
+		// the registry's name for the option, with spreg's keyword only as a
+		// fallback: "White test" rather than "white_test"
+		wxStaticText* label = new wxStaticText(parent, wxID_ANY,
+			(spec.label.IsEmpty() ? spec.name : spec.label) + ":");
+		wxWindow* control = NULL;
+
+		if (spec.type == "bool") {
+			wxCheckBox* box = new wxCheckBox(parent, wxID_ANY, wxEmptyString);
+			box->SetValue(spec.default_value == "true");
+			control = box;
+		} else if (spec.type == "enum" && !spec.values.empty()) {
+			wxChoice* choice = new wxChoice(parent, wxID_ANY);
+			for (size_t i = 0; i < spec.values.size(); ++i) {
+				choice->Append(spec.values[i]);
+			}
+			int selection = choice->FindString(spec.default_value);
+			choice->SetSelection(selection == wxNOT_FOUND ? 0 : selection);
+			control = choice;
+		} else if (spec.type == "int" && spec.has_range) {
+			wxSpinCtrl* spin = new wxSpinCtrl(parent, wxID_ANY, wxEmptyString,
+											  wxDefaultPosition, wxSize(90, -1),
+											  wxSP_ARROW_KEYS,
+											  static_cast<int>(spec.min_value),
+											  static_cast<int>(spec.max_value),
+											  wxAtoi(spec.default_value));
+			control = spin;
+		} else {
+			wxTextCtrl* text = new wxTextCtrl(parent, wxID_ANY, spec.default_value,
+											  wxDefaultPosition, wxSize(110, -1));
+			control = text;
+		}
+		if (!spec.help.IsEmpty()) control->SetToolTip(spec.help);
+		if (!spec.help.IsEmpty()) label->SetToolTip(spec.help);
+
+		m_spreg_option_names.push_back(spec.name);
+		m_spreg_option_ctrls.push_back(control);
+		m_spreg_options_grid->Add(label, 0, wxALIGN_CENTRE_VERTICAL);
+		m_spreg_options_grid->Add(control, 0, wxALIGN_CENTRE_VERTICAL);
+	}
+}
+
+std::map<wxString, wxString> RegressionDlg::ReadSpregOptions(bool& ok, wxString& err)
+{
+	std::map<wxString, wxString> options;
+	ok = true;
+	for (size_t i = 0; i < m_spreg_option_ctrls.size(); ++i) {
+		const wxString& name = m_spreg_option_names[i];
+		wxWindow* control = m_spreg_option_ctrls[i];
+		wxString value;
+		if (wxCheckBox* box = wxDynamicCast(control, wxCheckBox)) {
+			value = box->GetValue() ? "true" : "false";
+		} else if (wxChoice* choice = wxDynamicCast(control, wxChoice)) {
+			value = choice->GetStringSelection();
+		} else if (wxSpinCtrl* spin = wxDynamicCast(control, wxSpinCtrl)) {
+			value << spin->GetValue();
+		} else if (wxTextCtrl* text = wxDynamicCast(control, wxTextCtrl)) {
+			value = text->GetValue();
+			value.Trim(true);
+			value.Trim(false);
+			// the registry's text options are numbers or one of a few keywords
+			// ("all", "none"); anything else would reach the solver as a refusal,
+			// which is later than it needs to be
+			double number = 0;
+			if (!value.IsEmpty() && !value.ToCDouble(&number) && value != "all"
+				&& value != "none" && value != "all ") {
+				err = wxString::Format(_("%s must be a number."), name);
+				ok = false;
+			}
+		}
+		options[name] = value;
+	}
+	return options;
+}
+
+void RegressionDlg::FillSpregVariables(wxWindow* parent)
+{
+	// the names come from the variables list the dialog already has, so the user
+	// chooses from what is in the table
+	if (m_spreg_regime_choice) {
+		m_spreg_regime_choice->Clear();
+		for (unsigned i = 0; i < m_varlist->GetCount(); ++i) {
+			m_spreg_regime_choice->Append(m_varlist->GetString(i));
+		}
+	}
+	if (m_spreg_coord_x_choice) {
+		const wxString keep_x = m_spreg_coord_x_choice->GetStringSelection();
+		const wxString keep_y = m_spreg_coord_y_choice->GetStringSelection();
+		m_spreg_coord_x_choice->Clear();
+		m_spreg_coord_y_choice->Clear();
+		for (unsigned i = 0; i < m_varlist->GetCount(); ++i) {
+			m_spreg_coord_x_choice->Append(m_varlist->GetString(i));
+			m_spreg_coord_y_choice->Append(m_varlist->GetString(i));
+		}
+		int index = m_spreg_coord_x_choice->FindString(keep_x);
+		m_spreg_coord_x_choice->SetSelection(index == wxNOT_FOUND ? 0 : index);
+		index = m_spreg_coord_y_choice->FindString(keep_y);
+		m_spreg_coord_y_choice->SetSelection(index == wxNOT_FOUND ? 0 : index);
+	}
+	if (m_spreg_endog_list) {
+		m_spreg_endog_list->Clear();
+		m_spreg_instr_list->Clear();
+		for (unsigned i = 0; i < m_varlist->GetCount(); ++i) {
+			m_spreg_endog_list->Append(m_varlist->GetString(i));
+			m_spreg_instr_list->Append(m_varlist->GetString(i));
+		}
+	}
+	(void) parent;
+}
+
+void RegressionDlg::OnSpregModelSelected(wxCommandEvent& WXUNUSED(event))
+{
+	const int selection = m_spreg_model_choice ? m_spreg_model_choice->GetSelection() : 0;
+	if (selection <= 0 || selection - 1 >= static_cast<int>(m_spreg_models.size())) {
+		m_spreg_model = wxEmptyString;
+		EnableNativeModels(true);
+		if (m_spreg_status) {
+			m_spreg_status->SetLabel(m_spreg_installed
+				? wxString(_("the models above are GeoDa's own")) : wxString());
+			WrapSpregStatus();
+		}
+	} else {
+		const SpregJob::ModelOption& model = m_spreg_models[selection - 1];
+		m_spreg_model = model.id;
+		EnableNativeModels(false);
+		if (m_spreg_status) {
+			wxString hint = wxString::Format(_("%s, estimated by spreg"), model.label);
+			if (model.needs_binary_y) {
+				hint << _("; the dependent variable must be 0 or 1");
+			}
+			m_spreg_status->SetLabel(hint);
+			WrapSpregStatus();
+		}
+		if (m_spreg_model_choice) {
+			m_spreg_model_choice->SetToolTip(model.label + "  (" + model.id + ")");
+		}
+	}
+
+	// the options this model declares, and the variables it needs - and only those
+	if (selection > 0 && m_spreg_options_grid) {
+		FillSpregOptions(m_spreg_model_choice->GetParent(), m_spreg_models[selection - 1]);
+	}
+	const bool want_regime = selection > 0
+		&& m_spreg_models[selection - 1].needs_regimes;
+	const bool want_endog = selection > 0
+		&& (m_spreg_models[selection - 1].needs_endog
+			|| m_spreg_models[selection - 1].needs_instruments);
+	const bool want_coords = selection > 0
+		&& m_spreg_models[selection - 1].needs_coords;
+	// the rows live on the engine's page, so that is the sizer to show them in
+	wxSizer* page_sizer = m_spreg_page ? m_spreg_page->GetSizer() : NULL;
+	if (page_sizer && m_spreg_regime_row) {
+		page_sizer->Show(m_spreg_regime_row, want_regime);
+	}
+	if (page_sizer && m_spreg_endog_row) {
+		page_sizer->Show(m_spreg_endog_row, want_endog);
+	}
+	if (page_sizer && m_spreg_coords_row) {
+		page_sizer->Show(m_spreg_coords_row, want_coords);
+	}
+	if (page_sizer && m_spreg_options_row) {
+		page_sizer->Show(m_spreg_options_row, selection > 0);
+	}
+	if (m_spreg_page) m_spreg_page->Layout();
+	Layout();
+	GrowToFit();
+}
+
+void RegressionDlg::WrapSpregStatus()
+{
+	// The status line has a row of its own, and it may use the width of the page
+	// and no more: wrapped to a width the page does not have, its text runs to the
+	// edge of the box and is cut off there.  Before the page has been laid out its
+	// width is not known yet, and 400 fits whatever the dialog's.
+	if (!m_spreg_status) return;
+	const int page = m_spreg_page ? m_spreg_page->GetClientSize().x : 0;
+	const int room = page - 16;                  // the row's own borders
+	m_spreg_status->Wrap(room > 120 ? room : 400);
+}
+
+void RegressionDlg::GrowToFit()
+{
+	WrapSpregStatus();
+	// the controls the engine brings can need more room than the dialog has;
+	// grow to fit them, but never past the screen
+	const wxSize best = GetBestSize();
+	wxSize wanted = GetSize();
+	if (best.x > wanted.x) wanted.x = best.x;
+	if (best.y > wanted.y) wanted.y = best.y;
+	const wxRect screen = wxGetClientDisplayRect();
+	if (wanted.x > screen.width - 40) wanted.x = screen.width - 40;
+	if (wanted.y > screen.height - 60) wanted.y = screen.height - 60;
+	if (wanted != GetSize()) SetSize(wanted);
+}
+
+/**
+ * Runs one of the engine's models on what the dialog has gathered.
+ *
+ * The data preparation repeats what OnRunClick does for the models above -
+ * columns out of the table, undefined observations dropped, the weights subset
+ * to match - and the duplication is deliberate for now: sharing it means
+ * rewriting the inside of a function that carries the three models GeoDa
+ * already had, and that is a change of its own.  The job itself goes out
+ * through SpregJob, so nothing here knows any spreg API.
+ */
+bool RegressionDlg::RunSpregModel(wxCommandEvent& WXUNUSED(event))
+{
+	wxLogMessage("RegressionDlg::RunSpregModel(%s)", m_spreg_model);
+
+	m_gauge->Show();
+	UpdateMessageBox(_("calculating..."));
+
+	// whether this model needs GeoDa's weights at all: the ones that build their
+	// own from coordinates do not
+	const SpregJob::ModelOption* chosen_model = NULL;
+	for (size_t i = 0; i < m_spreg_models.size(); ++i) {
+		if (m_spreg_models[i].id == m_spreg_model) chosen_model = &m_spreg_models[i];
+	}
+	const bool wants_weights = !chosen_model || chosen_model->needs_weights;
+
+	const wxString y_display = m_dependent->GetValue();
+	if (y_display.IsEmpty() || m_independentlist->GetCount() == 0) {
+		UpdateMessageBox("");
+		m_gauge->Hide();
+		wxLogMessage("Spreg: no dependent variable or no covariate");
+		wxMessageBox(_("Please choose a dependent variable and at least one covariate."),
+					 _("Error"), wxOK | wxICON_ERROR, this);
+		return true;                        // handled: nothing else should run
+	}
+
+	const int nX = m_independentlist->GetCount();
+	std::vector<wxString> x_names;
+	for (int i = 0; i < nX; ++i) x_names.push_back(name_to_nm[m_independentlist->GetString(i)]);
+
+	std::vector<double> y_in(m_obs, 0);
+	std::vector<std::vector<double> > x_in(nX);
+	std::vector<bool> undefs_local(m_obs, false);
+	{
+		std::vector<double> values;
+		const int y_col = table_int->FindColId(name_to_nm[y_display]);
+		if (y_col == wxNOT_FOUND) {
+			UpdateMessageBox("");
+			m_gauge->Hide();
+			wxLogMessage("Spreg: the dependent variable is no longer in the table");
+		wxMessageBox(_("The dependent variable is no longer in the table.  Please "
+						   "close and reopen the dialog."), _("Error"),
+						 wxOK | wxICON_ERROR, this);
+			return true;
+		}
+		table_int->GetColData(y_col, name_to_tm_id[y_display], values);
+		y_in = values;
+		std::vector<bool> undefined;
+		table_int->GetColUndefined(y_col, name_to_tm_id[y_display], undefined);
+		for (long i = 0; i < m_obs; ++i) undefs_local[i] = undefs_local[i] || undefined[i];
+
+		for (int i = 0; i < nX; ++i) {
+			const wxString& display = m_independentlist->GetString(i);
+			const int col = table_int->FindColId(name_to_nm[display]);
+			if (col == wxNOT_FOUND) {
+				UpdateMessageBox("");
+				m_gauge->Hide();
+				wxLogMessage("Spreg: a covariate is no longer in the table");
+		wxMessageBox(_("A covariate is no longer in the table.  Please close and "
+							   "reopen the dialog."), _("Error"),
+							 wxOK | wxICON_ERROR, this);
+				return true;
+			}
+			table_int->GetColData(col, name_to_tm_id[display], values);
+			x_in[i] = values;
+			table_int->GetColUndefined(col, name_to_tm_id[display], undefined);
+			for (long j = 0; j < m_obs; ++j) undefs_local[j] = undefs_local[j] || undefined[j];
+		}
+	}
+
+	// a model that estimates a choice wants a dependent variable that says yes or
+	// no; saying so here beats the engine's own refusal after a round trip
+	if (chosen_model && chosen_model->needs_binary_y) {
+		double lowest = 0, highest = 0;
+		bool seen = false;
+		for (long i = 0; i < m_obs; ++i) {
+			if (undefs_local[i]) continue;
+			const double value = y_in[i];
+			if (!seen || value < lowest) lowest = value;
+			if (!seen || value > highest) highest = value;
+			seen = true;
+		}
+		if (lowest < 0 || highest > 1 || (lowest == highest)) {
+			UpdateMessageBox("");
+			m_gauge->Hide();
+			wxString message = wxString::Format(
+				_("This model explains a choice between two outcomes, so the dependent "
+				  "variable has to hold nothing but 0 and 1.  \"%s\" runs from %g to %g."),
+				m_dependent->GetValue(), lowest, highest);
+			wxLogMessage("Spreg: %s", message);
+			wxMessageBox(message, _("Error"), wxOK | wxICON_ERROR, this);
+			return true;
+		}
+	}
+
+	std::vector<int> valid_rows;
+	std::map<int, int> remap;
+	for (long i = 0; i < m_obs; ++i) {
+		if (!undefs_local[i]) {
+			remap[i] = static_cast<int>(valid_rows.size());
+			valid_rows.push_back(static_cast<int>(i));
+		}
+	}
+	const int n_valid = static_cast<int>(valid_rows.size());
+	if (n_valid == 0) {
+		UpdateMessageBox("");
+		m_gauge->Hide();
+		wxLogMessage("Spreg: no observation has all the variables defined");
+		wxMessageBox(_("Please check the selected variables are all valid."), _("Error"),
+					 wxOK | wxICON_ERROR, this);
+		return true;
+	}
+
+	// the ones that build their own weights from coordinates do not want these
+	const boost::uuids::uuid weights_id = GetWeightsId();
+	GalWeight* gal_weight = wants_weights ? w_man_int->GetGal(weights_id) : NULL;
+	if (wants_weights && !m_CheckWeight->GetValue()) {
+		UpdateMessageBox("");
+		m_gauge->Hide();
+		wxLogMessage("Spreg: no spatial weights matrix was chosen");
+		wxMessageBox(_("These models need a spatial weights matrix.  Please choose one."),
+					 _("Error"), wxOK | wxICON_ERROR, this);
+		return true;
+	}
+	if (wants_weights && (!gal_weight || !gal_weight->gal)) {
+		UpdateMessageBox("");
+		m_gauge->Hide();
+		wxLogMessage("Spreg: the chosen weights matrix is gone");
+		wxMessageBox(_("The chosen weights matrix is no longer available."), _("Error"),
+					 wxOK | wxICON_ERROR, this);
+		return true;
+	}
+
+	// the observations the model sees: the ones with every variable defined
+	std::vector<double> y;
+	y.reserve(n_valid);
+	for (int i = 0; i < n_valid; ++i) y.push_back(y_in[valid_rows[i]]);
+	std::vector<std::vector<double> > x(nX);
+	for (int c = 0; c < nX; ++c) {
+		x[c].reserve(n_valid);
+		for (int i = 0; i < n_valid; ++i) x[c].push_back(x_in[c][valid_rows[i]]);
+	}
+
+	const wxString sep = wxFileName::GetPathSeparator();
+	const wxString job_dir = wxStandardPaths::Get().GetTempDir() + sep
+		+ wxString::Format("geoda-spreg-job-%lu", wxGetProcessId());
+	wxFileName::Mkdir(job_dir, wxS_DIR_DEFAULT, wxPATH_MKDIR_FULL);
+	wxRemoveFile(job_dir + sep + "data.bin");
+	wxRemoveFile(job_dir + sep + "result.json");
+
+	SpregEngine::Manifest manifest;
+	wxString err;
+	if (!manifest.Read(SpregEngine::ShippedManifestPath(), err)) {
+		UpdateMessageBox("");
+		m_gauge->Hide();
+		wxLogMessage("Spreg: %s", err);
+		wxMessageBox(err, _("Error"), wxOK | wxICON_ERROR, this);
+		return true;
+	}
+	const SpregEngine::Status status = SpregEngine::Discover(manifest);
+	if (!status.installed) {
+		UpdateMessageBox("");
+		m_gauge->Hide();
+		wxLogMessage("Spreg: the engine is not installed");
+		wxMessageBox(_("The engine is not installed.  Use the Install Spreg button."),
+					 _("Error"), wxOK | wxICON_ERROR, this);
+		return true;
+	}
+
+	// Save to Table reads this member, so it has to describe this run
+	undefs.assign(m_obs, false);
+	for (long i = 0; i < m_obs; ++i) undefs[i] = undefs_local[i];
+
+	// what this model needs beyond the covariates
+	const SpregJob::ModelOption* chosen = NULL;
+	for (size_t i = 0; i < m_spreg_models.size(); ++i) {
+		if (m_spreg_models[i].id == m_spreg_model) chosen = &m_spreg_models[i];
+	}
+	wxString regimes_name;
+	std::vector<wxString> yend_names, q_names, coords_names;
+	std::vector<std::vector<double> > yend, q;
+	std::vector<double> coord_x, coord_y;
+	std::vector<int> regimes;
+	if (chosen) {
+		std::vector<double> values;
+		if (chosen->needs_coords) {
+			const wxString x_display = m_spreg_coord_x_choice
+				? m_spreg_coord_x_choice->GetStringSelection() : wxString();
+			const wxString y_display = m_spreg_coord_y_choice
+				? m_spreg_coord_y_choice->GetStringSelection() : wxString();
+			if (x_display.IsEmpty() || y_display.IsEmpty() || x_display == y_display) {
+				UpdateMessageBox("");
+				m_gauge->Hide();
+				wxMessageBox(_("This model builds its own weights from coordinates.  Please "
+							   "choose the x and the y column."), _("Error"),
+							 wxOK | wxICON_ERROR, this);
+				return true;
+			}
+			const char* which[2] = { "x", "y" };
+			const wxString displays[2] = { x_display, y_display };
+			for (int c = 0; c < 2; ++c) {
+				const wxString display = displays[c];
+				const int col = table_int->FindColId(name_to_nm[display]);
+				if (col == wxNOT_FOUND) {
+					UpdateMessageBox("");
+					m_gauge->Hide();
+					wxMessageBox(_("A coordinate variable is no longer in the table."),
+								 _("Error"), wxOK | wxICON_ERROR, this);
+					return true;
+				}
+				table_int->GetColData(col, name_to_tm_id[display], values);
+				std::vector<double>& target = c == 0 ? coord_x : coord_y;
+				target.reserve(n_valid);
+				for (int i = 0; i < n_valid; ++i) {
+					if (undefs_local[valid_rows[i]]) continue;
+					target.push_back(values[valid_rows[i]]);
+				}
+				coords_names.push_back(name_to_nm[display]);
+				(void) which;
+			}
+		}
+		if (chosen->needs_regimes) {
+			const wxString display = m_spreg_regime_choice
+				? m_spreg_regime_choice->GetStringSelection() : wxString();
+			if (display.IsEmpty()) {
+				UpdateMessageBox("");
+				m_gauge->Hide();
+				wxMessageBox(_("This model estimates a different set of coefficients per "
+							   "regime.  Please choose the variable that says which regime "
+							   "each observation belongs to."), _("Error"),
+							 wxOK | wxICON_ERROR, this);
+				return true;
+			}
+			const int col = table_int->FindColId(name_to_nm[display]);
+			table_int->GetColData(col, name_to_tm_id[display], values);
+			regimes.reserve(n_valid);
+			for (int i = 0; i < n_valid; ++i) {
+				regimes.push_back(static_cast<int>(std::floor(values[valid_rows[i]] + 0.5)));
+			}
+			regimes_name = name_to_nm[display];
+		}
+		if (chosen->needs_endog) {
+			wxArrayInt picked;
+			m_spreg_endog_list->GetSelections(picked);
+			if (picked.IsEmpty()) {
+				UpdateMessageBox("");
+				m_gauge->Hide();
+				wxMessageBox(_("This model needs at least one endogenous variable - one that "
+							   "is explained inside the model rather than given."),
+							 _("Error"), wxOK | wxICON_ERROR, this);
+				return true;
+			}
+			for (size_t i = 0; i < picked.GetCount(); ++i) {
+				const wxString& display = m_spreg_endog_list->GetString(picked[i]);
+				yend_names.push_back(name_to_nm[display]);
+				table_int->GetColData(table_int->FindColId(name_to_nm[display]),
+									  name_to_tm_id[display], values);
+				std::vector<double> column;
+				column.reserve(n_valid);
+				for (int r = 0; r < n_valid; ++r) column.push_back(values[valid_rows[r]]);
+				yend.push_back(column);
+			}
+		}
+		if (chosen->needs_instruments) {
+			wxArrayInt picked;
+			m_spreg_instr_list->GetSelections(picked);
+			if (picked.IsEmpty()) {
+				UpdateMessageBox("");
+				m_gauge->Hide();
+				wxMessageBox(_("This model needs at least one instrument: a variable that "
+							   "predicts the endogenous one but has no direct effect."),
+							 _("Error"), wxOK | wxICON_ERROR, this);
+				return true;
+			}
+			for (size_t i = 0; i < picked.GetCount(); ++i) {
+				const wxString& display = m_spreg_instr_list->GetString(picked[i]);
+				q_names.push_back(name_to_nm[display]);
+				table_int->GetColData(table_int->FindColId(name_to_nm[display]),
+									  name_to_tm_id[display], values);
+				std::vector<double> column;
+				column.reserve(n_valid);
+				for (int r = 0; r < n_valid; ++r) column.push_back(values[valid_rows[r]]);
+				q.push_back(column);
+			}
+		}
+	}
+
+	SpregJob::Writer writer(job_dir);
+	bool ok = writer.AddY(y, err);
+	if (ok) ok = writer.AddX(x, err);
+	if (ok && wants_weights) {
+		if (n_valid == static_cast<int>(m_obs)) {
+			ok = writer.AddWeights(gal_weight->gal, n_valid, err);
+		} else {
+			// a copy with the undefined observations taken out, as OnRunClick does
+			GalElement* subset = new GalElement[n_valid];
+			for (int i = 0; i < n_valid; ++i) {
+				const int original = valid_rows[i];
+				const std::vector<long>& nbrs = gal_weight->gal[original].GetNbrs();
+				const std::vector<double>& weights =
+					gal_weight->gal[original].GetNbrWeights();
+				int index = 0;
+				for (size_t j = 0; j < nbrs.size(); ++j) {
+					const int neighbour = static_cast<int>(nbrs[j]);
+					if (undefs_local[neighbour]) continue;
+					subset[i].SetNbr(index++, remap[neighbour],
+									 j < weights.size() ? weights[j] : 1.0);
+				}
+			}
+			ok = writer.AddWeights(subset, n_valid, err);
+			delete[] subset;
+		}
+	}
+
+	// what the dialog's controls say, which start at the registry's defaults
+	bool options_ok = true;
+	std::map<wxString, wxString> options = ReadSpregOptions(options_ok, err);
+	if (!options_ok) {
+		UpdateMessageBox("");
+		m_gauge->Hide();
+		wxMessageBox(err, _("Error"), wxOK | wxICON_ERROR, this);
+		return true;
+	}
+
+	if (ok && !coord_x.empty()) ok = writer.AddCoords(coord_x, coord_y, err);
+	if (ok && !regimes.empty()) ok = writer.AddRegimes(regimes, err);
+	if (ok && !yend.empty()) ok = writer.AddEndogenous(yend, err);
+	if (ok && !q.empty()) ok = writer.AddInstruments(q, err);
+	if (ok) {
+		ok = writer.Write(m_spreg_model, options, name_to_nm[y_display], x_names,
+						  wants_weights ? w_man_int->GetLongDispName(weights_id)
+										: wxString("built from the coordinates"),
+						  regimes_name, yend_names, q_names, coords_names, err);
+	}
+	if (!ok) {
+		UpdateMessageBox("");
+		m_gauge->Hide();
+		wxMessageBox(err, _("Error"), wxOK | wxICON_ERROR, this);
+		return true;
+	}
+
+	UpdateMessageBox(_("estimating..."));
+	wxString output;
+	const int code = SpregEngine::RunJob(status.dir, job_dir, output, err, 3600);
+	if (code != 0) {
+		UpdateMessageBox("");
+		m_gauge->Hide();
+		wxMessageBox(wxString::Format(_("%s\n\nThe engine's log is in\n%s"), err, job_dir),
+					 _("Error"), wxOK | wxICON_ERROR, this);
+		return true;
+	}
+
+	SpregJob::Result result;
+	if (!result.Read(job_dir, err)) {
+		UpdateMessageBox("");
+		m_gauge->Hide();
+		wxMessageBox(err, _("Error"), wxOK | wxICON_ERROR, this);
+		return true;
+	}
+	if (!result.ok) {
+		UpdateMessageBox("");
+		m_gauge->Hide();
+		wxLogMessage("Spreg: %s", result.error_message);
+		wxMessageBox(result.error_message, _("Error"), wxOK | wxICON_ERROR, this);
+		return true;
+	}
+
+	ShowSpregResults(result, table_int->GetTableName(),
+					 wants_weights ? w_man_int->GetLongDispName(weights_id)
+								   : _("built from the coordinates"));
+
+	m_spreg_result = result;
+	m_spreg_yhat = result.yhat;
+	m_spreg_resid = result.resid;
+	m_spreg_prederr = result.pred_err;
+	m_spreg_region.clear();
+	for (size_t i = 0; i < result.region.size(); ++i) {
+		m_spreg_region.push_back(static_cast<wxInt64>(result.region[i]));
+	}
+	m_has_spreg_result = true;
+
+	UpdateMessageBox("");
+	m_gauge->Hide();
+	return true;
+}
+
+void RegressionDlg::ShowSpregResults(const SpregJob::Result& result,
+									 const wxString& dataset,
+									 const wxString& weights_name)
+{
+	wxString text;
+	if (result.n_regions > 0) {
+		// a regionalization rather than a regression: there are no coefficients,
+		// and the answer is the region each observation was put in
+		text << "SUMMARY OF OUTPUT: " << result.title << "\n";
+		text << wxString::Format("%-20s%s\n", "Data set            : ", dataset);
+		text << wxString::Format("%-20s%s\n", "Spatial Weight      : ", weights_name);
+		text << wxString::Format("%-20s%5d\n", "Number of Regions   :", result.n_regions);
+		text << wxString::Format("Number of Observations:%5d\n", result.n);
+		text << "Observations per region:";
+		for (size_t i = 0; i < result.region_sizes.size(); ++i) {
+			text << wxString::Format(" %d", (int) result.region_sizes[i]);
+		}
+		text << "\n\nThe region each observation belongs to is saved with "
+				"Save to Table, as the column SPR_REGION.\n";
+		text << wxString::Format("\nengine: spreg %s\n", result.spreg_version);
+		logReport = text;
+		DisplayRegression(logReport);
+		EnablingItems();
+		return;
+	}
+	text << "SUMMARY OF OUTPUT: " << result.title << "\n";
+	text << wxString::Format("%-20s%s\n", "Data set            : ", dataset);
+	text << wxString::Format("%-20s%s\n", "Spatial Weight      : ", weights_name);
+	text << wxString::Format("Dependent Variable  :%12s  Number of Observations:%5d\n",
+							 m_dependent->GetValue(), result.n);
+	{
+		const double* mean_y = NULL;
+		std::map<wxString, double>::const_iterator it = result.fit.find("mean_y");
+		if (it != result.fit.end()) mean_y = &it->second;
+		std::map<wxString, double>::const_iterator sd = result.fit.find("std_y");
+		text << wxString::Format("Mean dependent var  :%12.6g  Number of Variables   :%5d\n",
+								 mean_y ? *mean_y : 0.0, result.k);
+		text << wxString::Format("S.D. dependent var  :%12.6g  Degrees of Freedom    :%5d\n",
+								 sd != result.fit.end() ? sd->second : 0.0,
+								 result.n - result.k);
+	}
+	{
+		std::map<wxString, double>::const_iterator r2 = result.fit.find("r2");
+		if (r2 == result.fit.end()) r2 = result.fit.find("pr2");
+		std::map<wxString, double>::const_iterator logll = result.fit.find("logll");
+		std::map<wxString, double>::const_iterator aic = result.fit.find("aic");
+		std::map<wxString, double>::const_iterator schwarz = result.fit.find("schwarz");
+		std::map<wxString, double>::const_iterator sigma = result.fit.find("sigma2");
+		if (r2 != result.fit.end()) {
+			text << wxString::Format("R-squared           :%12.6f\n", r2->second);
+		}
+		// only what the model actually reports: the GMM models have no likelihood
+		if (sigma != result.fit.end()) {
+			text << wxString::Format("Sigma-square        :%12.6g", sigma->second);
+			if (aic != result.fit.end()) {
+				text << wxString::Format("  Akaike info criterion :%12.6g", aic->second);
+			}
+			text << "\n";
+		}
+		if (logll != result.fit.end()) {
+			text << wxString::Format("Log likelihood      :%12.6g", logll->second);
+			if (schwarz != result.fit.end()) {
+				text << wxString::Format("  Schwarz criterion     :%12.6g", schwarz->second);
+			}
+			text << "\n";
+		}
+	}
+
+	text << "---------------------------------------------------------------";
+	text << "---------------------\n";
+	text << "       Variable      Coefficient      Std.Error    z-Statistic   Probability\n";
+	text << "---------------------------------------------------------------";
+	text << "---------------------\n";
+	for (size_t i = 0; i < result.names.size(); ++i) {
+		wxString name = result.names[i];
+		// the regimes models prefix every row with its regime, and mark the ones
+		// that are shared across regimes
+		if (name.StartsWith("_Global_")) name = name.Mid(8) + " (all regimes)";
+		text << GenUtils::PadTrim(name, 18);
+		text << wxString::Format("  %12.6g   ", result.estimate[i]);
+		if (i < result.std_err.size() && !std::isnan(result.std_err[i])) {
+			text << wxString::Format("%12.6g   ", result.std_err[i]);
+		} else {
+			text << wxString::Format("%12s   ", "-");
+		}
+		if (i < result.z.size() && !std::isnan(result.z[i])) {
+			text << wxString::Format("%12.6g   ", result.z[i]);
+		} else {
+			text << wxString::Format("%12s   ", "-");
+		}
+		if (i < result.p.size() && !std::isnan(result.p[i])) {
+			text << wxString::Format("%9.5f\n", result.p[i]);
+		} else {
+			text << wxString::Format("%9s\n", "-");
+		}
+	}
+	text << "---------------------------------------------------------------";
+	text << "---------------------\n\n";
+
+	if (!result.diagnostics.empty()) {
+		text << "REGRESSION DIAGNOSTICS\n";
+		wxString group;
+		for (size_t i = 0; i < result.diagnostics.size(); ++i) {
+			const SpregJob::Result::Diagnostic& d = result.diagnostics[i];
+			if (d.group != group) {
+				group = d.group;
+				text << group.Upper() << "\n";
+				text << "TEST                  DF           VALUE        PROB\n";
+			}
+			text << GenUtils::PadTrim(d.label, 22);
+			text << wxString::Format("%2.0f   %13.4f   %11.5f\n", d.df, d.statistic, d.p);
+		}
+		text << "\n";
+	}
+	for (size_t i = 0; i < result.warnings.size(); ++i) {
+		text << "NOTE: " << result.warnings[i] << "\n";
+	}
+	text << wxString::Format("\nengine: spreg %s\n", result.spreg_version);
+
+	// logReport is what the dialog keeps: it is what enables Save to File, and
+	// what the three models above hand to the report window as well
+	logReport = text;
+	DisplayRegression(logReport);
+	EnablingItems();
 }
 
 void RegressionDlg::OnSetupAutoModel(wxCommandEvent& event )
@@ -272,6 +1320,13 @@ void RegressionDlg::OnSetupAutoModel(wxCommandEvent& event )
 void RegressionDlg::OnRunClick( wxCommandEvent& event )
 {
 	wxLogMessage("Click RegressionDlg::OnRunClick");
+
+	// when one of the engine's models is chosen it runs through the solver, and
+	// everything below - the three models GeoDa has always had - is left alone
+	if (!m_spreg_model.IsEmpty()) {
+		RunSpregModel(event);
+		return;
+	}
 
     m_gauge->Show();
 	UpdateMessageBox(_("calculating..."));
@@ -1042,11 +2097,45 @@ void RegressionDlg::OnCSaveRegressionClick( wxCommandEvent& event )
     std::vector<bool> save_undefs(n_obs);
 	std::vector<double> yhat(table_int->GetNumberRows());
 	std::vector<double> resid(table_int->GetNumberRows());
-	std::vector<double> prederr(RegressModel > 1 ? n_obs : 0);
-	std::vector<SaveToTableEntry> data(RegressModel > 1 ? 3 : 2);
-		
+	// a run through the engine keeps its own numbers and its own model, and only
+	// some of those report a prediction error
+	const bool spreg_run = !m_spreg_model.IsEmpty() && m_has_spreg_result;
+	const bool regions_only = spreg_run && !m_spreg_region.empty()
+		&& m_spreg_yhat.empty();
+	const bool with_prederr = spreg_run ? !m_spreg_prederr.empty() : (RegressModel > 1);
+	std::vector<double> prederr(with_prederr ? n_obs : 0);
+	std::vector<wxInt64> region(regions_only ? n_obs : 0);
+	std::vector<SaveToTableEntry> data(regions_only ? 1 : (with_prederr ? 3 : 2));
+
 	wxString pre = "";
-	if (RegressModel==1) {
+	if (spreg_run && !m_spreg_region.empty()) {
+		// a regionalization: one column, the region each observation is in
+		pre = "SPR_";
+		const int n_valid = static_cast<int>(m_spreg_region.size());
+		int idx = 0;
+		for (int i = 0; i < n_obs; i++) {
+			if (!undefs[i] && idx < n_valid) {
+				region[i] = m_spreg_region[idx];
+				idx += 1;
+			}
+			save_undefs[i] = undefs[i];
+		}
+	} else if (spreg_run) {
+		// the three models above use OLS_/LAG_/ERR_; "SPR_" keeps a spreg column
+		// name within the ten characters a shapefile field allows
+		pre = "SPR_";
+		const int n_valid = static_cast<int>(m_spreg_yhat.size());
+		int idx = 0;
+		for (int i = 0; i < n_obs; i++) {
+			if (!undefs[i] && idx < n_valid) {
+				yhat[i] = m_spreg_yhat[idx];
+				resid[i] = idx < static_cast<int>(m_spreg_resid.size()) ? m_spreg_resid[idx] : 0;
+				if (with_prederr) prederr[i] = m_spreg_prederr[idx];
+				idx += 1;
+			}
+			save_undefs[i] = undefs[i];
+		}
+	} else if (RegressModel==1) {
 		pre = "OLS_";
 		int idx = 0;
 		for (int i=0; i<n_obs; i++) {
@@ -1055,7 +2144,7 @@ void RegressionDlg::OnCSaveRegressionClick( wxCommandEvent& event )
 				resid[i] = m_resid1[idx];
 				idx += 1;
 			}
-			save_undefs[i] = undefs[idx];
+			save_undefs[i] = undefs[i];
 		}
 	} else if (RegressModel==2) {
 		pre = "LAG_";
@@ -1083,6 +2172,19 @@ void RegressionDlg::OnCSaveRegressionClick( wxCommandEvent& event )
 		}
 	}	
 	
+	if (regions_only) {
+		data[0].l_val = &region;
+		data[0].undefined = &save_undefs;
+		data[0].label = "Region";
+		data[0].field_default = pre + "REGION";
+		data[0].type = GdaConst::long64_type;
+		SaveToTableDlg dlg(project, this, data, _("Save the Regions"),
+						   wxDefaultPosition, wxSize(400, 300));
+		dlg.ShowModal();
+		if (project->FindTableGrid()) project->FindTableGrid()->Refresh();
+		return;
+	}
+
 	data[0].d_val = &yhat;
     data[0].undefined = &save_undefs;
 	data[0].label = "Predicted Value";
@@ -1198,6 +2300,8 @@ void RegressionDlg::InitVariableList()
 	m_varlist->SetSelection(0);
 	m_varlist->SetFirstItem(m_varlist->GetSelection());
 	EnablingItems();
+	// the engine's variable pickers draw from the list that was just built
+	FillSpregVariables(NULL);
 }
 
 void RegressionDlg::EnablingItems()

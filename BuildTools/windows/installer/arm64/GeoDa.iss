@@ -1,11 +1,11 @@
 [Setup]
-AppName=GeoDa                                                      
+AppName=GeoDa
 AppPublisher=GeoDa Center
 AppPublisherURL=https://spatial.uchicago.edu/
 AppSupportURL=https://spatial.uchicago.edu/
 AppUpdatesURL=https://spatial.uchicago.edu/
 AppSupportPhone=(480)965-7533
-AppVersion=1.22.1
+AppVersion=1.22.2
 DefaultDirName={pf}\GeoDa Software
 DefaultGroupName=GeoDa Software
 ; Since no icons will be created in "{group}", we don't need the wizard
@@ -15,7 +15,7 @@ UninstallDisplayIcon={app}\GeoDa.exe
 Compression=lzma2
 SolidCompression=yes
 OutputDir=..\..
-OutputBaseFilename=GeoDa_1.22.1_arm64_Setup
+OutputBaseFilename=GeoDa_1.22.2_arm64_Setup
 ;OutputDir=userdocs:Inno Setup Examples Output
 
 ; "ArchitecturesAllowed=arm64" specifies that Setup cannot run on
@@ -66,6 +66,8 @@ Source: "..\..\vcpkg\installed\arm64-windows\bin\*.dll"; DestDir: "{app}"
 Source: "..\..\..\..\Algorithms\lisa_kernel.cl"; DestDir: "{app}"
 Source: "..\..\..\..\internationalization\lang\*"; DestDir: "{app}\lang"; Flags: recursesubdirs
 Source: "..\..\..\CommonDistFiles\gdaldata\*"; DestDir: "{app}\data"; Flags: recursesubdirs
+Source: "..\..\..\..\spreg_engine\manifest\*"; DestDir: "{app}\spreg_engine\manifest"; Flags: recursesubdirs
+Source: "..\..\..\..\spreg_engine\solver\*"; DestDir: "{app}\spreg_engine\solver"; Flags: recursesubdirs
 
 ;Source: "Readme.txt"; DestDir: "{app}"; Flags: isreadme
 
@@ -160,7 +162,7 @@ begin
   UninstallParams := '';
   HasSilentMode := False;
   HasSuppressMsgBox := False;
-  
+
   // Check all parameters for silent mode and suppress message box flags
   for i := 1 to ParamCount do
   begin
@@ -182,19 +184,19 @@ begin
       HasSuppressMsgBox := True;
     end;
   end;
-  
+
   // If no silent mode was found, default to /SILENT for interactive mode
   if not HasSilentMode then
   begin
     UninstallParams := '/SILENT';
   end;
-  
+
   // Add /SUPPRESSMSGBOXES if it was found
   if HasSuppressMsgBox then
   begin
     UninstallParams := UninstallParams + ' /SUPPRESSMSGBOXES';
   end;
-  
+
   Result := UninstallParams;
 end;
 
@@ -208,7 +210,7 @@ begin
   Result := True;
   UninstallSuccess := False;
   UninstallParams := GetUninstallParameters();
-  
+
   // Try first uninstall string
   sUnInstallString := GetUninstallString();
   if sUnInstallString <> '' then
@@ -219,7 +221,7 @@ begin
       UninstallSuccess := True;
     end;
   end;
-  
+
   // Try second uninstall string if first failed
   if not UninstallSuccess then
   begin
@@ -233,7 +235,7 @@ begin
       end;
     end;
   end;
-  
+
   // Wait a moment for uninstall to complete
   if UninstallSuccess then
   begin
@@ -248,7 +250,7 @@ var
 begin
   Result := True; // in case when no previous version is found
   UninstallAttempted := False;
-  
+
   if IsGeoDaInstalled then
   begin
     // Check if installer is running in silent mode
@@ -274,7 +276,7 @@ begin
     else
     begin
       // Interactive mode - show message box
-      V := MsgBox('An existing version of GeoDa was detected. Would you like to automatically uninstall it before installing the new version?' + #13#10 + #13#10 + 
+      V := MsgBox('An existing version of GeoDa was detected. Would you like to automatically uninstall it before installing the new version?' + #13#10 + #13#10 +
                   'Click Yes to automatically uninstall the existing version.' + #13#10 +
                   'Click No to cancel the installation.', mbInformation, MB_YESNO);
       if V = IDYES then
@@ -308,7 +310,7 @@ end;
 var
   Button: TNewButton;
   ComboBox: TNewComboBox;
-  CustomPage: TWizardPage;     
+  CustomPage: TWizardPage;
   langCode: string;
 
 procedure ComboBoxChange(Sender: TObject);
@@ -356,7 +358,7 @@ begin
   ComboBox := TNewComboBox.Create(WizardForm);
   ComboBox.Parent := CustomPage.Surface;
   ComboBox.Left := 0;
-  ComboBox.Top := DescLabel.Top + DescLabel.Height + 6;  
+  ComboBox.Top := DescLabel.Top + DescLabel.Height + 6;
   ComboBox.Width := 220;
   ComboBox.Style := csDropDownList;
   ComboBox.Items.Add('English');

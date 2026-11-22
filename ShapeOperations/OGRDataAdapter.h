@@ -151,6 +151,11 @@ public:
      * A threaded version of exporting OGRLayer to a data source.
      *
      * Create a OGR datasource that contains input geometries and table.
+     *
+     * When skip_field_name_dialog is true, the FieldNameCorrectionDlg is not
+     * constructed (headless/scripted exports from a worker thread must not
+     * create wx GUI objects). Callers using this flag must validate field
+     * names themselves beforehand.
      */
     OGRLayerProxy* ExportDataSource(const wxString& o_ds_format,
                                     const wxString& o_ds_name,
@@ -161,8 +166,9 @@ public:
                                     std::vector<int>& selected_rows,
                                     OGRSpatialReference* spatial_ref,
                                     bool is_update,
-                                    wxString cpg_encode = wxEmptyString);
-                                 
+                                    wxString cpg_encode = wxEmptyString,
+                                    bool skip_field_name_dialog = false);
+
     void StopExport();
     
 	void CancelExport(OGRLayerProxy* layer);

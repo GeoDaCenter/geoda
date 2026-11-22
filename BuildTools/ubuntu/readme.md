@@ -1,75 +1,9 @@
 **Build instructions**
 
-Please see .github/workflows/ubuntu1804_build.yml
+GeoDa is built from the repository root with CMake (`CMakeLists.txt`). Linux
+CI builds the AppImage in `.github/workflows/appimage-build.yml`.
 
-files:
+The remaining files here are packaging assets kept for reference:
 
-- build_bionic.sh
-- build_travis.sh
-- build_disco.sh
-- build_xenial.sh
-- create_deb.sh
-
-(NOTE: other files are not used anymore)
-
-
-**OLD instructions**
-
-*****************************************************************
-Build Instructions for GeoDa.  Current as of GeoDa 1.8.x 
-*****************************************************************
-
-Overview: We assume the build machine hosts a recently-installed
-clean OS.  This build guide contains notes on setting up the compile
-environment, obtaining the GeoDa source files and dependent libraries,
-compiling libraries and GeoDa, and finally packaging the program
-for distribution and installation.
-
-*******************************************************
-Building GeoDa for 32-bit Ubuntu 12.04 or later 
-*******************************************************
-
-NOTE: This is just basic placeholder for now!  Not currently complete.
-
-Build machine assumptions:
-- clean Ubuntu 32-bit installation with all OS updates
-
-1. Install C++ developer tools along with command-line subversion
-
-2. Use Git to check out GeoDa trunk:
- - From user's home directory: ~/
- - git clone https://github.com/GeoDaCenter/geoda.git
- 
-3. cd to ~/geoda/BuildTools/ubuntu
-
-4. run ./build.sh to download and build GeoDa and everything it depends upon
---you need to manually build ogr plugins (will do later)
-
-5. Package GeoDa for distribution / installation.
--- run create_deb.sh, you will find dep package geoda*.deb in current directory 
-
-
-*******************************************************
-Building GeoDa for 64-bit Ubuntu 12.04 or later
-*******************************************************
-
-NOTE: This is just basic placeholder for now!  Not currently complete.
-
-Build machine assumptions:
-- clean Ubuntu 64-bit installation with all OS updates
-
-1. Install C++ developer tools along with command-line subversion
-
-2. Use Git to check out GeoDa trunk:
- - From user's home directory: ~/
- - git clone https://github.com/GeoDaCenter/geoda.git
- 
-3. cd to ~/geoda/BuildTools/ubuntu
-
-4. run ./build_**version**.sh to download and build GeoDa and everything it depends upon
---you need to manually build ogr plugins.
-e.g. for ubuntu bionic versoin run ./build_bionic.sh
-
-5. Package GeoDa for distribution / installation.
--- run create_deb.sh, you will find dep package geoda*.deb in current directory 
-
+- `package/` — desktop file, icons and Debian control files
+- `dep/` — legacy dependency patches

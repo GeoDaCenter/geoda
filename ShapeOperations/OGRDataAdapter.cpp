@@ -289,18 +289,19 @@ OGRDataAdapter::ExportDataSource(const wxString& o_ds_format,
 								 std::vector<int>& selected_rows,
                                  OGRSpatialReference* spatial_ref,
 								 bool is_update,
-                                 wxString cpg_encode)
+						 wxString cpg_encode,
+						 bool skip_field_name_dialog)
 {
     wxLogMessage("In OGRDataAdapter::ExportDataSource()");
     GdaConst::DataSourceType ds_type = IDataSource::FindDataSourceType(o_ds_format);
-    
+
     // field identifier: a pair value <column pos, time step> to indicate how to
     // retreive real field name and cell value for time-enabled table
     typedef std::pair<int, int> field_idn;
     std::vector<field_idn> field_idn_s;
     std::vector<wxString> field_name_s;
     // check field names first
-    if ( table != NULL ) {
+    if ( table != NULL && !skip_field_name_dialog ) {
         // get all field names for FieldNameCorrectionDlg
         std::vector<wxString> all_fnames;
         int time_steps = table->GetTimeSteps();

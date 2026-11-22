@@ -10,14 +10,14 @@ The release workflow automatically creates a GitHub release with all installer a
 
 1. **Tag Creation**: When you push a new tag (e.g., `v1.22.0`), it triggers:
 
-   - All three build workflows (Windows, macOS, Ubuntu)
+   - All three build workflows (Windows, macOS, AppImage)
    - The release creation workflow
 
 2. **Build Process**: The build workflows create installer artifacts:
 
-   - **Windows**: 32-bit and 64-bit installers (regular and Windows 7+ versions)
+   - **Windows**: x86, x64 and ARM64 installers (x86/x64 ship regular and
+     "win7+" variants; the payload requires Windows 8.1+)
    - **macOS**: Intel (x86_64) and Apple Silicon (ARM64) DMG files
-   - **Ubuntu**: DEB packages for Ubuntu 20.04, 22.04, and 24.04
    - **AppImage**: Portable Linux executable with embedded dependencies
 
 3. **Release Creation**: The release workflow:
@@ -70,18 +70,15 @@ The release will include the following installer files:
 - `GeoDa1.22.0-x86_64-Installer.dmg` (Intel)
 - `GeoDa1.22.0-arm64-Installer.dmg` (Apple Silicon)
 
-**Ubuntu/Debian:**
+**Linux:**
 
-- `geoda_1.22.0-1focal1_amd64.deb` (Ubuntu 20.04)
-- `geoda_1.22.0-1jammy1_amd64.deb` (Ubuntu 22.04)
-- `geoda_1.22.0-1noble1_amd64.deb` (Ubuntu 24.04)
+- `GeoDa-1.22.0-x86_64.AppImage` (portable AppImage)
 
 ## Workflow Files
 
 - `.github/workflows/create_release.yml` - Main release workflow
 - `.github/workflows/windows_build.yml` - Windows build workflow
 - `.github/workflows/osx_build.yml` - macOS build workflow
-- `.github/workflows/ubuntu_build.yml` - Ubuntu build workflow
 - `.github/workflows/appimage-build.yml` - AppImage build workflow (portable Linux)
 
 ## Troubleshooting

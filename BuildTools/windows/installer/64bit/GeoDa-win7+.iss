@@ -5,7 +5,7 @@ AppPublisherURL=https://spatial.uchicago.edu/
 AppSupportURL=https://spatial.uchicago.edu/
 AppUpdatesURL=https://spatial.uchicago.edu/
 AppSupportPhone=(480)965-7533
-AppVersion=1.22.1
+AppVersion=1.22.2
 DefaultDirName={pf}\GeoDa Software
 DefaultGroupName=GeoDa Software
 ; Since no icons will be created in "{group}", we don't need the wizard
@@ -15,9 +15,10 @@ UninstallDisplayIcon={app}\GeoDa.exe
 Compression=lzma2
 SolidCompression=yes
 OutputDir=..\..
-; Built with the VS2022 (v143) toolset and vcpkg-built dependencies, so this
-; installer requires Windows 8.1 or newer (it does NOT run on Windows 7).
-OutputBaseFilename=GeoDa_1.22.1_win8+x64_Setup
+; Built with the VS2022 (v143) toolset and vcpkg-built dependencies, so the
+; payload requires Windows 8.1 or newer. The asset keeps the "win7+" name the
+; release workflow publishes under.
+OutputBaseFilename=GeoDa_1.22.2_win7+x64_Setup
 ;OutputDir=userdocs:Inno Setup Examples Output
 
 ; "ArchitecturesAllowed=x64" specifies that Setup cannot run on
@@ -77,6 +78,8 @@ Source: "..\..\..\..\internationalization\lang\config.ini"; DestDir: "{userappda
 ; Add lang data back to {app} so they can be copied to other new windows users
 Source: "..\..\..\..\internationalization\lang\*"; DestDir: "{app}\lang"; Flags: recursesubdirs
 Source: "..\..\..\CommonDistFiles\gdaldata\*"; DestDir: "{app}\data"; Flags: recursesubdirs
+Source: "..\..\..\..\spreg_engine\manifest\*"; DestDir: "{app}\spreg_engine\manifest"; Flags: recursesubdirs
+Source: "..\..\..\..\spreg_engine\solver\*"; DestDir: "{app}\spreg_engine\solver"; Flags: recursesubdirs
 
 ;Source: "Readme.txt"; DestDir: "{app}"; Flags: isreadme
 

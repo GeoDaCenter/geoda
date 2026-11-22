@@ -53,6 +53,7 @@
 
 #include "../HLStateInt.h"
 #include "../HighlightStateObserver.h"
+#include "../GeoDa.h"
 #include "../ShapeOperations/OGRDataAdapter.h"
 #include "../GeneralWxUtils.h"
 #include "../GenUtils.h"
@@ -456,6 +457,61 @@ void PreferenceDlg::Init()
 
 	gdal_page->SetSizer(nb_box2);
 
+	//------------------------------------
+	//  mcp (server) tab
+	// The MCP server belongs to the app, not to a view, so its commands live
+	// here rather than in the Options menu -- which each view frame replaces
+	// with its own options as soon as it becomes active.
+	wxNotebookPage* mcp_page = new wxNotebookPage(notebook, -1);
+#ifdef __WIN32__
+	mcp_page->SetBackgroundColour(*wxWHITE);
+#endif
+	notebook->AddPage(mcp_page, _("MCP"));
+
+	wxBoxSizer* mcp_box = new wxBoxSizer(wxVERTICAL);
+
+	wxStaticText* mcp_intro = new wxStaticText(mcp_page, wxID_ANY, _(
+	    "GeoDa serves its analysis commands over the Model Context Protocol "
+	    "(MCP) while it is running, so an AI coding agent -- Claude Code, "
+	    "Codex or any other MCP client -- can drive GeoDa directly."));
+	mcp_intro->Wrap(500);
+	mcp_box->Add(mcp_intro, 0, wxBOTTOM, 15);
+
+	mcp_status = new wxStaticText(mcp_page, wxID_ANY, "");
+	wxFont mcp_status_font = mcp_status->GetFont();
+	mcp_status_font.MakeBold();
+	mcp_status->SetFont(mcp_status_font);
+	mcp_box->Add(mcp_status, 0, wxBOTTOM, 15);
+
+	wxBoxSizer* mcp_buttons = new wxBoxSizer(wxHORIZONTAL);
+	mcp_start_btn = new wxButton(mcp_page, wxID_ANY, _("Start Server..."));
+	mcp_stop_btn = new wxButton(mcp_page, wxID_ANY, _("Stop Server"));
+	wxButton* mcp_install_btn =
+	    new wxButton(mcp_page, wxID_ANY, _("Install in Claude Code or Codex..."));
+	mcp_buttons->Add(mcp_start_btn, 0, wxRIGHT, 8);
+	mcp_buttons->Add(mcp_stop_btn, 0, wxRIGHT, 20);
+	mcp_buttons->Add(mcp_install_btn);
+	mcp_box->Add(mcp_buttons, 0, wxBOTTOM, 15);
+
+	wxStaticText* mcp_note = new wxStaticText(mcp_page, wxID_ANY, _(
+	    "The server starts with GeoDa, listens on this computer only, and "
+	    "stops with the application. Installing GeoDa into a client makes it "
+	    "a plugin there, so the agent starts the connection itself."));
+	mcp_note->Wrap(500);
+	mcp_box->Add(mcp_note, 0, wxBOTTOM, 10);
+
+	mcp_start_btn->Bind(wxEVT_COMMAND_BUTTON_CLICKED, &PreferenceDlg::OnMcpStart,
+	                    this);
+	mcp_stop_btn->Bind(wxEVT_COMMAND_BUTTON_CLICKED, &PreferenceDlg::OnMcpStop,
+	                   this);
+	mcp_install_btn->Bind(wxEVT_COMMAND_BUTTON_CLICKED,
+	                      &PreferenceDlg::OnMcpInstall, this);
+
+	wxBoxSizer* nb_box3 = new wxBoxSizer(wxVERTICAL);
+	nb_box3->Add(mcp_box, 1, wxEXPAND | wxALL, 20);
+	mcp_page->SetSizer(nb_box3);
+	UpdateMcpStatus();
+
 	SetupControls();
 
 	// overall
@@ -490,6 +546,51 @@ void PreferenceDlg::Init()
 	ShowModal();
 
 	Destroy();
+}
+
+void PreferenceDlg::UpdateMcpStatus()
+{
+    GdaFrame* frame = GdaFrame::GetGdaFrame();
+    wxString base_url = frame ? frame->GetMcpServerBaseUrl() : wxString();
+    if (base_url.IsEmpty()) {
+        mcp_status->SetLabel(_("Server: not running"));
+    } else {
+        mcp_status->SetLabel(
+            wxString::Format(_("Server: running at %s (clients use %s/mcp)"),
+                             base_url, base_url));
+    }
+    bool running = !base_url.IsEmpty();
+    mcp_start_btn->Enable(!running);
+    mcp_stop_btn->Enable(running);
+    Layout();
+}
+
+void PreferenceDlg::OnMcpStart(wxCommandEvent& ev)
+{
+    GdaFrame* frame = GdaFrame::GetGdaFrame();
+    if (!frame) return;
+    // Shows where the server listens, then reports the new state on this page.
+    frame->ShowMcpServerInfo();
+    UpdateMcpStatus();
+}
+
+void PreferenceDlg::OnMcpStop(wxCommandEvent& ev)
+{
+    GdaFrame* frame = GdaFrame::GetGdaFrame();
+    if (!frame) return;
+    frame->StopMcpServer();
+    UpdateMcpStatus();
+}
+
+void PreferenceDlg::OnMcpInstall(wxCommandEvent& ev)
+{
+    GdaFrame* frame = GdaFrame::GetGdaFrame();
+    if (!frame) return;
+    // Starting the server is part of the install: a registration that points
+    // at an endpoint nothing serves is what this replaces. Report the state
+    // afterwards in case the install started it.
+    frame->InstallMcpClient();
+    UpdateMcpStatus();
 }
 
 void PreferenceDlg::OnReset(wxCommandEvent& ev)

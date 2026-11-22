@@ -39,11 +39,17 @@ jobs:
             MSVC_VER: 1930
             platform: x86
             runner: windows-2022
+          # arm64 is cross-compiled on the x64 runner. The windows-11-arm
+          # image moved to Visual Studio 2026 (actions/runner-images#14602),
+          # whose toolset Boost 1.88's bootstrap does not recognise ("Unknown
+          # toolset: vcunk"), so the arm64 dependency chain cannot be built
+          # there. windows-2022 still ships VS 2022 (v143) plus the ARM64
+          # build tools, and -arch=arm64 cross-compiles against them.
           - VS_VERSION: Visual Studio 17
             VS_VER: 2022
             MSVC_VER: 1930
             platform: arm64
-            runner: windows-11-arm
+            runner: windows-2022
 
     env:
       VS_VERSION: ${{ matrix.VS_VERSION }}
@@ -100,10 +106,66 @@ jobs:
           "VCPKG_TRIPLET=$env:VCPKG_TRIPLET" | Out-File -FilePath $env:GITHUB_ENV -Append
 
       # Set compiler environment
+      #
+      # Locate Visual Studio with vswhere instead of a hardcoded path. At the
+      # end of September 2026 GitHub migrated the windows-11-arm label from a
+      # VS 2022 image ("...\2022\Enterprise") to a VS 2026 one
+      # ("...\18\Enterprise"), which broke the old fixed path. Resolving the
+      # install location keeps this working across that and future changes.
       - name: Set compiler environment
         shell: cmd
         run: |
-          if "%VS_VER%" == "2022" CALL "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\Common7\Tools\VsDevCmd.bat" -arch=%ARCHITECTURE%
+          set "VSWHERE=%ProgramFiles(x86)%\Microsoft Visual Studio\Installer\vswhere.exe"
+          set "VSPATH="
+          for /f "usebackq delims=" %%i in (`"%VSWHERE%" -latest -prerelease -products * -property installationPath 2^>nul`) do set "VSPATH=%%i"
+          if not defined VSPATH if exist "C:\Program Files\Microsoft Visual Studio\2022\Enterprise" set "VSPATH=C:\Program Files\Microsoft Visual Studio\2022\Enterprise"
+          if not defined VSPATH (
+            echo ERROR: could not locate a Visual Studio installation.
+            exit /b 1
+          )
+          echo Using Visual Studio at "%VSPATH%"
+          CALL "%VSPATH%\Common7\Tools\VsDevCmd.bat" -arch=%ARCHITECTURE%
+          rem VsDevCmd sets INCLUDE/LIB for the target but leaves the
+          rem toolset's bin directory off PATH. The dependency builds invoke
+          rem cl/link/nmake by bare name, so on the runner they either are not
+          rem found or resolve to Git for Windows' own link.exe
+          rem ("/usr/bin/link: extra operand ..."), which fails the wxWidgets
+          rem build and later the GeoDa link with LNK1181 wxmsw31u.lib.
+          rem Put the target toolset first, then the host ones -- nmake lives
+          rem in the host directory, not in the arm64 cross directory.
+          set "TARGETDIR=%ARCHITECTURE%"
+          if /i "%TARGETDIR%"=="amd64" set "TARGETDIR=x64"
+          set "VCTOOLS="
+          for /d %%d in ("%VSPATH%\VC\Tools\MSVC\*") do set "VCTOOLS=%%d"
+          set "TARGETBIN="
+          if defined VCTOOLS if exist "%VCTOOLS%\bin\HostX64\%TARGETDIR%\cl.exe" set "TARGETBIN=%VCTOOLS%\bin\HostX64\%TARGETDIR%"
+          if not defined TARGETBIN if defined VCTOOLS if exist "%VCTOOLS%\bin\HostX86\%TARGETDIR%\cl.exe" set "TARGETBIN=%VCTOOLS%\bin\HostX86\%TARGETDIR%"
+          if not defined TARGETBIN (
+            echo ERROR: no MSVC %TARGETDIR% toolset found under "%VSPATH%".
+            exit /b 1
+          )
+          rem The Windows SDK ships its tools per host architecture too, and
+          rem VsDevCmd puts the arm64 ones on PATH. An arm64 rc.exe cannot run
+          rem on the x64 runner ("This version of %1 is not compatible with the
+          rem version of Windows you're running"), so prefer the x64 SDK tools --
+          rem they target arm64 just as well, and this is what MSBuild does for
+          rem cross builds.
+          set "SDKBIN="
+          if defined WindowsSdkDir if defined WindowsSDKVersion if exist "%WindowsSdkDir%bin\%WindowsSDKVersion%x64\rc.exe" set "SDKBIN=%WindowsSdkDir%bin\%WindowsSDKVersion%x64"
+          if not defined SDKBIN if defined WindowsSdkDir for /d %%d in ("%WindowsSdkDir%bin\10.*") do set "SDKBIN=%%d\x64"
+          set "PREPEND=%TARGETBIN%;%VCTOOLS%\bin\HostX64\x64;%VCTOOLS%\bin\HostX86\x86"
+          if defined SDKBIN set "PREPEND=%SDKBIN%;%PREPEND%"
+          set "PATH=%PREPEND%;%PATH%"
+          where cl
+          where link
+          where nmake
+          where rc
+          where cl >nul 2>&1 && where link >nul 2>&1 && where nmake >nul 2>&1 && where rc >nul 2>&1
+          if errorlevel 1 (
+            echo ERROR: cl.exe, link.exe, nmake.exe or rc.exe is missing from PATH.
+            exit /b 1
+          )
+          echo VSPATH=%VSPATH% >> %GITHUB_ENV%
           echo PATH=%PATH% >> %GITHUB_ENV%
           echo INCLUDE=%INCLUDE% >> %GITHUB_ENV%
           echo LIB=%LIB% >> %GITHUB_ENV%
@@ -155,7 +217,11 @@ jobs:
             # ...\10\\lib\\10.0.26100.0\\um\\x64) which the MSVC linker rejects
             # when searching for kernel32.lib. Re-run VsDevCmd here and
             # normalize the paths before building wxWidgets.
-            cmd /c "call `"C:\Program Files\Microsoft Visual Studio\2022\Enterprise\Common7\Tools\VsDevCmd.bat`" -arch=$env:ARCHITECTURE >nul 2>&1 && set" | ForEach-Object {
+            # Reuse the VS installation "Set compiler environment" resolved
+            # with vswhere, so both steps target the same toolset after a
+            # runner-image change.
+            $vsDevCmd = if ($env:VSPATH) { "$env:VSPATH\Common7\Tools\VsDevCmd.bat" } else { "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\Common7\Tools\VsDevCmd.bat" }
+            cmd /c "call `"$vsDevCmd`" -arch=$env:ARCHITECTURE >nul 2>&1 && set" | ForEach-Object {
               if ($_ -match '^([^=]+)=(.*)$') {
                 Set-Item -Path "Env:$($matches[1])" -Value $matches[2]
               }
@@ -354,6 +420,7 @@ jobs:
             $env:CLAPACK_LIB="$env:GDA_PATH\temp\CLAPACK-3.1.1-VisualStudio\LIB\Win32"
             $env:BOOST_LIB="$env:GDA_PATH\temp\boost\lib\win32"
             $env:BOOST_COMPILER="-vc142"
+            $env:WX_LIB_DIR="$env:GDA_PATH\temp\wxWidgets\lib\vc_dll"
           }
           elseif($env:platform -eq "arm64")
           {
@@ -364,6 +431,8 @@ jobs:
             $env:CLAPACK_LIB="$env:GDA_PATH\temp\CLAPACK-3.1.1-VisualStudio\LIB\a64"
             $env:BOOST_LIB="$env:GDA_PATH\temp\boost\lib"
             $env:BOOST_COMPILER="-vc143"
+            # FindwxWidgets does not always infer the ARM64 lib dir on its own.
+            $env:WX_LIB_DIR="$env:GDA_PATH\temp\wxWidgets\lib\vc_arm64_dll"
           }
           else
           {
@@ -372,6 +441,7 @@ jobs:
             $env:CLAPACK_LIB="$env:GDA_PATH\temp\CLAPACK-3.1.1-VisualStudio\LIB\x64"
             $env:BOOST_LIB="$env:GDA_PATH\temp\boost\lib\win64"
             $env:BOOST_COMPILER="-vc142"
+            $env:WX_LIB_DIR="$env:GDA_PATH\temp\wxWidgets\lib\vc_x64_dll"
           }
           # gdal, libcurl and zlib come from the vcpkg-installed GDAL (built in
           # the "Create Dependencies" step). The vcpkg toolchain makes
@@ -400,6 +470,7 @@ jobs:
             -DCMAKE_TOOLCHAIN_FILE="$env:GDA_PATH\vcpkg\scripts\buildsystems\vcpkg.cmake" `
             -DVCPKG_TARGET_TRIPLET="$env:VCPKG_TRIPLET" `
             -DwxWidgets_ROOT_DIR="$env:GDA_PATH\temp\wxWidgets" `
+            -DwxWidgets_LIB_DIR="$env:WX_LIB_DIR" `
             -DGEODA_CLAPACK_PATH="$env:CLAPACK_LIB" `
             -DBoost_ROOT="$env:GDA_PATH\temp\boost" `
             -DBoost_LIBRARY_DIR="$env:BOOST_LIB" `
@@ -427,26 +498,31 @@ jobs:
           # the exe), so put them on PATH first; the runtime data (data/, proj/,
           # lang/, ...) is already staged next to the exe by the CMake
           # POST_BUILD step.
-          if($env:platform -eq "x86") {
-            $env:PATH = "$env:GDA_PATH\temp\wxWidgets\lib\vc_dll;$env:GDA_PATH\vcpkg\installed\x86-windows\bin;$env:GDA_PATH\temp\OpenCL\sdk\bin\x86;$env:PATH"
-          } elseif($env:platform -eq "arm64") {
-            $env:PATH = "$env:GDA_PATH\temp\wxWidgets\lib\vc_arm64_dll;$env:GDA_PATH\vcpkg\installed\arm64-windows\bin;$env:PATH"
+          #
+          # arm64 is cross-compiled on an x64 runner and an ARM64 PE cannot run
+          # there, so the smoke test only runs for the host architectures.
+          if($env:platform -ne "arm64") {
+            if($env:platform -eq "x86") {
+              $env:PATH = "$env:GDA_PATH\temp\wxWidgets\lib\vc_dll;$env:GDA_PATH\vcpkg\installed\x86-windows\bin;$env:GDA_PATH\temp\OpenCL\sdk\bin\x86;$env:PATH"
+            } else {
+              $env:PATH = "$env:GDA_PATH\temp\wxWidgets\lib\vc_x64_dll;$env:GDA_PATH\vcpkg\installed\x64-windows\bin;$env:GDA_PATH\temp\OpenCL\sdk\bin\x64;$env:PATH"
+            }
+            $appExe = "$env:GITHUB_WORKSPACE\build\bin\Release\GeoDa.exe"
+            if (-not (Test-Path $appExe)) { Write-Error "smoke test: exe not found at $appExe"; exit 1 }
+            $p = Start-Process -FilePath $appExe -PassThru -RedirectStandardOutput "$env:GDA_PATH\geoda_smoke.log" -RedirectStandardError "$env:GDA_PATH\geoda_smoke.err.log"
+            Start-Sleep -Seconds 10
+            $p.Refresh()
+            if ($p.HasExited) {
+              Write-Error "GeoDa smoke test FAILED: exited early with code $($p.ExitCode)"
+              Write-Output "--- stdout ---"; Get-Content "$env:GDA_PATH\geoda_smoke.log" -ErrorAction SilentlyContinue
+              Write-Output "--- stderr ---"; Get-Content "$env:GDA_PATH\geoda_smoke.err.log" -ErrorAction SilentlyContinue
+              exit 1
+            }
+            Write-Output "GeoDa smoke test passed: process alive after 10s (pid $($p.Id))"
+            Stop-Process -Id $p.Id -Force -ErrorAction SilentlyContinue
           } else {
-            $env:PATH = "$env:GDA_PATH\temp\wxWidgets\lib\vc_x64_dll;$env:GDA_PATH\vcpkg\installed\x64-windows\bin;$env:GDA_PATH\temp\OpenCL\sdk\bin\x64;$env:PATH"
+            Write-Output "Skipping smoke test on arm64: an ARM64 exe cannot run on the x64 build runner."
           }
-          $appExe = "$env:GITHUB_WORKSPACE\build\bin\Release\GeoDa.exe"
-          if (-not (Test-Path $appExe)) { Write-Error "smoke test: exe not found at $appExe"; exit 1 }
-          $p = Start-Process -FilePath $appExe -PassThru -RedirectStandardOutput "$env:GDA_PATH\geoda_smoke.log" -RedirectStandardError "$env:GDA_PATH\geoda_smoke.err.log"
-          Start-Sleep -Seconds 10
-          $p.Refresh()
-          if ($p.HasExited) {
-            Write-Error "GeoDa smoke test FAILED: exited early with code $($p.ExitCode)"
-            Write-Output "--- stdout ---"; Get-Content "$env:GDA_PATH\geoda_smoke.log" -ErrorAction SilentlyContinue
-            Write-Output "--- stderr ---"; Get-Content "$env:GDA_PATH\geoda_smoke.err.log" -ErrorAction SilentlyContinue
-            exit 1
-          }
-          Write-Output "GeoDa smoke test passed: process alive after 10s (pid $($p.Id))"
-          Stop-Process -Id $p.Id -Force -ErrorAction SilentlyContinue
           # update installer version numbers in iss files
           python update_installer_version.py
           if ($LASTEXITCODE -ne 0) {
@@ -455,7 +531,7 @@ jobs:
           if($env:platform -eq "x86")
           {
             ISCC.exe /q installer\32bit\GeoDa.iss
-            ISCC.exe /q installer\32bit\GeoDa-win8+.iss
+            ISCC.exe /q installer\32bit\GeoDa-win7+.iss
           }
           elseif($env:platform -eq "arm64")
           {
@@ -464,20 +540,20 @@ jobs:
           else
           {
             ISCC.exe /q installer\64bit\GeoDa.iss
-            ISCC.exe /q installer\64bit\GeoDa-win8+.iss
+            ISCC.exe /q installer\64bit\GeoDa-win7+.iss
           }
 
       - uses: actions/upload-artifact@v4
         with:
           name: GeoDa-Windows-${{ env.platform }}-installer
-          path: ${{ github.workspace }}\BuildTools\windows\GeoDa_1.22.1_${{ env.platform }}_Setup.exe
+          path: ${{ github.workspace }}\BuildTools\windows\GeoDa_1.22.2_${{ env.platform }}_Setup.exe
 
-      # "win8+" variant: same app, but the vcpkg-built deps and the VS2022
-      # toolset require Windows 8.1+ (see GeoDa-win8+.iss). ARM64 has no
-      # win8+ variant -- the arm64 installer (installer\arm64\GeoDa.iss) is
-      # the only one, uploaded above as GeoDa-Windows-arm64-installer.
+      # "win7+" variant: same app, packaged by the win7+ InnoSetup script.
+      # ARM64 has no win7+ variant -- the arm64 installer
+      # (installer\arm64\GeoDa.iss) is the only one, uploaded above as
+      # GeoDa-Windows-arm64-installer.
       - uses: actions/upload-artifact@v4
         if: ${{ env.platform != 'arm64' }}
         with:
-          name: GeoDa-Windows8+-${{ env.platform }}-installer
-          path: ${{ github.workspace }}\BuildTools\windows\GeoDa_1.22.1_win8+${{ env.platform }}_Setup.exe
+          name: GeoDa-Windows7+-${{ env.platform }}-installer
+          path: ${{ github.workspace }}\BuildTools\windows\GeoDa_1.22.2_win7+${{ env.platform }}_Setup.exe

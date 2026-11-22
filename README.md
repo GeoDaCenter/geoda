@@ -1,5 +1,5 @@
 [![Mac OSX builds](https://github.com/geodacenter/geoda/actions/workflows/osx_build.yml/badge.svg)](https://github.com/geodacenter/geoda/actions/workflows/osx_build.yml)
-[![Ubuntu builds](https://github.com/geodacenter/geoda/actions/workflows/ubuntu_build.yml/badge.svg)](https://github.com/geodacenter/geoda/actions/workflows/ubuntu_build.yml)
+[![AppImage builds](https://github.com/geodacenter/geoda/actions/workflows/appimage-build.yml/badge.svg)](https://github.com/geodacenter/geoda/actions/workflows/appimage-build.yml)
 [![Windows builds](https://github.com/geodacenter/geoda/actions/workflows/windows_build.yml/badge.svg)](https://github.com/geodacenter/geoda/actions/workflows/windows_build.yml)
 
 # Acknowledgements #
@@ -21,6 +21,53 @@ Please read the detail instructions under directory BuildTools/
 [Linux/Ubuntu](BuildTools/ubuntu/readme.md)
 
 Note:  contributions of build scripts under other platforms are welcomed, please follow the structure of building script under BuildTools/.
+
+# Editing the MCP skill #
+
+The built-in MCP server ships a skill, the spatial data analysis workbook, and serves it to MCP clients itself: an agent that connects to GeoDa can read it with nothing installed. It exposes **two MCP tools**: `list_command` returns the catalog (each command's id, group and parameters), and `execute_command {name: "<command id>", arguments: {...}}` runs one. The same text reaches a client four ways:
+
+* `execute_command {name: "skill/get", arguments: {uri: "skill://spatial-analysis-workbook"}}` - the `skill/get` command (listed by `skill/list`), so a client that does not expose MCP resources can still read the skill.
+* The resource `skill://spatial-analysis-workbook`, via `resources/read`.
+* The prompt `spatial-analysis-workbook`, via `prompts/get`. Its `section` argument loads one part: `workflow`, `overview`, `maps`, `weights`, `global`, `local`, `rates`, `multivariate`, `clustering`.
+* The `instructions` that `initialize` returns, which name the skill and how to read it.
+
+The text lives in three files, and all three have to be edited together:
+
+* `MCP/skills/spatial-analysis-workbook.md` - the authoring source, and the copy a human reads.
+* `MCP/McpResources.cpp`, `WorkbookSkillText()` - the whole document as the C string that `skill/get` and the resource serve.
+* `MCP/McpPrompts.cpp`, `GuideText()` and `SectionText()` - the same guide split into the prompt's sections.
+
+Worth keeping in mind when editing:
+
+* The "FIRST: Always load this skill" section is the contract that makes an agent read the workbook before it calls anything. Keep it, and keep it first.
+* Name commands and parameters exactly as they are registered in `MCP/McpCommands.cpp`; this document is their documentation. Commands reach a client only through `execute_command` (`MCP/McpTools.cpp` builds the two tool schemas, and `list_command` reports the same registry), so the skill is where a command's workflow is described.
+* Adding a section means a new `kSectionKeys`/`kSectionLabels` entry, a `SectionText()` branch, and a matching heading in the `.md`.
+* If how the skill is delivered changes, update the `instructions` in `MCP/McpServer.cpp` too.
+
+To see what a client sees, with GeoDa running (default port 8765):
+
+        curl -s -X POST -H 'content-type: application/json' \
+          -d '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"execute_command","arguments":{"name":"skill/get","arguments":{"uri":"skill://spatial-analysis-workbook"}}}}' \
+          http://127.0.0.1:8765/mcp
+
+`MCP/tests/skill_serving_test.py` checks the whole arrangement: that `tools/list` returns only `list_command` and `execute_command`, that the instructions point at the skill, that `skill/get` and `resources/read` return identical text, that the document still opens with the load-me-first section, and that an unknown URI is an error.
+
+        GEODA_BIN=/path/to/GeoDa python3 MCP/tests/skill_serving_test.py
+
+# The agent plugin #
+
+GeoDa's MCP server can also reach a client as a **plugin**, which the client installs and starts itself, so the agent sees GeoDa's commands as tools rather than being handed the endpoint URL. That plugin is published from this repository: `.claude-plugin/marketplace.json` (Claude Code) and `.agents/plugins/marketplace.json` (Codex) at the root, with the plugin itself under `plugins/geoda/`. `plugins/geoda/README.md` has the layout, and why there is deliberately no `plugin.json` at the plugin's root.
+
+A marketplace is looked for at the root of the repository it names, and this one is a large source tree, so the install asks for a sparse checkout of the three directories the plugin needs:
+
+        claude plugin marketplace add GeoDaCenter/geoda --sparse .claude-plugin .agents plugins
+        claude plugin install -y geoda@geoda
+
+GeoDa does the same thing from its own window: the **MCP** page of **Preferences** (File -> Preferences, or GeoDa -> Preferences on macOS) gives a button for Claude Code and one for Codex, reports each step, and falls back to registering the HTTP endpoint by URL where a plugin install is not possible.
+
+The launcher exists in three copies - `plugins/geoda/bin/geoda-mcp`, `MCP/bin/geoda-mcp`, and the raw string `MCP/McpClientSetup.cpp` writes out for the direct route - and `MCP/tests/launcher_test.py` fails when they drift apart.
+
+        GEODA_BIN=/path/to/GeoDa python3 MCP/tests/launcher_test.py
 
 # Internationalization #
 

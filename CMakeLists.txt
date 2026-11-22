@@ -24,7 +24,22 @@ if(POLICY CMP0135)
   cmake_policy(SET CMP0135 NEW)
 endif()
 
-project(geoda VERSION 1.22.0 LANGUAGES C CXX)
+# version.h is the source of truth for the release version (the CI workflows
+# read it too); parse it here so the bundle metadata cannot drift again.
+file(STRINGS "${CMAKE_CURRENT_SOURCE_DIR}/version.h" _geoda_version_lines
+  REGEX "^const int version_(major|minor|build) = [0-9]+;")
+foreach(_part major minor build)
+  string(REGEX MATCH "version_${_part} = ([0-9]+)" _match "${_geoda_version_lines}")
+  # Compare against "" rather than testing truthiness: a component of 0
+  # (e.g. version 2.0.0) would otherwise be treated as a failed match.
+  if("${CMAKE_MATCH_1}" STREQUAL "")
+    message(FATAL_ERROR "Could not read version_${_part} from version.h")
+  endif()
+  set(GEODA_VERSION_${_part} "${CMAKE_MATCH_1}")
+endforeach()
+
+project(geoda VERSION ${GEODA_VERSION_major}.${GEODA_VERSION_minor}.${GEODA_VERSION_build}
+  LANGUAGES C CXX)
 
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -233,7 +248,7 @@ endif()
 # ---------------------------------------------------------------------------
 set(GEODA_BUILD_SUBDIRS
   Weights ogl io Algorithms DataViewer DialogTools Explore
-  kNN libgdiam Regression ShapeOperations VarCalc rc)
+  kNN libgdiam MCP Regression ShapeOperations VarCalc rc)
 
 file(GLOB GEODA_SOURCES CONFIGURE_DEPENDS "${CMAKE_SOURCE_DIR}/*.cpp")
 foreach(_subdir ${GEODA_BUILD_SUBDIRS})
@@ -363,6 +378,14 @@ add_custom_command(TARGET geoda POST_BUILD
     "${CMAKE_SOURCE_DIR}/BuildTools/CommonDistFiles/gdaldata" "${GEODA_RUNTIME_DEST}/${GEODA_GDALDATA_DIR}"
   COMMAND "${CMAKE_COMMAND}" -E copy_directory
     "${CMAKE_SOURCE_DIR}/BuildTools/CommonDistFiles/proj" "${GEODA_RUNTIME_DEST}/proj"
+  # The spreg engine manager reads the shipped manifest and runs the solver
+  # from beside the binary (GenUtils::GetExeDir / GetResourceDir); the engine
+  # archives themselves are downloaded on demand and live under
+  # spreg_engine/engines at run time.
+  COMMAND "${CMAKE_COMMAND}" -E copy_directory
+    "${CMAKE_SOURCE_DIR}/spreg_engine/manifest" "${GEODA_RUNTIME_DEST}/spreg_engine/manifest"
+  COMMAND "${CMAKE_COMMAND}" -E copy_directory
+    "${CMAKE_SOURCE_DIR}/spreg_engine/solver" "${GEODA_RUNTIME_DEST}/spreg_engine/solver"
   COMMAND "${CMAKE_COMMAND}" -E make_directory "${GEODA_RUNTIME_DEST}/basemap_cache"
   VERBATIM)
 
