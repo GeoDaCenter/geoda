@@ -156,6 +156,7 @@ public:
 	void OnSpregOptionChanged(wxCommandEvent& event);
 	bool SpregOptionChecked(const wxString& name) const;
 	void SetSpregOptionChecked(const wxString& name, bool value);
+	void SetSpregOptionEnabled(const wxString& name, bool value);
 	bool GatherSpregExtras(const SpregJob::ModelOption& model, wxString& err,
 						   SpregJob::Writer& writer, wxString& regimes_name,
 						   std::vector<wxString>& yend_names,

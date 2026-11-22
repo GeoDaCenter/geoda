@@ -592,6 +592,7 @@ void RegressionDlg::FillSpregOptions(wxWindow* parent,
 			}
 			int selection = choice->FindString(spec.default_value);
 			choice->SetSelection(selection == wxNOT_FOUND ? 0 : selection);
+			choice->Bind(wxEVT_CHOICE, &RegressionDlg::OnSpregOptionChanged, this);
 			control = choice;
 		} else if (spec.type == "int" && spec.has_range) {
 			wxSpinCtrl* spin = new wxSpinCtrl(parent, wxID_ANY, wxEmptyString,
@@ -669,17 +670,33 @@ void RegressionDlg::SetSpregOptionChecked(const wxString& name, bool value)
 	}
 }
 
+void RegressionDlg::SetSpregOptionEnabled(const wxString& name, bool value)
+{
+	for (size_t i = 0; i < m_spreg_option_names.size(); ++i) {
+		if (m_spreg_option_names[i] != name) continue;
+		wxCheckBox* box = wxDynamicCast(m_spreg_option_ctrls[i], wxCheckBox);
+		if (box) box->Enable(value);
+		return;
+	}
+}
+
 // spreg computes Moran's I only when the spatial dependence tests run, and the
-// White test only when the non-spatial diagnostics run.  Keep the dependent
-// checkbox in step in both directions, so a checked test is never silently
-// dropped from the report.
+// White test only when the non-spatial diagnostics run.  The White test is also
+// dropped for White/HAC standard errors.  Keep the dependent controls in step in
+// both directions, so a checked test is never silently dropped from the report.
 void RegressionDlg::OnSpregOptionChanged(wxCommandEvent& event)
 {
 	wxWindow* changed = wxDynamicCast(event.GetEventObject(), wxWindow);
 	for (size_t i = 0; i < m_spreg_option_ctrls.size(); ++i) {
 		if (m_spreg_option_ctrls[i] != changed) continue;
 		const wxString& name = m_spreg_option_names[i];
-		if (name == "moran" && SpregOptionChecked("moran")) {
+		if (name == "robust") {
+			wxChoice* choice = wxDynamicCast(changed, wxChoice);
+			const wxString robust = choice ? choice->GetStringSelection() : wxString();
+			const bool white_unavailable = robust == "white" || robust == "hac";
+			if (white_unavailable) SetSpregOptionChecked("white_test", false);
+			SetSpregOptionEnabled("white_test", !white_unavailable);
+		} else if (name == "moran" && SpregOptionChecked("moran")) {
 			SetSpregOptionChecked("spat_diag", true);
 		} else if (name == "spat_diag" && !SpregOptionChecked("spat_diag")) {
 			SetSpregOptionChecked("moran", false);
@@ -950,7 +967,8 @@ bool RegressionDlg::RunSpregModel(wxCommandEvent& WXUNUSED(event))
 	const bool moran = SpregOptionValue(options, "moran") == "true";
 	const bool white_test = SpregOptionValue(options, "white_test") == "true";
 	const bool nonspat_diag = SpregOptionValue(options, "nonspat_diag") == "true";
-	const bool hac = SpregOptionValue(options, "robust") == "hac";
+	const wxString robust = SpregOptionValue(options, "robust");
+	const bool hac = robust == "hac";
 	// The tests are nested: spreg computes Moran's I only with the spatial
 	// dependence tests, and the White test only with the non-spatial
 	// diagnostics.  Keep the job in step even if the checkbox linkage was
@@ -965,6 +983,13 @@ bool RegressionDlg::RunSpregModel(wxCommandEvent& WXUNUSED(event))
 		std::map<wxString, wxString>::iterator it = options.find("nonspat_diag");
 		if (it != options.end()) it->second = "true";
 		SetSpregOptionChecked("nonspat_diag", true);
+	}
+	// White standard errors make the White test unavailable in spreg; the
+	// checkbox is disabled when that choice is made, but keep the job honest.
+	if (white_test && (robust == "white" || robust == "hac")) {
+		std::map<wxString, wxString>::iterator it = options.find("white_test");
+		if (it != options.end()) it->second = "false";
+		SetSpregOptionChecked("white_test", false);
 	}
 
 	std::vector<int> valid_rows;

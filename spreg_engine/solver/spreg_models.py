@@ -696,6 +696,15 @@ def extract_result(model_obj: Any, entry: Dict[str, Any], ctx: Dict[str, Any]) -
     diagnostics, dwarn = collect_diagnostics(model_obj)
     warnings += dwarn
 
+    # spreg groups the caveats it prints into `model.warning`; GeoDa does not
+    # read the report text, so carry them into the result's warnings as well.
+    spreg_warning = getattr(model_obj, "warning", "")
+    if spreg_warning:
+        for line in str(spreg_warning).splitlines():
+            line = line.strip()
+            if line:
+                warnings.append(line)
+
     # std_err / z / p may be shorter than the coefficient vector (GM_Combo reports
     # `lambda` without a standard error); pad so the arrays stay aligned.
     n_rows = len(coefficients["estimate"])

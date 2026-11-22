@@ -432,6 +432,21 @@ def run_job(jobdir: str, log: Log) -> Tuple[Dict[str, Any], Dict[str, Any]]:
         warnings.append("the White test is computed as part of the non-spatial "
                         "diagnostics; enable nonspat_diag (Non-spatial diagnostics) "
                         "to compute it")
+    if kwargs.get("white_test") and kwargs.get("robust") in ("white", "hac"):
+        warnings.append("the White test is not available with White or HAC "
+                        "standard errors; it is not computed for this run")
+
+    # The options below all need a weights matrix, but a non-spatial OLS does
+    # not.  Say which option needs it here, rather than let spreg fail with a
+    # generic "A weights matrix w must be provided".  HAC is exempt: it needs a
+    # kernel matrix and has its own, more specific checks below.
+    needs_weights = bool(kwargs.get("spat_diag") or kwargs.get("moran")
+                         or int(kwargs.get("slx_lags") or 0) > 0)
+    if needs_weights and data["w"] is None and kwargs.get("robust") != "hac":
+        raise ProtocolError(
+            "model %s needs a spatial weights matrix for the spatial dependence "
+            "tests, Moran's I or SLX terms; send weights in the job, or turn "
+            "those options off" % entry["id"])
 
     if entry["style"] in ("regimes", "endog_regimes_a", "endog_regimes_b"):
         # the solver owns the constant for regimes models
@@ -463,6 +478,15 @@ def run_job(jobdir: str, log: Log) -> Tuple[Dict[str, Any], Dict[str, Any]]:
     # it there), so the estimator is given none: for OLS and 2SLS that only
     # drops the spatial diagnostics, which HAC disables anyway.
     if kwargs.get("robust") == "hac":
+        if kwargs.get("spat_diag") or kwargs.get("moran"):
+            warnings.append("HAC standard errors disable the spatial dependence tests "
+                            "and Moran's I; they are not computed for this run")
+            # spreg disables spat_diag itself for HAC, but a true moran would
+            # still make it demand an ordinary w.  Turn both off explicitly.
+            if "spat_diag" in kwargs:
+                kwargs["spat_diag"] = False
+            if "moran" in kwargs:
+                kwargs["moran"] = False
         # Whether the model can do HAC at all comes first, so that an
         # unsupported model is never told its weights are the problem.
         if entry["id"] in ("GM_Lag", "GM_Lag_Regimes"):
@@ -823,6 +847,64 @@ def cmd_selftest() -> int:
               code == 0 and res["status"] == "ok"
               and not any(d.get("name") == "white" for d in res.get("diagnostics", []))
               and "white" in warned.lower(), warned[:90])
+
+        # ... and the tests do appear when their parent option is on.
+        code, res = run("OLS", {"spat_diag": True, "moran": True})
+        moran = next((d for d in res.get("diagnostics", [])
+                      if d.get("name") == "moran_res"), None)
+        check("Moran's I present when requested",
+              code == 0 and res["status"] == "ok" and moran is not None
+              and moran.get("stat") is not None and moran.get("p") is not None
+              and np.isfinite([moran["stat"], moran["p"]]).all(), str(moran))
+
+        code, res = run("OLS", {"white_test": True})
+        white = next((d for d in res.get("diagnostics", [])
+                      if d.get("name") == "white"), None)
+        check("White test present when requested",
+              code == 0 and res["status"] == "ok" and white is not None
+              and white.get("stat") is not None and white.get("p") is not None
+              and np.isfinite([white["stat"], white["p"]]).all(), str(white))
+
+        # White standard errors drop the White test; both the solver's warning
+        # and spreg's own model.warning have to reach the result.
+        for white_options, white_weights in (
+                ({"white_test": True, "robust": "white"}, "spatial"),
+                ({"white_test": True, "robust": "hac"}, "kernel")):
+            code, res = run("OLS", white_options, weights=white_weights)
+            warned = " ".join(res.get("warnings") or [])
+            check("White test with %s warns" % white_options["robust"],
+                  code == 0 and res["status"] == "ok"
+                  and not any(d.get("name") == "white" for d in res.get("diagnostics", []))
+                  and "white test" in warned.lower()
+                  and "estimated by" in warned.lower(), warned[:120])
+
+        # HAC turns the spatial diagnostics off; a direct protocol job has to
+        # hear about it rather than get a report that silently omits them.
+        code, res = run("OLS", {"robust": "hac", "spat_diag": True, "moran": True},
+                        weights="kernel")
+        warned = " ".join(res.get("warnings") or [])
+        check("HAC disables spatial tests with a warning",
+              code == 0 and res["status"] == "ok"
+              and not any(d.get("name") in ("lm_lag", "moran_res")
+                          for d in res.get("diagnostics", []))
+              and "hac" in warned.lower()
+              and ("spatial" in warned.lower() or "moran" in warned.lower()),
+              warned[:120])
+
+        # Asking for an option that needs weights without sending any should
+        # name the option, not fall through to spreg's generic message.
+        code, res = run("OLS", {"spat_diag": True}, weights="none")
+        message = res.get("error", {}).get("message", "")
+        check("spatial tests without weights give a clear error",
+              code == 2 and res["status"] == "error"
+              and "weights matrix" in message.lower()
+              and "must be provided" not in message.lower(), message[:100])
+        code, res = run("OLS", {"slx_lags": 1}, weights="none")
+        message = res.get("error", {}).get("message", "")
+        check("SLX without weights gives a clear error",
+              code == 2 and res["status"] == "error"
+              and "weights matrix" in message.lower()
+              and "must be provided" not in message.lower(), message[:100])
 
         # HAC is computed from a kernel matrix: ones on the diagonal, sent as is.
         code, res_hac = run("OLS", {"robust": "hac"}, weights="kernel")
