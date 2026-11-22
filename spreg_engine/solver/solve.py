@@ -389,18 +389,50 @@ def run_job(jobdir: str, log: Log) -> Tuple[Dict[str, Any], Dict[str, Any]]:
     # covariates to lag.  spreg wants one boolean per covariate column.
     slx_vars = kwargs.get("slx_vars")
     if isinstance(slx_vars, str):
-        chosen = [name.strip() for name in slx_vars.split(",") if name.strip()]
-        if len(chosen) == 1 and chosen[0].lower() == "none":
+        if slx_vars.startswith("vars:"):
+            # the dialog sends the chosen column names explicitly; nothing
+            # after the prefix means none of them.  A name is a name, so a
+            # covariate called "all" or "none" is never taken for a keyword.
+            chosen = [name.strip() for name in slx_vars[5:].split(",") if name.strip()]
+            is_none = not chosen
+            is_all = False
+        else:
+            # an API client may still send the old keywords or a bare list
+            chosen = [name.strip() for name in slx_vars.split(",") if name.strip()]
+            names_lower = {name.lower() for name in data["x_names"]}
+            keyword = chosen[0].lower() if len(chosen) == 1 else ""
+            is_none = keyword == "none" and keyword not in names_lower
+            is_all = keyword == "all" and keyword not in names_lower
+        if is_none:
             # no lagged covariate: leave SLX out rather than handing spreg an
             # empty block
             kwargs.pop("slx_vars", None)
             kwargs.pop("slx_lags", None)
-        elif not (len(chosen) == 1 and chosen[0].lower() == "all"):
+            warnings.append("SLX variables: none selected, so no covariate is "
+                            "lagged")
+        elif not is_all:
+            # accept a name written in another case, but keep the real one
+            by_lower = {name.lower(): name for name in data["x_names"]}
+            chosen = [by_lower.get(name.lower(), name) for name in chosen]
             unknown = [name for name in chosen if name not in data["x_names"]]
             if unknown:
                 raise ProtocolError("slx_vars names variable(s) that are not "
                                     "covariates: %s" % ", ".join(unknown))
-            kwargs["slx_vars"] = [name in chosen for name in data["x_names"]]
+            # spreg drops a covariate that is constant before it applies
+            # slx_vars, so the list has to be built over the columns that
+            # survive that drop, or spreg reports a length mismatch
+            diffs = np.ptp(np.asarray(data["x"]), axis=0)
+            keep = [bool(d > 0) for d in diffs]
+            dropped = [name for name, k in zip(data["x_names"], keep)
+                       if not k and name in chosen]
+            if dropped:
+                warnings.append("constant covariate(s) ignored for SLX: %s"
+                                % ", ".join(dropped))
+            kept_names = [name for name, k in zip(data["x_names"], keep) if k]
+            kwargs["slx_vars"] = [name in chosen for name in kept_names]
+            if not kwargs.get("slx_lags"):
+                warnings.append("SLX variables were selected but 'SLX lags of X' "
+                                "is 0, so no lagged covariate was added")
     if entry["style"] in ("regimes", "endog_regimes_a", "endog_regimes_b"):
         # the solver owns the constant for regimes models
         kwargs["constant_regi"] = kwargs.get("constant_regi", "many") if data["constant"] else False

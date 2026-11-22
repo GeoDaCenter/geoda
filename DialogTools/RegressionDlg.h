@@ -151,6 +151,8 @@ public:
 	// the "SLX variables" option is a list of the current covariates, so that
 	// the user can lag some of them rather than all or none
 	wxListBox* m_spreg_slx_list;
+	bool m_spreg_slx_edited;      // the user has touched the list: keep the choices
+	bool m_spreg_slx_filling;     // the list is being rebuilt: ignore its events
 	void FillSpregVariables(wxWindow* parent);
 	void RefreshSpregSlxVars();
 	void FillSpregOptions(wxWindow* parent, const SpregJob::ModelOption& model);

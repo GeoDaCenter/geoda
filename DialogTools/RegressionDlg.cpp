@@ -273,6 +273,8 @@ bool RegressionDlg::Create(wxWindow* parent, wxWindowID id,
 	m_spreg_options_row = NULL;
 	m_spreg_options_grid = NULL;
 	m_spreg_slx_list = NULL;
+	m_spreg_slx_edited = false;
+	m_spreg_slx_filling = false;
 	m_spreg_model = wxEmptyString;
 	m_spreg_installed = false;
 	m_has_spreg_result = false;
@@ -569,6 +571,8 @@ void RegressionDlg::FillSpregOptions(wxWindow* parent,
 	m_spreg_option_names.clear();
 	m_spreg_option_ctrls.clear();
 	m_spreg_slx_list = NULL;
+	m_spreg_slx_edited = false;
+	m_spreg_slx_filling = false;
 
 	// One control per option, of the type the registry declares: a checkbox for
 	// a switch, a list for a choice whose values are known, a spin control for a
@@ -608,6 +612,12 @@ void RegressionDlg::FillSpregOptions(wxWindow* parent,
 			wxListBox* list = new wxListBox(parent, wxID_ANY, wxDefaultPosition,
 											wxSize(180, 80), 0, NULL, wxLB_EXTENDED);
 			m_spreg_slx_list = list;
+			// Once the user has touched the list, refills keep their choices;
+			// until then every refill selects the current covariates, which is
+			// the option's default.
+			list->Bind(wxEVT_LISTBOX, [this](wxCommandEvent&) {
+				if (!m_spreg_slx_filling) m_spreg_slx_edited = true;
+			});
 			RefreshSpregSlxVars();
 			control = list;
 		} else {
@@ -637,7 +647,11 @@ void RegressionDlg::RefreshSpregSlxVars()
 	for (size_t i = 0; i < picked.GetCount(); ++i) {
 		keep.insert(m_spreg_slx_list->GetString(picked[i]));
 	}
-	const bool first_fill = m_spreg_slx_list->GetCount() == 0;
+	// until the user edits the list, every refill selects all covariates: the
+	// option defaults to lagging all of them, and a covariate added later must
+	// not be silently left out
+	const bool first_fill = !m_spreg_slx_edited;
+	m_spreg_slx_filling = true;
 	m_spreg_slx_list->Clear();
 	for (unsigned i = 0; i < m_independentlist->GetCount(); ++i) {
 		const wxString& name = m_independentlist->GetString(i);
@@ -646,6 +660,7 @@ void RegressionDlg::RefreshSpregSlxVars()
 			m_spreg_slx_list->SetSelection(i);
 		}
 	}
+	m_spreg_slx_filling = false;
 }
 
 std::map<wxString, wxString> RegressionDlg::ReadSpregOptions(bool& ok, wxString& err)
@@ -666,16 +681,19 @@ std::map<wxString, wxString> RegressionDlg::ReadSpregOptions(bool& ok, wxString&
 			if (name == "slx_vars") {
 				wxArrayInt picked;
 				list->GetSelections(picked);
-				if (list->GetCount() == 0
-					|| static_cast<int>(picked.GetCount()) == list->GetCount()) {
-					value = "all";
-				} else if (picked.IsEmpty()) {
-					value = "none";
-				} else {
-					for (size_t j = 0; j < picked.GetCount(); ++j) {
-						if (!value.IsEmpty()) value << ",";
-						value << list->GetString(picked[j]);
-					}
+				// An explicit list of column names, prefixed so that a
+				// covariate called "all" or "none" is never taken for a
+				// keyword; "vars:" with nothing after it means none are lagged.
+				value = "vars:";
+				for (size_t j = 0; j < picked.GetCount(); ++j) {
+					if (j) value << ",";
+					// the list shows the variable's display name; the job names
+					// the column, and for a time-variant variable the two differ
+					// ("col (2000)" vs "col")
+					const wxString display = list->GetString(picked[j]);
+					std::map<wxString, wxString>::const_iterator nm =
+						name_to_nm.find(display);
+					value << (nm == name_to_nm.end() ? display : nm->second);
 				}
 			}
 		} else if (wxTextCtrl* text = wxDynamicCast(control, wxTextCtrl)) {
@@ -2356,6 +2374,9 @@ void RegressionDlg::InitVariableList()
 	EnablingItems();
 	// the engine's variable pickers draw from the list that was just built
 	FillSpregVariables(NULL);
+	// a Reset clears the covariates; the SLX list follows, back to its default
+	m_spreg_slx_edited = false;
+	RefreshSpregSlxVars();
 }
 
 void RegressionDlg::EnablingItems()
