@@ -698,12 +698,20 @@ def extract_result(model_obj: Any, entry: Dict[str, Any], ctx: Dict[str, Any]) -
 
     # spreg groups the caveats it prints into `model.warning`; GeoDa does not
     # read the report text, so carry them into the result's warnings as well.
+    # Most estimators store a string there, but Probit stores a bool: True
+    # means its optimizer stopped before converging.  Render that as a
+    # sentence rather than letting str() leak the meaningless "True".
     spreg_warning = getattr(model_obj, "warning", "")
-    if spreg_warning:
-        for line in str(spreg_warning).splitlines():
+    if isinstance(spreg_warning, str):
+        for line in spreg_warning.splitlines():
             line = line.strip()
             if line:
                 warnings.append(line)
+    elif spreg_warning is True:
+        if entry["family"] == "probit":
+            warnings.append("the Probit optimizer did not converge")
+        else:
+            warnings.append("spreg reported a warning for %s" % entry["id"])
 
     # std_err / z / p may be shorter than the coefficient vector (GM_Combo reports
     # `lambda` without a standard error); pad so the arrays stay aligned.

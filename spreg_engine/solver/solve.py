@@ -432,9 +432,9 @@ def run_job(jobdir: str, log: Log) -> Tuple[Dict[str, Any], Dict[str, Any]]:
         warnings.append("the White test is computed as part of the non-spatial "
                         "diagnostics; enable nonspat_diag (Non-spatial diagnostics) "
                         "to compute it")
-    if kwargs.get("white_test") and kwargs.get("robust") in ("white", "hac"):
-        warnings.append("the White test is not available with White or HAC "
-                        "standard errors; it is not computed for this run")
+    # With White or HAC standard errors spreg itself warns that the White test
+    # is not computed; that warning is carried through from model.warning, so
+    # the solver does not add a second, near-identical note here.
 
     # The options below all need a weights matrix, but a non-spatial OLS does
     # not.  Say which option needs it here, rather than let spreg fail with a
@@ -750,6 +750,7 @@ def cmd_selftest() -> int:
                           "transform": "o", "kind": "kernel", "name": "grid-kernel"}
 
         arrays = {"y": y.reshape(-1, 1), "x": x, "regime": regime.reshape(-1, 1),
+                  "ybin": (y > np.median(y)).astype(float).reshape(-1, 1),
                   "yend": endog, "q": z_iv,
                   "w_indptr": indptr, "w_indices": cols_idx.astype(np.int32),
                   "w_data": vals, "coords": xs,
@@ -773,10 +774,13 @@ def cmd_selftest() -> int:
         check("job directory written", os.path.isfile(os.path.join(jobdir, "data.bin")))
 
         def run(model: str, options: Optional[Dict[str, Any]] = None,
-                weights: str = "spatial", iv: bool = False):
+                weights: str = "spatial", iv: bool = False,
+                y_array: Optional[str] = None):
             job = json.loads(json.dumps(spec))
             job["model"] = model
             job["options"] = options or {}
+            if y_array:
+                job["data"]["y"] = {"name": y_array, "array": y_array}
             if weights == "none":                     # a non-spatial OLS
                 job.pop("weights", None)
             elif weights == "kernel":                # the kernel matrix for HAC
@@ -865,18 +869,21 @@ def cmd_selftest() -> int:
               and white.get("stat") is not None and white.get("p") is not None
               and np.isfinite([white["stat"], white["p"]]).all(), str(white))
 
-        # White standard errors drop the White test; both the solver's warning
-        # and spreg's own model.warning have to reach the result.
+        # White standard errors drop the White test.  spreg's model.warning is
+        # carried through; the solver no longer adds a second note, so exactly
+        # one warning may mention the White test.
         for white_options, white_weights in (
                 ({"white_test": True, "robust": "white"}, "spatial"),
                 ({"white_test": True, "robust": "hac"}, "kernel")):
             code, res = run("OLS", white_options, weights=white_weights)
-            warned = " ".join(res.get("warnings") or [])
+            white_notes = [w for w in res.get("warnings") or []
+                           if "white test" in w.lower()]
             check("White test with %s warns" % white_options["robust"],
                   code == 0 and res["status"] == "ok"
                   and not any(d.get("name") == "white" for d in res.get("diagnostics", []))
-                  and "white test" in warned.lower()
-                  and "estimated by" in warned.lower(), warned[:120])
+                  and len(white_notes) == 1
+                  and "estimated by" in white_notes[0].lower(),
+                  " ".join(white_notes)[:120])
 
         # HAC turns the spatial diagnostics off; a direct protocol job has to
         # hear about it rather than get a report that silently omits them.
@@ -1030,6 +1037,17 @@ def cmd_selftest() -> int:
         check("regimes table regimized",
               any("0_" in nm for nm in (res.get("coefficients") or {}).get("names", [])),
               str((res.get("coefficients") or {}).get("names", [])[:3]))
+
+        # Probit stores its optimizer status as a bool in model.warning.  A fit
+        # stopped after one iteration must say it did not converge, not leak a
+        # bare "True" into the report.
+        code, res = run("Probit", {"maxiter": 1}, y_array="ybin")
+        probit_warnings = list(res.get("warnings") or [])
+        check("Probit non-convergence warns readably",
+              code == 0 and res["status"] == "ok"
+              and any("did not converge" in w.lower() for w in probit_warnings)
+              and not any(w.strip().lower() == "true" for w in probit_warnings),
+              " | ".join(probit_warnings)[:140])
 
         code, res = run("ML_Lag", {"method": "nosuchmethod"})
         check("bad option reported as an error", code != 0 and res["status"] == "error",

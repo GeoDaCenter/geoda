@@ -136,7 +136,8 @@ and is only accepted together with `robust:"hac"`: the solver turns it into the
 never as `w`. A kernel matrix must be sent with `transform:"o"`; `"r"` and `"b"`
 are rejected, since either would destroy the diagonal of ones that HAC needs.
 Using a kernel matrix with any other model is refused with a clear error.
-Every row must store its own diagonal entry with weight exactly `1.0`: GeoDa's
+Every row must store its own diagonal entry with weight `1.0` within numerical
+tolerance: GeoDa's
 "apply kernel to diagonal weights" option can leave other values there, and the
 solver rejects such a matrix because spreg's HAC requires a diagonal of ones.
 
