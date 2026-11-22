@@ -6,7 +6,7 @@ ask for actually runs against the pinned spreg, that the call style and option
 mapping in solver/spreg_models.py are right, and that the protocol round trip
 works for all of them.  It is also how you find out what a spreg upgrade broke.
 
-    tools/check_models.py [--models ML_Lag,GM_Combo] [-v]
+    tools/check_models.py [--models GM_Lag,GM_Combo] [-v]
 """
 
 from __future__ import annotations
@@ -75,9 +75,9 @@ def synthetic() -> dict:
 def job_for(model_id: str, data: dict) -> dict:
     entry = spreg_models.get_model(model_id)
     n = data["n"]
+    # no registered model declares a solver-side option now (the ML-only
+    # `method` went with the ML ids), so the job carries the defaults
     options = {}
-    if "method" in entry["options"]:
-        options["method"] = "LU"                  # sparse and quick at any n
     if model_id == "SKATER_reg":
         options.update({"n_clusters": 2, "model_family": "spreg"})
     spec = {

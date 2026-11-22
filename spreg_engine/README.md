@@ -59,7 +59,7 @@ Prototype, and honest about it. What is actually verified on this machine
 * the protocol selftest passes against the unpacked archive (`--selftest`),
   including a numerical anchor: OLS coefficients must match a direct
   least-squares solve to 1e-8;
-* **all 33 registered models run** end to end (`tools/check_models.py`), from
+* **all 29 registered models run** end to end (`tools/check_models.py`), from
   OLS to `GM_Combo_Hom_Regimes`, `Probit`, `NSLX` and `SKATER_reg`;
 * a job written by the C++ example runs through the solver and comes back with
   a coefficient table;
@@ -88,7 +88,7 @@ mkdir -p /tmp/engine && unzip -q dist/*.zip -d /tmp/engine
 
 # a real data set, end to end
 /tmp/engine/python/bin/python3 tools/make_demo_job.py --outdir /tmp/columbus \
-    --model ML_Lag_Regimes --regime CRIME --run
+    --model GM_Lag_Regimes --regime CRIME --run
 
 # what the dialog can offer, generated from the engine itself
 /tmp/engine/python/bin/python3 solver/solve.py --list-models
@@ -98,7 +98,7 @@ The C++ writer, if you want to see the format from the other side:
 
 ```bash
 c++ -std=c++17 -o /tmp/write_job examples/write_job.cpp
-/tmp/write_job /tmp/cppjob ML_Lag
+/tmp/write_job /tmp/cppjob GM_Lag
 /tmp/engine/python/bin/python3 solver/solve.py --job /tmp/cppjob
 ```
 
@@ -138,22 +138,14 @@ shapely, pyogrio, pyproj, requests, beautifulsoup4 and jinja2, and a real run
 imports geopandas, shapely, pyproj, scikit-learn, pandas, scipy and bs4. The
 interpreter itself is only about a quarter of the payload.
 
-Runtime, from the earlier feasibility pass (KNN k=6, row-standardised), as a
-warning about what *not* to put behind the new engine:
-
-| n | OLS (+ diagnostics) | ML_Lag `LU` | ML_Lag `full` | ML_Lag `Ord` |
-|---|---|---|---|---|
-| 2,000 | 0.01 s | 0.4 s | | |
-| 5,000 | 0.01 s | 2.8 s | 5.7 s | 28 s |
-| 10,000 | 0.03 s | 12.7 s | 38.5 s | 241 s |
-| 40,000 | 0.18 s | 479 s | | |
-
-GeoDa's C++ engine answers these in well under a second because it uses the
-characteristic-polynomial log-determinant approximation rather than
-re-factorising. So keep the native path for OLS/ML lag/ML error and send only
-the models GeoDa lacks to spreg — or accept the slowdown, but always expose
-`method` and never default to `full` (at n=10,000 that is a dense 10,000²
-matrix, about 800 MB).
+The earlier feasibility pass measured the ML estimators at 0.4 s (`LU`) up to
+479 s for n=2,000-40,000 (KNN k=6, row-standardised), which is why GeoDa's own
+engine keeps the native path for OLS, ML lag and ML error; the ML models are no
+longer offered by this engine. GeoDa's C++ engine answers them in well under a
+second because it uses the characteristic-polynomial log-determinant
+approximation rather than re-factorising. Send only the models GeoDa lacks to
+spreg. If an ML model is ever added back, expose its `method` option and never
+default to `full` (at n=10,000 that is a dense 10,000² matrix, about 800 MB).
 
 ## How GeoDa drives it
 
@@ -228,7 +220,7 @@ Then:
   timeout and the process lifetime; kill it on cancel. A killed process is
   detected by `result.json` being absent.
 * The solver prints progress lines to stdout prefixed `[geoda-spreg]`, so a
-  gauge can show "building weights", "estimating ML_Lag", "done in 0.3 s". It
+  gauge can show "building weights", "estimating GM_Lag", "done in 0.3 s". It
   keeps everything spreg itself prints in `solver.log`, next to the job, so
   stdout stays parseable.
 * On any failure `result.json` still exists with `status: "error"`, an
@@ -304,27 +296,24 @@ coefficient by coefficient:
 |---|---|---|
 | OLS R² | 0.349514 | ? |
 | OLS log-likelihood | −201.3677 | ? |
-| ML lag ρ | 0.174847 | ? |
-| ML error λ | 0.357823 | ? |
 
-`tools/make_demo_job.py` writes exactly that job. Two conventions must be
-matched deliberately, because they are places where the two engines can differ
-without either being wrong: GeoDa's current ML path converts the weights to a
-binary row-standardised W and ignores GWT values (the job's
-`weights.transform` selects this), and the lag operator convention (W as stored
-versus its transpose) has to be the same on both sides. Everything else follows
-from spreg's `OLS` being ordinary least squares.
+`tools/make_demo_job.py --model OLS` writes exactly that job. OLS is the only
+estimator the two engines still share - the native lag and error models are ML
+and the solver no longer offers spreg's ML ids (see "Which tests a model has") -
+so the harness compares OLS and nothing else. OLS does not depend on W, which
+means this check guards the two least-squares paths and the job/result format,
+not the weights: the job is still written with them because a real job carries
+them and both sides have to parse them. If a weight-sensitive gate is ever
+needed, compare the LM and Moran diagnostics both engines compute for OLS.
 
 ### Which tests a model has
 
 The tests come from the estimators, and spreg does not give every model the same
-set - its notebooks (5, 9, 13, 15) are the reference for this, and the registry
-follows them:
+set - its notebooks are the reference for this, and the registry follows them:
 
 | model | tests |
 |-------|-------|
 | `OLS`, `OLS_Regimes` | Jarque-Bera, Breusch-Pagan, Koenker-Bassett and the F statistic (`nonspat_diag`); LM tests for lag, error and their robust forms, SARMA, spatial Durbin and WX (`spat_diag`); Moran's I (`moran`); the White test (`white_test`, which spreg computes only when asked) |
-| `ML_Lag`, `ML_Error` | the likelihood ratio test of rho or lambda = 0 - spreg's ML classes carry no test of their own, so the solver forms it with `spreg.diagnostics.likratiotest` against an OLS on the same data, as notebooks 13 and 15 do |
 | `GM_Lag`, `GM_Lag_Regimes`, `TSLS`, `TSLS_Regimes` | the Anselin-Kelejian test on the residual of the IV/GMM fit (`spat_diag`) |
 | the GMM error and SARAR families, `Probit`, `NSLX`, `SKATER_reg` | none: spreg offers no post-estimation tests for them, so their options do not claim any |
 
@@ -443,13 +432,13 @@ tools/syntax_check.py <sources>        # type-check against the flags CMake used
 
 `run_parity_test.sh` answers the question the whole exercise rests on: do the two
 engines agree?  It builds only the two engines - the C++ one from
-`Regression/`, the other through the solver - and runs OLS, ML lag and ML error
-over the same grid with the same weights.  They agree to 1e-8 or better on every
-coefficient and on the log-likelihood; `.github/workflows/spreg_engine.yml` runs the same
+`Regression/`, the other through the solver - and runs OLS over the same grid
+with the same weights.  They agree to 1e-8 or better on every coefficient and on
+the log-likelihood; `.github/workflows/spreg_engine.yml` runs the same
 comparison on every engine it builds.  One trap is written into the test: the
 C++ engine *absorbs* the arrays it is handed, so each model gets its own copy -
-sharing one set of arrays made the second and third models disagree wildly, which
-is how a first version of it failed.
+sharing one set of arrays made the second and third models disagree wildly when
+the harness still ran several.
 
 `run_engine_manager_test.sh` is the other one that matters: it links only
 `SpregEngine.cpp` and a small harness, and runs the real installer against a

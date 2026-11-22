@@ -183,8 +183,9 @@ int main(int argc, char** argv)
 		wxString job_err;
 		bool ok = writer.AddY(y, job_err) && writer.AddX(x, job_err)
 			&& writer.AddWeights(indptr, indices, weights, n, job_err);
+		// no options: every registered model runs with its defaults; `method`
+		// was an ML-only option and no model in the registry takes it now
 		std::map<wxString, wxString> options;
-		if (wxString(argc > 4 ? argv[4] : "OLS") == "ML_Lag") options["method"] = "LU";
 		ok = ok && writer.Write(wxString(argc > 4 ? argv[4] : "OLS"), options,
 								"y", x_names, "grid-rook", "",
 								std::vector<wxString>(), std::vector<wxString>(),

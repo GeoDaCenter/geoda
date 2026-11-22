@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 #
 # Build and run the parity test: GeoDa's own engine against spreg, on the same
-# grid, the same weights and the same three models they have in common.
+# grid, for the one estimator they still have in common (OLS).  OLS does not
+# depend on W, so this checks the least-squares paths, not the weights.
 #
 #     spreg_engine/tools/run_parity_test.sh [engine-dir]
 #
