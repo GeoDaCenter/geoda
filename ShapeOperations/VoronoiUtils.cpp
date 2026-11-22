@@ -27,7 +27,7 @@
 #include <boost/geometry.hpp>
 #include <boost/geometry/geometries/point_xy.hpp>
 #include <boost/geometry/geometries/polygon.hpp>
-#include <boost/geometry/multi/geometries/multi_point.hpp>
+#include <boost/geometry/geometries/multi_point.hpp>
 #include <boost/polygon/voronoi.hpp>
 #include <boost/polygon/voronoi_builder.hpp>
 #include <boost/polygon/voronoi_diagram.hpp>

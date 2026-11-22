@@ -3611,7 +3611,7 @@
     <ClInclude Include="SRC\f2c.h" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\F2CLIBS\libf2c.vcxproj">
+    <ProjectReference Include="..\F2CLIBS\libf2c.vs2019.vcxproj">
       <Project>{2a338f34-fa2f-4d65-8037-e92e25a4c222}</Project>
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
     </ProjectReference>

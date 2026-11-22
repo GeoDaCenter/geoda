@@ -12,10 +12,11 @@
 #ifndef _OGL_MISC_H_
 #define _OGL_MISC_H_
 
+#include <map>
 
 // List to use when copying objects; may need to associate elements of new objects
 // with elements of old objects, e.g. when copying constraint.s
-extern wxList oglObjectCopyMapping;
+extern std::map<long, wxObject*> oglObjectCopyMapping;
 
 /*
  * TEXT FORMATTING FUNCTIONS

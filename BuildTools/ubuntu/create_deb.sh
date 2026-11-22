@@ -30,7 +30,16 @@ mkdir product/usr/local
 mkdir product/usr/bin
 mkdir product/usr/local/geoda
 cp -rf build/* product/usr/local/geoda/
-cp run_geoda.sh product/usr/bin/
+# Launcher (the legacy run_geoda.sh was removed with the GNUmake toolchain).
+cat > product/usr/bin/geoda << 'EOF'
+#!/bin/sh
+GEODA_HOME=/usr/local/geoda
+export LD_LIBRARY_PATH=$GEODA_HOME/plugins:$ORACLE_HOME:$LD_LIBRARY_PATH
+export GDAL_DATA=$GEODA_HOME/gdaldata
+export OGR_DRIVER_PATH=$GEODA_HOME/plugins
+exec "$GEODA_HOME/GeoDa"
+EOF
+chmod 755 product/usr/bin/geoda
 
 cd product 
 find . -name .svn |xargs rm -rf

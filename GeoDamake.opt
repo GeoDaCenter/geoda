@@ -4,7 +4,7 @@ TARGET      = GeoDa
 
 CC	=	gcc
 CXX =	g++
-LD	=	g++ 
+LD	=	g++
 RM	=	/bin/rm -f
 
 WXLIBS  = $(shell $(GEODA_HOME)/libraries/bin/wx-config --libs xrc,stc,richtext,ribbon,propgrid,aui,gl,html,qa,adv,core,webview,xml,net,base)
@@ -20,7 +20,7 @@ LIBS	=	$(WXLIBS) \
             $(GEODA_HOME)/libraries/lib/libboost_date_time.a \
             $(GEODA_HOME)/libraries/lib/libboost_thread.a \
             $(GEODA_HOME)/libraries/lib/libboost_system.a \
-	    	$(GEODA_HOME)/libraries/lib/libjson_spirit.a
+		$(GEODA_HOME)/libraries/lib/libjson_spirit.a
 
 USER_DEFS = -I$(GEODA_HOME)/libraries/include
 BOOST_HEADER = -I$(GEODA_HOME)/libraries/include
@@ -62,7 +62,7 @@ o/%.$(OBJ_EXT):	%.cpp
 	$(CC) $(CFLAGS) $(CPPFLAGS) -c -o $@ $<
 
 %.$(OBJ_EXT):	%.cpp
-	$(CXX) $(CXXFLAGS) $(CPPFLAGS) -c -o $@ $< 
+	$(CXX) $(CXXFLAGS) $(CPPFLAGS) -c -o $@ $<
 
 #
 # default rules for handling subdirectories

@@ -155,7 +155,7 @@ class WXDLLIMPEXP_OGL wxLineShape: public wxShape
 
   // Make a given number of control points
   virtual void MakeLineControlPoints(int n);
-  virtual wxNode *InsertLineControlPoint(wxDC* dc);
+  virtual wxList::compatibility_iterator InsertLineControlPoint(wxDC* dc);
   virtual bool DeleteLineControlPoint();
   virtual void Initialise();
   inline wxList *GetLineControlPoints() { return m_lineControlPoints; }

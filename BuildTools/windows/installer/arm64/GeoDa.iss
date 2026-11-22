@@ -1,5 +1,5 @@
 [Setup]
-AppName=GeoDa                                                      
+AppName=GeoDa
 AppPublisher=GeoDa Center
 AppPublisherURL=https://spatial.uchicago.edu/
 AppSupportURL=https://spatial.uchicago.edu/
@@ -45,7 +45,7 @@ Name: "{app}\lang";  Permissions: everyone-full
 Name: "{app}\proj";  Permissions: everyone-full
 
 [Files]
-Source: "..\..\ARM64\Release\GeoDa.exe"; DestDir: "{app}"; DestName: "GeoDa.exe"; Check: IsArm64
+Source: "..\..\Release\GeoDa.exe"; DestDir: "{app}"; DestName: "GeoDa.exe"; Check: IsArm64
 Source: "..\..\..\CommonDistFiles\GeoDa.ico"; DestDir: "{app}"
 Source: "..\..\..\CommonDistFiles\copyright.txt"; DestDir: "{app}"
 Source: "..\..\..\CommonDistFiles\GPLv3.txt"; DestDir: "{app}"
@@ -53,17 +53,21 @@ Source: "..\..\..\CommonDistFiles\cache.sqlite"; DestDir: "{app}"
 Source: "..\..\..\CommonDistFiles\geoda_prefs.sqlite"; DestDir: "{app}"
 Source: "..\..\..\CommonDistFiles\geoda_prefs.json"; DestDir: "{app}"
 Source: "..\..\..\CommonDistFiles\web_plugins\*"; DestDir: "{app}\web_plugins"; Flags: recursesubdirs
-Source: "..\..\libraries\share\proj\*"; DestDir: "{app}\proj"; Flags: recursesubdirs
+Source: "..\..\..\CommonDistFiles\proj\*"; DestDir: "{app}\proj"; Flags: recursesubdirs
 
 Source: "VC_redist.arm64.exe"; DestDir: "{app}"
-Source: "..\..\libraries\bin\*.dll"; DestDir: "{app}"
-Source: "..\..\temp\wxWidgets\lib\vc_arm64_dll\wxmsw314u_vc_custom.dll"; DestDir: "{app}"
-Source: "..\..\temp\wxWidgets\lib\vc_arm64_dll\wxmsw314u_gl_vc_custom.dll"; DestDir: "{app}"
+; wxWidgets is built non-monolithic (MONOLITHIC=0) so CMake's FindwxWidgets can
+; resolve per-component libs; package every split DLL from the build dir.
+Source: "..\..\temp\wxWidgets\lib\vc_arm64_dll\*.dll"; DestDir: "{app}"
+; GDAL and its runtime dependencies (gdal.dll, proj.dll, libcurl.dll, zlib1.dll,
+; ...) come from the vcpkg-installed tree. The wildcard bundles every shared
+; library vcpkg produced for the arm64-windows triplet.
+Source: "..\..\vcpkg\installed\arm64-windows\bin\*.dll"; DestDir: "{app}"
 Source: "..\..\..\..\Algorithms\lisa_kernel.cl"; DestDir: "{app}"
 Source: "..\..\..\..\internationalization\lang\*"; DestDir: "{app}\lang"; Flags: recursesubdirs
+Source: "..\..\..\CommonDistFiles\gdaldata\*"; DestDir: "{app}\data"; Flags: recursesubdirs
 Source: "..\..\..\..\spreg_engine\manifest\*"; DestDir: "{app}\spreg_engine\manifest"; Flags: recursesubdirs
 Source: "..\..\..\..\spreg_engine\solver\*"; DestDir: "{app}\spreg_engine\solver"; Flags: recursesubdirs
-Source: "..\..\libraries\share\gdal\*"; DestDir: "{app}\data"; Flags: recursesubdirs
 
 ;Source: "Readme.txt"; DestDir: "{app}"; Flags: isreadme
 
@@ -158,7 +162,7 @@ begin
   UninstallParams := '';
   HasSilentMode := False;
   HasSuppressMsgBox := False;
-  
+
   // Check all parameters for silent mode and suppress message box flags
   for i := 1 to ParamCount do
   begin
@@ -180,19 +184,19 @@ begin
       HasSuppressMsgBox := True;
     end;
   end;
-  
+
   // If no silent mode was found, default to /SILENT for interactive mode
   if not HasSilentMode then
   begin
     UninstallParams := '/SILENT';
   end;
-  
+
   // Add /SUPPRESSMSGBOXES if it was found
   if HasSuppressMsgBox then
   begin
     UninstallParams := UninstallParams + ' /SUPPRESSMSGBOXES';
   end;
-  
+
   Result := UninstallParams;
 end;
 
@@ -206,7 +210,7 @@ begin
   Result := True;
   UninstallSuccess := False;
   UninstallParams := GetUninstallParameters();
-  
+
   // Try first uninstall string
   sUnInstallString := GetUninstallString();
   if sUnInstallString <> '' then
@@ -217,7 +221,7 @@ begin
       UninstallSuccess := True;
     end;
   end;
-  
+
   // Try second uninstall string if first failed
   if not UninstallSuccess then
   begin
@@ -231,7 +235,7 @@ begin
       end;
     end;
   end;
-  
+
   // Wait a moment for uninstall to complete
   if UninstallSuccess then
   begin
@@ -246,7 +250,7 @@ var
 begin
   Result := True; // in case when no previous version is found
   UninstallAttempted := False;
-  
+
   if IsGeoDaInstalled then
   begin
     // Check if installer is running in silent mode
@@ -272,7 +276,7 @@ begin
     else
     begin
       // Interactive mode - show message box
-      V := MsgBox('An existing version of GeoDa was detected. Would you like to automatically uninstall it before installing the new version?' + #13#10 + #13#10 + 
+      V := MsgBox('An existing version of GeoDa was detected. Would you like to automatically uninstall it before installing the new version?' + #13#10 + #13#10 +
                   'Click Yes to automatically uninstall the existing version.' + #13#10 +
                   'Click No to cancel the installation.', mbInformation, MB_YESNO);
       if V = IDYES then
@@ -306,7 +310,7 @@ end;
 var
   Button: TNewButton;
   ComboBox: TNewComboBox;
-  CustomPage: TWizardPage;     
+  CustomPage: TWizardPage;
   langCode: string;
 
 procedure ComboBoxChange(Sender: TObject);
@@ -354,7 +358,7 @@ begin
   ComboBox := TNewComboBox.Create(WizardForm);
   ComboBox.Parent := CustomPage.Surface;
   ComboBox.Left := 0;
-  ComboBox.Top := DescLabel.Top + DescLabel.Height + 6;  
+  ComboBox.Top := DescLabel.Top + DescLabel.Height + 6;
   ComboBox.Width := 220;
   ComboBox.Style := csDropDownList;
   ComboBox.Items.Add('English');

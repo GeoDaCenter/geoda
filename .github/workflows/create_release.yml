@@ -22,6 +22,23 @@ jobs:
           echo "version=$VERSION" >> $GITHUB_OUTPUT
           echo "tag=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
 
+      - name: Verify tag matches version.h
+        run: |
+          # The build workflows name their artifacts from version.h (and the
+          # installer scripts bake the number in), while this workflow builds
+          # asset paths from the tag. If the two drift apart every upload is
+          # silently skipped (continue-on-error), so fail early instead.
+          V_MAJOR=$(sed -n 's/.*const int version_major = \([0-9]*\);.*/\1/p' version.h)
+          V_MINOR=$(sed -n 's/.*const int version_minor = \([0-9]*\);.*/\1/p' version.h)
+          V_BUILD=$(sed -n 's/.*const int version_build = \([0-9]*\);.*/\1/p' version.h)
+          VERSION_H="$V_MAJOR.$V_MINOR.$V_BUILD"
+          TAG_VERSION="${{ steps.get_version.outputs.version }}"
+          echo "version.h=$VERSION_H tag=$TAG_VERSION"
+          if [ "$VERSION_H" != "$TAG_VERSION" ]; then
+            echo "::error::Tag $TAG_VERSION does not match version.h $VERSION_H; the build artifacts would not be found."
+            exit 1
+          fi
+
       - name: Get commit history
         id: get_commits
         run: |
@@ -46,7 +63,7 @@ jobs:
 
       - name: Wait for builds to complete
         run: |
-          # Wait until every build workflow (Windows, macOS, Ubuntu, AppImage)
+          # Wait until every build workflow (Windows, macOS, AppImage)
           # started by this tag push has finished, so their artifacts exist
           # before we download them. Polls the runs API every 30s. A re-run adds
           # another run for the same workflow, so only the newest run of each is
@@ -98,8 +115,12 @@ jobs:
           fi
           for RUN_ID in $RUN_IDS; do
             echo "Downloading artifacts from run ${RUN_ID}"
+            # A build that failed before uploading has no matching artifact
+            # and gh exits non-zero; keep the release going with whatever the
+            # other platforms produced (the wait step already warned).
             gh run download "${RUN_ID}" --repo "${GITHUB_REPOSITORY}" \
-              --dir artifacts --pattern 'GeoDa-*'
+              --dir artifacts --pattern 'GeoDa-*' \
+              || echo "::warning::no GeoDa-* artifacts in run ${RUN_ID}"
           done
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -136,8 +157,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./artifacts/GeoDa-Windows-x86-installer/GeoDa_1.22_x86_Setup.exe
-          asset_name: GeoDa-Windows-x86-installer.zip
+          asset_path: ./artifacts/GeoDa-Windows-x86-installer/GeoDa_${{ steps.get_version.outputs.version }}_x86_Setup.exe
+          asset_name: GeoDa_${{ steps.get_version.outputs.version }}_x86_Setup.exe
           asset_content_type: application/octet-stream
         continue-on-error: true
 
@@ -147,8 +168,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./artifacts/GeoDa-Windows-x64-installer/GeoDa_1.22_x64_Setup.exe
-          asset_name: GeoDa-Windows-x64-installer.zip
+          asset_path: ./artifacts/GeoDa-Windows-x64-installer/GeoDa_${{ steps.get_version.outputs.version }}_x64_Setup.exe
+          asset_name: GeoDa_${{ steps.get_version.outputs.version }}_x64_Setup.exe
           asset_content_type: application/octet-stream
         continue-on-error: true
 
@@ -158,19 +179,19 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./artifacts/GeoDa-Windows7+-x86-installer/GeoDa_1.22_win7+x86_Setup.exe
-          asset_name: GeoDa-Windows7+-x86-installer.zip
+          asset_path: ./artifacts/GeoDa-Windows7+-x86-installer/GeoDa_${{ steps.get_version.outputs.version }}_win7+x86_Setup.exe
+          asset_name: GeoDa_${{ steps.get_version.outputs.version }}_win7+x86_Setup.exe
           asset_content_type: application/octet-stream
         continue-on-error: true
 
-      - name: Upload Windows 7+ 64-bit Installer
+      - name: Upload Windows 7+ 64-bit installer
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./artifacts/GeoDa-Windows7+-x64-installer/GeoDa_1.22_win7+x64_Setup.exe
-          asset_name: GeoDa-Windows7+-x64-installer.zip
+          asset_path: ./artifacts/GeoDa-Windows7+-x64-installer/GeoDa_${{ steps.get_version.outputs.version }}_win7+x64_Setup.exe
+          asset_name: GeoDa_${{ steps.get_version.outputs.version }}_win7+x64_Setup.exe
           asset_content_type: application/octet-stream
         continue-on-error: true
 
@@ -192,7 +213,7 @@ jobs:
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: ./artifacts/GeoDa-${{ steps.get_version.outputs.version }}-x86_64-MacOS/GeoDa${{ steps.get_version.outputs.version }}-x86_64-Installer.dmg
-          asset_name: GeoDa1.22.0-x86_64-Installer.dmg
+          asset_name: GeoDa${{ steps.get_version.outputs.version }}-x86_64-Installer.dmg
           asset_content_type: application/octet-stream
         continue-on-error: true
 
@@ -203,33 +224,11 @@ jobs:
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: ./artifacts/GeoDa-${{ steps.get_version.outputs.version }}-arm64-MacOS/GeoDa${{ steps.get_version.outputs.version }}-arm64-Installer.dmg
-          asset_name: GeoDa1.22.0-arm64-Installer
+          asset_name: GeoDa${{ steps.get_version.outputs.version }}-arm64-Installer.dmg
           asset_content_type: application/octet-stream
         continue-on-error: true
 
-      - name: Upload Ubuntu 22.04 Package
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./artifacts/GeoDa-${{ steps.get_version.outputs.version }}-jammy/geoda_${{ steps.get_version.outputs.version }}-1jammy1_amd64.deb
-          asset_name: GeoDa-1.22.0-jammy.zip
-          asset_content_type: application/vnd.debian.binary-package
-        continue-on-error: true
-
-      - name: Upload Ubuntu 24.04 Package
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./artifacts/GeoDa-${{ steps.get_version.outputs.version }}-noble/geoda_${{ steps.get_version.outputs.version }}-1noble1_amd64.deb
-          asset_name: GeoDa-1.22.0-noble.zip
-          asset_content_type: application/vnd.debian.binary-package
-        continue-on-error: true
-
-      - name: Upload AppImage
+      - name: Upload Linux AppImage
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -130,13 +130,13 @@ void RecentDatasource::Init(wxString json_str_) {
         if (i->name_ == L"ds_name") {
           val = i->value_;
           ds_name = val.get_str();
-        } else if (i->name_ == "layer_name") {
+        } else if (i->name_ == L"layer_name") {
           val = i->value_;
           layer_name = val.get_str();
-        } else if (i->name_ == "ds_config") {
+        } else if (i->name_ == L"ds_config") {
           val = i->value_;
           ds_conf = val.get_str();
-        } else if (i->name_ == "ds_thumb") {
+        } else if (i->name_ == L"ds_thumb") {
           val = i->value_;
           ds_thumb = val.get_str();
         }

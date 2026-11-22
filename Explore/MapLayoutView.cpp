@@ -270,7 +270,7 @@ void CanvasLayoutEvtHandler::OnLeftClick(double WXUNUSED(x), double WXUNUSED(y),
     wxShape* shape = this->GetShape();
     wxShapeCanvas* canvas = shape->GetCanvas();
     
-    wxNode* node = canvas->GetDiagram()->GetShapeList()->GetFirst();
+    wxList::compatibility_iterator node = canvas->GetDiagram()->GetShapeList()->GetFirst();
     while (node)
     {
         wxShape* shape = (wxShape*) node->GetData();
